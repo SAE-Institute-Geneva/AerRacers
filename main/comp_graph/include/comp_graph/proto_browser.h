@@ -22,25 +22,40 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+#include <vector>
+#include <memory>
+#include <SDL_events.h>
+#include "comp_graph/sample_program.h"
 #include "sdl_engine/sdl_engine.h"
-#include "comp_graph/sample_browser.h"
-//Proto
-#include "comp_graph/proto_browser.h"
-#include "comp_graph/logger_browser.h"
-
 
 namespace neko
 {
-class CompGraphEngine : public sdl::SdlEngine
+class ProtoBrowser : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface
 {
 public:
-	explicit CompGraphEngine(Configuration* config = nullptr);
-
+	/**
+	 * \brief Executed on the render thread
+	 */
+    void Init() override;
+    /**
+     * \brief Executed on the main thread
+     */
+    void Update(seconds dt) override;
+    /**
+     * \brief Executed on the render thread
+     */
+    void DrawImGui() override;
+    /**
+     * \brief Executed on the render thread
+     */
     void Destroy() override;
-
-private:
-	SampleBrowser sampleBrowser_;
-	ProtoBrowser protoBrowser_;
-	LoggerBrowser loggerBrowser_;
+    /**
+     * \brief Executed on the main thread
+     */
+    void OnEvent(const SDL_Event& event) override;
+protected:
+    //Todo 
+    bool v;
+    std::vector<bool> tools_active;
 };
 }

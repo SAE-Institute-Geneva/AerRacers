@@ -1,4 +1,3 @@
-#pragma once
 /*
  MIT License
 
@@ -22,25 +21,56 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include "sdl_engine/sdl_engine.h"
-#include "comp_graph/sample_browser.h"
-//Proto
+#include <imgui.h>
 #include "comp_graph/proto_browser.h"
-#include "comp_graph/logger_browser.h"
-
 
 namespace neko
 {
-class CompGraphEngine : public sdl::SdlEngine
+
+void ProtoBrowser::Init()
 {
-public:
-	explicit CompGraphEngine(Configuration* config = nullptr);
+}
 
-    void Destroy() override;
+void ProtoBrowser::Update(seconds dt)
+{
+}
 
-private:
-	SampleBrowser sampleBrowser_;
-	ProtoBrowser protoBrowser_;
-	LoggerBrowser loggerBrowser_;
-};
+void ProtoBrowser::Destroy()
+{
+}
+
+
+void ProtoBrowser::OnEvent(const SDL_Event& event)
+{
+}
+
+
+void ProtoBrowser::DrawImGui()
+{
+    //Tools Menu
+    bool my_tool_active;
+    ImGui::SetNextWindowPos(ImVec2(0, 200), ImGuiCond_FirstUseEver);
+    ImGui::Begin("Proto Browser", &my_tool_active, ImGuiWindowFlags_MenuBar);
+    if (ImGui::BeginMenuBar())
+    {
+
+        if (ImGui::BeginMenu("Scenes"))
+        {
+            if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
+            if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
+            if (ImGui::MenuItem("Close", "Ctrl+W")) { my_tool_active = false; }
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("Tools"))
+        {
+            if (ImGui::MenuItem("Logger", "Ctrl+L")) { /* Do stuff */ }
+            if (ImGui::MenuItem("Profiler", "Ctrl+P")) { /* Do stuff */ }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
+    ImGui::End();
+}
+
 }
