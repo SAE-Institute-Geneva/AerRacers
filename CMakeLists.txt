@@ -19,7 +19,9 @@ set(Neko_Assert ON CACHE BOOL "Activate Neko Assertion")
 set(Neko_Benchmark ON CACHE BOOL "Activate Benchmark")
 set(Neko_Assimp ON CACHE BOOL "Activate Assimp Wrapper")
 set(Neko_SFML_NET ON CACHE BOOL "Activate SFML Net Wrapper")
+set(AerLib ON CACHE BOOL "Activate AerLib")
 set(Neko_SameThread OFF CACHE BOOL "Activate Same Thread Rendering and Resource Loading")
+
 
 MESSAGE("CMAKE SYSTEM NAME: ${CMAKE_SYSTEM_NAME}")
 
@@ -171,6 +173,10 @@ if(Neko_Benchmark)
     add_subdirectory("benchmark/")
     set_target_properties (benchmark PROPERTIES FOLDER Externals/GTest)
     set_target_properties(benchmark_main PROPERTIES FOLDER Externals/GTest)
+endif()
+
+if(AerLib)
+    add_subdirectory("common/aerlib")
 endif()
 
 set(main_project_dir "main/")
