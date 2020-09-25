@@ -15,7 +15,7 @@ if(NOT Emscripten)
 endif()
 
 if(Neko_GLES3)
-    LIST(APPEND sdl_engine_libs gles3_wrapper)
+    LIST(APPEND sdl_engine_libs gles3_wrapper vulkan_wrapper)
 endif()
 
 #imgui sdl

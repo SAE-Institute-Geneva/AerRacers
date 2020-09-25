@@ -1,0 +1,182 @@
+/*
+ MIT License
+
+ Copyright (c) 2020 SAE Institute Switzerland AG
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+ */
+#ifdef NEKO_VULKAN
+
+#include "vk/vulkan_window.h"
+
+#include <sstream>
+#include <engine/engine.h>
+#include "engine/log.h"
+
+#include "imgui.h"
+#include "imgui_impl_sdl.h"
+#include "imgui_impl_vulkan.h"
+
+#ifdef EASY_PROFILE_USE
+#include <easy/profiler.h>
+#endif
+
+namespace neko::sdl
+{
+void VkOnResizeRenderCommand::Render()
+{
+	std::ostringstream oss;
+	oss << "Resize window with new size: " << newWindowSize_;
+	logDebug(oss.str());
+	glViewport(0, 0, newWindowSize_.x, newWindowSize_.y);
+}
+
+void VulkanWindow::Init()
+{
+#ifdef EASY_PROFILE_USE
+	EASY_BLOCK("VulkanWindowInit");
+#endif
+	const auto& config = BasicEngine::GetInstance()->config;
+
+	//TODO Vulkan settings
+
+	SdlWindow::Init();
+	SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
+	
+#ifndef __EMSCRIPTEN__
+	const std::string videoDriver = SDL_GetCurrentVideoDriver();
+	logDebug(videoDriver);
+#endif
+
+	//TODO create the Vulkan surface
+	//vkSurface_ = SDL_GL_CreateContext(window_);
+	//MakeCurrentContext();
+	
+	//TODO VSync
+#ifndef __EMSCRIPTEN__
+	/*SDL_GL_SetSwapInterval(config.vSync);
+
+	if (!gladLoadGLES2Loader(static_cast<GLADloadproc>(SDL_GL_GetProcAddress)))
+	{
+		logDebug("Failed to initialize OpenGL context\n");
+		assert(false);
+	}*/
+#else
+	//SDL_GL_SetSwapInterval(false);
+#endif
+	
+    vkCheckError();
+
+	//TODO ImGui implementation
+	//InitImGui();
+    //vkCheckError();
+}
+
+void VulkanWindow::InitImGui()
+{
+#ifdef EASY_PROFILE_USE
+	EASY_BLOCK("ImGuiInit");
+#endif
+	SdlWindow::InitImGui();
+	ImGui_ImplSDL2_InitForVulkan(window_);
+	//ImGui_ImplVulkan_Init();
+}
+
+
+void VulkanWindow::GenerateUiFrame()
+{
+#ifdef EASY_PROFILE_USE
+	EASY_BLOCK("ImGuiGenerate");
+#endif
+	ImGui_ImplVulkan_NewFrame();
+	ImGui_ImplSDL2_NewFrame(window_);
+	ImGui::NewFrame();
+}
+
+
+void VulkanWindow::SwapBuffer()
+{
+#ifdef EASY_PROFILE_USE
+	EASY_BLOCK("SwapBuffer");
+#endif
+	SDL_GL_SwapWindow(window_);
+}
+
+void VulkanWindow::Destroy()
+{
+#ifdef EASY_PROFILE_USE
+	EASY_BLOCK("DestroyWindow");
+#endif
+	MakeCurrentContext();
+	ImGui_ImplVulkan_Shutdown();
+	
+	//Delete our OpenGL context
+	SDL_GL_DeleteContext(vkSurface_);
+
+	SdlWindow::Destroy();
+}
+
+void VulkanWindow::RenderUi()
+{
+#ifdef EASY_PROFILE_USE
+	EASY_BLOCK("ImGuiRender");
+#endif
+	ImGui::Render();
+	//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData());
+}
+
+void VulkanWindow::OnResize(const Vec2u newWindowSize)
+{
+	onResizeCommand_.SetWindowSize(newWindowSize);
+	RendererLocator::get().Render(&onResizeCommand_);
+}
+
+void VulkanWindow::MakeCurrentContext()
+{
+	SDL_GL_MakeCurrent(window_, vkSurface_);
+#ifndef EMSCRIPTEN
+	auto* const currentContext = SDL_GL_GetCurrentContext();
+	std::ostringstream oss;
+	oss << "Current Context: " << currentContext << " Render Context: " << vkSurface_ << " from Thread: " << std::this_thread::get_id();
+	if(currentContext == nullptr)
+	{
+		oss << "\nSDL Error: " << SDL_GetError();
+	}
+	//logDebug(oss.str());
+#endif
+}
+
+void VulkanWindow::LeaveCurrentContext()
+{
+	SDL_GL_MakeCurrent(window_, nullptr);
+#ifndef EMSCRIPTEN
+	auto* const currentContext = SDL_GL_GetCurrentContext();
+
+	std::ostringstream oss;
+	oss << "Leave current context from thread: " << std::this_thread::get_id();
+	if(currentContext != nullptr)
+	{
+		oss << "[Error] After Leave Current Context, context: " << currentContext;
+	}
+	//logDebug(oss.str());
+#endif
+}
+}
+
+#endif
