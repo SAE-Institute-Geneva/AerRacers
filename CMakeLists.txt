@@ -19,7 +19,7 @@ set(Neko_Assert ON CACHE BOOL "Activate Neko Assertion")
 set(Neko_Benchmark ON CACHE BOOL "Activate Benchmark")
 set(Neko_Assimp ON CACHE BOOL "Activate Assimp Wrapper")
 set(Neko_SFML_NET ON CACHE BOOL "Activate SFML Net Wrapper")
-set(AerLib ON CACHE BOOL "Activate AerLib")
+set(Aer_Lib ON CACHE BOOL "Activate Aer_Lib")
 set(Neko_SameThread OFF CACHE BOOL "Activate Same Thread Rendering and Resource Loading")
 
 
@@ -175,8 +175,8 @@ if(Neko_Benchmark)
     set_target_properties(benchmark_main PROPERTIES FOLDER Externals/GTest)
 endif()
 
-if(AerLib)
-    add_subdirectory("common/aerlib")
+if(Aer_Lib)
+    add_subdirectory("common/aer_lib")
 endif()
 
 set(main_project_dir "main/")
