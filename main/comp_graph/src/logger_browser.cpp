@@ -26,6 +26,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <imgui_impl_sdl.h>
+
+#include "imgui_impl_opengl3.h"
 
 namespace neko
 {
@@ -42,6 +45,7 @@ void LoggerBrowser::Update(seconds dt)
 
 void LoggerBrowser::Destroy()
 {
+	//ImGui::
     logs_.clear();
 }
 
@@ -57,6 +61,7 @@ void LoggerBrowser::DrawImGui()
     ImGui::SetNextWindowPos(ImVec2(0, 400), ImGuiCond_FirstUseEver);
     ImGui::Begin("Logger Tool");
     {
+        ImGui::IsWindowDocked();
         #pragma region Header
         if (ImGui::Button("Clear")) {
             logs_.clear();

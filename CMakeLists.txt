@@ -79,7 +79,7 @@ if(NOT Emscripten)
 target_precompile_headers(Neko_Core PRIVATE "${NEKO_CORE_DIR}/include/core_pch.h")
 endif()
 #imgui
-set(IMGUI_VERSION "1.74" CACHE INTERNAL "")
+set(IMGUI_VERSION "1.79WIP" CACHE INTERNAL "")
 set(IMGUI_ROOT "${EXTERNAL_DIR}/imgui-${IMGUI_VERSION}" CACHE STRING "")
 include_directories("${IMGUI_ROOT}")
 add_subdirectory("${IMGUI_ROOT}")
