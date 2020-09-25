@@ -31,21 +31,11 @@ CompGraphEngine::CompGraphEngine(Configuration* config) : SdlEngine(config)
     RegisterSystem(sampleBrowser_);
     RegisterOnDrawUi(sampleBrowser_);
     RegisterOnEvent(sampleBrowser_);
-
-    RegisterSystem(protoBrowser_);
-    RegisterOnDrawUi(protoBrowser_);
-    RegisterOnEvent(protoBrowser_);
-
-    RegisterSystem(loggerBrowser_);
-    RegisterOnDrawUi(loggerBrowser_);
-    RegisterOnEvent(loggerBrowser_);
 }
 
 void CompGraphEngine::Destroy()
 {
     sampleBrowser_.Destroy();
-    protoBrowser_.Destroy();
-    loggerBrowser_.Destroy();
     SdlEngine::Destroy();
 }
 }

@@ -22,7 +22,8 @@
  SOFTWARE.
  */
 #include <imgui.h>
-#include "comp_graph/logger_browser.h"
+#include "Editor/Tool/logger_browser.h"
+
 
 #include <iostream>
 #include <fstream>

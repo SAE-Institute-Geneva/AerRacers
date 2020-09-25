@@ -22,7 +22,7 @@
  SOFTWARE.
  */
 #include <imgui.h>
-#include "comp_graph/proto_browser.h"
+#include "Editor/Tool/proto_browser.h"
 
 namespace neko
 {

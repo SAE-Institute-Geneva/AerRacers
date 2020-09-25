@@ -9,6 +9,12 @@ namespace neko::aer
 		RegisterSystem(drawSystem_);
 		RegisterOnEvent(drawSystem_);
 		RegisterOnDrawUi(drawSystem_);
+		RegisterSystem(protoBrowser_);
+		RegisterOnEvent(protoBrowser_);
+		RegisterOnDrawUi(protoBrowser_);
+		RegisterSystem(loggerBrowser_);
+		RegisterOnEvent(loggerBrowser_);
+		RegisterOnDrawUi(loggerBrowser_);
 #ifdef EASY_PROFILE_USE
 		EASY_PROFILER_ENABLE;
 #endif

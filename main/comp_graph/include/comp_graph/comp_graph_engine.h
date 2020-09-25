@@ -24,10 +24,6 @@
  */
 #include "sdl_engine/sdl_engine.h"
 #include "comp_graph/sample_browser.h"
-//Proto
-#include "comp_graph/proto_browser.h"
-#include "comp_graph/logger_browser.h"
-
 
 namespace neko
 {
@@ -40,7 +36,5 @@ public:
 
 private:
 	SampleBrowser sampleBrowser_;
-	ProtoBrowser protoBrowser_;
-	LoggerBrowser loggerBrowser_;
 };
 }
