@@ -1,18 +1,21 @@
-#include <aer_engine.h>
+#include "aer_engine.h"
 
 namespace neko::aer
 {
-	AerEngine::AerEngine(Configuration* config)
+	AerEngine::AerEngine(Configuration* config, ToolsMask toolsMask)
 		: SdlEngine(config),
-		drawSystem_(*this)
-	{
-		RegisterSystem(drawSystem_);
-		RegisterOnEvent(drawSystem_);
-		RegisterOnDrawUi(drawSystem_);
-#ifdef EASY_PROFILE_USE
-		EASY_PROFILER_ENABLE;
-#endif
-	}
+		drawSystem_(*this),
+		toolsSystem_(*this)
+    {
+        RegisterSystem(drawSystem_);
+        RegisterOnEvent(drawSystem_);
+        RegisterOnDrawUi(drawSystem_);
+        if (toolsMask) {
+            RegisterSystem(toolsSystem_);
+            RegisterOnEvent(toolsSystem_);
+            RegisterOnDrawUi(toolsSystem_);
+        }
+    }
 
 	void AerEngine::Init()
 	{
@@ -22,6 +25,7 @@ namespace neko::aer
 	void AerEngine::Destroy()
 	{
 		drawSystem_.Destroy();
+		toolsSystem_.Destroy();
 		SdlEngine::Destroy();
 	}
 

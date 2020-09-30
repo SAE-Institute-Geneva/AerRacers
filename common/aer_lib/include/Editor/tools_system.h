@@ -27,40 +27,27 @@
  Date : 29.09.2020
 ---------------------------------------------------------- */
 
-#include "sdl_engine/sdl_engine.h"
-
-#include "draw_system.h"
-#include "Editor/tools_system.h"
+#include "sdl_engine/sdl_camera.h"
 
 namespace neko::aer
 {
+class AerEngine;
+class ToolsSystem final : public SystemInterface,
+	                         public sdl::SdlEventSystemInterface,
+	                         public DrawImGuiInterface
+{
+public:
+	explicit ToolsSystem(AerEngine& engine);
+	void Init() override;
+	void DrawImGui() override;
 
-	using ToolsMask = std::uint8_t;
+	void Update(seconds dt) override;
+	void Destroy() override;
+	void OnEvent(const SDL_Event& event) override;
 
-	enum ToolsFlags : std::uint8_t
-	{
-		EMPTY = 1u << 0u,
-		LOGGER = 1u << 1u,
-		INSPECTOR = 1u << 2u,
-		ENTITYVIEWER = 1u << 3u,
-		PROFILER = 1u << 4u
-	};
-	
-	class AerEngine final : public sdl::SdlEngine
-	{
-	public:
-		explicit AerEngine(Configuration* config = nullptr, ToolsMask toolsMask = 0);
+protected:
+	AerEngine& engine_;
 
-		void Init() override;
-
-		void Destroy() override;
-
-		void ManageEvent() override;
-
-		void GenerateUiFrame() override;
-
-	private:
-		DrawSystem drawSystem_;
-		ToolsSystem toolsSystem_;
-	};
+	std::vector<std::string> toolList_ = {"Inspector", "EntityViewer", "Logger"};
+};
 }
