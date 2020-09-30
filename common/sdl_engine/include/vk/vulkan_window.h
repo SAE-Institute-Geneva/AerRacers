@@ -41,14 +41,17 @@ public:
 protected:
     Vec2u newWindowSize_;
 };
-	
+
 class VulkanWindow final : public SdlWindow
 {
 public:
-    enum WindowFlag
+    enum WindowFlag : uint8_t
     {
-        ImGuiFirstFrame = 1u << 0u
+        ImGuiFirstFrame = 1u << 0u,
+        NEED_RESIZE = 1u << 1u,
+        IS_MINIMIZED = 1u << 2u
     };
+
     void Init() override;
 
     void InitImGui() override;
@@ -63,7 +66,10 @@ public:
     void LeaveCurrentContext() override;
 protected:
     void RenderUi() override;
-    VkSurfaceKHR vkSurface_{};
+
+    SDL_Event event_{};
+
+    WindowFlag state_{};
     VkOnResizeRenderCommand onResizeCommand_;
 };
 }

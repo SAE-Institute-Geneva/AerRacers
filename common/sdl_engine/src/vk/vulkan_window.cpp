@@ -27,6 +27,7 @@
 
 #include <sstream>
 #include <engine/engine.h>
+#include <SDL_vulkan.h>
 #include "engine/log.h"
 
 #include "imgui.h"
@@ -54,8 +55,6 @@ void VulkanWindow::Init()
 #endif
 	const auto& config = BasicEngine::GetInstance()->config;
 
-	//TODO Vulkan settings
-
 	SdlWindow::Init();
 	SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
 	
@@ -65,8 +64,7 @@ void VulkanWindow::Init()
 #endif
 
 	//TODO create the Vulkan surface
-	//vkSurface_ = SDL_GL_CreateContext(window_);
-	//MakeCurrentContext();
+	//CreateSurface();
 	
 	//TODO VSync
 #ifndef __EMSCRIPTEN__
@@ -81,7 +79,7 @@ void VulkanWindow::Init()
 	//SDL_GL_SetSwapInterval(false);
 #endif
 	
-    vkCheckError();
+    //vkCheckError();
 
 	//TODO ImGui implementation
 	//InitImGui();
@@ -97,7 +95,6 @@ void VulkanWindow::InitImGui()
 	ImGui_ImplSDL2_InitForVulkan(window_);
 	//ImGui_ImplVulkan_Init();
 }
-
 
 void VulkanWindow::GenerateUiFrame()
 {
@@ -127,7 +124,7 @@ void VulkanWindow::Destroy()
 	ImGui_ImplVulkan_Shutdown();
 	
 	//Delete our OpenGL context
-	SDL_GL_DeleteContext(vkSurface_);
+	//SDL_GL_DeleteContext(vkSurface_);
 
 	SdlWindow::Destroy();
 }
@@ -149,11 +146,11 @@ void VulkanWindow::OnResize(const Vec2u newWindowSize)
 
 void VulkanWindow::MakeCurrentContext()
 {
-	SDL_GL_MakeCurrent(window_, vkSurface_);
+	//SDL_GL_MakeCurrent(window_, vkSurface_);
 #ifndef EMSCRIPTEN
 	auto* const currentContext = SDL_GL_GetCurrentContext();
 	std::ostringstream oss;
-	oss << "Current Context: " << currentContext << " Render Context: " << vkSurface_ << " from Thread: " << std::this_thread::get_id();
+	//oss << "Current Context: " << currentContext << " Render Context: " << vkSurface_ << " from Thread: " << std::this_thread::get_id();
 	if(currentContext == nullptr)
 	{
 		oss << "\nSDL Error: " << SDL_GetError();

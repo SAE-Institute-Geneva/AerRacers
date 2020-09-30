@@ -23,12 +23,17 @@
  SOFTWARE.
  */
 #include "engine/log.h"
+#include "engine/assert.h"
 
 #ifdef NEKO_VULKAN
 #include "vulkan/vulkan.h"
 
-void CheckFramebuffer(const char* file, int line);
-void CheckVkError(const char* file, int line);
-#define vkCheckError() CheckVkError(__FILE__, __LINE__) 
-#define vkCheckFramebuffer() CheckFramebuffer(__FILE__, __LINE__)
+#ifndef NDEBUG
+#define VALIDATION_LAYERS
+#endif
+
+void CheckFramebuffer(VkResult result, const char* file, int line);
+void CheckVkError(VkResult result, const char* file, int line);
+#define vkCheckError(result) CheckVkError(result, __FILE__, __LINE__)
+#define vkCheckFramebuffer(result) CheckFramebuffer(result, __FILE__, __LINE__)
 #endif
