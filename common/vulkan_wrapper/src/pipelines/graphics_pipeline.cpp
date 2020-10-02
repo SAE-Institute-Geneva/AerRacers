@@ -12,8 +12,8 @@ GraphicsPipeline::GraphicsPipeline(
 {
     CreateDescriptorSetLayout();
 
-    const auto vertShader = LoadFile("../data/shaders/aer_racer/01_triangle/triangle.vert.spv");
-    const auto fragShader = LoadFile("../data/shaders/aer_racer/01_triangle/triangle.frag.spv");
+    const auto vertShader = LoadBinaries("../data/shaders/aer_racer/01_triangle/triangle.vert.spv");
+    const auto fragShader = LoadBinaries("../data/shaders/aer_racer/01_triangle/triangle.frag.spv");
 
     const VkShaderModule& vertShaderModule = CreateShaderModule(VkDevice(device_), vertShader);
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};

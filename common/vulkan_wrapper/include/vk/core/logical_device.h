@@ -42,6 +42,9 @@ public:
 
     explicit operator const VkDevice &() const override { return device_; }
     [[nodiscard]] const VkDevice& GetLogicalDevice() const override { return device_; }
+    
+    [[nodiscard]] const VkQueue& GetGraphicsQueue() const { return graphicsQueue_; }
+    [[nodiscard]] const VkQueue& GetPresentQueue() const { return presentQueue_; }
 private:
     const Instance& instance_;
     const PhysicalDevice& gpu_;

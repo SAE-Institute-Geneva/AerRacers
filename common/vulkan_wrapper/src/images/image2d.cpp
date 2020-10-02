@@ -1,5 +1,8 @@
 #include "vk/images/image2d.h"
+
 #include "vk/vk_utilities.h"
+#include "vk/core/logical_device.h"
+#include "vk/core/physical_device.h"
 
 namespace neko::vk
 {

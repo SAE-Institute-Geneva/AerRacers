@@ -26,13 +26,14 @@
 #include "vk/vulkan_window.h"
 
 #include <sstream>
-#include <engine/engine.h>
 #include <SDL_vulkan.h>
-#include "engine/log.h"
 
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_vulkan.h"
+
+#include "engine/engine.h"
+#include "engine/log.h"
 
 #ifdef EASY_PROFILE_USE
 #include <easy/profiler.h>

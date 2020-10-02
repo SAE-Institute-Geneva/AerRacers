@@ -1,7 +1,7 @@
 #include <iostream>
 #include <sstream>
 
-#include <SDL2/SDL_vulkan.h>
+#include <SDL_vulkan.h>
 
 #include "vk/core/instance.h"
 

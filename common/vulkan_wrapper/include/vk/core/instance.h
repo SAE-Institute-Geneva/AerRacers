@@ -1,12 +1,12 @@
 #pragma once
-#include <SDL2/SDL_video.h>
+#include <SDL_video.h>
 
 #include "utilities/service_locator.h"
 #include "vk/vulkan_include.h"
 
 namespace neko::vk
 {
-static const std::vector<const char*> kValidationLayers = { /*"VK_LAYER_KHRONOS_validation"*/ };
+static const std::vector<const char*> kValidationLayers = { "VK_LAYER_KHRONOS_validation" };
 
 class IInstance
 {

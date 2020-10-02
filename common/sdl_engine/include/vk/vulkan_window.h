@@ -26,10 +26,11 @@
 
 #ifdef NEKO_VULKAN
 
-#include <mathematics/vector.h>
-#include "vk/vulkan_include.h"
 #include "sdl_engine/sdl_window.h"
 #include "graphics/graphics.h"
+#include "mathematics/vector.h"
+
+#include "vk/vulkan_include.h"
 
 namespace neko::sdl
 {

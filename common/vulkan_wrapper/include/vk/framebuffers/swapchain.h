@@ -15,7 +15,11 @@ public:
     [[nodiscard]] const VkSwapchainKHR& GetSwapchain() const { return swapchain_; }
 
     [[nodiscard]] VkFormat GetFormat() const { return format_; }
-    [[nodiscard]] VkExtent2D GetExtent() const { return extent_; }
+    const VkExtent2D& GetExtent() const { return extent_; }
+	
+	const std::vector<VkImageView>& GetImageViews() const { return imageViews_; }
+	
+	size_t GetImagesCount() const { return images_.size(); }
 
 private:
     void CreateImageViews();

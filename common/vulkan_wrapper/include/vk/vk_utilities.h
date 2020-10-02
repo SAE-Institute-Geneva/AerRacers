@@ -2,6 +2,7 @@
 #include <array>
 
 #include "engine/engine.h"
+#include "engine/globals.h"
 #include "vk/vulkan_include.h"
 
 namespace neko::vk
@@ -273,10 +274,8 @@ static VkShaderModule CreateShaderModule(const VkDevice& device, const std::stri
     createInfo.pCode = reinterpret_cast<const uint32_t*>(data.data());
 
     VkShaderModule shaderModule{};
-    if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to create shader module!");
-    }
+    const VkResult res = vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule);
+	neko_assert(res == VK_SUCCESS, "Failed to create shader module!")
 
     return shaderModule;
 }
