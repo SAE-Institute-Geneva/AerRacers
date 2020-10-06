@@ -34,11 +34,11 @@
 
 namespace neko
 {
-template<typename T>
+/*template<typename T>
 class Mat2
 {
-
-};
+glm::mat4
+};*/
 template<typename T>
 class Mat3
 {

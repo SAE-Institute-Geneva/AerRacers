@@ -57,7 +57,7 @@ void VulkanWindow::Init()
 	const auto& config = BasicEngine::GetInstance()->config;
 
 	SdlWindow::Init();
-	SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
+	//SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
 	
 #ifndef __EMSCRIPTEN__
 	const std::string videoDriver = SDL_GetCurrentVideoDriver();
@@ -122,7 +122,7 @@ void VulkanWindow::Destroy()
 	EASY_BLOCK("DestroyWindow");
 #endif
 	MakeCurrentContext();
-	ImGui_ImplVulkan_Shutdown();
+	//ImGui_ImplVulkan_Shutdown();
 	
 	//Delete our OpenGL context
 	//SDL_GL_DeleteContext(vkSurface_);
@@ -174,6 +174,36 @@ void VulkanWindow::LeaveCurrentContext()
 	}
 	//logDebug(oss.str());
 #endif
+}
+
+void VulkanWindow::CreateSurface(const VkInstance& instance, VkSurfaceKHR& surface) const
+{
+    neko_assert(SDL_Vulkan_CreateSurface(window_, VkInstance(instance), &surface),
+                "Unable to create Vulkan compatible surface using SDL!")
+}
+
+std::vector<const char*> VulkanWindow::GetRequiredInstanceExtensions() const
+{
+    uint32_t sdlExtCount = 0;
+    neko_assert(SDL_Vulkan_GetInstanceExtensions(window_, &sdlExtCount, nullptr),
+                "Unable to query the number of Vulkan instance extensions!")
+
+    // Use the amount of extensions queried before to retrieve the names of the extensions
+    std::vector<const char*> sdlExtensions(sdlExtCount);
+    neko_assert(SDL_Vulkan_GetInstanceExtensions(window_, &sdlExtCount, sdlExtensions.data()),
+                "Unable to query the number of Vulkan instance extension names!")
+
+#ifdef VALIDATION_LAYERS
+    sdlExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
+
+    return sdlExtensions;
+}
+
+void VulkanWindow::MinimizedLoop() const
+{
+    while (SDL_GetWindowFlags(window_) & SDL_WINDOW_MINIMIZED)
+        SDL_PumpEvents();
 }
 }
 

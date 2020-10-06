@@ -4,6 +4,9 @@ namespace neko::vk
 {
 SyncObjects::SyncObjects(const LogicalDevice& device, const Swapchain& swapchain)
 	: device_(device), swapchain_(swapchain)
+{}
+
+void SyncObjects::Init()
 {
     inFlightFences_.resize(MAX_FRAMES_IN_FLIGHT);
     imagesInFlight_.resize(swapchain_.GetImagesCount(), nullptr);
@@ -30,8 +33,13 @@ SyncObjects::SyncObjects(const LogicalDevice& device, const Swapchain& swapchain
 
 SyncObjects::~SyncObjects()
 {
-	for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-	{
+    Destroy();
+}
+
+void SyncObjects::Destroy()
+{
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+    {
         vkDestroyFence(VkDevice(device_), inFlightFences_[i], nullptr);
         vkDestroySemaphore(VkDevice(device_), renderFinishedSemaphores_[i], nullptr);
         vkDestroySemaphore(VkDevice(device_), imageAvailableSemaphores_[i], nullptr);

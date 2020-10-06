@@ -3,16 +3,15 @@
 namespace neko::vk
 {
 Swapchain::Swapchain(const LogicalDevice& device) : device_(device)
-{
-    const auto& surface = SurfaceLocator::get();
-    const auto& gpu = PhysicalDeviceLocator::get();
+{}
 
+void Swapchain::Init(const PhysicalDevice& gpu, const Surface& surface)
+{
     const auto& swapChainSupport = QuerySwapChainSupport(VkPhysicalDevice(gpu), VkSurfaceKHR(surface));
 
     const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
     const VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
     const VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities);
-    extent_ = extent;
     uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
     if (swapChainSupport.capabilities.maxImageCount > 0 &&
         imageCount > swapChainSupport.capabilities.maxImageCount)
@@ -53,12 +52,12 @@ Swapchain::Swapchain(const LogicalDevice& device) : device_(device)
     }
 
     // Create new one
-    const VkResult res = vkCreateSwapchainKHR(VkDevice(device), &createInfo, nullptr, &swapchain_);
+    const VkResult res = vkCreateSwapchainKHR(VkDevice(device_), &createInfo, nullptr, &swapchain_);
     neko_assert(res == VK_SUCCESS, "Unable to create swap chain!")
 
-    vkGetSwapchainImagesKHR(VkDevice(device), swapchain_, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(VkDevice(device_), swapchain_, &imageCount, nullptr);
     images_.resize(imageCount);
-    vkGetSwapchainImagesKHR(VkDevice(device), swapchain_, &imageCount, images_.data());
+    vkGetSwapchainImagesKHR(VkDevice(device_), swapchain_, &imageCount, images_.data());
 
     format_ = surfaceFormat.format;
     extent_ = extent;
@@ -66,11 +65,8 @@ Swapchain::Swapchain(const LogicalDevice& device) : device_(device)
     CreateImageViews();
 }
 
-Swapchain::Swapchain(const LogicalDevice& device, const Swapchain& oldSwapchain) : device_(device)
+void Swapchain::Init(const PhysicalDevice& gpu, const Surface& surface, const Swapchain& oldSwapchain)
 {
-    const auto& surface = SurfaceLocator::get();
-    const auto& gpu = PhysicalDeviceLocator::get();
-
     const auto& swapChainSupport = QuerySwapChainSupport(VkPhysicalDevice(gpu), VkSurfaceKHR(surface));
 
     const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
@@ -117,12 +113,12 @@ Swapchain::Swapchain(const LogicalDevice& device, const Swapchain& oldSwapchain)
     }
 
     // Create new one
-    const VkResult res = vkCreateSwapchainKHR(VkDevice(device), &createInfo, nullptr, &swapchain_);
+    const VkResult res = vkCreateSwapchainKHR(VkDevice(device_), &createInfo, nullptr, &swapchain_);
     neko_assert(res == VK_SUCCESS, "Unable to create swap chain!")
 
-    vkGetSwapchainImagesKHR(VkDevice(device), swapchain_, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(VkDevice(device_), swapchain_, &imageCount, nullptr);
     images_.resize(imageCount);
-    vkGetSwapchainImagesKHR(VkDevice(device), swapchain_, &imageCount, images_.data());
+    vkGetSwapchainImagesKHR(VkDevice(device_), swapchain_, &imageCount, images_.data());
 
     format_ = surfaceFormat.format;
     extent_ = extent;
@@ -130,7 +126,7 @@ Swapchain::Swapchain(const LogicalDevice& device, const Swapchain& oldSwapchain)
     CreateImageViews();
 }
 
-Swapchain::~Swapchain()
+void Swapchain::Destroy()
 {
     vkDestroySwapchainKHR(VkDevice(device_), swapchain_, nullptr);
 

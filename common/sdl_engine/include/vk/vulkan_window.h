@@ -65,6 +65,12 @@ public:
 
     void MakeCurrentContext() override;
     void LeaveCurrentContext() override;
+
+    void CreateSurface(const VkInstance& instance, VkSurfaceKHR& surface) const;
+    std::vector<const char*> GetRequiredInstanceExtensions() const;
+
+    void MinimizedLoop() const;
+
 protected:
     void RenderUi() override;
 

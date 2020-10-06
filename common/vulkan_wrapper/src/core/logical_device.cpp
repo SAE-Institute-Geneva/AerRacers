@@ -2,10 +2,9 @@
 
 namespace neko::vk
 {
-LogicalDevice::LogicalDevice(const Instance& instance, const PhysicalDevice& physicalDevice, const Surface& surface)
-    : instance_(instance), gpu_(physicalDevice), surface_(surface)
+void LogicalDevice::Init(const PhysicalDevice& gpu)
 {
-    const QueueFamilyIndices& queueFamilyIndices = gpu_.GetQueueFamilyIndices();
+    const QueueFamilyIndices& queueFamilyIndices = gpu.GetQueueFamilyIndices();
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     uint32_t uniqueQueueFamilies[] = {
@@ -57,16 +56,14 @@ LogicalDevice::LogicalDevice(const Instance& instance, const PhysicalDevice& phy
     createInfo.ppEnabledExtensionNames = kDeviceExtensions.data();
 
     // Finally we're ready to create a new device
-    const VkResult res = vkCreateDevice(VkPhysicalDevice(gpu_), &createInfo, nullptr, &device_);
+    const VkResult res = vkCreateDevice(VkPhysicalDevice(gpu), &createInfo, nullptr, &device_);
     neko_assert(res == VK_SUCCESS, "Failed to create logical device!")
 
     vkGetDeviceQueue(device_, queueFamilyIndices.graphicsFamily, 0, &graphicsQueue_);
     vkGetDeviceQueue(device_, queueFamilyIndices.presentFamily, 0, &presentQueue_);
-
-    LogicalDeviceLocator::provide(this);
 }
 
-LogicalDevice::~LogicalDevice()
+void LogicalDevice::Destroy()
 {
     vkDeviceWaitIdle(device_);
 

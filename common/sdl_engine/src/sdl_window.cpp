@@ -45,9 +45,9 @@ void sdl::SdlWindow::Init()
     auto& config = BasicEngine::GetInstance()->config;
 
     uint32_t flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
-#ifdef NEKO_GLES3
+#ifdef defined (NEKO_GLES3) && !defined (NEKO_VULKAN)
     flags |= SDL_WINDOW_OPENGL;
-#elif NEKO_VULKAN
+#else
     flags |= SDL_WINDOW_VULKAN;
 #endif
 
@@ -57,7 +57,8 @@ void sdl::SdlWindow::Init()
     config.fullscreen = true;
 #endif
 
-    auto windowSize = config.windowSize;
+
+    BasicEngine::GetInstance()->config = config;    auto windowSize = config.windowSize;
     if (config.fullscreen)
     {
         windowSize = Vec2u::zero;
@@ -131,7 +132,7 @@ void sdl::SdlWindow::Destroy()
     EASY_BLOCK("DestroySdlWindow");
 #endif
     ImGui_ImplSDL2_Shutdown();
-    ImGui::DestroyContext();
+    //ImGui::DestroyContext();
     // Destroy our window
     SDL_DestroyWindow(window_);
 }
@@ -146,4 +147,4 @@ void sdl::SdlWindow::RenderUi()
     ImGui::Render();
 }
 
-} 
+}  

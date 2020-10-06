@@ -2,15 +2,15 @@
 
 namespace neko::vk
 {
-Surface::Surface(const Instance& instance, SDL_Window* window) : instance_(instance)
-{
-    neko_assert(SDL_Vulkan_CreateSurface(window, VkInstance(instance_), &surface_),
-            "Unable to create Vulkan compatible surface using SDL!")
+Surface::Surface(const Instance& instance) : instance_(instance)
+{}
 
-    SurfaceLocator::provide(this);
+void Surface::Init(const sdl::VulkanWindow& window)
+{
+    window.CreateSurface(VkInstance(instance_), surface_);
 }
 
-Surface::~Surface()
+void Surface::Destroy()
 {
     vkDestroySurfaceKHR(VkInstance(instance_), surface_, nullptr);
 }

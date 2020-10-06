@@ -2,8 +2,10 @@
 
 namespace neko::vk
 {
-RenderPass::RenderPass(const PhysicalDevice& gpu, const LogicalDevice& device, const Swapchain& swapchain)
-    : gpu_(gpu), device_(device), swapchain_(swapchain)
+RenderPass::RenderPass(const LogicalDevice& device) : device_(device)
+{}
+
+void RenderPass::Init(const PhysicalDevice& gpu, const Swapchain& swapchain)
 {
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = swapchain.GetFormat();
@@ -19,8 +21,8 @@ RenderPass::RenderPass(const PhysicalDevice& gpu, const LogicalDevice& device, c
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-    VkAttachmentDescription depthAttachment{};
-    depthAttachment.format = FindDepthFormat(VkPhysicalDevice(gpu_));
+    /*VkAttachmentDescription depthAttachment{};
+    depthAttachment.format = FindDepthFormat(VkPhysicalDevice(gpu));
     depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
     depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
     depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -31,37 +33,37 @@ RenderPass::RenderPass(const PhysicalDevice& gpu, const LogicalDevice& device, c
 
     VkAttachmentReference depthAttachmentRef;
     depthAttachmentRef.attachment = 1;
-    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;*/
 
     VkSubpassDescription subpass{};
     subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
     subpass.colorAttachmentCount = 1;
     subpass.pColorAttachments = &colorAttachmentRef;
-    subpass.pDepthStencilAttachment = &depthAttachmentRef;
+    //subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
-    VkSubpassDependency dependency{};
+    /*VkSubpassDependency dependency{};
     dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
     dependency.dstSubpass = 0;
     dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
     dependency.srcAccessMask = 0;
     dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+    dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;*/
 
-    std::array<VkAttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
+    std::array<VkAttachmentDescription, 1> attachments = {colorAttachment/*, depthAttachment*/};
     VkRenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
     renderPassInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
     renderPassInfo.pAttachments = attachments.data();
     renderPassInfo.subpassCount = 1;
     renderPassInfo.pSubpasses = &subpass;
-    renderPassInfo.dependencyCount = 1;
-    renderPassInfo.pDependencies = &dependency;
+    /*renderPassInfo.dependencyCount = 1;
+    renderPassInfo.pDependencies = &dependency;*/
 
     const VkResult res = vkCreateRenderPass(VkDevice(device_), &renderPassInfo, nullptr, &renderPass_);
     neko_assert(res == VK_SUCCESS, "Failed to create render pass!")
 }
 
-RenderPass::~RenderPass()
+void RenderPass::Destroy()
 {
     vkDestroyRenderPass(VkDevice(device_), renderPass_, nullptr);
 }

@@ -1,5 +1,9 @@
 #pragma once
 #include <array>
+#include <cstring>
+#include <sstream>
+
+#include "SDL_vulkan.h"
 
 #include "engine/engine.h"
 #include "engine/globals.h"
@@ -11,6 +15,7 @@ static const VkFormat kFormat                   = VK_FORMAT_B8G8R8A8_SRGB;
 static const VkColorSpaceKHR kColorSpace        = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
 static const VkPresentModeKHR kPresentationMode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
 
+static const std::vector<const char*> kValidationLayers   = { "VK_LAYER_KHRONOS_validation" };
 static const std::array<const char*, 1> kDeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 struct QueueFamilyIndices
@@ -30,12 +35,170 @@ struct SwapChainSupportDetails
 
 struct Vertex
 {
-    Vec3f position;
-    Vec3f normal;
-    Vec2f texCoords;
-    Vec3f tangent;
-    Vec3f bitangent;
+    Vec3f position = Vec3f::zero;
+    Vec3f normal = Vec3f::zero;
+    Vec2f texCoords = Vec2f::zero;
+    Vec3f tangent = Vec3f::zero;
+    Vec3f bitangent = Vec3f::zero;
 };
+
+static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+        const VkDebugUtilsMessageSeverityFlagBitsEXT msgSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT msgType,
+        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+        void* pUserData)
+{
+    if (msgSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+    {
+        std::ostringstream oss;
+        oss << "Validation layer: " << pCallbackData->pMessage << '\n';
+        logDebug(oss.str());
+    }
+    return VK_FALSE;
+}
+
+static void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+{
+    createInfo = {};
+    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
+                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+                                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+                             VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+                             VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+    createInfo.pfnUserCallback = DebugCallback;
+}
+
+static uint32_t FindMemoryType(
+        const VkPhysicalDeviceMemoryProperties& memProperties,
+        const VkMemoryRequirements& memRequirements,
+        const VkMemoryPropertyFlags& properties)
+{
+    for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+        if (memRequirements.memoryTypeBits & (1u << i))
+            if ((memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+                return i;
+
+    neko_assert(false, "Failed to find suitable memory type!")
+}
+
+
+static std::vector<const char*> GetRequiredInstanceExtensions(SDL_Window* window)
+{
+    uint32_t sdlExtCount = 0;
+    neko_assert(SDL_Vulkan_GetInstanceExtensions(window, &sdlExtCount, nullptr),
+                "Unable to query the number of Vulkan instance extensions!")
+
+    // Use the amount of extensions queried before to retrieve the names of the extensions
+    std::vector<const char*> sdlExtensions(sdlExtCount);
+    neko_assert(SDL_Vulkan_GetInstanceExtensions(window, &sdlExtCount, sdlExtensions.data()),
+                "Unable to query the number of Vulkan instance extension names!")
+
+#ifdef VALIDATION_LAYERS
+    sdlExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
+
+    return sdlExtensions;
+}
+
+static bool CheckInstanceExtensionsSupport(const std::vector<const char*>& extensions)
+{
+    uint32_t instExtCount = 0;
+    VkResult res = vkEnumerateInstanceExtensionProperties(nullptr, &instExtCount, nullptr);
+    neko_assert(res == VK_SUCCESS, "Unable to query vulkan instance extension count")
+
+    std::vector<VkExtensionProperties> instExtNames(instExtCount);
+    res = vkEnumerateInstanceExtensionProperties(nullptr, &instExtCount, instExtNames.data());
+    neko_assert(res == VK_SUCCESS, "Unable to retrieve vulkan instance extension names")
+
+#ifndef NDEBUG
+    // Display layer names and find the ones we specified above
+    std::cout << "Found " << instExtCount << " instance extensions:\n";
+    uint32_t count(0);
+    for (const auto& instExtName : instExtNames)
+    {
+        std::cout << count << ": " << instExtName.extensionName << '\n';
+        count++;
+    }
+#endif
+
+    for (const auto& extName : extensions)
+    {
+        bool extFound = false;
+        for (const auto& extProperties : instExtNames)
+        {
+            if (strcmp(extName, extProperties.extensionName) == 0)
+            {
+                extFound = true;
+                break;
+            }
+        }
+
+        if (!extFound)
+        {
+            return false;
+        }
+    }
+
+#ifndef NDEBUG
+    // Print the ones we're enabling
+    for (const auto& ext : extensions)
+        std::cout << "Applying extension: " << ext << "\n";
+    std::cout << "\n";
+#endif
+
+    return true;
+}
+
+static bool CheckValidationLayerSupport()
+{
+    uint32_t instLayerCount = 0;
+    VkResult res = vkEnumerateInstanceLayerProperties(&instLayerCount, nullptr);
+    neko_assert(res == VK_SUCCESS, "Unable to query vulkan instance layer property count")
+
+    std::vector<VkLayerProperties> instLayerNames(instLayerCount);
+    res = vkEnumerateInstanceLayerProperties(&instLayerCount, instLayerNames.data());
+    neko_assert(res == VK_SUCCESS, "Unable to retrieve vulkan instance layer names")
+
+#ifndef NDEBUG
+    // Display layer names and find the ones we specified above
+    std::cout << "Found " << instLayerCount << " instance layers:\n";
+    uint32_t count(0);
+    for (const auto& instLayerName : instLayerNames)
+    {
+        std::cout << count << ": " << instLayerName.layerName << ": " << instLayerName.description << '\n';
+        count++;
+    }
+#endif
+
+    for (const auto& layerName : kValidationLayers)
+    {
+        bool layerFound = false;
+        for (const auto& layerProperties : instLayerNames)
+        {
+            if (strcmp(layerName, layerProperties.layerName) == 0)
+            {
+                layerFound = true;
+                break;
+            }
+        }
+
+        if (!layerFound)
+        {
+            return false;
+        }
+    }
+
+#ifndef NDEBUG
+    // Print the ones we're enabling
+    for (const auto& layer : kValidationLayers)
+        std::cout << "Applying layer: " << layer << "\n";
+    std::cout << "\n";
+#endif
+
+    return true;
+}
 
 static bool CheckDeviceExtensionSupport(const VkPhysicalDevice& gpu)
 {
@@ -155,6 +318,34 @@ static SwapChainSupportDetails QuerySwapChainSupport(const VkPhysicalDevice& gpu
     return details;
 }
 
+static bool IsDeviceSuitable(
+        const VkPhysicalDevice& gpu,
+        const VkSurfaceKHR& surface,
+        const QueueFamilyIndices& queueFamilyIndices)
+{
+    VkPhysicalDeviceProperties deviceProperties;
+    VkPhysicalDeviceFeatures deviceFeatures;
+    vkGetPhysicalDeviceProperties(gpu, &deviceProperties);
+    vkGetPhysicalDeviceFeatures(gpu, &deviceFeatures);
+
+    const bool extensionsSupported = CheckDeviceExtensionSupport(gpu);
+
+    bool swapChainAdequate = false;
+    if (extensionsSupported)
+    {
+        const SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(gpu, VkSurfaceKHR(surface));
+        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+    }
+
+    VkPhysicalDeviceFeatures supportedFeatures;
+    vkGetPhysicalDeviceFeatures(gpu, &supportedFeatures);
+
+    return queueFamilyIndices.IsComplete() && extensionsSupported && swapChainAdequate &&
+           supportedFeatures.samplerAnisotropy &&
+           deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
+           deviceFeatures.geometryShader;
+}
+
 static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 {
     for (const auto& availableFormat : availableFormats)
@@ -187,6 +378,7 @@ static VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
         return capabilities.currentExtent;
 
     auto& config = BasicEngine::GetInstance()->config;
+    std::cout << config.windowSize.x << config.windowSize.y << '\n';
 
     VkExtent2D actualExtent = {config.windowSize.x, config.windowSize.y};
 
@@ -219,6 +411,10 @@ static VkImageView CreateImageView(
     viewInfo.image = image;
     viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
     viewInfo.format = format;
+    viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+    viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+    viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+    viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
     viewInfo.subresourceRange.aspectMask = aspectFlags;
     viewInfo.subresourceRange.baseMipLevel = 0;
     viewInfo.subresourceRange.levelCount = 1;
@@ -319,5 +515,92 @@ static std::array<VkVertexInputAttributeDescription, 5> GetAttributeDescriptions
     attributeDescriptions[4].offset = offsetof(Vertex, bitangent);
 
     return attributeDescriptions;
+}
+
+static void CreateBuffer(const VkPhysicalDevice& gpu,
+    const VkDevice& device,
+    const VkDeviceSize& size,
+    const VkBufferUsageFlags usage,
+    const VkMemoryPropertyFlags properties,
+    VkBuffer& buffer,
+    VkDeviceMemory& bufferMemory)
+{
+    VkBufferCreateInfo bufferInfo{};
+    bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    bufferInfo.size = size;
+    bufferInfo.usage = usage;
+    bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+    VkResult res = vkCreateBuffer(VkDevice(device), &bufferInfo, nullptr, &buffer);
+    neko_assert(res == VK_SUCCESS, "Failed to create vertex buffer!")
+
+    VkMemoryRequirements memRequirements;
+    vkGetBufferMemoryRequirements(VkDevice(device), buffer, &memRequirements);
+
+    VkMemoryAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocInfo.allocationSize = memRequirements.size;
+    allocInfo.memoryTypeIndex = FindMemoryType(gpu, memRequirements.memoryTypeBits, properties);
+
+    res = vkAllocateMemory(VkDevice(device), &allocInfo, nullptr, &bufferMemory);
+    neko_assert(res == VK_SUCCESS, "Failed to allocate vertex buffer memory!")
+
+    vkBindBufferMemory(VkDevice(device), buffer, bufferMemory, 0);
+}
+
+static VkCommandBuffer BeginSingleTimeCommands(const VkDevice& device, const VkCommandPool& commandPool)
+{
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandPool = commandPool;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer commandBuffer{};
+    vkAllocateCommandBuffers(device, &allocInfo, &commandBuffer);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(commandBuffer, &beginInfo);
+
+    return commandBuffer;
+}
+
+static void EndSingleTimeCommands(
+        const VkQueue& graphicsQueue,
+        const VkDevice& device,
+        const VkCommandPool& commandPool,
+        VkCommandBuffer const& commandBuffer)
+{
+    vkEndCommandBuffer(commandBuffer);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffer;
+
+    vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
+    vkQueueWaitIdle(graphicsQueue);
+
+    vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
+}
+
+static void CopyBuffer(
+        const VkQueue& graphicsQueue,
+        const VkDevice& device,
+        const VkCommandPool& commandPool,
+        const VkBuffer& srcBuffer,
+        const VkBuffer& dstBuffer,
+        const VkDeviceSize size)
+{
+    VkCommandBuffer commandBuffer = BeginSingleTimeCommands(device, commandPool);
+
+    VkBufferCopy copyRegion{};
+    copyRegion.size = size;
+    vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
+
+    EndSingleTimeCommands(graphicsQueue, device, commandPool, commandBuffer);
 }
 }

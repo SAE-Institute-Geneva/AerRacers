@@ -3,11 +3,10 @@
 
 namespace neko::vk
 {
-PhysicalDevice::PhysicalDevice(const Instance& instance, const Surface& surface)
-    : instance_(instance), surface_(surface)
+void PhysicalDevice::Init(const Instance& instance, const Surface& surface)
 {
     uint32_t physDeviceCount(0);
-    vkEnumeratePhysicalDevices(VkInstance(instance_), &physDeviceCount, nullptr);
+    vkEnumeratePhysicalDevices(VkInstance(instance), &physDeviceCount, nullptr);
     neko_assert(physDeviceCount != 0, "No GPU found!")
 #ifdef VALIDATION_LAYERS
     std::ostringstream oss1;
@@ -16,7 +15,7 @@ PhysicalDevice::PhysicalDevice(const Instance& instance, const Surface& surface)
 #endif
 
     std::vector<VkPhysicalDevice> physDevices(physDeviceCount);
-    const VkResult res = vkEnumeratePhysicalDevices(VkInstance(instance_), &physDeviceCount, physDevices.data());
+    const VkResult res = vkEnumeratePhysicalDevices(VkInstance(instance), &physDeviceCount, physDevices.data());
     neko_assert(res == VK_SUCCESS, "Enumerating GPUs failed!")
     neko_assert(physDeviceCount != 0, "No GPUs that supports Vulkan found!")
 
@@ -30,8 +29,8 @@ PhysicalDevice::PhysicalDevice(const Instance& instance, const Surface& surface)
         logDebug(oss2.str());
 #endif
 
-        queueFamilyIndices_ = FindQueueFamilies(gpu, VkSurfaceKHR(surface_));
-        if (IsDeviceSuitable(gpu))
+        queueFamilyIndices_ = FindQueueFamilies(gpu, VkSurfaceKHR(surface));
+        if (IsDeviceSuitable(gpu, VkSurfaceKHR(surface), queueFamilyIndices_))
         {
             gpu_ = gpu;
 #ifdef VALIDATION_LAYERS
@@ -71,33 +70,6 @@ PhysicalDevice::PhysicalDevice(const Instance& instance, const Surface& surface)
     }
 
     neko_assert(queueNodeIndex != INVALID_INDEX,
-            "Unable to find a queue command family that accepts graphics commands")
-
-    PhysicalDeviceLocator::provide(this);
-}
-
-bool PhysicalDevice::IsDeviceSuitable(VkPhysicalDevice const& gpu) const
-{
-    VkPhysicalDeviceProperties deviceProperties;
-    VkPhysicalDeviceFeatures deviceFeatures;
-    vkGetPhysicalDeviceProperties(gpu, &deviceProperties);
-    vkGetPhysicalDeviceFeatures(gpu, &deviceFeatures);
-
-    const bool extensionsSupported = CheckDeviceExtensionSupport(gpu);
-
-    bool swapChainAdequate = false;
-    if (extensionsSupported)
-    {
-        const SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(gpu, VkSurfaceKHR(surface_));
-        swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
-    }
-
-    VkPhysicalDeviceFeatures supportedFeatures;
-    vkGetPhysicalDeviceFeatures(gpu, &supportedFeatures);
-
-    return queueFamilyIndices_.IsComplete() && extensionsSupported && swapChainAdequate &&
-           supportedFeatures.samplerAnisotropy &&
-           deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
-           deviceFeatures.geometryShader;
+                "Unable to find a queue command family that accepts graphics commands")
 }
 }

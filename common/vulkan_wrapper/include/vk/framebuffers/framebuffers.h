@@ -9,16 +9,22 @@ namespace neko::vk
 class Framebuffers
 {
 public:
-	Framebuffers(const LogicalDevice& device, const Swapchain& swapChain, const RenderPass& renderPass);
-	~Framebuffers();
+	explicit Framebuffers(const LogicalDevice& device);
+
+	void Init(const Swapchain& swapChain, const RenderPass& renderPass);
+	void Destroy();
 	
-    const std::vector<VkFramebuffer>& GetFramebuffers() const {return framebuffers_;}
-    size_t GetFramebuffersCount() const {return framebuffers_.size();}
+    [[nodiscard]] const std::vector<VkFramebuffer>& GetFramebuffers() const {return framebuffers_;}
+    [[nodiscard]] size_t GetFramebuffersCount() const {return framebuffers_.size();}
+
+    const VkFramebuffer& operator[](const size_t index) const
+    { return framebuffers_[index]; }
+
+    VkFramebuffer& operator[](const size_t index)
+    { return framebuffers_[index]; }
 	
 private:
 	const LogicalDevice& device_;
-	const Swapchain& swapChain_;
-	const RenderPass& renderPass_;
 	
 	std::vector<VkFramebuffer> framebuffers_;
 };

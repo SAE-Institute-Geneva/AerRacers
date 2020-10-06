@@ -9,51 +9,23 @@ class Instance;
 class PhysicalDevice;
 class Surface;
 
-class ILogicalDevice
+class LogicalDevice
 {
 public:
-    virtual explicit operator const VkDevice &() const = 0;
-    [[nodiscard]] virtual const VkDevice& GetLogicalDevice() const = 0;
-};
+    explicit LogicalDevice() = default;
 
-class NullLogicalDevice : public ILogicalDevice
-{
-public:
-    explicit operator const VkDevice&() const override
-    {
-        neko_assert(false, "Vulkan Logical Device is null!")
-        return nullptr;
-    }
+    void Init(const PhysicalDevice& gpu);
+    void Destroy();
 
-    [[nodiscard]] const VkDevice& GetLogicalDevice() const override
-    {
-        neko_assert(false, "Vulkan Logical Device is null!")
-        return nullptr;
-    }
-};
-
-class LogicalDevice : public ILogicalDevice
-{
-public:
-    LogicalDevice(const Instance& instance,
-            const PhysicalDevice& physicalDevice,
-            const Surface& surface);
-    ~LogicalDevice();
-
-    explicit operator const VkDevice &() const override { return device_; }
-    [[nodiscard]] const VkDevice& GetLogicalDevice() const override { return device_; }
+    explicit operator const VkDevice &() const { return device_; }
+    [[nodiscard]] const VkDevice& GetLogicalDevice() const { return device_; }
     
     [[nodiscard]] const VkQueue& GetGraphicsQueue() const { return graphicsQueue_; }
     [[nodiscard]] const VkQueue& GetPresentQueue() const { return presentQueue_; }
-private:
-    const Instance& instance_;
-    const PhysicalDevice& gpu_;
-    const Surface& surface_;
 
+private:
     VkDevice device_{};
     VkQueue graphicsQueue_{};
     VkQueue presentQueue_{};
 };
-
-using LogicalDeviceLocator = Locator<ILogicalDevice, NullLogicalDevice>;
 }

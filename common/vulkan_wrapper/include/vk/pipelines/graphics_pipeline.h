@@ -6,34 +6,29 @@
 
 namespace neko::vk
 {
-const std::array<VkDynamicState, 3> kDynamicStates =
+const std::array<VkDynamicState, 2> kDynamicStates =
 {
     VK_DYNAMIC_STATE_VIEWPORT,
     VK_DYNAMIC_STATE_SCISSOR,
-    VK_DYNAMIC_STATE_LINE_WIDTH
+    //VK_DYNAMIC_STATE_LINE_WIDTH
 };
 
 class GraphicsPipeline
 {
 public:
-    explicit GraphicsPipeline(
-            const LogicalDevice& device,
-            const Swapchain& swapchain,
-            const RenderPass& renderPass);
-    ~GraphicsPipeline();
+    explicit GraphicsPipeline(const LogicalDevice& device);
+
+    void Init(const Swapchain& swapchain, const RenderPass& renderPass, DescriptorSets& descriptorSets);
+    void Destroy();
 
     explicit operator const VkPipeline &() const { return pipeline_; }
     [[nodiscard]] const VkPipeline& GetGraphicsPipeline() const { return pipeline_; }
+    [[nodiscard]] const VkPipelineLayout& GetLayout() const { return layout_; }
 
 private:
-    void CreateDescriptorSetLayout();
-
     const LogicalDevice& device_;
-    const Swapchain& swapchain_;
-    const RenderPass& renderPass_;
 
     VkPipeline pipeline_{};
     VkPipelineLayout layout_{};
-    VkDescriptorSetLayout descriptorSetLayout_{};
 };
 }
