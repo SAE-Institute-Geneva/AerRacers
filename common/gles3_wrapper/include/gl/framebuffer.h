@@ -43,6 +43,7 @@ public:
         DEPTH_STENCIL_ATTACHMENT = 1u << 6u,
         DEFAULT = COLOR_ATTACHMENT_0 | DEPTH_RBO
     };
+	~Framebuffer();
     void Create();
     void Reload();
     void Destroy();
@@ -59,8 +60,8 @@ public:
      */
     void SetSize(Vec2u size);
 
-    [[nodiscard]] TextureId GetColorTexture() const { return colorBuffer_; }
-    [[nodiscard]] TextureId GetDepthTexture() const { return depthBuffer_; }
+    [[nodiscard]] TextureName GetColorTexture() const { return colorBuffer_; }
+    [[nodiscard]] TextureName GetDepthTexture() const { return depthBuffer_; }
 private:
     inline static unsigned int currentFramebufferBind_ = 0;
     Type frameBufferType_ = DEFAULT;

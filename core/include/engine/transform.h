@@ -35,37 +35,12 @@ namespace neko
 {
 
 
-class Position2dManager : public ComponentManager<Vec2f, ComponentType::POSITION2D>
+class Position2dManager : public ComponentManager<Vec2f, EntityMask(ComponentType::POSITION2D)>
 {
     using ComponentManager::ComponentManager;
 };
 
-class Scale2dManager : public ComponentManager<Vec2f, ComponentType::SCALE2D>
-{
-public:
-    using ComponentManager::ComponentManager;
-    Index AddComponent(Entity entity) override;
-
-};
-
-class Rotation2dManager : public ComponentManager<degree_t, ComponentType::ROTATION2D>
-{
-    using ComponentManager::ComponentManager;
-};
-
-
-class Position3dManager : public ComponentManager<Vec3f, ComponentType::POSITION3D>
-{
-    using ComponentManager::ComponentManager;
-};
-
-
-class Rotation3dManager : public ComponentManager<EulerAngles, ComponentType::ROTATION3D>
-{
-    using ComponentManager::ComponentManager;
-};
-
-class Scale3dManager : public ComponentManager<Vec3f, ComponentType::SCALE3D>
+class Scale2dManager : public ComponentManager<Vec2f, EntityMask(ComponentType::SCALE2D)>
 {
 public:
     using ComponentManager::ComponentManager;
@@ -73,7 +48,44 @@ public:
 
 };
 
-class Transform2dManager : public ComponentManager<Mat3f, ComponentType::TRANSFORM2D>
+class Rotation2dManager : public ComponentManager<degree_t, EntityMask(ComponentType::ROTATION2D)>
+{
+    using ComponentManager::ComponentManager;
+};
+
+
+class Position3dManager : public ComponentManager<Vec3f, EntityMask(ComponentType::POSITION3D)>
+{
+    using ComponentManager::ComponentManager;
+};
+
+
+class Rotation3dManager : public ComponentManager<EulerAngles, EntityMask(ComponentType::ROTATION3D)>
+{
+    using ComponentManager::ComponentManager;
+};
+
+class Scale3dManager : public ComponentManager<Vec3f, EntityMask(ComponentType::SCALE3D)>
+{
+public:
+    using ComponentManager::ComponentManager;
+    Index AddComponent(Entity entity) override;
+
+};
+
+class TransformManagerInterface :
+        public OnChangeParentInterface
+{
+public:
+    virtual void UpdateDirtyComponent(Entity entity) = 0;
+    virtual void Update() = 0;
+protected:
+    virtual void UpdateTransform(Entity entity) = 0;
+};
+
+class Transform2dManager :
+        public ComponentManager<Mat4f, EntityMask(ComponentType::TRANSFORM2D)>,
+        public TransformManagerInterface
 {
 public:
     explicit Transform2dManager(EntityManager& entityManager);
@@ -83,17 +95,26 @@ public:
     [[nodiscard]] Vec2f GetPosition(Entity entity) const;
     [[nodiscard]] Vec2f GetScale(Entity entity) const;
     [[nodiscard]] degree_t GetRotation(Entity entity) const;
+    void OnChangeParent(Entity entity, Entity newParent, Entity oldParent) override;
+    void UpdateDirtyComponent(Entity entity) override;
+    void Update() override;
+    Index AddComponent(Entity entity) override;
 protected:
+    void UpdateTransform(Entity entity) override;
+
     Position2dManager positionManager_;
     Scale2dManager scaleManager_;
     Rotation2dManager rotationManager_;
+    DirtyManager dirtyManager_;
 };
 
-class Transform3dManager : public DoubleBufferComponentManager<Mat4f, ComponentType::TRANSFORM3D>,
-public OnChangeParentInterface
+class Transform3dManager :
+        public DoubleBufferComponentManager<Mat4f, EntityMask(ComponentType::TRANSFORM3D)>,
+        public TransformManagerInterface
+
 {
 public:
-    Transform3dManager(EntityManager& entityManager);
+    explicit Transform3dManager(EntityManager& entityManager);
     void Init();
     void SetPosition(Entity entity, Vec3f position);
     void SetScale(Entity entity, Vec3f scale);
@@ -106,11 +127,11 @@ public:
 	 * \brief This function is called by the Dirty Manager
 	 */
     void UpdateDirtyComponent(Entity entity) override;
-    void Update();
+    void Update() override;
 	Index AddComponent(Entity entity) override;
 protected:
 
-    void UpdateTransform(Entity entity);
+    void UpdateTransform(Entity entity) override;
     Position3dManager position3DManager_;
     Scale3dManager scale3DManager_;
     Rotation3dManager rotation3DManager_;
