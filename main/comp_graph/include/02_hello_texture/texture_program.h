@@ -49,10 +49,9 @@ private:
     gl::RenderQuad quad_{Vec3f::zero, Vec2f::one};
     gl::Shader shader_;
 
-    gl::Texture texture_;
-
-    TextureId ddsTexture_ = 0;
-    TextureId ktxTexture_ = 0;
+    gl::TextureManager textureManager_;
+    TextureName texture_ = INVALID_TEXTURE_NAME;
+    TextureId textureId_;
 
 	enum class TextureType
 	{
