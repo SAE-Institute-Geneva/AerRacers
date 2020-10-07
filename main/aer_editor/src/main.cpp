@@ -34,19 +34,22 @@
 
 int main(int argc, char** argv)
 {
-    neko::Configuration config;
-    config.windowName = "AerEditor";
-	
-    neko::sdl::Gles3Window window;
-    neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config, neko::aer::ToolsMask(
-                                            neko::aer::ToolsFlags::ENTITYVIEWER |
-                                            neko::aer::ToolsFlags::INSPECTOR | 
-                                            neko::aer::ToolsFlags::LOGGER));
+  neko::Configuration config;
+  config.windowName = "AerEditor";
+  config.windowSize = neko::Vec2u(350, 150);
 
-    engine.SetWindowAndRenderer(&window, &renderer);
+  neko::sdl::Gles3Window window;
+  neko::gl::Gles3Renderer renderer;
+  neko::aer::AerEngine engine(
+    &config,
+    neko::aer::ToolsMask(
+      neko::aer::ToolsFlags::ENTITYVIEWER |
+      neko::aer::ToolsFlags::INSPECTOR |
+      neko::aer::ToolsFlags::LOGGER));
 
-    engine.Init();
-    engine.EngineLoop();
-    return 0;
+  engine.SetWindowAndRenderer(&window, &renderer);
+
+  engine.Init();
+  engine.EngineLoop();
+  return 0;
 }

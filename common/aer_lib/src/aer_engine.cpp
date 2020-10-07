@@ -1,41 +1,25 @@
 #include "aer_engine.h"
 
-namespace neko::aer
+namespace neko::aer {
+AerEngine::AerEngine(Configuration* config, ToolsMask toolsMask)
+  : SdlEngine(config),
+    drawSystem_(*this)
 {
-	AerEngine::AerEngine(Configuration* config, ToolsMask toolsMask)
-		: SdlEngine(config),
-		drawSystem_(*this),
-		toolsSystem_(*this)
-    {
-        RegisterSystem(drawSystem_);
-        RegisterOnEvent(drawSystem_);
-        RegisterOnDrawUi(drawSystem_);
-        if (toolsMask) {
-            RegisterSystem(toolsSystem_);
-            RegisterOnEvent(toolsSystem_);
-            RegisterOnDrawUi(toolsSystem_);
-        }
-    }
+  RegisterSystem(drawSystem_);
+  RegisterOnEvent(drawSystem_);
+  RegisterOnDrawUi(drawSystem_);
+  if (toolsMask) { }
+}
 
-	void AerEngine::Init()
-	{
-		SdlEngine::Init();
-	}
+void AerEngine::Init() { SdlEngine::Init(); }
 
-	void AerEngine::Destroy()
-	{
-		drawSystem_.Destroy();
-		toolsSystem_.Destroy();
-		SdlEngine::Destroy();
-	}
+void AerEngine::Destroy()
+{
+  drawSystem_.Destroy();
+  SdlEngine::Destroy();
+}
 
-	void AerEngine::ManageEvent()
-	{
-		SdlEngine::ManageEvent();
-	}
+void AerEngine::ManageEvent() { SdlEngine::ManageEvent(); }
 
-	void AerEngine::GenerateUiFrame()
-	{
-		SdlEngine::GenerateUiFrame();
-	}
+void AerEngine::GenerateUiFrame() { SdlEngine::GenerateUiFrame(); }
 }
