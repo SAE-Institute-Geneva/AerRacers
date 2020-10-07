@@ -34,17 +34,17 @@
 
 int main(int argc, char** argv)
 {
-  neko::Configuration config;
-  config.windowName = "AerRacers Game";
-  config.windowSize = neko::Vec2u(1400, 900);
+    neko::Configuration config;
+    config.windowName = "AerRacers Game";
+    config.windowSize = neko::Vec2u(1400, 900);
 
-  neko::sdl::Gles3Window window;    //TODO(Luca@Simon) Move to Vulkan
-  neko::gl::Gles3Renderer renderer; //TODO(Luca@Simon) Move to Vulkan
-  neko::aer::AerEngine engine(&config);
+    neko::sdl::Gles3Window window;    //TODO(Luca@Simon) Move to Vulkan
+    neko::gl::Gles3Renderer renderer; //TODO(Luca@Simon) Move to Vulkan
+    neko::aer::AerEngine engine(&config);
 
-  engine.SetWindowAndRenderer(&window, &renderer);
+    engine.SetWindowAndRenderer(&window, &renderer);
 
-  engine.Init();
-  engine.EngineLoop();
-  return 0;
+    engine.Init();
+    engine.EngineLoop();
+    return 0;
 }

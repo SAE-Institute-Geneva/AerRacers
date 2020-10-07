@@ -36,28 +36,28 @@ namespace neko::aer {
 using ToolsMask = std::uint8_t;
 
 enum ToolsFlags : std::uint8_t {
-  EMPTY = 1u << 0u,
-  LOGGER = 1u << 1u,
-  INSPECTOR = 1u << 2u,
-  ENTITYVIEWER = 1u << 3u,
-  PROFILER = 1u << 4u
+    EMPTY = 1u << 0u,
+    LOGGER = 1u << 1u,
+    INSPECTOR = 1u << 2u,
+    ENTITYVIEWER = 1u << 3u,
+    PROFILER = 1u << 4u
 };
 
 class AerEngine final : public sdl::SdlEngine {
-  public:
-    explicit AerEngine(
-      Configuration* config = nullptr,
-      ToolsMask toolsMask = 0);
+    public:
+        explicit AerEngine(
+            Configuration* config = nullptr,
+            ToolsMask toolsMask = 0);
 
-    void Init() override;
+        void Init() override;
 
-    void Destroy() override;
+        void Destroy() override;
 
-    void ManageEvent() override;
+        void ManageEvent() override;
 
-    void GenerateUiFrame() override;
+        void GenerateUiFrame() override;
 
-  private:
-    DrawSystem drawSystem_;
+    private:
+        DrawSystem drawSystem_;
 };
 }
