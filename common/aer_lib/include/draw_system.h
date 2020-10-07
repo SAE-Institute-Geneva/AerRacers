@@ -32,9 +32,10 @@
 namespace neko::aer
 {
 class AerEngine;
-class DrawSystem final : public SystemInterface,
-	                         public sdl::SdlEventSystemInterface,
-	                         public DrawImGuiInterface
+class DrawSystem final :
+        public SystemInterface,
+        public sdl::SdlEventSystemInterface,
+        public DrawImGuiInterface
 {
 public:
 	explicit DrawSystem(AerEngine& engine);

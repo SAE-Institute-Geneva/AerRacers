@@ -34,6 +34,9 @@
 *.out
 *.app
 
+# Resharper C++ Files
+.idea/*
+
 #clion generation files
 cmake-build-debug/*
 cmake-build-release/*
@@ -44,3 +47,6 @@ out/*
 build/*
 Build/*
 web_build/*
+
+# glsl validator temp files
+/scripts/validator/__pycache__/
