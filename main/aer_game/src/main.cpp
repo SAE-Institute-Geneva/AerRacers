@@ -31,19 +31,22 @@
 
 #include "aer_engine.h"
 
-
+namespace neko::aer
+{
 int main(int argc, char** argv)
 {
-    neko::Configuration config;
+    Configuration config;
     config.windowName = "AerRacers Game";
+    config.windowSize = neko::Vec2u(1280, 720);
 
-    neko::sdl::Gles3Window window; //TODO(Luca@Simon) Move to Vulkan
-    neko::gl::Gles3Renderer renderer; //TODO(Luca@Simon) Move to Vulkan
-    neko::aer::AerEngine engine(&config);
+    sdl::Gles3Window window;    //TODO(Luca@Simon) Move to Vulkan
+    gl::Gles3Renderer renderer; //TODO(Luca@Simon) Move to Vulkan
+    AerEngine engine(&config);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
     engine.Init();
     engine.EngineLoop();
     return 0;
+}
 }

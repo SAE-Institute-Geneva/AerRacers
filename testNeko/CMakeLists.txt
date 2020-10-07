@@ -3,7 +3,7 @@
 #Google Test
 
 
-SET(Neko_TEST_DIR ${CMAKE_SOURCE_DIR}/test)
+SET(Neko_TEST_DIR ${CMAKE_SOURCE_DIR}/testNeko)
 file(GLOB TEST_FILES ${Neko_TEST_DIR}/*.cpp)
 add_executable(Neko_TEST ${TEST_FILES})
 

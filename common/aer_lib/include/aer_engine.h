@@ -30,36 +30,34 @@
 #include "sdl_engine/sdl_engine.h"
 
 #include "draw_system.h"
-#include "Editor/tools_system.h"
 
 namespace neko::aer
 {
 using ToolsMask = std::uint8_t;
 
-enum ToolsFlags : std::uint8_t
+enum class ToolsFlags : std::uint8_t
 {
-	EMPTY = 1u << 0u,
-	LOGGER = 1u << 1u,
-	INSPECTOR = 1u << 2u,
-	ENTITY_VIEWER = 1u << 3u,
-	PROFILER = 1u << 4u
+    EMPTY = 1u << 0u,
+    LOGGER = 1u << 1u,
+    INSPECTOR = 1u << 2u,
+    ENTITY_VIEWER = 1u << 3u,
+    PROFILER = 1u << 4u
 };
 
 class AerEngine final : public sdl::SdlEngine
 {
 public:
-	explicit AerEngine(Configuration* config = nullptr, ToolsMask toolsMask = 0);
+    explicit AerEngine(Configuration* config = nullptr, ToolsMask toolsMask = 0);
 
-	void Init() override;
+    void Init() override;
 
-	void Destroy() override;
+    void Destroy() override;
 
-	void ManageEvent() override;
+    void ManageEvent() override;
 
-	void GenerateUiFrame() override;
+    void GenerateUiFrame() override;
 
 private:
-	DrawSystem drawSystem_;
-	ToolsSystem toolsSystem_;
+    DrawSystem drawSystem_;
 };
 }

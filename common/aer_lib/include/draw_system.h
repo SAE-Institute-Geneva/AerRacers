@@ -29,11 +29,10 @@
 
 #include "sdl_engine/sdl_camera.h"
 
-namespace neko::aer
-{
+namespace neko::aer {
 class AerEngine;
-class DrawSystem final :
-        public SystemInterface,
+class DrawSystem final
+        : public SystemInterface,
         public sdl::SdlEventSystemInterface,
         public DrawImGuiInterface
 {

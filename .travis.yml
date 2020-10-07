@@ -24,3 +24,4 @@ script:
   - cd build
   - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
   - ./test/Neko_TEST
+  - ./test/Aer_TEST
