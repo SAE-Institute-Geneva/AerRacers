@@ -22,39 +22,46 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <vector>
-#include <memory>
+#include <sdl_engine/sdl_engine.h>
 #include <SDL_events.h>
-#include "sdl_engine/sdl_engine.h"
+#include <imgui.h>
 
-namespace neko
+namespace neko::aer
 {
-class ProtoBrowser : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface
-{
-public:
-	/**
-	 * \brief Executed on the render thread
-	 */
-    void Init() override;
-    /**
-     * \brief Executed on the main thread
-     */
-    void Update(seconds dt) override;
-    /**
-     * \brief Executed on the render thread
-     */
-    void DrawImGui() override;
-    /**
-     * \brief Executed on the render thread
-     */
-    void Destroy() override;
-    /**
-     * \brief Executed on the main thread
-     */
-    void OnEvent(const SDL_Event& event) override;
-protected:
-    //Todo 
-    bool v;
-    std::vector<bool> tools_active;
-};
+    class Tool : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface {
+        /**
+         * \brief Executed on the render thread
+         */
+        virtual void Init() override {
+
+        }
+        /**
+         * \brief Executed on the main thread
+         */
+        virtual void Update(seconds dt) override {
+
+        }
+        /**
+         * \brief Executed on the render thread
+         */
+        virtual void DrawImGui() override {
+
+        }
+        /**
+         * \brief Executed on the render thread
+         */
+        virtual void Destroy() override {
+
+        }
+        /**
+         * \brief Executed on the main thread
+         */
+        virtual void OnEvent(const SDL_Event& event) override {
+
+        }
+    public:
+        bool isVisible = true;
+    private:
+        int id_;
+    };
 }

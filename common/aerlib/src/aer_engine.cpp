@@ -4,17 +4,15 @@ namespace neko::aer
 {
 	AerEngine::AerEngine(Configuration* config)
 		: SdlEngine(config),
-		drawSystem_(*this)
+		drawSystem_(*this), editorSystem_(*this)
 	{
 		RegisterSystem(drawSystem_);
 		RegisterOnEvent(drawSystem_);
 		RegisterOnDrawUi(drawSystem_);
-		RegisterSystem(protoBrowser_);
-		RegisterOnEvent(protoBrowser_);
-		RegisterOnDrawUi(protoBrowser_);
-		RegisterSystem(loggerBrowser_);
-		RegisterOnEvent(loggerBrowser_);
-		RegisterOnDrawUi(loggerBrowser_);
+
+		RegisterSystem(editorSystem_);
+		RegisterOnEvent(editorSystem_);
+		RegisterOnDrawUi(editorSystem_);
 #ifdef EASY_PROFILE_USE
 		EASY_PROFILER_ENABLE;
 #endif
@@ -28,6 +26,7 @@ namespace neko::aer
 	void AerEngine::Destroy()
 	{
 		drawSystem_.Destroy();
+		editorSystem_.Destroy();
 		SdlEngine::Destroy();
 	}
 

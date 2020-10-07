@@ -1,3 +1,4 @@
+#pragma once
 /*
  MIT License
 
@@ -21,56 +22,48 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <imgui.h>
-#include "Editor/Tool/proto_browser.h"
+#include <vector>
+#include <memory>
+#include <SDL_events.h>
+#include <Editor/Tool/tool.h>
 
-namespace neko
+namespace neko::aer
 {
-
-void ProtoBrowser::Init()
-{
-}
-
-void ProtoBrowser::Update(seconds dt)
-{
-}
-
-void ProtoBrowser::Destroy()
-{
-}
-
-
-void ProtoBrowser::OnEvent(const SDL_Event& event)
-{
-}
-
-
-void ProtoBrowser::DrawImGui()
-{
-    //Tools Menu
-    bool my_tool_active;
-    ImGui::SetNextWindowPos(ImVec2(0, 200), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Proto Browser", &my_tool_active, ImGuiWindowFlags_MenuBar);
-    if (ImGui::BeginMenuBar())
+    class Logger : public Tool
     {
-
-        if (ImGui::BeginMenu("Scenes"))
+    public:
+        struct MyLog
         {
-            if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
-            if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
-            if (ImGui::MenuItem("Close", "Ctrl+W")) { my_tool_active = false; }
-            ImGui::EndMenu();
-        }
+            std::string log_msg;
+            int log_severity;
+        };
+        /**
+         * \brief Executed on the render thread
+         */
+        void Init() override;
+        /**
+         * \brief Executed on the main thread
+         */
+        void Update(seconds dt) override;
+        /**
+         * \brief Executed on the render thread
+         */
+        void DrawImGui() override;
+        /**
+         * \brief Executed on the render thread
+         */
+        void Destroy() override;
+        /**
+         * \brief Executed on the main thread
+         */
+        void OnEvent(const SDL_Event& event) override;
 
-        if (ImGui::BeginMenu("Tools"))
-        {
-            if (ImGui::MenuItem("Logger", "Ctrl+L")) { /* Do stuff */ }
-            if (ImGui::MenuItem("Profiler", "Ctrl+P")) { /* Do stuff */ }
-            ImGui::EndMenu();
-        }
-        ImGui::EndMenuBar();
-    }
-    ImGui::End();
-}
+        void AddLog(std::string msg_log, int severity_log);
+    protected:
+        int scroll_Y = 0;
+        bool scrollToBottom = true;
 
+
+        std::vector<MyLog> logs_;
+    };
 }

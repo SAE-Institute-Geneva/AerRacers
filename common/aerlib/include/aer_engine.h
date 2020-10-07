@@ -1,8 +1,7 @@
 #pragma once
 #include <sdl_engine/sdl_engine.h>
 #include <draw_system.h>
-#include <Editor/Tool/logger_browser.h>
-#include <Editor/Tool/proto_browser.h>
+#include <Editor/Tool/editor.h>
 
 namespace neko::aer
 {
@@ -21,9 +20,7 @@ namespace neko::aer
 
 	private:
 		DrawSystem drawSystem_;
-		ProtoBrowser protoBrowser_;
-		LoggerBrowser loggerBrowser_;
-
+		Editor editorSystem_;
 		//Initialization data
 		const size_t kInitEntityNmb_ = 10;
 	};

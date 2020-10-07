@@ -27,8 +27,8 @@ void DrawSystem::Destroy()
 
 void DrawSystem::DrawImGui()
 {
-	ImGui::Begin("Inspector");
-	ImGui::End();
+	//ImGui::Begin("Inspector");
+	//ImGui::End();
 }
 
 void DrawSystem::OnEvent(const SDL_Event& event)
