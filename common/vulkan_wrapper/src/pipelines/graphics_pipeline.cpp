@@ -9,8 +9,8 @@ GraphicsPipeline::GraphicsPipeline(const LogicalDevice& device) : device_(device
 
 void GraphicsPipeline::Init(const Swapchain& swapchain, const RenderPass& renderPass, DescriptorSets& descriptorSets)
 {
-    const auto vertShader = LoadBinaries("../data/shaders/aer_racer/01_triangle/quad.vert.spv");
-    const auto fragShader = LoadBinaries("../data/shaders/aer_racer/01_triangle/quad.frag.spv");
+    const auto vertShader = LoadBinaries("../../data/shaders/aer_racer/01_triangle/quad.vert.spv");
+    const auto fragShader = LoadBinaries("../../data/shaders/aer_racer/01_triangle/quad.frag.spv");
 
     const VkShaderModule& vertShaderModule = CreateShaderModule(VkDevice(device_), vertShader);
     VkPipelineShaderStageCreateInfo vertShaderStageInfo{};

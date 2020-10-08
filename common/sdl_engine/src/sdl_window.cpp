@@ -36,7 +36,6 @@
 #endif
 namespace neko
 {
-
 void sdl::SdlWindow::Init()
 {
 #ifdef EASY_PROFILE_USE
@@ -45,9 +44,9 @@ void sdl::SdlWindow::Init()
     auto& config = BasicEngine::GetInstance()->config;
 
     uint32_t flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
-#ifdef defined (NEKO_GLES3) && !defined (NEKO_VULKAN)
+#if defined (NEKO_GLES3) && !defined (NEKO_VULKAN)
     flags |= SDL_WINDOW_OPENGL;
-#else
+#elif defined (NEKO_VULKAN)
     flags |= SDL_WINDOW_VULKAN;
 #endif
 
@@ -57,8 +56,7 @@ void sdl::SdlWindow::Init()
     config.fullscreen = true;
 #endif
 
-
-    BasicEngine::GetInstance()->config = config;    auto windowSize = config.windowSize;
+    auto windowSize = config.windowSize;
     if (config.fullscreen)
     {
         windowSize = Vec2u::zero;
@@ -147,4 +145,4 @@ void sdl::SdlWindow::RenderUi()
     ImGui::Render();
 }
 
-}  
+}   

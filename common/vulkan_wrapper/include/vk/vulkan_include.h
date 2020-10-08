@@ -31,9 +31,4 @@
 #ifndef NDEBUG
 #define VALIDATION_LAYERS
 #endif
-
-void CheckFramebuffer(VkResult result, const char* file, int line);
-void CheckVkError(VkResult result, const char* file, int line);
-#define vkCheckError(result) CheckVkError(result, __FILE__, __LINE__)
-#define vkCheckFramebuffer(result) CheckFramebuffer(result, __FILE__, __LINE__)
 #endif

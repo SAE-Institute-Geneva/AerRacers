@@ -267,7 +267,7 @@ void HelloIblProgram::GenerateCubemap()
 
 	Camera3D captureCamera;
 	captureCamera.position = Vec3f::zero;
-	captureCamera.aspect = 1.0f;
+	captureCamera.SetAspect(1.0f);
 	captureCamera.fovY = degree_t(90.0f);
 	captureCamera.nearPlane = 0.1f;
 	captureCamera.farPlane = 10.0f;
@@ -280,7 +280,7 @@ void HelloIblProgram::GenerateCubemap()
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFbo_);
 	for (unsigned int i = 0; i < 6; ++i)
 	{
-		captureCamera.WorldLookAt(viewDirs[i], upDirs[i]);
+		captureCamera.WorldLookAt(viewDirs[i]);
 		equiToCubemap_.SetMat4("view", captureCamera.GenerateViewMatrix());
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, envCubemap_, 0);
         glCheckFramebuffer();
@@ -323,7 +323,7 @@ void HelloIblProgram::GenerateDiffuseIrradiance()
 
 	Camera3D captureCamera;
 	captureCamera.position = Vec3f::zero;
-	captureCamera.aspect = 1.0f;
+	captureCamera.SetAspect(1.0f);
 	captureCamera.fovY = degree_t(90.0f);
 	captureCamera.nearPlane = 0.1f;
 	captureCamera.farPlane = 10.0f;
@@ -337,7 +337,7 @@ void HelloIblProgram::GenerateDiffuseIrradiance()
 	glBindFramebuffer(GL_FRAMEBUFFER, captureFbo_);
 	for(int i = 0; i < 6; i++)
 	{
-		captureCamera.WorldLookAt(viewDirs[i], upDirs[i]);
+		captureCamera.WorldLookAt(viewDirs[i]);
 		irradianceShader_.SetMat4("view", captureCamera.GenerateViewMatrix());
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap_, 0);
 		glCheckFramebuffer();
@@ -358,7 +358,7 @@ void HelloIblProgram::GeneratePrefilter()
 	logDebug("Generate Prefilter Convolution Map");
 	Camera3D captureCamera;
 	captureCamera.position = Vec3f::zero;
-	captureCamera.aspect = 1.0f;
+	captureCamera.SetAspect(1.0f);
 	captureCamera.fovY = degree_t(90.0f);
 	captureCamera.nearPlane = 0.1f;
 	captureCamera.farPlane = 10.0f;
@@ -402,7 +402,7 @@ void HelloIblProgram::GeneratePrefilter()
 		prefilterShader_.SetFloat("roughness", roughness);
 		for (unsigned int i = 0; i < 6; ++i)
 		{
-			captureCamera.WorldLookAt(viewDirs[i], upDirs[i]);
+			captureCamera.WorldLookAt(viewDirs[i]);
 			prefilterShader_.SetMat4("view", captureCamera.GenerateViewMatrix());
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 
 				prefilterMap_, mip);

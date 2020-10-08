@@ -34,7 +34,7 @@ class Instance : public IInstance
 public:
     explicit Instance();
 
-    void Init(const sdl::VulkanWindow& window);
+    void Init(const sdl::VulkanWindow* window);
     void Destroy();
 
     explicit operator const VkInstance &() const override { return instance_; }

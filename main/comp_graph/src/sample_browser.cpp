@@ -101,8 +101,12 @@ void SampleBrowser::Init()
     RegisterRenderProgram("31 Hello Texture Pbr", std::make_unique<HelloPbrTextureProgram>());
     RegisterRenderProgram("32 Hello IBL", std::make_unique<HelloIblProgram>());
 
-    RegisterRenderProgram("95 Hello 2d Game", std::make_unique<Hello2dGameProgram>());
+    //RegisterRenderProgram("95 Hello 2d Game", std::make_unique<Hello2dGameProgram>());
+
+#ifdef Neko_Freetype
     RegisterRenderProgram("96 Hello Text", std::make_unique<HelloTextProgram>());
+#endif
+
     RegisterRenderProgram("97 Hello Water", std::make_unique<HelloWaterProgram>());
     RegisterRenderProgram("98 Hello Line", std::make_unique<HelloLineProgram>());
     RegisterRenderProgram("99 Hello Scene", std::make_unique<HelloSceneProgram>());
@@ -175,4 +179,4 @@ size_t SampleBrowser::RegisterRenderProgram(const std::string_view name, std::un
     programs_.push_back(std::move(program));
     return index;
 }
-}
+} 

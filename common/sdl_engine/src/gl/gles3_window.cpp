@@ -137,7 +137,6 @@ void Gles3Window::GenerateUiFrame()
 
 void Gles3Window::SwapBuffer()
 {
-
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("SwapBuffer");
 #endif

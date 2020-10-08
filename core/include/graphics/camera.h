@@ -88,6 +88,11 @@ struct Camera
 
     [[nodiscard]] float GetAspect() const { return aspect_; }
 
+    void SetAspect(const float aspect)
+    {
+        aspect_ = aspect;
+    }
+
     void SetAspect(const int width, const int height)
     {
         aspect_ = static_cast<float>(width) / static_cast<float>(height);

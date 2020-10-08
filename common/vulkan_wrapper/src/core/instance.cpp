@@ -11,7 +11,7 @@ namespace neko::vk
 Instance::Instance()
 {}
 
-void Instance::Init(const sdl::VulkanWindow& window)
+void Instance::Init(const sdl::VulkanWindow* window)
 {
 #ifdef VALIDATION_LAYERS
     if (!CheckValidationLayerSupport())
@@ -30,7 +30,7 @@ void Instance::Init(const sdl::VulkanWindow& window)
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    const auto extensions = window.GetRequiredInstanceExtensions();
+    const auto extensions = window->GetRequiredInstanceExtensions();
     neko_assert(CheckInstanceExtensionsSupport(extensions), "Required instance extensions not available!")
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();

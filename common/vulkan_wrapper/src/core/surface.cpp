@@ -5,9 +5,9 @@ namespace neko::vk
 Surface::Surface(const Instance& instance) : instance_(instance)
 {}
 
-void Surface::Init(const sdl::VulkanWindow& window)
+void Surface::Init(const sdl::VulkanWindow* window)
 {
-    window.CreateSurface(VkInstance(instance_), surface_);
+    window->CreateSurface(VkInstance(instance_), surface_);
 }
 
 void Surface::Destroy()

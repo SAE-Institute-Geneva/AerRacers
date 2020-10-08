@@ -13,7 +13,7 @@ class Surface
 public:
     explicit Surface(const Instance& instance);
 
-    void Init(const sdl::VulkanWindow& window);
+    void Init(const sdl::VulkanWindow* window);
     void Destroy();
 
     explicit operator const VkSurfaceKHR &() const { return surface_; }

@@ -92,9 +92,9 @@ void VulkanWindow::InitImGui()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("ImGuiInit");
 #endif
-	SdlWindow::InitImGui();
+	/*SdlWindow::InitImGui();
 	ImGui_ImplSDL2_InitForVulkan(window_);
-	//ImGui_ImplVulkan_Init();
+	ImGui_ImplVulkan_Init();*/
 }
 
 void VulkanWindow::GenerateUiFrame()
@@ -102,9 +102,9 @@ void VulkanWindow::GenerateUiFrame()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("ImGuiGenerate");
 #endif
-	ImGui_ImplVulkan_NewFrame();
+	/*ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplSDL2_NewFrame(window_);
-	ImGui::NewFrame();
+	ImGui::NewFrame();*/
 }
 
 
@@ -113,7 +113,7 @@ void VulkanWindow::SwapBuffer()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("SwapBuffer");
 #endif
-	SDL_GL_SwapWindow(window_);
+	//SDL_GL_SwapWindow(window_);
 }
 
 void VulkanWindow::Destroy()
@@ -135,7 +135,7 @@ void VulkanWindow::RenderUi()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("ImGuiRender");
 #endif
-	ImGui::Render();
+	//ImGui::Render();
 	//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData());
 }
 

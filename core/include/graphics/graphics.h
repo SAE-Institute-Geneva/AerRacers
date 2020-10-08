@@ -38,9 +38,8 @@ namespace neko
 {
 class SyncBuffersInterface;
 class Job;
-	class Window;
+class Window;
 const size_t MAX_COMMAND_NMB = 8'192;
-
 
 /**
  * \brief abstraction of a graphic command send to the render thread
@@ -61,7 +60,6 @@ public:
 class RenderProgram : public RenderCommandInterface, public SystemInterface
 {
 };
-
 
 class RendererInterface
 {
@@ -101,8 +99,6 @@ public:
      */
     void Render(RenderCommandInterface* command) override;
 
-
-
     void Destroy();
 
     void SetFlag(RendererFlag flag);
@@ -112,7 +108,6 @@ public:
 	void AddPreRenderJob(Job* job) override;
 
     virtual void ClearScreen() = 0;
-
 
     void ResetJobs();
     Job* GetSyncJob() { return &syncJob_; }
@@ -141,7 +136,6 @@ protected:
     std::mutex preRenderJobsMutex_;
     std::vector<Job*> preRenderJobs_;
 
-
     Window* window_ = nullptr;
 
     mutable std::mutex statusMutex_;
@@ -152,5 +146,4 @@ protected:
 };
 
 using RendererLocator = Locator<RendererInterface, NullRenderer>;
-
 }
