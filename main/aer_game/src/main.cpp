@@ -20,7 +20,6 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
-
  Author : Floreau Luca
  Co-Author :
  Date : 29.09.2020
@@ -31,8 +30,7 @@
 
 #include "aer_engine.h"
 
-namespace neko::aer
-{
+namespace neko::aer {
 int main(int argc, char** argv)
 {
     Configuration config;

@@ -31,8 +31,7 @@
 
 #include "aer_engine.h"
 
-namespace neko::aer
-{
+namespace neko::aer {
 int main(int argc, char** argv)
 {
     Configuration config;
@@ -41,7 +40,11 @@ int main(int argc, char** argv)
 
     sdl::Gles3Window window;
     gl::Gles3Renderer renderer;
-    AerEngine engine(&config, ToolsMask(ToolsFlags::ENTITY_VIEWER | ToolsFlags::INSPECTOR | ToolsFlags::LOGGER));
+    AerEngine engine(
+        &config,
+        ToolsMask(
+            ToolsFlags::ENTITY_VIEWER | ToolsFlags::INSPECTOR |
+            ToolsFlags::LOGGER));
 
     engine.SetWindowAndRenderer(&window, &renderer);
 

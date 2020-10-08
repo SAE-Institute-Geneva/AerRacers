@@ -36,7 +36,7 @@ namespace neko
 {
 
 
-Image StbImageConvert(BufferFile imageFile, bool flipY, bool hdr)
+Image StbImageConvert(const BufferFile& imageFile, bool flipY, bool hdr)
 {
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Convert Image");
@@ -56,73 +56,215 @@ Image StbImageConvert(BufferFile imageFile, bool flipY, bool hdr)
     }
 	return image;
 }
-Texture::Texture() :
-	uploadToGpuJob_([this]
-	{
-#ifdef EASY_PROFILE_USE
-            EASY_BLOCK("Create GPU Texture");
-#endif
-		CreateTexture();
-	}),
-    convertImageJob_([this]
+
+TextureLoader::TextureLoader(TextureManager& textureManager) :
+	textureManager_(textureManager),
+	convertImageJob_([this]
     {
-        const auto filename = diskLoadJob_.GetFilePath();
-        const auto extension = GetFilenameExtension(filename);
-       
-    	image_ = StbImageConvert(diskLoadJob_.GetBufferFile(), flags_ & FLIP_Y,flags_ & HDR);
-	    diskLoadJob_.GetBufferFile().Destroy();
-	    RendererLocator::get().AddPreRenderJob(&uploadToGpuJob_);
+	    logDebug("[Texture Manager] Convert buffer file to image");
+        image_ = StbImageConvert(diskLoadJob_.GetBufferFile(), flags_ & Texture::FLIP_Y, flags_ & Texture::HDR);
+        TextureInfo textureInfo{ textureId_, std::move(image_), flags_ };
+        textureManager_.UploadToGpu(std::move(textureInfo));
+        logDebug("[Texture Manager] Finish converting buffer file to image");
     })
 {
-
 }
 
-void Texture::LoadFromDisk()
+void TextureLoader::SetTextureId(TextureId textureId)
 {
-    if (textureId_ == INVALID_TEXTURE_ID)
+	textureId_ = textureId;
+	const auto path = textureManager_.GetPath(textureId_);
+	diskLoadJob_.SetFilePath(path);
+}
+
+void TextureLoader::LoadFromDisk()
+{
+    if (textureId_ != INVALID_TEXTURE_ID)
     {
+#ifndef NEKO_SAMETHREAD
         BasicEngine::GetInstance()->ScheduleJob(&diskLoadJob_, JobThreadType::RESOURCE_THREAD);
         convertImageJob_.AddDependency(&diskLoadJob_);
         BasicEngine::GetInstance()->ScheduleJob(&convertImageJob_, JobThreadType::OTHER_THREAD);
+#else
+        diskLoadJob_.Execute();
+        convertImageJob_.Execute();
+#endif
     }
 }
 
-bool Texture::IsLoaded() const
+void TextureLoader::Reset()
 {
-    return uploadToGpuJob_.IsDone();
+	convertImageJob_.Reset();
+	diskLoadJob_.Reset();
 }
 
 
-void Texture::SetPath(std::string_view path)
+
+TextureManager::TextureManager() : textureLoader_(*this), uploadToGpuJob_([this]()
 {
-    diskLoadJob_.SetFilePath(path);
+	CreateTexture();
+	currentUploadedTexture_.textureId = INVALID_TEXTURE_ID;
+})
+{
+
 }
 
-void Texture::FreeImage()
+TextureId TextureManager::LoadTexture(std::string_view path, Texture::TextureFlags flags)
 {
-    image_.Destroy();
-}
+	
+	const std::string metaPath = std::string(path) + ".meta";
+    auto metaJson = LoadJson(metaPath);
+    TextureId textureId = INVALID_TEXTURE_ID;
+	if(CheckJsonExists(metaJson, "uuid"))
+	{
+        textureId = sole::rebuild(metaJson["uuid"].get<std::string>());
+	}
+    else
+    {
+        logDebug("[Error] Could not find texture id in json file");
+        return textureId;
+    }
 
-void Texture::Reset()
-{
-    diskLoadJob_.Reset();
-    convertImageJob_.Reset();
+    if (textureId == INVALID_TEXTURE_ID)
+    {
+        logDebug("[Error] Invalid texture id on texture load");
+        return textureId;
+    }
+    const auto it = texturePathMap_.find(textureId);
+	if(it != texturePathMap_.end())
+	{
+		//Texture is already in queue or even loaded
+        logDebug("[Texture Manager] Texture is already loaded");
+        return textureId;
+	}
+	std::string log = "[Texture Manager] Loading texture path: ";
+	log += path;
+	logDebug(log);
+
+    texturePathMap_[textureId] = std::string(path.data());
+#ifndef NEKO_SAMETHREAD
+	//Put texture in queue
+    TextureInfo textureInfo;
+    textureInfo.textureId = textureId;
+    textureInfo.flags = flags;
+    texturesToLoad_.push(std::move(textureInfo));
+#else
+    textureLoader_.Reset();
+
+    textureLoader_.SetTextureId(textureId);
+    textureLoader_.SetTextureFlags(flags);
+    textureLoader_.LoadFromDisk();
+
+    auto& textureInfo = texturesToUpload_.front();
+    currentUploadedTexture_ = std::move(textureInfo);
+    texturesToUpload_.pop();
     uploadToGpuJob_.Reset();
+    uploadToGpuJob_.Execute();
+#endif
+    return textureId;
 }
 
-TextureManager::TextureManager()
+std::string TextureManager::GetPath(TextureId textureId) const
 {
+	const auto pathIt = texturePathMap_.find(textureId);
+	if (pathIt != texturePathMap_.end())
+	{
+		return pathIt->second;
+	}
+	return "";
+}
+
+void TextureManager::Init()
+{
+    TextureManagerLocator::provide(this);
+}
+
+void TextureManager::Update([[maybe_unused]]seconds dt)
+{
+#ifndef NEKO_SAMETHREAD
+    if (!texturesToLoad_.empty())
+    {
+        if (textureLoader_.IsLoaded() || !textureLoader_.HasStarted())
+        {
+            logDebug("[Texture Manager] Loading a texture from disk");
+            textureLoader_.Reset();
+            const auto& textureInfo = texturesToLoad_.front();
+            textureLoader_.SetTextureId(textureInfo.textureId);
+            textureLoader_.SetTextureFlags(textureInfo.flags);
+            textureLoader_.LoadFromDisk();
+            texturesToLoad_.pop();
+        }
+    }
+	if(!texturesToUpload_.empty() && currentUploadedTexture_.textureId == INVALID_TEXTURE_ID)
+    {
+
+        logDebug("[Texture Manager] Uploading a texture to the GPU");
+		auto& textureInfo = texturesToUpload_.front();
+        currentUploadedTexture_ = std::move(textureInfo);
+	    texturesToUpload_.pop();
+        uploadToGpuJob_.Reset();
+	    RendererLocator::get().AddPreRenderJob(&uploadToGpuJob_);
+	}
+#endif
 }
 
 void TextureManager::Destroy()
 {
-    textureIndexMap_.clear();
-    currentIndex_ = 0;
+    texturePathMap_.clear();
+    textureMap_.clear();
+}
+
+void TextureManager::UploadToGpu(TextureInfo&& texture)
+{
+	texturesToUpload_.push(std::move(texture));
+}
+
+Texture TextureManager::GetTexture(TextureId index) const
+{
+    const auto it = textureMap_.find(index);
+	if(it != textureMap_.end())
+	{
+        return it->second;
+	}
+    return {};
+}
+
+bool TextureManager::IsTextureLoaded(TextureId textureId) const
+{
+    return textureMap_.find(textureId) != textureMap_.end();
+}
+
+
+Image::Image(Image&& image) noexcept
+{
+	data = image.data;
+	image.data = nullptr;
+	width = image.width;
+	height = image.height;
+	nbChannels = image.nbChannels;
+}
+
+Image& Image::operator=(Image&& image) noexcept
+{
+	data = image.data;
+	image.data = nullptr;
+	width = image.width;
+	height = image.height;
+	nbChannels = image.nbChannels;
+	return *this;
+}
+
+Image::~Image()
+{
+	Destroy();
 }
 
 void Image::Destroy()
 {
-    stbi_image_free(data);
+    if (data)
+    {
+        stbi_image_free(data);
+    }
     data = nullptr;
     height = -1;
     width = -1;
