@@ -129,10 +129,72 @@ void VkRenderer::ClearScreen()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);*/
 }
 
-
 void VkRenderer::BeforeRenderLoop()
 {
     Renderer::BeforeRenderLoop();
+	
+    camera_.Update(seconds (1.0f / 60.0f));
+
+    vkWaitForFences(VkDevice(device_), 1, &inFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX);
+
+    uint32_t imageIndex = 0;
+    VkResult res = vkAcquireNextImageKHR(VkDevice(device_), VkSwapchainKHR(swapchain_), UINT64_MAX,
+                                         imageAvailableSemaphores_[currentFrame_], nullptr, &imageIndex);
+    if (res == VK_ERROR_OUT_OF_DATE_KHR)
+    {
+        RecreateSwapChain();
+        return;
+    }
+
+    if (res != VK_SUCCESS && res != VK_SUBOPTIMAL_KHR)
+        neko_assert(false, "Failed to acquire swap chain image!")
+
+    // Check if a previous frame is using this image (i.e. there is its fence to wait on)
+    if (imagesInFlight_[imageIndex] != nullptr)
+        vkWaitForFences(VkDevice(device_), 1, &imagesInFlight_[imageIndex], VK_TRUE, UINT64_MAX);
+
+    // Mark the image as now being in use by this frame
+    imagesInFlight_[imageIndex] = inFlightFences_[currentFrame_];
+
+    UpdateUniformBuffer(imageIndex);
+
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores_[currentFrame_]};
+    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submitInfo.waitSemaphoreCount = 1;
+    submitInfo.pWaitSemaphores = waitSemaphores;
+    submitInfo.pWaitDstStageMask = waitStages;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &commandBuffers_[imageIndex];
+
+    VkSemaphore signalSemaphores[] = {renderFinishedSemaphores_[currentFrame_]};
+    submitInfo.signalSemaphoreCount = 1;
+    submitInfo.pSignalSemaphores = signalSemaphores;
+
+    vkResetFences(VkDevice(device_), 1, &inFlightFences_[currentFrame_]);
+    res = vkQueueSubmit(device_.GetGraphicsQueue(), 1, &submitInfo, inFlightFences_[currentFrame_]);
+    neko_assert(res == VK_SUCCESS, "Failed to submit draw command buffer!")
+
+    VkPresentInfoKHR presentInfo{};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = signalSemaphores;
+
+    VkSwapchainKHR swapChains[] = {VkSwapchainKHR(swapchain_)};
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = swapChains;
+    presentInfo.pImageIndices = &imageIndex;
+    presentInfo.pResults = nullptr; // Optional
+
+    res = vkQueuePresentKHR(device_.GetPresentQueue(), &presentInfo);
+    if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR || isFramebufferResized_)
+        RecreateSwapChain();
+    else if (res != VK_SUCCESS)
+        neko_assert(false, "Failed to present swap chain image!")
+
+    currentFrame_ = (currentFrame_ + 1) % kMaxFramesInFlight;
 }
 
 void VkRenderer::AfterRenderLoop()
@@ -231,6 +293,20 @@ void VkRenderer::CreateSyncObjects()
         res = vkCreateFence(VkDevice(device_), &fenceInfo, nullptr, &inFlightFences_[i]);
         neko_assert(res == VK_SUCCESS, "Failed to create in flight fence for a frame!")
     }
+}
+
+void VkRenderer::RenderAll()
+{
+#ifdef EASY_PROFILE_USE
+	EASY_BLOCK("RenderAllCPU");
+#endif
+
+	BeforeRenderLoop();
+	for (auto* renderCommand : currentCommandBuffer_)
+	{
+		renderCommand->Render();
+	}
+	AfterRenderLoop();
 }
 
 void VkRenderer::SetWindow(sdl::VulkanWindow* window)

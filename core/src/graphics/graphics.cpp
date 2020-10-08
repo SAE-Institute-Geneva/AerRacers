@@ -64,20 +64,11 @@ void Renderer::RenderAll()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("RenderAllCPU");
 #endif
-    for (auto* renderCommand : currentCommandBuffer_)
-    {
-        renderCommand->Render();
-    }
-}
-
-void Renderer::BeforeRenderLoop()
-{
-    window_->BeforeRenderLoop();
-}
-
-void Renderer::AfterRenderLoop()
-{
-    window_->AfterRenderLoop();
+	
+	for (auto* renderCommand : currentCommandBuffer_)
+	{
+		renderCommand->Render();
+	}
 }
 
 void Renderer::ScheduleJobs()
@@ -183,4 +174,4 @@ std::uint8_t Renderer::GetFlag() const
 
 }
 
- 
+  

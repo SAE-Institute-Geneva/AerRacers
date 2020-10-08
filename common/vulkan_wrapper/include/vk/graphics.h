@@ -50,15 +50,13 @@ namespace neko::vk
 {
 const int kMaxFramesInFlight = 2;
 
-class VkRenderer : public Renderer
+class VkRenderer final : public Renderer
 {
 public:
     VkRenderer();
     ~VkRenderer() override;
 
     void ClearScreen() override;
-
-
 
     void BeforeRenderLoop() override;
     void AfterRenderLoop() override;
@@ -72,6 +70,8 @@ private:
     void UpdateUniformBuffer(uint32_t currentImage);
 
     void CreateSyncObjects();
+
+	void RenderAll() override;
 
     Job initJob_;
 

@@ -6,7 +6,7 @@ file(GLOB_RECURSE shaders_src ${CMAKE_SOURCE_DIR}/data/shaders/aer_racer/*.vert 
 
 source_group("Shaders"	FILES ${shaders_src})
 
-add_executable(vk_engine src/main.cpp)
+add_executable(vk_engine src/main.cpp "src/vk_draw_system.cpp")
 target_link_libraries(vk_engine PUBLIC Neko_Core sdl_engine vulkan_wrapper)
 neko_bin_config(vk_engine)
 
