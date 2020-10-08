@@ -1,7 +1,35 @@
+/*
+ MIT License
+
+ Copyright (c) 2020 SAE Institute Switzerland AG
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+ */
+#include <engine/conversion.h>
 #include "asteroid/game_manager.h"
 #include "engine/engine.h"
 #include "imgui.h"
 #include "asteroid/rollback_manager.h"
+
+#ifdef EASY_PROFILE_USE
+#include "easy/profiler.h"
+#endif
 
 namespace neko::asteroid
 {
@@ -14,13 +42,7 @@ GameManager::GameManager() :
 
 void GameManager::Init()
 {
-    /*
-    for(net::PlayerNumber i = 0; i < maxPlayerNmb ; i++)
-    {
-        playerCharacters_.emplace_back(*this);
-    }
-     */
-	//playerCharacters_.resize(4, PlayerCharacter{ *this });
+    entityMap_.fill(INVALID_ENTITY);
 }
 
 void GameManager::Update(seconds dt)
@@ -34,6 +56,9 @@ void GameManager::Destroy()
 
 void GameManager::SpawnPlayer(net::PlayerNumber playerNumber, Vec2f position, degree_t rotation)
 {
+    if (GetEntityFromPlayerNumber(playerNumber) != INVALID_ENTITY)
+        return;
+    logDebug("[GameManager] Spawning new player");
 	const auto entity = entityManager_.CreateEntity(playerNumber);
 	entityMap_[playerNumber] = entity;
 	entityManager_.AddComponentType(entity, static_cast<EntityMask>(ComponentType::PLAYER_CHARACTER));
@@ -48,9 +73,40 @@ Entity GameManager::GetEntityFromPlayerNumber(net::PlayerNumber playerNumber) co
 	return entityMap_[playerNumber];
 }
 
+
+void GameManager::SetPlayerInput(net::PlayerNumber playerNumber, net::PlayerInput playerInput, std::uint32_t inputFrame)
+{
+    if (playerNumber == net::INVALID_PLAYER)
+        return;
+
+    rollbackManager_.SetPlayerInput(playerNumber, playerInput, inputFrame);
+
+}
+void GameManager::Validate(net::Frame newValidateFrame)
+{
+    if(rollbackManager_.GetCurrentFrame() < newValidateFrame)
+    {
+        rollbackManager_.StartNewFrame(newValidateFrame);
+    }
+    rollbackManager_.ValidateFrame(newValidateFrame);
+}
+
+Entity GameManager::SpawnBullet(net::PlayerNumber playerNumber, Vec2f position, Vec2f velocity)
+{
+    Entity entity = entityManager_.CreateEntity();
+    entityManager_.AddComponentType(entity, static_cast<EntityMask>(ComponentType::BULLET));
+    transformManager_.AddComponent(entity);
+    transformManager_.SetPosition(entity, position);
+    transformManager_.SetScale(entity, Vec2f::one*bulletScale);
+    transformManager_.SetRotation(entity, degree_t(0.0f));
+    transformManager_.UpdateDirtyComponent(entity);
+    rollbackManager_.SpawnBullet(playerNumber, entity, position, velocity);
+    return entity;
+}
+
 ClientGameManager::ClientGameManager(PacketSenderInterface& packetSenderInterface) :
     GameManager(),
-    spriteManager_(*this, entityManager_, transformManager_),
+    spriteManager_(entityManager_, textureManager_, transformManager_),
     packetSenderInterface_(packetSenderInterface)
 {
 }
@@ -61,23 +117,34 @@ void ClientGameManager::Init()
 	camera_.WorldLookAt(Vec3f::zero);
 	camera_.nearPlane = 0.0f;
 	camera_.farPlane = 2.0f;
+
+	textureManager_.Init();
 	spriteManager_.Init();
+
 	GameManager::Init();
 }
 
 void ClientGameManager::Update(seconds dt)
 {
+    std::lock_guard<std::mutex> lock(renderMutex_);
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("Game Manager Update");
+#endif
 	fixedTimer_ += dt.count();
 	while (fixedTimer_> FixedPeriod)
 	{
 		FixedUpdate();
 		fixedTimer_ -= FixedPeriod;
 	}
+	textureManager_.Update(dt);
+    spriteManager_.Update(dt);
+    transformManager_.Update();
 }
 
 void ClientGameManager::Destroy()
 {
 	GameManager::Destroy();
+    textureManager_.Destroy();
 	spriteManager_.Destroy();
 }
 
@@ -89,7 +156,12 @@ void ClientGameManager::SetWindowSize(Vec2u windowsSize)
 
 void ClientGameManager::Render()
 {
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("Game Manager Render");
+#endif
+    std::lock_guard<std::mutex> lock(renderMutex_);
 	glViewport(0, 0, windowSize_.x, windowSize_.y);
+    CameraLocator::provide(&camera_);
 	spriteManager_.Render();
 }
 
@@ -98,18 +170,41 @@ void ClientGameManager::SpawnPlayer(net::PlayerNumber playerNumber, Vec2f positi
 	logDebug("Spawn player: " + std::to_string(playerNumber));
 	GameManager::SpawnPlayer(playerNumber, position, rotation);
 	const auto entity = GetEntityFromPlayerNumber(playerNumber);
-	entityManager_.AddComponentType(entity, EntityMask(neko::ComponentType::SPRITE2D));
+	const auto& config = BasicEngine::GetInstance()->config;
+	if(shipTextureId_ == INVALID_TEXTURE_ID)
+    {
+	    shipTextureId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/asteroid/ship.png");
+    }
+	spriteManager_.AddComponent(entity);
+	spriteManager_.SetTexture(entity, shipTextureId_);
 
 }
 
+Entity ClientGameManager::SpawnBullet(net::PlayerNumber playerNumber, Vec2f position, Vec2f velocity)
+{
+    auto entity = GameManager::SpawnBullet(playerNumber, position, velocity);
+    const auto& config = BasicEngine::GetInstance()->config;
+    if(bulletTextureId_ == INVALID_TEXTURE_ID)
+    {
+        bulletTextureId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/asteroid/bullet.png");
+    }
+    spriteManager_.AddComponent(entity);
+    spriteManager_.SetTexture(entity, bulletTextureId_);
+    return entity;
+}
+
+
 void ClientGameManager::FixedUpdate()
 {
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("Game Manager Fixed Update");
+#endif
     if(!(state_ & STARTED))
     {
         if(startingTime_ != 0)
         {
             using namespace std::chrono;
-            const auto ms = duration_cast< milliseconds >(
+            unsigned long long ms = duration_cast< milliseconds >(
                     system_clock::now().time_since_epoch()
             ).count();
             if(ms > startingTime_)
@@ -130,30 +225,21 @@ void ClientGameManager::FixedUpdate()
 
     rollbackManager_.SimulateToCurrentFrame();
     //Copy rollback transform position to our own
-	for(net::PlayerNumber playerNumber = 0; playerNumber < maxPlayerNmb; playerNumber++)
+	for(Entity entity = 0; entity < entityManager_.GetEntitiesSize(); entity++)
 	{
-	    Entity playerEntity = GetEntityFromPlayerNumber(playerNumber);
-		if (playerEntity != INVALID_ENTITY &&
-			entityManager_.HasComponent(playerEntity,
-			static_cast<EntityMask>(
-				ComponentType::PLAYER_CHARACTER)))
-		{
-		    transformManager_.SetPosition(playerEntity, rollbackManager_.GetTransformManager().GetPosition(playerEntity));
-		    transformManager_.SetRotation(playerEntity, rollbackManager_.GetTransformManager().GetRotation(playerEntity));
-		}
-	}
+        if (!entityManager_.HasComponent(entity, EntityMask(neko::ComponentType::TRANSFORM2D)))
+            continue;
+        transformManager_.SetPosition(entity, rollbackManager_.GetTransformManager().GetPosition(entity));
+        transformManager_.SetScale(entity, rollbackManager_.GetTransformManager().GetScale(entity));
+        transformManager_.SetRotation(entity, rollbackManager_.GetTransformManager().GetRotation(entity));
+        transformManager_.UpdateDirtyComponent(entity);
+    }
     //We send the player inputs when the game started
 
     const auto& inputs = rollbackManager_.GetInputs(GetPlayerNumber());
-    const auto* framePtr = reinterpret_cast<std::uint8_t*>(&currentFrame_);
-
     std::unique_ptr<asteroid::PlayerInputPacket> playerInputPacket = std::make_unique<asteroid::PlayerInputPacket>();
-    playerInputPacket->packetType = asteroid::PacketType::INPUT;
     playerInputPacket->playerNumber = GetPlayerNumber();
-    for(size_t i = 0; i < sizeof(net::Frame);i++)
-    {
-        playerInputPacket->currentFrame[i] = framePtr[i];
-    }
+    playerInputPacket->currentFrame = ConvertToBinary(currentFrame_);
     for (size_t i = 0; i < playerInputPacket->inputs.size(); i++)
     {
         if(i > currentFrame_)
@@ -163,29 +249,14 @@ void ClientGameManager::FixedUpdate()
 
         playerInputPacket->inputs[i] = inputs[i];
     }
-    packetSenderInterface_.SendPacket(std::move(playerInputPacket));
+    packetSenderInterface_.SendUnreliablePacket(std::move(playerInputPacket));
 
 
     currentFrame_++;
 	rollbackManager_.StartNewFrame(currentFrame_);
 }
 
-void GameManager::SetPlayerInput(net::PlayerNumber playerNumber, net::PlayerInput playerInput, std::uint32_t inputFrame)
-{
-	if (playerNumber == net::INVALID_PLAYER)
-		return;
 
-	rollbackManager_.SetPlayerInput(playerNumber, playerInput, inputFrame);
-	
-}
-void GameManager::Validate(net::Frame newValidateFrame)
-{
-	if(rollbackManager_.GetCurrentFrame() < newValidateFrame)
-	{
-		rollbackManager_.StartNewFrame(newValidateFrame);
-	}
-    rollbackManager_.ValidateFrame(newValidateFrame);
-}
 void ClientGameManager::SetPlayerInput(net::PlayerNumber playerNumber, net::PlayerInput playerInput, std::uint32_t inputFrame)
 {
 	if (playerNumber == net::INVALID_PLAYER)
@@ -193,10 +264,10 @@ void ClientGameManager::SetPlayerInput(net::PlayerNumber playerNumber, net::Play
 	GameManager::SetPlayerInput(playerNumber, playerInput, inputFrame);
 }
 
-void ClientGameManager::StartGame(long startingTIme)
+void ClientGameManager::StartGame(unsigned long long int startingTime)
 {
-    logDebug("Start game at starting time: "+std::to_string(startingTIme));
-    startingTime_ = startingTIme;
+    logDebug("Start game at starting time: "+std::to_string(startingTime));
+    startingTime_ = startingTime;
 }
 
 void ClientGameManager::DrawImGui()
@@ -204,12 +275,12 @@ void ClientGameManager::DrawImGui()
     ImGui::Text(state_ & STARTED ? "Game has started" : "Game has not started");
 	if(startingTime_ != 0)
 	{
-		ImGui::Text("Starting Time: %u", startingTime_);
+		ImGui::Text("Starting Time: %llu", startingTime_);
 		using namespace std::chrono;
-		const auto ms = duration_cast<milliseconds>(
+        unsigned long long ms = duration_cast<milliseconds>(
 			system_clock::now().time_since_epoch()
 			).count();
-		ImGui::Text("Current Time: %u", ms);
+		ImGui::Text("Current Time: %llu", ms);
 	}
 }
 
@@ -229,7 +300,6 @@ void ClientGameManager::ConfirmValidateFrame(net::Frame newValidateFrame,
     }
     rollbackManager_.ConfirmFrame(newValidateFrame, physicsStates);
 }
-
 
 
 

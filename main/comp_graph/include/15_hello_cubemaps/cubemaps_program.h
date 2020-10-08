@@ -52,14 +52,16 @@ private:
 	gl::RenderCuboid skyboxCube_{ Vec3f::zero, Vec3f::one*2.0f };
 	gl::Shader skyboxShader_;
 	
-	TextureId skyboxTexture_ = 0;
+	TextureName skyboxTexture_ = 0;
 
 	gl::Shader modelShader_;
 	gl::Shader modelReflectionShader_;
 	gl::Shader modelRefractionShader_;
 	assimp::Model model_;
 	gl::RenderCuboid cube_{Vec3f::zero, Vec3f::one};
-	gl::Texture cubeTexture_;
+	gl::TextureManager textureManager_;
+	TextureName cubeTexture_ = INVALID_TEXTURE_NAME;
+	TextureId cubeTextureId_;
 	sdl::Camera3D camera_;
 	
 	ModelRenderMode currentRenderMode_ = ModelRenderMode::NONE;
