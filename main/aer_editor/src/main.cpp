@@ -43,7 +43,7 @@ int main(int argc, char** argv)
     neko::aer::AerEngine engine(
         &config,
         neko::aer::ToolsMask(
-            neko::aer::ToolsFlags::ENTITYVIEWER |
+            neko::aer::ToolsFlags::ENTITY_VIEWER |
             neko::aer::ToolsFlags::INSPECTOR |
             neko::aer::ToolsFlags::LOGGER));
 
