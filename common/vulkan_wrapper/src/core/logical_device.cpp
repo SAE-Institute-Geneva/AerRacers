@@ -61,9 +61,11 @@ void LogicalDevice::Init(const PhysicalDevice& gpu)
 
     vkGetDeviceQueue(device_, queueFamilyIndices.graphicsFamily, 0, &graphicsQueue_);
     vkGetDeviceQueue(device_, queueFamilyIndices.presentFamily, 0, &presentQueue_);
+
+	LogicalDeviceLocator::provide(this);
 }
 
-void LogicalDevice::Destroy()
+void LogicalDevice::Destroy() const
 {
     vkDeviceWaitIdle(device_);
 

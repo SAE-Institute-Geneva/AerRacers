@@ -11,17 +11,19 @@ namespace neko::vk
 class CommandBuffers
 {
 public:
-	CommandBuffers(const LogicalDevice& device, const CommandPool& commandPool);
+	explicit CommandBuffers() = default;
 
 	void Init(
+			const LogicalDevice& device,
             const Swapchain& swapchain,
             const RenderPass& renderPass,
             const GraphicsPipeline& graphicsPipeline,
+			const CommandPool& commandPool,
             const Framebuffers& framebuffers,
             const VertexBuffer& vertexBuffer,
             const IndexBuffer& indexBuffer,
             const DescriptorSets& descriptorSets);
-	void Destroy();
+	void Destroy(const LogicalDevice& device, const CommandPool& commandPool);
 
 	const VkCommandBuffer& operator[](const size_t index) const
     { return commandBuffers_[index]; }
@@ -30,9 +32,6 @@ public:
     { return commandBuffers_[index]; }
 	
 private:
-	const LogicalDevice& device_;
-	const CommandPool& commandPool_;
-
 	std::vector<VkCommandBuffer> commandBuffers_;
 };
 }

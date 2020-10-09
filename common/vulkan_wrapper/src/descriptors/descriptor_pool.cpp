@@ -2,12 +2,9 @@
 
 namespace neko::vk
 {
-DescriptorPool::DescriptorPool(const LogicalDevice& device) : device_(device)
-{}
-
-void DescriptorPool::Init(const Swapchain& swapchain)
+void DescriptorPool::Init(const LogicalDevice& device, const Swapchain& swapchain)
 {
-    const auto swapchainImagesCount = static_cast<uint32_t>(swapchain.GetImagesCount());
+    const auto swapchainImagesCount = static_cast<uint32_t>(swapchain.GetImageCount());
 
     std::array<VkDescriptorPoolSize, 2> poolSizes{};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -21,12 +18,12 @@ void DescriptorPool::Init(const Swapchain& swapchain)
     poolInfo.pPoolSizes = poolSizes.data();
     poolInfo.maxSets = swapchainImagesCount;
 
-    const VkResult res = vkCreateDescriptorPool(VkDevice(device_), &poolInfo, nullptr, &descriptorPool_);
+    const VkResult res = vkCreateDescriptorPool(VkDevice(device), &poolInfo, nullptr, &descriptorPool_);
     neko_assert(res == VK_SUCCESS, "Failed to create descriptor pool!")
 }
 
-void DescriptorPool::Destroy()
+void DescriptorPool::Destroy(const LogicalDevice& device) const
 {
-    vkDestroyDescriptorPool(VkDevice(device_), descriptorPool_, nullptr);
+    vkDestroyDescriptorPool(VkDevice(device), descriptorPool_, nullptr);
 }
 }

@@ -4,13 +4,9 @@
 #include <SDL_vulkan.h>
 
 #include "vk/core/instance.h"
-#include "vk/vk_utilities.h"
 
 namespace neko::vk
 {
-Instance::Instance()
-{}
-
 void Instance::Init(const sdl::VulkanWindow* window)
 {
 #ifdef VALIDATION_LAYERS
@@ -57,15 +53,11 @@ void Instance::Init(const sdl::VulkanWindow* window)
             break;
         case VK_ERROR_INCOMPATIBLE_DRIVER:
             neko_assert(false, "Unable to create vulkan instance, cannot find a compatible Vulkan ICD")
-            break;
         default:
             neko_assert(false, "Unable to create Vulkan instance: unknown error")
-            break;
     }
 
     SetupDebugMessenger();
-
-    InstanceLocator::provide(this);
 }
 
 VkResult Instance::CreateDebugUtilsMessengerExt(
@@ -82,7 +74,7 @@ VkResult Instance::CreateDebugUtilsMessengerExt(
     return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
-void Instance::Destroy()
+void Instance::Destroy() const
 {
 #ifdef VALIDATION_LAYERS
     DestroyDebugUtilsMessengerExt(nullptr);
@@ -112,5 +104,134 @@ void Instance::DestroyDebugUtilsMessengerExt(const VkAllocationCallbacks* pAlloc
     {
         func(instance_, debugMessenger_, pAllocator);
     }
+}
+
+VkBool32 DebugCallback(const VkDebugUtilsMessageSeverityFlagBitsEXT msgSeverity,
+                       VkDebugUtilsMessageTypeFlagsEXT msgType,
+                       const VkDebugUtilsMessengerCallbackDataEXT*
+                       pCallbackData, void* pUserData)
+{
+	if (msgSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+	{
+		std::ostringstream oss;
+		oss << "Validation layer: " << pCallbackData->pMessage << '\n';
+		logDebug(oss.str());
+	}
+	return VK_FALSE;
+}
+
+void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo)
+{
+	createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT|
+		VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+	createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+	createInfo.pfnUserCallback = DebugCallback;
+}
+
+bool CheckInstanceExtensionsSupport(const std::vector<const char*>& extensions)
+{
+    uint32_t instExtCount = 0;
+    VkResult res = vkEnumerateInstanceExtensionProperties(nullptr, &instExtCount, nullptr);
+    neko_assert(res == VK_SUCCESS, "Unable to query vulkan instance extension count")
+
+    std::vector<VkExtensionProperties> instExtNames(instExtCount);
+    res = vkEnumerateInstanceExtensionProperties(nullptr, &instExtCount, instExtNames.data());
+    neko_assert(res == VK_SUCCESS, "Unable to retrieve vulkan instance extension names")
+
+#ifndef NDEBUG
+    // Display layer names and find the ones we specified above
+    std::cout << "Found " << instExtCount << " instance extensions:\n";
+    uint32_t count(0);
+    for (const auto& instExtName : instExtNames)
+    {
+        std::cout << count << ": " << instExtName.extensionName << '\n';
+        count++;
+    }
+#endif
+
+    for (const auto& extName : extensions)
+    {
+        bool extFound = false;
+        for (const auto& extProperties : instExtNames)
+        {
+            if (strcmp(extName, extProperties.extensionName) == 0)
+            {
+                extFound = true;
+                break;
+            }
+        }
+
+        if (!extFound)
+        {
+            return false;
+        }
+    }
+
+#ifndef NDEBUG
+    // Print the ones we're enabling
+    for (const auto& ext : extensions)
+        std::cout << "Applying extension: " << ext << "\n";
+    std::cout << "\n";
+#endif
+
+    return true;
+}
+
+bool CheckValidationLayerSupport()
+{
+	uint32_t instLayerCount = 0;
+	VkResult res = vkEnumerateInstanceLayerProperties(&instLayerCount, nullptr);
+	neko_assert(res == VK_SUCCESS,
+	            "Unable to query vulkan instance layer property count")
+
+	std::vector<VkLayerProperties> instLayerNames(instLayerCount);
+	res = vkEnumerateInstanceLayerProperties(&instLayerCount,
+	                                         instLayerNames.data());
+	neko_assert(res == VK_SUCCESS,
+	            "Unable to retrieve vulkan instance layer names")
+
+#ifndef NDEBUG
+	// Display layer names and find the ones we specified above
+	std::cout << "Found " << instLayerCount << " instance layers:\n";
+	uint32_t count(0);
+	for (const auto& instLayerName : instLayerNames)
+	{
+		std::cout << count << ": " << instLayerName.layerName << ": " <<
+			instLayerName.description << '\n';
+		count++;
+	}
+#endif
+
+	for (const auto& layerName : kValidationLayers)
+	{
+		bool layerFound = false;
+		for (const auto& layerProperties : instLayerNames)
+		{
+			if (strcmp(layerName, layerProperties.layerName) == 0)
+			{
+				layerFound = true;
+				break;
+			}
+		}
+
+		if (!layerFound)
+		{
+			return false;
+		}
+	}
+
+#ifndef NDEBUG
+	// Print the ones we're enabling
+	for (const auto& layer : kValidationLayers)
+		std::cout << "Applying layer: " << layer << "\n";
+	std::cout << "\n";
+#endif
+
+	return true;
 }
 }

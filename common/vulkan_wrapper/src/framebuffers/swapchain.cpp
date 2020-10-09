@@ -1,11 +1,10 @@
 #include "vk/framebuffers/swapchain.h"
 
+#include "vk/core/logical_device.h"
+
 namespace neko::vk
 {
-Swapchain::Swapchain(const LogicalDevice& device) : device_(device)
-{}
-
-void Swapchain::Init(const PhysicalDevice& gpu, const Surface& surface)
+void Swapchain::Init(const PhysicalDevice& gpu, const LogicalDevice& device, const Surface& surface)
 {
     const auto& swapChainSupport = QuerySwapChainSupport(VkPhysicalDevice(gpu), VkSurfaceKHR(surface));
 
@@ -52,20 +51,20 @@ void Swapchain::Init(const PhysicalDevice& gpu, const Surface& surface)
     }
 
     // Create new one
-    const VkResult res = vkCreateSwapchainKHR(VkDevice(device_), &createInfo, nullptr, &swapchain_);
+    const VkResult res = vkCreateSwapchainKHR(VkDevice(device), &createInfo, nullptr, &swapchain_);
     neko_assert(res == VK_SUCCESS, "Unable to create swap chain!")
 
-    vkGetSwapchainImagesKHR(VkDevice(device_), swapchain_, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(VkDevice(device), swapchain_, &imageCount, nullptr);
     images_.resize(imageCount);
-    vkGetSwapchainImagesKHR(VkDevice(device_), swapchain_, &imageCount, images_.data());
+    vkGetSwapchainImagesKHR(VkDevice(device), swapchain_, &imageCount, images_.data());
 
     format_ = surfaceFormat.format;
     extent_ = extent;
 
-    CreateImageViews();
+    CreateImageViews(device);
 }
 
-void Swapchain::Init(const PhysicalDevice& gpu, const Surface& surface, const Swapchain& oldSwapchain)
+void Swapchain::Init(const PhysicalDevice& gpu, const LogicalDevice& device, const Surface& surface, const Swapchain& oldSwapchain)
 {
     const auto& swapChainSupport = QuerySwapChainSupport(VkPhysicalDevice(gpu), VkSurfaceKHR(surface));
 
@@ -113,33 +112,110 @@ void Swapchain::Init(const PhysicalDevice& gpu, const Surface& surface, const Sw
     }
 
     // Create new one
-    const VkResult res = vkCreateSwapchainKHR(VkDevice(device_), &createInfo, nullptr, &swapchain_);
+    const VkResult res = vkCreateSwapchainKHR(VkDevice(device), &createInfo, nullptr, &swapchain_);
     neko_assert(res == VK_SUCCESS, "Unable to create swap chain!")
 
-    vkGetSwapchainImagesKHR(VkDevice(device_), swapchain_, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(VkDevice(device), swapchain_, &imageCount, nullptr);
     images_.resize(imageCount);
-    vkGetSwapchainImagesKHR(VkDevice(device_), swapchain_, &imageCount, images_.data());
+    vkGetSwapchainImagesKHR(VkDevice(device), swapchain_, &imageCount, images_.data());
 
     format_ = surfaceFormat.format;
     extent_ = extent;
 
-    CreateImageViews();
+    CreateImageViews(device);
 }
 
-void Swapchain::Destroy()
+void Swapchain::Destroy(const LogicalDevice& device)
 {
-    vkDestroySwapchainKHR(VkDevice(device_), swapchain_, nullptr);
-
     for (const auto& imageView : imageViews_)
-        vkDestroyImageView(VkDevice(device_), imageView, nullptr);
+        vkDestroyImageView(VkDevice(device), imageView, nullptr);
+	
+    vkDestroySwapchainKHR(VkDevice(device), swapchain_, nullptr);
 }
 
-void Swapchain::CreateImageViews()
+void Swapchain::CreateImageViews(const LogicalDevice& device)
 {
     imageViews_.resize(images_.size());
     for (size_t i = 0; i < images_.size(); i++)
     {
-        imageViews_[i] = CreateImageView(VkDevice(device_), images_[i], format_, VK_IMAGE_ASPECT_COLOR_BIT);
+        imageViews_[i] = CreateImageView(VkDevice(device), images_[i], format_, VK_IMAGE_ASPECT_COLOR_BIT);
     }
+}
+
+VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
+{
+	for (const auto& availableFormat : availableFormats)
+		if (availableFormat.format == kFormat && availableFormat.colorSpace ==
+			kColorSpace)
+			return availableFormat;
+
+#ifdef VALIDATION_LAYERS
+	std::cout <<
+		"Warning: no matching color format found, picking first available one\n";
+#endif
+
+	return availableFormats[0];
+}
+
+VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
+{
+	for (const auto& availablePresentMode : availablePresentModes)
+		if (availablePresentMode == kPresentationMode)
+			return availablePresentMode;
+
+#ifdef VALIDATION_LAYERS
+	std::cout << "Unable to obtain preferred display mode, fallback to FIFO\n";
+#endif
+
+	return VK_PRESENT_MODE_FIFO_KHR;
+}
+
+VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
+{
+	if (capabilities.currentExtent.width != UINT32_MAX)
+		return capabilities.currentExtent;
+
+	auto& config = BasicEngine::GetInstance()->config;
+	std::cout << config.windowSize.x << config.windowSize.y << '\n';
+
+	VkExtent2D actualExtent = {config.windowSize.x, config.windowSize.y};
+
+	actualExtent.width = std::max(capabilities.minImageExtent.width,
+	                              std::min(capabilities.maxImageExtent.width,
+	                                       actualExtent.width));
+	actualExtent.height = std::max(capabilities.minImageExtent.height,
+	                               std::min(capabilities.maxImageExtent.height,
+	                                        actualExtent.height));
+
+	return actualExtent;
+}
+
+VkImageView CreateImageView(
+	const VkDevice& device, 
+	const VkImage& image,
+	const VkFormat format, 
+	const VkImageAspectFlags aspectFlags)
+{
+	VkImageViewCreateInfo viewInfo{};
+	viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+	viewInfo.image = image;
+	viewInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+	viewInfo.format = format;
+	viewInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+	viewInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+	viewInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+	viewInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+	viewInfo.subresourceRange.aspectMask = aspectFlags;
+	viewInfo.subresourceRange.baseMipLevel = 0;
+	viewInfo.subresourceRange.levelCount = 1;
+	viewInfo.subresourceRange.baseArrayLayer = 0;
+	viewInfo.subresourceRange.layerCount = 1;
+
+	VkImageView imageView;
+	const VkResult res = vkCreateImageView(device, &viewInfo, nullptr,
+	                                       &imageView);
+	neko_assert(res == VK_SUCCESS, "Failed to create texture image view!")
+
+	return imageView;
 }
 }

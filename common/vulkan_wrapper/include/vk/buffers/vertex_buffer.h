@@ -10,8 +10,6 @@ namespace neko::vk
 class VertexBuffer : public Buffer
 {
 public:
-    explicit VertexBuffer(const LogicalDevice& device);
-
-    void Init(const PhysicalDevice& gpu, const CommandPool& commandPool);
+    void Init(const PhysicalDevice& gpu, const LogicalDevice& device, const CommandPool& commandPool);
 };
 }

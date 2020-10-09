@@ -7,17 +7,15 @@ namespace neko::vk
 class CommandPool
 {
 public:
-	explicit CommandPool(const LogicalDevice& device);
+	explicit CommandPool() = default;
 
-	void Init(const PhysicalDevice& gpu);
-	void Destroy();
+	void Init(const PhysicalDevice& gpu, const LogicalDevice& device);
+	void Destroy(const LogicalDevice& device) const;
 	
     explicit operator const VkCommandPool &() const { return commandPool_; }
     [[nodiscard]] const VkCommandPool& GetCommandPool() const { return commandPool_; }
 	
 private:
-	const LogicalDevice& device_;
-	
 	VkCommandPool commandPool_{};
 };
 }

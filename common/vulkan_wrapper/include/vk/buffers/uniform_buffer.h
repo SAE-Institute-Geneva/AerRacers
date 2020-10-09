@@ -1,7 +1,8 @@
 #pragma once
+#include "mathematics/matrix.h"
+
 #include "vk/buffers/buffer.h"
 #include "vk/core/logical_device.h"
-#include "vk/framebuffers/swapchain.h"
 
 namespace neko::vk
 {
@@ -14,8 +15,6 @@ struct UniformBufferObject
 
 struct UniformBuffer : public Buffer
 {
-    explicit UniformBuffer(const LogicalDevice& device);
-
-    void Init(const PhysicalDevice& gpu);
+    void Init(const PhysicalDevice& gpu, const LogicalDevice& device);
 };
 }

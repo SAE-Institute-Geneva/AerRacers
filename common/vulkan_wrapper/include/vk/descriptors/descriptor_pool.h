@@ -7,17 +7,15 @@ namespace neko::vk
 class DescriptorPool
 {
 public:
-    explicit DescriptorPool(const LogicalDevice& device);
+    explicit DescriptorPool() = default;
 
-    void Init(const Swapchain& swapchain);
-    void Destroy();
+    void Init(const LogicalDevice& device, const Swapchain& swapchain);
+    void Destroy(const LogicalDevice& device) const;
 
     explicit operator const VkDescriptorPool &() const { return descriptorPool_; }
     [[nodiscard]] const VkDescriptorPool& GetDescriptorPool() const { return descriptorPool_; }
 
 private:
-    const LogicalDevice& device_;
-
     VkDescriptorPool descriptorPool_{};
 };
 }

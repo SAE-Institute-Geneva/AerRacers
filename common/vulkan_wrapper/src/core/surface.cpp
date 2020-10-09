@@ -2,16 +2,13 @@
 
 namespace neko::vk
 {
-Surface::Surface(const Instance& instance) : instance_(instance)
-{}
-
-void Surface::Init(const sdl::VulkanWindow* window)
+void Surface::Init(const sdl::VulkanWindow* window, const Instance& instance)
 {
-    window->CreateSurface(VkInstance(instance_), surface_);
+    window->CreateSurface(VkInstance(instance), surface_);
 }
 
-void Surface::Destroy()
+void Surface::Destroy(const Instance& instance) const
 {
-    vkDestroySurfaceKHR(VkInstance(instance_), surface_, nullptr);
+    vkDestroySurfaceKHR(VkInstance(instance), surface_, nullptr);
 }
 }

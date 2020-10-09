@@ -4,14 +4,12 @@
 
 namespace neko::vk
 {
-CommandBuffers::CommandBuffers(const LogicalDevice& device, const CommandPool& commandPool)
-	: device_(device), commandPool_(commandPool)
-{}
-
 void CommandBuffers::Init(
+		const LogicalDevice& device,
         const Swapchain& swapchain,
         const RenderPass& renderPass,
         const GraphicsPipeline& graphicsPipeline,
+		const CommandPool& commandPool,
         const Framebuffers& framebuffers,
         const VertexBuffer& vertexBuffer,
         const IndexBuffer& indexBuffer,
@@ -21,11 +19,11 @@ void CommandBuffers::Init(
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = VkCommandPool(commandPool_);
+    allocInfo.commandPool = VkCommandPool(commandPool);
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers_.size());
 
-    VkResult res = vkAllocateCommandBuffers(VkDevice(device_), &allocInfo, commandBuffers_.data());
+    VkResult res = vkAllocateCommandBuffers(VkDevice(device), &allocInfo, commandBuffers_.data());
     neko_assert(res == VK_SUCCESS, "Failed to allocate command buffers!")
 
     const auto& framebuffer = framebuffers.GetFramebuffers();
@@ -64,7 +62,7 @@ void CommandBuffers::Init(
         vkCmdBindDescriptorSets(commandBuffers_[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
                                 pipelineLayout, 0, 1, &descriptorSets[i],0, nullptr);
 
-        vkCmdDrawIndexed(commandBuffers_[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
+        vkCmdDrawIndexed(commandBuffers_[i], static_cast<uint32_t>(kIndices.size()), 1, 0, 0, 0);
         vkCmdEndRenderPass(commandBuffers_[i]);
 
         res = vkEndCommandBuffer(commandBuffers_[i]);
@@ -72,9 +70,9 @@ void CommandBuffers::Init(
     }
 }
 
-void CommandBuffers::Destroy()
+void CommandBuffers::Destroy(const LogicalDevice& device, const CommandPool& commandPool)
 {
-    vkFreeCommandBuffers(VkDevice(device_), VkCommandPool(commandPool_),
+    vkFreeCommandBuffers(VkDevice(device), VkCommandPool(commandPool),
                          static_cast<uint32_t>(commandBuffers_.size()), commandBuffers_.data());
 }
 }

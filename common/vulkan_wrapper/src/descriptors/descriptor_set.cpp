@@ -2,10 +2,7 @@
 
 namespace neko::vk
 {
-DescriptorSets::DescriptorSets(const LogicalDevice& device) : device_(device)
-{}
-
-void DescriptorSets::InitLayout()
+void DescriptorSets::InitLayout(const LogicalDevice& device)
 {
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
@@ -27,15 +24,17 @@ void DescriptorSets::InitLayout()
     layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
     layoutInfo.pBindings = bindings.data();
 
-    const VkResult res = vkCreateDescriptorSetLayout(VkDevice(device_), &layoutInfo, nullptr, &descriptorSetLayout_);
+    const VkResult res = vkCreateDescriptorSetLayout(VkDevice(device), &layoutInfo, nullptr, &descriptorSetLayout_);
     neko_assert(res == VK_SUCCESS, "Failed to create descriptor set layout!")
 }
 
-void DescriptorSets::Init(const Swapchain& swapchain,
-                          const std::vector<UniformBuffer>& uniformBuffers,
-                          const DescriptorPool& descriptorPool)
+void DescriptorSets::Init(
+    const LogicalDevice& device,
+    const Swapchain& swapchain,
+    const std::vector<UniformBuffer>& uniformBuffers,
+    const DescriptorPool& descriptorPool)
 {
-    const size_t swapChainImagesCount = swapchain.GetImagesCount();
+    const size_t swapChainImagesCount = swapchain.GetImageCount();
     std::vector<VkDescriptorSetLayout> layouts(swapChainImagesCount, descriptorSetLayout_);
 
     VkDescriptorSetAllocateInfo allocInfo{};
@@ -45,7 +44,7 @@ void DescriptorSets::Init(const Swapchain& swapchain,
     allocInfo.pSetLayouts = layouts.data();
 
     descriptorSets_.resize(swapChainImagesCount);
-    const VkResult res = vkAllocateDescriptorSets(VkDevice(device_), &allocInfo, descriptorSets_.data());
+    const VkResult res = vkAllocateDescriptorSets(VkDevice(device), &allocInfo, descriptorSets_.data());
     neko_assert(res == VK_SUCCESS, "Failed to allocate descriptor sets!")
 
     for (size_t i = 0; i < swapChainImagesCount; i++)
@@ -78,13 +77,13 @@ void DescriptorSets::Init(const Swapchain& swapchain,
         descriptorWrites[1].descriptorCount = 1;
         descriptorWrites[1].pImageInfo = &imageInfo;*/
 
-        vkUpdateDescriptorSets(VkDevice(device_), static_cast<uint32_t>(descriptorWrites.size()),
+        vkUpdateDescriptorSets(VkDevice(device), static_cast<uint32_t>(descriptorWrites.size()),
                                descriptorWrites.data(), 0, nullptr);
     }
 }
 
-void DescriptorSets::Destroy()
+void DescriptorSets::Destroy(const LogicalDevice& device) const
 {
-    vkDestroyDescriptorSetLayout(VkDevice(device_), descriptorSetLayout_, nullptr);
+    vkDestroyDescriptorSetLayout(VkDevice(device), descriptorSetLayout_, nullptr);
 }
 }

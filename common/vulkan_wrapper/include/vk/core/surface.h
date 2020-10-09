@@ -11,16 +11,14 @@ namespace neko::vk
 class Surface
 {
 public:
-    explicit Surface(const Instance& instance);
+    explicit Surface() = default;
 
-    void Init(const sdl::VulkanWindow* window);
-    void Destroy();
+    void Init(const sdl::VulkanWindow* window, const Instance& instance);
+    void Destroy(const Instance& instance) const;
 
     explicit operator const VkSurfaceKHR &() const { return surface_; }
-    const VkSurfaceKHR& GetSurface() { return surface_; }
+    const VkSurfaceKHR& GetSurface() const { return surface_; }
 private:
-    const Instance& instance_;
-
     VkSurfaceKHR surface_{};
 };
 }

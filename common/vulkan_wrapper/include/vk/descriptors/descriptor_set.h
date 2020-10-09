@@ -11,13 +11,14 @@ namespace neko::vk
 class DescriptorSets
 {
 public:
-    explicit DescriptorSets(const LogicalDevice& device);
+    explicit DescriptorSets() = default;
 
-    void InitLayout();
-    void Init(const Swapchain& swapchain,
+    void InitLayout(const LogicalDevice& device);
+    void Init(const LogicalDevice& device,
+			  const Swapchain& swapchain,
               const std::vector<UniformBuffer>& uniformBuffers,
               const DescriptorPool& descriptorPool);
-    void Destroy();
+    void Destroy(const LogicalDevice& device) const;
 
     explicit operator const VkDescriptorSetLayout &() const { return descriptorSetLayout_; }
     [[nodiscard]] const std::vector<VkDescriptorSet>& GetDescriptorSets() const { return descriptorSets_; }
@@ -31,8 +32,6 @@ public:
     { return descriptorSets_[index]; }
 
 private:
-    const LogicalDevice& device_;
-
     std::vector<VkDescriptorSet> descriptorSets_{};
     VkDescriptorSetLayout descriptorSetLayout_{};
 };

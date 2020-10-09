@@ -8,17 +8,15 @@ namespace neko::vk
 class RenderPass
 {
 public:
-    explicit RenderPass(const LogicalDevice& device);
+    explicit RenderPass() = default;
 
-    void Init(const PhysicalDevice& gpu, const Swapchain& swapchain);
-    void Destroy();
+    void Init(const PhysicalDevice& gpu, const LogicalDevice& device, const Swapchain& swapchain);
+    void Destroy(const LogicalDevice& device) const;
 
     explicit operator const VkRenderPass &() const { return renderPass_; }
     [[nodiscard]] const VkRenderPass& GetRenderPass() const { return renderPass_; }
 
 private:
-    const LogicalDevice& device_;
-
     VkRenderPass renderPass_ = nullptr;
 };
 }

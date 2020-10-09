@@ -1,5 +1,6 @@
 #include "vk/core/physical_device.h"
-#include "vk/vk_utilities.h"
+
+#include <sstream>
 
 namespace neko::vk
 {
@@ -71,5 +72,164 @@ void PhysicalDevice::Init(const Instance& instance, const Surface& surface)
 
     neko_assert(queueNodeIndex != INVALID_INDEX,
                 "Unable to find a queue command family that accepts graphics commands")
+}
+
+QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface)
+{
+	QueueFamilyIndices indices;
+
+	uint32_t queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilyCount, nullptr);
+
+	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilyCount,
+	                                         queueFamilies.data());
+
+	int i = 0;
+	for (const auto& queueFamily : queueFamilies)
+	{
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(gpu, i, surface, &presentSupport);
+		if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			indices.graphicsFamily = i;
+
+		if (presentSupport)
+			indices.presentFamily = i;
+
+		if (indices.IsComplete())
+			break;
+
+		i++;
+	}
+
+#ifdef VALIDATION_LAYERS
+	if (indices.graphicsFamily != INVALID_INDEX)
+	{
+		std::cout << "Queue family #" << indices.graphicsFamily <<
+			" supports graphics\n";
+
+		if (indices.presentFamily != INVALID_INDEX)
+			std::cout << "Queue family #" << indices.presentFamily <<
+				" supports presentation\n";
+		else
+			std::cout <<
+				"could not find a valid queue family with present support!\n";
+	}
+	else
+		std::cout <<
+			"could not find a valid queue family with graphics support!\n";
+	std::cout << '\n';
+#endif
+
+	return indices;
+}
+
+bool CheckDeviceExtensionSupport(const VkPhysicalDevice& gpu)
+{
+	uint32_t extensionCount = 0;
+	VkResult res = vkEnumerateDeviceExtensionProperties(
+		gpu, nullptr, &extensionCount, nullptr);
+	neko_assert(res == VK_SUCCESS,
+	            "Unable to query vulkan device extensions count")
+
+	std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+	res = vkEnumerateDeviceExtensionProperties(gpu, nullptr, &extensionCount,
+	                                           availableExtensions.data());
+	neko_assert(res == VK_SUCCESS,
+	            "Unable to retrieve vulkan device extension names")
+
+#ifdef VALIDATION_LAYERS
+	// Display layer names and find the ones we specified above
+	std::cout << "Found " << extensionCount << " device extensions:\n";
+	uint32_t count(0);
+	for (const auto& availableExtension : availableExtensions)
+	{
+		std::cout << count << ": " << availableExtension.extensionName << '\n';
+		count++;
+	}
+#endif
+
+	for (const auto& extName : kDeviceExtensions)
+	{
+		bool layerFound = false;
+		for (const auto& extProperties : availableExtensions)
+		{
+			if (strcmp(extName, extProperties.extensionName) == 0)
+			{
+				layerFound = true;
+				break;
+			}
+		}
+
+		if (!layerFound) return false;
+	}
+
+#ifdef VALIDATION_LAYERS
+	// Print the ones we're enabling
+	for (const auto& extension : kDeviceExtensions)
+		std::cout << "Applying device extension: " << extension << "\n";
+	std::cout << "\n";
+#endif
+
+	return true;
+}
+
+bool IsDeviceSuitable(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface,
+                      const QueueFamilyIndices& queueFamilyIndices)
+{
+	VkPhysicalDeviceProperties deviceProperties;
+	VkPhysicalDeviceFeatures deviceFeatures;
+	vkGetPhysicalDeviceProperties(gpu, &deviceProperties);
+	vkGetPhysicalDeviceFeatures(gpu, &deviceFeatures);
+
+	const bool extensionsSupported = CheckDeviceExtensionSupport(gpu);
+
+	bool swapChainAdequate = false;
+	if (extensionsSupported)
+	{
+		const SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(gpu, VkSurfaceKHR(surface));
+		swapChainAdequate = !swapChainSupport.formats.empty() && !
+			swapChainSupport.presentModes.empty();
+	}
+
+	VkPhysicalDeviceFeatures supportedFeatures;
+	vkGetPhysicalDeviceFeatures(gpu, &supportedFeatures);
+
+	return queueFamilyIndices.IsComplete() && extensionsSupported &&
+		swapChainAdequate &&
+		supportedFeatures.samplerAnisotropy &&
+		deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
+		deviceFeatures.geometryShader;
+}
+
+SwapChainSupportDetails QuerySwapChainSupport(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface)
+{
+	//Fill swap chain details
+	SwapChainSupportDetails details{};
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(gpu, surface,
+	                                          &details.capabilities);
+
+	//Fill swap chain formats data
+	uint32_t formatCount = 0;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, nullptr);
+	if (formatCount != 0)
+	{
+		details.formats.resize(formatCount);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount,
+		                                     details.formats.data());
+	}
+
+	//Fill swap chain presentation modes data
+	uint32_t presentModeCount = 0;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount,
+	                                          nullptr);
+	if (presentModeCount != 0)
+	{
+		details.presentModes.resize(presentModeCount);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(
+			gpu, surface, &presentModeCount, details.presentModes.data());
+	}
+
+	return details;
 }
 }

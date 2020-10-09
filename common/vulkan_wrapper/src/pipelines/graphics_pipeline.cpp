@@ -1,32 +1,25 @@
 #include "vk/pipelines/graphics_pipeline.h"
 
 #include "utilities/file_utility.h"
+#include "vk/shader.h"
 
 namespace neko::vk
 {
-GraphicsPipeline::GraphicsPipeline(const LogicalDevice& device) : device_(device)
-{}
-
-void GraphicsPipeline::Init(const Swapchain& swapchain, const RenderPass& renderPass, DescriptorSets& descriptorSets)
+void GraphicsPipeline::Init(
+    const LogicalDevice& device, 
+    const Swapchain& swapchain, 
+    const RenderPass& renderPass, 
+    DescriptorSets& descriptorSets)
 {
-    const auto vertShader = LoadBinaries("../../data/shaders/aer_racer/01_triangle/quad.vert.spv");
-    const auto fragShader = LoadBinaries("../../data/shaders/aer_racer/01_triangle/quad.frag.spv");
+	Shader shader;
+	shader.LoadFromFile(
+        "../../data/shaders/aer_racer/01_triangle/quad.vert.spv",
+        "../../data/shaders/aer_racer/01_triangle/quad.frag.spv");
 
-    const VkShaderModule& vertShaderModule = CreateShaderModule(VkDevice(device_), vertShader);
-    VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-    vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-    vertShaderStageInfo.module = vertShaderModule;
-    vertShaderStageInfo.pName = "main";
-
-    const VkShaderModule& fragShaderModule = CreateShaderModule(VkDevice(device_), fragShader);
-    VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-    fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    fragShaderStageInfo.module = fragShaderModule;
-    fragShaderStageInfo.pName = "main";
-
-    VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+    VkPipelineShaderStageCreateInfo shaderStages[] = {
+    	shader.GetVertShaderStageInfo(),
+    	shader.GetFragShaderStageInfo()
+    };
 
     auto bindingDescription = GetBindingDescription();
     auto attributeDescriptions = GetAttributeDescriptions();
@@ -125,7 +118,7 @@ void GraphicsPipeline::Init(const Swapchain& swapchain, const RenderPass& render
     pipelineLayoutInfo.setLayoutCount = 1; // Optional
     pipelineLayoutInfo.pSetLayouts = &descriptorSets.GetDescriptorSetLayout(); // Optional
 
-    VkResult res = vkCreatePipelineLayout(VkDevice(device_), &pipelineLayoutInfo, nullptr, &layout_);
+    VkResult res = vkCreatePipelineLayout(VkDevice(device), &pipelineLayoutInfo, nullptr, &layout_);
     neko_assert(res == VK_SUCCESS, "Failed to create pipeline layout!")
 
     VkGraphicsPipelineCreateInfo pipelineInfo{};
@@ -144,16 +137,71 @@ void GraphicsPipeline::Init(const Swapchain& swapchain, const RenderPass& render
     pipelineInfo.renderPass = VkRenderPass(renderPass);
     pipelineInfo.subpass = 0;
 
-    res = vkCreateGraphicsPipelines(VkDevice(device_), nullptr, 1, &pipelineInfo, nullptr, &pipeline_);
+    res = vkCreateGraphicsPipelines(VkDevice(device), nullptr, 1, &pipelineInfo, nullptr, &pipeline_);
     neko_assert(res == VK_SUCCESS, "Failed to create graphics pipeline!")
 
-    vkDestroyShaderModule(VkDevice(device_), fragShaderModule, nullptr);
-    vkDestroyShaderModule(VkDevice(device_), vertShaderModule, nullptr);
+	shader.Destroy(device);
 }
 
-void GraphicsPipeline::Destroy()
+void GraphicsPipeline::Destroy(const LogicalDevice& device) const
 {
-    vkDestroyPipeline(VkDevice(device_), pipeline_, nullptr);
-    vkDestroyPipelineLayout(VkDevice(device_), layout_, nullptr);
+    vkDestroyPipeline(VkDevice(device), pipeline_, nullptr);
+    vkDestroyPipelineLayout(VkDevice(device), layout_, nullptr);
+}
+
+VkShaderModule CreateShaderModule(const VkDevice& device, const std::string_view& data)
+{
+	VkShaderModuleCreateInfo createInfo{};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = data.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(data.data());
+
+	VkShaderModule shaderModule{};
+	const VkResult res = vkCreateShaderModule(device, &createInfo, nullptr,
+	                                          &shaderModule);
+	neko_assert(res == VK_SUCCESS, "Failed to create shader module!")
+
+	return shaderModule;
+}
+
+VkVertexInputBindingDescription GetBindingDescription()
+{
+	VkVertexInputBindingDescription bindingDescription;
+	bindingDescription.binding = 0;
+	bindingDescription.stride = sizeof(Vertex);
+	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+	return bindingDescription;
+}
+
+std::array<VkVertexInputAttributeDescription, 5> GetAttributeDescriptions()
+{
+	std::array<VkVertexInputAttributeDescription, 5> attributeDescriptions{};
+	attributeDescriptions[0].binding = 0;
+	attributeDescriptions[0].location = 0;
+	attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+	attributeDescriptions[0].offset = offsetof(Vertex, position);
+
+	attributeDescriptions[1].binding = 0;
+	attributeDescriptions[1].location = 1;
+	attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+	attributeDescriptions[1].offset = offsetof(Vertex, normal);
+
+	attributeDescriptions[2].binding = 0;
+	attributeDescriptions[2].location = 2;
+	attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+	attributeDescriptions[2].offset = offsetof(Vertex, texCoords);
+
+	attributeDescriptions[3].binding = 0;
+	attributeDescriptions[3].location = 3;
+	attributeDescriptions[3].format = VK_FORMAT_R32G32B32_SFLOAT;
+	attributeDescriptions[3].offset = offsetof(Vertex, tangent);
+
+	attributeDescriptions[4].binding = 0;
+	attributeDescriptions[4].location = 4;
+	attributeDescriptions[4].format = VK_FORMAT_R32G32B32_SFLOAT;
+	attributeDescriptions[4].offset = offsetof(Vertex, bitangent);
+
+	return attributeDescriptions;
 }
 }

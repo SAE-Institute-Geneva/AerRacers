@@ -1,44 +1,19 @@
 #pragma once
-#include "SDL_video.h"
-
-#include "utilities/service_locator.h"
 #include "vk/vulkan_include.h"
 #include "vk/vulkan_window.h"
 
 namespace neko::vk
 {
-class IInstance
+class Instance
 {
 public:
-    virtual explicit operator const VkInstance &() const = 0;
-    [[nodiscard]] virtual const VkInstance& GetInstance() const = 0;
-};
-
-class NullInstance : public IInstance
-{
-public:
-    explicit operator const VkInstance &() const override
-    {
-        neko_assert(false, "Vulkan Instance is null!")
-        return nullptr;
-    }
-    [[nodiscard]] const VkInstance& GetInstance() const override
-    {
-        neko_assert(false, "Vulkan Instance is null!")
-        return nullptr;
-    }
-};
-
-class Instance : public IInstance
-{
-public:
-    explicit Instance();
+    explicit Instance() = default;
 
     void Init(const sdl::VulkanWindow* window);
-    void Destroy();
+    void Destroy() const;
 
-    explicit operator const VkInstance &() const override { return instance_; }
-    [[nodiscard]] const VkInstance& GetInstance() const override { return instance_; }
+    explicit operator const VkInstance &() const { return instance_; }
+    [[nodiscard]] const VkInstance& GetInstance() const { return instance_; }
 
     VkResult CreateDebugUtilsMessengerExt(
             const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
@@ -51,5 +26,14 @@ private:
     VkDebugUtilsMessengerEXT debugMessenger_{};
 };
 
-using InstanceLocator = Locator<IInstance, NullInstance>;
+static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+	VkDebugUtilsMessageSeverityFlagBitsEXT msgSeverity,
+	VkDebugUtilsMessageTypeFlagsEXT msgType,
+	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+	void* pUserData);
+
+static void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
+static bool CheckInstanceExtensionsSupport(const std::vector<const char*>& extensions);
+static bool CheckValidationLayerSupport();
 }

@@ -2,10 +2,7 @@
 
 namespace neko::vk
 {
-Framebuffers::Framebuffers(const LogicalDevice& device) : device_(device)
-{}
-
-void Framebuffers::Init(const Swapchain& swapChain, const RenderPass& renderPass)
+void Framebuffers::Init(const LogicalDevice& device, const Swapchain& swapChain, const RenderPass& renderPass)
 {
     const auto& imageViews = swapChain.GetImageViews();
     const auto& swapchainExtent = swapChain.GetExtent();
@@ -29,14 +26,14 @@ void Framebuffers::Init(const Swapchain& swapChain, const RenderPass& renderPass
         framebufferInfo.layers = 1;
 
         const VkResult res =
-                vkCreateFramebuffer(VkDevice(device_), &framebufferInfo, nullptr, &framebuffers_[i]);
+                vkCreateFramebuffer(VkDevice(device), &framebufferInfo, nullptr, &framebuffers_[i]);
         neko_assert(res == VK_SUCCESS, "Failed to create framebuffer!")
     }
 }
 
-void Framebuffers::Destroy()
+void Framebuffers::Destroy(const LogicalDevice& device)
 {
     for (const auto& framebuffer : framebuffers_)
-        vkDestroyFramebuffer(VkDevice(device_), framebuffer, nullptr);
+        vkDestroyFramebuffer(VkDevice(device), framebuffer, nullptr);
 }
 }

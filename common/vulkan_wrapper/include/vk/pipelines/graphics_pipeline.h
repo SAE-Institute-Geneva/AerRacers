@@ -16,19 +16,25 @@ const std::array<VkDynamicState, 2> kDynamicStates =
 class GraphicsPipeline
 {
 public:
-    explicit GraphicsPipeline(const LogicalDevice& device);
+    explicit GraphicsPipeline() = default;
 
-    void Init(const Swapchain& swapchain, const RenderPass& renderPass, DescriptorSets& descriptorSets);
-    void Destroy();
+    void Init(
+        const LogicalDevice& device, 
+        const Swapchain& swapchain, 
+        const RenderPass& renderPass, 
+        DescriptorSets& descriptorSets);
+    void Destroy(const LogicalDevice& device) const;
 
     explicit operator const VkPipeline &() const { return pipeline_; }
     [[nodiscard]] const VkPipeline& GetGraphicsPipeline() const { return pipeline_; }
     [[nodiscard]] const VkPipelineLayout& GetLayout() const { return layout_; }
 
 private:
-    const LogicalDevice& device_;
-
     VkPipeline pipeline_{};
     VkPipelineLayout layout_{};
 };
+
+[[nodiscard]] static VkShaderModule CreateShaderModule(const VkDevice& device, const std::string_view& data);
+[[nodiscard]] static VkVertexInputBindingDescription GetBindingDescription();
+[[nodiscard]] static std::array<VkVertexInputAttributeDescription, 5> GetAttributeDescriptions();
 }

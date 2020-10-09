@@ -2,10 +2,7 @@
 
 namespace neko::vk
 {
-RenderPass::RenderPass(const LogicalDevice& device) : device_(device)
-{}
-
-void RenderPass::Init(const PhysicalDevice& gpu, const Swapchain& swapchain)
+void RenderPass::Init(const PhysicalDevice& gpu, const LogicalDevice& device, const Swapchain& swapchain)
 {
     VkAttachmentDescription colorAttachment{};
     colorAttachment.format = swapchain.GetFormat();
@@ -59,12 +56,12 @@ void RenderPass::Init(const PhysicalDevice& gpu, const Swapchain& swapchain)
     /*renderPassInfo.dependencyCount = 1;
     renderPassInfo.pDependencies = &dependency;*/
 
-    const VkResult res = vkCreateRenderPass(VkDevice(device_), &renderPassInfo, nullptr, &renderPass_);
+    const VkResult res = vkCreateRenderPass(VkDevice(device), &renderPassInfo, nullptr, &renderPass_);
     neko_assert(res == VK_SUCCESS, "Failed to create render pass!")
 }
 
-void RenderPass::Destroy()
+void RenderPass::Destroy(const LogicalDevice& device) const
 {
-    vkDestroyRenderPass(VkDevice(device_), renderPass_, nullptr);
+    vkDestroyRenderPass(VkDevice(device), renderPass_, nullptr);
 }
 }

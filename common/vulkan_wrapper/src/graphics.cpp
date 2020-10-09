@@ -36,44 +36,32 @@
 
 namespace neko::vk
 {
-VkRenderer::VkRenderer()
-        : Renderer(),
-          surface_(instance_),
-          swapchain_(device_),
-          renderPass_(device_),
-          descriptorSets_(device_),
-          graphicsPipeline_(device_),
-          commandPool_(device_),
-          framebuffers_(device_),
-          vertexBuffer_(device_),
-          indexBuffer_(device_),
-          descriptorPool_(device_),
-          commandBuffers_(device_, commandPool_)
+VkRenderer::VkRenderer() : Renderer()
 {
     initJob_ = Job([this] {
         instance_.Init(vkWindow_);
-        surface_.Init(vkWindow_);
+        surface_.Init(vkWindow_, instance_);
         gpu_.Init(instance_, surface_);
         device_.Init(gpu_);
-        swapchain_.Init(gpu_, surface_);
-        renderPass_.Init(gpu_, swapchain_);
-        descriptorSets_.InitLayout();
-        graphicsPipeline_.Init(swapchain_, renderPass_, descriptorSets_);
-        commandPool_.Init(gpu_);
-        framebuffers_.Init(swapchain_, renderPass_);
-        vertexBuffer_.Init(gpu_, commandPool_);
-        indexBuffer_.Init(gpu_, commandPool_);
+        swapchain_.Init(gpu_, device_, surface_);
+        renderPass_.Init(gpu_, device_, swapchain_);
+        descriptorSets_.InitLayout(device_);
+        graphicsPipeline_.Init(device_, swapchain_, renderPass_, descriptorSets_);
+        commandPool_.Init(gpu_, device_);
+        framebuffers_.Init(device_, swapchain_, renderPass_);
+        vertexBuffer_.Init(gpu_, device_, commandPool_);
+        indexBuffer_.Init(gpu_, device_, commandPool_);
 
-        const size_t swapchainImagesCount = swapchain_.GetImagesCount();
+        const size_t swapchainImagesCount = swapchain_.GetImageCount();
         for (size_t i = 0; i < swapchainImagesCount; ++i)
         {
-            uniformBuffers_.emplace_back(device_);
-            uniformBuffers_[i].Init(gpu_);
+            uniformBuffers_.emplace_back();
+            uniformBuffers_[i].Init(gpu_, device_);
         }
 
-        descriptorPool_.Init(swapchain_);
-        descriptorSets_.Init(swapchain_, uniformBuffers_, descriptorPool_);
-        commandBuffers_.Init(swapchain_, renderPass_, graphicsPipeline_,
+        descriptorPool_.Init(device_, swapchain_);
+        descriptorSets_.Init(device_, swapchain_, uniformBuffers_, descriptorPool_);
+        commandBuffers_.Init(device_, swapchain_, renderPass_, graphicsPipeline_, commandPool_,
                              framebuffers_, vertexBuffer_, indexBuffer_, descriptorSets_);
         CreateSyncObjects();
 
@@ -99,10 +87,10 @@ VkRenderer::~VkRenderer()
     vkDestroyImage(device_, image_.image, nullptr);
     vkFreeMemory(device_, image_.memory, nullptr);*/
 
-    descriptorSets_.Destroy();
+    descriptorSets_.Destroy(device_);
 
-    indexBuffer_.Destroy();
-    vertexBuffer_.Destroy();
+    indexBuffer_.Destroy(device_);
+    vertexBuffer_.Destroy(device_);
 
     for (size_t i = 0; i < kMaxFramesInFlight; i++)
     {
@@ -111,13 +99,11 @@ VkRenderer::~VkRenderer()
         vkDestroyFence(VkDevice(device_), inFlightFences_[i], nullptr);
     }
 
-    commandPool_.Destroy();
+    commandPool_.Destroy(device_);
     device_.Destroy();
 
-    surface_.Destroy();
+    surface_.Destroy(instance_);
     instance_.Destroy();
-
-    vkWindow_->Destroy();
 }
 
 void VkRenderer::ClearScreen()
@@ -212,21 +198,22 @@ void VkRenderer::RecreateSwapChain()
 
     DestroySwapChain();
 
-    swapchain_.Init(gpu_, surface_);
-    renderPass_.Init(gpu_, swapchain_);
-    graphicsPipeline_.Init(swapchain_, renderPass_, descriptorSets_);
+    swapchain_.Init(gpu_, device_, surface_);
+    renderPass_.Init(gpu_, device_, swapchain_);
+    graphicsPipeline_.Init(device_, swapchain_, renderPass_, descriptorSets_);
     //CreateDepthResources();
-    framebuffers_.Init(swapchain_, renderPass_);
+    framebuffers_.Init(device_, swapchain_, renderPass_);
 
-    for (size_t i = 0; i < swapchain_.GetImagesCount(); ++i)
+	const auto& swapchainImageCount = swapchain_.GetImageCount();
+    for (size_t i = 0; i < swapchainImageCount; ++i)
     {
-        uniformBuffers_.emplace_back(device_);
-        uniformBuffers_[i].Init(gpu_);
+        uniformBuffers_.emplace_back();
+        uniformBuffers_[i].Init(gpu_, device_);
     }
 
-    descriptorPool_.Init(swapchain_);
-    descriptorSets_.Init(swapchain_, uniformBuffers_, descriptorPool_);
-    commandBuffers_.Init(swapchain_, renderPass_, graphicsPipeline_,
+    descriptorPool_.Init(device_, swapchain_);
+    descriptorSets_.Init(device_, swapchain_, uniformBuffers_, descriptorPool_);
+    commandBuffers_.Init(device_, swapchain_, renderPass_, graphicsPipeline_, commandPool_,
                          framebuffers_, vertexBuffer_, indexBuffer_, descriptorSets_);
 }
 
@@ -236,18 +223,18 @@ void VkRenderer::DestroySwapChain()
     vkDestroyImage(device_, depthImage_.image, nullptr);
     vkFreeMemory(device_, depthImage_.memory, nullptr);*/
 
-    framebuffers_.Destroy();
-    commandBuffers_.Destroy();
+    framebuffers_.Destroy(device_);
+    commandBuffers_.Destroy(device_, commandPool_);
 
-    graphicsPipeline_.Destroy();
-    renderPass_.Destroy();
+    graphicsPipeline_.Destroy(device_);
+    renderPass_.Destroy(device_);
 
-    swapchain_.Destroy();
+    swapchain_.Destroy(device_);
 
     for (auto& buffer : uniformBuffers_)
-        buffer.Destroy();
+        buffer.Destroy(device_);
 
-    descriptorPool_.Destroy();
+    descriptorPool_.Destroy(device_);
 }
 
 void VkRenderer::UpdateUniformBuffer(uint32_t currentImage)
@@ -275,7 +262,7 @@ void VkRenderer::CreateSyncObjects()
     imageAvailableSemaphores_.resize(kMaxFramesInFlight);
     renderFinishedSemaphores_.resize(kMaxFramesInFlight);
     inFlightFences_.resize(kMaxFramesInFlight);
-    imagesInFlight_.resize(swapchain_.GetImagesCount(), nullptr);
+    imagesInFlight_.resize(swapchain_.GetImageCount(), nullptr);
 
     VkSemaphoreCreateInfo semaphoreInfo{};
     semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;

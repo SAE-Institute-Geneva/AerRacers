@@ -1,38 +1,34 @@
 #include "vk/buffers/index_buffer.h"
-#include "vk/vk_utilities.h"
 
 namespace neko::vk
 {
-IndexBuffer::IndexBuffer(const LogicalDevice& device) : Buffer(device)
-{}
-
-const std::vector<uint16_t> indices = {
+const std::vector<uint16_t> kIndices = {
         0, 1, 2, 2, 3, 0
 };
 
-void IndexBuffer::Init(const PhysicalDevice& gpu, const CommandPool& commandPool)
+void IndexBuffer::Init(const PhysicalDevice& gpu, const LogicalDevice& device, const CommandPool& commandPool)
 {
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
+	const VkDeviceSize bufferSize = sizeof(kIndices[0]) * kIndices.size();
 
     VkBuffer stagingBuffer{};
     VkDeviceMemory stagingBufferMemory{};
-    CreateBuffer(VkPhysicalDevice(gpu), VkDevice(device_), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    CreateBuffer(VkPhysicalDevice(gpu), VkDevice(device), bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                  VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                  stagingBuffer, stagingBufferMemory);
 
     void* data = nullptr;
-    vkMapMemory(VkDevice(device_), stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, indices.data(), static_cast<size_t>(bufferSize));
-    vkUnmapMemory(VkDevice(device_), stagingBufferMemory);
+    vkMapMemory(VkDevice(device), stagingBufferMemory, 0, bufferSize, 0, &data);
+    memcpy(data, kIndices.data(), static_cast<size_t>(bufferSize));
+    vkUnmapMemory(VkDevice(device), stagingBufferMemory);
 
-    CreateBuffer(VkPhysicalDevice(gpu), VkDevice(device_), bufferSize,
+    CreateBuffer(VkPhysicalDevice(gpu), VkDevice(device), bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, buffer_, memory_);
 
-    const auto& graphicsQueue = device_.GetGraphicsQueue();
-    CopyBuffer(graphicsQueue, VkDevice(device_), VkCommandPool(commandPool), stagingBuffer, buffer_, bufferSize);
+    const auto& graphicsQueue = device.GetGraphicsQueue();
+    CopyBuffer(graphicsQueue, VkDevice(device), VkCommandPool(commandPool), stagingBuffer, buffer_, bufferSize);
 
-    vkDestroyBuffer(VkDevice(device_), stagingBuffer, nullptr);
-    vkFreeMemory(VkDevice(device_), stagingBufferMemory, nullptr);
+    vkDestroyBuffer(VkDevice(device), stagingBuffer, nullptr);
+    vkFreeMemory(VkDevice(device), stagingBufferMemory, nullptr);
 }
 }

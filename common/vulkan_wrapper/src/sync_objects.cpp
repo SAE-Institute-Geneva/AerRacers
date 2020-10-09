@@ -9,7 +9,7 @@ SyncObjects::SyncObjects(const LogicalDevice& device, const Swapchain& swapchain
 void SyncObjects::Init()
 {
     inFlightFences_.resize(MAX_FRAMES_IN_FLIGHT);
-    imagesInFlight_.resize(swapchain_.GetImagesCount(), nullptr);
+    imagesInFlight_.resize(swapchain_.GetImageCount(), nullptr);
     imageAvailableSemaphores_.resize(MAX_FRAMES_IN_FLIGHT);
     renderFinishedSemaphores_.resize(MAX_FRAMES_IN_FLIGHT);
 	
