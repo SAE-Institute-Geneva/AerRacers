@@ -8,8 +8,7 @@ AerEngine::AerEngine(Configuration* config, ToolsMask toolsMask)
     RegisterSystem(drawSystem_);
     RegisterOnEvent(drawSystem_);
     RegisterOnDrawUi(drawSystem_);
-
-    if (toolsMask) {}
+    if (toolsMask) { }
 }
 
 void AerEngine::Init() { SdlEngine::Init(); }

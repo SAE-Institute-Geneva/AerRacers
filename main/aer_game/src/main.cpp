@@ -20,6 +20,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
+
  Author : Floreau Luca
  Co-Author :
  Date : 29.09.2020
@@ -30,21 +31,19 @@
 
 #include "aer_engine.h"
 
-namespace neko::aer {
+
 int main(int argc, char** argv)
 {
-    Configuration config;
+    neko::Configuration config;
     config.windowName = "AerRacers Game";
-    config.windowSize = neko::Vec2u(1280, 720);
+    config.windowSize = neko::Vec2u(1400, 900);
 
-    sdl::Gles3Window window;    //TODO(Luca@Simon) Move to Vulkan
-    gl::Gles3Renderer renderer; //TODO(Luca@Simon) Move to Vulkan
-    AerEngine engine(&config);
-
+    neko::sdl::Gles3Window window;    //TODO(Luca@Simon) Move to Vulkan
+    neko::gl::Gles3Renderer renderer; //TODO(Luca@Simon) Move to Vulkan
+    neko::aer::AerEngine engine(&config);
     engine.SetWindowAndRenderer(&window, &renderer);
 
     engine.Init();
     engine.EngineLoop();
     return 0;
-}
 }

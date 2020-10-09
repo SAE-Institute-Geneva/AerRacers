@@ -31,25 +31,25 @@
 
 #include "aer_engine.h"
 
-namespace neko::aer {
+
 int main(int argc, char** argv)
 {
-    Configuration config;
+    neko::Configuration config;
     config.windowName = "AerEditor";
-    config.windowSize = neko::Vec2u(1280, 720);
+    config.windowSize = neko::Vec2u(1400, 900);
 
-    sdl::Gles3Window window;
-    gl::Gles3Renderer renderer;
-    AerEngine engine(
+    neko::sdl::Gles3Window window;
+    neko::gl::Gles3Renderer renderer;
+    neko::aer::AerEngine engine(
         &config,
-        ToolsMask(
-            ToolsFlags::ENTITY_VIEWER | ToolsFlags::INSPECTOR |
-            ToolsFlags::LOGGER));
+        neko::aer::ToolsMask(
+            neko::aer::ToolsFlags::ENTITYVIEWER |
+            neko::aer::ToolsFlags::INSPECTOR |
+            neko::aer::ToolsFlags::LOGGER));
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
     engine.Init();
     engine.EngineLoop();
     return 0;
-}
 }
