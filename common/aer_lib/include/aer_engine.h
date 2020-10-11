@@ -30,6 +30,7 @@
 #include "sdl_engine/sdl_engine.h"
 
 #include "draw_system.h"
+#include "editor/tool/editor.h"
 
 namespace neko::aer {
 
@@ -59,5 +60,6 @@ public:
 
 private:
     DrawSystem drawSystem_;
+    Editor editor_;
 };
 }
