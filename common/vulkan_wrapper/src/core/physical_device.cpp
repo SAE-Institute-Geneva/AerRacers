@@ -1,5 +1,6 @@
 #include "vk/core/physical_device.h"
 
+#include <cstring>
 #include <sstream>
 
 namespace neko::vk

@@ -1,8 +1,10 @@
 #include "vk/buffers/index_buffer.h"
 
+#include <cstring>
+
 namespace neko::vk
 {
-const std::vector<uint16_t> kIndices = {
+const std::array<uint16_t, 6> kIndices = {
         0, 1, 2, 2, 3, 0
 };
 

@@ -13,7 +13,7 @@ static const VkFormat kFormat                   = VK_FORMAT_B8G8R8A8_SRGB;
 static const VkColorSpaceKHR kColorSpace        = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
 static const VkPresentModeKHR kPresentationMode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
 
-static const std::vector<const char*> kValidationLayers   = { "VK_LAYER_KHRONOS_validation" };
+static const std::array<const char*, 1> kValidationLayers   = { "VK_LAYER_KHRONOS_validation" };
 static const std::array<const char*, 1> kDeviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 struct QueueFamilyIndices

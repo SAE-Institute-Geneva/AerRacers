@@ -1,7 +1,5 @@
 #include "vk/framebuffers/swapchain.h"
 
-#include "vk/core/logical_device.h"
-
 namespace neko::vk
 {
 void Swapchain::Init(const PhysicalDevice& gpu, const LogicalDevice& device, const Surface& surface)
