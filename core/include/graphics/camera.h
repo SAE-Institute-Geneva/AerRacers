@@ -1,10 +1,8 @@
 #pragma once
-#include <engine/engine.h>
-#include <sdl_engine/sdl_input.h>
-#include <sdl_engine/sdl_engine.h>
+#include "engine/engine.h"
 
-#include <mathematics/vector.h>
-#include <mathematics/matrix.h>
+#include "mathematics/vector.h"
+#include "mathematics/matrix.h"
 #include "mathematics/transform.h"
 #include "utilities/service_locator.h"
 
@@ -354,7 +352,7 @@ struct FpsCamera final : public MovableCamera3D
     }
 };
 /**
- * \brief Exclusiviley used for the CameraLocator, please do not use!
+ * \brief Exclusively used for the CameraLocator, please do not use!
  */
 struct NullCamera : Camera
 {
@@ -364,4 +362,4 @@ struct NullCamera : Camera
 
 using CameraLocator = Locator<Camera, NullCamera>;
 
-} 
+}  

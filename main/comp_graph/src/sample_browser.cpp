@@ -179,4 +179,4 @@ size_t SampleBrowser::RegisterRenderProgram(const std::string_view name, std::un
     programs_.push_back(std::move(program));
     return index;
 }
-} 
+}  

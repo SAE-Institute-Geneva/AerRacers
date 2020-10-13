@@ -29,7 +29,7 @@
 #include <thread>
 
 #include "graphics/graphics.h"
-#include "graphics/camera.h"
+#include "sdl_engine/sdl_camera.h"
 #include "vk/buffers/index_buffer.h"
 #include "vk/buffers/uniform_buffer.h"
 #include "vk/buffers/vertex_buffer.h"
@@ -98,7 +98,7 @@ private:
     DescriptorPool descriptorPool_;
     CommandBuffers commandBuffers_;
 
-    MovableCamera3D camera_;
+    sdl::MovableCamera3D camera_;
 
     size_t currentFrame_ = 0;
     std::vector<VkFence> inFlightFences_{};
