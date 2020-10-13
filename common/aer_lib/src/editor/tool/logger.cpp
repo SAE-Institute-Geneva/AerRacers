@@ -25,9 +25,13 @@
 
 namespace neko::aer
 {
+    Logger* Logger::instance = nullptr;
+
     void Logger::Init()
     {
-        logs_.reserve(100000);
+        instance = this;
+        
+     
     }
 
     void Logger::Update(seconds dt)
@@ -44,7 +48,7 @@ namespace neko::aer
 
     void Logger::DrawImGui()
     {
-
+        
         if (isVisible) {
             //Tool Logger
             ImGui::SetNextWindowPos(ImVec2(0, 400), ImGuiCond_FirstUseEver);
@@ -57,7 +61,7 @@ namespace neko::aer
                 ImGui::IsWindowDocked();
 #pragma region Header
                 if (ImGui::Button("Clear")) {
-                    logs_.clear();
+                    instance->logs_.clear();
                 }
 
                 ImGui::SameLine(80);
@@ -66,7 +70,7 @@ namespace neko::aer
                 }
 
                 ImGui::SameLine(220);
-                ImGui::Text(("Counter Logs: " + std::to_string(logs_.size())).c_str());
+                ImGui::Text(("Counter Logs: " + std::to_string(instance->logs_.size())).c_str());
 
                 //Separator
                 ImGui::Separator();
@@ -74,12 +78,10 @@ namespace neko::aer
 #pragma region Body
                 ImGui::BeginChild("Logger");
 
-
-
                 int nbrLineMax = ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing();
 
                 if (scrollToBottom) {
-                    scroll_Y = logs_.size() - nbrLineMax;
+                    scroll_Y = instance->logs_.size() - nbrLineMax;
                     if (scroll_Y < 0) {
                         scroll_Y = 0;
                     }
@@ -88,26 +90,26 @@ namespace neko::aer
                     scroll_Y = ImGui::GetScrollY() / ImGui::GetTextLineHeightWithSpacing();
                     ImGui::SetCursorPos({ 0, (float)scroll_Y * ImGui::GetTextLineHeightWithSpacing() });
                 }
-
-                if (logs_.size() != 0) {
+              
+                if (instance->logs_.size() != 0) {
                     for (size_t i = scroll_Y; i < scroll_Y + (nbrLineMax); i++)
                     {
-                        if (i < logs_.size()) {
-                            switch (logs_[i].log_severity) {
+                        if (i < instance->logs_.size()) {
+                            switch (instance->logs_[i].log_severity) {
                             case 0:
-                                ImGui::TextColored(ImVec4(0.5f, 0.5f, 1, 1), logs_[i].log_msg.c_str());
+                                ImGui::TextColored(ImVec4(0.5f, 0.5f, 1, 1), instance->logs_[i].log_msg.c_str());
                                 break;
                             case 1:
-                                ImGui::Text(logs_[i].log_msg.c_str());
+                                ImGui::Text(instance->logs_[i].log_msg.c_str());
                                 break;
                             case 2:
-                                ImGui::TextColored(ImVec4(1, 1, 0, 1), logs_[i].log_msg.c_str());
+                                ImGui::TextColored(ImVec4(1, 1, 0, 1), instance->logs_[i].log_msg.c_str());
                                 break;
                             case 3:
-                                ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), logs_[i].log_msg.c_str());
+                                ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), instance->logs_[i].log_msg.c_str());
                                 break;
                             case 4:
-                                ImGui::TextColored(ImVec4(1, 0, 0, 1), logs_[i].log_msg.c_str());
+                                ImGui::TextColored(ImVec4(1, 0, 0, 1), instance->logs_[i].log_msg.c_str());
                                 break;
                             }
                         }
@@ -118,7 +120,7 @@ namespace neko::aer
                 }
 
                 if (!scrollToBottom) {
-                    ImGui::SetCursorPos({ 0, (float)logs_.size() * ImGui::GetTextLineHeightWithSpacing() });
+                    ImGui::SetCursorPos({ 0, (float)instance->logs_.size() * ImGui::GetTextLineHeightWithSpacing() });
                     ImGui::Text("");
                 }
                 ImGui::EndChild();
@@ -126,8 +128,6 @@ namespace neko::aer
 #pragma endregion 
             }
         }
-        AddLog(std::to_string(ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing()).c_str(), rand() % 5);
-
     }
 
 
@@ -174,7 +174,27 @@ namespace neko::aer
 
     void Logger::OnEvent(const SDL_Event& event)
     {
-     
+        
     }
 
+    void DebugLog(std::string msg) {   
+        Logger::get()->AddLog(msg, 0);
+    }
+
+    void InfoLog(std::string msg) {
+        Logger::get()->AddLog(msg, 1);
+    }
+
+    void WarningLog(std::string msg) {
+        Logger::get()->AddLog(msg, 2);
+    }
+
+    void ErrorLog(std::string msg) {
+        Logger::get()->AddLog(msg, 3);
+    }
+
+
+    void CriticalLog(std::string msg) {
+        Logger::get()->AddLog(msg, 4);
+    }
 }

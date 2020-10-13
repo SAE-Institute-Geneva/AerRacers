@@ -22,6 +22,7 @@
  SOFTWARE.
  */
 #include "editor/tool/editor.h"
+#include "aer_engine.h"
 
 
 namespace neko::aer
@@ -33,10 +34,10 @@ namespace neko::aer
 
     void Editor::Init()
     {
-        logger_ = std::move(std::make_unique<Logger>());
-        engine_.RegisterSystem(*logger_.get());
-        engine_.RegisterOnEvent(*logger_.get());
-        engine_.RegisterOnDrawUi(*logger_.get());
+        logger_ = new Logger();
+        engine_.RegisterSystem(*logger_);
+        engine_.RegisterOnEvent(*logger_);
+        engine_.RegisterOnDrawUi(*logger_);
 
         inspector_ = std::move(std::make_unique<Inspector>());
         engine_.RegisterSystem(*inspector_.get());
@@ -47,6 +48,25 @@ namespace neko::aer
     void Editor::Update(seconds dt)
     {
 
+        if (logger_ != nullptr) {
+            for (size_t i = 0; i < 1000; i++)
+            {
+                switch (std::rand() % 4) {
+                case 0:
+                    DebugLog("AHHHHH");
+                    break;
+                case 1:
+                    InfoLog("Pas terrible");
+                    break;
+                case 2:
+                    WarningLog("On se calme!");
+                    break;
+                case 3:
+                    ErrorLog("Rein à declarer");
+                    break;
+                }
+            }
+        }
     }
 
     void Editor::Destroy()
@@ -82,7 +102,7 @@ namespace neko::aer
                     inspector_.get()->isVisible = true;
                 }
                 if (ImGui::MenuItem("Logger", "Ctrl+L")) { 
-                    logger_.get()->isVisible = true;
+                    logger_->isVisible = true;
                 }
                 if (ImGui::MenuItem("Profiler", "Ctrl+P")) { /* Do stuff */ }
                 ImGui::EndMenu();

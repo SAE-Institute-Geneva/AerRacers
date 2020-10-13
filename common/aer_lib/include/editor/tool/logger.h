@@ -31,12 +31,24 @@ namespace neko::aer
 {
     class Logger : public Tool
     {
+      
     public:
+        Logger() {
+            logs_.reserve(100000);
+        };
+        
         struct MyLog
         {
             std::string log_msg;
             int log_severity;
         };
+
+        static Logger* get() noexcept {
+            return (!instance) ?
+                instance = new Logger :
+                instance;
+        }
+
         /**
          * \brief Executed on the render thread
          */
@@ -59,11 +71,31 @@ namespace neko::aer
         void OnEvent(const SDL_Event& event) override;
 
         void AddLog(std::string msg_log, int severity_log);
+
+        Logger(Logger const&) = delete;
+        void operator=(Logger const&) = delete;
+
+        static Logger* instance;
     protected:
+
+
         int scroll_Y = 0;
         bool scrollToBottom = true;
 
 
         std::vector<MyLog> logs_;
+    private:
+       
+
     };
+
+    void DebugLog(std::string msg);
+
+    void InfoLog(std::string msg);
+
+    void WarningLog(std::string msg);
+
+    void ErrorLog(std::string msg);
+
+    void CriticalLog(std::string msg);
 }

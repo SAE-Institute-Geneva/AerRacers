@@ -73,7 +73,7 @@ protected:
     AerEngine& engine_;
     bool isToolAdded = false;
     //Toudou 
-    std::unique_ptr<Logger> logger_;
+    Logger* logger_;
     std::unique_ptr<Inspector> inspector_;
 };
 }

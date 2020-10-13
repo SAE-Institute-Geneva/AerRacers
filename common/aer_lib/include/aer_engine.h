@@ -23,8 +23,9 @@
  SOFTWARE.
 
  Author : Floreau Luca
- Co-Author :
- Date : 29.09.2020
+ Co-Author : Dylan von Arx
+ Date : 29.09.2020 
+Last Modif: 13.10.2020
 ---------------------------------------------------------- */
 
 #include "sdl_engine/sdl_engine.h"
