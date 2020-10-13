@@ -1,12 +1,10 @@
-#include <log.h>
-#include <filesystem>
-#include <utilities/file_utility.h>
+#include "log.h"
 
 #include <memory>
 #include <iomanip>
 #include <sstream>
 
-#include "engine\log.h"
+#include <utilities/file_utility.h>
 
 namespace neko
 {
@@ -16,12 +14,14 @@ namespace neko
 void LogMessage::Generate()
 {
     time_t curTime = time(nullptr);
+
 #ifdef _MSC_VER
 	struct tm localTime {};
 	localtime_s(&localTime, &curTime);
 #else
     tm localTime = *localtime(&curTime);
 #endif
+
 	std::ostringstream message;
 	message << '[' << std::setw(2) << std::setfill('0') << localTime.tm_hour << ":"
 		<< std::setw(2) << std::setfill('0') << localTime.tm_min << ":"
@@ -70,8 +70,7 @@ void LogMessage::Generate()
 //-----------------------------------------------------------------------------
 // LogManager definitions
 //-----------------------------------------------------------------------------
-LogManager::LogManager()
-	: status_(0)
+LogManager::LogManager() : status_(0)
 {
 	Log::provide(this);
 	status_ |= IS_RUNNING | IS_EMPTY;
@@ -153,8 +152,7 @@ void LogManager::Log(LogType logType, const std::string& log)
 	Log(LogCategory::NONE, logType, log);
 }
 
-void LogManager::Log(LogCategory category, LogType logType,
-	const std::string& log)
+void LogManager::Log(LogCategory category, LogType logType, const std::string& log)
 {
 	std::lock_guard<std::mutex> lock(logMutex_);
 	status_ &= ~IS_EMPTY;
@@ -221,9 +219,9 @@ void LogManager::WriteToFile()
 
 		CreateDirectory(filePath);
 
-		if (FileExists(filePath + dateTime + ".log")) {
+		if (FileExists(filePath + dateTime + ".log"))
 			dateTime += "-1";
-		}
+
 		WriteStringToFile(filePath + dateTime + ".log", fileContent);
 
 		status_ &= ~IS_WRITING;

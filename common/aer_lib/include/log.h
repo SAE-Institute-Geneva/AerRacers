@@ -35,8 +35,10 @@
 #include <mutex>
 #include <thread>
 #include <functional>
-#include <utilities/service_locator.h>
 #include <condition_variable>
+
+#include "engine/assert.h"
+#include "utilities/service_locator.h"
 
 namespace neko
 {
@@ -73,8 +75,8 @@ enum class LogCategory : std::uint8_t
 /// \brief Struct representing a log message with its type
 struct LogMessage
 {
+    LogCategory category = LogCategory::NONE;
 	LogType type = LogType::DEBUG;
-	LogCategory category = LogCategory::NONE;
 	std::string log;
 
 	explicit LogMessage(std::string log)
@@ -140,6 +142,7 @@ public:
 /// \brief Used for the service locator
 class NullLogManager final : public LogManagerInterface
 {
+public:
 	void Log([[maybe_unused]] LogType logType,
 	         [[maybe_unused]] const std::string& log) override
 	{
@@ -150,19 +153,26 @@ class NullLogManager final : public LogManagerInterface
 	         [[maybe_unused]] LogType logType,
 	         [[maybe_unused]] const std::string& log) override
 	{
-		const LogMessage logMessage(category, logType, log);
-		logMessage.Display();
-		std::cout << "[WARNING] LogManager is null! History will NOT be saved\n";
+		if (!wasWarningIssued)
+        {
+            const LogMessage warningMessage(LogType::WARNING,
+                                            "LogManager is null! History will NOT be saved");
+            warningMessage.Display();
+        }
+
+        const LogMessage logMessage(category, logType, log);
+        logMessage.Display();
+
+        wasWarningIssued = true;
 	}
 
 	const std::vector<LogMessage>& GetLogs() override
 	{
-		std::cerr << "Impossible to get log history from a null LogManager\n";
-		assert(false);
-#ifdef _MSC_VER
-		return {};
-#endif
+		neko_assert(false, "Impossible to get log history from a null LogManager")
 	}
+
+private:
+    bool wasWarningIssued = false;
 };
 
 //-----------------------------------------------------------------------------
@@ -183,6 +193,7 @@ protected:
 		IS_LOG_WAITING = 1u << 2u, //To check if the LogManager is waiting for a task
 		IS_WRITING = 1u << 3u //To check if the LogManager is writing its output to a file
 	};
+
 public:
 	LogManager();
 	~LogManager();
@@ -193,8 +204,7 @@ public:
 
 	void Log(LogType logType, const std::string& log) override;
 
-	void Log(LogCategory category, LogType logType,
-		const std::string& log) override;
+	void Log(LogCategory category, LogType logType, const std::string& log) override;
 
 	const std::vector<LogMessage>& GetLogs() override
 	{
@@ -202,6 +212,7 @@ public:
 	}
 
 	void WriteToFile();
+
 private:
 	std::atomic<std::uint8_t> status_;
 
