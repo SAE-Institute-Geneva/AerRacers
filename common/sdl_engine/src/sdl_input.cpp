@@ -1,7 +1,5 @@
 #include <sdl_engine/sdl_input.h>
 
-#include <imgui.h>
-
 #include "sdl_engine/sdl_engine.h"
 
 namespace neko::sdl
