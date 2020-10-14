@@ -82,7 +82,7 @@ LogManager::LogManager() : status_(0)
 
 LogManager::~LogManager()
 {
-	WriteToFile();
+	//WriteToFile();
 	Destroy();
 }
 
