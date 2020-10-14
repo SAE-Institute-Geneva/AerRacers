@@ -45,12 +45,34 @@
 #include "vk/framebuffers/renderpass.h"
 #include "vk/framebuffers/swapchain.h"
 #include "vk/pipelines/graphics_pipeline.h"
+#include "vk/shader.h"
 
 namespace neko::vk
 {
 const int kMaxFramesInFlight = 2;
+class VkRenderer;
 
-class VkRenderer final : public Renderer
+struct IVkObjects
+{
+    sdl::VulkanWindow* vkWindow = nullptr;
+    Instance instance;
+    Surface surface;
+    PhysicalDevice gpu;
+    LogicalDevice device;
+    Swapchain swapchain;
+    RenderPass renderPass;
+    CommandPool commandPool;
+    Framebuffers framebuffers;
+    DescriptorPool descriptorPool;
+    CommandBuffers commandBuffers;
+};
+
+struct NullVkObjects : IVkObjects
+{};
+
+using VkResourcesLocator = Locator<IVkObjects, NullVkObjects>;
+
+class VkRenderer final : public Renderer, IVkObjects
 {
 public:
     VkRenderer();
@@ -67,40 +89,21 @@ private:
     void RecreateSwapChain();
     void DestroySwapChain();
 
-    void UpdateUniformBuffer(uint32_t currentImage);
-
     void CreateSyncObjects();
 
 	void RenderAll() override;
 
     Job initJob_;
 
-    sdl::VulkanWindow* vkWindow_ = nullptr;
-
-    Instance instance_;
-    Surface surface_;
-    PhysicalDevice gpu_;
-    LogicalDevice device_;
-
-    Swapchain swapchain_;
-
-    RenderPass renderPass_;
-    DescriptorSets descriptorSets_;
-    GraphicsPipeline graphicsPipeline_;
-
-    CommandPool commandPool_;
-    Framebuffers framebuffers_;
+    Shader shader_;
 
     VertexBuffer vertexBuffer_;
     IndexBuffer indexBuffer_;
-    std::vector<UniformBuffer> uniformBuffers_{};
-
-    DescriptorPool descriptorPool_;
-    CommandBuffers commandBuffers_;
 
     sdl::MovableCamera3D camera_;
 
     size_t currentFrame_ = 0;
+    uint32_t imageIndex_ = 0;
     std::vector<VkFence> inFlightFences_{};
     std::vector<VkFence> imagesInFlight_{};
     std::vector<VkSemaphore> imageAvailableSemaphores_{};

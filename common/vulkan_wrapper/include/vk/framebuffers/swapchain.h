@@ -10,9 +10,9 @@ class Swapchain
 public:
     explicit Swapchain() = default;
 
-    void Init(const PhysicalDevice& gpu, const LogicalDevice& device, const Surface& surface);
-    void Init(const PhysicalDevice& gpu, const LogicalDevice& device, const Surface& surface, const Swapchain& oldSwapchain);
-    void Destroy(const LogicalDevice& device);
+    void Init();
+    void Init(const Swapchain& oldSwapchain);
+    void Destroy();
 
     explicit operator const VkSwapchainKHR &() const { return swapchain_; }
     [[nodiscard]] const VkSwapchainKHR& GetSwapchain() const { return swapchain_; }

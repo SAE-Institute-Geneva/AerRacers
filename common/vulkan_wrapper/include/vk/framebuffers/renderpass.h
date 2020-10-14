@@ -10,8 +10,8 @@ class RenderPass
 public:
     explicit RenderPass() = default;
 
-    void Init(const PhysicalDevice& gpu, const LogicalDevice& device, const Swapchain& swapchain);
-    void Destroy(const LogicalDevice& device) const;
+    void Init();
+    void Destroy() const;
 
     explicit operator const VkRenderPass &() const { return renderPass_; }
     [[nodiscard]] const VkRenderPass& GetRenderPass() const { return renderPass_; }

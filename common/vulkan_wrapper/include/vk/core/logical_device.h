@@ -30,7 +30,7 @@ class LogicalDevice final : public ILogicalDevice
 public:
     explicit LogicalDevice() = default;
 
-    void Init(const PhysicalDevice& gpu);
+    void Init();
     void Destroy() const;
 
     explicit operator const VkDevice &() const override { return device_; }

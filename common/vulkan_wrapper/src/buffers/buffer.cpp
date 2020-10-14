@@ -1,11 +1,13 @@
 #include "vk/buffers/buffer.h"
+#include "vk/graphics.h"
 
 namespace neko::vk
 {
-void Buffer::Destroy(const LogicalDevice& device) const
+void Buffer::Destroy() const
 {
-	vkDestroyBuffer(VkDevice(device), buffer_, nullptr);
-	vkFreeMemory(VkDevice(device), memory_, nullptr);
+    const auto& vkObj = VkResourcesLocator::get();
+	vkDestroyBuffer(VkDevice(vkObj.device), buffer_, nullptr);
+	vkFreeMemory(VkDevice(vkObj.device), memory_, nullptr);
 }
 
 uint32_t FindMemoryType(

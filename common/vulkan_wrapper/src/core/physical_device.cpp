@@ -3,12 +3,16 @@
 #include <cstring>
 #include <sstream>
 
+#include "vk/graphics.h"
+
 namespace neko::vk
 {
-void PhysicalDevice::Init(const Instance& instance, const Surface& surface)
+void PhysicalDevice::Init()
 {
+    const auto& vkObj = VkResourcesLocator::get();
+
     uint32_t physDeviceCount(0);
-    vkEnumeratePhysicalDevices(VkInstance(instance), &physDeviceCount, nullptr);
+    vkEnumeratePhysicalDevices(VkInstance(vkObj.instance), &physDeviceCount, nullptr);
     neko_assert(physDeviceCount != 0, "No GPU found!")
 #ifdef VALIDATION_LAYERS
     std::ostringstream oss1;
@@ -17,7 +21,7 @@ void PhysicalDevice::Init(const Instance& instance, const Surface& surface)
 #endif
 
     std::vector<VkPhysicalDevice> physDevices(physDeviceCount);
-    const VkResult res = vkEnumeratePhysicalDevices(VkInstance(instance), &physDeviceCount, physDevices.data());
+    const VkResult res = vkEnumeratePhysicalDevices(VkInstance(vkObj.instance), &physDeviceCount, physDevices.data());
     neko_assert(res == VK_SUCCESS, "Enumerating GPUs failed!")
     neko_assert(physDeviceCount != 0, "No GPUs that supports Vulkan found!")
 
@@ -31,8 +35,8 @@ void PhysicalDevice::Init(const Instance& instance, const Surface& surface)
         logDebug(oss2.str());
 #endif
 
-        queueFamilyIndices_ = FindQueueFamilies(gpu, VkSurfaceKHR(surface));
-        if (IsDeviceSuitable(gpu, VkSurfaceKHR(surface), queueFamilyIndices_))
+        queueFamilyIndices_ = FindQueueFamilies(gpu, VkSurfaceKHR(vkObj.surface));
+        if (IsDeviceSuitable(gpu, VkSurfaceKHR(vkObj.surface), queueFamilyIndices_))
         {
             gpu_ = gpu;
 #ifdef VALIDATION_LAYERS

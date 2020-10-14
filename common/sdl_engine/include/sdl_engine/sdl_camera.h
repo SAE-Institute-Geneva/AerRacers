@@ -35,207 +35,47 @@ struct MovableCamera : SdlEventSystemInterface, SystemInterface
     float mouseSpeed = 1.0f;
     float mouseSensitivity = 0.5f;
 
+    MovableCamera& operator=(const MovableCamera& other);
+
 protected:
     Vec2f mouseMotion_;
 };
 
 struct MovableCamera2D final : Camera2D, MovableCamera
 {
-    void Init() override
-    {
-    }
+    MovableCamera2D& operator=(const MovableCamera2D& other);
 
-    void Update(const seconds dt) override
-    {
-        //Checking if keys are down
-        const Uint8* keys = SDL_GetKeyboardState(nullptr);
-        if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D])
-            position += GetRight() * moveSpeed * dt.count();
-        if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A])
-            position -= GetRight() * moveSpeed * dt.count();
-        if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W])
-            size -= moveSpeed * dt.count();
-        if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S])
-            size += moveSpeed * dt.count();
-        if (keys[SDL_SCANCODE_SPACE])
-            position.y += moveSpeed * dt.count();
-        if (keys[SDL_SCANCODE_LSHIFT])
-            position.y -= moveSpeed * dt.count();
+    void Init() override {}
 
-        const auto mouseState = SDL_GetMouseState(nullptr, nullptr);
-        if (mouseState & SDL_BUTTON(3))
-        {
-            Rotate(EulerAngles(
-                    degree_t(mouseMotion_.y),
-                    degree_t(mouseMotion_.x),
-                    degree_t(0.0f)
-            ));
-            mouseMotion_ = Vec2f::zero;
-        }
-    }
+    void Update(seconds dt) override;
+    void OnEvent(const SDL_Event& event) override;
 
-    void OnEvent(const SDL_Event& event) override
-    {
-        if(event.window.event == SDL_WINDOWEVENT_RESIZED)
-        {
-            SetAspect(event.window.data1, event.window.data2);
-        }
-
-        if (event.type == SDL_MOUSEMOTION)
-            mouseMotion_ = Vec2f(-event.motion.xrel, -event.motion.yrel) / moveSpeed;
-    }
-
-    void Destroy() override
-    {
-    }
+    void Destroy() override {}
 };
 
 struct MovableCamera3D : Camera3D, public MovableCamera
 {
-    void Init() override
-    {
-        const auto& config = BasicEngine::GetInstance()->config;
-        SetAspect(config.windowSize.x, config.windowSize.y);
-    }
+    MovableCamera3D& operator=(const MovableCamera3D& other);
 
-    void Update(const seconds dt) override
-    {
-        //Checking if keys are down
-        const Uint8* keys = SDL_GetKeyboardState(nullptr);
-        Vec3f move{};
-        //Checking if keys are down
-        if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D])
-            move += GetRight() * dt.count();
-        if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A])
-            move -= GetRight() * dt.count();
-        if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W])
-            move -= reverseDirection * dt.count();
-        if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S])
-            move += reverseDirection * dt.count();
-        if (keys[SDL_SCANCODE_SPACE])
-            move.y += dt.count();
-        if (keys[SDL_SCANCODE_LSHIFT])
-            move.y -= dt.count();
+    void Init() override;
 
-        if (keys[SDL_SCANCODE_R])
-            position += move * moveSpeed * 5.0f;
-        else
-            position += move * moveSpeed;
+    void Update(seconds dt) override;
+    void OnEvent(const SDL_Event& event) override;
 
-        const auto mouseState = SDL_GetMouseState(nullptr, nullptr);
-        if (mouseState & SDL_BUTTON(3))
-        {
-            Rotate(EulerAngles(
-                    degree_t(mouseMotion_.y),
-                    degree_t(mouseMotion_.x),
-                    degree_t(0.0f)
-            ));
-            mouseMotion_ = Vec2f::zero;
-        }
-    }
-
-    void OnEvent(const SDL_Event& event) override
-    {
-        if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-        {
-            SetAspect(event.window.data1, event.window.data2);
-        }
-
-        if (event.type == SDL_MOUSEMOTION)
-            mouseMotion_ = Vec2f(-event.motion.xrel, -event.motion.yrel) * mouseSensitivity;
-    }
-
-    void Destroy() override
-    {
-    }
+    void Destroy() override {}
 };
 
 struct FpsCamera final : public MovableCamera3D
 {
     bool freezeCam = false;
 
-    FpsCamera& operator=(const FpsCamera& other)
-    {
-        position = other.position;
-        reverseDirection = other.reverseDirection;
+    FpsCamera& operator=(const FpsCamera& other);
 
-        farPlane = other.farPlane;
-        nearPlane = other.nearPlane;
-        fovY = other.fovY;
+    void Init() override;
 
-        mouseSpeed = other.mouseSpeed;
-        moveSpeed = other.moveSpeed;
-        mouseMotion_ = other.mouseMotion_;
+    void Update(seconds dt) override;
+    void OnEvent(const SDL_Event& event) override;
 
-        freezeCam = other.freezeCam;
-
-        return *this;
-    }
-
-    void Init() override
-    {
-        SDL_SetRelativeMouseMode(SDL_TRUE);
-    }
-
-    void Update(const seconds dt) override
-    {
-        const Uint8* keys = SDL_GetKeyboardState(nullptr);
-        if (!freezeCam)
-        {
-            Vec3f move{};
-            //Checking if keys are down
-            if (keys[SDL_SCANCODE_RIGHT] || keys[SDL_SCANCODE_D])
-                move += GetRight() * dt.count();
-            if (keys[SDL_SCANCODE_LEFT] || keys[SDL_SCANCODE_A])
-                move -= GetRight() * dt.count();
-            if (keys[SDL_SCANCODE_UP] || keys[SDL_SCANCODE_W])
-                move -= reverseDirection * dt.count();
-            if (keys[SDL_SCANCODE_DOWN] || keys[SDL_SCANCODE_S])
-                move += reverseDirection * dt.count();
-            if (keys[SDL_SCANCODE_SPACE])
-                move.y += dt.count();
-            if (keys[SDL_SCANCODE_LSHIFT])
-                move.y -= dt.count();
-
-            if (keys[SDL_SCANCODE_R])
-                position += move * moveSpeed * 5.0f;
-            else
-                position += move * moveSpeed;
-
-            Rotate(EulerAngles(
-                    degree_t(mouseMotion_.y),
-                    degree_t(mouseMotion_.x),
-                    degree_t(0.0f)
-            ));
-            mouseMotion_ = Vec2f::zero;
-        }
-    }
-
-    void OnEvent(const SDL_Event& event) override
-    {
-        const Uint8* keys = SDL_GetKeyboardState(nullptr);
-        if (keys[SDL_SCANCODE_ESCAPE] && event.type == SDL_KEYDOWN)
-        {
-            freezeCam = !freezeCam;
-            SDL_SetRelativeMouseMode(static_cast<SDL_bool>(!freezeCam));
-        }
-
-        if(event.window.event == SDL_WINDOWEVENT_RESIZED)
-        {
-            SetAspect(event.window.data1, event.window.data2);
-        }
-
-        if (!freezeCam)
-        {
-            if (event.type == SDL_MOUSEMOTION)
-                mouseMotion_ = Vec2f(-event.motion.xrel, -event.motion.yrel) * mouseSensitivity;
-
-            SDL_WarpMouseGlobal(event.window.data1 / 2, event.window.data2 / 2);
-        }
-    }
-
-    void Destroy() override
-    {
-    }
+    void Destroy() override {}
 };
 }

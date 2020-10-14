@@ -13,12 +13,13 @@ class DescriptorSets
 public:
     explicit DescriptorSets() = default;
 
-    void InitLayout(const LogicalDevice& device);
-    void Init(const LogicalDevice& device,
-			  const Swapchain& swapchain,
+    void InitLayout();
+
+    void Init(const Swapchain& swapchain,
               const std::vector<UniformBuffer>& uniformBuffers,
-              const DescriptorPool& descriptorPool);
-    void Destroy(const LogicalDevice& device) const;
+              const DescriptorPool& descriptorPool,
+              const VkDeviceSize& uboSize);
+    void Destroy() const;
 
     explicit operator const VkDescriptorSetLayout &() const { return descriptorSetLayout_; }
     [[nodiscard]] const std::vector<VkDescriptorSet>& GetDescriptorSets() const { return descriptorSets_; }

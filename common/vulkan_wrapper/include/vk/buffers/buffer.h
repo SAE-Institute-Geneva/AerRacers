@@ -12,7 +12,7 @@ public:
     [[nodiscard]] const VkBuffer& GetBuffer() const { return buffer_; }
     [[nodiscard]] const VkDeviceMemory& GetBufferMemory() const { return memory_; }
 
-    void Destroy(const LogicalDevice& device) const;
+    void Destroy() const;
 
 protected:
     explicit Buffer() = default;

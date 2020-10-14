@@ -4,29 +4,24 @@
 
 namespace neko::vk
 {
-void CommandBuffers::Init(
-		const LogicalDevice& device,
-        const Swapchain& swapchain,
-        const RenderPass& renderPass,
-        const GraphicsPipeline& graphicsPipeline,
-		const CommandPool& commandPool,
-        const Framebuffers& framebuffers,
-        const VertexBuffer& vertexBuffer,
+void CommandBuffers::Init(const VertexBuffer& vertexBuffer,
         const IndexBuffer& indexBuffer,
-        const DescriptorSets& descriptorSets)
+        const Shader shaders[])
 {
-    commandBuffers_.resize(framebuffers.GetFramebuffersCount());
+    const auto& vkObj = VkResourcesLocator::get();
+
+    commandBuffers_.resize(vkObj.framebuffers.GetFramebuffersCount());
 
     VkCommandBufferAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = VkCommandPool(commandPool);
+    allocInfo.commandPool = VkCommandPool(vkObj.commandPool);
     allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers_.size());
 
-    VkResult res = vkAllocateCommandBuffers(VkDevice(device), &allocInfo, commandBuffers_.data());
+    VkResult res = vkAllocateCommandBuffers(VkDevice(vkObj.device), &allocInfo, commandBuffers_.data());
     neko_assert(res == VK_SUCCESS, "Failed to allocate command buffers!")
 
-    const auto& framebuffer = framebuffers.GetFramebuffers();
+    const auto& framebuffer = vkObj.framebuffers.GetFramebuffers();
     for (size_t i = 0; i < commandBuffers_.size(); i++)
     {
         VkCommandBufferBeginInfo beginInfo{};
@@ -39,16 +34,19 @@ void CommandBuffers::Init(
 
         VkRenderPassBeginInfo renderPassInfo{};
         renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = VkRenderPass(renderPass);
+        renderPassInfo.renderPass = VkRenderPass(vkObj.renderPass);
         renderPassInfo.framebuffer = framebuffer[i];
         renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = swapchain.GetExtent();
+        renderPassInfo.renderArea.extent = vkObj.swapchain.GetExtent();
 
         std::array<VkClearValue, 1> clearValues{};
         clearValues[0].color = {{0.0f, 0.0f, 0.0f, 1.0f}};
         //clearValues[1].depthStencil = {1.0f, 0};
         renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
         renderPassInfo.pClearValues = clearValues.data();
+
+        const auto& graphicsPipeline = shaders[0].GetPipeline();
+        const auto& descriptorSets = shaders[0].GetDescriptorSets();
 
         vkCmdBeginRenderPass(commandBuffers_[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(commandBuffers_[i], VK_PIPELINE_BIND_POINT_GRAPHICS, VkPipeline(graphicsPipeline));
@@ -70,9 +68,10 @@ void CommandBuffers::Init(
     }
 }
 
-void CommandBuffers::Destroy(const LogicalDevice& device, const CommandPool& commandPool)
+void CommandBuffers::Destroy()
 {
-    vkFreeCommandBuffers(VkDevice(device), VkCommandPool(commandPool),
+    const auto& vkObj = VkResourcesLocator::get();
+    vkFreeCommandBuffers(VkDevice(vkObj.device), VkCommandPool(vkObj.commandPool),
                          static_cast<uint32_t>(commandBuffers_.size()), commandBuffers_.data());
 }
 }

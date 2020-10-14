@@ -46,7 +46,7 @@ void VkOnResizeRenderCommand::Render()
 	std::ostringstream oss;
 	oss << "Resize window with new size: " << newWindowSize_;
 	logDebug(oss.str());
-	glViewport(0, 0, newWindowSize_.x, newWindowSize_.y);
+	//glViewport(0, 0, newWindowSize_.x, newWindowSize_.y);
 }
 
 void VulkanWindow::Init()

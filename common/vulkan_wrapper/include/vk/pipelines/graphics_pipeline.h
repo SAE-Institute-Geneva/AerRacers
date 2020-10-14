@@ -19,11 +19,11 @@ public:
     explicit GraphicsPipeline() = default;
 
     void Init(
-        const LogicalDevice& device, 
         const Swapchain& swapchain, 
         const RenderPass& renderPass, 
-        DescriptorSets& descriptorSets);
-    void Destroy(const LogicalDevice& device) const;
+        DescriptorSets& descriptorSets,
+        VkPipelineShaderStageCreateInfo shaderStages[]);
+    void Destroy() const;
 
     explicit operator const VkPipeline &() const { return pipeline_; }
     [[nodiscard]] const VkPipeline& GetGraphicsPipeline() const { return pipeline_; }

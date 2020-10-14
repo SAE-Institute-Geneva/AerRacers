@@ -5,6 +5,7 @@
 #include "vk/commands/command_pool.h"
 #include "vk/framebuffers/framebuffers.h"
 #include "vk/pipelines/graphics_pipeline.h"
+#include "vk/shader.h"
 
 namespace neko::vk
 {
@@ -13,17 +14,10 @@ class CommandBuffers
 public:
 	explicit CommandBuffers() = default;
 
-	void Init(
-			const LogicalDevice& device,
-            const Swapchain& swapchain,
-            const RenderPass& renderPass,
-            const GraphicsPipeline& graphicsPipeline,
-			const CommandPool& commandPool,
-            const Framebuffers& framebuffers,
-            const VertexBuffer& vertexBuffer,
+	void Init(const VertexBuffer& vertexBuffer,
             const IndexBuffer& indexBuffer,
-            const DescriptorSets& descriptorSets);
-	void Destroy(const LogicalDevice& device, const CommandPool& commandPool);
+            const Shader shaders[]);
+	void Destroy();
 
 	const VkCommandBuffer& operator[](const size_t index) const
     { return commandBuffers_[index]; }

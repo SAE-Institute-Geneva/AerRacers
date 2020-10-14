@@ -1,25 +1,16 @@
 #include "vk/pipelines/graphics_pipeline.h"
 
 #include "utilities/file_utility.h"
-#include "vk/shader.h"
 
 namespace neko::vk
 {
 void GraphicsPipeline::Init(
-    const LogicalDevice& device, 
     const Swapchain& swapchain, 
     const RenderPass& renderPass, 
-    DescriptorSets& descriptorSets)
+    DescriptorSets& descriptorSets,
+    VkPipelineShaderStageCreateInfo shaderStages[])
 {
-	Shader shader;
-	shader.LoadFromFile(
-        "../../data/shaders/aer_racer/01_triangle/quad.vert.spv",
-        "../../data/shaders/aer_racer/01_triangle/quad.frag.spv");
-
-    VkPipelineShaderStageCreateInfo shaderStages[] = {
-    	shader.GetVertShaderStageInfo(),
-    	shader.GetFragShaderStageInfo()
-    };
+    const auto& device = LogicalDeviceLocator::get();
 
     auto bindingDescription = GetBindingDescription();
     auto attributeDescriptions = GetAttributeDescriptions();
@@ -139,12 +130,12 @@ void GraphicsPipeline::Init(
 
     res = vkCreateGraphicsPipelines(VkDevice(device), nullptr, 1, &pipelineInfo, nullptr, &pipeline_);
     neko_assert(res == VK_SUCCESS, "Failed to create graphics pipeline!")
-
-	shader.Destroy(device);
 }
 
-void GraphicsPipeline::Destroy(const LogicalDevice& device) const
+void GraphicsPipeline::Destroy() const
 {
+    const auto& device = LogicalDeviceLocator::get();
+
     vkDestroyPipeline(VkDevice(device), pipeline_, nullptr);
     vkDestroyPipelineLayout(VkDevice(device), layout_, nullptr);
 }

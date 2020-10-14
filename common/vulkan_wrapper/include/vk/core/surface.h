@@ -13,11 +13,11 @@ class Surface
 public:
     explicit Surface() = default;
 
-    void Init(const sdl::VulkanWindow* window, const Instance& instance);
-    void Destroy(const Instance& instance) const;
+    void Init();
+    void Destroy() const;
 
     explicit operator const VkSurfaceKHR &() const { return surface_; }
-    const VkSurfaceKHR& GetSurface() const { return surface_; }
+    [[nodiscard]] const VkSurfaceKHR& GetSurface() const { return surface_; }
 private:
     VkSurfaceKHR surface_{};
 };

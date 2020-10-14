@@ -13,7 +13,7 @@ class PhysicalDevice
 public:
     explicit PhysicalDevice() = default;
 
-    void Init(const Instance& instance, const Surface& surface);
+    void Init();
 
     explicit operator const VkPhysicalDevice &() const { return gpu_; }
     [[nodiscard]] const VkPhysicalDevice& GetPhysicalDevice() const { return gpu_; }

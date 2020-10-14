@@ -25,8 +25,6 @@ void VkDrawSystem::Destroy()
 
 void VkDrawSystem::OnEvent(const SDL_Event& event)
 {
-    /*camera_.OnEvent(event);
-
     switch (event.type)
     {
         case SDL_WINDOWEVENT:
@@ -36,11 +34,10 @@ void VkDrawSystem::OnEvent(const SDL_Event& event)
                 config.windowSize.x = event.window.data1;
                 config.windowSize.y = event.window.data2;
                 std::cout << "Resizing window...\n";
-                isFramebufferResized_ = true;
             }
             break;
         default:
             break;
-    }*/
+    }
 }
 }

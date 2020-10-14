@@ -9,7 +9,7 @@ class Instance
 public:
     explicit Instance() = default;
 
-    void Init(const sdl::VulkanWindow* window);
+    void Init();
     void Destroy() const;
 
     explicit operator const VkInstance &() const { return instance_; }

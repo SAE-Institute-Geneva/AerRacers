@@ -4,15 +4,17 @@
 #include <SDL_vulkan.h>
 
 #include "vk/core/instance.h"
+#include "vk/graphics.h"
 
 namespace neko::vk
 {
-void Instance::Init(const sdl::VulkanWindow* window)
+void Instance::Init()
 {
 #ifdef VALIDATION_LAYERS
     if (!CheckValidationLayerSupport())
         neko_assert(false, "Validation layers requested, but not available!")
 #endif
+    const auto& vkObj = VkResourcesLocator::get();
 
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -26,7 +28,7 @@ void Instance::Init(const sdl::VulkanWindow* window)
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    const auto extensions = window->GetRequiredInstanceExtensions();
+    const auto extensions = vkObj.vkWindow->GetRequiredInstanceExtensions();
     neko_assert(CheckInstanceExtensionsSupport(extensions), "Required instance extensions not available!")
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();

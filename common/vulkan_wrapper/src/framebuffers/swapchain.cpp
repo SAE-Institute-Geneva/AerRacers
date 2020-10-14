@@ -2,9 +2,11 @@
 
 namespace neko::vk
 {
-void Swapchain::Init(const PhysicalDevice& gpu, const LogicalDevice& device, const Surface& surface)
+void Swapchain::Init()
 {
-    const auto& swapChainSupport = QuerySwapChainSupport(VkPhysicalDevice(gpu), VkSurfaceKHR(surface));
+    const auto& vkObj = VkResourcesLocator::get();
+
+    const auto& swapChainSupport = QuerySwapChainSupport(VkPhysicalDevice(vkObj.gpu), VkSurfaceKHR(vkObj.surface));
 
     const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
     const VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
@@ -17,7 +19,7 @@ void Swapchain::Init(const PhysicalDevice& gpu, const LogicalDevice& device, con
     // Populate swap chain creation info
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = VkSurfaceKHR(surface);
+    createInfo.surface = VkSurfaceKHR(vkObj.surface);
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -30,7 +32,7 @@ void Swapchain::Init(const PhysicalDevice& gpu, const LogicalDevice& device, con
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = nullptr;
 
-    const QueueFamilyIndices& queueIndices = gpu.GetQueueFamilyIndices();
+    const QueueFamilyIndices& queueIndices = vkObj.gpu.GetQueueFamilyIndices();
     uint32_t queueFamilyIndices[] = {
             queueIndices.graphicsFamily,
             queueIndices.presentFamily
@@ -49,22 +51,24 @@ void Swapchain::Init(const PhysicalDevice& gpu, const LogicalDevice& device, con
     }
 
     // Create new one
-    const VkResult res = vkCreateSwapchainKHR(VkDevice(device), &createInfo, nullptr, &swapchain_);
+    const VkResult res = vkCreateSwapchainKHR(VkDevice(vkObj.device), &createInfo, nullptr, &swapchain_);
     neko_assert(res == VK_SUCCESS, "Unable to create swap chain!")
 
-    vkGetSwapchainImagesKHR(VkDevice(device), swapchain_, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(VkDevice(vkObj.device), swapchain_, &imageCount, nullptr);
     images_.resize(imageCount);
-    vkGetSwapchainImagesKHR(VkDevice(device), swapchain_, &imageCount, images_.data());
+    vkGetSwapchainImagesKHR(VkDevice(vkObj.device), swapchain_, &imageCount, images_.data());
 
     format_ = surfaceFormat.format;
     extent_ = extent;
 
-    CreateImageViews(device);
+    CreateImageViews(vkObj.device);
 }
 
-void Swapchain::Init(const PhysicalDevice& gpu, const LogicalDevice& device, const Surface& surface, const Swapchain& oldSwapchain)
+void Swapchain::Init(const Swapchain& oldSwapchain)
 {
-    const auto& swapChainSupport = QuerySwapChainSupport(VkPhysicalDevice(gpu), VkSurfaceKHR(surface));
+    const auto& vkObj = VkResourcesLocator::get();
+
+    const auto& swapChainSupport = QuerySwapChainSupport(VkPhysicalDevice(vkObj.gpu), VkSurfaceKHR(vkObj.surface));
 
     const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
     const VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
@@ -78,7 +82,7 @@ void Swapchain::Init(const PhysicalDevice& gpu, const LogicalDevice& device, con
     // Populate swap chain creation info
     VkSwapchainCreateInfoKHR createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    createInfo.surface = VkSurfaceKHR(surface);
+    createInfo.surface = VkSurfaceKHR(vkObj.surface);
     createInfo.minImageCount = imageCount;
     createInfo.imageFormat = surfaceFormat.format;
     createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -91,7 +95,7 @@ void Swapchain::Init(const PhysicalDevice& gpu, const LogicalDevice& device, con
     createInfo.clipped = VK_TRUE;
     createInfo.oldSwapchain = VkSwapchainKHR(oldSwapchain);
 
-    const QueueFamilyIndices& queueIndices = gpu.GetQueueFamilyIndices();
+    const QueueFamilyIndices& queueIndices = vkObj.gpu.GetQueueFamilyIndices();
     uint32_t queueFamilyIndices[] = {
             queueIndices.graphicsFamily,
             queueIndices.presentFamily
@@ -110,25 +114,27 @@ void Swapchain::Init(const PhysicalDevice& gpu, const LogicalDevice& device, con
     }
 
     // Create new one
-    const VkResult res = vkCreateSwapchainKHR(VkDevice(device), &createInfo, nullptr, &swapchain_);
+    const VkResult res = vkCreateSwapchainKHR(VkDevice(vkObj.device), &createInfo, nullptr, &swapchain_);
     neko_assert(res == VK_SUCCESS, "Unable to create swap chain!")
 
-    vkGetSwapchainImagesKHR(VkDevice(device), swapchain_, &imageCount, nullptr);
+    vkGetSwapchainImagesKHR(VkDevice(vkObj.device), swapchain_, &imageCount, nullptr);
     images_.resize(imageCount);
-    vkGetSwapchainImagesKHR(VkDevice(device), swapchain_, &imageCount, images_.data());
+    vkGetSwapchainImagesKHR(VkDevice(vkObj.device), swapchain_, &imageCount, images_.data());
 
     format_ = surfaceFormat.format;
     extent_ = extent;
 
-    CreateImageViews(device);
+    CreateImageViews(vkObj.device);
 }
 
-void Swapchain::Destroy(const LogicalDevice& device)
+void Swapchain::Destroy()
 {
+    const auto& vkObj = VkResourcesLocator::get();
+
     for (const auto& imageView : imageViews_)
-        vkDestroyImageView(VkDevice(device), imageView, nullptr);
+        vkDestroyImageView(VkDevice(vkObj.device), imageView, nullptr);
 	
-    vkDestroySwapchainKHR(VkDevice(device), swapchain_, nullptr);
+    vkDestroySwapchainKHR(VkDevice(vkObj.device), swapchain_, nullptr);
 }
 
 void Swapchain::CreateImageViews(const LogicalDevice& device)
@@ -143,13 +149,11 @@ void Swapchain::CreateImageViews(const LogicalDevice& device)
 VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
 {
 	for (const auto& availableFormat : availableFormats)
-		if (availableFormat.format == kFormat && availableFormat.colorSpace ==
-			kColorSpace)
+		if (availableFormat.format == kFormat && availableFormat.colorSpace == kColorSpace)
 			return availableFormat;
 
 #ifdef VALIDATION_LAYERS
-	std::cout <<
-		"Warning: no matching color format found, picking first available one\n";
+	std::cout << "Warning: no matching color format found, picking first available one\n";
 #endif
 
 	return availableFormats[0];
@@ -179,11 +183,11 @@ VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
 	VkExtent2D actualExtent = {config.windowSize.x, config.windowSize.y};
 
 	actualExtent.width = std::max(capabilities.minImageExtent.width,
-	                              std::min(capabilities.maxImageExtent.width,
-	                                       actualExtent.width));
+                               std::min(capabilities.maxImageExtent.width,
+                                        actualExtent.width));
 	actualExtent.height = std::max(capabilities.minImageExtent.height,
-	                               std::min(capabilities.maxImageExtent.height,
-	                                        actualExtent.height));
+                               std::min(capabilities.maxImageExtent.height,
+                                        actualExtent.height));
 
 	return actualExtent;
 }

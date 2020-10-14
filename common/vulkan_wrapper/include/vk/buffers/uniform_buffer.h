@@ -15,6 +15,19 @@ struct UniformBufferObject
 
 struct UniformBuffer : public Buffer
 {
-    void Init(const PhysicalDevice& gpu, const LogicalDevice& device);
+    void Init(const PhysicalDevice& gpu, const VkDeviceSize& uboSize);
+
+    template<class UboType>
+    void Update(const UboType& bufferData) const
+    {
+        static_assert(std::is_class<UboType>::value, "Type is not a class / struct");
+
+        const auto& device = LogicalDeviceLocator::get();
+
+        void* data = nullptr;
+        vkMapMemory(VkDevice(device), memory_, 0, sizeof(bufferData), 0, &data);
+        memcpy(data, &bufferData, sizeof(bufferData));
+        vkUnmapMemory(VkDevice(device), memory_);
+    }
 };
 }

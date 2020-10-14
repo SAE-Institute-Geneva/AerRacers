@@ -2,8 +2,10 @@
 
 namespace neko::vk
 {
-void DescriptorSets::InitLayout(const LogicalDevice& device)
+void DescriptorSets::InitLayout()
 {
+    const auto& device = LogicalDeviceLocator::get();
+
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = 0;
     uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -29,11 +31,13 @@ void DescriptorSets::InitLayout(const LogicalDevice& device)
 }
 
 void DescriptorSets::Init(
-    const LogicalDevice& device,
     const Swapchain& swapchain,
     const std::vector<UniformBuffer>& uniformBuffers,
-    const DescriptorPool& descriptorPool)
+    const DescriptorPool& descriptorPool,
+    const VkDeviceSize& uboSize)
 {
+    const auto& device = LogicalDeviceLocator::get();
+
     const size_t swapChainImagesCount = swapchain.GetImageCount();
     std::vector<VkDescriptorSetLayout> layouts(swapChainImagesCount, descriptorSetLayout_);
 
@@ -52,7 +56,7 @@ void DescriptorSets::Init(
         VkDescriptorBufferInfo bufferInfo{};
         bufferInfo.buffer = VkBuffer(uniformBuffers[i]);
         bufferInfo.offset = 0;
-        bufferInfo.range = sizeof(UniformBufferObject);
+        bufferInfo.range = uboSize;
 
         /*VkDescriptorImageInfo imageInfo{};
         imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -82,8 +86,9 @@ void DescriptorSets::Init(
     }
 }
 
-void DescriptorSets::Destroy(const LogicalDevice& device) const
+void DescriptorSets::Destroy() const
 {
+    const auto& device = LogicalDeviceLocator::get();
     vkDestroyDescriptorSetLayout(VkDevice(device), descriptorSetLayout_, nullptr);
 }
 }

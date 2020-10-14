@@ -2,10 +2,12 @@
 
 namespace neko::vk
 {
-void Framebuffers::Init(const LogicalDevice& device, const Swapchain& swapChain, const RenderPass& renderPass)
+void Framebuffers::Init()
 {
-    const auto& imageViews = swapChain.GetImageViews();
-    const auto& swapchainExtent = swapChain.GetExtent();
+    const auto& vkObj = VkResourcesLocator::get();
+
+    const auto& imageViews = vkObj.swapchain.GetImageViews();
+    const auto& swapchainExtent = vkObj.swapchain.GetExtent();
 
     framebuffers_.resize(imageViews.size());
 
@@ -18,7 +20,7 @@ void Framebuffers::Init(const LogicalDevice& device, const Swapchain& swapChain,
 
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = VkRenderPass(renderPass);
+        framebufferInfo.renderPass = VkRenderPass(vkObj.renderPass);
         framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
         framebufferInfo.pAttachments = attachments.data();
         framebufferInfo.width = swapchainExtent.width;
@@ -26,14 +28,15 @@ void Framebuffers::Init(const LogicalDevice& device, const Swapchain& swapChain,
         framebufferInfo.layers = 1;
 
         const VkResult res =
-                vkCreateFramebuffer(VkDevice(device), &framebufferInfo, nullptr, &framebuffers_[i]);
+                vkCreateFramebuffer(VkDevice(vkObj.device), &framebufferInfo, nullptr, &framebuffers_[i]);
         neko_assert(res == VK_SUCCESS, "Failed to create framebuffer!")
     }
 }
 
-void Framebuffers::Destroy(const LogicalDevice& device)
+void Framebuffers::Destroy()
 {
+    const auto& vkObj = VkResourcesLocator::get();
     for (const auto& framebuffer : framebuffers_)
-        vkDestroyFramebuffer(VkDevice(device), framebuffer, nullptr);
+        vkDestroyFramebuffer(VkDevice(vkObj.device), framebuffer, nullptr);
 }
 }

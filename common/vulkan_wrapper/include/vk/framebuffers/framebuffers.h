@@ -11,8 +11,8 @@ class Framebuffers
 public:
 	explicit Framebuffers() = default;
 
-	void Init(const LogicalDevice& device, const Swapchain& swapChain, const RenderPass& renderPass);
-	void Destroy(const LogicalDevice& device);
+	void Init();
+	void Destroy();
 	
     [[nodiscard]] const std::vector<VkFramebuffer>& GetFramebuffers() const {return framebuffers_;}
     [[nodiscard]] size_t GetFramebuffersCount() const {return framebuffers_.size();}

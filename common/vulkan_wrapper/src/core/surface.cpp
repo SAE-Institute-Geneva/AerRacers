@@ -1,14 +1,18 @@
 #include "vk/core/surface.h"
+#include "vk/graphics.h"
 
 namespace neko::vk
 {
-void Surface::Init(const sdl::VulkanWindow* window, const Instance& instance)
+void Surface::Init()
 {
-    window->CreateSurface(VkInstance(instance), surface_);
+    const auto& vkObj = VkResourcesLocator::get();
+
+    vkObj.vkWindow->CreateSurface(VkInstance(vkObj.instance), surface_);
 }
 
-void Surface::Destroy(const Instance& instance) const
+void Surface::Destroy() const
 {
-    vkDestroySurfaceKHR(VkInstance(instance), surface_, nullptr);
+    const auto& vkObj = VkResourcesLocator::get();
+    vkDestroySurfaceKHR(VkInstance(vkObj.instance), surface_, nullptr);
 }
 }
