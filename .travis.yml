@@ -39,8 +39,6 @@ matrix:
       install:
         - choco install visualstudio2019buildtools --package-parameters "--add Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
       script:
-        - export SDL_VIDEODRIVER=x11;
-        - export DISPLAY=:99.0;
         - export PATH=$CMAKE_PATH:$PATH
         - export VULKAN_SDK="/c/VulkanSDK/$(ls /c/VulkanSDK/)"
         - mkdir build && cd build
