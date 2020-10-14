@@ -39,7 +39,7 @@
 
 namespace neko::sdl
 {
-SdlEngine::SdlEngine(Configuration* config) : BasicEngine(config)
+SdlEngine::SdlEngine(Configuration* config) : BasicEngine(config), inputManager_(*this)
 {
 }
 
@@ -53,6 +53,7 @@ void SdlEngine::Init()
     SDL_Init(SDL_INIT_VIDEO);
     window_->Init();
     initAction_.Execute();
+    inputManager_.Init();
 }
 
 void SdlEngine::Destroy()
@@ -67,6 +68,7 @@ void SdlEngine::Destroy()
 
 void SdlEngine::ManageEvent()
 {
+    inputManager_.OnPreUserInput();
     
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Manage Event");
@@ -88,6 +90,7 @@ void SdlEngine::ManageEvent()
                 window_->OnResize(config.windowSize);
             }
         }
+        inputManager_.ProcessInputs(event);
         onEventAction_.Execute(event);
     }
 }
