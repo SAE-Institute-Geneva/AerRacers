@@ -8,6 +8,6 @@ namespace neko::vk
 class IndexBuffer : public Buffer
 {
 public:
-    void Init();
+    void Init(const uint16_t indices[], size_t indexNum);
 };
 }

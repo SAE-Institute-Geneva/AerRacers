@@ -22,7 +22,7 @@ public:
 		SdlEngine::Destroy();
     }
 
-	void GenerateUiFrame() override {}
+	void GenerateUiFrame() override { /*SdlEngine::GenerateUiFrame();*/ }
 
     void SetWindowAndRenderer(sdl::VulkanWindow* window, Renderer* renderer)
     {

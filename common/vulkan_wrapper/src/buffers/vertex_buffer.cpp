@@ -2,19 +2,11 @@
 
 namespace neko::vk
 {
-const std::vector<Vertex> kVertices =
-{
-        {{-0.5f, -0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}},
-        {{0.5f,  -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}},
-        {{0.5f,   0.5f, 0.0f},  {0.0f, 0.0f, 1.0f}},
-        {{-0.5f,  0.5f, 0.0f},  {1.0f, 1.0f, 1.0f}}
-};
-
-void VertexBuffer::Init()
+void VertexBuffer::Init(const Vertex vertices[], const size_t vertexNum)
 {
     const auto& vkObj = VkResourcesLocator::get();
 
-	const VkDeviceSize bufferSize = sizeof(kVertices[0]) * kVertices.size();
+	const VkDeviceSize bufferSize = sizeof(Vertex) * vertexNum;
 
     VkBuffer stagingBuffer{};
     VkDeviceMemory stagingBufferMemory{};
@@ -24,7 +16,7 @@ void VertexBuffer::Init()
 
     void* data = nullptr;
     vkMapMemory(VkDevice(vkObj.device), stagingBufferMemory, 0, bufferSize, 0, &data);
-        memcpy(data, kVertices.data(), static_cast<size_t>(bufferSize));
+        memcpy(data, vertices, static_cast<size_t>(bufferSize));
     vkUnmapMemory(VkDevice(vkObj.device), stagingBufferMemory);
 
     CreateBuffer(VkPhysicalDevice(vkObj.gpu), VkDevice(vkObj.device), bufferSize,

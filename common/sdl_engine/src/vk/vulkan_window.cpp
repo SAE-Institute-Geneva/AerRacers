@@ -28,12 +28,9 @@
 #include <sstream>
 #include <SDL_vulkan.h>
 
-#include "imgui.h"
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_vulkan.h"
-
 #include "engine/engine.h"
 #include "engine/log.h"
+#include "vk/graphics.h"
 
 #ifdef EASY_PROFILE_USE
 #include <easy/profiler.h>
@@ -57,15 +54,11 @@ void VulkanWindow::Init()
 	const auto& config = BasicEngine::GetInstance()->config;
 
 	SdlWindow::Init();
-	//SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
 	
 #ifndef __EMSCRIPTEN__
 	const std::string videoDriver = SDL_GetCurrentVideoDriver();
 	logDebug(videoDriver);
 #endif
-
-	//TODO create the Vulkan surface
-	//CreateSurface();
 	
 	//TODO VSync
 #ifndef __EMSCRIPTEN__
@@ -92,9 +85,78 @@ void VulkanWindow::InitImGui()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("ImGuiInit");
 #endif
-	/*SdlWindow::InitImGui();
+	SdlWindow::InitImGui();
 	ImGui_ImplSDL2_InitForVulkan(window_);
-	ImGui_ImplVulkan_Init();*/
+
+    const auto& config = BasicEngine::GetInstance()->config;
+    const auto& vkObj = vk::VkResourcesLocator::get();
+    const auto& graphicsQueue = vkObj.device.GetGraphicsQueue();
+    const auto& queueFamilyIndices = vkObj.gpu.GetQueueFamilyIndices();
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+#ifdef NN_NINTENDO_SDK
+    io.IniFilename = NULL;
+#endif
+
+    ImGui::StyleColorsDark();
+
+    VkDescriptorPoolSize poolSizes[] =
+    {
+        { VK_DESCRIPTOR_TYPE_SAMPLER, 1000 },
+        { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000 },
+        { VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000 },
+        { VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000 },
+        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000 },
+        { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000 },
+        { VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000 },
+        { VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000 }
+    };
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+    poolInfo.maxSets = 1000 * IM_ARRAYSIZE(poolSizes);
+    poolInfo.poolSizeCount =  static_cast<uint32_t>(IM_ARRAYSIZE(poolSizes));
+    poolInfo.pPoolSizes = poolSizes;
+
+    VkResult res = vkCreateDescriptorPool(VkDevice(vkObj.device), &poolInfo, nullptr, &imguiDescriptorPool_);
+    neko_assert(res == VK_SUCCESS, "Could not create ImGui's descriptor pool!")
+
+    ImGui_ImplVulkan_InitInfo initInfo{};
+    initInfo.Instance = VkInstance(vkObj.instance);
+    initInfo.PhysicalDevice = VkPhysicalDevice(vkObj.gpu);
+    initInfo.Device = VkDevice(vkObj.device);
+    initInfo.QueueFamily = queueFamilyIndices.graphicsFamily;
+    initInfo.Queue = VkQueue(graphicsQueue);
+    initInfo.PipelineCache = nullptr;
+    initInfo.DescriptorPool = imguiDescriptorPool_;
+    initInfo.Allocator = nullptr;
+    initInfo.MinImageCount = 2;
+    initInfo.ImageCount = vkObj.swapchain.GetImageCount();
+
+	ImGui_ImplVulkan_Init(&initInfo, VkRenderPass(vkObj.renderPass));
+
+    // Create font texture
+    unsigned char* fontData;
+    int texWidth, texHeight;
+    io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
+
+    // Upload Fonts
+    {
+        ImGui_ImplVulkan_CreateFontsTexture(VkCommandBuffer(vkObj.commandBuffers[0]));
+
+        vkDeviceWaitIdle(VkDevice(vkObj.device));
+        ImGui_ImplVulkan_DestroyFontUploadObjects();
+    }
 }
 
 void VulkanWindow::GenerateUiFrame()
@@ -102,9 +164,9 @@ void VulkanWindow::GenerateUiFrame()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("ImGuiGenerate");
 #endif
-	/*ImGui_ImplVulkan_NewFrame();
-	ImGui_ImplSDL2_NewFrame(window_);
-	ImGui::NewFrame();*/
+    ImGui_ImplVulkan_NewFrame();
+    ImGui_ImplSDL2_NewFrame(window_);
+    ImGui::NewFrame();
 }
 
 
@@ -122,10 +184,13 @@ void VulkanWindow::Destroy()
 	EASY_BLOCK("DestroyWindow");
 #endif
 	MakeCurrentContext();
-	//ImGui_ImplVulkan_Shutdown();
-	
-	//Delete our OpenGL context
-	//SDL_GL_DeleteContext(vkSurface_);
+
+    /*const auto& vkObj = vk::VkResourcesLocator::get();
+    vkDestroyDescriptorPool(VkDevice(vkObj.device), imguiDescriptorPool_, nullptr);
+
+    ImGui_ImplVulkan_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();*/
 
 	SdlWindow::Destroy();
 }
@@ -135,8 +200,8 @@ void VulkanWindow::RenderUi()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("ImGuiRender");
 #endif
-	//ImGui::Render();
-	//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData());
+	/*ImGui::Render();
+    ImGui::GetDrawData()->Clear();*/
 }
 
 void VulkanWindow::OnResize(const Vec2u newWindowSize)

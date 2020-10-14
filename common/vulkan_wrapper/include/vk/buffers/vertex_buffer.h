@@ -10,6 +10,6 @@ namespace neko::vk
 class VertexBuffer : public Buffer
 {
 public:
-    void Init();
+    void Init(const Vertex vertices[], size_t vertexNum);
 };
 }

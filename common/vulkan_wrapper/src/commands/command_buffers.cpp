@@ -51,14 +51,14 @@ void CommandBuffers::Init(const VertexBuffer& vertexBuffer,
         vkCmdBeginRenderPass(commandBuffers_[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
         vkCmdBindPipeline(commandBuffers_[i], VK_PIPELINE_BIND_POINT_GRAPHICS, VkPipeline(graphicsPipeline));
 
+        const auto& pipelineLayout = graphicsPipeline.GetLayout();
+        vkCmdBindDescriptorSets(commandBuffers_[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
+                                pipelineLayout, 0, 1, &descriptorSets[i],0, nullptr);
+
         VkBuffer vertexBuffers[] = {VkBuffer(vertexBuffer)};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(commandBuffers_[i], 0, 1, vertexBuffers, offsets);
         vkCmdBindIndexBuffer(commandBuffers_[i], VkBuffer(indexBuffer), 0, VK_INDEX_TYPE_UINT16);
-
-        const auto& pipelineLayout = graphicsPipeline.GetLayout();
-        vkCmdBindDescriptorSets(commandBuffers_[i], VK_PIPELINE_BIND_POINT_GRAPHICS,
-                                pipelineLayout, 0, 1, &descriptorSets[i],0, nullptr);
 
         vkCmdDrawIndexed(commandBuffers_[i], static_cast<uint32_t>(kIndices.size()), 1, 0, 0, 0);
         vkCmdEndRenderPass(commandBuffers_[i]);

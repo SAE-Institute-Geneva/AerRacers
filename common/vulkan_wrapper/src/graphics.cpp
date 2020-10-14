@@ -26,7 +26,10 @@
  Date :
 ---------------------------------------------------------- */
 #include "vk/graphics.h"
+
+#include "imgui.h"
 #include "graphics/texture.h"
+#include "vk/shapes/quad.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -45,8 +48,8 @@ VkRenderer::VkRenderer() : Renderer()
         renderPass.Init();
         commandPool.Init();
         framebuffers.Init();
-        vertexBuffer_.Init();
-        indexBuffer_.Init();
+        vertexBuffer_.Init(RenderQuad::Vertices, IM_ARRAYSIZE(RenderQuad::Vertices));
+        indexBuffer_.Init(RenderQuad::Indices, IM_ARRAYSIZE(RenderQuad::Indices));
 
         descriptorPool.Init();
         shader_.LoadFromFile("../../data/shaders/aer_racer/01_triangle/quad.vert.spv",
@@ -141,7 +144,8 @@ void VkRenderer::BeforeRenderLoop()
         const float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
         UniformBufferObject ubo;
-        ubo.model = Transform3d::Rotate(Mat4f::Identity, time * degree_t(90.0f), Vec3f::forward);
+        ubo.model = Mat4f::Identity;
+        //ubo.model = Transform3d::Rotate(Mat4f::Identity, time * degree_t(90.0f), Vec3f::forward);
         ubo.view = camera_.GenerateViewMatrix();
         ubo.proj = camera_.GenerateProjectionMatrix();
         ubo.proj[1][1] *= -1;

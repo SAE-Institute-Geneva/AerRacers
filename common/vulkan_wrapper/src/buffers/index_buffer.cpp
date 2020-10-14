@@ -8,11 +8,11 @@ const std::array<uint16_t, 6> kIndices = {
         0, 1, 2, 2, 3, 0
 };
 
-void IndexBuffer::Init()
+void IndexBuffer::Init(const uint16_t indices[], size_t indexNum)
 {
     const auto& vkObj = VkResourcesLocator::get();
 
-	const VkDeviceSize bufferSize = sizeof(kIndices[0]) * kIndices.size();
+	const VkDeviceSize bufferSize = sizeof(uint16_t) * indexNum;
 
     VkBuffer stagingBuffer{};
     VkDeviceMemory stagingBufferMemory{};
@@ -22,7 +22,7 @@ void IndexBuffer::Init()
 
     void* data = nullptr;
     vkMapMemory(VkDevice(vkObj.device), stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, kIndices.data(), static_cast<size_t>(bufferSize));
+    memcpy(data, indices, static_cast<size_t>(bufferSize));
     vkUnmapMemory(VkDevice(vkObj.device), stagingBufferMemory);
 
     CreateBuffer(VkPhysicalDevice(vkObj.gpu), VkDevice(vkObj.device), bufferSize,

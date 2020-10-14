@@ -26,6 +26,10 @@
 
 #ifdef NEKO_VULKAN
 
+#include "imgui.h"
+#include "imgui_impl_sdl.h"
+#include "imgui_impl_vulkan.h"
+
 #include "sdl_engine/sdl_window.h"
 #include "graphics/graphics.h"
 #include "mathematics/vector.h"
@@ -78,6 +82,8 @@ protected:
 
     WindowFlag state_{};
     VkOnResizeRenderCommand onResizeCommand_;
+
+    VkDescriptorPool imguiDescriptorPool_;
 };
 }
 #endif
