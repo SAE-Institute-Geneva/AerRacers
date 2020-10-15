@@ -24,12 +24,13 @@
  */
 #include <vector>
 #include <editor/tool/tool.h>
-#include <editor/tool/logger.h>
+
 #include <editor/tool/inspector.h>
 
 namespace neko::aer
 {
 class AerEngine;
+class Logger;
 
 class AerTool
 {

@@ -29,6 +29,15 @@
 
 namespace neko::aer
 {
+    enum class LogSeverity: std::uint8_t {
+        NONE = 0,
+        DEBUG,
+        INFO,
+        WARNING,
+        ERROR,
+        CRITICAL
+    };
+
     class Logger : public Tool
     {
       
@@ -37,10 +46,10 @@ namespace neko::aer
             logs_.reserve(100000);
         };
         
-        struct MyLog
+        struct AerLog
         {
-            std::string log_msg;
-            int log_severity;
+            std::string msg;
+            LogSeverity severity;
         };
 
         static Logger* get() noexcept {
@@ -76,15 +85,13 @@ namespace neko::aer
         void operator=(Logger const&) = delete;
 
         static Logger* instance;
-    protected:
-
-
-        int scroll_Y = 0;
+    private:
+        int pos_y = 0;
         bool scrollToBottom = true;
 
 
-        std::vector<MyLog> logs_;
-    private:
+        std::vector<AerLog> logs_;
+
        
 
     };

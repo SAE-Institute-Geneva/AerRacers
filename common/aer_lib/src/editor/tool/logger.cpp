@@ -81,35 +81,37 @@ namespace neko::aer
                 int nbrLineMax = ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing();
 
                 if (scrollToBottom) {
-                    scroll_Y = instance->logs_.size() - nbrLineMax;
-                    if (scroll_Y < 0) {
-                        scroll_Y = 0;
+                    pos_y = instance->logs_.size() - nbrLineMax;
+                    if (pos_y < 0) {
+                        pos_y = 0;
                     }
                 }
                 else {
-                    scroll_Y = ImGui::GetScrollY() / ImGui::GetTextLineHeightWithSpacing();
-                    ImGui::SetCursorPos({ 0, (float)scroll_Y * ImGui::GetTextLineHeightWithSpacing() });
+                    pos_y = ImGui::GetScrollY() / ImGui::GetTextLineHeightWithSpacing();
+                    ImGui::SetCursorPos({ 0, (float)pos_y * ImGui::GetTextLineHeightWithSpacing() });
                 }
               
+
                 if (instance->logs_.size() != 0) {
-                    for (size_t i = scroll_Y; i < scroll_Y + (nbrLineMax); i++)
+                    for (size_t i = pos_y; i < pos_y + (nbrLineMax); i++)
                     {
                         if (i < instance->logs_.size()) {
-                            switch (instance->logs_[i].log_severity) {
-                            case 0:
-                                ImGui::TextColored(ImVec4(0.5f, 0.5f, 1, 1), instance->logs_[i].log_msg.c_str());
+                            AerLog log = instance->logs_[i];
+                            switch (log.severity) {
+                            case LogSeverity::DEBUG:
+                                ImGui::TextColored(ImVec4(0.5f, 0.5f, 1, 1), log.msg.c_str());
                                 break;
-                            case 1:
-                                ImGui::Text(instance->logs_[i].log_msg.c_str());
+                            case LogSeverity::INFO:
+                                ImGui::Text(log.msg.c_str());
                                 break;
-                            case 2:
-                                ImGui::TextColored(ImVec4(1, 1, 0, 1), instance->logs_[i].log_msg.c_str());
+                            case LogSeverity::WARNING:
+                                ImGui::TextColored(ImVec4(1, 1, 0, 1), log.msg.c_str());
                                 break;
-                            case 3:
-                                ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), instance->logs_[i].log_msg.c_str());
+                            case LogSeverity::ERROR:
+                                ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), log.msg.c_str());
                                 break;
-                            case 4:
-                                ImGui::TextColored(ImVec4(1, 0, 0, 1), instance->logs_[i].log_msg.c_str());
+                            case LogSeverity::CRITICAL:
+                                ImGui::TextColored(ImVec4(1, 0, 0, 1), log.msg.c_str());
                                 break;
                             }
                         }
@@ -142,34 +144,34 @@ namespace neko::aer
             + std::to_string(ltm->tm_min) + ":"
             + std::to_string(ltm->tm_sec) + "]";
 
-        MyLog new_log;
+        AerLog log;
         switch (severity_log)
         {
         case 0:
-            new_log.log_severity = 0;
-            new_log.log_msg = time_log + " Debug: " + msg_log;
+            log.severity = LogSeverity::DEBUG;
+            log.msg = time_log + " Debug: " + msg_log;
             break;
         case 1:
-            new_log.log_severity = 1;
-            new_log.log_msg = time_log + " Info: " + msg_log;
+            log.severity = LogSeverity::INFO;
+            log.msg = time_log + " Info: " + msg_log;
             break;
         case 2:
-            new_log.log_severity = 2;
-            new_log.log_msg = time_log + " Warning: " + msg_log;
+            log.severity = LogSeverity::WARNING;
+            log.msg = time_log + " Warning: " + msg_log;
             break;
         case 3:
-            new_log.log_severity = 3;
-            new_log.log_msg = time_log + " Error: " + msg_log;
+            log.severity = LogSeverity::ERROR;
+            log.msg = time_log + " Error: " + msg_log;
             break;
         case 4:
-            new_log.log_severity = 4;
-            new_log.log_msg = time_log + " Critical:" + msg_log;
+            log.severity = LogSeverity::CRITICAL;
+            log.msg = time_log + " Critical:" + msg_log;
             break;
 
         default:
             break;
         }
-        logs_.emplace_back(new_log);
+        logs_.emplace_back(log);
     }
 
     void Logger::OnEvent(const SDL_Event& event)

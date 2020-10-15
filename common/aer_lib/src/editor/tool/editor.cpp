@@ -23,6 +23,7 @@
  */
 #include "editor/tool/editor.h"
 #include "aer_engine.h"
+#include <editor/tool/logger.h>
 
 
 namespace neko::aer
@@ -49,9 +50,9 @@ namespace neko::aer
     {
 
         if (logger_ != nullptr) {
-            for (size_t i = 0; i < 1000; i++)
+            for (size_t i = 0; i < 10000; i++)
             {
-                switch (std::rand() % 4) {
+                switch (std::rand() % 5) {
                 case 0:
                     DebugLog("AHHHHH");
                     break;
@@ -62,7 +63,10 @@ namespace neko::aer
                     WarningLog("On se calme!");
                     break;
                 case 3:
-                    ErrorLog("Rein à declarer");
+                    ErrorLog("Rein a declarer");
+                    break;
+                case 4:
+                    CriticalLog("Un dinosaure");
                     break;
                 }
             }
