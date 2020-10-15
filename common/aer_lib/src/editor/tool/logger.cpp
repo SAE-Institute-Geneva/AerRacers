@@ -61,29 +61,32 @@ namespace neko::aer
             else
             {
                 ImGui::IsWindowDocked();
-#pragma region Header
+                #pragma region Header
+                //Clear All Logs
                 if (ImGui::Button("Clear")) {
                     logs_.clear();
                 }
 
+                //Auto Scrolling
                 ImGui::SameLine(80);
-                if (ImGui::Checkbox("Auto Scrolling", &scrollToBottom)) {
-                    scrollToBottom != scrollToBottom;
+                if (ImGui::Checkbox("Auto Scrolling", &autoScroll)) {
+                    autoScroll != autoScroll;
                 }
 
-                int nbrLogs = logs_.size();
+                //Number of Logs  
                 ImGui::SameLine(220);
+                int nbrLogs = logs_.size();
                 ImGui::Text(("Counter Logs: " + std::to_string(nbrLogs)).c_str());
 
                 //Separator
                 ImGui::Separator();
-#pragma endregion
-#pragma region Body
+                #pragma endregion
+                #pragma region Body
                 ImGui::BeginChild("Logger");
 
                 int nbrLineMax = ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing();
 
-                if (scrollToBottom) {
+                if (autoScroll) {
                     pos_y = nbrLogs - nbrLineMax;
                     if (pos_y < 0) {
                         pos_y = 0;
@@ -94,7 +97,7 @@ namespace neko::aer
                     ImGui::SetCursorPos({ 0, (float)pos_y * ImGui::GetTextLineHeightWithSpacing() });
                 }
               
-
+                //Display
                 if (nbrLogs != 0) {
                     for (size_t i = pos_y; i < pos_y + (nbrLineMax); i++)
                     {
@@ -124,13 +127,13 @@ namespace neko::aer
                     ImGui::SetScrollY(0);
                 }
 
-                if (!scrollToBottom) {
+                if (!autoScroll) {
                     ImGui::SetCursorPos({ 0, (float)nbrLogs * ImGui::GetTextLineHeightWithSpacing() });
                     ImGui::Text("");
                 }
                 ImGui::EndChild();
                 ImGui::End();
-#pragma endregion 
+                #pragma endregion 
             }
         }
     }

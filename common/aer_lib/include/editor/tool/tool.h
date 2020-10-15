@@ -29,37 +29,13 @@
 namespace neko::aer
 {
     class Tool : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface {
-        /**
-         * \brief Executed on the render thread
-         */
-        virtual void Init() override {
-
-        }
-        /**
-         * \brief Executed on the main thread
-         */
-        virtual void Update(seconds dt) override {
-
-        }
-        /**
-         * \brief Executed on the render thread
-         */
-        virtual void DrawImGui() override {
-
-        }
-        /**
-         * \brief Executed on the render thread
-         */
-        virtual void Destroy() override {
-
-        }
-        /**
-         * \brief Executed on the main thread
-         */
-        virtual void OnEvent(const SDL_Event& event) override {
-
-        }
     public:
+        virtual void Init() override {}
+        virtual void Update(seconds dt) override {}
+        virtual void DrawImGui() override {}
+        virtual void Destroy() override {}
+        virtual void OnEvent(const SDL_Event& event) override {}
+
         bool isVisible = true;
     private:
         int id_;

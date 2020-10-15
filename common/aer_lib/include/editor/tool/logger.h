@@ -43,10 +43,9 @@ namespace neko::aer
         std::string msg;
         LogSeverity severity;
     };
-    //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 // LogManagerInterface
 //-----------------------------------------------------------------------------
-/// \brief Used for the service locator
     class LogManagerInterface
     {
     protected:
@@ -54,13 +53,13 @@ namespace neko::aer
     public:
         /**
          * \brief Generate a log message.
-         * @param logType the type of the log message
-         * @param log the log message
+         * @param severity the type of the log message
+         * @param msg the log message
          */
         virtual void Log(LogSeverity severity, const std::string msg) = 0;
 
         /**
-         * \brief Retrieves the log history
+         * \brief Retrieves the logs
          */
         virtual const std::vector<AerLog>& GetLogs() = 0;
     };
@@ -68,7 +67,6 @@ namespace neko::aer
 //-----------------------------------------------------------------------------
 // NullLogManager
 //-----------------------------------------------------------------------------
-/// \brief Used for the service locator
     class NullLogManager final : public LogManagerInterface
     {
         void Log([[maybe_unused]] LogSeverity severity,
@@ -92,19 +90,20 @@ namespace neko::aer
     {
       
     public:
+        //Constructor
         Logger();
         
         const std::vector<AerLog>& GetLogs() override
         {
             return logs_;
         }
-
         /**
          * \brief Executed on the render thread
          */
         void Init() override;
         /**
          * \brief Executed on the main thread
+         * @param dt deltaTime
          */
         void Update(seconds dt) override;
         /**
@@ -117,19 +116,16 @@ namespace neko::aer
         void Destroy() override;
         /**
          * \brief Executed on the main thread
+         * @param &event SDL_EVENT
          */
         void OnEvent(const SDL_Event& event) override;
 
         void Log(LogSeverity severity, const std::string msg) override;
     private:
         int pos_y = 0;
-        bool scrollToBottom = true;
-
+        bool autoScroll = true;
 
         std::vector<AerLog> logs_;
-
-       
-
     };
 
 //-----------------------------------------------------------------------------

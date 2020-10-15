@@ -48,25 +48,25 @@ namespace neko::aer
 
     void Editor::Update(seconds dt)
     {
-
-        if (logger_ != nullptr) {
-            for (size_t i = 0; i < 10000; i++)
+        if (logger_ != nullptr) 
+        {
+            for (size_t i = 0; i < 20; i++)
             {
                 switch (std::rand() % 5) {
                 case 0:
-                    DebugLog("AHHHHH");
+                    DebugLog("This is a DEBUG message");
                     break;
                 case 1:
-                    InfoLog("Pas terrible");
+                    InfoLog("This is a INFO message");
                     break;
                 case 2:
-                    WarningLog("On se calme!");
+                    WarningLog("This is a WARNING message");
                     break;
                 case 3:
-                    ErrorLog("Rein a declarer");
+                    ErrorLog("This is a ERROR message");
                     break;
                 case 4:
-                    CriticalLog("Un dinosaure");
+                    CriticalLog("This is a CRITICAL message");
                     break;
                 }
             }
