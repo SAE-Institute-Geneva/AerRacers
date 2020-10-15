@@ -25,11 +25,13 @@
 
 namespace neko::aer
 {
-    Logger* Logger::instance = nullptr;
+    Logger::Logger() {
+            Log::provide(this);
+            logs_.reserve(100000);
+    }
 
     void Logger::Init()
     {
-        instance = this;
         
      
     }
@@ -61,7 +63,7 @@ namespace neko::aer
                 ImGui::IsWindowDocked();
 #pragma region Header
                 if (ImGui::Button("Clear")) {
-                    instance->logs_.clear();
+                    logs_.clear();
                 }
 
                 ImGui::SameLine(80);
@@ -69,8 +71,9 @@ namespace neko::aer
                     scrollToBottom != scrollToBottom;
                 }
 
+                int nbrLogs = logs_.size();
                 ImGui::SameLine(220);
-                ImGui::Text(("Counter Logs: " + std::to_string(instance->logs_.size())).c_str());
+                ImGui::Text(("Counter Logs: " + std::to_string(nbrLogs)).c_str());
 
                 //Separator
                 ImGui::Separator();
@@ -81,7 +84,7 @@ namespace neko::aer
                 int nbrLineMax = ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing();
 
                 if (scrollToBottom) {
-                    pos_y = instance->logs_.size() - nbrLineMax;
+                    pos_y = nbrLogs - nbrLineMax;
                     if (pos_y < 0) {
                         pos_y = 0;
                     }
@@ -92,11 +95,11 @@ namespace neko::aer
                 }
               
 
-                if (instance->logs_.size() != 0) {
+                if (nbrLogs != 0) {
                     for (size_t i = pos_y; i < pos_y + (nbrLineMax); i++)
                     {
-                        if (i < instance->logs_.size()) {
-                            AerLog log = instance->logs_[i];
+                        if (i < nbrLogs) {
+                            AerLog log = logs_[i];
                             switch (log.severity) {
                             case LogSeverity::DEBUG:
                                 ImGui::TextColored(ImVec4(0.5f, 0.5f, 1, 1), log.msg.c_str());
@@ -122,7 +125,7 @@ namespace neko::aer
                 }
 
                 if (!scrollToBottom) {
-                    ImGui::SetCursorPos({ 0, (float)instance->logs_.size() * ImGui::GetTextLineHeightWithSpacing() });
+                    ImGui::SetCursorPos({ 0, (float)nbrLogs * ImGui::GetTextLineHeightWithSpacing() });
                     ImGui::Text("");
                 }
                 ImGui::EndChild();
@@ -133,7 +136,7 @@ namespace neko::aer
     }
 
 
-    void Logger::AddLog(std::string msg_log, int severity_log)
+    void Logger::Log(LogSeverity severity, const std::string msg)
     {
         // current date/time based on current system
         time_t now = time(0);
@@ -145,27 +148,23 @@ namespace neko::aer
             + std::to_string(ltm->tm_sec) + "]";
 
         AerLog log;
-        switch (severity_log)
+        log.severity = severity;
+        switch (severity)
         {
-        case 0:
-            log.severity = LogSeverity::DEBUG;
-            log.msg = time_log + " Debug: " + msg_log;
+        case LogSeverity::DEBUG: 
+            log.msg = time_log + " Debug: " + msg;
             break;
-        case 1:
-            log.severity = LogSeverity::INFO;
-            log.msg = time_log + " Info: " + msg_log;
+        case LogSeverity::INFO:
+            log.msg = time_log + " Info: " + msg;
             break;
-        case 2:
-            log.severity = LogSeverity::WARNING;
-            log.msg = time_log + " Warning: " + msg_log;
+        case LogSeverity::WARNING:
+            log.msg = time_log + " Warning: " + msg;
             break;
-        case 3:
-            log.severity = LogSeverity::ERROR;
-            log.msg = time_log + " Error: " + msg_log;
+        case LogSeverity::ERROR:
+            log.msg = time_log + " Error: " + msg;
             break;
-        case 4:
-            log.severity = LogSeverity::CRITICAL;
-            log.msg = time_log + " Critical:" + msg_log;
+        case LogSeverity::CRITICAL:
+            log.msg = time_log + " Critical:" + msg;
             break;
 
         default:
@@ -180,23 +179,22 @@ namespace neko::aer
     }
 
     void DebugLog(std::string msg) {   
-        Logger::get()->AddLog(msg, 0);
+        Log::get().Log(LogSeverity::DEBUG, msg);
     }
 
     void InfoLog(std::string msg) {
-        Logger::get()->AddLog(msg, 1);
+        Log::get().Log(LogSeverity::INFO, msg);
     }
 
     void WarningLog(std::string msg) {
-        Logger::get()->AddLog(msg, 2);
+        Log::get().Log(LogSeverity::WARNING, msg);
     }
 
     void ErrorLog(std::string msg) {
-        Logger::get()->AddLog(msg, 3);
+        Log::get().Log(LogSeverity::ERROR, msg);
     }
 
-
     void CriticalLog(std::string msg) {
-        Logger::get()->AddLog(msg, 4);
+        Log::get().Log(LogSeverity::CRITICAL, msg);
     }
 }

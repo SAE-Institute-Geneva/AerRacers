@@ -38,24 +38,65 @@ namespace neko::aer
         CRITICAL
     };
 
-    class Logger : public Tool
+    struct AerLog
+    {
+        std::string msg;
+        LogSeverity severity;
+    };
+    //-----------------------------------------------------------------------------
+// LogManagerInterface
+//-----------------------------------------------------------------------------
+/// \brief Used for the service locator
+    class LogManagerInterface
+    {
+    protected:
+        ~LogManagerInterface() = default;
+    public:
+        /**
+         * \brief Generate a log message.
+         * @param logType the type of the log message
+         * @param log the log message
+         */
+        virtual void Log(LogSeverity severity, const std::string msg) = 0;
+
+        /**
+         * \brief Retrieves the log history
+         */
+        virtual const std::vector<AerLog>& GetLogs() = 0;
+    };
+
+//-----------------------------------------------------------------------------
+// NullLogManager
+//-----------------------------------------------------------------------------
+/// \brief Used for the service locator
+    class NullLogManager final : public LogManagerInterface
+    {
+        void Log([[maybe_unused]] LogSeverity severity,
+            [[maybe_unused]] const std::string msg) override
+        {
+            std::cout << msg;
+            std::cout << "[WARNING] LogManager is null! History will NOT be saved\n";
+        }
+
+        const std::vector<AerLog>& GetLogs() override
+        {
+            std::cerr << "Impossible to get log history from a null LogManager\n";
+            assert(false);
+#ifdef _MSC_VER
+            return {};
+#endif
+        }
+    };
+
+    class Logger final : public Tool, public LogManagerInterface
     {
       
     public:
-        Logger() {
-            logs_.reserve(100000);
-        };
+        Logger();
         
-        struct AerLog
+        const std::vector<AerLog>& GetLogs() override
         {
-            std::string msg;
-            LogSeverity severity;
-        };
-
-        static Logger* get() noexcept {
-            return (!instance) ?
-                instance = new Logger :
-                instance;
+            return logs_;
         }
 
         /**
@@ -79,12 +120,7 @@ namespace neko::aer
          */
         void OnEvent(const SDL_Event& event) override;
 
-        void AddLog(std::string msg_log, int severity_log);
-
-        Logger(Logger const&) = delete;
-        void operator=(Logger const&) = delete;
-
-        static Logger* instance;
+        void Log(LogSeverity severity, const std::string msg) override;
     private:
         int pos_y = 0;
         bool scrollToBottom = true;
@@ -95,6 +131,11 @@ namespace neko::aer
        
 
     };
+
+//-----------------------------------------------------------------------------
+// Service Locator definition
+//-----------------------------------------------------------------------------
+    using Log = Locator<LogManagerInterface, NullLogManager>;
 
     void DebugLog(std::string msg);
 
