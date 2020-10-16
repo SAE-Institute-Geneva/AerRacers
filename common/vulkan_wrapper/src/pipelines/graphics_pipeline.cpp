@@ -1,6 +1,7 @@
 #include "vk/pipelines/graphics_pipeline.h"
 
 #include "utilities/file_utility.h"
+#include "vk/shapes/shape.h"
 
 namespace neko::vk
 {

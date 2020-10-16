@@ -1,11 +1,10 @@
 #pragma once
 #include "graphics/shape.h"
-#include "vk/buffers/index_buffer.h"
-#include "vk/buffers/vertex_buffer.h"
+#include "vk/shapes/shape.h"
 
 namespace neko::vk
 {
-class RenderQuad : public neko::RenderQuad
+class RenderQuad final : public neko::RenderQuad, VkRenderShape
 {
 public:
     using neko::RenderQuad::RenderQuad;
@@ -14,15 +13,12 @@ public:
     void Draw() const override;
 
     void Destroy() override;
-
-    VertexBuffer vertexBuffer_;
-    IndexBuffer indexBuffer_;
-
-    const static Vertex Vertices[];
-    const static uint16_t Indices[];
+	
+    const static Vertex kVertices[];
+    const static uint16_t kIndices[];
 };
 
-const inline Vertex RenderQuad::Vertices[] =
+const inline Vertex RenderQuad::kVertices[] =
 {
         {{-0.5, -0.5, 0}, Vec3f::back, {1, 0}, {1, 0, 0}, {0, 1, 0}}, //Bottom Left
         {{ 0.5, -0.5, 0}, Vec3f::back, {0, 0}, {1, 0, 0}, {0, 1, 0}}, //Bottom Right
@@ -30,5 +26,5 @@ const inline Vertex RenderQuad::Vertices[] =
         {{-0.5,  0.5, 0}, Vec3f::back, {1, 1}, {1, 0, 0}, {0, 1, 0}}, //Top Left
 };
 
-const inline uint16_t RenderQuad::Indices[] = { 0, 1, 2, 2, 3, 0 };
+const inline uint16_t RenderQuad::kIndices[] = { 0, 1, 2, 2, 3, 0 };
 }

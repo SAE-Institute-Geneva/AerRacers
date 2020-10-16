@@ -27,7 +27,6 @@
 ---------------------------------------------------------- */
 #include "vk/graphics.h"
 
-#include "imgui.h"
 #include "graphics/texture.h"
 #include "vk/shapes/quad.h"
 
@@ -48,8 +47,8 @@ VkRenderer::VkRenderer() : Renderer()
         renderPass.Init();
         commandPool.Init();
         framebuffers.Init();
-        vertexBuffer_.Init(RenderQuad::Vertices, IM_ARRAYSIZE(RenderQuad::Vertices));
-        indexBuffer_.Init(RenderQuad::Indices, IM_ARRAYSIZE(RenderQuad::Indices));
+        vertexBuffer_.Init(RenderQuad::kVertices, IM_ARRAYSIZE(RenderQuad::kVertices));
+        indexBuffer_.Init(RenderQuad::kIndices, IM_ARRAYSIZE(RenderQuad::kIndices));
 
         descriptorPool.Init();
         shader_.LoadFromFile("../../data/shaders/aer_racer/01_triangle/quad.vert.spv",

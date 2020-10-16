@@ -25,26 +25,19 @@
  Author : Simon
  Co-Author :
 ---------------------------------------------------------- */
-
-#include <thread>
-
 #include "graphics/graphics.h"
 #include "sdl_engine/sdl_camera.h"
-#include "vk/buffers/index_buffer.h"
 #include "vk/buffers/uniform_buffer.h"
-#include "vk/buffers/vertex_buffer.h"
 #include "vk/commands/command_buffers.h"
 #include "vk/commands/command_pool.h"
 #include "vk/core/instance.h"
 #include "vk/core/logical_device.h"
 #include "vk/core/physical_device.h"
 #include "vk/core/surface.h"
-#include "vk/descriptors/descriptor_set.h"
 #include "vk/descriptors/descriptor_pool.h"
 #include "vk/framebuffers/framebuffers.h"
 #include "vk/framebuffers/renderpass.h"
 #include "vk/framebuffers/swapchain.h"
-#include "vk/pipelines/graphics_pipeline.h"
 #include "vk/shader.h"
 
 namespace neko::vk

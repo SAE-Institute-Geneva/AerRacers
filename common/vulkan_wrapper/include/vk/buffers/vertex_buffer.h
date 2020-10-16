@@ -1,12 +1,17 @@
 #pragma once
-#include "vk/vulkan_include.h"
 #include "vk/buffers/buffer.h"
-#include "vk/core/logical_device.h"
-#include "vk/commands/command_pool.h"
-#include "vk/pipelines/graphics_pipeline.h"
 
 namespace neko::vk
 {
+struct Vertex
+{
+    Vec3f position = Vec3f::zero;
+    Vec3f normal = Vec3f::zero;
+    Vec2f texCoords = Vec2f::zero;
+    Vec3f tangent = Vec3f::zero;
+    Vec3f bitangent = Vec3f::zero;
+};
+
 class VertexBuffer : public Buffer
 {
 public:

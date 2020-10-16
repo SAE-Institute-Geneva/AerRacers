@@ -1,5 +1,7 @@
 #pragma once
 #include "graphics/shader.h"
+#include "vk/descriptors/descriptor_set.h"
+#include "vk/pipelines/graphics_pipeline.h"
 
 namespace neko::vk
 {
@@ -13,7 +15,7 @@ public:
     void Destroy() override;
 
     template<class UboType>
-    void UpdateUniformBuffer(uint32_t currentImage, const UboType& bufferData) const
+    void UpdateUniformBuffer(const uint32_t currentImage, const UboType& bufferData) const
     {
         uniformBuffers_[currentImage].Update(bufferData);
     }
@@ -31,6 +33,6 @@ private:
     std::string_view vertShaderPath_;
     std::string_view fragShaderPath_;
 
-    VkDeviceSize uboSize_;
+    VkDeviceSize uboSize_ = 0;
 };
 }

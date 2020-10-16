@@ -6,6 +6,7 @@ namespace neko::vk
 void Buffer::Destroy() const
 {
     const auto& vkObj = VkResourcesLocator::get();
+	
 	vkDestroyBuffer(VkDevice(vkObj.device), buffer_, nullptr);
 	vkFreeMemory(VkDevice(vkObj.device), memory_, nullptr);
 }
