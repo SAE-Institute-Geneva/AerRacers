@@ -7,7 +7,6 @@
 #include "gl/graphics.h"
 
 #include "aer_engine.h"
-
 class SimulateInput : public neko::SystemInterface {
 public:
 	SimulateInput(neko::aer::AerEngine& engine) :
@@ -128,7 +127,7 @@ public:
 
 	void Init() override
 	{
-
+		
 	}
 	void Update(neko::seconds dt) override
 	{
@@ -386,6 +385,12 @@ private:
 
 TEST(Engine, TestInteractiveInput)
 {
+	std::string env = getenv("TRAVIS");
+	std::cout << env << std::endl;
+	if (env == "windows") {
+		std::cout << "poisson" << std::endl;
+	}
+	
 	neko::Configuration config;
 	config.windowName = "AerEditor";
 	config.windowSize = neko::Vec2u(1400, 900);
