@@ -94,6 +94,12 @@ private:
 
 TEST(Engine, TestSimulateInput)
 {
+	char* env = getenv("TRAVIS_GUI");
+	std::cout << env << std::endl;
+	if (env == "false") {
+		std::cout << "poisson" << std::endl;
+	}
+
 	neko::Configuration config;
 	config.windowName = "AerEditor";
 	config.windowSize = neko::Vec2u(1400, 900);
