@@ -385,9 +385,9 @@ private:
 
 TEST(Engine, TestInteractiveInput)
 {
-	std::string env = getenv("TRAVIS");
+	char* env = getenv("TRAVIS_GUI");
 	std::cout << env << std::endl;
-	if (env == "windows") {
+	if (env == "false") {
 		std::cout << "poisson" << std::endl;
 	}
 	

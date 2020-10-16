@@ -10,6 +10,8 @@ matrix:
       compiler: clang
       services:
         - xvfb
+      env:
+        - TRAVIS_GUI="true"
       addons:
         apt:
           packages:
@@ -31,7 +33,7 @@ matrix:
       services:
         - xvfb
       env:
-        - TRAVIS="windows"
+        - TRAVIS_GUI="false"
         - CMAKE_PATH="/c/Program Files/CMake/bin"
         - MSBUILD_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin"
       before_install:
