@@ -7,6 +7,9 @@
 #include "gl/graphics.h"
 
 #include "aer_engine.h"
+
+#ifndef WIN_TRAVIS
+
 class SimulateInput : public neko::SystemInterface {
 public:
 	SimulateInput(neko::aer::AerEngine& engine) :
@@ -94,12 +97,6 @@ private:
 
 TEST(Engine, TestSimulateInput)
 {
-	char* env = getenv("TRAVIS_GUI");
-	std::cout << env << std::endl;
-	if (env == "false") {
-		std::cout << "poisson" << std::endl;
-	}
-
 	neko::Configuration config;
 	config.windowName = "AerEditor";
 	config.windowSize = neko::Vec2u(1400, 900);
@@ -391,12 +388,6 @@ private:
 
 TEST(Engine, TestInteractiveInput)
 {
-	char* env = getenv("TRAVIS_GUI");
-	std::cout << env << std::endl;
-	if (env == "false") {
-		std::cout << "poisson" << std::endl;
-	}
-	
 	neko::Configuration config;
 	config.windowName = "AerEditor";
 	config.windowSize = neko::Vec2u(1400, 900);
@@ -419,3 +410,4 @@ TEST(Engine, TestInteractiveInput)
 	//interactiveInput.HasSucceed();
 
 }
+#endif
