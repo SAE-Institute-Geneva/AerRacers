@@ -101,12 +101,8 @@ TEST(Engine, TestSimulateInput)
 	char* env = getenv("WIN_TRAVIS");
 	if (env != nullptr)
 	{
-		std::cout << env << std::endl;
-		if (env == "true") {
-			return;
-		} else {
-			return;
-		}
+		std::cout << "Test skip for travis windows" << std::endl;
+		return;
 	}
 
 	neko::Configuration config;
@@ -404,9 +400,8 @@ TEST(Engine, TestInteractiveInput)
 	char* env = getenv("WIN_TRAVIS");
 	if (env != nullptr)
 	{
-		if (env == "true") {
-			return;
-		}
+		std::cout << "Test skip for travis windows" << std::endl;
+		return;
 	}
 
 	neko::Configuration config;
