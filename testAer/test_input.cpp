@@ -101,7 +101,10 @@ TEST(Engine, TestSimulateInput)
 	char* env = getenv("WIN_TRAVIS");
 	if (env != nullptr)
 	{
+		std::cout << env << std::endl;
 		if (env == "true") {
+			return;
+		} else {
 			return;
 		}
 	}
