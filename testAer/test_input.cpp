@@ -97,6 +97,15 @@ private:
 
 TEST(Engine, TestSimulateInput)
 {
+	//Travis Fix because Windows can't open a window
+	char* env = getenv("WIN_TRAVIS");
+	if (env != nullptr)
+	{
+		if (env == "true") {
+			return;
+		}
+	}
+
 	neko::Configuration config;
 	config.windowName = "AerEditor";
 	config.windowSize = neko::Vec2u(1400, 900);
@@ -388,6 +397,15 @@ private:
 
 TEST(Engine, TestInteractiveInput)
 {
+	//Travis Fix because Windows can't open a window
+	char* env = getenv("WIN_TRAVIS");
+	if (env != nullptr)
+	{
+		if (env == "true") {
+			return;
+		}
+	}
+
 	neko::Configuration config;
 	config.windowName = "AerEditor";
 	config.windowSize = neko::Vec2u(1400, 900);
