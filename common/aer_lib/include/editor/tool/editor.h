@@ -30,21 +30,6 @@
 namespace neko::aer
 {
 class AerEngine;
-class Logger;
-
-class AerTool
-{
-public:
-    AerTool(int id, std::string name, std::unique_ptr<Tool> tool) {
-        this->id = id;
-        this->name = name;
-        this->tool = std::move(tool);
-    }
-    int id;
-    std::string name;
-    std::unique_ptr<Tool> tool;
-};
-
 class Editor final : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface
 {
 public:
@@ -69,12 +54,13 @@ public:
      * \brief Executed on the main thread
      */
     void OnEvent(const SDL_Event& event) override;
-   
+    
+    Tool* GetTool(TypeTool type);
 protected:
     AerEngine& engine_;
-    bool isToolAdded = false;
-    //Toudou 
-    Logger* logger_;
-    std::unique_ptr<Inspector> inspector_;
+private:
+    //Pop Up
+    std::vector<Tool*> tools_;
+    bool about_IsVisible = false;
 };
 }

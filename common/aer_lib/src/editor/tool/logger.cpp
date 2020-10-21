@@ -25,11 +25,11 @@
 
 namespace neko::aer
 {
-    Logger::Logger() {
-            Log::provide(this);
-            logs_.reserve(100000);
+    Logger::Logger(TypeTool type) : Tool(type) {
+        Log::provide(this);
+        logs_.reserve(100000);
     }
-
+    
     void Logger::Init()
     {
         
@@ -50,12 +50,13 @@ namespace neko::aer
 
     void Logger::DrawImGui()
     {
-        
+       
         if (isVisible) {
             //Tool Logger
             ImGui::SetNextWindowPos(ImVec2(0, 400), ImGuiCond_FirstUseEver);
             if (!ImGui::Begin("Logger Tool", &isVisible))
             {
+             
                 ImGui::End();
             }
             else
@@ -132,6 +133,11 @@ namespace neko::aer
                     ImGui::Text("");
                 }
                 ImGui::EndChild();
+                
+                DebugLog(std::to_string(ImGui::GetWindowPos().x));
+
+                LimitationWindow();
+
                 ImGui::End();
                 #pragma endregion 
             }

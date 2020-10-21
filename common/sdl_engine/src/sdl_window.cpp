@@ -98,7 +98,7 @@ void sdl::SdlWindow::InitImGui()
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void) io;
 
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewport / Platform Windows
+    //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewport / Platform Windows
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Keyboard Gamepad
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
@@ -109,7 +109,8 @@ void sdl::SdlWindow::InitImGui()
    
     // Setup Dear ImGui style
     //ImGui::StyleColorsDark();
-    ImGui::StyleColorsClassic();
+    //ImGui::StyleColorsLight();
+    //ImGui::StyleColorsClassic();
 }
 
 

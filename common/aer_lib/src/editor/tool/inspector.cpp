@@ -22,9 +22,11 @@
 // SOFTWARE.
 // */
 #include "editor/tool/inspector.h"
+#include "editor/tool/logger.h"
 
 namespace neko::aer
 {
+
     void Inspector::Init()
     {
     }
@@ -45,21 +47,21 @@ namespace neko::aer
         if (isVisible) 
         {
             //Tool Logger
-            ImGui::SetNextWindowPos(ImVec2(0, 400), ImGuiCond_FirstUseEver);
             if (!ImGui::Begin("Inspector", &isVisible))
             {
                 ImGui::End();
             }
             else
             {
-             /*   ImGui::IsWindowDocked();
-                #pragma region Header
-                Separator
-                ImGui::Separator();*/
-                #pragma endregion
-                #pragma region Body
-                //ImGui::BeginChild("Body");
+        
+                if (ImGui::IsWindowDocked()) {
+                    
+                    dockspaceID = ImGui::GetWindowDockID();
+                    LimitationDocked();
+                    ErrorLog("DOCKED");
+                }
 
+                LimitationWindow();
                 ImGui::End();
                 #pragma endregion 
             }

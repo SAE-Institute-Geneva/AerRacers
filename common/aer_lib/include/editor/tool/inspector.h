@@ -31,6 +31,7 @@ namespace neko::aer
     class Inspector : public Tool
     {
     public:
+        Inspector(TypeTool type) : Tool(type) {}
         /**
          * \brief Executed on the render thread
          */
@@ -51,6 +52,7 @@ namespace neko::aer
          * \brief Executed on the main thread
          */
         void OnEvent(const SDL_Event& event) override;
+
 
     protected:
 

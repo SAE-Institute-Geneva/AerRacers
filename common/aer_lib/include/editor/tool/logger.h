@@ -91,7 +91,7 @@ namespace neko::aer
       
     public:
         //Constructor
-        Logger();
+        Logger(TypeTool type);
         
         const std::vector<AerLog>& GetLogs() override
         {

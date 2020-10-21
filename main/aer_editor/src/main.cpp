@@ -35,7 +35,7 @@
 int main(int argc, char** argv)
 {
     neko::Configuration config;
-    config.windowName = "AerEditor";
+    config.windowName = "AerEditor Version 0.01";
     config.windowSize = neko::Vec2u(1400, 900);
 
     neko::sdl::Gles3Window window;
