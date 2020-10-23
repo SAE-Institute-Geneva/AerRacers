@@ -1,15 +1,6 @@
 #include <sdl_engine/sdl_input.h>
 
-#include <imgui.h>
 #include <string>
-#include <string>
-#include <string>
-#include <string>
-#include <string>
-#include <string>
-#include <string>
-#include <string>
-
 
 #include "sdl_engine/sdl_engine.h"
 
@@ -207,9 +198,6 @@ void InputManager::ProcessInputs(SDL_Event event)
                              )));
                 logDebug("There are " + std::to_string(SDL_NumJoysticks()) +
                          " joysticks attached");
-                for (int i = 0; i < SDL_NumJoysticks(); ++i) {
-                    PrintJoystick(i);
-                }
                 SDL_JoystickClose(joystick_);
             }
             else {
@@ -229,7 +217,6 @@ void InputManager::ProcessInputs(SDL_Event event)
                     "Controller removed out of range : Joystick " + event
                                                                     .jdevice.
                                                                     which);
-                //TODO(@Luca) Switch to AerLog
             }
 
             break;
@@ -260,7 +247,7 @@ void InputManager::ProcessInputs(SDL_Event event)
                     "Controller added out of range : Joystick " + event
                                                                   .jdevice.
                                                                   which);
-                //TODO(@Luca) Switch to AerLog
+                
             }
             break;
         }
@@ -277,12 +264,6 @@ void InputManager::ProcessInputs(SDL_Event event)
         }
 
         case SDL_JOYBUTTONDOWN: {
-            logDebug(
-                "Joystick " + std::to_string(event.jbutton.which) +
-                " button "
-                + std::to_string(
-                    event.jbutton.button) + " down");
-
             if (event.jdevice.which < 8) {
                 controllerButtonState_[event.jbutton.which][event.jbutton.button
                 ] = ButtonState::DOWN;
@@ -292,15 +273,12 @@ void InputManager::ProcessInputs(SDL_Event event)
                     "JoyButton pressed down out of range : Joystick " + event
                                                                         .jdevice
                                                                         .which);
-                //TODO(@Luca) Switch to AerLog
+                
             }
             break;
         }
 
         case SDL_JOYBUTTONUP: {
-            logDebug("Joystick " + std::to_string(event.jbutton.which) +
-                     " button " + std::
-                     to_string(event.jbutton.button) + " up");
             if (event.jdevice.which < 8) {
                 controllerButtonState_[event.jbutton.which][event.jbutton.button] =
                     ButtonState::UP;
@@ -310,18 +288,12 @@ void InputManager::ProcessInputs(SDL_Event event)
                     "JoyButton released up out of range : Joystick " + event
                                                                        .jdevice.
                                                                        which);
-                //TODO(@Luca) Switch to AerLog
+                
             }
             break;
         }
 
         case SDL_JOYAXISMOTION: {
-            logDebug(
-                "Joystick " + std::to_string(event.jdevice.which) +
-                " axis "
-                + std::to_string(
-                    event.jaxis.axis) + " value " + std::to_string(
-                    event.jaxis.value));
             const int deadZone = 3200;
             float value = 0;
             if (event.jaxis.value < -deadZone || event.jaxis.value > deadZone) {
@@ -333,7 +305,6 @@ void InputManager::ProcessInputs(SDL_Event event)
             else {
                 logDebug(
                     "JoyAxis out of range : Joystick " + event.jdevice.which);
-                //TODO(@Luca) Switch to AerLog
             }
             break;
         }

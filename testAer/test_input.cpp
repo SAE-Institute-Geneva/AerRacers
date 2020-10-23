@@ -34,8 +34,6 @@
 
 #include "aer_engine.h"
 
-#ifndef WIN_TRAVIS
-
 class SimulateInput : public neko::SystemInterface {
 public:
     SimulateInput(neko::aer::AerEngine& engine) : engine_(engine) { }
@@ -466,13 +464,10 @@ TEST(Engine, TestInteractiveInput)
 
     engine.Init();
 
-    InteractiveInput interactiveInput(engine, true);
+    InteractiveInput interactiveInput(engine, false);
     engine.RegisterSystem(interactiveInput);
     engine.RegisterOnDrawUi(interactiveInput);
     engine.RegisterOnEvent(interactiveInput);
 
     engine.EngineLoop();
-
-    //interactiveInput.HasSucceed();
 }
-#endif
