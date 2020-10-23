@@ -48,43 +48,40 @@ namespace neko::aer
 
     void Logger::DrawImGui()
     {
-         
         if (isVisible) {
             //Number of Logs  
-            int nbrLogs = logs_.size();
-            int nbrLineMax = ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing();
+            int nbrLog = logs_.size();
+            int nbrLogDisplayMax = ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing();
 
             //Tool Logger
             if (!ImGui::Begin("Logger Tool", &isVisible))
             {
+                LimitationWindow();
                 ImGui::End();
             }
             else
             {
                 #pragma region Header
-                //Clear All Logs
+                //Removes all Logs
                 if (ImGui::Button("Clear")) {
                     logs_.clear();
                 }
 
-                //Auto Scrolling
+                //scroll automatically
                 ImGui::SameLine();
                 if (ImGui::Checkbox("Auto Scrolling", &autoScroll)) {
                     autoScroll != autoScroll;
                 }
 
-              
                 ImGui::SameLine();
-             
-                ImGui::Text(("Counter Logs: " + std::to_string(nbrLogs)).c_str());
-
-                //Separator
+                ImGui::Text(("Counter Logs: " + std::to_string(nbrLog)).c_str());
                 ImGui::Separator();
                 #pragma endregion
+
                 #pragma region Body
                 ImGui::BeginChild("Logs");
                 if (autoScroll) {
-                    pos_y = nbrLogs - nbrLineMax;
+                    pos_y = nbrLog - nbrLogDisplayMax;
                     if (pos_y < 0) {
                         pos_y = 0;
                     }
@@ -94,11 +91,11 @@ namespace neko::aer
                     ImGui::SetCursorPos({ 0, (float)pos_y * ImGui::GetTextLineHeightWithSpacing() });
                 }
               
-                //Display
-                if (nbrLogs != 0) {
-                    for (size_t i = pos_y; i < pos_y + (nbrLineMax); i++)
+                //Logs display
+                if (nbrLog != 0) {
+                    for (size_t i = pos_y; i < pos_y + (nbrLogDisplayMax); i++)
                     {
-                        if (i < nbrLogs) {
+                        if (i < nbrLog) {
                             AerLog log = logs_[i];
                             switch (log.severity) {
                             case LogSeverity::DEBUG:
@@ -125,15 +122,17 @@ namespace neko::aer
                 }
 
                 if (!autoScroll) {
-                    ImGui::SetCursorPos({ 0, (float)nbrLogs * ImGui::GetTextLineHeightWithSpacing() });
+                    //Scroll Space
+                    ImGui::SetCursorPos({ 0, (float)nbrLog * ImGui::GetTextLineHeightWithSpacing() });
                     ImGui::Text("");
                 }
                 ImGui::EndChild();
+                LimitationWindow();
                 ImGui::End();
                 #pragma endregion 
             }
         }
-        LimitationWindow();
+      
     }
 
     void Logger::Log(LogSeverity severity, const std::string msg)
