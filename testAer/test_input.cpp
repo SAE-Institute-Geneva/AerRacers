@@ -1,3 +1,30 @@
+/* ----------------------------------------------------
+ MIT License
+
+ Copyright (c) 2020 SAE Institute Switzerland AG
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+ Author : Floreau Luca
+ Co-Author :
+ Date : 23.10.2020
+---------------------------------------------------------- */
 #include <gtest/gtest.h>
 
 #include "sdl_engine/sdl_engine.h"
@@ -17,59 +44,49 @@ public:
 
     void Update(neko::seconds dt) override
     {
-        neko::sdl::InputLocator::get().
-            SimulateKeyDown(neko::sdl::KeyCode::A);
-        neko::sdl::InputLocator::get().
-            SimulateKeyUp(neko::sdl::KeyCode::B);
-        neko::sdl::InputLocator::get().
-            SimulateMouseDown(neko::sdl::MouseButtonCode::LEFT);
-        neko::sdl::InputLocator::get().
-            SimulateMouseUp(neko::sdl::MouseButtonCode::RIGHT);
-        neko::sdl::InputLocator::get().
-            SimulateControllerDown(neko::sdl::ControllerInputs::BUTTON_A);
-        neko::sdl::InputLocator::get().
-            SimulateControllerUp(neko::sdl::ControllerInputs::BUTTON_B);
-        neko::sdl::InputLocator::get().
-            SimulateActionDown(neko::sdl::InputAction::FORWARD);
-        neko::sdl::InputLocator::get().
-            SimulateActionUp(neko::sdl::InputAction::BACKWARD);
+        auto& inputLocator = neko::sdl::InputLocator::get();
+        inputLocator.SimulateKeyDown(neko::sdl::KeyCode::A);
+        inputLocator.SimulateKeyUp(neko::sdl::KeyCode::B);
+        inputLocator.SimulateMouseDown(neko::sdl::MouseButtonCode::LEFT);
+        inputLocator.SimulateMouseUp(neko::sdl::MouseButtonCode::RIGHT);
+        inputLocator.SimulateControllerDown(0,
+                                            neko::sdl::ControllerInputs::BUTTON_A);
+        inputLocator.SimulateControllerUp(1,
+                                          neko::sdl::ControllerInputs::BUTTON_B);
+        inputLocator.SimulateActionDown(2, neko::sdl::ActionInput::FORWARD);
+        inputLocator.SimulateActionUp(3, neko::sdl::ActionInput::BACKWARD);
 
-        if (neko::sdl::InputLocator::get().
-            IsKeyDown(neko::sdl::KeyCode::A)) {
+        if (inputLocator.IsKeyDown(neko::sdl::KeyCode::A)) {
             keyDown_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsKeyUp(neko::sdl::KeyCode::B)) {
+        if (inputLocator.IsKeyUp(neko::sdl::KeyCode::B)) {
             keyUp_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsMouseButtonDown(neko::sdl::MouseButtonCode::LEFT)) {
+        if (inputLocator.IsMouseButtonDown(neko::sdl::MouseButtonCode::LEFT)) {
             mouseDown_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsMouseButtonUp(neko::sdl::MouseButtonCode::RIGHT)) {
+        if (inputLocator.IsMouseButtonUp(neko::sdl::MouseButtonCode::RIGHT)) {
             mouseUp_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsControllerDown(neko::sdl::ControllerInputs::BUTTON_A)) {
+        if (inputLocator.IsControllerDown(0,
+                                          neko::sdl::ControllerInputs::BUTTON_A)
+        ) {
             controllerDown_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsControllerUp(neko::sdl::ControllerInputs::BUTTON_B)) {
+        if (inputLocator.IsControllerUp(1,
+                                        neko::sdl::ControllerInputs::BUTTON_B)
+        ) {
             controllerUp_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsActionDown(neko::sdl::InputAction::FORWARD)) {
+        if (inputLocator.IsActionDown(2, neko::sdl::ActionInput::FORWARD)) {
             actionDown_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsActionUp(neko::sdl::InputAction::BACKWARD)) {
+        if (inputLocator.IsActionUp(3, neko::sdl::ActionInput::BACKWARD)) {
             actionUp_ = true;
         }
 
-
-        count_++;
-        if (count_ == kEngineDuration_) {
+        updateCount_++;
+        if (updateCount_ == kEngineDuration_) {
             engine_.Stop();
         }
     }
@@ -99,7 +116,7 @@ private:
     bool actionDown_ = false;
     bool actionUp_ = false;
 
-    int count_ = 0;
+    int updateCount_ = 0;
     const int kEngineDuration_ = 10;
 
     neko::aer::AerEngine& engine_;
@@ -141,45 +158,39 @@ class InteractiveInput
 public:
     InteractiveInput(neko::aer::AerEngine& engine, bool interactive) : engine_(engine), interactive_(interactive) { }
 
-    void Init() override { }
+    void Init() override {
+    }
 
     void Update(neko::seconds dt) override
     {
-        if (neko::sdl::InputLocator::get().
-            IsKeyDown(neko::sdl::KeyCode::A)) {
+        auto& inputLocator = neko::sdl::InputLocator::get();
+        if (inputLocator.IsKeyDown(neko::sdl::KeyCode::A)) {
             keyDown_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsKeyUp(neko::sdl::KeyCode::B)) {
+        if (inputLocator.IsKeyUp(neko::sdl::KeyCode::B)) {
             keyUp_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsMouseButtonDown(neko::sdl::MouseButtonCode::LEFT)) {
+        if (inputLocator.IsMouseButtonDown(neko::sdl::MouseButtonCode::LEFT)) {
             mouseDown_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsMouseButtonUp(neko::sdl::MouseButtonCode::RIGHT)) {
+        if (inputLocator.IsMouseButtonUp(neko::sdl::MouseButtonCode::RIGHT)) {
             mouseUp_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsControllerDown(neko::sdl::ControllerInputs::BUTTON_A)) {
+        if (inputLocator.IsControllerDown(0, neko::sdl::ControllerInputs::BUTTON_A)) {
             controllerDown_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsControllerUp(neko::sdl::ControllerInputs::BUTTON_B)) {
+        if (inputLocator.IsControllerUp(1, neko::sdl::ControllerInputs::BUTTON_B)) {
             controllerUp_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsActionDown(neko::sdl::InputAction::FORWARD)) {
+        if (inputLocator.IsActionDown(2, neko::sdl::ActionInput::FORWARD)) {
             actionDown_ = true;
         }
-        if (neko::sdl::InputLocator::get().
-            IsActionUp(neko::sdl::InputAction::BACKWARD)) {
+        if (inputLocator.IsActionUp(3, neko::sdl::ActionInput::BACKWARD)) {
             actionUp_ = true;
         }
 
-        count_++;
-        if (count_ == kEngineDuration_ && !interactive_) { engine_.Stop(); }
+        updateCount_++;
+        if (updateCount_ == kEngineDuration_ && !interactive_) { engine_.Stop(); }
     }
 
     void Destroy() override { }
@@ -187,163 +198,182 @@ public:
 
     void DrawImGui() override
     {
+        auto& inputLocator = neko::sdl::InputLocator::get();
         ImGui::Begin("Input");
-
         ImGui::Text("-----------");
-        ImGui::Text("KeyBoard");
-        for (unsigned int keyIndex = 0;
-             keyIndex != static_cast<unsigned>(
-                 neko::sdl::KeyCode::KEYBOARD_SIZE);
-             keyIndex++) {
-            if (neko::sdl::InputLocator::get().
-                IsKeyDown(static_cast<neko::sdl::KeyCode>(keyIndex))) {
-                std::string text =
-                    neko::sdl::InputLocator::get().PcInputsEnumToString(
-                        static_cast<neko::sdl::KeyCode>(keyIndex)) +
-                    " IsKeyDown";
-                ImGui::Text(text.c_str());
-            }
-            if (neko::sdl::InputLocator::get().
-                IsKeyHeld(static_cast<neko::sdl::KeyCode>(keyIndex))) {
-                std::string text =
-                    neko::sdl::InputLocator::get().PcInputsEnumToString(
-                        static_cast<neko::sdl::KeyCode>(keyIndex)) +
-                    " IsKeyHeld";
-                ImGui::Text(text.c_str());
-            }
-            if (neko::sdl::InputLocator::get().
-                IsKeyUp(static_cast<neko::sdl::KeyCode>(keyIndex))) {
-                std::string text =
-                    neko::sdl::InputLocator::get().PcInputsEnumToString(
-                        static_cast<neko::sdl::KeyCode>(keyIndex)) + " IsKeyUp";
-                ImGui::Text(text.c_str());
+        if (ImGui::CollapsingHeader("KeyBoard", ImGuiTreeNodeFlags_DefaultOpen)) {
+            for (unsigned int keyIndex = 0;
+                keyIndex != static_cast<unsigned>(
+                    neko::sdl::KeyCode::KEYBOARD_SIZE);
+                keyIndex++) {
+                if (inputLocator.IsKeyDown(static_cast<neko::sdl::KeyCode>(keyIndex))) {
+                    std::string text =
+                        inputLocator.PcInputsEnumToString(
+                            static_cast<neko::sdl::KeyCode>(keyIndex)) +
+                        " IsKeyDown" + std::to_string(updateCount_);
+                    ImGui::Text(text.c_str());
+                }
+                if (inputLocator.IsKeyHeld(static_cast<neko::sdl::KeyCode>(keyIndex))) {
+                    std::string text =
+                        inputLocator.PcInputsEnumToString(
+                            static_cast<neko::sdl::KeyCode>(keyIndex)) +
+                        " IsKeyHeld buttonstate" + std::to_string(updateCount_);
+                    ImGui::Text(text.c_str());
+                }
+                if (inputLocator.IsKeyUp(static_cast<neko::sdl::KeyCode>(keyIndex))) {
+                    std::string text =
+                        inputLocator.PcInputsEnumToString(
+                            static_cast<neko::sdl::KeyCode>(keyIndex)) + " IsKeyUp" + std::to_string(updateCount_);
+                    ImGui::Text(text.c_str());
+                }
             }
         }
         ImGui::Text("-----------");
-        ImGui::Text("Mouse");
-        for (unsigned int mouseIndex = 0;
-             mouseIndex != static_cast<unsigned>(
-                 neko::sdl::MouseButtonCode::LENGTH);
-             mouseIndex++) {
-            if (neko::sdl::InputLocator::get().IsMouseButtonDown(
-                static_cast<neko::sdl::MouseButtonCode>(mouseIndex))) {
-                std::string text =
-                    neko::sdl::InputLocator::get().PcInputsEnumToString(
-                        static_cast<neko::sdl::MouseButtonCode>(mouseIndex)) +
-                    " IsMouseButtonDown";
-                ImGui::Text(text.c_str());
+        if (ImGui::CollapsingHeader("Mouse", ImGuiTreeNodeFlags_DefaultOpen)) {
+            for (unsigned int mouseIndex = 0;
+                mouseIndex != static_cast<unsigned>(
+                    neko::sdl::MouseButtonCode::LENGTH);
+                mouseIndex++) {
+                if (inputLocator.IsMouseButtonDown(
+                    static_cast<neko::sdl::MouseButtonCode>(mouseIndex))) {
+                    std::string text =
+                        inputLocator.PcInputsEnumToString(
+                            static_cast<neko::sdl::MouseButtonCode>(mouseIndex)) +
+                        " IsMouseButtonDown";
+                    ImGui::Text(text.c_str());
+                }
+                if (inputLocator.IsMouseButtonHeld(
+                    static_cast<neko::sdl::MouseButtonCode>(mouseIndex))) {
+                    std::string text =
+                        inputLocator.PcInputsEnumToString(
+                            static_cast<neko::sdl::MouseButtonCode>(mouseIndex)) +
+                        " IsMouseButtonHeld";
+                    ImGui::Text(text.c_str());
+                }
+                if (inputLocator.IsMouseButtonUp(
+                    static_cast<neko::sdl::MouseButtonCode>(mouseIndex))) {
+                    std::string text =
+                        inputLocator.PcInputsEnumToString(
+                            static_cast<neko::sdl::MouseButtonCode>(mouseIndex)) +
+                        " IsMouseButtonUp";
+                    ImGui::Text(text.c_str());
+                }
             }
-            if (neko::sdl::InputLocator::get().IsMouseButtonHeld(
-                static_cast<neko::sdl::MouseButtonCode>(mouseIndex))) {
-                std::string text =
-                    neko::sdl::InputLocator::get().PcInputsEnumToString(
-                        static_cast<neko::sdl::MouseButtonCode>(mouseIndex)) +
-                    " IsMouseButtonHeld";
-                ImGui::Text(text.c_str());
-            }
-            if (neko::sdl::InputLocator::get().IsMouseButtonUp(
-                static_cast<neko::sdl::MouseButtonCode>(mouseIndex))) {
-                std::string text =
-                    neko::sdl::InputLocator::get().PcInputsEnumToString(
-                        static_cast<neko::sdl::MouseButtonCode>(mouseIndex)) +
-                    " IsMouseButtonUp";
-                ImGui::Text(text.c_str());
-            }
-        }
-        std::string mouseText = "Mouse Position : " +
-                                std::to_string((neko::sdl::InputLocator::get()
-                                                .GetMousePosition().x)) + ", " +
-                                std::to_string((neko::sdl::InputLocator::get()
-                                                .GetMousePosition().y)) + ")";
-        ImGui::Text(mouseText.c_str());
-        mouseText = "Mouse Relative Position : " +
-                    std::to_string((neko::sdl::InputLocator::get()
-                                    .GetRelativeMousePosition().x)) + ", " +
-                    std::to_string((neko::sdl::InputLocator::get()
-                                    .GetRelativeMousePosition().y)) + ")";
-        ImGui::Text(mouseText.c_str());
-        mouseText = "Mouse Scroll : " +
-                    std::to_string(
-                        (neko::sdl::InputLocator::get().GetMouseScroll().x)) +
-                    ", " + std::to_string(
-                        (neko::sdl::InputLocator::get().GetMouseScroll().y)) +
-                    ")";
-        ImGui::Text(mouseText.c_str());
-        ImGui::Text("-----------");
-        ImGui::Text("Controller");
-        for (unsigned int controllerIndex = 0;
-             controllerIndex != static_cast<unsigned>(
-                 neko::sdl::ControllerInputs::LENGTH);
-             controllerIndex++) {
-            if (neko::sdl::InputLocator::get().IsControllerDown(
-                static_cast<neko::sdl::ControllerInputs>(controllerIndex))) {
-                std::string text =
-                    neko::sdl::InputLocator::get().ControllerInputsEnumToString(
-                        static_cast<neko::sdl::ControllerInputs>(controllerIndex
-                        )) + " IsControllerDown";
-                ImGui::Text(text.c_str());
-            }
-            if (neko::sdl::InputLocator::get().IsControllerHeld(
-                static_cast<neko::sdl::ControllerInputs>(controllerIndex))) {
-                std::string text =
-                    neko::sdl::InputLocator::get().ControllerInputsEnumToString(
-                        static_cast<neko::sdl::ControllerInputs>(controllerIndex
-                        )) + " IsControllerHeld";
-                ImGui::Text(text.c_str());
-            }
-            if (neko::sdl::InputLocator::get().IsControllerUp(
-                static_cast<neko::sdl::ControllerInputs>(controllerIndex))) {
-                std::string text =
-                    neko::sdl::InputLocator::get().ControllerInputsEnumToString(
-                        static_cast<neko::sdl::ControllerInputs>(controllerIndex
-                        )) + " IsControllerUp";
-                ImGui::Text(text.c_str());
-            }
-        }
-        for (unsigned int controllerAxisIndex = 0;
-             controllerAxisIndex != static_cast<unsigned>(
-                 neko::sdl::ControllerAxis::LENGTH);
-             controllerAxisIndex++) {
-            std::string text = neko::sdl::InputLocator::get().
-                               ControllerAxisEnumToString(
-                                   static_cast<neko::sdl::ControllerAxis>(
-                                       controllerAxisIndex)) +
-                               " : " + std::to_string(
-                                   neko::sdl::InputLocator::get().
-                                   GetControllerAxis(
-                                       static_cast<neko::sdl::ControllerAxis>(
-                                           controllerAxisIndex)));
-            ImGui::Text(text.c_str());
+            std::string mouseText = "Mouse Position : " +
+                std::to_string(
+                    (neko::sdl::InputLocator::get()
+                        .GetMousePosition().x)) + ", " +
+                std::to_string(
+                    (neko::sdl::InputLocator::get()
+                        .GetMousePosition().y)) + ")";
+            ImGui::Text(mouseText.c_str());
+            mouseText = "Mouse Relative Position : " +
+                std::to_string(
+                    (inputLocator.GetRelativeMousePosition().x)) + ", " +
+                std::to_string(
+                    (inputLocator.GetRelativeMousePosition().y)) + ")";
+            ImGui::Text(mouseText.c_str());
+            mouseText = "Mouse Scroll : " +
+                std::to_string(
+                    (inputLocator.GetMouseScroll().x)) +
+                ", " + std::to_string(
+                    (inputLocator.GetMouseScroll().y)) +
+                ")";
+            ImGui::Text(mouseText.c_str());
         }
         ImGui::Text("-----------");
-        ImGui::Text("InputAction");
-        for (unsigned int inputIndex = 0;
-             inputIndex != static_cast<unsigned>(neko::sdl::InputAction::LENGTH)
-             ;
-             inputIndex++) {
-            if (neko::sdl::InputLocator::get().IsActionDown(
-                static_cast<neko::sdl::InputAction>(inputIndex))) {
-                std::string text =
-                    neko::sdl::InputLocator::get().ActionEnumToString(
-                        static_cast<neko::sdl::InputAction>(inputIndex)) +
-                    " IsActionDown";
-                ImGui::Text(text.c_str());
+        for (unsigned controllerId = 0; controllerId < 4; controllerId++) {
+            std::string controllerTitle = "Controller " + std::to_string(controllerId);
+            if (ImGui::CollapsingHeader(controllerTitle.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
+            {
+                ImGui::Text("Controller Input");
+                for (unsigned int controllerIndex = 0;
+                    controllerIndex != static_cast<unsigned>(
+                        neko::sdl::ControllerInputs::LENGTH);
+                    controllerIndex++) {
+                    if (inputLocator.IsControllerDown(controllerId,
+                        static_cast<neko::sdl::ControllerInputs>(controllerIndex))) {
+                        std::string text =
+                            inputLocator.ControllerInputsEnumToString(
+                                static_cast<neko::sdl::ControllerInputs>(controllerIndex
+                                    )) + " IsControllerDown";
+                        ImGui::Text(text.c_str());
+                    }
+                    if (inputLocator.IsControllerHeld(controllerId,
+                        static_cast<neko::sdl::ControllerInputs>(controllerIndex))) {
+                        std::string text =
+                            inputLocator.ControllerInputsEnumToString(
+                                static_cast<neko::sdl::ControllerInputs>(controllerIndex
+                                    )) + " IsControllerHeld";
+                        ImGui::Text(text.c_str());
+                    }
+                    if (inputLocator.IsControllerUp(controllerId,
+                        static_cast<neko::sdl::ControllerInputs>(controllerIndex))) {
+                        std::string text =
+                            inputLocator.ControllerInputsEnumToString(
+                                static_cast<neko::sdl::ControllerInputs>(controllerIndex
+                                    )) + " IsControllerUp";
+                        ImGui::Text(text.c_str());
+                    }
+                }
+                ImGui::Text("Controller Axis");
+                for (unsigned int controllerAxisIndex = 0;
+                    controllerAxisIndex != static_cast<unsigned>(
+                        neko::sdl::ControllerAxis::LENGTH);
+                    controllerAxisIndex++) {
+                    std::string text = inputLocator.
+                        ControllerAxisEnumToString(
+                            static_cast<neko::sdl::ControllerAxis>(
+                                controllerAxisIndex)) +
+                        " : " + std::to_string(
+                            inputLocator.
+                            GetControllerAxis(controllerId,
+                                static_cast<neko::sdl::ControllerAxis>(
+                                    controllerAxisIndex)));
+                    ImGui::Text(text.c_str());
+                }
             }
-            if (neko::sdl::InputLocator::get().IsActionHeld(
-                static_cast<neko::sdl::InputAction>(inputIndex))) {
-                std::string text =
-                    neko::sdl::InputLocator::get().ActionEnumToString(
-                        static_cast<neko::sdl::InputAction>(inputIndex)) +
-                    " IsActionHeld";
-                ImGui::Text(text.c_str());
-            }
-            if (neko::sdl::InputLocator::get().IsActionUp(
-                static_cast<neko::sdl::InputAction>(inputIndex))) {
-                std::string text =
-                    neko::sdl::InputLocator::get().ActionEnumToString(
-                        static_cast<neko::sdl::InputAction>(inputIndex)) +
-                    " IsActionUp";
-                ImGui::Text(text.c_str());
+        }
+        ImGui::Text("-----------");
+        for (unsigned playerId = 0; playerId < 4; playerId++) {
+            std::string playerTitle = "InputAction Player " + std::to_string(
+                playerId);
+            if (ImGui::CollapsingHeader(
+                playerTitle.c_str(),
+                ImGuiTreeNodeFlags_DefaultOpen)) {
+                for (unsigned int inputIndex = 0;
+                    inputIndex != static_cast<unsigned>(
+                        neko::sdl::ActionInput::LENGTH)
+                    ;
+                    inputIndex++) {
+                    if (inputLocator.IsActionDown(
+                        playerId,
+                        static_cast<neko::sdl::ActionInput>(inputIndex))) {
+                        std::string text =
+                            inputLocator.ActionEnumToString(
+                                static_cast<neko::sdl::ActionInput>(inputIndex)) +
+                            " IsActionDown";
+                        ImGui::Text(text.c_str());
+                    }
+                    if (inputLocator.IsActionHeld(
+                        playerId,
+                        static_cast<neko::sdl::ActionInput>(inputIndex))) {
+                        std::string text =
+                            inputLocator.ActionEnumToString(
+                                static_cast<neko::sdl::ActionInput>(inputIndex)) +
+                            " IsActionHeld";
+                        ImGui::Text(text.c_str());
+                    }
+                    if (inputLocator.IsActionUp(
+                        playerId,
+                        static_cast<neko::sdl::ActionInput>(inputIndex))) {
+                        std::string text =
+                            inputLocator.ActionEnumToString(
+                                static_cast<neko::sdl::ActionInput>(inputIndex)) +
+                            " IsActionUp";
+                        ImGui::Text(text.c_str());
+                    }
+                }
             }
         }
         ImGui::End();
@@ -357,14 +387,14 @@ public:
         else {
             ImGui::Text("Release up key B");
         }
-        if (mouseDown_) {
-            ImGui::Text("Mouse Left has been pressed down");
+        if (mouseDown_) { ImGui::Text("Mouse Left has been pressed down"); }
+        else {
+            ImGui::Text("Press down mouse Left");
         }
-        else { ImGui::Text("Press down mouse Left"); }
-        if (mouseUp_) {
-            ImGui::Text("Mouse right has been released up");
+        if (mouseUp_) { ImGui::Text("Mouse right has been released up"); }
+        else {
+            ImGui::Text("Release up mouse Right");
         }
-        else { ImGui::Text("Release up mouse Right"); }
         if (controllerDown_) {
             ImGui::Text("Controller button A has been pressed down");
         }
@@ -407,7 +437,7 @@ private:
     bool actionDown_ = false;
     bool actionUp_ = false;
 
-    int count_ = 0;
+    int updateCount_ = 0;
     const int kEngineDuration_ = 10;
     bool interactive_ = false;
 
