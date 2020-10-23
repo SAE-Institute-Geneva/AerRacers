@@ -21,7 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include "editor/tool/editor.h"
+#include "editor/editor.h"
 #include "aer_engine.h"
 
 

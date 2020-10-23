@@ -31,8 +31,7 @@ Last Modif: 13.10.2020
 #include "sdl_engine/sdl_engine.h"
 
 #include "draw_system.h"
-#include "editor/tool/editor.h"
-#include "editor/sample_browser.h"
+#include "editor/editor.h"
 
 namespace neko::aer {
 
@@ -63,6 +62,5 @@ public:
 private:
     DrawSystem drawSystem_;
     Editor editor_;
-    SampleBrowser sampleBrowser_;
 };
 }
