@@ -25,7 +25,7 @@
 #include <vector>
 #include <memory>
 #include <SDL_events.h>
-#include <editor/tool/tool.h>
+#include <editor/tool.h>
 
 namespace neko::aer
 {
@@ -34,7 +34,7 @@ namespace neko::aer
         DEBUG,
         INFO,
         WARNING,
-        ERROR,
+        ERROOR,
         CRITICAL
     };
 

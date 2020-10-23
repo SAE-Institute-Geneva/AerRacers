@@ -23,9 +23,7 @@
  SOFTWARE.
  */
 #include <vector>
-#include <editor/tool/tool.h>
-
-#include <editor/tool/inspector.h>
+#include <editor/tool_manager.h>
 
 namespace neko::aer
 {
@@ -55,12 +53,11 @@ public:
      */
     void OnEvent(const SDL_Event& event) override;
     
-    Tool* GetTool(TypeTool type);
 protected:
     AerEngine& engine_;
 private:
-    //Pop Up
-    std::vector<Tool*> tools_;
+    ToolManager* tool_manager;
+
     bool about_IsVisible = false;
 };
 }

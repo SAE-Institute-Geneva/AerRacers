@@ -1,5 +1,5 @@
 #pragma once
-/* ----------------------------------------------------
+/*
  MIT License
 
  Copyright (c) 2020 SAE Institute Switzerland AG
@@ -21,48 +21,18 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
-
- Author : Floreau Luca
- Co-Author : Dylan von Arx
- Date : 29.09.2020 
-Last Modif: 13.10.2020
----------------------------------------------------------- */
-
+ */
+#include <SDL_events.h>
+#include "graphics/graphics.h"
 #include "sdl_engine/sdl_engine.h"
+namespace neko
+{
 
-#include "draw_system.h"
-#include "editor/tool/editor.h"
-#include "editor/sample_browser.h"
-
-namespace neko::aer {
-
-using ToolsMask = std::uint8_t;
-
-enum ToolsFlags : std::uint8_t {
-    EMPTY = 1u << 0u,
-    LOGGER = 1u << 1u,
-    INSPECTOR = 1u << 2u,
-    ENTITY_VIEWER = 1u << 3u,
-    PROFILER = 1u << 4u
-};
-
-class AerEngine final : public sdl::SdlEngine {
+class SampleProgram : public RenderProgram, public sdl::SdlEventSystemInterface, public DrawImGuiInterface
+{
 public:
-    explicit AerEngine(
-        Configuration* config = nullptr,
-        ToolsMask toolsMask = 0);
-
-    void Init() override;
-
-    void Destroy() override;
-
-    void ManageEvent() override;
-
-    void GenerateUiFrame() override;
-
-private:
-    DrawSystem drawSystem_;
-    Editor editor_;
-    SampleBrowser sampleBrowser_;
+    virtual ~SampleProgram() = default;
+protected:
+    std::mutex updateMutex_;
 };
 }

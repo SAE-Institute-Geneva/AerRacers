@@ -7,6 +7,9 @@ AerEngine::AerEngine(Configuration* config, ToolsMask toolsMask)
       drawSystem_(*this),
       editor_(*this)
 {   
+    RegisterSystem(sampleBrowser_);
+    RegisterOnDrawUi(sampleBrowser_);
+    RegisterOnEvent(sampleBrowser_);
     InfoLog("Lauche DrawSystem");
     RegisterSystem(drawSystem_);
     RegisterOnEvent(drawSystem_);
@@ -22,6 +25,7 @@ void AerEngine::Init() { SdlEngine::Init(); }
 
 void AerEngine::Destroy()
 {
+    sampleBrowser_.Destroy();
     drawSystem_.Destroy();
 
     editor_.Destroy();

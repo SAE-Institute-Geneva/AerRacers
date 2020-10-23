@@ -21,56 +21,55 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // */
-#include "editor/tool/inspector.h"
-#include "editor/tool/logger.h"
+#include "aer_engine.h"
+#include "editor/tool_manager.h"
+#include <editor/tool/logger.h>
 
 namespace neko::aer
 {
-
-    void Inspector::Init()
+    ToolManager::ToolManager(AerEngine& engine) : engine_(engine)
     {
     }
 
-    void Inspector::Update(seconds dt)
+    void ToolManager::Init()
+    {
+        tools_.push_back(new Logger(TypeTool::LOG));
+        engine_.RegisterSystem(*tools_.back());
+        engine_.RegisterOnEvent(*tools_.back());
+        engine_.RegisterOnDrawUi(*tools_.back());
+    }
+
+    void ToolManager::Update(seconds dt)
     {
 
     }
 
-    void Inspector::Destroy()
+    void ToolManager::Destroy()
     {
-    }
-
-
-    void Inspector::DrawImGui()
-    {
-
-        if (isVisible) 
+        for each (Tool * tool in tools_)
         {
-            //Tool Logger
-            if (!ImGui::Begin("Inspector", &isVisible))
-            {
-                ImGui::End();
-            }
-            else
-            {
-                if (ImGui::IsWindowDocked()) {
-                    
-                    dockspaceID = ImGui::GetWindowDockID();
-                    //LimitationDocked();
-                    ErrorLog("DOCKED");
-                }
+            tool->Destroy();
+        }
+    }
 
-                LimitationWindow();
-                ImGui::End();
-                #pragma endregion 
+
+    void ToolManager::DrawList()
+    {
+        if (ImGui::MenuItem("Logger", "Ctrl+L")) {
+            GetTool(TypeTool::LOG)->isVisible = true;
+        }
+    }
+
+
+    Tool* ToolManager::GetTool(TypeTool type) {
+        for each (Tool * tool in tools_)
+        {
+            if (tool->type == type) {
+                return tool;
             }
         }
-
-    }
-
-    void Inspector::OnEvent(const SDL_Event& event)
-    {
-     
+        ErrorLog("Tool not found");
+        return nullptr;
     }
 
 }

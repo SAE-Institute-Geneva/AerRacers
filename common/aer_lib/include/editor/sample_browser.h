@@ -1,5 +1,5 @@
 #pragma once
-/* ----------------------------------------------------
+/*
  MIT License
 
  Copyright (c) 2020 SAE Institute Switzerland AG
@@ -21,48 +21,48 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
-
- Author : Floreau Luca
- Co-Author : Dylan von Arx
- Date : 29.09.2020 
-Last Modif: 13.10.2020
----------------------------------------------------------- */
-
+ */
+#include <vector>
+#include <memory>
+#include <SDL_events.h>
+#include <editor/sample_program.h>
 #include "sdl_engine/sdl_engine.h"
 
-#include "draw_system.h"
-#include "editor/tool/editor.h"
-#include "editor/sample_browser.h"
-
-namespace neko::aer {
-
-using ToolsMask = std::uint8_t;
-
-enum ToolsFlags : std::uint8_t {
-    EMPTY = 1u << 0u,
-    LOGGER = 1u << 1u,
-    INSPECTOR = 1u << 2u,
-    ENTITY_VIEWER = 1u << 3u,
-    PROFILER = 1u << 4u
-};
-
-class AerEngine final : public sdl::SdlEngine {
+namespace neko
+{
+class SampleBrowser : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface
+{
 public:
-    explicit AerEngine(
-        Configuration* config = nullptr,
-        ToolsMask toolsMask = 0);
-
+	/**
+	 * \brief Executed on the render thread
+	 */
     void Init() override;
-
+    /**
+     * \brief Executed on the main thread
+     */
+    void Update(seconds dt) override;
+    /**
+     * \brief Executed on the render thread
+     */
+    void DrawImGui() override;
+    /**
+     * \brief Executed on the render thread
+     */
     void Destroy() override;
+    /**
+     * \brief Executed on the render thread
+	 */
+    void SwitchToProgram(size_t index);
+    /**
+     * \brief Executed on the main thread
+     */
+    void OnEvent(const SDL_Event& event) override;
+protected:
 
-    void ManageEvent() override;
+    size_t RegisterRenderProgram(const std::string_view name, std::unique_ptr<SampleProgram> program);
 
-    void GenerateUiFrame() override;
-
-private:
-    DrawSystem drawSystem_;
-    Editor editor_;
-    SampleBrowser sampleBrowser_;
+    size_t currentProgramIndex_ = 0;
+    std::vector<std::unique_ptr<SampleProgram>> programs_;
+    std::vector<std::string> programsNames_;
 };
 }

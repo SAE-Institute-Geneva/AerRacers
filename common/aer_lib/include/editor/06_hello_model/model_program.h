@@ -1,5 +1,5 @@
 #pragma once
-/* ----------------------------------------------------
+/*
  MIT License
 
  Copyright (c) 2020 SAE Institute Switzerland AG
@@ -21,48 +21,27 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
+ */
+#include <editor/sample_program.h>
+#include "sdl_engine/sdl_camera.h"
+#include <gl/model.h>
 
- Author : Floreau Luca
- Co-Author : Dylan von Arx
- Date : 29.09.2020 
-Last Modif: 13.10.2020
----------------------------------------------------------- */
-
-#include "sdl_engine/sdl_engine.h"
-
-#include "draw_system.h"
-#include "editor/tool/editor.h"
-#include "editor/sample_browser.h"
-
-namespace neko::aer {
-
-using ToolsMask = std::uint8_t;
-
-enum ToolsFlags : std::uint8_t {
-    EMPTY = 1u << 0u,
-    LOGGER = 1u << 1u,
-    INSPECTOR = 1u << 2u,
-    ENTITY_VIEWER = 1u << 3u,
-    PROFILER = 1u << 4u
-};
-
-class AerEngine final : public sdl::SdlEngine {
+namespace neko
+{
+class HelloModelProgram : public SampleProgram
+{
 public:
-    explicit AerEngine(
-        Configuration* config = nullptr,
-        ToolsMask toolsMask = 0);
-
-    void Init() override;
-
-    void Destroy() override;
-
-    void ManageEvent() override;
-
-    void GenerateUiFrame() override;
-
+	void Init() override;
+	void Update(seconds dt) override;
+	void Destroy() override;
+	void DrawImGui() override;
+	void Render() override;
+	void OnEvent(const SDL_Event& event) override;
 private:
-    DrawSystem drawSystem_;
-    Editor editor_;
-    SampleBrowser sampleBrowser_;
+	sdl::Camera3D camera_;
+	gl::TextureManager textureManager_;
+	assimp::Model model_;
+	gl::Shader shader_;
+	Mat4f projection_{ Mat4f::Identity };
 };
 }

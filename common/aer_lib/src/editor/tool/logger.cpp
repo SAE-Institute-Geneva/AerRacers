@@ -114,7 +114,7 @@ namespace neko::aer
                             case LogSeverity::WARNING:
                                 ImGui::TextColored(ImVec4(1, 1, 0, 1), log.msg.c_str());
                                 break;
-                            case LogSeverity::ERROR:
+                            case LogSeverity::ERROOR:
                                 ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), log.msg.c_str());
                                 break;
                             case LogSeverity::CRITICAL:
@@ -169,7 +169,7 @@ namespace neko::aer
         case LogSeverity::WARNING:
             log.msg = time_log + " Warning: " + msg;
             break;
-        case LogSeverity::ERROR:
+        case LogSeverity::ERROOR:
             log.msg = time_log + " Error: " + msg;
             break;
         case LogSeverity::CRITICAL:
@@ -200,7 +200,7 @@ namespace neko::aer
     }
 
     void ErrorLog(std::string msg) {
-        Log::get().Log(LogSeverity::ERROR, msg);
+        Log::get().Log(LogSeverity::ERROOR, msg);
     }
 
     void CriticalLog(std::string msg) {
