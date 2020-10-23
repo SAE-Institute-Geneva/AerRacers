@@ -53,6 +53,7 @@ public:
      */
     void OnEvent(const SDL_Event& event) override;
     
+    
 protected:
     AerEngine& engine_;
 private:

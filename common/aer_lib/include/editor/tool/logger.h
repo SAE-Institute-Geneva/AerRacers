@@ -126,6 +126,13 @@ namespace neko::aer
         bool autoScroll = true;
 
         std::vector<AerLog> logs_;
+
+        //COLOR
+        const size_t CAPACITY_LOG = 100000;
+        const ImVec4 BLUE = { 0.5f, 0.5f, 1, 1 };
+        const ImVec4 YELLOW = { 1, 1, 0, 1 };
+        const ImVec4 ORANGE = { 1, 0.5f, 0, 1 };
+        const ImVec4 RED{ 1, 0, 0, 1 };
     };
 
 //-----------------------------------------------------------------------------

@@ -32,7 +32,7 @@ namespace neko::aer
         LOG,
         INSP,
     };
-
+    const int headerSpace = 20;
     class Tool : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface {
     public:
 
@@ -45,9 +45,8 @@ namespace neko::aer
 
         void LimitationWindow() {
             // LIMITATION POSITION
-            // X
             ImGuiIO& io = ImGui::GetIO();
-
+            // X
             if (ImGui::GetWindowPos().x < 0) {
                 ImGui::SetWindowPos(ImVec2(0, ImGui::GetWindowPos().y));
             }
@@ -56,8 +55,8 @@ namespace neko::aer
                 ImGui::SetWindowPos(ImVec2(io.DisplaySize.x - ImGui::GetWindowSize().x, ImGui::GetWindowPos().y));
             }
             // Y
-            if (ImGui::GetWindowPos().y < 20) {
-                ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x, 20));
+            if (ImGui::GetWindowPos().y < headerSpace) {
+                ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x, headerSpace));
             }
 
             if (ImGui::GetWindowPos().y + ImGui::GetWindowSize().y > io.DisplaySize.y) {
@@ -66,7 +65,7 @@ namespace neko::aer
         }
 
         void LimitationDock() {
-            
+            //todo
         }
         
         TypeTool type;

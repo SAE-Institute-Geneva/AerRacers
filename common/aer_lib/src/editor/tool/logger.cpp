@@ -27,13 +27,12 @@ namespace neko::aer
 {
     Logger::Logger(TypeTool type) : Tool(type) {
         Log::provide(this);
-        logs_.reserve(100000);
+        logs_.reserve(CAPACITY_LOG);
     }
     
     void Logger::Init()
     {
         
-     
     }
 
     void Logger::Update(seconds dt)
@@ -43,25 +42,25 @@ namespace neko::aer
 
     void Logger::Destroy()
     {
-        //ImGui::
         logs_.clear();
     }
 
 
     void Logger::DrawImGui()
     {
-       
+         
         if (isVisible) {
+            //Number of Logs  
+            int nbrLogs = logs_.size();
+            int nbrLineMax = ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing();
+
             //Tool Logger
-            ImGui::SetNextWindowPos(ImVec2(0, 400), ImGuiCond_FirstUseEver);
             if (!ImGui::Begin("Logger Tool", &isVisible))
             {
-             
                 ImGui::End();
             }
             else
             {
-                ImGui::IsWindowDocked();
                 #pragma region Header
                 //Clear All Logs
                 if (ImGui::Button("Clear")) {
@@ -69,24 +68,21 @@ namespace neko::aer
                 }
 
                 //Auto Scrolling
-                ImGui::SameLine(80);
+                ImGui::SameLine();
                 if (ImGui::Checkbox("Auto Scrolling", &autoScroll)) {
                     autoScroll != autoScroll;
                 }
 
-                //Number of Logs  
-                ImGui::SameLine(220);
-                int nbrLogs = logs_.size();
+              
+                ImGui::SameLine();
+             
                 ImGui::Text(("Counter Logs: " + std::to_string(nbrLogs)).c_str());
 
                 //Separator
                 ImGui::Separator();
                 #pragma endregion
                 #pragma region Body
-                ImGui::BeginChild("Logger");
-
-                int nbrLineMax = ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing();
-
+                ImGui::BeginChild("Logs");
                 if (autoScroll) {
                     pos_y = nbrLogs - nbrLineMax;
                     if (pos_y < 0) {
@@ -106,19 +102,19 @@ namespace neko::aer
                             AerLog log = logs_[i];
                             switch (log.severity) {
                             case LogSeverity::DEBUG:
-                                ImGui::TextColored(ImVec4(0.5f, 0.5f, 1, 1), log.msg.c_str());
+                                ImGui::TextColored(BLUE, log.msg.c_str());
                                 break;
                             case LogSeverity::INFO:
                                 ImGui::Text(log.msg.c_str());
                                 break;
                             case LogSeverity::WARNING:
-                                ImGui::TextColored(ImVec4(1, 1, 0, 1), log.msg.c_str());
+                                ImGui::TextColored(YELLOW, log.msg.c_str());
                                 break;
                             case LogSeverity::ERROOR:
-                                ImGui::TextColored(ImVec4(1, 0.5f, 0, 1), log.msg.c_str());
+                                ImGui::TextColored(ORANGE, log.msg.c_str());
                                 break;
                             case LogSeverity::CRITICAL:
-                                ImGui::TextColored(ImVec4(1, 0, 0, 1), log.msg.c_str());
+                                ImGui::TextColored(RED, log.msg.c_str());
                                 break;
                             }
                         }
@@ -133,17 +129,12 @@ namespace neko::aer
                     ImGui::Text("");
                 }
                 ImGui::EndChild();
-                
-                DebugLog(std::to_string(ImGui::GetWindowPos().x));
-
-                LimitationWindow();
-
                 ImGui::End();
                 #pragma endregion 
             }
         }
+        LimitationWindow();
     }
-
 
     void Logger::Log(LogSeverity severity, const std::string msg)
     {
@@ -158,34 +149,33 @@ namespace neko::aer
 
         AerLog log;
         log.severity = severity;
-        switch (severity)
+
+        switch (log.severity)
         {
         case LogSeverity::DEBUG: 
-            log.msg = time_log + " Debug: " + msg;
+            log.msg = time_log + " [Debug] " + msg;
             break;
         case LogSeverity::INFO:
-            log.msg = time_log + " Info: " + msg;
+            log.msg = time_log + " [Info] " + msg;
             break;
         case LogSeverity::WARNING:
-            log.msg = time_log + " Warning: " + msg;
+            log.msg = time_log + " [Warning] " + msg;
             break;
         case LogSeverity::ERROOR:
-            log.msg = time_log + " Error: " + msg;
+            log.msg = time_log + " [Error] " + msg;
             break;
         case LogSeverity::CRITICAL:
-            log.msg = time_log + " Critical:" + msg;
+            log.msg = time_log + " [Critical] " + msg;
             break;
 
         default:
             break;
         }
+
         logs_.emplace_back(log);
     }
 
-    void Logger::OnEvent(const SDL_Event& event)
-    {
-        
-    }
+    void Logger::OnEvent(const SDL_Event& event) { }
 
     void DebugLog(std::string msg) {   
         Log::get().Log(LogSeverity::DEBUG, msg);

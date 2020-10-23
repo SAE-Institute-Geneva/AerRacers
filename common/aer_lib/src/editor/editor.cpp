@@ -75,10 +75,10 @@ namespace neko::aer
 		}
 
 		if (about_IsVisible) {
-			ImGui::Begin("About Aer Editor", &about_IsVisible);
-			ImGui::Text("Welcome to");
-			ImGui::Text((engine_.config.windowName).c_str());
-
+			ImGui::Begin("About", &about_IsVisible);
+			ImGui::Text(("Welcome to " + (engine_.config.windowName)).c_str());
+			ImGui::Text("Best Editor Ever");
+			ImGui::Separator();
 			ImGui::Text("Neko is a 3D game engine based on SDL2 and OpenGL ES 3.0 that works on Desktop,");
 			ImGui::Text("WebGL2 and Nintendo Switch (port to Android and iOS possible) used at SAE Institute Geneva.");
 			ImGui::Text("");

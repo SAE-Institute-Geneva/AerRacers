@@ -22,7 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <SDL_events.h>
 #include <imgui.h>
 #include <editor/tool.h>
 
@@ -36,33 +35,6 @@ namespace neko::aer
         void Update(seconds dt) override;
         void DrawList();
         void Destroy() override;
-
-        void LimitationWindow() {
-            // LIMITATION POSITION
-            // X
-            ImGuiIO& io = ImGui::GetIO();
-
-            if (ImGui::GetWindowPos().x < 0) {
-                ImGui::SetWindowPos(ImVec2(0, ImGui::GetWindowPos().y));
-            }
-
-            if (ImGui::GetWindowPos().x + ImGui::GetWindowSize().x > io.DisplaySize.x) {
-                ImGui::SetWindowPos(ImVec2(io.DisplaySize.x - ImGui::GetWindowSize().x, ImGui::GetWindowPos().y));
-            }
-            // Y
-            if (ImGui::GetWindowPos().y < 20) {
-                ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x, 20));
-            }
-
-            if (ImGui::GetWindowPos().y + ImGui::GetWindowSize().y > io.DisplaySize.y) {
-                ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x, io.DisplaySize.y - ImGui::GetWindowSize().y));
-            }
-        }
-
-        void LimitationDock() {
-            
-        }
-
         Tool* GetTool(TypeTool type);
 
     protected:
