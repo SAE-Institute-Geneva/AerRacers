@@ -98,7 +98,7 @@ protected:
     mutable std::shared_future<void> taskDoneFuture_;
     mutable std::mutex statusLock_;
 #endif
-    std::uint8_t status_;
+    std::uint8_t status_ = 0;
 
 };
 

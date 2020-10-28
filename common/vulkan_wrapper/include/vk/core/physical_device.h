@@ -20,18 +20,20 @@ public:
 
     [[nodiscard]] const QueueFamilyIndices& GetQueueFamilyIndices() const { return queueFamilyIndices_; }
 
+    [[nodiscard]] VkSampleCountFlagBits GetMsaaSamples() const;
+
+    [[nodiscard]] static QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface);
+
+    static bool CheckDeviceExtensionSupport(const VkPhysicalDevice& gpu);
+    [[nodiscard]] static bool IsDeviceSuitable(
+            const VkPhysicalDevice& gpu,
+            const VkSurfaceKHR& surface,
+            const QueueFamilyIndices& queueFamilyIndices);
+
+    static SwapChainSupportDetails QuerySwapChainSupport(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface);
+
 private:
     VkPhysicalDevice gpu_{};
     QueueFamilyIndices queueFamilyIndices_{};
 };
-
-[[nodiscard]] static QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface);
-
-static bool CheckDeviceExtensionSupport(const VkPhysicalDevice& gpu);
-[[nodiscard]] static bool IsDeviceSuitable(
-	const VkPhysicalDevice& gpu,
-	const VkSurfaceKHR& surface,
-	const QueueFamilyIndices& queueFamilyIndices);
-
-static SwapChainSupportDetails QuerySwapChainSupport(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface);
 }

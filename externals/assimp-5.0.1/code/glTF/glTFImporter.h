@@ -56,7 +56,7 @@ namespace glTF
 namespace Assimp {
 
 /**
- * Load the glTF format.
+ * Init the glTF format.
  * https://github.com/KhronosGroup/glTF/tree/master/specification
  */
 class glTFImporter : public BaseImporter{

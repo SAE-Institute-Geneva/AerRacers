@@ -1,12 +1,13 @@
 #include "vk/descriptors/descriptor_pool.h"
+#include "vk/graphics.h"
 
 namespace neko::vk
 {
 void DescriptorPool::Init()
 {
-    const auto& vkObj = VkResourcesLocator::get();
+    const auto& vkObj = VkObjectsLocator::get();
 
-    const auto swapchainImagesCount = static_cast<uint32_t>(vkObj.swapchain.GetImageCount());
+    const auto swapchainImagesCount = static_cast<uint32_t>(vkObj.swapchain->GetImageCount());
 
     std::array<VkDescriptorPoolSize, 2> poolSizes{};
     poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -26,7 +27,7 @@ void DescriptorPool::Init()
 
 void DescriptorPool::Destroy() const
 {
-    const auto& vkObj = VkResourcesLocator::get();
+    const auto& vkObj = VkObjectsLocator::get();
     vkDestroyDescriptorPool(VkDevice(vkObj.device), descriptorPool_, nullptr);
 }
 }

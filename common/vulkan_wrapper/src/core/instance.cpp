@@ -8,14 +8,26 @@
 
 namespace neko::vk
 {
-void Instance::Init()
+VkResult Instance::CreateDebugUtilsMessengerExt(
+        const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
+        const VkAllocationCallbacks* pAllocator)
+{
+    const auto func = PFN_vkCreateDebugUtilsMessengerEXT(
+            vkGetInstanceProcAddr(instance_, "vkCreateDebugUtilsMessengerEXT"));
+    if (func != nullptr)
+    {
+        return func(instance_, pCreateInfo, pAllocator, &debugMessenger_);
+    }
+
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
+}
+
+void Instance::Init(SDL_Window& window)
 {
 #ifdef VALIDATION_LAYERS
     if (!CheckValidationLayerSupport())
         neko_assert(false, "Validation layers requested, but not available!")
 #endif
-    const auto& vkObj = VkResourcesLocator::get();
-
     VkApplicationInfo appInfo{};
     appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     appInfo.pApplicationName = "Vulkan Application";
@@ -28,7 +40,8 @@ void Instance::Init()
     createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     createInfo.pApplicationInfo = &appInfo;
 
-    const auto extensions = vkObj.vkWindow->GetRequiredInstanceExtensions();
+    // Get the instance extensions and check if they are supported
+    std::vector<const char*> extensions = GetRequiredInstanceExtensions(window);
     neko_assert(CheckInstanceExtensionsSupport(extensions), "Required instance extensions not available!")
     createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
@@ -62,20 +75,6 @@ void Instance::Init()
     SetupDebugMessenger();
 }
 
-VkResult Instance::CreateDebugUtilsMessengerExt(
-        const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-        const VkAllocationCallbacks* pAllocator)
-{
-    const auto func = PFN_vkCreateDebugUtilsMessengerEXT(
-            vkGetInstanceProcAddr(instance_, "vkCreateDebugUtilsMessengerEXT"));
-    if (func != nullptr)
-    {
-        return func(instance_, pCreateInfo, pAllocator, &debugMessenger_);
-    }
-
-    return VK_ERROR_EXTENSION_NOT_PRESENT;
-}
-
 void Instance::Destroy() const
 {
 #ifdef VALIDATION_LAYERS
@@ -106,6 +105,24 @@ void Instance::DestroyDebugUtilsMessengerExt(const VkAllocationCallbacks* pAlloc
     {
         func(instance_, debugMessenger_, pAllocator);
     }
+}
+
+std::vector<const char*> Instance::GetRequiredInstanceExtensions(SDL_Window& window) const
+{
+    uint32_t sdlExtCount = 0;
+    neko_assert(SDL_Vulkan_GetInstanceExtensions(&window, &sdlExtCount, nullptr),
+                "Unable to query the number of Vulkan instance extensions!")
+
+    // Use the amount of extensions queried before to retrieve the names of the extensions
+    std::vector<const char*> sdlExtensions(sdlExtCount);
+    neko_assert(SDL_Vulkan_GetInstanceExtensions(&window, &sdlExtCount, sdlExtensions.data()),
+                "Unable to query the number of Vulkan instance extension names!")
+
+#ifdef VALIDATION_LAYERS
+    sdlExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
+
+    return sdlExtensions;
 }
 
 VkBool32 DebugCallback(const VkDebugUtilsMessageSeverityFlagBitsEXT msgSeverity,
@@ -235,5 +252,29 @@ bool CheckValidationLayerSupport()
 #endif
 
 	return true;
+}
+
+void CmdPushDescriptorSetKhr(
+        VkDevice device,
+        VkCommandBuffer commandBuffer,
+        VkPipelineBindPoint pipelineBindPoint,
+        VkPipelineLayout layout,
+        uint32_t set,
+        uint32_t descriptorWriteCount,
+        const VkWriteDescriptorSet*
+        pDescriptorSet)
+{
+    const auto func = reinterpret_cast<PFN_vkCmdPushDescriptorSetKHR>(
+            vkGetDeviceProcAddr(device, "vkCmdPushDescriptorSetKHR"));
+
+    if (func != nullptr)
+    {
+        func(commandBuffer,
+             pipelineBindPoint,
+             layout,
+             set,
+             descriptorWriteCount,
+             pDescriptorSet);
+    }
 }
 }

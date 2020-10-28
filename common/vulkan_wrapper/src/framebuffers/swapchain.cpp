@@ -1,12 +1,15 @@
 #include "vk/framebuffers/swapchain.h"
 
+#include "vk/core/physical_device.h"
+
 namespace neko::vk
 {
 void Swapchain::Init()
 {
-    const auto& vkObj = VkResourcesLocator::get();
+    const auto& vkObj = VkObjectsLocator::get();
 
-    const auto& swapChainSupport = QuerySwapChainSupport(VkPhysicalDevice(vkObj.gpu), VkSurfaceKHR(vkObj.surface));
+    const auto& swapChainSupport =
+            PhysicalDevice::QuerySwapChainSupport(VkPhysicalDevice(vkObj.gpu), VkSurfaceKHR(vkObj.surface));
 
     const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
     const VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
@@ -64,11 +67,12 @@ void Swapchain::Init()
     CreateImageViews(vkObj.device);
 }
 
-void Swapchain::Init(const Swapchain& oldSwapchain)
+void Swapchain::Init(Swapchain& oldSwapchain)
 {
-    const auto& vkObj = VkResourcesLocator::get();
+    const auto& vkObj = VkObjectsLocator::get();
 
-    const auto& swapChainSupport = QuerySwapChainSupport(VkPhysicalDevice(vkObj.gpu), VkSurfaceKHR(vkObj.surface));
+    const auto& swapChainSupport =
+            PhysicalDevice::QuerySwapChainSupport(VkPhysicalDevice(vkObj.gpu), VkSurfaceKHR(vkObj.surface));
 
     const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
     const VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
@@ -129,12 +133,39 @@ void Swapchain::Init(const Swapchain& oldSwapchain)
 
 void Swapchain::Destroy()
 {
-    const auto& vkObj = VkResourcesLocator::get();
+    const auto& vkObj = VkObjectsLocator::get();
 
     for (const auto& imageView : imageViews_)
         vkDestroyImageView(VkDevice(vkObj.device), imageView, nullptr);
 	
     vkDestroySwapchainKHR(VkDevice(vkObj.device), swapchain_, nullptr);
+}
+
+VkResult Swapchain::AcquireNextImage(const VkSemaphore& presentCompleteSemaphore, VkFence fence)
+{
+    const auto& device = VkDevice(VkObjectsLocator::get().device);
+    if (fence != VK_NULL_HANDLE)
+        vkWaitForFences(device, 1, &fence, VK_TRUE, std::numeric_limits<std::uint64_t>::max());
+
+    const VkResult res = vkAcquireNextImageKHR(device, swapchain_,
+            std::numeric_limits<uint64_t>::max(), presentCompleteSemaphore,
+            VK_NULL_HANDLE, &currentImage_);
+    neko_assert(res == VK_SUCCESS || res == VK_SUBOPTIMAL_KHR || res == VK_ERROR_OUT_OF_DATE_KHR,
+            "Failed to acquire swapchain image")
+
+    return res;
+}
+
+VkResult Swapchain::QueuePresent(VkQueue const& presentQueue, VkSemaphore const& waitSemaphore) const
+{
+    VkPresentInfoKHR presentInfo = {};
+    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+    presentInfo.waitSemaphoreCount = 1;
+    presentInfo.pWaitSemaphores = &waitSemaphore;
+    presentInfo.swapchainCount = 1;
+    presentInfo.pSwapchains = &swapchain_;
+    presentInfo.pImageIndices = &currentImage_;
+    return vkQueuePresentKHR(presentQueue, &presentInfo);
 }
 
 void Swapchain::CreateImageViews(const LogicalDevice& device)
@@ -144,6 +175,11 @@ void Swapchain::CreateImageViews(const LogicalDevice& device)
     {
         imageViews_[i] = CreateImageView(VkDevice(device), images_[i], format_, VK_IMAGE_ASPECT_COLOR_BIT);
     }
+}
+
+bool Swapchain::CompareExtent(const VkExtent2D& extent2D) const
+{
+    return extent_.width == extent2D.width && extent_.height == extent2D.height;
 }
 
 VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)

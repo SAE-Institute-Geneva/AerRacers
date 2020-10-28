@@ -27,8 +27,7 @@
 ---------------------------------------------------------- */
 #include "vk/graphics.h"
 
-#include "graphics/texture.h"
-#include "vk/shapes/quad.h"
+#include "vk/models/quad.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -36,35 +35,34 @@
 
 namespace neko::vk
 {
-VkRenderer::VkRenderer() : Renderer()
+VkRenderer::VkRenderer(sdl::VulkanWindow* window) : Renderer(), IVkObjects(window)
 {
-    initJob_ = Job([this] {
-        instance.Init();
-        surface.Init();
-        gpu.Init();
-        device.Init();
+    VkObjectsLocator::provide(this);
+
+    instance.Init(window->GetWindow());
+    surface.Init(window->GetWindow());
+    gpu.Init();
+    surface.SetFormat();
+    device.Init();
+
+    camera_.Init();
+    /*initJob_ = Job([this]
+    {
         swapchain.Init();
-        renderPass.Init();
         commandPool.Init();
-        framebuffers.Init();
-        vertexBuffer_.Init(RenderQuad::kVertices, IM_ARRAYSIZE(RenderQuad::kVertices));
-        indexBuffer_.Init(RenderQuad::kIndices, IM_ARRAYSIZE(RenderQuad::kIndices));
+        //renderPass.Init();
+        //framebuffers.Init();
 
         descriptorPool.Init();
-        shader_.LoadFromFile("../../data/shaders/aer_racer/01_triangle/quad.vert.spv",
-                             "../../data/shaders/aer_racer/01_triangle/quad.frag.spv");
-        shader_.InitUbo(sizeof(UniformBufferObject));
-
-        Shader shaders[] = { shader_ };
-        commandBuffers.Init(vertexBuffer_, indexBuffer_, shaders);
 
         CreateSyncObjects();
 
-        camera_.Init();
-    });
+    });*/
 
+    commandPools = std::make_unique<CommandPool>();
+    commandPools->Init();
+    CreatePipelineCache();
     Renderer::AddPreRenderJob(&initJob_);
-    VkResourcesLocator::provide(this);
 }
 
 VkRenderer::~VkRenderer()
@@ -75,16 +73,11 @@ VkRenderer::~VkRenderer()
     //ImGui_ImplSDL2_Shutdown();
     //ImGui::DestroyContext();
 
-    DestroySwapChain();
+    modelCommandBuffer.Clear();
 
-    /*vkDestroySampler(device_, image_.sampler, nullptr);
-    vkDestroyImageView(device_, image_.view, nullptr);
-
-    vkDestroyImage(device_, image_.image, nullptr);
-    vkFreeMemory(device_, image_.memory, nullptr);*/
-
-    indexBuffer_.Destroy();
-    vertexBuffer_.Destroy();
+    const auto& graphicsQueue = device.GetGraphicsQueue();
+    vkQueueWaitIdle(graphicsQueue);
+    vkDestroyPipelineCache(VkDevice(device), pipelineCache, nullptr);
 
     for (size_t i = 0; i < kMaxFramesInFlight; i++)
     {
@@ -93,7 +86,13 @@ VkRenderer::~VkRenderer()
         vkDestroyFence(VkDevice(device), inFlightFences_[i], nullptr);
     }
 
-    commandPool.Destroy();
+    for (auto& commandBuffer : commandBuffers)
+    {
+        commandBuffer->Destroy();
+    }
+    commandPools->Destroy();
+    swapchain->Destroy();
+
     device.Destroy();
 
     surface.Destroy();
@@ -112,87 +111,147 @@ void VkRenderer::ClearScreen()
 void VkRenderer::BeforeRenderLoop()
 {
     Renderer::BeforeRenderLoop();
-
-    const auto& config = BasicEngine::GetInstance()->config;
-    camera_.Update(seconds (1.0f / 60.0f));
-    camera_.SetAspect(config.windowSize.x, config.windowSize.y);
-
-    vkWaitForFences(VkDevice(device), 1, &inFlightFences_[currentFrame_], VK_TRUE, UINT64_MAX);
-
-    const VkResult res = vkAcquireNextImageKHR(VkDevice(device), VkSwapchainKHR(swapchain), UINT64_MAX,
-                                         imageAvailableSemaphores_[currentFrame_], nullptr, &imageIndex_);
-    if (res == VK_ERROR_OUT_OF_DATE_KHR)
-    {
-        RecreateSwapChain();
-        return;
-    }
-
-    if (res != VK_SUCCESS && res != VK_SUBOPTIMAL_KHR)
-        neko_assert(false, "Failed to acquire swap chain image!")
-
-    // Check if a previous frame is using this image (i.e. there is its fence to wait on)
-    if (imagesInFlight_[imageIndex_] != nullptr)
-        vkWaitForFences(VkDevice(device), 1, &imagesInFlight_[imageIndex_], VK_TRUE, UINT64_MAX);
-
-    // Mark the image as now being in use by this frame
-    imagesInFlight_[imageIndex_] = inFlightFences_[currentFrame_];
-
-    {
-        static auto startTime = std::chrono::high_resolution_clock::now();
-        const auto currentTime = std::chrono::high_resolution_clock::now();
-        const float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-        UniformBufferObject ubo;
-        ubo.model = Mat4f::Identity;
-        //ubo.model = Transform3d::Rotate(Mat4f::Identity, time * degree_t(90.0f), Vec3f::forward);
-        ubo.view = camera_.GenerateViewMatrix();
-        ubo.proj = camera_.GenerateProjectionMatrix();
-        ubo.proj[1][1] *= -1;
-        shader_.UpdateUniformBuffer(imageIndex_, ubo);
-    }
 }
 
 void VkRenderer::AfterRenderLoop()
 {
     Renderer::AfterRenderLoop();
 
-    VkSubmitInfo submitInfo{};
-    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    const uint32_t windowFlags = SDL_GetWindowFlags(&vkWindow->GetWindow());
+    if (renderer_ == nullptr || windowFlags & SDL_WINDOW_MINIMIZED) return;
 
-    VkSemaphore waitSemaphores[] = {imageAvailableSemaphores_[currentFrame_]};
-    VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    submitInfo.waitSemaphoreCount = 1;
-    submitInfo.pWaitSemaphores = waitSemaphores;
-    submitInfo.pWaitDstStageMask = waitStages;
-    submitInfo.commandBufferCount = 1;
-    submitInfo.pCommandBuffers = &commandBuffers[imageIndex_];
+    if (!renderer_->HasStarted())
+    {
+        ResetRenderStages();
+        renderer_->Start();
+    }
 
-    VkSemaphore signalSemaphores[] = {renderFinishedSemaphores_[currentFrame_]};
-    submitInfo.signalSemaphoreCount = 1;
-    submitInfo.pSignalSemaphores = signalSemaphores;
+    const auto acquireResult = swapchain->AcquireNextImage(
+            imageAvailableSemaphores_[currentFrame_],
+            inFlightFences_[currentFrame_]);
 
-    vkResetFences(VkDevice(device), 1, &inFlightFences_[currentFrame_]);
-    VkResult res = vkQueueSubmit(device.GetGraphicsQueue(), 1, &submitInfo, inFlightFences_[currentFrame_]);
-    neko_assert(res == VK_SUCCESS, "Failed to submit draw command buffer!")
-
-    VkPresentInfoKHR presentInfo{};
-    presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-    presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = signalSemaphores;
-
-    VkSwapchainKHR swapChains[] = {VkSwapchainKHR(swapchain)};
-    presentInfo.swapchainCount = 1;
-    presentInfo.pSwapchains = swapChains;
-    presentInfo.pImageIndices = &imageIndex_;
-    presentInfo.pResults = nullptr; // Optional
-
-    res = vkQueuePresentKHR(device.GetPresentQueue(), &presentInfo);
-    if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR || isFramebufferResized_)
+    if (acquireResult == VK_ERROR_OUT_OF_DATE_KHR)
+    {
         RecreateSwapChain();
-    else if (res != VK_SUCCESS)
-        neko_assert(false, "Failed to present swap chain image!")
+        return;
+    }
 
-    currentFrame_ = (currentFrame_ + 1) % kMaxFramesInFlight;
+    if (acquireResult != VK_SUCCESS && acquireResult != VK_SUBOPTIMAL_KHR) return;
+
+    Pipeline::Stage stage;
+    for (auto& renderStage : renderer_->GetRenderStages())
+    {
+        renderStage->Update();
+        if (!StartRenderPass(*renderStage)) return;
+
+        auto &commandBuffer = commandBuffers[swapchain->GetCurrentImageIndex()];
+        for (const auto &subpass : renderStage->GetSubpasses())
+        {
+            stage.subPassId = subpass.binding;
+
+            // Renders subpass subrender pipelines.
+            renderer_->GetRendererContainer().RenderStage(stage, *commandBuffer);
+
+            if (subpass.binding != renderStage->GetSubpasses().back().binding)
+                vkCmdNextSubpass(VkCommandBuffer(*commandBuffer), VK_SUBPASS_CONTENTS_INLINE);
+        }
+
+        EndRenderPass(*renderStage);
+        stage.renderPassId++;
+    }
+}
+
+bool VkRenderer::StartRenderPass(RenderStage& renderStage)
+{
+    if (renderStage.IsOutOfDate())
+    {
+        RecreatePass(renderStage);
+        return false;
+    }
+
+    if (!commandBuffers[swapchain->GetCurrentImageIndex()]->IsRunning())
+    {
+        vkWaitForFences(VkDevice(device), 1, &inFlightFences_[currentFrame_],
+                        VK_TRUE, std::numeric_limits<uint64_t>::max());
+        commandBuffers[swapchain->GetCurrentImageIndex()]->
+                Begin(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+    }
+
+    VkRect2D renderArea = {};
+    renderArea.offset = {0, 0};
+    renderArea.extent = {
+            static_cast<uint32_t>(renderStage.GetSize().x),
+            static_cast<uint32_t>(renderStage.GetSize().y)
+    };
+
+    VkViewport viewport;
+    viewport.x = 0.0f;
+    viewport.y = static_cast<float>(renderArea.extent.height);
+    viewport.width = static_cast<float>(renderArea.extent.width);
+    viewport.height = -static_cast<float>(renderArea.extent.height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport(VkCommandBuffer(*commandBuffers[swapchain->GetCurrentImageIndex()]),
+            0, 1, &viewport);
+
+    VkRect2D scissor = {};
+    scissor.offset = {0, 0};
+    scissor.extent = renderArea.extent;
+    vkCmdSetScissor(VkCommandBuffer(*commandBuffers[swapchain->GetCurrentImageIndex()]),
+            0, 1, &scissor);
+
+    auto clearValues = renderStage.GetClearValues();
+
+    VkRenderPassBeginInfo renderPassBeginInfo = {};
+    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBeginInfo.renderPass = VkRenderPass(*renderStage.GetRenderPass());
+    renderPassBeginInfo.framebuffer = renderStage.
+            GetActiveFramebuffer(swapchain->GetCurrentImageIndex());
+    renderPassBeginInfo.renderArea = renderArea;
+    renderPassBeginInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+    renderPassBeginInfo.pClearValues = clearValues.data();
+    vkCmdBeginRenderPass(VkCommandBuffer(*commandBuffers[swapchain->GetCurrentImageIndex()]),
+            &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+    return true;
+}
+
+void VkRenderer::EndRenderPass(const RenderStage& renderStage)
+{
+    const auto presentQueue = device.GetPresentQueue();
+
+    vkCmdEndRenderPass(VkCommandBuffer(*commandBuffers[swapchain->GetCurrentImageIndex()]));
+
+    if (!renderStage.HasSwapchain()) { return; }
+
+    commandBuffers[swapchain->GetCurrentImageIndex()]->End();
+    commandBuffers[swapchain->GetCurrentImageIndex()]->Submit(
+            imageAvailableSemaphores_[currentFrame_],
+            renderFinishedSemaphores_[currentFrame_],
+            inFlightFences_[currentFrame_]);
+
+    const auto res = swapchain->QueuePresent(presentQueue,
+            renderFinishedSemaphores_[currentFrame_]);
+
+    if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR)
+        isFramebufferResized_ = true;
+    else if(res != VK_SUCCESS)
+        neko_assert(false, "Failed to presents swapchain image")
+
+    currentFrame_ = (currentFrame_ + 1) % swapchain->GetImageCount();
+}
+
+void VkRenderer::ResetRenderStages()
+{
+    RecreateSwapChain();
+
+    if (inFlightFences_.size() != swapchain->GetImageCount())
+        RecreateCommandBuffers();
+
+    for (auto& renderStage : renderer_->GetRenderStages())
+        renderStage->Rebuild(*swapchain);
+
+    RecreateAttachments();
 }
 
 void VkRenderer::RecreateSwapChain()
@@ -201,62 +260,93 @@ void VkRenderer::RecreateSwapChain()
 
     vkDeviceWaitIdle(VkDevice(device));
 
-    isFramebufferResized_ = false;
+    const Vec2u size = BasicEngine::GetInstance()->config.windowSize;
+    if (swapchain) swapchain->Destroy();
+    else swapchain = std::make_unique<Swapchain>();
+    swapchain->Init(*swapchain);
 
-    DestroySwapChain();
-
-    swapchain.Init();
-    renderPass.Init();
-    //CreateDepthResources();
-    framebuffers.Init();
-
-    descriptorPool.Init();
-    shader_.Recreate();
-
-    Shader shaders[] = { shader_ };
-    commandBuffers.Init(vertexBuffer_, indexBuffer_, shaders);
+    RecreateCommandBuffers();
 }
 
-void VkRenderer::DestroySwapChain()
+void VkRenderer::RecreateCommandBuffers()
 {
-    /*vkDestroyImageView(device_, depthImage_.view, nullptr);
-    vkDestroyImage(device_, depthImage_.image, nullptr);
-    vkFreeMemory(device_, depthImage_.memory, nullptr);*/
-
-    framebuffers.Destroy();
-    commandBuffers.Destroy();
-
-    renderPass.Destroy();
-
-    swapchain.Destroy();
-
-    descriptorPool.Destroy();
-    shader_.Destroy();
-}
-
-void VkRenderer::CreateSyncObjects()
-{
-    imageAvailableSemaphores_.resize(kMaxFramesInFlight);
-    renderFinishedSemaphores_.resize(kMaxFramesInFlight);
-    inFlightFences_.resize(kMaxFramesInFlight);
-    imagesInFlight_.resize(swapchain.GetImageCount(), nullptr);
-
-    VkSemaphoreCreateInfo semaphoreInfo{};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-
-    VkFenceCreateInfo fenceInfo{};
-    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
-    for (size_t i = 0; i < kMaxFramesInFlight; i++)
+    for (size_t i = 0; i < inFlightFences_.size(); i++)
     {
-        VkResult res = vkCreateSemaphore(VkDevice(device), &semaphoreInfo, nullptr, &imageAvailableSemaphores_[i]);
-        neko_assert(res == VK_SUCCESS, "Failed to create image semaphore for a frame!")
-        res = vkCreateSemaphore(VkDevice(device), &semaphoreInfo, nullptr, &renderFinishedSemaphores_[i]);
-        neko_assert(res == VK_SUCCESS, "Failed to create render semaphore for a frame!")
-        res = vkCreateFence(VkDevice(device), &fenceInfo, nullptr, &inFlightFences_[i]);
-        neko_assert(res == VK_SUCCESS, "Failed to create in flight fence for a frame!")
+        vkDestroyFence(VkDevice(device), inFlightFences_[i], nullptr);
+        vkDestroySemaphore(VkDevice(device), imageAvailableSemaphores_[i], nullptr);
+        vkDestroySemaphore(VkDevice(device), renderFinishedSemaphores_[i], nullptr);
     }
+
+    imageAvailableSemaphores_.resize(swapchain->GetImageCount());
+    renderFinishedSemaphores_.resize(swapchain->GetImageCount());
+    inFlightFences_.resize(swapchain->GetImageCount());
+    commandBuffers.clear();
+    commandBuffers.resize(swapchain->GetImageCount());
+
+    VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+    semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+    VkFenceCreateInfo fenceCreateInfo = {};
+    fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    for (size_t i = 0; i < inFlightFences_.size(); i++)
+    {
+        VkResult res = vkCreateSemaphore(VkDevice(device), &semaphoreCreateInfo,
+                                         nullptr, &imageAvailableSemaphores_[i]);
+        neko_assert(res == VK_SUCCESS, "Could not create semaphore!")
+
+        res = vkCreateSemaphore(VkDevice(device), &semaphoreCreateInfo,
+                        nullptr, &renderFinishedSemaphores_[i]);
+        neko_assert(res == VK_SUCCESS, "Could not create semaphore!")
+
+        res = vkCreateFence(VkDevice(device), &fenceCreateInfo,
+                        nullptr, &inFlightFences_[i]);
+        neko_assert(res == VK_SUCCESS, "Could not create fence!")
+
+        if (commandBuffers[i]) commandBuffers[i]->Destroy();
+        else commandBuffers[i] = std::make_unique<CommandBuffer>();
+        commandBuffers[i]->Init(false);
+    }
+}
+
+void VkRenderer::RecreatePass(RenderStage& renderStage)
+{
+    const auto& graphicQueue = device.GetGraphicsQueue();
+
+    const Vec2u& size = BasicEngine::GetInstance()->config.windowSize;
+    const VkExtent2D displayExtent = {
+            static_cast<uint32_t>(size.x),
+            static_cast<uint32_t>(size.y)
+    };
+
+    vkQueueWaitIdle(graphicQueue);
+
+    if (renderStage.HasSwapchain() && (isFramebufferResized_ || !swapchain->CompareExtent(displayExtent)))
+    {
+        RecreateSwapChain();
+    }
+
+    renderStage.Rebuild(*swapchain);
+    RecreateAttachments();
+}
+
+void VkRenderer::RecreateAttachments()
+{
+    attachments_.clear();
+
+    for (const auto& renderStage : renderer_->GetRenderStages())
+    {
+        const auto& descriptors = renderStage->GetDescriptors();
+        attachments_.insert(descriptors.begin(), descriptors.end());
+    }
+}
+
+void VkRenderer::CreatePipelineCache()
+{
+    VkPipelineCacheCreateInfo pipelineCacheCreateInfo{};
+    pipelineCacheCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    vkCreatePipelineCache(VkDevice(device), &pipelineCacheCreateInfo, nullptr, &pipelineCache);
 }
 
 void VkRenderer::RenderAll()
@@ -276,5 +366,10 @@ void VkRenderer::RenderAll()
 void VkRenderer::SetWindow(sdl::VulkanWindow* window)
 {
     vkWindow = window;
+}
+
+void VkRenderer::SetRenderer(std::unique_ptr<vk::Renderer>&& renderer)
+{
+    renderer_ = std::move(renderer);
 }
 }

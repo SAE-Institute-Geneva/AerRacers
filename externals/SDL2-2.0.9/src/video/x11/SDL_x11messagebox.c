@@ -507,7 +507,7 @@ X11_MessageBoxCreateWindow( SDL_MessageBoxDataX11 *data )
             const SDL_DisplayData *dpydata = (SDL_DisplayData *) dpy->driverdata;
             x = dpydata->x + (( dpy->current_mode.w - data->dialog_width ) / 2);
             y = dpydata->y + (( dpy->current_mode.h - data->dialog_height ) / 3);
-        } else {   /* oh well. This will misposition on a multi-head setup. Init first next time. */
+        } else {   /* oh well. This will misposition on a multi-head setup. InitData first next time. */
             x = ( DisplayWidth( display, data->screen ) - data->dialog_width ) / 2;
             y = ( DisplayHeight( display, data->screen ) - data->dialog_height ) / 3 ;
         }
@@ -810,7 +810,7 @@ X11_ShowMessageBoxImpl(const SDL_MessageBoxData *messageboxdata, int *buttonid)
     /* Initialize the return buttonid value to -1 (for error or dialogbox closed). */
     *buttonid = -1;
 
-    /* Init and display the message box. */
+    /* InitData and display the message box. */
     ret = X11_MessageBoxInit( &data, messageboxdata, buttonid );
     if ( ret != -1 ) {
         ret = X11_MessageBoxInitPositions( &data );

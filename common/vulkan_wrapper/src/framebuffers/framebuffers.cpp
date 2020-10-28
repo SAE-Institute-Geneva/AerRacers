@@ -2,25 +2,83 @@
 
 namespace neko::vk
 {
-void Framebuffers::Init()
+void Framebuffers::Init(
+        uint32_t width,
+        uint32_t height,
+        const RenderStage& renderStage,
+        const RenderPass& renderPass,
+        const Swapchain& swapchain,
+        const ImageDepth& depthStencil,
+        const VkSampleCountFlagBits samples)
 {
-    const auto& vkObj = VkResourcesLocator::get();
+    const auto& vkObj = VkObjectsLocator::get();
 
-    const auto& imageViews = vkObj.swapchain.GetImageViews();
-    const auto& swapchainExtent = vkObj.swapchain.GetExtent();
+    if (!imageAttachments_.empty())
+    {
+        imageAttachments_.clear();
+        Destroy();
+        framebuffers_.clear();
+    }
+
+    int index = 0;
+    for (const auto& attachment : renderStage.GetAttachments())
+    {
+        auto attachmentSamples = attachment.multisampling ? samples : VK_SAMPLE_COUNT_1_BIT;
+
+        switch (attachment.type)
+        {
+            case Attachment::Type::IMAGE:
+                imageAttachments_.emplace_back(
+                        std::make_unique<Image2d>(
+                                Vec2u(width, height),
+                                attachment.format,
+                                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                                VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                                VK_IMAGE_USAGE_STORAGE_BIT,
+                                VK_FILTER_LINEAR,
+                                VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+                                attachmentSamples));
+                break;
+            default:
+                imageAttachments_.emplace_back(nullptr);
+                break;
+        }
+
+        index++;
+    }
+
+    const auto& imageViews = swapchain.GetImageViews();
+    const auto& swapchainExtent = swapchain.GetExtent();
 
     framebuffers_.resize(imageViews.size());
 
     for (size_t i = 0; i < imageViews.size(); i++)
     {
-        std::array<VkImageView, 1> attachments = {
-                imageViews[i],
-                //depthImage_.view
-        };
+        std::vector<VkImageView> attachments;
+        attachments.reserve(renderStage.GetAttachments().size());
+
+        for (const auto& attachment : renderStage.GetAttachments())
+        {
+            switch (attachment.type)
+            {
+                case Attachment::Type::IMAGE:
+                    attachments.emplace_back(imageAttachments_.at(attachment.binding)->GetView());
+                    break;
+                case Attachment::Type::DEPTH:
+                    attachments.emplace_back(depthStencil.GetView());
+                    break;
+                case Attachment::Type::SWAPCHAIN:
+                    attachments.emplace_back(imageViews.at(i));
+                    break;
+                case Attachment::Type::NONE:
+                    break;
+                default: ;
+            }
+        }
 
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-        framebufferInfo.renderPass = VkRenderPass(vkObj.renderPass);
+        framebufferInfo.renderPass = VkRenderPass(renderPass);
         framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
         framebufferInfo.pAttachments = attachments.data();
         framebufferInfo.width = swapchainExtent.width;
@@ -35,7 +93,7 @@ void Framebuffers::Init()
 
 void Framebuffers::Destroy()
 {
-    const auto& vkObj = VkResourcesLocator::get();
+    const auto& vkObj = VkObjectsLocator::get();
     for (const auto& framebuffer : framebuffers_)
         vkDestroyFramebuffer(VkDevice(vkObj.device), framebuffer, nullptr);
 }

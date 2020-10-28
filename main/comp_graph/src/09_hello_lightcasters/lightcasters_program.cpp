@@ -59,7 +59,7 @@ void HelloLightCastersProgram::Init()
             config.dataRootPath + "shaders/07_hello_light/lamp.vert",
             config.dataRootPath + "shaders/07_hello_light/lamp.frag");
 	cube_.Init();
-    camera_.Init();
+    camera_.InitData(<#initializer#>);
 	camera_.position = Vec3f(15.0f, 12.0f, -14.0f);
 	camera_.reverseDirection = Vec3f(7, 5, -2).Normalized();
 }

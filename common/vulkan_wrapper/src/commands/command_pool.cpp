@@ -5,7 +5,7 @@ namespace neko::vk
 {
 void CommandPool::Init()
 {
-    const auto& vkObj = VkResourcesLocator::get();
+    const auto& vkObj = VkObjectsLocator::get();
 
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -18,7 +18,7 @@ void CommandPool::Init()
 
 void CommandPool::Destroy() const
 {
-    const auto& vkObj = VkResourcesLocator::get();
+    const auto& vkObj = VkObjectsLocator::get();
     vkDestroyCommandPool(VkDevice(vkObj.device), commandPool_, nullptr);
 }
 }

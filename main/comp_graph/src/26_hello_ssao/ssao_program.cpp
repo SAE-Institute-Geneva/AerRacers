@@ -98,7 +98,7 @@ void HelloSsaoProgram::Init()
     screenPlane_.Init();
     model_.LoadModel(config.dataRootPath + "model/nanosuit2/nanosuit.obj");
     glCheckError();
-    camera_.Init();
+    camera_.InitData(<#initializer#>);
 }
 
 void HelloSsaoProgram::Update(seconds dt)

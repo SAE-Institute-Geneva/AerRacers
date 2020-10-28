@@ -24,12 +24,16 @@ public:
 
 	void GenerateUiFrame() override { /*SdlEngine::GenerateUiFrame();*/ }
 
-    void SetWindowAndRenderer(sdl::VulkanWindow* window, Renderer* renderer)
+    void SetWindowAndRenderer(sdl::VulkanWindow* window, neko::Renderer* renderer = nullptr)
     {
         window_ = window;
-        renderer_ = renderer;
-        renderer_->SetWindow(window);
-        RendererLocator::provide(renderer);
+
+        if (renderer)
+        {
+            renderer_ = renderer;
+            renderer_->SetWindow(window);
+            RendererLocator::provide(renderer);
+        }
     }
 	
 private:

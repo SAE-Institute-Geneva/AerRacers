@@ -10,7 +10,7 @@ const std::array<uint16_t, 6> kIndices = {
 
 void IndexBuffer::Init(const uint16_t indices[], size_t indexNum)
 {
-    const auto& vkObj = VkResourcesLocator::get();
+    const auto& vkObj = VkObjectsLocator::get();
 
 	const VkDeviceSize bufferSize = sizeof(uint16_t) * indexNum;
 
@@ -30,7 +30,7 @@ void IndexBuffer::Init(const uint16_t indices[], size_t indexNum)
                  VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, buffer_, memory_);
 
     const auto& graphicsQueue = vkObj.device.GetGraphicsQueue();
-    CopyBuffer(graphicsQueue, VkDevice(vkObj.device), VkCommandPool(vkObj.commandPool),
+    CopyBuffer(graphicsQueue, VkDevice(vkObj.device), VkCommandPool(*vkObj.commandPools),
                stagingBuffer, buffer_, bufferSize);
 
     vkDestroyBuffer(VkDevice(vkObj.device), stagingBuffer, nullptr);

@@ -33,7 +33,7 @@ list can help you decide whether it is for you too.
 
 (Answered by Trevor Robinson)
 
-Load the supplied Visual Studio solution file, either `msvc\gtest-md.sln` or
+Init the supplied Visual Studio solution file, either `msvc\gtest-md.sln` or
 `msvc\gtest.sln`. Go through the migration wizard to migrate the
 solution and project files to Visual Studio 2008. Select
 `Configuration Manager...` from the `Build` menu. Select `<New...>` from

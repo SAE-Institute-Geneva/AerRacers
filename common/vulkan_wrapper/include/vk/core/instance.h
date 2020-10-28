@@ -9,7 +9,7 @@ class Instance
 public:
     explicit Instance() = default;
 
-    void Init();
+    void Init(SDL_Window& window);
     void Destroy() const;
 
     explicit operator const VkInstance &() const { return instance_; }
@@ -20,6 +20,8 @@ public:
             const VkAllocationCallbacks* pAllocator);
     void SetupDebugMessenger();
     void DestroyDebugUtilsMessengerExt(const VkAllocationCallbacks* pAllocator) const;
+
+    [[nodiscard]] std::vector<const char*> GetRequiredInstanceExtensions(SDL_Window& window) const;
 
 private:
     VkInstance instance_{};
@@ -36,4 +38,14 @@ static void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&
 
 static bool CheckInstanceExtensionsSupport(const std::vector<const char*>& extensions);
 static bool CheckValidationLayerSupport();
+
+static void CmdPushDescriptorSetKhr(
+        VkDevice device,
+        VkCommandBuffer commandBuffer,
+        VkPipelineBindPoint pipelineBindPoint,
+        VkPipelineLayout layout,
+        uint32_t set,
+        uint32_t descriptorWriteCount,
+        const VkWriteDescriptorSet*
+        pDescriptorSet);
 }

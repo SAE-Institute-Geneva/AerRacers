@@ -182,7 +182,7 @@ initialize_jumptable(Uint32 apiver, void *table, Uint32 tablesize)
         return -1;  /* newer version of SDL with functions we can't provide. */
     }
 
-    /* Init our jump table first. */
+    /* InitData our jump table first. */
     #define SDL_DYNAPI_PROC(rc,fn,params,args,ret) jump_table.fn = fn##_REAL;
     #include "SDL_dynapi_procs.h"
     #undef SDL_DYNAPI_PROC

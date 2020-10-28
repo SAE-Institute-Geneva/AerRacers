@@ -79,7 +79,7 @@ CHANGELOG
  - Fix glTF2::Asset::FindUniqueID() when the input string is >= 256 chars
  - Fix glTF2 alphaMode storage and reading
  - Fix glTF 2.0 multi-primitive support
- - Load gltf .bin files from correct directory
+ - Init gltf .bin files from correct directory
  - Add support for importing both glTF and glTF2 files
  - ampler improvements; Add new LazyDict method
  - Changes to GLTF2 materials

@@ -69,7 +69,7 @@ extern DECLSPEC int SDLCALL SDL_SaveDollarTemplate(SDL_GestureID gestureId,SDL_R
 
 
 /**
- *  \brief Load Dollar Gesture templates from a file
+ *  \brief Init Dollar Gesture templates from a file
  *
  *
  */

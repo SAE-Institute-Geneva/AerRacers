@@ -28,8 +28,8 @@
 #include "graphics/graphics.h"
 #include "sdl_engine/sdl_camera.h"
 #include "vk/buffers/uniform_buffer.h"
-#include "vk/commands/command_buffers.h"
 #include "vk/commands/command_pool.h"
+#include "vk/commands/model_command_buffer.h"
 #include "vk/core/instance.h"
 #include "vk/core/logical_device.h"
 #include "vk/core/physical_device.h"
@@ -38,37 +38,50 @@
 #include "vk/framebuffers/framebuffers.h"
 #include "vk/framebuffers/renderpass.h"
 #include "vk/framebuffers/swapchain.h"
-#include "vk/shader.h"
+#include "vk/pipelines/graphics_pipeline.h"
+#include "vk/shaders/shader.h"
+#include "vk/renderers/renderer.h"
 
 namespace neko::vk
 {
 const int kMaxFramesInFlight = 2;
-class VkRenderer;
 
 struct IVkObjects
 {
+    explicit IVkObjects(sdl::VulkanWindow* window) : vkWindow(window) {}
+
     sdl::VulkanWindow* vkWindow = nullptr;
+
     Instance instance;
     Surface surface;
     PhysicalDevice gpu;
     LogicalDevice device;
-    Swapchain swapchain;
+
+    std::unique_ptr<Swapchain> swapchain{};
+
+    std::unique_ptr<CommandPool> commandPools{};
+    std::vector<std::unique_ptr<CommandBuffer>> commandBuffers{};
+
     RenderPass renderPass;
-    CommandPool commandPool;
     Framebuffers framebuffers;
     DescriptorPool descriptorPool;
-    CommandBuffers commandBuffers;
+    ModelCommandBuffer modelCommandBuffer;
+	GraphicsPipeline graphicsPipeline;
+
+    VkPipelineCache pipelineCache{};
 };
 
 struct NullVkObjects : IVkObjects
-{};
+{
+    explicit NullVkObjects() : IVkObjects(nullptr) {}
+};
 
-using VkResourcesLocator = Locator<IVkObjects, NullVkObjects>;
+using VkObjectsLocator = Locator<IVkObjects, NullVkObjects>;
 
-class VkRenderer final : public Renderer, IVkObjects
+class VkRenderer final : public neko::Renderer, IVkObjects
 {
 public:
-    VkRenderer();
+    explicit VkRenderer(sdl::VulkanWindow* window);
     ~VkRenderer() override;
 
     void ClearScreen() override;
@@ -77,31 +90,39 @@ public:
     void AfterRenderLoop() override;
 
     void SetWindow(sdl::VulkanWindow* window);
+    void SetRenderer(std::unique_ptr<vk::Renderer>&& renderer);
 
 private:
-    void RecreateSwapChain();
-    void DestroySwapChain();
+    bool StartRenderPass(RenderStage& renderStage);
+    void EndRenderPass(const RenderStage& renderStage);
 
-    void CreateSyncObjects();
+    void ResetRenderStages();
+
+    void RecreateSwapChain();
+    void RecreateCommandBuffers();
+    void RecreatePass(RenderStage& renderStage);
+    void RecreateAttachments();
+
+    void CreatePipelineCache();
 
 	void RenderAll() override;
 
     Job initJob_;
 
-    Shader shader_;
-
-    VertexBuffer vertexBuffer_;
-    IndexBuffer indexBuffer_;
-
     sdl::MovableCamera3D camera_;
 
-    size_t currentFrame_ = 0;
     uint32_t imageIndex_ = 0;
-    std::vector<VkFence> inFlightFences_{};
     std::vector<VkFence> imagesInFlight_{};
+
+    bool isFramebufferResized_ = false;
+
+
+    size_t currentFrame_ = 0;
+    std::vector<VkFence> inFlightFences_{};
     std::vector<VkSemaphore> imageAvailableSemaphores_{};
     std::vector<VkSemaphore> renderFinishedSemaphores_{};
 
-    bool isFramebufferResized_ = false;
+    std::map<XXH64_hash_t, const IDescriptor&> attachments_{};
+    std::unique_ptr<vk::Renderer> renderer_{};
 };
 }

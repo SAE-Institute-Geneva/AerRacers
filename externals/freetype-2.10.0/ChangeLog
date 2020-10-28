@@ -1571,7 +1571,7 @@
 
 2018-07-12  Werner Lemberg  <wl@gnu.org>
 
-	* src/base/ftoutln.c (FT_Outline_Get_Orientation): Init `cbox'.
+	* src/base/ftoutln.c (FT_Outline_Get_Orientation): InitData `cbox'.
 
 	Taken from patch #9667, written by Steve Langasek
 	<vorlon@debian.org>.
@@ -2382,7 +2382,7 @@
 
 	* src/sfnt/sfnt.c: Include `ttcolr.c'.
 
-	* src/sfnt/sfobjs.c (sfnt_load_face): Load `COLR' and `CPAL' tables.
+	* src/sfnt/sfobjs.c (sfnt_load_face): Init `COLR' and `CPAL' tables.
 	(sfnt_done_face): Updated.
 
 	* src/truetype/ttgload.c (TT_Load_Glyph): Handle color layers.

@@ -2,93 +2,63 @@
 
 namespace neko::vk
 {
-void DescriptorSets::InitLayout()
+WriteDescriptorSet::WriteDescriptorSet(
+        VkWriteDescriptorSet writeDescriptorSet,
+        VkDescriptorImageInfo imageInfo)
+        : writeDescriptorSet_(writeDescriptorSet),
+        imageInfo_(imageInfo)
 {
-    const auto& device = LogicalDeviceLocator::get();
+    if (imageInfo_.imageView) writeDescriptorSet_.pImageInfo = &imageInfo_;
+}
 
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
+WriteDescriptorSet::WriteDescriptorSet(
+        VkWriteDescriptorSet writeDescriptorSet,
+        VkDescriptorBufferInfo bufferInfo)
+        : writeDescriptorSet_(writeDescriptorSet),
+          bufferInfo_(bufferInfo)
+{
+    writeDescriptorSet_.pBufferInfo = &bufferInfo_;
+}
 
-    VkDescriptorSetLayoutBinding samplerLayoutBinding{};
-    samplerLayoutBinding.binding = 1;
-    samplerLayoutBinding.descriptorCount = 1;
-    samplerLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    samplerLayoutBinding.pImmutableSamplers = nullptr;
-    samplerLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+VkWriteDescriptorSet WriteDescriptorSet::GetWriteDescriptorSet()
+{
+    if (imageInfo_.imageView) writeDescriptorSet_.pImageInfo = &imageInfo_;
+    else if (bufferInfo_.buffer) writeDescriptorSet_.pBufferInfo = &bufferInfo_;
 
-    std::array<VkDescriptorSetLayoutBinding, 2> bindings = {uboLayoutBinding, samplerLayoutBinding};
-    VkDescriptorSetLayoutCreateInfo layoutInfo{};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = static_cast<uint32_t>(bindings.size());
-    layoutInfo.pBindings = bindings.data();
+    return writeDescriptorSet_;
+}
 
-    const VkResult res = vkCreateDescriptorSetLayout(VkDevice(device), &layoutInfo, nullptr, &descriptorSetLayout_);
+DescriptorSet::DescriptorSet(const Pipeline& pipeline)
+{
+    const auto& device = VkDevice(VkObjectsLocator::get().device);
+    VkDescriptorSetLayout layouts[1] = {pipeline.GetDescriptorSetLayout()};
+
+    VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
+    descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+    descriptorSetAllocateInfo.descriptorPool = descriptorPool_;
+    descriptorSetAllocateInfo.descriptorSetCount = 1;
+    descriptorSetAllocateInfo.pSetLayouts = layouts;
+
+    const VkResult res = vkAllocateDescriptorSets(device, &descriptorSetAllocateInfo, &descriptorSet_);
     neko_assert(res == VK_SUCCESS, "Failed to create descriptor set layout!")
 }
 
-void DescriptorSets::Init(
-    const Swapchain& swapchain,
-    const std::vector<UniformBuffer>& uniformBuffers,
-    const DescriptorPool& descriptorPool,
-    const VkDeviceSize& uboSize)
+void DescriptorSet::Update(const std::vector<VkWriteDescriptorSet>& descriptors)
 {
-    const auto& device = LogicalDeviceLocator::get();
-
-    const size_t swapChainImagesCount = swapchain.GetImageCount();
-    std::vector<VkDescriptorSetLayout> layouts(swapChainImagesCount, descriptorSetLayout_);
-
-    VkDescriptorSetAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = VkDescriptorPool(descriptorPool);
-    allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChainImagesCount);
-    allocInfo.pSetLayouts = layouts.data();
-
-    descriptorSets_.resize(swapChainImagesCount);
-    const VkResult res = vkAllocateDescriptorSets(VkDevice(device), &allocInfo, descriptorSets_.data());
-    neko_assert(res == VK_SUCCESS, "Failed to allocate descriptor sets!")
-
-    for (size_t i = 0; i < swapChainImagesCount; i++)
-    {
-        VkDescriptorBufferInfo bufferInfo{};
-        bufferInfo.buffer = VkBuffer(uniformBuffers[i]);
-        bufferInfo.offset = 0;
-        bufferInfo.range = uboSize;
-
-        /*VkDescriptorImageInfo imageInfo{};
-        imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-        imageInfo.imageView = image_.view;
-        imageInfo.sampler = image_.sampler;*/
-
-        std::array<VkWriteDescriptorSet, 1> descriptorWrites{};
-
-        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[0].dstSet = descriptorSets_[i];
-        descriptorWrites[0].dstBinding = 0;
-        descriptorWrites[0].dstArrayElement = 0;
-        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrites[0].descriptorCount = 1;
-        descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-        /*descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[1].dstSet = descriptorSets_[i];
-        descriptorWrites[1].dstBinding = 1;
-        descriptorWrites[1].dstArrayElement = 0;
-        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-        descriptorWrites[1].descriptorCount = 1;
-        descriptorWrites[1].pImageInfo = &imageInfo;*/
-
-        vkUpdateDescriptorSets(VkDevice(device), static_cast<uint32_t>(descriptorWrites.size()),
-                               descriptorWrites.data(), 0, nullptr);
-    }
+    const auto& device = VkDevice(VkObjectsLocator::get().device);
+    vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptors.size()),
+            descriptors.data(), 0, nullptr);
 }
 
-void DescriptorSets::Destroy() const
+void DescriptorSet::Destroy() const
 {
-    const auto& device = LogicalDeviceLocator::get();
-    vkDestroyDescriptorSetLayout(VkDevice(device), descriptorSetLayout_, nullptr);
+    const auto& device = VkDevice(VkObjectsLocator::get().device);
+    vkFreeDescriptorSets(VkDevice(device), descriptorPool_, 1, &descriptorSet_);
+}
+
+void DescriptorSet::BindDescriptor(const CommandBuffer& commandBuffer) const
+{
+    vkCmdBindDescriptorSets(VkCommandBuffer(commandBuffer), pipelineBindPoint_,
+                            pipelineLayout_, 0, 1, &descriptorSet_, 0, nullptr);
 }
 }

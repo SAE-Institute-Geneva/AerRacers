@@ -1,39 +1,56 @@
 #pragma once
 #include "mathematics/matrix.h"
 
-#include "vk/core/logical_device.h"
-#include "vk/buffers/uniform_buffer.h"
-#include "vk/descriptors/descriptor_pool.h"
-#include "vk/framebuffers/swapchain.h"
+#include "vk/commands/command_buffer.h"
+#include "vk/pipelines/pipeline.h"
 
 namespace neko::vk
 {
-class DescriptorSets
-{
+class WriteDescriptorSet {
 public:
-    explicit DescriptorSets() = default;
+    WriteDescriptorSet(
+            VkWriteDescriptorSet writeDescriptorSet,
+            VkDescriptorImageInfo imageInfo);
 
-    void InitLayout();
+    WriteDescriptorSet(
+            VkWriteDescriptorSet writeDescriptorSet,
+            VkDescriptorBufferInfo bufferInfo);
 
-    void Init(const Swapchain& swapchain,
-              const std::vector<UniformBuffer>& uniformBuffers,
-              const DescriptorPool& descriptorPool,
-              const VkDeviceSize& uboSize);
-    void Destroy() const;
-
-    explicit operator const VkDescriptorSetLayout &() const { return descriptorSetLayout_; }
-    [[nodiscard]] const std::vector<VkDescriptorSet>& GetDescriptorSets() const { return descriptorSets_; }
-    [[nodiscard]] const VkDescriptorSetLayout& GetDescriptorSetLayout() const { return descriptorSetLayout_; }
-    VkDescriptorSetLayout& GetDescriptorSetLayout() { return descriptorSetLayout_; }
-
-    const VkDescriptorSet& operator[](const size_t index) const
-    { return descriptorSets_[index]; }
-
-    VkDescriptorSet& operator[](const size_t index)
-    { return descriptorSets_[index]; }
+    VkWriteDescriptorSet GetWriteDescriptorSet();
 
 private:
-    std::vector<VkDescriptorSet> descriptorSets_{};
-    VkDescriptorSetLayout descriptorSetLayout_{};
+    VkWriteDescriptorSet writeDescriptorSet_{};
+    VkDescriptorImageInfo imageInfo_{};
+    VkDescriptorBufferInfo bufferInfo_{};
+};
+
+class IDescriptor
+{
+public:
+    IDescriptor() = default;
+    virtual ~IDescriptor() = default;
+
+    [[nodiscard]] virtual WriteDescriptorSet GetWriteDescriptor(
+            uint32_t binding, VkDescriptorType descriptorType) const = 0;
+};
+
+class DescriptorSet
+{
+public:
+    explicit DescriptorSet(const Pipeline& pipeline);
+
+    static void Update(const std::vector<VkWriteDescriptorSet>& descriptors);
+    void Destroy() const;
+
+    void BindDescriptor(const CommandBuffer& commandBuffer) const;
+
+    explicit operator const VkDescriptorSet &() const { return descriptorSet_; }
+    [[nodiscard]] const VkDescriptorSet& GetDescriptorSet() const { return descriptorSet_; }
+
+private:
+    VkPipelineLayout pipelineLayout_{};
+    VkPipelineBindPoint pipelineBindPoint_{};
+    VkDescriptorPool descriptorPool_{};
+    VkDescriptorSet descriptorSet_{};
 };
 }

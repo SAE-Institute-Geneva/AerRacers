@@ -7,9 +7,19 @@
 
 namespace neko::vk
 {
+static const std::array<VkSampleCountFlagBits, 6> kStageFlagBits =
+{
+        VK_SAMPLE_COUNT_64_BIT,
+        VK_SAMPLE_COUNT_32_BIT,
+        VK_SAMPLE_COUNT_16_BIT,
+        VK_SAMPLE_COUNT_8_BIT,
+        VK_SAMPLE_COUNT_4_BIT,
+        VK_SAMPLE_COUNT_2_BIT
+};
+
 void PhysicalDevice::Init()
 {
-    const auto& vkObj = VkResourcesLocator::get();
+    const auto& vkObj = VkObjectsLocator::get();
 
     uint32_t physDeviceCount(0);
     vkEnumeratePhysicalDevices(VkInstance(vkObj.instance), &physDeviceCount, nullptr);
@@ -79,7 +89,21 @@ void PhysicalDevice::Init()
                 "Unable to find a queue command family that accepts graphics commands")
 }
 
-QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface)
+VkSampleCountFlagBits PhysicalDevice::GetMsaaSamples() const
+{
+    VkPhysicalDeviceProperties physicalDeviceProperties;
+    vkGetPhysicalDeviceProperties(gpu_, &physicalDeviceProperties);
+
+    const auto kCounts = std::min(physicalDeviceProperties.limits.framebufferColorSampleCounts,
+                                  physicalDeviceProperties.limits.framebufferDepthSampleCounts);
+
+    for (const auto& kSampleFlag : kStageFlagBits)
+        if (kCounts & kSampleFlag) return kSampleFlag;
+
+    return VK_SAMPLE_COUNT_1_BIT;
+}
+
+QueueFamilyIndices PhysicalDevice::FindQueueFamilies(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface)
 {
 	QueueFamilyIndices indices;
 
@@ -129,7 +153,7 @@ QueueFamilyIndices FindQueueFamilies(const VkPhysicalDevice& gpu, const VkSurfac
 	return indices;
 }
 
-bool CheckDeviceExtensionSupport(const VkPhysicalDevice& gpu)
+bool PhysicalDevice::CheckDeviceExtensionSupport(const VkPhysicalDevice& gpu)
 {
 	uint32_t extensionCount = 0;
 	VkResult res = vkEnumerateDeviceExtensionProperties(
@@ -179,7 +203,7 @@ bool CheckDeviceExtensionSupport(const VkPhysicalDevice& gpu)
 	return true;
 }
 
-bool IsDeviceSuitable(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface,
+bool PhysicalDevice::IsDeviceSuitable(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface,
                       const QueueFamilyIndices& queueFamilyIndices)
 {
 	VkPhysicalDeviceProperties deviceProperties;
@@ -207,7 +231,7 @@ bool IsDeviceSuitable(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface,
 		deviceFeatures.geometryShader;
 }
 
-SwapChainSupportDetails QuerySwapChainSupport(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface)
+SwapChainSupportDetails PhysicalDevice::QuerySwapChainSupport(const VkPhysicalDevice& gpu, const VkSurfaceKHR& surface)
 {
 	//Fill swap chain details
 	SwapChainSupportDetails details{};

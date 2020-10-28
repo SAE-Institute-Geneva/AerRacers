@@ -51,7 +51,7 @@ void VulkanWindow::Init()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("VulkanWindowInit");
 #endif
-	const auto& config = BasicEngine::GetInstance()->config;
+	//const auto& config = BasicEngine::GetInstance()->config;
 
 	SdlWindow::Init();
 	
@@ -88,8 +88,8 @@ void VulkanWindow::InitImGui()
 	SdlWindow::InitImGui();
 	ImGui_ImplSDL2_InitForVulkan(window_);
 
-    const auto& config = BasicEngine::GetInstance()->config;
-    const auto& vkObj = vk::VkResourcesLocator::get();
+    //const auto& config = BasicEngine::GetInstance()->config;
+    const auto& vkObj = vk::VkObjectsLocator::get();
     const auto& graphicsQueue = vkObj.device.GetGraphicsQueue();
     const auto& queueFamilyIndices = vkObj.gpu.GetQueueFamilyIndices();
 
@@ -141,7 +141,7 @@ void VulkanWindow::InitImGui()
     initInfo.DescriptorPool = imguiDescriptorPool_;
     initInfo.Allocator = nullptr;
     initInfo.MinImageCount = 2;
-    initInfo.ImageCount = vkObj.swapchain.GetImageCount();
+    initInfo.ImageCount = vkObj.swapchain->GetImageCount();
 
 	ImGui_ImplVulkan_Init(&initInfo, VkRenderPass(vkObj.renderPass));
 
@@ -152,7 +152,7 @@ void VulkanWindow::InitImGui()
 
     // Upload Fonts
     {
-        ImGui_ImplVulkan_CreateFontsTexture(VkCommandBuffer(vkObj.commandBuffers[0]));
+        //ImGui_ImplVulkan_CreateFontsTexture(VkCommandBuffer(vkObj.modelCommandBuffer_[0]));
 
         vkDeviceWaitIdle(VkDevice(vkObj.device));
         ImGui_ImplVulkan_DestroyFontUploadObjects();
@@ -239,30 +239,6 @@ void VulkanWindow::LeaveCurrentContext()
 	}
 	//logDebug(oss.str());
 #endif
-}
-
-void VulkanWindow::CreateSurface(const VkInstance& instance, VkSurfaceKHR& surface) const
-{
-    neko_assert(SDL_Vulkan_CreateSurface(window_, VkInstance(instance), &surface),
-                "Unable to create Vulkan compatible surface using SDL!")
-}
-
-std::vector<const char*> VulkanWindow::GetRequiredInstanceExtensions() const
-{
-    uint32_t sdlExtCount = 0;
-    neko_assert(SDL_Vulkan_GetInstanceExtensions(window_, &sdlExtCount, nullptr),
-                "Unable to query the number of Vulkan instance extensions!")
-
-    // Use the amount of extensions queried before to retrieve the names of the extensions
-    std::vector<const char*> sdlExtensions(sdlExtCount);
-    neko_assert(SDL_Vulkan_GetInstanceExtensions(window_, &sdlExtCount, sdlExtensions.data()),
-                "Unable to query the number of Vulkan instance extension names!")
-
-#ifdef VALIDATION_LAYERS
-    sdlExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-#endif
-
-    return sdlExtensions;
 }
 
 void VulkanWindow::MinimizedLoop() const

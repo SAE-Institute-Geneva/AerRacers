@@ -57,6 +57,9 @@ public:
         IS_MINIMIZED = 1u << 2u
     };
 
+    [[nodiscard]] const SDL_Window& GetWindow() const { return *window_; }
+    [[nodiscard]] SDL_Window& GetWindow() { return *window_; }
+
     void Init() override;
 
     void InitImGui() override;
@@ -69,9 +72,6 @@ public:
 
     void MakeCurrentContext() override;
     void LeaveCurrentContext() override;
-
-    void CreateSurface(const VkInstance& instance, VkSurfaceKHR& surface) const;
-    std::vector<const char*> GetRequiredInstanceExtensions() const;
 
     void MinimizedLoop() const;
 

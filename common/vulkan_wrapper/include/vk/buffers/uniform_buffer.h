@@ -3,6 +3,8 @@
 
 #include "vk/buffers/buffer.h"
 #include "vk/core/logical_device.h"
+#include "vk/descriptors/descriptor_set.h"
+#include "vk/graphics.h"
 
 namespace neko::vk
 {
@@ -13,21 +15,19 @@ struct UniformBufferObject
     Mat4f proj = Mat4f::Identity;
 };
 
-struct UniformBuffer : public Buffer
+struct UniformBuffer : public IDescriptor, public Buffer
 {
-    void Init(const PhysicalDevice& gpu, const VkDeviceSize& uboSize);
+    explicit UniformBuffer(VkDeviceSize size,
+            const std::vector<char>& uniformData = {});
 
-    template<class UboType>
-    void Update(const UboType& bufferData) const
-    {
-        static_assert(std::is_class<UboType>::value, "Type is not a class / struct");
+    void Update(const std::vector<char>& newUniformData) const;
 
-        const auto& device = LogicalDeviceLocator::get();
+    static VkDescriptorSetLayoutBinding GetDescriptorSetLayout(
+            uint32_t binding,
+            VkDescriptorType descriptorType,
+            VkShaderStageFlags stage);
 
-        void* data = nullptr;
-        vkMapMemory(VkDevice(device), memory_, 0, sizeof(bufferData), 0, &data);
-        memcpy(data, &bufferData, sizeof(bufferData));
-        vkUnmapMemory(VkDevice(device), memory_);
-    }
+    [[nodiscard]] WriteDescriptorSet GetWriteDescriptor(uint32_t binding,
+            VkDescriptorType descriptorType) const override;
 };
 }

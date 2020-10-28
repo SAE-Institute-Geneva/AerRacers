@@ -22,13 +22,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+#include <string_view>
+
 namespace neko
 {
 class Shader
 {
 public:
     virtual ~Shader() = default;
-    virtual void LoadFromFile(const std::string_view vertexShaderPath, const std::string_view fragmentShaderPath) = 0;
+    virtual void LoadFromFile(std::string_view vertexShaderPath, std::string_view fragmentShaderPath) = 0;
     virtual void Destroy() = 0;
 protected:
 };

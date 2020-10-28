@@ -1,10 +1,12 @@
 #include "vk/core/logical_device.h"
 
+#include "vk/graphics.h"
+
 namespace neko::vk
 {
 void LogicalDevice::Init()
 {
-    const auto& vkObj = VkResourcesLocator::get();
+    const auto& vkObj = VkObjectsLocator::get();
 
     const QueueFamilyIndices& queueFamilyIndices = vkObj.gpu.GetQueueFamilyIndices();
 
@@ -63,8 +65,6 @@ void LogicalDevice::Init()
 
     vkGetDeviceQueue(device_, queueFamilyIndices.graphicsFamily, 0, &graphicsQueue_);
     vkGetDeviceQueue(device_, queueFamilyIndices.presentFamily, 0, &presentQueue_);
-
-	LogicalDeviceLocator::provide(this);
 }
 
 void LogicalDevice::Destroy() const

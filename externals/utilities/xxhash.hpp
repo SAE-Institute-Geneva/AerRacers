@@ -250,7 +250,7 @@ namespace xxh
          
                       
 #ifndef XXH_CPU_LITTLE_ENDIAN
-#define XXH_CPU_LITTLE_ENDIAN   (::xxh::mem_ops::_endian_internal::endian_lookup[2] == endianness::littleEndian)
+#define XXH_CPU_LITTLE_ENDIAN   (::xxh::mem_ops::_endian_internal::endian_lookup[2] == xxh::endianness::littleEndian)
 
         namespace _endian_internal
         {

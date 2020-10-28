@@ -30,12 +30,4 @@ struct SwapChainSupportDetails
     std::vector<VkSurfaceFormatKHR> formats;
     std::vector<VkPresentModeKHR> presentModes;
 };
-
-static VkFormat FindSupportedFormat(
-	const VkPhysicalDevice& gpu,
-	const std::vector<VkFormat>& candidates,
-	VkImageTiling tiling,
-	VkFormatFeatureFlags features);
-
-[[nodiscard]] static VkFormat FindDepthFormat(const VkPhysicalDevice& gpu);
 }

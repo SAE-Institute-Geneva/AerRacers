@@ -58,7 +58,7 @@ void HelloWaterProgram::Init()
 	
 	CreateFramebuffer();
 	CreateDepthbuffer();
-    camera_.Init();
+    camera_.InitData(<#initializer#>);
 }
 
 void HelloWaterProgram::Update(seconds dt)
