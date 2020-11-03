@@ -31,13 +31,14 @@ Last Modif: 13.10.2020
 #include "sdl_engine/sdl_engine.h"
 
 #include "draw_system.h"
+#include "log.h"
 #include "editor/editor.h"
 
 namespace neko::aer {
 
 using ToolsMask = std::uint8_t;
 
-enum ToolsFlags : std::uint8_t {
+enum class ToolsFlags : std::uint8_t {
     EMPTY = 1u << 0u,
     LOGGER = 1u << 1u,
     INSPECTOR = 1u << 2u,
@@ -60,7 +61,11 @@ public:
     void GenerateUiFrame() override;
 
 private:
+    ToolsMask toolsMask_ = ToolsMask(ToolsFlags::EMPTY);
+
     DrawSystem drawSystem_;
+    LogManager* logManager_ = nullptr;
+    
     Editor editor_;
 };
 }

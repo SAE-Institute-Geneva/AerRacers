@@ -49,4 +49,7 @@ Build/*
 web_build/*
 
 # glsl validator temp files
-/scripts/validator/__pycache__/
+/scripts/validator/__pycache__/*
+
+# log files
+/data/logs/*

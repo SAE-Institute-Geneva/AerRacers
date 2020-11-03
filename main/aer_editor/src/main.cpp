@@ -42,10 +42,9 @@ int main(int argc, char** argv)
     neko::gl::Gles3Renderer renderer;
     neko::aer::AerEngine engine(
         &config,
-        neko::aer::ToolsMask(
-            neko::aer::ToolsFlags::ENTITY_VIEWER |
-            neko::aer::ToolsFlags::INSPECTOR |
-            neko::aer::ToolsFlags::LOGGER));
+        neko::aer::ToolsMask(neko::aer::ToolsFlags::ENTITY_VIEWER) |
+        neko::aer::ToolsMask(neko::aer::ToolsFlags::INSPECTOR) |
+        neko::aer::ToolsMask(neko::aer::ToolsFlags::LOGGER));
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
