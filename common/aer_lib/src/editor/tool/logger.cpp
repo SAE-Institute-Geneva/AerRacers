@@ -50,13 +50,6 @@ namespace neko::aer
     void Logger::DrawImGui()
     {
         if (isVisible) {
-            for (size_t i = 0; i < 10000; i++)
-            {
-                InfoLog("FUCK");
-            }
-           
-        }
-        if (isVisible) {
             //Number of Logs  
             int nbrLog = logs_.size();
             int nbrLogDisplayMax = ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing();
@@ -83,6 +76,10 @@ namespace neko::aer
                 
                 ImGui::SameLine();
                 ImGui::Text(("Log Counter: " + std::to_string(nbrLog)).c_str());
+                if (nbrLog >= CAPACITY_LOG_MAX) {
+                    ImGui::SameLine();
+                    ImGui::TextColored(RED, "MAX");
+                }
                 ImGui::Separator();
                 #pragma endregion
 
