@@ -11,7 +11,6 @@ AerEngine::AerEngine(Configuration* config, ToolsMask toolsMask)
     RegisterSystem(drawSystem_);
     RegisterOnEvent(drawSystem_);
     RegisterOnDrawUi(drawSystem_);
-    InfoLog("Aer Editor Init");
     RegisterSystem(editor_);
     RegisterOnEvent(editor_);
     RegisterOnDrawUi(editor_);
