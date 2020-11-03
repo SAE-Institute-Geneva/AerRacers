@@ -26,10 +26,11 @@
 #include <memory>
 #include <SDL_events.h>
 #include <editor/tool.h>
+#include <math.h> 
 
 namespace neko::aer
 {
-    enum class LogSeverity: std::uint8_t {
+    enum class LogSeverity : std::uint8_t {
         NONE = 0,
         DEBUG,
         INFO,
@@ -43,9 +44,9 @@ namespace neko::aer
         std::string msg;
         LogSeverity severity;
     };
-//-----------------------------------------------------------------------------
-// LogManagerInterface
-//-----------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------
+    // LogManagerInterface
+    //-----------------------------------------------------------------------------
     class LogManagerInterface
     {
     protected:
@@ -56,7 +57,7 @@ namespace neko::aer
          * @param severity the type of the log message
          * @param msg the log message
          */
-        virtual void Log(LogSeverity severity, const std::string msg) = 0;
+        virtual void Log(LogSeverity severity, const std::string& msg) = 0;
 
         /**
          * \brief Retrieves the logs
@@ -64,13 +65,13 @@ namespace neko::aer
         virtual const std::vector<AerLog>& GetLogs() = 0;
     };
 
-//-----------------------------------------------------------------------------
-// NullLogManager
-//-----------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------
+    // NullLogManager
+    //-----------------------------------------------------------------------------
     class NullLogManager final : public LogManagerInterface
     {
         void Log([[maybe_unused]] LogSeverity severity,
-            [[maybe_unused]] const std::string msg) override
+            [[maybe_unused]] const std::string& msg) override
         {
             std::cout << msg;
             std::cout << "[WARNING] LogManager is null! History will NOT be saved\n";
@@ -88,65 +89,59 @@ namespace neko::aer
 
     class Logger final : public Tool, public LogManagerInterface
     {
-      
+
     public:
         //Constructor
         Logger(TypeTool type);
-        
+
         const std::vector<AerLog>& GetLogs() override
         {
             return logs_;
         }
-        /**
-         * \brief Executed on the render thread
-         */
-        void Init() override;
-        /**
-         * \brief Executed on the main thread
-         * @param dt deltaTime
-         */
-        void Update(seconds dt) override;
-        /**
-         * \brief Executed on the render thread
-         */
-        void DrawImGui() override;
-        /**
-         * \brief Executed on the render thread
-         */
-        void Destroy() override;
-        /**
-         * \brief Executed on the main thread
-         * @param &event SDL_EVENT
-         */
-        void OnEvent(const SDL_Event& event) override;
 
-        void Log(LogSeverity severity, const std::string msg) override;
+        void Init() override;
+
+        void Update(seconds dt) override;
+
+        void DrawImGui() override;
+
+        void Destroy() override;
+
+        void OnEvent(const SDL_Event& event) override;
+        /**
+        * \brief Generate a log message.
+        * @param severity the type of the log message
+        * @param msg the log message
+        */
+        void Log(LogSeverity severity, const std::string& msg) override;
     private:
         int pos_y = 0;
         bool autoScroll = true;
 
         std::vector<AerLog> logs_;
 
+        //CAPACITY
+        const size_t CAPACITY_LOG = std::pow(2, 14);
+        const size_t CAPACITY_LOG_MAX = std::pow(2, 23);
         //COLOR
-        const size_t CAPACITY_LOG = 100000;
         const ImVec4 BLUE = { 0.5f, 0.5f, 1, 1 };
         const ImVec4 YELLOW = { 1, 1, 0, 1 };
         const ImVec4 ORANGE = { 1, 0.5f, 0, 1 };
         const ImVec4 RED{ 1, 0, 0, 1 };
     };
 
-//-----------------------------------------------------------------------------
-// Service Locator definition
-//-----------------------------------------------------------------------------
+    //-----------------------------------------------------------------------------
+    // Service Locator definition
+    //-----------------------------------------------------------------------------
     using Log = Locator<LogManagerInterface, NullLogManager>;
 
-    void DebugLog(std::string msg);
+    void DebugLog(const std::string& msg);
 
-    void InfoLog(std::string msg);
+    void InfoLog(const std::string& msg);
 
-    void WarningLog(std::string msg);
+    void WarningLog(const std::string& msg);
 
-    void ErrorLog(std::string msg);
+    void ErrorLog(const std::string& msg);
 
-    void CriticalLog(std::string msg);
+    void CriticalLog(const std::string& msg);
 }

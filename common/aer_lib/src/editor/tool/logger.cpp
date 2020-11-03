@@ -26,6 +26,7 @@
 namespace neko::aer
 {
     Logger::Logger(TypeTool type) : Tool(type) {
+
         Log::provide(this);
         logs_.reserve(CAPACITY_LOG);
     }
@@ -37,7 +38,7 @@ namespace neko::aer
 
     void Logger::Update(seconds dt)
     {
-
+        
     }
 
     void Logger::Destroy()
@@ -48,6 +49,13 @@ namespace neko::aer
 
     void Logger::DrawImGui()
     {
+        if (isVisible) {
+            for (size_t i = 0; i < 10000; i++)
+            {
+                InfoLog("FUCK");
+            }
+           
+        }
         if (isVisible) {
             //Number of Logs  
             int nbrLog = logs_.size();
@@ -72,9 +80,9 @@ namespace neko::aer
                 if (ImGui::Checkbox("Auto Scrolling", &autoScroll)) {
                     autoScroll != autoScroll;
                 }
-
+                
                 ImGui::SameLine();
-                ImGui::Text(("Counter Logs: " + std::to_string(nbrLog)).c_str());
+                ImGui::Text(("Log Counter: " + std::to_string(nbrLog)).c_str());
                 ImGui::Separator();
                 #pragma endregion
 
@@ -135,64 +143,85 @@ namespace neko::aer
       
     }
 
-    void Logger::Log(LogSeverity severity, const std::string msg)
+    void Logger::Log(LogSeverity severity, const std::string &msg)
     {
-        // current date/time based on current system
-        time_t now = time(0);
-        // convert now to string form
-        tm* ltm = localtime(&now);
+        if (logs_.size() < CAPACITY_LOG_MAX) {
+            // current date/time based on current system
+            time_t now = time(0);
+            // convert now to string form
+            tm* ltm = localtime(&now);
 
-        std::string time_log = "[" + std::to_string(ltm->tm_hour) + ":"
-            + std::to_string(ltm->tm_min) + ":"
-            + std::to_string(ltm->tm_sec) + "]";
+            std::string time_log = "[" + std::to_string(ltm->tm_hour) + ":"
+                + std::to_string(ltm->tm_min) + ":"
+                + std::to_string(ltm->tm_sec) + "]";
 
-        AerLog log;
-        log.severity = severity;
+            AerLog log;
+            log.severity = severity;
 
-        switch (log.severity)
-        {
-        case LogSeverity::DEBUG: 
-            log.msg = time_log + " [Debug] " + msg;
-            break;
-        case LogSeverity::INFO:
-            log.msg = time_log + " [Info] " + msg;
-            break;
-        case LogSeverity::WARNING:
-            log.msg = time_log + " [Warning] " + msg;
-            break;
-        case LogSeverity::ERROOR:
-            log.msg = time_log + " [Error] " + msg;
-            break;
-        case LogSeverity::CRITICAL:
-            log.msg = time_log + " [Critical] " + msg;
-            break;
+            switch (log.severity)
+            {
+            case LogSeverity::DEBUG:
+                log.msg = time_log + " [Debug] " + msg;
+                break;
+            case LogSeverity::INFO:
+                log.msg = time_log + " [Info] " + msg;
+                break;
+            case LogSeverity::WARNING:
+                log.msg = time_log + " [Warning] " + msg;
+                break;
+            case LogSeverity::ERROOR:
+                log.msg = time_log + " [Error] " + msg;
+                break;
+            case LogSeverity::CRITICAL:
+                log.msg = time_log + " [Critical] " + msg;
+                break;
 
-        default:
-            break;
+            default:
+                break;
+            }
+
+            logs_.emplace_back(log);
         }
+        else {
+            if (logs_.size() == CAPACITY_LOG_MAX) {
+                // current date/time based on current system
+                time_t now = time(0);
+                // convert now to string form
+                tm* ltm = localtime(&now);
 
-        logs_.emplace_back(log);
+                std::string time_log = "[" + std::to_string(ltm->tm_hour) + ":"
+                    + std::to_string(ltm->tm_min) + ":"
+                    + std::to_string(ltm->tm_sec) + "]";
+
+                AerLog log;
+                log.severity = LogSeverity::WARNING;
+                log.msg = time_log + " [Warning] " + "[Logger] Max log capacity reached; Please Clear";
+
+                logs_.emplace_back(log);
+            }
+        }
     }
 
     void Logger::OnEvent(const SDL_Event& event) { }
+ 
 
-    void DebugLog(std::string msg) {   
+    void DebugLog(const std::string &msg) {   
         Log::get().Log(LogSeverity::DEBUG, msg);
     }
 
-    void InfoLog(std::string msg) {
+    void InfoLog(const std::string &msg) {
         Log::get().Log(LogSeverity::INFO, msg);
     }
 
-    void WarningLog(std::string msg) {
+    void WarningLog(const std::string &msg) {
         Log::get().Log(LogSeverity::WARNING, msg);
     }
 
-    void ErrorLog(std::string msg) {
+    void ErrorLog(const std::string &msg) {
         Log::get().Log(LogSeverity::ERROOR, msg);
     }
 
-    void CriticalLog(std::string msg) {
+    void CriticalLog(const std::string &msg) {
         Log::get().Log(LogSeverity::CRITICAL, msg);
     }
 }
