@@ -27,6 +27,9 @@ void AerEngine::Init()
         logManager_ = new LogManager;
     }
 
+
+    toolManager_.InitTools();
+
    
 }
 

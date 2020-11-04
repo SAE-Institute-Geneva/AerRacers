@@ -21,12 +21,17 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
- */
+ 
+ Author : Canas Simon
+ Co-Author : Dylan von Arx
+ Date : 13.10.2020
+---------------------------------------------------------- */
 #include <vector>
 #include <memory>
 #include <SDL_events.h>
 #include <editor/tool.h>
 #include <math.h> 
+#include <mutex>
 
 namespace neko::aer
 {
@@ -89,7 +94,17 @@ namespace neko::aer
 
     class Logger final : public Tool, public LogManagerInterface
     {
-
+        //-----------------------------------------------------------------------------
+        // LogManagerStatus
+        //-----------------------------------------------------------------------------
+        /// \brief To get the status of the engine
+        enum LogManagerStatus : std::uint8_t
+        {
+            IS_RUNNING = 1u << 0u, //To check if the LogManager is running
+            IS_EMPTY = 1u << 1u, //To check if the LogManager has tasks
+            IS_LOG_WAITING = 1u << 2u, //To check if the LogManager is waiting for a task
+            IS_WRITING = 1u << 3u //To check if the LogManager is writing its output to a file
+        };
     public:
         //Constructor
         Logger(TypeTool type);
@@ -116,12 +131,19 @@ namespace neko::aer
         * @param msg the log message
         */
         void Log(LogSeverity severity, const std::string& msg) override;
-
+        /**
+        * \brief Deletes all logs 
+        */
         void ClearLogs();
+
+        void WriteToFile();
+
     private:
         int pos_y = 0;
         bool autoScroll = true;
 
+        std::atomic<std::uint8_t> status_;
+        std::mutex logMutex_;
         std::vector<AerLog> logs_;
 
         //CAPACITY

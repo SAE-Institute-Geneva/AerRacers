@@ -22,18 +22,19 @@
 // SOFTWARE.
 // */
 #include "editor/tool/logger.h"
+#include <utilities/file_utility.h>
 
 namespace neko::aer
 {
-    Logger::Logger(TypeTool type) : Tool(type) {
-
+    Logger::Logger(TypeTool type) : Tool(type), status_(0) {
         Log::provide(this);
         logs_.reserve(CAPACITY_LOG);
+        status_ |= IS_RUNNING | IS_EMPTY;
     }
     
     void Logger::Init()
     {
-        
+
     }
 
     void Logger::Update(seconds dt)
@@ -43,6 +44,7 @@ namespace neko::aer
 
     void Logger::Destroy()
     {
+        WriteToFile();
         logs_.clear();
     }
 
@@ -140,6 +142,65 @@ namespace neko::aer
         }
       
     }
+
+    void Logger::WriteToFile()
+    {
+        std::lock_guard<std::mutex> lock(logMutex_);
+
+        status_ |= IS_WRITING;
+        status_ &= ~IS_EMPTY;
+
+                time_t curTime = time(nullptr);
+#ifdef _MSC_VER
+                struct tm localTime {};
+                localtime_s(&localTime, &curTime);
+#else
+                tm localTime = *localtime(&curTime);
+#endif
+
+                const std::string filePath = "../../data/logs/";
+                std::string dateTime;
+                dateTime = std::to_string(localTime.tm_mday) + "-" + std::to_string(localTime.tm_mon + 1) + "-" +
+                    std::to_string(localTime.tm_year + 1900) + "_" +
+                    std::to_string(localTime.tm_hour) + "-" +
+                    std::to_string(localTime.tm_min) + "-" +
+                    std::to_string(localTime.tm_sec);
+
+                std::string fileContent =
+                    "/--------------------------------------------------------------------------------\\\n";
+                fileContent +=
+                    "|                                NekoEngine logs                                 |\n";
+                fileContent += "|                              " + dateTime + "                               |\n";
+                fileContent +=
+                    "|              Copyright (c) 2020 SAE Institute Switzerland AG              |\n";
+                fileContent +=
+                    "\\--------------------------------------------------------------------------------/\n\n";
+
+                fileContent += "Program start (=^ O ^=)\n";
+                fileContent +=
+                    "--------------------------------------------------------------------------------\n";
+
+                AerLog log;
+                log.severity = LogSeverity::DEBUG;
+                log.msg = "Successfully saved log output";
+                logs_.emplace_back(log);
+
+                for (auto& line : logs_)
+                {
+                    fileContent += line.msg + "\n";
+                }
+
+                CreateDirectory(filePath);
+
+                if (FileExists(filePath + dateTime + ".log"))
+                    dateTime += "-1";
+
+                WriteStringToFile(filePath + dateTime + ".log", fileContent);
+
+                status_ &= ~IS_WRITING;
+
+    }
+
 
     void Logger::Log(LogSeverity severity, const std::string &msg)
     {

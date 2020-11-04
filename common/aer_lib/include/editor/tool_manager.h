@@ -32,6 +32,8 @@ namespace neko::aer
     public:
         explicit ToolManager(AerEngine& engine);
         void Init() override;
+
+        void InitTools();
         void Update(seconds dt) override;
         void DrawList();
         void Destroy() override;

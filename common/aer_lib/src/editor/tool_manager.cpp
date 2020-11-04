@@ -29,16 +29,20 @@ namespace neko::aer
 {
     ToolManager::ToolManager(AerEngine& engine) : engine_(engine)
     {
-        Init();
     }
 
     void ToolManager::Init()
     {
+      
+    }
+    void ToolManager::InitTools() {
+        //LOGGER
         tools_.push_back(new Logger(TypeTool::LOG));
         engine_.RegisterSystem(*tools_.back());
         engine_.RegisterOnEvent(*tools_.back());
         engine_.RegisterOnDrawUi(*tools_.back());
     }
+
 
     void ToolManager::Update(seconds dt)
     {
@@ -61,6 +65,12 @@ namespace neko::aer
         bool my_tool_active;
         if (ImGui::BeginMainMenuBar())
         {
+            if (ImGui::BeginMenu("Settings"))
+            {
+                DrawList();
+                ImGui::EndMenu();
+            }
+
             if (ImGui::BeginMenu("Tools"))
             {
                 DrawList();
