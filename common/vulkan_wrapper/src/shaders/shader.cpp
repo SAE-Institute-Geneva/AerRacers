@@ -53,7 +53,7 @@ VkFormat Attribute::GetVkFormat() const
     }
 }
 
-Shader::Shader(std::string filename, VkShaderStageFlagBits stages)
+Shader::Shader(std::string filename, VkShaderStageFlags stages)
     : shaderPath_(std::move(filename)), stages_(stages)
 {}
 

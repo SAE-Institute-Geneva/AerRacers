@@ -143,7 +143,7 @@ void VulkanWindow::InitImGui()
     initInfo.MinImageCount = 2;
     initInfo.ImageCount = vkObj.swapchain->GetImageCount();
 
-	ImGui_ImplVulkan_Init(&initInfo, VkRenderPass(vkObj.renderPass));
+	//ImGui_ImplVulkan_Init(&initInfo, VkRenderPass(vkObj.renderPass));
 
     // Create font texture
     unsigned char* fontData;

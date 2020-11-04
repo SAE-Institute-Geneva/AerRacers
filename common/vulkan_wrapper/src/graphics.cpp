@@ -27,7 +27,11 @@
 ---------------------------------------------------------- */
 #include "vk/graphics.h"
 
+#include "mathematics/hash.h"
+
 #include "vk/models/quad.h"
+#include "vk/renderers/renderer_editor.h"
+#include "vk/subrenderers/subrenderer_opaque.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -45,23 +49,30 @@ VkRenderer::VkRenderer(sdl::VulkanWindow* window) : Renderer(), IVkObjects(windo
     surface.SetFormat();
     device.Init();
 
-    camera_.Init();
-    /*initJob_ = Job([this]
-    {
-        swapchain.Init();
-        commandPool.Init();
-        //renderPass.Init();
-        //framebuffers.Init();
+    testShader_ = Shader("../../data/shaders/aer_racer/01_triangle/quad",
+                         VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
+    testShader_.AddAttribute(HashString("inPosition"),
+            Attribute(63, 0, sizeof(Vec3f), Attribute::AttributeType::VEC3F));
+    testShader_.AddAttribute(HashString("inNormal"),
+            Attribute(63, 1, sizeof(Vec3f), Attribute::AttributeType::VEC3F));
+    testShader_.AddAttribute(HashString("inTexCoords"),
+            Attribute(63, 2, sizeof(Vec2f), Attribute::AttributeType::VEC2F));
+    /*testShader_.AddAttribute(HashString("inModelMatrix"),
+            Attribute(63, 5, sizeof(Mat4f), Attribute::AttributeType::VEC4F));*/
 
-        descriptorPool.Init();
+    UniformBlock ubo(0, sizeof(Mat4f) * 2, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
+    ubo.AddUniform(HashString("view"),
+            Uniform(0, 0, sizeof(Mat4f), VK_FORMAT_R32G32B32A32_SFLOAT, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT));
+    ubo.AddUniform(HashString("proj"),
+            Uniform(0, sizeof(Mat4f), sizeof(Mat4f), VK_FORMAT_R32G32B32A32_SFLOAT, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT));
 
-        CreateSyncObjects();
-
-    });*/
+    testShader_.AddUniformBlock(HashString("UboScene"), ubo);
 
     commandPools = std::make_unique<CommandPool>();
     commandPools->Init();
+
     CreatePipelineCache();
+
     Renderer::AddPreRenderJob(&initJob_);
 }
 
@@ -86,15 +97,23 @@ VkRenderer::~VkRenderer()
         vkDestroyFence(VkDevice(device), inFlightFences_[i], nullptr);
     }
 
+    const auto& renderStages = renderer_->GetRenderStages();
+    for (const auto& renderStage : renderStages)
+    {
+        renderStage->Destroy();
+    }
+
     for (auto& commandBuffer : commandBuffers)
     {
         commandBuffer->Destroy();
     }
     commandPools->Destroy();
+
+    graphicsPipeline.Destroy();
+
     swapchain->Destroy();
 
     device.Destroy();
-
     surface.Destroy();
     instance.Destroy();
 }
@@ -124,6 +143,20 @@ void VkRenderer::AfterRenderLoop()
     {
         ResetRenderStages();
         renderer_->Start();
+
+        graphicsPipeline.Init(
+                Pipeline::Stage(0, 0),
+                testShader_,
+                {Vertex::GetVertexInput()},
+                GraphicsPipeline::Mode::POLYGON,
+                GraphicsPipeline::Depth::READ_WRITE,
+                VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+                VK_POLYGON_MODE_FILL,
+                VK_CULL_MODE_BACK_BIT,
+                VK_FRONT_FACE_CLOCKWISE,
+                false);
+
+        renderer_->GetRendererContainer().Get<SubrendererOpaque>().SetUniformBlock(testShader_.GetUniformBlock(HashString("UboScene")));
     }
 
     const auto acquireResult = swapchain->AcquireNextImage(
@@ -186,9 +219,9 @@ bool VkRenderer::StartRenderPass(RenderStage& renderStage)
 
     VkViewport viewport;
     viewport.x = 0.0f;
-    viewport.y = static_cast<float>(renderArea.extent.height);
+    viewport.y = 0.0f;
     viewport.width = static_cast<float>(renderArea.extent.width);
-    viewport.height = -static_cast<float>(renderArea.extent.height);
+    viewport.height = static_cast<float>(renderArea.extent.height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
     vkCmdSetViewport(VkCommandBuffer(*commandBuffers[swapchain->GetCurrentImageIndex()]),
@@ -222,7 +255,7 @@ void VkRenderer::EndRenderPass(const RenderStage& renderStage)
 
     vkCmdEndRenderPass(VkCommandBuffer(*commandBuffers[swapchain->GetCurrentImageIndex()]));
 
-    if (!renderStage.HasSwapchain()) { return; }
+    if (!renderStage.HasSwapchain()) return;
 
     commandBuffers[swapchain->GetCurrentImageIndex()]->End();
     commandBuffers[swapchain->GetCurrentImageIndex()]->Submit(
@@ -261,8 +294,7 @@ void VkRenderer::RecreateSwapChain()
     vkDeviceWaitIdle(VkDevice(device));
 
     const Vec2u size = BasicEngine::GetInstance()->config.windowSize;
-    if (swapchain) swapchain->Destroy();
-    else swapchain = std::make_unique<Swapchain>();
+    if (!swapchain) swapchain = std::make_unique<Swapchain>();
     swapchain->Init(*swapchain);
 
     RecreateCommandBuffers();
@@ -371,5 +403,11 @@ void VkRenderer::SetWindow(sdl::VulkanWindow* window)
 void VkRenderer::SetRenderer(std::unique_ptr<vk::Renderer>&& renderer)
 {
     renderer_ = std::move(renderer);
+    renderer_->Init();
+}
+
+RenderStage& VkRenderer::GetRenderStage(uint32_t index) const
+{
+    return renderer_->GetRenderStage(index);
 }
 }

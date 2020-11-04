@@ -9,7 +9,7 @@ namespace neko::vk
 {
 struct ForwardDrawCmd
 {
-    Mat4f worldMatrix;
+    Mat4f worldMatrix = Mat4f::Identity;
 
     XXH64_hash_t materialID;
     XXH64_hash_t meshID;

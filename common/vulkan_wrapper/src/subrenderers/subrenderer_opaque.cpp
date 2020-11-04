@@ -9,14 +9,22 @@ SubrendererOpaque::SubrendererOpaque(Pipeline::Stage stage)
     modelCmdBuffer_(VkObjectsLocator::get().modelCommandBuffer)
 {
     quad_.Init();
+    ForwardDrawCmd drawCmd;
+    drawCmd.worldMatrix = Mat4f::Identity;
+    drawCmd.uniformHandle = uniformScene_;
+    modelCmdBuffer_.Draw(drawCmd);
 }
 
 void SubrendererOpaque::OnRender(const CommandBuffer& commandBuffer)
 {
     const auto& camera = CameraLocator::get();
 
-    uniformScene_.Push(kProjectionHash, camera.GenerateProjectionMatrix());
-    uniformScene_.Push(kViewHash, camera.GenerateViewMatrix());
+    const auto& view = camera.GenerateViewMatrix();
+    auto proj = camera.GenerateProjectionMatrix();
+    proj[1][1] *= -1;
+
+    uniformScene_.Push(kProjectionHash, proj);
+    uniformScene_.Push(kViewHash, view);
 
     modelCmdBuffer_.PrepareData();
 
@@ -34,7 +42,7 @@ void SubrendererOpaque::OnRender(const CommandBuffer& commandBuffer)
 
 bool SubrendererOpaque::CmdRender(const CommandBuffer& commandBuffer, ForwardDrawCmd& modelDrawCommand)
 {
-    modelDrawCommand.uniformHandle.Push(kTransformHash, modelDrawCommand.worldMatrix);
+    //modelDrawCommand.uniformHandle.Push(kTransformHash, modelDrawCommand.worldMatrix);
 
     /*auto& mat = MaterialsManagerLocator::Get().GetMaterial(modelDrawCommand.materialID);
     modelDrawCommand.uniformHandle.PushUniformData(mat.ExportUniformData());*/
@@ -68,5 +76,10 @@ bool SubrendererOpaque::CmdRender(const CommandBuffer& commandBuffer, ForwardDra
 
     //return MeshManagerLocator::Get().GetMesh(modelDrawCommand.meshID).CmdRender(commandBuffer);
     return quad_.CmdRender(commandBuffer);
+}
+
+void SubrendererOpaque::SetUniformBlock(const UniformBlock& uniformBlock)
+{
+    uniformScene_.Update(uniformBlock);
 }
 }

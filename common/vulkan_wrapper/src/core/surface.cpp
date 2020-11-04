@@ -21,7 +21,7 @@ void Surface::SetFormat()
 
     if (formatCount == 1 && surfaceFormats[0].format == VK_FORMAT_UNDEFINED)
     {
-        format_.format = VK_FORMAT_B8G8R8A8_UNORM;
+        format_.format = kFormat;
         format_.colorSpace = surfaceFormats[0].colorSpace;
     }
     else
@@ -29,7 +29,7 @@ void Surface::SetFormat()
         bool foundB8G8R8AUnorm = false;
         for (auto&& surfaceFormat : surfaceFormats)
         {
-            if (surfaceFormat.format == VK_FORMAT_B8G8R8A8_UNORM)
+            if (surfaceFormat.format == kFormat)
             {
                 format_.format = surfaceFormat.format;
                 format_.colorSpace = surfaceFormat.colorSpace;

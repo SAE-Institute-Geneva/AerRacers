@@ -13,9 +13,7 @@ class RenderPass;
 class Framebuffers
 {
 public:
-	explicit Framebuffers() = default;
-
-	void Init(
+    Framebuffers(
             uint32_t width,
             uint32_t height,
             const RenderStage& renderStage,
@@ -23,7 +21,7 @@ public:
             const Swapchain& swapchain,
             const ImageDepth& depthStencil,
             VkSampleCountFlagBits samples);
-	void Destroy();
+	void Destroy() const;
 	
     [[nodiscard]] const std::vector<VkFramebuffer>& GetFramebuffers() const {return framebuffers_;}
     [[nodiscard]] size_t GetFramebuffersCount() const {return framebuffers_.size();}

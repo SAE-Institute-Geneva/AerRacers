@@ -16,7 +16,7 @@ struct SubpassType
               multisampling(multisampling)
     {}
 
-    uint32_t binding;
+    uint32_t binding = 0;
     std::vector<uint32_t> attachmentBindings;
     bool multisampling = false;
 };

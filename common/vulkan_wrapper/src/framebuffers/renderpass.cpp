@@ -2,7 +2,7 @@
 
 namespace neko::vk
 {
-void RenderPass::Init(const RenderStage& renderStage,
+RenderPass::RenderPass(const RenderStage& renderStage,
                       VkFormat depthFormat,
                       VkFormat surfaceFormat,
                       VkSampleCountFlagBits samples)
@@ -19,7 +19,10 @@ void RenderPass::Init(const RenderStage& renderStage,
         VkAttachmentDescription attachmentDescription = {};
         attachmentDescription.samples = attachmentSamples;
         attachmentDescription.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        attachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        if (attachment.type == Attachment::Type::IMAGE)
+            attachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        else if (attachment.type == Attachment::Type::DEPTH)
+            attachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         attachmentDescription.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
         attachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
         attachmentDescription.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;

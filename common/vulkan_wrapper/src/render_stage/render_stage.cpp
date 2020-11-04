@@ -1,25 +1,21 @@
 #include "vk/render_stage/render_stage.h"
 
+#include <utility>
+
 #include "mathematics/hash.h"
 #include "vk/graphics.h"
 
 namespace neko::vk
 {
 RenderStage::RenderStage(
-        std::vector<Attachment> renderPassAttachment,
-        std::vector<SubpassType> renderPassSubpasses)
-        : attachments_(std::move(renderPassAttachment)),
-        subpasses_(std::move(renderPassSubpasses))
-{}
-
-void RenderStage::Init(
-        const std::vector<Attachment>& attachments,
-        const std::vector<SubpassType>& subpasses,
+        std::vector<Attachment> attachments,
+        std::vector<SubpassType> subpasses,
         const Viewport& viewport)
+        : attachments_(std::move(attachments)),
+          subpasses_(std::move(subpasses)),
+          viewport_(viewport),
+          subpassAttachmentCount_(subpasses_.size())
 {
-    attachments_ = attachments;
-    subpasses_ = subpasses;
-    viewport_ = viewport;
     for (const auto& attachment : attachments_)
     {
         VkClearValue clearValue = {};
@@ -45,11 +41,7 @@ void RenderStage::Init(
                 }
                 break;
             case Attachment::Type::DEPTH:
-                clearValue.depthStencil =
-                {
-                    static_cast<uint32_t>(1.0f),
-                    static_cast<uint32_t>(0.0f)
-                };
+                clearValue.depthStencil = {1.0f, 0};
                 depthAttachment_ = Attachment(attachment);
                 break;
             case Attachment::Type::SWAPCHAIN:
@@ -87,11 +79,11 @@ void RenderStage::Rebuild(const Swapchain& swapchain)
         depthStencil_ = std::make_unique<ImageDepth>(size_,
                               depthAttachment_.multisampling ? msaaSamples : VK_SAMPLE_COUNT_1_BIT);
 
-    if (VkRenderPass(vkObj.renderPass) == VK_NULL_HANDLE)
-        renderPass_->Init(*this, depthStencil_->GetFormat(),
+    if (!renderPass_)
+        renderPass_ = std::make_unique<RenderPass>(*this, depthStencil_->GetFormat(),
                 vkObj.surface.GetFormat().format, msaaSamples);
 
-    framebuffers_->Init(size_.x, size_.y, *this, *renderPass_,
+    framebuffers_ = std::make_unique<Framebuffers>(size_.x, size_.y, *this, *renderPass_,
                         swapchain, *depthStencil_, msaaSamples);
     outOfDate_ = false;
 
@@ -136,5 +128,12 @@ const VkFramebuffer& RenderStage::GetActiveFramebuffer(const uint32_t& activeSwa
 bool RenderStage::HasSwapchain() const
 {
     return swapchainAttachment_.type != Attachment::Type::NONE;
+}
+
+void RenderStage::Destroy() const
+{
+    depthStencil_->Destroy();
+    framebuffers_->Destroy();
+    renderPass_->Destroy();
 }
 }

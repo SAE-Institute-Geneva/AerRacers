@@ -29,6 +29,9 @@ VkWriteDescriptorSet WriteDescriptorSet::GetWriteDescriptorSet()
 }
 
 DescriptorSet::DescriptorSet(const Pipeline& pipeline)
+    : pipelineLayout_(pipeline.GetPipelineLayout()),
+    pipelineBindPoint_(pipeline.GetPipelineBindPoint()),
+    descriptorPool_(pipeline.GetDescriptorPool())
 {
     const auto& device = VkDevice(VkObjectsLocator::get().device);
     VkDescriptorSetLayout layouts[1] = {pipeline.GetDescriptorSetLayout()};

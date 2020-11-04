@@ -10,7 +10,7 @@ void CommandBuffer::Init(bool begin, VkQueueFlagBits queueType, VkCommandBufferL
 
     VkCommandBufferAllocateInfo allocInfo = {};
     allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = VkCommandPool(* vkObj.commandPools);
+    allocInfo.commandPool = VkCommandPool(*vkObj.commandPools);
     allocInfo.level = bufferLevel;
     allocInfo.commandBufferCount = 1;
 
@@ -31,7 +31,7 @@ void CommandBuffer::Destroy()
 
 void CommandBuffer::Begin(VkCommandBufferUsageFlags usage)
 {
-    if (running_) { return; }
+    if (running_) return;
     VkCommandBufferBeginInfo beginInfo = {};
     beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
     beginInfo.flags = usage;
@@ -44,7 +44,7 @@ void CommandBuffer::Begin(VkCommandBufferUsageFlags usage)
 
 void CommandBuffer::End()
 {
-    if (!running_) { return; }
+    if (!running_) return;
 
     const VkResult res = vkEndCommandBuffer(commandBuffer_);
     neko_assert(res == VK_SUCCESS, "Could not stop to write to the command buffer!")
@@ -62,7 +62,6 @@ void CommandBuffer::SubmitIdle()
     submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer_;
-
 
     VkResult res = vkQueueSubmit(queueSelected, 1, &submitInfo, VK_NULL_HANDLE);
     neko_assert(res == VK_SUCCESS, "Could not submit command buffer to queue!")

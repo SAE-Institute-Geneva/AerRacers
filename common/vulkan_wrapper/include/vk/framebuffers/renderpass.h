@@ -25,17 +25,15 @@ public:
                 , depthStencilAttachment_({})
         {
             subpassDescription_.pipelineBindPoint = bindPoint;
-            subpassDescription_.colorAttachmentCount = static_cast<uint32_t>(
-                    colorAttachments_.size());
+            subpassDescription_.colorAttachmentCount =
+                    static_cast<uint32_t>(colorAttachments_.size());
             subpassDescription_.pColorAttachments = colorAttachments_.data();
 
             if (depthAttachment != INVALID_INDEX)
             {
                 depthStencilAttachment_.attachment = depthAttachment;
-                depthStencilAttachment_.layout =
-                        VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-                subpassDescription_.pDepthStencilAttachment = &
-                        depthStencilAttachment_;
+                depthStencilAttachment_.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+                subpassDescription_.pDepthStencilAttachment = &depthStencilAttachment_;
             }
         }
 
@@ -49,7 +47,7 @@ public:
         VkAttachmentReference depthStencilAttachment_;
     };
 
-    void Init(const RenderStage& renderStage,
+    RenderPass(const RenderStage& renderStage,
               VkFormat depthFormat,
               VkFormat surfaceFormat,
               VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT);

@@ -62,18 +62,25 @@ struct IVkObjects
     std::unique_ptr<CommandPool> commandPools{};
     std::vector<std::unique_ptr<CommandBuffer>> commandBuffers{};
 
-    RenderPass renderPass;
-    Framebuffers framebuffers;
     DescriptorPool descriptorPool;
     ModelCommandBuffer modelCommandBuffer;
 	GraphicsPipeline graphicsPipeline;
 
     VkPipelineCache pipelineCache{};
+
+    std::unique_ptr<vk::Renderer> renderer_{};
+
+    [[nodiscard]] virtual RenderStage& GetRenderStage(uint32_t index) const = 0;
 };
 
 struct NullVkObjects : IVkObjects
 {
     explicit NullVkObjects() : IVkObjects(nullptr) {}
+
+    [[nodiscard]] RenderStage& GetRenderStage(uint32_t index) const override
+    {
+        return renderer_->GetRenderStage(INVALID_INDEX);
+    }
 };
 
 using VkObjectsLocator = Locator<IVkObjects, NullVkObjects>;
@@ -91,6 +98,8 @@ public:
 
     void SetWindow(sdl::VulkanWindow* window);
     void SetRenderer(std::unique_ptr<vk::Renderer>&& renderer);
+
+    [[nodiscard]] RenderStage& GetRenderStage(uint32_t index) const override;
 
 private:
     bool StartRenderPass(RenderStage& renderStage);
@@ -116,6 +125,8 @@ private:
 
     bool isFramebufferResized_ = false;
 
+    Shader testShader_;
+
 
     size_t currentFrame_ = 0;
     std::vector<VkFence> inFlightFences_{};
@@ -123,6 +134,5 @@ private:
     std::vector<VkSemaphore> renderFinishedSemaphores_{};
 
     std::map<XXH64_hash_t, const IDescriptor&> attachments_{};
-    std::unique_ptr<vk::Renderer> renderer_{};
 };
 }

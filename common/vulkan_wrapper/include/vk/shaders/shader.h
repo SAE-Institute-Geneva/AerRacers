@@ -45,7 +45,7 @@ public:
     };
 
     explicit Shader() = default;
-    explicit Shader(std::string filename, VkShaderStageFlagBits stages);
+    explicit Shader(std::string filename, VkShaderStageFlags stages);
 
 	void Init();
 
@@ -75,7 +75,7 @@ private:
             VkDescriptorType type);
 
     std::string shaderPath_{};
-    VkShaderStageFlagBits stages_{};
+    VkShaderStageFlags stages_{};
 
     std::map<XXH64_hash_t, UniformBlock> uniformBlocks_{};
     std::map<XXH64_hash_t, Uniform> uniforms_{};

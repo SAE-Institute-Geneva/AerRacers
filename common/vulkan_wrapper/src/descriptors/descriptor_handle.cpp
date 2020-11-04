@@ -130,7 +130,7 @@ bool DescriptorHandle::Update(const Pipeline& pipeline)
             writeDescriptorSets_.emplace_back(writeDescriptorSet);
         }
 
-        if (!pushDescriptor_) { descriptorSet_->Update(writeDescriptorSets_); }
+        if (!pushDescriptor_) descriptorSet_->Update(writeDescriptorSets_);
 
         changed_ = false;
     }

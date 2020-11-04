@@ -162,6 +162,8 @@ void GraphicsPipeline::CreateAttributes()
 
     depthStencilStateCreateInfo_.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     depthStencilStateCreateInfo_.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL;
+    depthStencilStateCreateInfo_.depthBoundsTestEnable = VK_FALSE;
+    depthStencilStateCreateInfo_.stencilTestEnable = VK_FALSE;
     depthStencilStateCreateInfo_.front = depthStencilStateCreateInfo_.back;
     depthStencilStateCreateInfo_.back.compareOp = VK_COMPARE_OP_ALWAYS;
 
@@ -197,6 +199,7 @@ void GraphicsPipeline::CreateAttributes()
 void GraphicsPipeline::CreatePipeline()
 {
     const auto& vkObj = VkObjectsLocator::get();
+    const auto& renderStage = vkObj.GetRenderStage(stage_.renderPassId);
 
     std::vector<VkVertexInputBindingDescription> bindingDescriptions;
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
@@ -240,8 +243,7 @@ void GraphicsPipeline::CreatePipeline()
     pipelineCreateInfo.pDynamicState = &dynamicStateCreateInfo_;
 
     pipelineCreateInfo.layout = layout_;
-    pipelineCreateInfo.renderPass = VkRenderPass(vkObj.renderPass);
-    //pipelineCreateInfo.renderPass = *renderStage.GetRenderPass();
+    pipelineCreateInfo.renderPass = VkRenderPass(*renderStage.GetRenderPass());
     pipelineCreateInfo.subpass = stage_.subPassId;
     pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
     pipelineCreateInfo.basePipelineIndex = -1;

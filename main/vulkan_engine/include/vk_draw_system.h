@@ -18,6 +18,7 @@ public:
     void OnEvent(const SDL_Event& event) override;
 
 private:
+    sdl::MovableCamera3D camera_;
 	RendererInterface& renderer_;
 };
 }

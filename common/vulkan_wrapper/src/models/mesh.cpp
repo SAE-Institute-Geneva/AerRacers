@@ -49,7 +49,7 @@ bool Mesh::CmdRender(const CommandBuffer& commandBuffer, uint32_t instance) cons
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(VkCommandBuffer(commandBuffer), 0, 1, vertexBuffers, offsets);
     vkCmdBindIndexBuffer(VkCommandBuffer(commandBuffer),
-            indexBuffer_->GetBuffer(), 0, GetIndexType());
+            indexBuffer_->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
     vkCmdDrawIndexed(VkCommandBuffer(commandBuffer), indexCount_, instance, 0, 0, 0);
 
     return true;
@@ -64,6 +64,7 @@ std::vector<Vertex> Mesh::GetVertices(const size_t offset) const
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     CommandBuffer commandBuffer;
+    commandBuffer.Init();
 
     VkBufferCopy copyRegion = {};
     copyRegion.size = vertexStaging.GetSize();
@@ -104,7 +105,7 @@ void Mesh::SetVertices(const std::vector<Vertex>& vertices)
 
     vertexBuffer_.emplace(
             vertexStaging.GetSize(),
-            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     CommandBuffer commandBuffer;
@@ -127,6 +128,7 @@ std::vector<uint32_t> Mesh::GetIndices(size_t offset) const
                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
     CommandBuffer commandBuffer;
+    commandBuffer.Init();
 
     VkBufferCopy copyRegion{};
     copyRegion.size = indexStaging.GetSize();
@@ -166,8 +168,8 @@ void Mesh::SetIndices(const std::vector<uint32_t>& indices)
             indices.data());
 
     indexBuffer_.emplace(
-            sizeof(uint32_t) * indexStaging.GetSize(),
-            VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            indexStaging.GetSize(),
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     auto commandBuffer = CommandBuffer();

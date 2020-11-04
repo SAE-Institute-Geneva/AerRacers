@@ -137,7 +137,7 @@ void Swapchain::Destroy()
 
     for (const auto& imageView : imageViews_)
         vkDestroyImageView(VkDevice(vkObj.device), imageView, nullptr);
-	
+
     vkDestroySwapchainKHR(VkDevice(vkObj.device), swapchain_, nullptr);
 }
 

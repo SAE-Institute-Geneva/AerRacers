@@ -37,8 +37,8 @@ class Pipeline
 public:
     struct Stage
     {
-        uint32_t renderPassId = INVALID_INDEX;
-        uint32_t subPassId = INVALID_INDEX;
+        uint32_t renderPassId = 0;
+        uint32_t subPassId = 0;
 
         Stage() = default;
         Stage(uint32_t renderPassId, uint32_t subPassId)

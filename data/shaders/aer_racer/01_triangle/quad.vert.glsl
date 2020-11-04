@@ -4,20 +4,24 @@
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inTexCoords;
-layout(location = 3) in vec3 inTangent;
-layout(location = 4) in vec3 inBitangent;
+//layout(location = 3) in vec3 inTangent;
+//layout(location = 4) in vec3 inBitangent;
 
 layout(location = 0) out vec3 fragColor;
 
-layout(binding = 0) uniform UniformBufferObject
+layout(binding = 0) uniform UboScene
 {
-    mat4 model;
     mat4 view;
     mat4 proj;
 } ubo;
 
+/*layout(binding = 1) uniform UboObject 
+{
+	mat4 model;
+} object;*/
+
 void main() 
 {
-    gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
+    gl_Position = ubo.proj * ubo.view /** object.model*/ * vec4(inPosition, 1.0);
     fragColor = vec3(inTexCoords.xy, 0.0);
 }

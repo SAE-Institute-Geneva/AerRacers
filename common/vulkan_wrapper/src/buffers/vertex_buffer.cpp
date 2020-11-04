@@ -30,7 +30,7 @@ VertexInput Vertex::GetVertexInput(uint32_t binding)
 
     attributeDescriptions[2].binding = binding;
     attributeDescriptions[2].location = 2;
-    attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+    attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
     attributeDescriptions[2].offset = offsetof(Vertex, texCoords);
 
     return VertexInput(binding, bindingDescription, attributeDescriptions);

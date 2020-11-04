@@ -16,15 +16,13 @@ class RenderPass;
 class RenderStage
 {
 public:
-    explicit RenderStage(std::vector<Attachment> renderPassAttachment,
-                         std::vector<SubpassType> renderPassSubpasses);
-
-    void Init(const std::vector<Attachment>& attachments = {},
-            const std::vector<SubpassType>& subpasses = {},
+    explicit RenderStage(std::vector<Attachment>  attachments = {},
+            std::vector<SubpassType>  subpasses = {},
             const Viewport& viewport = Viewport());
 
     void Update();
     void Rebuild(const Swapchain& swapchain);
+    void Destroy() const;
 
     [[nodiscard]] const Attachment& GetAttachment(const std::string_view& name) const;
     [[nodiscard]] const Attachment& GetAttachment(uint32_t binding) const;
@@ -57,8 +55,8 @@ private:
     Attachment depthAttachment_{};
     Attachment swapchainAttachment_{};
 
-    Vec2u size_{};
-    float aspectRatio_ = 0.0f;
-    bool outOfDate_{};
+    Vec2u size_ = Vec2u::zero;
+    float aspectRatio_ = 1.0f;
+    bool outOfDate_ = false;
 };
 }

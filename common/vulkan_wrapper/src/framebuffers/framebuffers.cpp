@@ -2,7 +2,7 @@
 
 namespace neko::vk
 {
-void Framebuffers::Init(
+Framebuffers::Framebuffers(
         uint32_t width,
         uint32_t height,
         const RenderStage& renderStage,
@@ -91,7 +91,7 @@ void Framebuffers::Init(
     }
 }
 
-void Framebuffers::Destroy()
+void Framebuffers::Destroy() const
 {
     const auto& vkObj = VkObjectsLocator::get();
     for (const auto& framebuffer : framebuffers_)

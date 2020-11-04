@@ -18,13 +18,14 @@ public:
         rendererContainer_.Add<T>(pipelineStage, std::make_unique<T>(pipelineStage, std::forward<Args>(args)...));
     }
 
-    void AddRenderStage(std::unique_ptr<RenderStage> &&renderStage) {
+    void AddRenderStage(std::unique_ptr<RenderStage> &&renderStage)
+    {
         renderStages_.emplace_back(std::move(renderStage));
     }
 
     [[nodiscard]] RenderStage& GetRenderStage(const uint32_t index) const
     {
-        neko_assert(!renderStages_.empty() && renderStages_.size() > index, "Error while accession render stages!")
+        neko_assert(!renderStages_.empty() && renderStages_.size() > index, "Error while accessing render stages!")
 
         return *renderStages_.at(index);
     }

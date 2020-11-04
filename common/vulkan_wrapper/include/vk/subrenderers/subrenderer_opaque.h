@@ -21,13 +21,15 @@ public:
     constexpr static int GetSubrendererIndex()
     { return static_cast<int>(SubrendererIndex::OPAQUE); }
 
+    void SetUniformBlock(const UniformBlock& uniformBlock);
+
 private:
     bool CmdRender(const CommandBuffer& commandBuffer, ForwardDrawCmd& modelDrawCommand);
     UniformHandle uniformScene_;
 
     ModelCommandBuffer& modelCmdBuffer_;
 
-    inline static const auto kProjectionHash = HashString("projection");
+    inline static const auto kProjectionHash = HashString("proj");
     inline static const auto kViewHash = HashString("view");
     inline static const auto kTransformHash = HashString("transform");
     inline static const auto kUboSceneHash = HashString("UboScene");
