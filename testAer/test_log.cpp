@@ -138,6 +138,7 @@ public:
         }
         else {
             neko::LogDebug("[TEST] All tests were validated");
+            engine_.Stop();
         }
        
     }
