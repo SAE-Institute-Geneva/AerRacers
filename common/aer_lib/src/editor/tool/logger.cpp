@@ -65,7 +65,7 @@ namespace neko::aer
                 #pragma region Header
                 //Removes all Logs
                 if (ImGui::Button("Clear")) {
-                    logs_.clear();
+                    ClearLogs();
                     nbrLog = 0;
                 }
 
@@ -198,6 +198,10 @@ namespace neko::aer
                 logs_.emplace_back(log);
             }
         }
+    }
+
+    void Logger::ClearLogs() {
+        logs_.clear();
     }
 
     void Logger::OnEvent(const SDL_Event& event) { }

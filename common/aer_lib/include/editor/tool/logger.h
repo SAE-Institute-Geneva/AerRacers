@@ -94,7 +94,7 @@ namespace neko::aer
         //Constructor
         Logger(TypeTool type);
         // conversion from Tool (assignment):
-        Logger& operator= (const Tool& tool) { return *this; }
+        Logger* operator= (const Tool* tool) { return this; }
 
         const std::vector<AerLog>& GetLogs() override
         {
@@ -116,6 +116,8 @@ namespace neko::aer
         * @param msg the log message
         */
         void Log(LogSeverity severity, const std::string& msg) override;
+
+        void ClearLogs();
     private:
         int pos_y = 0;
         bool autoScroll = true;
