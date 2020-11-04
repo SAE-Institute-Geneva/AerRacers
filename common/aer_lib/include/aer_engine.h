@@ -36,21 +36,16 @@ Last Modif: 13.10.2020
 
 namespace neko::aer {
 
-using ToolsMask = std::uint8_t;
-
-enum class ToolsFlags : std::uint8_t {
-    EMPTY = 1u << 0u,
-    LOGGER = 1u << 1u,
-    INSPECTOR = 1u << 2u,
-    ENTITY_VIEWER = 1u << 3u,
-    PROFILER = 1u << 4u
+enum class ModeEnum : std::uint8_t {
+    EDITOR = 0,
+    GAME = 1,
 };
 
 class AerEngine final : public sdl::SdlEngine {
 public:
     explicit AerEngine(
         Configuration* config = nullptr,
-        ToolsMask toolsMask = 0);
+        ModeEnum mode = ModeEnum::EDITOR);
 
     void Init() override;
 
@@ -60,13 +55,13 @@ public:
 
     void GenerateUiFrame() override;
 
-    Tool& GetTool(TypeTool type);
+    Tool* GetTool(TypeTool type); //TODO (Luca@Dylan) Find another way to recup tool for testing
 
 private:
-    ToolsMask toolsMask_ = ToolsMask(ToolsFlags::EMPTY);
+    ModeEnum mode_;
 
     DrawSystem drawSystem_;
-    LogManager* logManager_ = nullptr;
+    std::unique_ptr<LogManager> logManager_;
 
     ToolManager toolManager_;
 };

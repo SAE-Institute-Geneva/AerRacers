@@ -21,29 +21,29 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
- */
+ */ //TODOCR(Luca@Dylan)  Wrong Header
 #include <sdl_engine/sdl_engine.h>
 #include <SDL_events.h>
 #include <imgui.h>
 
-namespace neko::aer
+namespace neko::aer //TODOCR(Luca@Dylan)  Apply Syntax Style
 {
-    enum TypeTool {
+    enum class TypeTool { //TODOCR(Luca@Dylan)  enum class
         LOG,
         INSP,
     };
-    const int headerSpace = 20;
+    const int headerSpace = 20; //TODOCR(Luca@Dylan) Why here ? + Nomenclature
     class Tool : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface {
     public:
 
-        Tool(TypeTool type) : type(type) { }
+        Tool(TypeTool type) : type(type) { } //TODOCR(Luca@Dylan)  explicit
         virtual void Init() override {}
         virtual void Update(seconds dt) override {}
         virtual void DrawImGui() override {}
         virtual void Destroy() override {}
         virtual void OnEvent(const SDL_Event& event) override {}
 
-        void LimitationWindow() {
+        void LimitationWindow() { //TODOCR(Luca@Dylan)  function can be const
             // LIMITATION POSITION
             ImGuiIO& io = ImGui::GetIO();
             // X
@@ -65,14 +65,14 @@ namespace neko::aer
         }
 
         void LimitationDock() {
-            //todo
+            //TODO (@Dylan)
         }
         
-        TypeTool type;
-        bool isVisible = false;
+        TypeTool type; //TODOCR(Luca@Dylan) Move on private
+        bool isVisible = false; 
     private:
         int id_;
     protected:
-        ImGuiID dockspaceID;
+        ImGuiID dockspaceID;  //TODOCR(Luca@Dylan)  Move on private + Nomenclature
     };
 }

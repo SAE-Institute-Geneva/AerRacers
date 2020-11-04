@@ -1,34 +1,12 @@
-///*
-// MIT License
-//
-// Copyright (c) 2020 SAE Institute Switzerland AG
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-// */
 #include "editor/tool/logger.h"
+
 #include <utilities/file_utility.h>
 
-namespace neko::aer
+namespace neko::aer //TODOCR(Luca@Dylan) Apply Syntax Style
 {
     Logger::Logger(TypeTool type) : Tool(type), status_(0) {
         Log::provide(this);
-        logs_.reserve(CAPACITY_LOG);
+        logs_.reserve(kCapacityLog_);
         status_ |= IS_RUNNING | IS_EMPTY;
     }
     
@@ -54,7 +32,7 @@ namespace neko::aer
         if (isVisible) {
             //Number of Logs  
             int nbrLog = logs_.size();
-            int nbrLogDisplayMax = ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing();
+            int nbrLogDisplayMax = ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing(); //TODOCR(Luca@Dylan) Can be const
 
             //Tool Logger
             if (!ImGui::Begin("Logger Tool", &isVisible))
@@ -71,15 +49,15 @@ namespace neko::aer
                     nbrLog = 0;
                 }
 
-                //scroll automatically
+                //Scroll automatically
                 ImGui::SameLine();
                 if (ImGui::Checkbox("Auto Scrolling", &autoScroll)) {
-                    autoScroll != autoScroll;
+                    //autoScroll != autoScroll; //TODOCR(Luca@Dylan) Useless
                 }
                 
                 ImGui::SameLine();
                 ImGui::Text(("Log Counter: " + std::to_string(nbrLog)).c_str());
-                if (nbrLog >= CAPACITY_LOG_MAX) {
+                if (nbrLog >= kCapacityLogMax_) {
                     ImGui::SameLine();
                     ImGui::TextColored(RED, "MAX");
                 }
@@ -96,18 +74,18 @@ namespace neko::aer
                 }
                 else {
                     pos_y = ImGui::GetScrollY() / ImGui::GetTextLineHeightWithSpacing();
-                    ImGui::SetCursorPos({ 0, (float)pos_y * ImGui::GetTextLineHeightWithSpacing() });
+                    ImGui::SetCursorPos({ 0, pos_y * ImGui::GetTextLineHeightWithSpacing() });
                 }
               
                 //Logs display
                 if (nbrLog != 0) {
-                    for (size_t i = pos_y; i < pos_y + (nbrLogDisplayMax); i++)
+                    for (size_t i = pos_y; i < pos_y + nbrLogDisplayMax; i++)
                     {
                         if (i < nbrLog) {
                             AerLog log = logs_[i];
                             switch (log.severity) {
                             case LogSeverity::DEBUG:
-                                ImGui::TextColored(BLUE, log.msg.c_str());
+                                ImGui::TextColored(kBlue_, log.msg.c_str());
                                 break;
                             case LogSeverity::INFO:
                                 ImGui::Text(log.msg.c_str());
@@ -121,6 +99,8 @@ namespace neko::aer
                             case LogSeverity::CRITICAL:
                                 ImGui::TextColored(RED, log.msg.c_str());
                                 break;
+                            default:
+                                break;
                             }
                         }
                     }
@@ -131,7 +111,7 @@ namespace neko::aer
 
                 if (!autoScroll) {
                     //Scroll Space
-                    ImGui::SetCursorPos({ 0, (float)nbrLog * ImGui::GetTextLineHeightWithSpacing() });
+                    ImGui::SetCursorPos({ 0, (float)nbrLog * ImGui::GetTextLineHeightWithSpacing() }); //TODOCR(Luca@Dylan) Cast already done with multiple
                     ImGui::Text("");
                 }
                 ImGui::EndChild();
@@ -202,9 +182,9 @@ namespace neko::aer
     }
 
 
-    void Logger::Log(LogSeverity severity, const std::string &msg)
+    void Logger::Log(LogSeverity severity, const std::string &msg)  //TODOCR(Luca@Dylan) Severity may be const
     {
-        if (logs_.size() < CAPACITY_LOG_MAX) {
+        if (logs_.size() < kCapacityLogMax_) {
             // current date/time based on current system
             time_t now = time(0);
             // convert now to string form
@@ -242,7 +222,7 @@ namespace neko::aer
             logs_.emplace_back(log);
         }
         else {
-            if (logs_.size() == CAPACITY_LOG_MAX) {
+            if (logs_.size() == kCapacityLogMax_) {
                 // current date/time based on current system
                 time_t now = time(0);
                 // convert now to string form

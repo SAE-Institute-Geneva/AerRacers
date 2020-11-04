@@ -23,9 +23,9 @@
 // */
 #include "aer_engine.h"
 #include "editor/tool_manager.h"
-#include <editor/tool/logger.h>
+#include <editor/tool/logger.h> //TODOCR(Luca@Dylan)  Include guillmet
 
-namespace neko::aer
+namespace neko::aer //TODOCR(Luca@Dylan)  Apply Code Style
 {
     ToolManager::ToolManager(AerEngine& engine) : engine_(engine)
     {
@@ -35,9 +35,9 @@ namespace neko::aer
     {
       
     }
-    void ToolManager::InitTools() {
+    void ToolManager::InitTools() { //TODOCR(Dylan@Luca) Move to Init
         //LOGGER
-        tools_.push_back(new Logger(TypeTool::LOG));
+        tools_.push_back(new Logger(TypeTool::LOG)); //TODOCR(Luca@Dylan) Never use new use unique_ptr
         engine_.RegisterSystem(*tools_.back());
         engine_.RegisterOnEvent(*tools_.back());
         engine_.RegisterOnDrawUi(*tools_.back());
@@ -51,7 +51,7 @@ namespace neko::aer
 
     void ToolManager::Destroy()
     {
-        for each (Tool * tool in tools_)
+        for each (Tool * tool in tools_) //TODOCR(Luca@Dylan)  for each C#
         {
             tool->Destroy();
         }
@@ -62,7 +62,6 @@ namespace neko::aer
         ImGuiIO io = ImGui::GetIO();
 
         //Editor Menu
-        bool my_tool_active;
         if (ImGui::BeginMainMenuBar())
         {
             if (ImGui::BeginMenu("Settings"))
@@ -103,20 +102,18 @@ namespace neko::aer
     void ToolManager::DrawList()
     {
         if (ImGui::MenuItem("Logger", "Ctrl+L")) {
-            GetTool(TypeTool::LOG).isVisible = true;
+            GetTool(TypeTool::LOG)->isVisible = true;
         }
     }
 
 
-    Tool& ToolManager::GetTool(TypeTool type) {
-        Tool* tool;
-        for each (Tool* t in tools_)
-        {
+    Tool* ToolManager::GetTool(TypeTool type) {
+        for (Tool* t : tools_) {
             if (t->type == type) {
-                tool = t;
+                return t;
             }
         }
-        return *tool;
+        return nullptr;
     }
 
     void ToolManager::OnEvent(const SDL_Event& event)

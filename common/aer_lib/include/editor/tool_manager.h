@@ -21,11 +21,11 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
- */
+ */ //TODOCR(Luca@Dylan)  Use good header 
 #include <imgui.h>
-#include <editor/tool.h>
+#include <editor/tool.h> //TODOCR(Luca@Dylan) Use coding style include ""
 
-namespace neko::aer
+namespace neko::aer //TODOCR(Luca@Dylan)  Apply Code Style
 {
     class AerEngine;
     class ToolManager final : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface {
@@ -39,12 +39,12 @@ namespace neko::aer
         void Destroy() override;
         void DrawImGui() override;
         void OnEvent(const SDL_Event& event) override;
-        Tool& GetTool(TypeTool type);
+        Tool* GetTool(TypeTool type);
 
-    protected:
+    protected: //TODOCR(Luca@Dylan) Why protected 
         AerEngine& engine_;
-        std::vector<Tool*> tools_;
+        std::vector<Tool*> tools_; //TODOCR(Luca@Dylan)  Nomenclature
     private:  
-        bool about_IsVisible = false;
+        bool about_IsVisible = false; //TODOCR(Luca@Dylan)  Nomenclature
     };
 }
