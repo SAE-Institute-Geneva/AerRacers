@@ -199,6 +199,11 @@ void BasicEngine::EngineLoop()
 	Destroy();
 }
 
+void BasicEngine::Stop()
+{
+	isRunning_ = false;
+}
+
 void BasicEngine::SetWindowAndRenderer(Window* window, Renderer* renderer)
 {
 	window_ = window;

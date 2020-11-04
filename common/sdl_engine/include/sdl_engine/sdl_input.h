@@ -1,0 +1,946 @@
+#pragma once
+/* ----------------------------------------------------
+ MIT License
+
+ Copyright (c) 2020 SAE Institute Switzerland AG
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+ Author : Floreau Luca
+ Co-Author :
+ Date : 23.10.2020
+---------------------------------------------------------- */
+#include <vector>
+
+#include <imgui.h>
+#include <SDL.h>
+
+#include <mathematics/vector.h>
+#include <utilities/service_locator.h>
+
+namespace neko::sdl {
+class SdlEngine;
+
+/**
+* \brief enum all the key on an US keyboard
+*/
+enum class KeyCode : uint16_t {
+    UNKNOWN = SDL_SCANCODE_UNKNOWN,
+    A = SDL_SCANCODE_A,
+    B = SDL_SCANCODE_B,
+    C = SDL_SCANCODE_C,
+    D = SDL_SCANCODE_D,
+    E = SDL_SCANCODE_E,
+    F = SDL_SCANCODE_F,
+    G = SDL_SCANCODE_G,
+    H = SDL_SCANCODE_H,
+    I = SDL_SCANCODE_I,
+    J = SDL_SCANCODE_J,
+    K = SDL_SCANCODE_K,
+    L = SDL_SCANCODE_L,
+    M = SDL_SCANCODE_M,
+    N = SDL_SCANCODE_N,
+    O = SDL_SCANCODE_O,
+    P = SDL_SCANCODE_P,
+    Q = SDL_SCANCODE_Q,
+    R = SDL_SCANCODE_R,
+    S = SDL_SCANCODE_S,
+    T = SDL_SCANCODE_T,
+    U = SDL_SCANCODE_U,
+    V = SDL_SCANCODE_V,
+    W = SDL_SCANCODE_W,
+    X = SDL_SCANCODE_X,
+    Y = SDL_SCANCODE_Y,
+    Z = SDL_SCANCODE_Z,
+    KEY_1 = SDL_SCANCODE_1,
+    KEY_2 = SDL_SCANCODE_2,
+    KEY_3 = SDL_SCANCODE_3,
+    KEY_4 = SDL_SCANCODE_4,
+    KEY_5 = SDL_SCANCODE_5,
+    KEY_6 = SDL_SCANCODE_6,
+    KEY_7 = SDL_SCANCODE_7,
+    KEY_8 = SDL_SCANCODE_8,
+    KEY_9 = SDL_SCANCODE_9,
+    KEY_0 = SDL_SCANCODE_0,
+    RETURN = SDL_SCANCODE_RETURN,
+    ESCAPE = SDL_SCANCODE_ESCAPE,
+    BACKSPACE = SDL_SCANCODE_BACKSPACE,
+    TAB = SDL_SCANCODE_TAB,
+    SPACE = SDL_SCANCODE_SPACE,
+    MINUS = SDL_SCANCODE_MINUS,
+    EQUALS = SDL_SCANCODE_EQUALS,
+    LEFTBRACKET = SDL_SCANCODE_LEFTBRACKET,
+    RIGHTBRACKET = SDL_SCANCODE_RIGHTBRACKET,
+    BACKSLASH = SDL_SCANCODE_BACKSLASH,
+    NONUSHASH = SDL_SCANCODE_NONUSHASH,
+    SEMICOLON = SDL_SCANCODE_SEMICOLON,
+    APOSTROPHE = SDL_SCANCODE_APOSTROPHE,
+    GRAVE = SDL_SCANCODE_GRAVE,
+    COMMA = SDL_SCANCODE_COMMA,
+    PERIOD = SDL_SCANCODE_PERIOD,
+    SLASH = SDL_SCANCODE_SLASH,
+    CAPSLOCK = SDL_SCANCODE_CAPSLOCK,
+    KEY_F1 = SDL_SCANCODE_F1,
+    KEY_F2 = SDL_SCANCODE_F2,
+    KEY_F3 = SDL_SCANCODE_F3,
+    KEY_F4 = SDL_SCANCODE_F4,
+    KEY_F5 = SDL_SCANCODE_F5,
+    KEY_F6 = SDL_SCANCODE_F6,
+    KEY_F7 = SDL_SCANCODE_F7,
+    KEY_F8 = SDL_SCANCODE_F8,
+    KEY_F9 = SDL_SCANCODE_F9,
+    KEY_F10 = SDL_SCANCODE_F10,
+    KEY_F11 = SDL_SCANCODE_F11,
+    KEY_F12 = SDL_SCANCODE_F12,
+    KEY_PRINTSCREEN = SDL_SCANCODE_PRINTSCREEN,
+    KEY_SCROLLLOCK = SDL_SCANCODE_SCROLLLOCK,
+    KEY_PAUSE = SDL_SCANCODE_PAUSE,
+    KEY_INSERT = SDL_SCANCODE_INSERT,
+    KEY_HOME = SDL_SCANCODE_HOME,
+    KEY_PAGEUP = SDL_SCANCODE_PAGEUP,
+    KEY_DELETE = SDL_SCANCODE_DELETE,
+    KEY_END = SDL_SCANCODE_END,
+    KEY_PAGEDOWN = SDL_SCANCODE_PAGEDOWN,
+    RIGHT = SDL_SCANCODE_RIGHT,
+    LEFT = SDL_SCANCODE_LEFT,
+    DOWN = SDL_SCANCODE_DOWN,
+    UP = SDL_SCANCODE_UP,
+    KEY_NUMLOCKCLEAR = SDL_SCANCODE_NUMLOCKCLEAR,
+    KEY_KEYPAD_DIVIDE = SDL_SCANCODE_KP_DIVIDE,
+    KEY_KEYPAD_MULTIPLY = SDL_SCANCODE_KP_MULTIPLY,
+    KEY_KEYPAD_MINUS = SDL_SCANCODE_KP_MINUS,
+    KEY_KEYPAD_PLUS = SDL_SCANCODE_KP_PLUS,
+    KEY_KEYPAD_ENTER = SDL_SCANCODE_KP_ENTER,
+    KEY_KEYPAD_1 = SDL_SCANCODE_KP_1,
+    KEY_KEYPAD_2 = SDL_SCANCODE_KP_2,
+    KEY_KEYPAD_3 = SDL_SCANCODE_KP_3,
+    KEY_KEYPAD_4 = SDL_SCANCODE_KP_4,
+    KEY_KEYPAD_5 = SDL_SCANCODE_KP_5,
+    KEY_KEYPAD_6 = SDL_SCANCODE_KP_6,
+    KEY_KEYPAD_7 = SDL_SCANCODE_KP_7,
+    KEY_KEYPAD_8 = SDL_SCANCODE_KP_8,
+    KEY_KEYPAD_9 = SDL_SCANCODE_KP_9,
+    KEY_KEYPAD_0 = SDL_SCANCODE_KP_0,
+    KEY_KEYPAD_PERIOD = SDL_SCANCODE_KP_PERIOD,
+    KEY_NONUSBACKSLASH = SDL_SCANCODE_NONUSBACKSLASH,
+    KEY_APPLICATION = SDL_SCANCODE_APPLICATION,
+    KEY_POWER = SDL_SCANCODE_POWER,
+    KEY_KEYPAD_EQUALS = SDL_SCANCODE_KP_EQUALS,
+    KEY_F13 = SDL_SCANCODE_F13,
+    KEY_F14 = SDL_SCANCODE_F14,
+    KEY_F15 = SDL_SCANCODE_F15,
+    KEY_F16 = SDL_SCANCODE_F16,
+    KEY_F17 = SDL_SCANCODE_F17,
+    KEY_F18 = SDL_SCANCODE_F18,
+    KEY_F19 = SDL_SCANCODE_F19,
+    KEY_F20 = SDL_SCANCODE_F20,
+    KEY_F21 = SDL_SCANCODE_F21,
+    KEY_F22 = SDL_SCANCODE_F22,
+    KEY_F23 = SDL_SCANCODE_F23,
+    KEY_F24 = SDL_SCANCODE_F24,
+    KEY_HELP = SDL_SCANCODE_HELP,
+    KEY_MENU = SDL_SCANCODE_MENU,
+    KEY_SELECT = SDL_SCANCODE_SELECT,
+    KEY_STOP = SDL_SCANCODE_STOP,
+    KEY_AGAIN = SDL_SCANCODE_AGAIN,
+    KEY_UNDO = SDL_SCANCODE_UNDO,
+    KEY_CUT = SDL_SCANCODE_CUT,
+    KEY_COPY = SDL_SCANCODE_COPY,
+    KEY_PASTE = SDL_SCANCODE_PASTE,
+    KEY_FIND = SDL_SCANCODE_FIND,
+    KEY_MUTE = SDL_SCANCODE_MUTE,
+    KEY_VOLUMEUP = SDL_SCANCODE_VOLUMEUP,
+    KEY_VOLUMEDOWN = SDL_SCANCODE_VOLUMEDOWN,
+
+    // They doesn't seem to exist...!
+    /* KEY_LOCKINGCAPSLOCK       = SDL_SCANCODE_LOCKINGCAPSLOCK,
+     KEY_LOCKINGNUMLOCK        = SDL_SCANCODE_LOCKINGNUMLOCK,
+     KEY_LOCKINGSCROLLLOCK     = SDL_SCANCODE_LOCKINGSCROLLLOCK,*/
+
+    KEY_KEYPAD_COMMA = SDL_SCANCODE_KP_COMMA,
+    KEY_KEYPAD_EQUALSAS400 = SDL_SCANCODE_KP_EQUALSAS400,
+    KEY_INTERNATIONAL1 = SDL_SCANCODE_INTERNATIONAL1,
+    KEY_INTERNATIONAL2 = SDL_SCANCODE_INTERNATIONAL2,
+    KEY_INTERNATIONAL3 = SDL_SCANCODE_INTERNATIONAL3,
+    KEY_INTERNATIONAL4 = SDL_SCANCODE_INTERNATIONAL4,
+    KEY_INTERNATIONAL5 = SDL_SCANCODE_INTERNATIONAL5,
+    KEY_INTERNATIONAL6 = SDL_SCANCODE_INTERNATIONAL6,
+    KEY_INTERNATIONAL7 = SDL_SCANCODE_INTERNATIONAL7,
+    KEY_INTERNATIONAL8 = SDL_SCANCODE_INTERNATIONAL8,
+    KEY_INTERNATIONAL9 = SDL_SCANCODE_INTERNATIONAL9,
+    KEY_LANG1 = SDL_SCANCODE_LANG1,
+    KEY_LANG2 = SDL_SCANCODE_LANG2,
+    KEY_LANG3 = SDL_SCANCODE_LANG3,
+    KEY_LANG4 = SDL_SCANCODE_LANG4,
+    KEY_LANG5 = SDL_SCANCODE_LANG5,
+    KEY_LANG6 = SDL_SCANCODE_LANG6,
+    KEY_LANG7 = SDL_SCANCODE_LANG7,
+    KEY_LANG8 = SDL_SCANCODE_LANG8,
+    KEY_LANG9 = SDL_SCANCODE_LANG9,
+    KEY_ALTERASE = SDL_SCANCODE_ALTERASE,
+    KEY_SYSREQ = SDL_SCANCODE_SYSREQ,
+    KEY_CANCEL = SDL_SCANCODE_CANCEL,
+    KEY_CLEAR = SDL_SCANCODE_CLEAR,
+    KEY_PRIOR = SDL_SCANCODE_PRIOR,
+    KEY_RETURN2 = SDL_SCANCODE_RETURN2,
+    KEY_SEPARATOR = SDL_SCANCODE_SEPARATOR,
+    KEY_OUT = SDL_SCANCODE_OUT,
+    KEY_OPER = SDL_SCANCODE_OPER,
+    KEY_CLEARAGAIN = SDL_SCANCODE_CLEARAGAIN,
+    KEY_CRSEL = SDL_SCANCODE_CRSEL,
+    KEY_EXSEL = SDL_SCANCODE_EXSEL,
+    KEY_KEYPAD_00 = SDL_SCANCODE_KP_00,
+    KEY_KEYPAD_000 = SDL_SCANCODE_KP_000,
+    KEY_THOUSANDSSEPARATOR = SDL_SCANCODE_THOUSANDSSEPARATOR,
+    KEY_DECIMALSEPARATOR = SDL_SCANCODE_DECIMALSEPARATOR,
+    KEY_CURRENCYUNIT = SDL_SCANCODE_CURRENCYUNIT,
+    KEY_CURRENCYSUBUNIT = SDL_SCANCODE_CURRENCYSUBUNIT,
+    KEY_KEYPAD_LEFTPAREN = SDL_SCANCODE_KP_LEFTPAREN,
+    KEY_KEYPAD_RIGHTPAREN = SDL_SCANCODE_KP_RIGHTPAREN,
+    KEY_KEYPAD_LEFTBRACE = SDL_SCANCODE_KP_LEFTBRACE,
+    KEY_KEYPAD_RIGHTBRACE = SDL_SCANCODE_KP_RIGHTBRACE,
+    KEY_KEYPAD_TAB = SDL_SCANCODE_KP_TAB,
+    KEY_KEYPAD_BACKSPACE = SDL_SCANCODE_KP_BACKSPACE,
+    KEY_KEYPAD_A = SDL_SCANCODE_KP_A,
+    KEY_KEYPAD_B = SDL_SCANCODE_KP_B,
+    KEY_KEYPAD_C = SDL_SCANCODE_KP_C,
+    KEY_KEYPAD_D = SDL_SCANCODE_KP_D,
+    KEY_KEYPAD_E = SDL_SCANCODE_KP_E,
+    KEY_KEYPAD_F = SDL_SCANCODE_KP_F,
+    KEY_KEYPAD_XOR = SDL_SCANCODE_KP_XOR,
+    KEY_KEYPAD_POWER = SDL_SCANCODE_KP_POWER,
+    KEY_KEYPAD_PERCENT = SDL_SCANCODE_KP_PERCENT,
+    KEY_KEYPAD_LESS = SDL_SCANCODE_KP_LESS,
+    KEY_KEYPAD_GREATER = SDL_SCANCODE_KP_GREATER,
+    KEY_KEYPAD_AMPERSAND = SDL_SCANCODE_KP_AMPERSAND,
+    KEY_KEYPAD_DBLAMPERSAND = SDL_SCANCODE_KP_DBLAMPERSAND,
+    KEY_KEYPAD_VERTICALBAR = SDL_SCANCODE_KP_VERTICALBAR,
+    KEY_KEYPAD_DBLVERTICALBAR = SDL_SCANCODE_KP_DBLVERTICALBAR,
+    KEY_KEYPAD_COLON = SDL_SCANCODE_KP_COLON,
+    KEY_KEYPAD_HASH = SDL_SCANCODE_KP_HASH,
+    KEY_KEYPAD_SPACE = SDL_SCANCODE_KP_SPACE,
+    KEY_KEYPAD_AT = SDL_SCANCODE_KP_AT,
+    KEY_KEYPAD_EXCLAM = SDL_SCANCODE_KP_EXCLAM,
+    KEY_KEYPAD_MEMSTORE = SDL_SCANCODE_KP_MEMSTORE,
+    KEY_KEYPAD_MEMRECALL = SDL_SCANCODE_KP_MEMRECALL,
+    KEY_KEYPAD_MEMCLEAR = SDL_SCANCODE_KP_MEMCLEAR,
+    KEY_KEYPAD_MEMADD = SDL_SCANCODE_KP_MEMADD,
+    KEY_KEYPAD_MEMSUBTRACT = SDL_SCANCODE_KP_MEMSUBTRACT,
+    KEY_KEYPAD_MEMMULTIPLY = SDL_SCANCODE_KP_MEMMULTIPLY,
+    KEY_KEYPAD_MEMDIVIDE = SDL_SCANCODE_KP_MEMDIVIDE,
+    KEY_KEYPAD_PLUSMINUS = SDL_SCANCODE_KP_PLUSMINUS,
+    KEY_KEYPAD_CLEAR = SDL_SCANCODE_KP_CLEAR,
+    KEY_KEYPAD_CLEARENTRY = SDL_SCANCODE_KP_CLEARENTRY,
+    KEY_KEYPAD_BINARY = SDL_SCANCODE_KP_BINARY,
+    KEY_KEYPAD_OCTAL = SDL_SCANCODE_KP_OCTAL,
+    KEY_KEYPAD_DECIMAL = SDL_SCANCODE_KP_DECIMAL,
+    KEY_KEYPAD_HEXADECIMAL = SDL_SCANCODE_KP_HEXADECIMAL,
+    KEY_LEFT_CTRL = SDL_SCANCODE_LCTRL,
+    KEY_LEFT_SHIFT = SDL_SCANCODE_LSHIFT,
+    KEY_LEFT_ALT = SDL_SCANCODE_LALT,
+    KEY_LEFT_GUI = SDL_SCANCODE_LGUI,
+    KEY_RIGHT_CTRL = SDL_SCANCODE_RCTRL,
+    KEY_RIGHT_SHIFT = SDL_SCANCODE_RSHIFT,
+    KEY_RIGHT_ALT = SDL_SCANCODE_RALT,
+    KEY_RIGHT_GUI = SDL_SCANCODE_RGUI,
+    KEY_MODE = SDL_SCANCODE_MODE,
+    KEY_AUDIONEXT = SDL_SCANCODE_AUDIONEXT,
+    KEY_AUDIOPREV = SDL_SCANCODE_AUDIOPREV,
+    KEY_AUDIOSTOP = SDL_SCANCODE_AUDIOSTOP,
+    KEY_AUDIOPLAY = SDL_SCANCODE_AUDIOPLAY,
+    KEY_AUDIOMUTE = SDL_SCANCODE_AUDIOMUTE,
+    KEY_MEDIASELECT = SDL_SCANCODE_MEDIASELECT,
+    KEY_WWW = SDL_SCANCODE_WWW,
+    KEY_MAIL = SDL_SCANCODE_MAIL,
+    KEY_CALCULATOR = SDL_SCANCODE_CALCULATOR,
+    KEY_COMPUTER = SDL_SCANCODE_COMPUTER,
+    KEY_AC_SEARCH = SDL_SCANCODE_AC_SEARCH,
+    KEY_AC_HOME = SDL_SCANCODE_AC_HOME,
+    KEY_AC_BACK = SDL_SCANCODE_AC_BACK,
+    KEY_AC_FORWARD = SDL_SCANCODE_AC_FORWARD,
+    KEY_AC_STOP = SDL_SCANCODE_AC_STOP,
+    KEY_AC_REFRESH = SDL_SCANCODE_AC_REFRESH,
+    KEY_AC_BOOKMARKS = SDL_SCANCODE_AC_BOOKMARKS,
+    KEY_BRIGHTNESSDOWN = SDL_SCANCODE_BRIGHTNESSDOWN,
+    KEY_BRIGHTNESSUP = SDL_SCANCODE_BRIGHTNESSUP,
+    KEY_DISPLAYSWITCH = SDL_SCANCODE_DISPLAYSWITCH,
+    KEY_KBDILLUMTOGGLE = SDL_SCANCODE_KBDILLUMTOGGLE,
+    KEY_KBDILLUMDOWN = SDL_SCANCODE_KBDILLUMDOWN,
+    KEY_KBDILLUMUP = SDL_SCANCODE_KBDILLUMUP,
+    KEY_EJECT = SDL_SCANCODE_EJECT,
+    KEY_SLEEP = SDL_SCANCODE_SLEEP,
+    KEYBOARD_SIZE = 282
+};
+
+enum class MouseButtonCode : uint8_t {
+    LEFT,
+    RIGHT,
+    MIDDLE,
+    LENGTH
+};
+
+/*
+ * \b enum of the controller button
+ */
+enum class ControllerInputs : uint8_t {
+    BUTTON_A = 0,
+    BUTTON_B = 1,
+    BUTTON_X = 2,
+    BUTTON_Y = 3,
+    LEFT_TRIGGER = 4,
+    RIGHT_TRIGGER = 5,
+    BUTTON_SELECT = 6,
+    BUTTON_START = 7,
+    PRESS_LEFT_STICK = 8,
+    PRESS_RIGHT_STICK = 9,
+    LENGTH
+};
+
+/*
+ * \b enum of the controller axis
+ */
+enum class ControllerAxis : uint8_t {
+    HORIZONTAL_LEFT_AXIS = 0,
+    VERTICAL_LEFT_AXIS = 1,
+    LEFT_BUMPER = 2,
+    HORIZONTAL_RIGHT_AXIS = 3,
+    VERTICAL_RIGHT_AXIS = 4,
+    RIGHT_BUMPER = 5,
+    PAD_HORIZONTAL = 6,
+    PAD_VERTICAL = 7,
+    LENGTH
+};
+
+/*
+ * \b enum all the button on a switch controller
+ */
+enum class SwitchInputs : uint8_t {
+    LENGTH
+};
+
+/*
+ * \b enum all the button on a switch controller
+ */
+enum class SwitchAxis : uint8_t {
+    LENGTH
+};
+
+enum class ButtonState {
+    NONE,
+    DOWN,
+    HELD,
+    UP,
+};
+
+enum class ActionInput {
+    FORWARD = 0,
+    BACKWARD = 1,
+    LEFT = 2,
+    RIGHT = 3,
+    MAIN_SHOOT = 4,
+    CAMERA = 5,
+    MENU = 6,
+    LENGTH = 7
+};
+
+enum class ActionAxis {
+    HORIZONTAL = 0,
+    VERTICAL = 1,
+    CAMERA_HORIZONTAL = 2,
+    CAMERA_VERTICAL = 3,
+    LENGTH = 4
+};
+
+struct PairedControllerInput {
+    PairedControllerInput() {}
+
+    PairedControllerInput(
+        ControllerInputs controllerInput,
+        unsigned controllerId)
+        : controllerInput(controllerInput),
+          controllerId(controllerId) {}
+
+    ControllerInputs controllerInput;
+    unsigned controllerId;
+};
+
+struct PairedControllerAxis {
+    PairedControllerAxis() {}
+
+    PairedControllerAxis(
+        ControllerAxis controllerAxis,
+        unsigned controllerId)
+        : controllerAxis(controllerAxis),
+          controllerId(controllerId) {}
+
+    ControllerAxis controllerAxis;
+    unsigned controllerId;
+};
+
+struct PairedSwitchInput {
+    PairedSwitchInput() {}
+
+    PairedSwitchInput(
+        SwitchInputs switchInput,
+        unsigned switchJoyId)
+        : switchInput(switchInput),
+          switchJoyId(switchJoyId) {}
+
+    SwitchInputs switchInput;
+    unsigned switchJoyId;
+};
+
+struct PairedSwitchAxis {
+    PairedSwitchAxis() {}
+
+    PairedSwitchAxis(
+        SwitchAxis switchAxis,
+        unsigned controllerId)
+        : switchAxis(switchAxis),
+          switchJoyId(switchJoyId) {}
+
+    SwitchAxis switchAxis;
+    unsigned switchJoyId;
+};
+
+class IInputManager {
+public:
+    IInputManager() = default;
+
+    virtual ~IInputManager() = default;
+
+    virtual void Init() = 0;
+
+    virtual void BindAction() = 0;
+
+    virtual void OnPreUserInput() = 0;
+
+    virtual void ProcessInputs(SDL_Event event) = 0;
+
+    /**
+     * \brief Get position between 0 and width/height
+     */
+    virtual Vec2f GetMousePosition() const = 0;
+
+    /**
+     * \brief Get position between 0 and 1
+     */
+    virtual Vec2f GetRelativeMousePosition() const = 0;
+
+    virtual Vec2f GetMouseScroll() const = 0;
+
+    virtual float GetControllerAxis(
+        unsigned controllerId,
+        ControllerAxis axis) const = 0;
+
+    virtual float GetSwitchAxis(
+        unsigned switchJoyId,
+        SwitchAxis axis) const = 0;
+
+    /**
+     * \brief Check if a key input is pressed down
+     */
+    virtual bool IsKeyDown(KeyCode key) const = 0;
+
+    /**
+     * \brief Check if a key input is released
+     */
+    virtual bool IsKeyUp(KeyCode key) const = 0;
+
+    /**
+     * \brief Check if a key input is held
+     */
+    virtual bool IsKeyHeld(KeyCode key) const = 0;
+
+    /**
+     * \brief Check if a mouse button is pressed down
+     */
+    virtual bool IsMouseButtonDown(MouseButtonCode button) const = 0;
+
+    /**
+     * \brief Check if a mouse button is released
+     */
+    virtual bool IsMouseButtonUp(MouseButtonCode button) const = 0;
+
+    /**
+     * \brief Check if a mouse button is held
+     */
+    virtual bool IsMouseButtonHeld(MouseButtonCode button) const = 0;
+
+    /**
+     * \brief Check if a switch input is pressed down
+     */
+    virtual bool IsSwitchButtonDown(
+        unsigned switchJoyId,
+        SwitchInputs key) const = 0;
+
+    /**
+     * \brief Check if a switch input is released
+     */
+    virtual bool IsSwitchButtonUp(
+        unsigned switchJoyId,
+        SwitchInputs key) const = 0;
+
+    /**
+     * \brief Check if a switch input is held
+     */
+    virtual bool IsSwitchButtonHeld(
+        unsigned switchJoyId,
+        SwitchInputs key) const = 0;
+
+    /**
+     * \brief Check if a controller input is pressed down
+     */
+    virtual bool IsControllerDown(
+        unsigned controllerId,
+        ControllerInputs key) const = 0;
+
+    /**
+     * \brief Check if a controller input is released
+     */
+    virtual bool IsControllerUp(
+        unsigned controllerId,
+        ControllerInputs key) const = 0;
+
+    /**
+     * \brief Check if a controller input is held
+     */
+    virtual bool IsControllerHeld(
+        unsigned controllerId,
+        ControllerInputs key) const = 0;
+
+    /**
+     * \brief Check if a bound input is pressed down
+     */
+    virtual bool IsActionDown(unsigned playerId, ActionInput button) const = 0;
+
+    /**
+     * \brief Check if a bound input is released
+     */
+    virtual bool IsActionUp(unsigned playerId, ActionInput button) const = 0;
+
+    /**
+     * \brief Check if a bound input is held
+     */
+    virtual bool IsActionHeld(unsigned playerId, ActionInput button) const = 0;
+
+    virtual void PrintJoystick(int device) const = 0;
+
+    /**
+    * \brief translate ActionCurrent enum to string
+    */
+    virtual std::string ActionEnumToString(ActionInput actionInputs) = 0;
+
+    virtual std::string ActionEnumToString(ActionAxis actionAxis) = 0;
+
+    /**
+    * \brief translate KeyCode enum to string
+    */
+    virtual std::string PcInputsEnumToString(KeyCode keyCode) = 0;
+
+    virtual std::string PcInputsEnumToString(MouseButtonCode mouseButton) = 0;
+
+    /**
+    * \brief translate SwitchInputs enum to string
+    */
+    virtual std::string SwitchInputsEnumToString(SwitchInputs switchInputs) = 0;
+
+    virtual std::string SwitchInputsEnumToString(SwitchAxis switchAxis) = 0;
+
+    /**
+    * \brief translate ControllerInputs enum to string
+    */
+    virtual std::string ControllerInputsEnumToString(
+        ControllerInputs controller) = 0;
+
+    virtual std::string ControllerAxisEnumToString(
+        ControllerAxis controller) = 0;
+
+    virtual void SimulateKeyDown(KeyCode key) = 0;
+    virtual void SimulateKeyUp(KeyCode key) = 0;
+    virtual void SimulateMouseDown(MouseButtonCode button) = 0;
+    virtual void SimulateMouseUp(MouseButtonCode button) = 0;
+    virtual void SimulateControllerDown(
+        unsigned controllerId,
+        const ControllerInputs key) = 0;
+    virtual void SimulateControllerUp(
+        unsigned controllerId,
+        const ControllerInputs key) = 0;
+    virtual void SimulateActionDown(unsigned playerId, ActionInput action) = 0;
+    virtual void SimulateActionUp(unsigned playerId, ActionInput action) = 0;
+
+};
+
+/**
+ * \brief Manage inputs
+ */;
+
+class InputManager final : public IInputManager {
+public:
+    explicit InputManager(
+        SdlEngine& engine);
+
+    void Init() override;
+
+    void BindAction() override;
+
+    void OnPreUserInput() override;
+
+    void ProcessInputs(SDL_Event event) override;
+
+    Vec2f GetMousePosition() const override;
+
+    Vec2f GetRelativeMousePosition() const override;
+
+    Vec2f GetMouseScroll() const override;
+
+    float GetControllerAxis(
+        unsigned controllerId,
+        ControllerAxis axis) const override;
+
+    float GetSwitchAxis(unsigned switchJoyId, SwitchAxis axis) const override;
+
+    bool IsKeyDown(KeyCode key) const override;
+
+    bool IsKeyUp(KeyCode key) const override;
+
+    bool IsKeyHeld(KeyCode key) const override;
+
+    bool IsSwitchButtonDown(
+        unsigned switchJoyId,
+        SwitchInputs key) const override;
+
+    bool IsSwitchButtonUp(
+        unsigned switchJoyId,
+        SwitchInputs key) const override;
+
+    bool IsSwitchButtonHeld(
+        unsigned switchJoyId,
+        SwitchInputs key) const override;
+
+    bool IsControllerDown(
+        unsigned controllerId,
+        ControllerInputs key) const override;
+
+    bool IsControllerUp(
+        unsigned controllerId,
+        ControllerInputs key) const override;
+
+    bool IsControllerHeld(
+        unsigned controllerId,
+        ControllerInputs key) const override;
+
+    bool IsMouseButtonDown(MouseButtonCode button) const override;
+
+    bool IsMouseButtonUp(MouseButtonCode button) const override;
+
+    bool IsMouseButtonHeld(MouseButtonCode button) const override;
+
+    bool IsActionDown(unsigned playerId, ActionInput button) const override;
+
+    bool IsActionUp(unsigned playerId, ActionInput button) const override;
+
+    bool IsActionHeld(unsigned playerId, ActionInput button) const override;
+
+    void PrintJoystick(int device) const override;
+
+    std::string ActionEnumToString(ActionInput actionInputs) override;
+
+    std::string ActionEnumToString(ActionAxis actionAxis) override;
+
+    std::string PcInputsEnumToString(KeyCode keyCode) override;
+
+    std::string PcInputsEnumToString(MouseButtonCode mouseButton) override;
+
+    std::string SwitchInputsEnumToString(SwitchInputs switchInputs) override;
+
+    std::string SwitchInputsEnumToString(SwitchAxis switchAxis) override;
+
+    std::string ControllerInputsEnumToString(ControllerInputs controller)
+    override;
+
+    std::string ControllerAxisEnumToString(const ControllerAxis controller)
+    override;
+
+    void SimulateKeyDown(KeyCode key) override;
+
+    void SimulateKeyUp(KeyCode key) override;
+
+    void SimulateMouseDown(MouseButtonCode button) override;
+
+    void SimulateMouseUp(MouseButtonCode button) override;
+
+    void SimulateControllerDown(
+        unsigned controllerId,
+        const ControllerInputs key) override;
+
+    void SimulateControllerUp(
+        unsigned controllerId,
+        const ControllerInputs key) override;
+
+    void SimulateActionDown(unsigned playerId, ActionInput action) override;
+
+    void SimulateActionUp(unsigned playerId, ActionInput action) override;
+protected:
+    const unsigned kMaxController_ = 8;
+
+    std::array<std::array<int, static_cast<int>(ActionInput::LENGTH)>, 4>
+    bindingPcInput_ =
+        std::array<std::array<int, static_cast<int>(ActionInput::LENGTH)>, 4>();
+    std::array<std::array<PairedSwitchInput, static_cast<int>(
+                              ActionInput::LENGTH)>, 4> bindingSwitchInput_ =
+        std::array<std::array<PairedSwitchInput, static_cast<int>(
+                                  ActionInput::LENGTH)>, 4>();
+    std::array<std::array<PairedControllerInput, static_cast<int>(
+                              ActionInput::LENGTH)>, 4> bindingControllerInput_
+        =
+        std::array<std::array<PairedControllerInput, static_cast<int>(
+                                  ActionInput::LENGTH)>, 4>();
+    std::array<std::array<PairedSwitchAxis, static_cast<int>(ActionAxis::LENGTH)
+               >, 4> bindingSwitchAxis_ =
+        std::array<std::array<PairedSwitchAxis, static_cast<int>(
+                                  ActionAxis::LENGTH)>, 4>();
+    std::array<std::array<PairedControllerAxis, static_cast<int>(
+                              ActionAxis::LENGTH)>, 4> bindingControllerAxis_ =
+        std::array<std::array<PairedControllerAxis, static_cast<int>(
+                                  ActionAxis::LENGTH)>, 4>();
+
+    std::array<ButtonState, static_cast<int>(KeyCode::KEYBOARD_SIZE)>
+    keyPressedState_ =
+        std::array<ButtonState, static_cast<int>(KeyCode::KEYBOARD_SIZE)>();
+    std::array<ButtonState, static_cast<int>(MouseButtonCode::LENGTH)>
+    buttonState_ =
+        std::array<ButtonState, static_cast<int>(MouseButtonCode::LENGTH)>();
+    std::array<std::array<ButtonState, static_cast<int>(SwitchInputs::LENGTH)>,
+               8> switchButtonState_ =
+        std::array<std::array<ButtonState, static_cast<int>(SwitchInputs::LENGTH
+                              )>, 8>();
+    std::array<std::array<float, static_cast<int>(SwitchAxis::LENGTH)>, 8>
+    switchAxis_ =
+        std::array<std::array<float, static_cast<int>(SwitchAxis::LENGTH)>, 8
+        >();
+    std::array<std::array<ButtonState, static_cast<int>(ControllerInputs::LENGTH
+                          )>, 8> controllerButtonState_ =
+        std::array<std::array<ButtonState, static_cast<int>(
+                                  ControllerInputs::LENGTH)>, 8>();
+    std::array<std::array<float, static_cast<int>(ControllerAxis::LENGTH)>, 8>
+    controllerAxis_ =
+        std::array<std::array<float, static_cast<int>(ControllerAxis::LENGTH)>,
+                   8>();
+
+    const uint8_t* keyboard_;
+    uint32_t mouse_;
+    Vec2f mousePos_ = Vec2f::zero;
+    Vec2f mouseRelativePos_ = Vec2f::zero;
+    Vec2f mouseScroll_ = Vec2f::zero;
+
+    SDL_Joystick* joystick_{};
+    SDL_GameController* controller_{};
+
+
+    const float kMaxJoyValue_ = 32768.0f;
+
+    SdlEngine& engine_;
+};
+
+class NullInputManager final : public IInputManager {
+public:
+    ~NullInputManager() override { }
+
+    void Init() override { }
+
+    void BindAction() override { }
+
+    void OnPreUserInput() override { }
+
+    void ProcessInputs([[maybe_unused]] SDL_Event event) override { }
+
+    Vec2f GetMousePosition() const override { return Vec2f(0.0f, 0.0f); }
+
+    Vec2f GetRelativeMousePosition() const override
+    {
+        return Vec2f(0.0f, 0.0f);
+    }
+
+    Vec2f GetMouseScroll() const override { return Vec2f(0.0f, 0.0f); }
+
+    float GetControllerAxis(
+        [[maybe_unused]] unsigned controllerId,
+        [[maybe_unused]] ControllerAxis axis) const override { return 0.0f; }
+
+    float GetSwitchAxis(
+        [[maybe_unused]] unsigned switchJoyId,
+        [[maybe_unused]] SwitchAxis axis) const override { return 0.0f; }
+
+    bool IsKeyDown([[maybe_unused]] KeyCode key) const override
+    {
+        return false;
+    }
+
+    bool IsKeyUp([[maybe_unused]] KeyCode key) const override { return false; }
+
+    bool IsKeyHeld([[maybe_unused]] KeyCode key) const override
+    {
+        return false;
+    }
+
+    bool IsMouseButtonDown(
+        [[maybe_unused]] MouseButtonCode button) const override
+    {
+        return false;
+    }
+
+    bool IsMouseButtonUp([[maybe_unused]] MouseButtonCode button) const override
+    {
+        return false;
+    }
+
+    bool IsMouseButtonHeld(
+        [[maybe_unused]] MouseButtonCode button) const override
+    {
+        return false;
+    }
+
+    bool IsSwitchButtonDown(
+        [[maybe_unused]] unsigned switchJoyId,
+        [[maybe_unused]] SwitchInputs key) const override { return false; }
+
+    bool IsSwitchButtonUp(
+        [[maybe_unused]] unsigned switchJoyId,
+        [[maybe_unused]] SwitchInputs key) const override { return false; }
+
+    bool IsSwitchButtonHeld(
+        [[maybe_unused]] unsigned switchJoyId,
+        [[maybe_unused]] SwitchInputs key) const override { return false; }
+
+    bool IsControllerDown(
+        [[maybe_unused]] unsigned controllerId,
+        [[maybe_unused]] ControllerInputs key) const override { return false; }
+
+    bool IsControllerUp(
+        [[maybe_unused]] unsigned controllerId,
+        [[maybe_unused]] ControllerInputs key) const override { return false; }
+
+    bool IsControllerHeld(
+        [[maybe_unused]] unsigned controllerId,
+        [[maybe_unused]] ControllerInputs key) const override { return false; }
+
+    bool IsActionDown(
+        [[maybe_unused]] unsigned playerId,
+        [[maybe_unused]] ActionInput button) const override { return false; }
+
+    bool IsActionUp(
+        [[maybe_unused]] unsigned playerId,
+        [[maybe_unused]] ActionInput button) const override { return false; }
+
+    bool IsActionHeld(
+        [[maybe_unused]] unsigned playerId,
+        [[maybe_unused]] ActionInput button) const override { return false; }
+
+    void PrintJoystick([[maybe_unused]] const int device) const override { }
+
+    /**
+    * \brief translate ActionCurrent enum to string
+    */
+    std::string ActionEnumToString([[maybe_unused]] ActionInput action) override
+    {
+        return "";
+    }
+
+    std::string ActionEnumToString(
+        [[maybe_unused]] ActionAxis actionAxis) override
+    {
+        return "";
+    }
+
+
+    /**
+    * \brief translate KeyCode enum to string
+    */
+    std::string PcInputsEnumToString([[maybe_unused]] KeyCode keyCode) override
+    {
+        return "";
+    }
+
+    std::string PcInputsEnumToString(
+        [[maybe_unused]] MouseButtonCode mouseButton) override
+    {
+        return "";
+    }
+
+    /**
+    * \brief translate SwitchInputs enum to string
+    */
+    std::string SwitchInputsEnumToString(
+        [[maybe_unused]] SwitchInputs switchInputs) override
+    {
+        return "";
+    }
+
+    std::string SwitchInputsEnumToString(
+        [[maybe_unused]] SwitchAxis switchAxis) override
+    {
+        return "";
+    }
+
+    /**
+    * \brief translate ControllerInputs enum to string
+    */
+    std::string ControllerInputsEnumToString(
+        [[maybe_unused]] ControllerInputs controller)
+    override
+    {
+        return "";
+    }
+
+    /**
+    * \brief translate ControllerInputs enum to string
+    */
+    std::string ControllerAxisEnumToString(
+        [[maybe_unused]] const ControllerAxis controller)
+    override
+    {
+        return "";
+    }
+
+    void SimulateKeyDown([[maybe_unused]] KeyCode key) override { }
+    void SimulateKeyUp([[maybe_unused]] KeyCode key) override { }
+    void SimulateMouseDown([[maybe_unused]] MouseButtonCode button) override { }
+    void SimulateMouseUp([[maybe_unused]] MouseButtonCode button) override { }
+
+    void SimulateControllerDown(
+        [[maybe_unused]] unsigned controllerId,
+        [[maybe_unused]] const ControllerInputs key) override { }
+
+    void SimulateControllerUp(
+        [[maybe_unused]] unsigned controllerId,
+        [[maybe_unused]] const ControllerInputs key) override { }
+
+    void SimulateActionDown(
+        [[maybe_unused]] unsigned playerId,
+        [[maybe_unused]] ActionInput action) override { }
+
+    void SimulateActionUp(
+        [[maybe_unused]] unsigned playerId,
+        [[maybe_unused]] ActionInput action) override { }
+
+};
+
+using InputLocator = Locator<IInputManager, NullInputManager>;
+}
