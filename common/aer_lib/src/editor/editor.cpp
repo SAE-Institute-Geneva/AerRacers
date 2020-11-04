@@ -28,16 +28,14 @@
 namespace neko::aer
 {
 #pragma region Editor
-	Editor::Editor(AerEngine& engine) : engine_(engine)
+	Editor::Editor(AerEngine& engine, ToolManager& toolManager) : engine_(engine), tool_manager(toolManager)
 	{
 	}
 
 
 	void Editor::Init()
 	{
-		tool_manager = new ToolManager(engine_);
-		tool_manager->Init();
-		engine_.RegisterSystem(*tool_manager);
+	
 	}
 
 	void Editor::Update(seconds dt)
@@ -46,7 +44,7 @@ namespace neko::aer
 
 	void Editor::Destroy()
 	{
-		tool_manager->Destroy();
+		
 	}
 
 
@@ -60,7 +58,7 @@ namespace neko::aer
 		{
 			if (ImGui::BeginMenu("Tools"))
 			{
-				tool_manager->DrawList();
+				tool_manager.DrawList();
 				ImGui::EndMenu();
 			}
 

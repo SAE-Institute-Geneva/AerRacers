@@ -35,7 +35,7 @@ namespace neko::aer
         void Update(seconds dt) override;
         void DrawList();
         void Destroy() override;
-        Tool* GetTool(TypeTool type);
+        Tool& GetTool(TypeTool type);
 
     protected:
         AerEngine& engine_;

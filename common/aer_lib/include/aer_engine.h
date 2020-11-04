@@ -60,12 +60,15 @@ public:
 
     void GenerateUiFrame() override;
 
+    Tool& GetTool(TypeTool type);
+
 private:
     ToolsMask toolsMask_ = ToolsMask(ToolsFlags::EMPTY);
 
     DrawSystem drawSystem_;
     LogManager* logManager_ = nullptr;
-    
+
+    ToolManager toolManager_;
     Editor editor_;
 };
 }

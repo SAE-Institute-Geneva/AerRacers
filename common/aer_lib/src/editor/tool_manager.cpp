@@ -29,6 +29,7 @@ namespace neko::aer
 {
     ToolManager::ToolManager(AerEngine& engine) : engine_(engine)
     {
+        Init();
     }
 
     void ToolManager::Init()
@@ -56,20 +57,20 @@ namespace neko::aer
     void ToolManager::DrawList()
     {
         if (ImGui::MenuItem("Logger", "Ctrl+L")) {
-            GetTool(TypeTool::LOG)->isVisible = true;
+            GetTool(TypeTool::LOG).isVisible = true;
         }
     }
 
 
-    Tool* ToolManager::GetTool(TypeTool type) {
-        for each (Tool * tool in tools_)
+    Tool& ToolManager::GetTool(TypeTool type) {
+        Tool* tool;
+        for each (Tool* t in tools_)
         {
-            if (tool->type == type) {
-                return tool;
+            if (t->type == type) {
+                tool = t;
             }
         }
-        ErrorLog("Tool not found");
-        return nullptr;
+        return *tool;
     }
 
 }

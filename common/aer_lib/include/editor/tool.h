@@ -69,7 +69,7 @@ namespace neko::aer
         }
         
         TypeTool type;
-        bool isVisible = true;
+        bool isVisible = false;
     private:
         int id_;
     protected:

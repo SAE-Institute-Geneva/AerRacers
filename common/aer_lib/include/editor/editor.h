@@ -31,7 +31,7 @@ class AerEngine;
 class Editor final : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface
 {
 public:
-    explicit Editor(AerEngine& engine);
+    explicit Editor(AerEngine& engine, ToolManager& toolManager);
 	/**
 	 * \brief Executed on the render thread
 	 */
@@ -53,11 +53,14 @@ public:
      */
     void OnEvent(const SDL_Event& event) override;
     
+    ToolManager& GetToolManager() {
+        return tool_manager;
+    }
     
 protected:
     AerEngine& engine_;
 private:
-    ToolManager* tool_manager;
+    ToolManager& tool_manager;
 
     bool about_IsVisible = false;
 };

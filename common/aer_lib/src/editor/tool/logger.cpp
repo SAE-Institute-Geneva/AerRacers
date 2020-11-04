@@ -66,6 +66,7 @@ namespace neko::aer
                 //Removes all Logs
                 if (ImGui::Button("Clear")) {
                     logs_.clear();
+                    nbrLog = 0;
                 }
 
                 //scroll automatically
