@@ -53,6 +53,42 @@ namespace neko::aer
         }
     }
 
+    void ToolManager::DrawImGui()
+    {
+        ImGuiIO io = ImGui::GetIO();
+
+        //Editor Menu
+        bool my_tool_active;
+        if (ImGui::BeginMainMenuBar())
+        {
+            if (ImGui::BeginMenu("Tools"))
+            {
+                DrawList();
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::BeginMenu("Help"))
+            {
+                if (ImGui::MenuItem("About Neko")) {
+                    about_IsVisible = true;
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::EndMainMenuBar();
+        }
+
+        if (about_IsVisible) {
+            ImGui::Begin("About", &about_IsVisible);
+            ImGui::Text(("Welcome to " + (engine_.config.windowName)).c_str());
+            ImGui::Text("Best Editor Ever");
+            ImGui::Separator();
+            ImGui::Text("Neko is a 3D game engine based on SDL2 and OpenGL ES 3.0 that works on Desktop,");
+            ImGui::Text("WebGL2 and Nintendo Switch (port to Android and iOS possible) used at SAE Institute Geneva.");
+            ImGui::Text("");
+            ImGui::Text("Copyright(c) 2020 SAE Institute Switzerland AG");
+            ImGui::End();
+        }
+    }
 
     void ToolManager::DrawList()
     {
@@ -71,6 +107,11 @@ namespace neko::aer
             }
         }
         return *tool;
+    }
+
+    void ToolManager::OnEvent(const SDL_Event& event)
+    {
+
     }
 
 }

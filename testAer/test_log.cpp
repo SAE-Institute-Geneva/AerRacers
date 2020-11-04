@@ -48,77 +48,86 @@ public:
 
     void Update(neko::seconds dt) override
     {
-        int nbr; 
-        if (nextTest) {
-            if (numberTest == 4) {
-                
-            }
-            numberTest++;
-            neko::LogDebug(msgTest[numberTest]);
-            nextTest = false;
-        }
-        switch (numberTest)
-        {
-        case 0:
-            if (engine_.GetTool(neko::aer::TypeTool::LOG).isVisible) {
-                neko::LogDebug("[TEST] Logger Opened: OK");
-                loggerOpen_ = true;
-                EXPECT_TRUE(loggerOpen_);
-                nextTest = true;
-            }
-            break;
-
-        case 1:
-            nbr = static_cast<neko::aer::Logger&>(engine_.GetTool(neko::aer::TypeTool::LOG)).GetLogs().size();
-            if (nbr <= std::pow(2, 23)) {
-                for (size_t i = 0; i < 5000; i++)
-                {
-                    int rdm = rand() % 5;
-                    switch (rdm)
-                    {
-                    case 0:
-                        neko::aer::DebugLog(msgTest[numberTest]);
-                        break;
-                    case 1:
-                        neko::aer::InfoLog(msgTest[numberTest]);
-                        break;
-                    case 2:
-                        neko::aer::WarningLog(msgTest[numberTest]);
-                        break;
-                    case 3:
-                        neko::aer::ErrorLog(msgTest[numberTest]);
-                        break;
-                    case 4:
-                        neko::aer::CriticalLog(msgTest[numberTest]);
-                        break;
-                    }
-                   
+        if (!testSucces_) {
+            int nbr;
+            if (nextTest) {
+             
+                numberTest++;
+                if (numberTest == 4) {
+                    //TEST SUCCESS
+                    testSucces_ = true;
+                    return;
                 }
+                neko::LogDebug(msgTest[numberTest]);
+                nextTest = false;
             }
-            else {
-                neko::LogDebug("[TEST] Logs Max: OK");
-                capacityMax_ = true;
-                nextTest = true;
-            }
-            break;
+            switch (numberTest)
+            {
+            case 0: //TEST 1
+                if (engine_.GetTool(neko::aer::TypeTool::LOG).isVisible) {
+                    neko::LogDebug("[TEST] Opening the Logger: OK");
+                    loggerOpen_ = true;
+                    EXPECT_TRUE(loggerOpen_);
+                    nextTest = true;
+                }
+                break;
 
-        case 2:
-            nbr = static_cast<neko::aer::Logger&>(engine_.GetTool(neko::aer::TypeTool::LOG)).GetLogs().size();
-            if (nbr <= 0) {
-                neko::LogDebug("[TEST] Logs Cleared: OK");
-                capacityClear_ = true;
-                nextTest = true;
+            case 1://TEST 2
+                nbr = static_cast<neko::aer::Logger&>(engine_.GetTool(neko::aer::TypeTool::LOG)).GetLogs().size();
+                if (nbr <= std::pow(2, 23)) {
+                    for (size_t i = 0; i < 5000; i++)
+                    {
+                        int rdm = rand() % 5;
+                        switch (rdm)
+                        {
+                        case 0:
+                            neko::aer::DebugLog(msgTest[numberTest]);
+                            break;
+                        case 1:
+                            neko::aer::InfoLog(msgTest[numberTest]);
+                            break;
+                        case 2:
+                            neko::aer::WarningLog(msgTest[numberTest]);
+                            break;
+                        case 3:
+                            neko::aer::ErrorLog(msgTest[numberTest]);
+                            break;
+                        case 4:
+                            neko::aer::CriticalLog(msgTest[numberTest]);
+                            break;
+                        }
+
+                    }
+                }
+                else {
+                    neko::LogDebug("[TEST] Maximum of logs: OK");
+                    capacityMax_ = true;
+                    nextTest = true;
+                }
+                break;
+
+            case 2://TEST 3
+                nbr = static_cast<neko::aer::Logger&>(engine_.GetTool(neko::aer::TypeTool::LOG)).GetLogs().size();
+                if (nbr <= 0) {
+                    neko::LogDebug("[TEST] Erasing logs: OK");
+                    capacityClear_ = true;
+                    nextTest = true;
+                }
+                break;
+
+            case 3://TEST 4
+                if (!engine_.GetTool(neko::aer::TypeTool::LOG).isVisible) {
+                    neko::LogDebug("[TEST] Closing the Logger: OK");
+                    loggerClose_ = true;
+                    nextTest = true;
+                }
+                break;
             }
-            break;
-        case 3:
-            if (!engine_.GetTool(neko::aer::TypeTool::LOG).isVisible) {
-                neko::LogDebug("[TEST] Logger Closed: OK");
-                loggerClose_ = true;
-                nextTest = true;
-            }
-            break;
         }
-       
+        else {
+            neko::LogDebug("[TEST] All tests were validated");
+            engine_.Stop();
+        }
        
     }
 
@@ -126,10 +135,11 @@ public:
 
     void HasSucceed() const
     {
-        
-        EXPECT_TRUE(loggerClose_);
+        EXPECT_TRUE(loggerOpen_);
         EXPECT_TRUE(capacityMax_);
         EXPECT_TRUE(capacityClear_);
+        EXPECT_TRUE(loggerClose_);
+        EXPECT_TRUE(testSucces_);
     }
 
 private:
@@ -137,15 +147,16 @@ private:
     bool loggerClose_ = false;
     bool capacityMax_ = false;
     bool capacityClear_ = false;
+    bool testSucces_ = false;
 
     bool nextTest = true;
     int numberTest = -1;
 
     std::string msgTest[4] = {
-        "Please Open Logger",
-        "Please Waiting",
-        "Please Clear Logger",
-        "Please Close Logger"
+        "[Action] Please open the logger",
+        "[Action] Please Wait",
+        "[Action] Please clear the logs",
+        "[Action] Please Close the Logger"
     };
 
     neko::aer::AerEngine& engine_;

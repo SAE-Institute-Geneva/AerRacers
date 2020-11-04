@@ -28,18 +28,21 @@
 namespace neko::aer
 {
     class AerEngine;
-    class ToolManager final : public SystemInterface {
+    class ToolManager final : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface {
     public:
         explicit ToolManager(AerEngine& engine);
         void Init() override;
         void Update(seconds dt) override;
         void DrawList();
         void Destroy() override;
+        void DrawImGui() override;
+        void OnEvent(const SDL_Event& event) override;
         Tool& GetTool(TypeTool type);
 
     protected:
         AerEngine& engine_;
-    private:
         std::vector<Tool*> tools_;
+    private:  
+        bool about_IsVisible = false;
     };
 }

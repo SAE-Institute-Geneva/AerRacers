@@ -93,6 +93,8 @@ namespace neko::aer
     public:
         //Constructor
         Logger(TypeTool type);
+        // conversion from Tool (assignment):
+        Logger& operator= (const Tool& tool) { return *this; }
 
         const std::vector<AerLog>& GetLogs() override
         {

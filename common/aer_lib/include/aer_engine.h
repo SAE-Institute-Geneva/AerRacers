@@ -23,7 +23,7 @@
  SOFTWARE.
 
  Author : Floreau Luca
- Co-Author : Dylan von Arx
+ Co-Author :
  Date : 29.09.2020 
 Last Modif: 13.10.2020
 ---------------------------------------------------------- */
@@ -32,7 +32,7 @@ Last Modif: 13.10.2020
 
 #include "draw_system.h"
 #include "log.h"
-#include "editor/editor.h"
+#include "editor/tool_manager.h"
 
 namespace neko::aer {
 
@@ -69,6 +69,5 @@ private:
     LogManager* logManager_ = nullptr;
 
     ToolManager toolManager_;
-    Editor editor_;
 };
 }

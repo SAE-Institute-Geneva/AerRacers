@@ -5,17 +5,15 @@ namespace neko::aer {
 AerEngine::AerEngine(Configuration* config, ToolsMask toolsMask)
     : SdlEngine(config),
       drawSystem_(*this),
-      toolManager_(*this),
-      editor_(*this, toolManager_)
+      toolManager_(*this)
 {   
     toolsMask_ = toolsMask;
     RegisterSystem(drawSystem_);
     RegisterOnEvent(drawSystem_);
     RegisterOnDrawUi(drawSystem_);
     RegisterSystem(toolManager_);
-    RegisterSystem(editor_);
-    RegisterOnEvent(editor_);
-    RegisterOnDrawUi(editor_);
+    RegisterOnEvent(toolManager_);
+    RegisterOnDrawUi(toolManager_);
 
     if (toolsMask) { }
 }
