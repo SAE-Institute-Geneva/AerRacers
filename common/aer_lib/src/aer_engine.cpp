@@ -27,10 +27,6 @@ void AerEngine::Init()
         logManager_ = std::make_unique<LogManager>();
     }
 
-
-    toolManager_.InitTools();
-
-   
 }
 
 void AerEngine::Destroy()

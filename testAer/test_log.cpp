@@ -26,11 +26,10 @@
  Date : 03.11.2020
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
-
-#include "sdl_engine/sdl_engine.h"
-#include "sdl_engine/sdl_input.h"
-#include "gl/gles3_window.h"
-#include "gl/graphics.h"
+#include <sdl_engine/sdl_engine.h>
+#include <sdl_engine/sdl_input.h>
+#include <gl/gles3_window.h>
+#include <gl/graphics.h>
 
 #include "aer_engine.h"
 #include "editor/tool/logger.h"
