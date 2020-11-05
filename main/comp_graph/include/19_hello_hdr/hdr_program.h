@@ -80,8 +80,8 @@ private:
     TextureName cubeTexture_;
     TextureId cubeTextureId_;
     gl::Shader cubeShader_;
-
-    sdl::Camera3D camera_;
+    
+	sdl::MovableCamera3D camera_;
     float exposure_ = 1.0f;
     std::uint8_t flags_ = NONE;
 

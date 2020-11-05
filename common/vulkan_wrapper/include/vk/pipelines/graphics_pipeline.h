@@ -1,12 +1,9 @@
 #pragma once
-#include "vk/descriptors/descriptor_set.h"
-#include "vk/framebuffers/swapchain.h"
-#include "vk/framebuffers/renderpass.h"
+#include <utility>
+#include <vector>
+
 #include "vk/models/mesh.h"
 #include "vk/pipelines/pipeline.h"
-
-#include <utility>
-#include "vk/shaders/shader.h"
 
 namespace neko::vk
 {
@@ -17,7 +14,7 @@ const std::array<VkDynamicState, 3> kDynamicStates =
     VK_DYNAMIC_STATE_LINE_WIDTH
 };
 
-class GraphicsPipeline : public Pipeline
+class GraphicsPipeline final : public Pipeline
 {
 public:
     enum class Mode : uint8_t
@@ -49,7 +46,7 @@ public:
     [[nodiscard]] const VkPipeline& GetGraphicsPipeline() const { return pipeline_; }
     [[nodiscard]] const VkPipelineLayout& GetLayout() const { return layout_; }
 
-    [[nodiscard]] const Pipeline::Stage& GetStage() const { return stage_; }
+    [[nodiscard]] const Stage& GetStage() const { return stage_; }
     [[nodiscard]] bool IsPushDescriptor() const override { return pushDescriptors_; }
     [[nodiscard]] const Shader& GetShader() const override { return shader_; }
     [[nodiscard]] const VkDescriptorSetLayout& GetDescriptorSetLayout() const override { return descriptorSetLayout_; }

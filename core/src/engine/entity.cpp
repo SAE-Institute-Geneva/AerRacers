@@ -21,16 +21,17 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <engine/entity.h>
-#include "engine/globals.h"
 #include <algorithm>
-#include <utilities/vector_utility.h>
-#include <engine/component.h>
 #include <sstream>
-#include <engine/log.h>
 
 #include <fmt/format.h>
 #include "imgui.h"
+
+#include "engine/entity.h"
+#include "engine/component.h"
+#include "engine/log.h"
+#include "engine/globals.h"
+#include "utilities/vector_utility.h"
 
 namespace neko
 {
@@ -130,9 +131,9 @@ Entity EntityManager::FindEntityByName(const std::string& entityName)
 
 EntityHash EntityManager::HashEntityName(const std::string& entityName)
 {
-	xxh::hash_state_t<64> hash_stream(0);
-	hash_stream.update(entityName);
-	const EntityHash entityHash = hash_stream.digest();
+	XXH64_state_t* hashStream = XXH64_createState();
+	XXH64_update(hashStream, &entityName, entityName.size());
+	const EntityHash entityHash = XXH64_digest(hashStream);
 	return entityHash;
 }
 

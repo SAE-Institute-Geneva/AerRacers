@@ -80,8 +80,8 @@ private:
 	TextureName envCubemap_ = 0;
 	TextureName irradianceMap_ = 0;
 	TextureName brdfLUTTexture_ = 0;
-
-	sdl::Camera3D camera_;
+	
+	sdl::MovableCamera3D camera_;
 	Vec3f baseColor_ = { 1.0f,0.5f,0.5f };
 	float spacing_ = 2.5f;
 	std::uint8_t flags_ = NONE;

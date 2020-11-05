@@ -1,5 +1,5 @@
 #pragma once
-#include <xxh3.h>
+#include <xxhash.h>
 
 #include "mathematics/matrix.h"
 #include "vk/buffers/uniform_handle.h"
@@ -25,6 +25,7 @@ class ModelCommandBuffer
 {
 public:
     //void InitData();
+	void Destroy();
 
     std::vector<ForwardDrawCmd>& GetForwardModels() { return forwardDrawingCmd_; }
 

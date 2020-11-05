@@ -15,11 +15,12 @@ class SubrendererOpaque : public RenderPipeline
 {
 public:
     explicit SubrendererOpaque(Pipeline::Stage stage);
+	void Destroy() const override;
 
     void OnRender(const CommandBuffer& commandBuffer) override;
 
     constexpr static int GetSubrendererIndex()
-    { return static_cast<int>(SubrendererIndex::OPAQUE); }
+    { return static_cast<int>(SubrendererIndex::OPAQUE_S); }
 
     void SetUniformBlock(const UniformBlock& uniformBlock);
 

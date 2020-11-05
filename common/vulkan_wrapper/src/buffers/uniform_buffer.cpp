@@ -2,7 +2,8 @@
 
 namespace neko::vk
 {
-UniformBuffer::UniformBuffer(VkDeviceSize size, const std::vector<char>& uniformData)
+UniformBuffer::UniformBuffer(const VkDeviceSize size, 
+    const std::vector<char>& uniformData)
         : Buffer(size,
         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
@@ -17,10 +18,18 @@ void UniformBuffer::Update(const std::vector<char>& newUniformData) const
     UnmapMemory();
 }
 
+void UniformBuffer::Destroy() const
+{
+    const auto& vkObj = VkObjectsLocator::get();
+	
+	vkDestroyBuffer(VkDevice(vkObj.device), buffer_, nullptr);
+	vkFreeMemory(VkDevice(vkObj.device), memory_, nullptr);
+}
+
 VkDescriptorSetLayoutBinding UniformBuffer::GetDescriptorSetLayout(
-        uint32_t binding,
-        VkDescriptorType descriptorType,
-        VkShaderStageFlags stage)
+	const uint32_t binding,
+	const VkDescriptorType descriptorType,
+	const VkShaderStageFlags stage)
 {
     VkDescriptorSetLayoutBinding uboLayoutBinding{};
     uboLayoutBinding.binding = binding;
@@ -32,8 +41,8 @@ VkDescriptorSetLayoutBinding UniformBuffer::GetDescriptorSetLayout(
 }
 
 WriteDescriptorSet UniformBuffer::GetWriteDescriptor(
-        uint32_t binding,
-        VkDescriptorType descriptorType) const
+	const uint32_t binding,
+	const VkDescriptorType descriptorType) const
 {
     VkDescriptorBufferInfo bufferInfo{};
     bufferInfo.buffer = buffer_;
@@ -42,7 +51,7 @@ WriteDescriptorSet UniformBuffer::GetWriteDescriptor(
 
     VkWriteDescriptorSet descriptorWrite{};
     descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrite.dstSet = VK_NULL_HANDLE;
+    descriptorWrite.dstSet = {};
     descriptorWrite.dstBinding = binding;
     descriptorWrite.dstArrayElement = 0;
     descriptorWrite.descriptorCount = 1;

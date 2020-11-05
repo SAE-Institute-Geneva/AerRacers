@@ -53,7 +53,7 @@ private:
 
 	InstancingType instancingType_ = InstancingType::NO_INSTANCING;
 	
-	sdl::Camera3D camera_;
+	sdl::MovableCamera3D camera_;
 	assimp::Model model_;
 
 	const size_t maxAsteroidNmb_ = 100'000;

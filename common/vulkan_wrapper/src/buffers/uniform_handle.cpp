@@ -14,12 +14,16 @@ UniformHandle::UniformHandle(const UniformBlock& uniformBlock, bool multiPipelin
                     static_cast<VkDeviceSize>(size_)))
 {}
 
+void UniformHandle::Destroy() const
+{
+	if (uniformBuffer_) uniformBuffer_->Destroy();
+}
+
 UniformHandle::UniformHandle(const UniformHandle& other)
         : multiPipeline_(other.multiPipeline_),
           size_(other.size_),
           arbitraryUniformData_(other.arbitraryUniformData_),
           uniformBlock_(other.uniformBlock_),
-          uniformBuffer_(nullptr),
           handleStatus_(other.handleStatus_)
 {
     if (other.uniformBuffer_)

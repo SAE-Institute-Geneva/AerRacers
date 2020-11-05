@@ -1,5 +1,7 @@
 #pragma once
-#include "vk/buffers/uniform_handle.h"
+#include "optional.hpp"
+
+#include "vk/shaders/uniform_block.h"
 #include "vk/commands/command_buffer.h"
 #include "vk/pipelines/pipeline.h"
 
@@ -13,8 +15,8 @@ public:
 
     template <typename T>
     void Push(const T& object,
-            const std::size_t offset,
-            const std::size_t size)
+            const size_t offset,
+            const size_t size)
     {
         memcpy(&data_[0] + offset, &object, size);
     }
@@ -29,14 +31,13 @@ public:
         const auto& uniform = uniformBlock_->GetUniform(uniformHash);
 
         auto realSize = size;
-
         if (realSize == 0)
         {
             realSize = std::min(sizeof(object),
-                    static_cast<std::size_t>(uniform.GetSize()));
+                    static_cast<size_t>(uniform.GetSize()));
         }
 
-        Push(object, static_cast<std::size_t>(uniform.GetOffset()), realSize);
+        Push(object, static_cast<size_t>(uniform.GetOffset()), realSize);
     }
 
     bool Update(const UniformBlock& uniformBlock);

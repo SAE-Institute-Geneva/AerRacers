@@ -33,7 +33,7 @@ void Swapchain::Init()
     createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
     createInfo.presentMode = presentMode;
     createInfo.clipped = VK_TRUE;
-    createInfo.oldSwapchain = nullptr;
+    createInfo.oldSwapchain = {};
 
     const QueueFamilyIndices& queueIndices = vkObj.gpu.GetQueueFamilyIndices();
     uint32_t queueFamilyIndices[] = {

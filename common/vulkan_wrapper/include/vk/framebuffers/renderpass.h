@@ -57,6 +57,6 @@ public:
     [[nodiscard]] const VkRenderPass& GetRenderPass() const { return renderPass_; }
 
 private:
-    VkRenderPass renderPass_ = nullptr;
+    VkRenderPass renderPass_{};
 };
 }

@@ -37,7 +37,6 @@ HelloSceneProgram::HelloSceneProgram() :
 
 void HelloSceneProgram::Init()
 {
-    camera_.InitData(<#initializer#>);
 	transform3dManager_.Init();
 	for(int i = 0; i < initEntityNmb_; i++)
 	{

@@ -1,18 +1,20 @@
 #pragma once
-
-#include <unordered_map>
 #include <map>
+#include <memory>
+#include <unordered_map>
 
-#include "vk/pipelines/pipeline.h"
+#include "vk/pipelines/render_pipeline.h"
 
 namespace neko::vk
 {
+class CommandBuffer;
 class SubrendererContainer
 {
 public:
     SubrendererContainer() = default;
     SubrendererContainer(const SubrendererContainer&) = delete;
     ~SubrendererContainer() = default;
+	void Destroy() const;
 
     SubrendererContainer& operator=(const SubrendererContainer&) = delete;
 
@@ -59,4 +61,12 @@ private:
     std::unordered_map<int, std::unique_ptr<RenderPipeline>> subrenderers_{};
     std::multimap<StageIndex, int> stages_{};
 };
+
+inline void SubrendererContainer::Destroy() const
+{
+	for (auto& subrenderer : subrenderers_)
+	{
+		subrenderer.second->Destroy();
+	}
+}
 }

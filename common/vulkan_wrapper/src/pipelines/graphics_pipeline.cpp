@@ -1,6 +1,5 @@
 #include "vk/pipelines/graphics_pipeline.h"
 
-#include "utilities/file_utility.h"
 #include "vk/graphics.h"
 
 namespace neko::vk
@@ -51,10 +50,16 @@ void GraphicsPipeline::Init(
 
 void GraphicsPipeline::Destroy() const
 {
-    const auto& vkObj = VkObjectsLocator::get();
+    const auto& device = VkDevice(VkObjectsLocator::get().device);
 
-    vkDestroyPipeline(VkDevice(vkObj.device), pipeline_, nullptr);
-    vkDestroyPipelineLayout(VkDevice(vkObj.device), layout_, nullptr);
+	vkDestroyDescriptorSetLayout(device, descriptorSetLayout_, nullptr);
+	vkDestroyDescriptorPool(device, descriptorPool_, nullptr);
+    for (auto& module : shaderProgram_.modules)
+    {
+	    vkDestroyShaderModule(device, module, nullptr);
+    }
+    vkDestroyPipeline(device, pipeline_, nullptr);
+    vkDestroyPipelineLayout(device, layout_, nullptr);
 }
 
 void GraphicsPipeline::CreateShaderProgram()
@@ -116,8 +121,6 @@ void GraphicsPipeline::CreatePipelineLayout()
 
 void GraphicsPipeline::CreateAttributes()
 {
-    const auto& vkObj = VkObjectsLocator::get();
-
     inputAssemblyStateCreateInfo_.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
     inputAssemblyStateCreateInfo_.topology = topology_;
     inputAssemblyStateCreateInfo_.primitiveRestartEnable = VK_FALSE;
@@ -245,7 +248,7 @@ void GraphicsPipeline::CreatePipeline()
     pipelineCreateInfo.layout = layout_;
     pipelineCreateInfo.renderPass = VkRenderPass(*renderStage.GetRenderPass());
     pipelineCreateInfo.subpass = stage_.subPassId;
-    pipelineCreateInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipelineCreateInfo.basePipelineHandle = {};
     pipelineCreateInfo.basePipelineIndex = -1;
 
     const VkResult res =
@@ -256,8 +259,8 @@ void GraphicsPipeline::CreatePipeline()
 
 void GraphicsPipeline::CreatePipelineMrt()
 {
-    /*auto& renderStage = GraphicsEngineLocator::Get().GetRenderStage(stage_.first);
-    const auto attachmentCount = renderStage.GetAttachmentCount(stage_.second);
+    auto& renderStage = VkObjectsLocator::get().GetRenderStage(stage_.renderPassId);
+    const auto attachmentCount = renderStage.GetAttachmentCount(stage_.subPassId);
 
     std::vector<VkPipelineColorBlendAttachmentState> blendAttachmentStates;
     blendAttachmentStates.reserve(attachmentCount);
@@ -279,7 +282,7 @@ void GraphicsPipeline::CreatePipelineMrt()
     }
 
     colorBlendStateCreateInfo_.attachmentCount = static_cast<uint32_t>(blendAttachmentStates.size());
-    colorBlendStateCreateInfo_.pAttachments = blendAttachmentStates.data();*/
+    colorBlendStateCreateInfo_.pAttachments = blendAttachmentStates.data();
 
     CreatePipeline();
 }

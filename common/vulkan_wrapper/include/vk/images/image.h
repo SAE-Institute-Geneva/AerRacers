@@ -1,5 +1,7 @@
 #pragma once
-#include "vk/descriptors/descriptor_set.h"
+#include <array>
+
+#include "vk/descriptors/descriptor_interface.h"
 
 namespace neko::vk
 {
@@ -15,7 +17,7 @@ public:
           uint32_t mipLevels,
           uint32_t arrayLayers,
           const VkExtent3D &extent);
-    void Destroy();
+    void Destroy() const override;
 
     [[nodiscard]] WriteDescriptorSet GetWriteDescriptor(
             uint32_t binding, VkDescriptorType descriptorType) const override;
@@ -96,10 +98,10 @@ protected:
 
     VkImageLayout layout_;
 
-    VkImage image_ = VK_NULL_HANDLE;
-    VkDeviceMemory memory_ = VK_NULL_HANDLE;
-    VkSampler sampler_ = VK_NULL_HANDLE;
-    VkImageView view_ = VK_NULL_HANDLE;
+    VkImage image_{};
+    VkDeviceMemory memory_{};
+    VkSampler sampler_{};
+    VkImageView view_{};
 
     inline static const float kAnisotropy = 16.0f;
 

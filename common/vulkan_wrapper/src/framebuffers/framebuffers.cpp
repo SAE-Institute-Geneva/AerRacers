@@ -94,6 +94,9 @@ Framebuffers::Framebuffers(
 void Framebuffers::Destroy() const
 {
     const auto& vkObj = VkObjectsLocator::get();
+
+    for (const auto& attachment : imageAttachments_)
+	    if (attachment) attachment->Destroy();
     for (const auto& framebuffer : framebuffers_)
         vkDestroyFramebuffer(VkDevice(vkObj.device), framebuffer, nullptr);
 }

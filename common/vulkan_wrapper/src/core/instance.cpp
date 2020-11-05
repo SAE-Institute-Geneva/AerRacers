@@ -107,7 +107,7 @@ void Instance::DestroyDebugUtilsMessengerExt(const VkAllocationCallbacks* pAlloc
     }
 }
 
-std::vector<const char*> Instance::GetRequiredInstanceExtensions(SDL_Window& window) const
+std::vector<const char*> Instance::GetRequiredInstanceExtensions(SDL_Window& window)
 {
     uint32_t sdlExtCount = 0;
     neko_assert(SDL_Vulkan_GetInstanceExtensions(&window, &sdlExtCount, nullptr),
@@ -125,10 +125,11 @@ std::vector<const char*> Instance::GetRequiredInstanceExtensions(SDL_Window& win
     return sdlExtensions;
 }
 
-VkBool32 DebugCallback(const VkDebugUtilsMessageSeverityFlagBitsEXT msgSeverity,
-                       VkDebugUtilsMessageTypeFlagsEXT msgType,
-                       const VkDebugUtilsMessengerCallbackDataEXT*
-                       pCallbackData, void* pUserData)
+static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+	const VkDebugUtilsMessageSeverityFlagBitsEXT msgSeverity, 
+    VkDebugUtilsMessageTypeFlagsEXT msgType,
+    const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+    void* pUserData) 
 {
 	if (msgSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
 	{

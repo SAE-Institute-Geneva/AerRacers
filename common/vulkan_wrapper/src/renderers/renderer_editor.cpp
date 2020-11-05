@@ -46,4 +46,13 @@ void RendererEditor::Start()
     AddSubrenderer<SubrendererGizmo>(Pipeline::Stage(0, 2));
     AddSubrenderer<SubrendererImgui>(Pipeline::Stage(0, 2));*/
 }
+
+void RendererEditor::Destroy() const
+{
+	rendererContainer_.Destroy();
+	for (const auto& renderStage : renderStages_)
+	{
+		renderStage->Destroy();
+	}
+}
 }

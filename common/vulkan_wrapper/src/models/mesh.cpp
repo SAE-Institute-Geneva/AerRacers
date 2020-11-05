@@ -36,6 +36,12 @@ void Mesh::InitData(const std::vector<Vertex>& vertices, const std::vector<uint3
             maxExtents_.Magnitude());
 }
 
+void Mesh::Destroy() const
+{
+	if (vertexBuffer_) vertexBuffer_->Destroy();
+	if (indexBuffer_) indexBuffer_->Destroy();
+}
+
 void Mesh::Init()
 {
     InitData(GetVertices(0), GetIndices(0));
@@ -117,6 +123,7 @@ void Mesh::SetVertices(const std::vector<Vertex>& vertices)
                     vertexBuffer_->GetBuffer(), 1, &copyRegion);
 
     commandBuffer.SubmitIdle();
+	vertexStaging.Destroy();
 }
 
 std::vector<uint32_t> Mesh::GetIndices(size_t offset) const
@@ -181,6 +188,8 @@ void Mesh::SetIndices(const std::vector<uint32_t>& indices)
             indexBuffer_->GetBuffer(), 1, &copyRegion);
 
     commandBuffer.SubmitIdle();
+
+	indexStaging.Destroy();
 }
 
 Vec3f Mesh::GetExtent() const

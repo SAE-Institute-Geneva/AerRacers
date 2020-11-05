@@ -2,6 +2,7 @@
 #include "optional.hpp"
 
 #include "vk/buffers/buffer.h"
+#include "vk/commands/command_buffer.h"
 
 namespace neko::vk
 {
@@ -51,6 +52,7 @@ public:
     virtual void Init();
     void InitData(const std::vector<Vertex>& vertices,
                           const std::vector<uint32_t>& indices);
+	void Destroy() const;
 
     [[nodiscard]] bool CmdRender(const CommandBuffer& commandBuffer, uint32_t instance = 1) const;
 

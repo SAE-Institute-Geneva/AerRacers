@@ -9,7 +9,7 @@ public:
     RendererEditor() = default;
 
     void Init() override;
-
     void Start() override;
+	void Destroy() const override;
 };
 }

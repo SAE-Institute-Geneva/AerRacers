@@ -1,5 +1,5 @@
 #pragma once
-#include <xxh3.h>
+#include <xxhash.h>
 #include <string>
 
 namespace neko

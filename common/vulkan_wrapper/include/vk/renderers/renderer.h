@@ -4,13 +4,15 @@
 
 namespace neko::vk
 {
-class Renderer {
+class Renderer
+{
 public:
     explicit Renderer(const bool started = false) : started_(started) { }
     virtual ~Renderer() = default;
 
     virtual void Init() = 0;
     virtual void Start() = 0;
+	virtual void Destroy() const = 0;
 
     template<typename T, typename... Args>
     void AddSubrenderer(const Pipeline::Stage &pipelineStage, Args &&...args)

@@ -25,22 +25,21 @@
  Author : Simon
  Co-Author :
 ---------------------------------------------------------- */
-#include "graphics/graphics.h"
-#include "sdl_engine/sdl_camera.h"
-#include "vk/buffers/uniform_buffer.h"
-#include "vk/commands/command_pool.h"
-#include "vk/commands/model_command_buffer.h"
-#include "vk/core/instance.h"
-#include "vk/core/logical_device.h"
-#include "vk/core/physical_device.h"
-#include "vk/core/surface.h"
-#include "vk/descriptors/descriptor_pool.h"
-#include "vk/framebuffers/framebuffers.h"
-#include "vk/framebuffers/renderpass.h"
-#include "vk/framebuffers/swapchain.h"
-#include "vk/pipelines/graphics_pipeline.h"
-#include "vk/shaders/shader.h"
-#include "vk/renderers/renderer.h"
+#include <graphics/graphics.h>
+#include <sdl_engine/sdl_camera.h>
+#include <vk/buffers/uniform_buffer.h>
+#include <vk/commands/command_pool.h>
+#include <vk/commands/model_command_buffer.h>
+#include <vk/core/instance.h>
+#include <vk/core/logical_device.h>
+#include <vk/core/physical_device.h>
+#include <vk/core/surface.h>
+#include <vk/descriptors/descriptor_pool.h>
+#include <vk/framebuffers/framebuffers.h>
+#include <vk/framebuffers/swapchain.h>
+#include <vk/pipelines/graphics_pipeline.h>
+#include <vk/renderers/renderer.h>
+#include <vk/shaders/shader.h>
 
 namespace neko::vk
 {
@@ -68,7 +67,7 @@ struct IVkObjects
 
     VkPipelineCache pipelineCache{};
 
-    std::unique_ptr<vk::Renderer> renderer_{};
+    std::unique_ptr<vk::Renderer> renderer{};
 
     [[nodiscard]] virtual RenderStage& GetRenderStage(uint32_t index) const = 0;
 };
@@ -79,7 +78,7 @@ struct NullVkObjects : IVkObjects
 
     [[nodiscard]] RenderStage& GetRenderStage(uint32_t index) const override
     {
-        return renderer_->GetRenderStage(INVALID_INDEX);
+        return renderer->GetRenderStage(INVALID_INDEX);
     }
 };
 

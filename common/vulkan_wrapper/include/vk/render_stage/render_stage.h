@@ -1,12 +1,12 @@
 #pragma once
-#include <xxh3.h>
+#include <xxhash.h>
+#include <map>
 
 #include "vk/images/image_depth.h"
-#include "vk/framebuffers/framebuffers.h"
-#include "vk/framebuffers/renderpass.h"
 #include "vk/render_stage/attachment.h"
 #include "vk/render_stage/subpass_type.h"
 #include "vk/render_stage/viewport.h"
+#include "vk/framebuffers/swapchain.h"
 
 namespace neko::vk
 {
@@ -16,8 +16,8 @@ class RenderPass;
 class RenderStage
 {
 public:
-    explicit RenderStage(std::vector<Attachment>  attachments = {},
-            std::vector<SubpassType>  subpasses = {},
+    explicit RenderStage(std::vector<Attachment> attachments = {},
+            std::vector<SubpassType> subpasses = {},
             const Viewport& viewport = Viewport());
 
     void Update();
@@ -26,6 +26,7 @@ public:
 
     [[nodiscard]] const Attachment& GetAttachment(const std::string_view& name) const;
     [[nodiscard]] const Attachment& GetAttachment(uint32_t binding) const;
+	[[nodiscard]] uint32_t GetAttachmentCount(uint32_t subpass) const;
     [[nodiscard]] const VkFramebuffer& GetActiveFramebuffer(const uint32_t& activeSwapchainImage) const;
     [[nodiscard]] const std::vector<Attachment>& GetAttachments() const { return attachments_; }
     [[nodiscard]] const std::vector<SubpassType>& GetSubpasses() const { return subpasses_; }

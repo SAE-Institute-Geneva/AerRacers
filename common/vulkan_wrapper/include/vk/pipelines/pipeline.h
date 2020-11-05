@@ -1,4 +1,6 @@
 #pragma once
+#include <cstdint>
+
 #include "vk/commands/command_buffer.h"
 #include "vk/shaders/shader.h"
 
@@ -9,9 +11,9 @@ enum class SubrendererIndex : uint8_t
     DEFERRED = 0,
     GIZMO,
     IMGUI,
-    OPAQUE,
+    OPAQUE_S,
     PARTICLES,
-    TRANSPARENT,
+    TRANSPARENT_S,
     FILTER_DEFAULT,
     FILTER_BLUR,
     FILTER_FXAA,
@@ -32,6 +34,7 @@ public:
     enum { value = sizeof(test<T>(0)) == sizeof(YesType) };
 };
 
+class Shader;
 class Pipeline
 {
 public:
@@ -41,7 +44,7 @@ public:
         uint32_t subPassId = 0;
 
         Stage() = default;
-        Stage(uint32_t renderPassId, uint32_t subPassId)
+        Stage(const uint32_t renderPassId, const uint32_t subPassId)
             : renderPassId(renderPassId), subPassId(subPassId) {}
 
         bool operator==(const Stage& right) const
@@ -75,23 +78,5 @@ public:
     [[nodiscard]] virtual const VkPipeline& GetPipeline() const = 0;
     [[nodiscard]] virtual const VkPipelineLayout& GetPipelineLayout() const = 0;
     [[nodiscard]] virtual VkPipelineBindPoint GetPipelineBindPoint() const = 0;
-};
-
-class RenderPipeline
-{
-public:
-    explicit RenderPipeline(const Pipeline::Stage stage) : stage_(stage), enabled_(true) {}
-    virtual ~RenderPipeline() = default;
-
-    virtual void OnRender(const CommandBuffer& commandBuffer) = 0;
-
-    [[nodiscard]] const Pipeline::Stage& GetStage() const { return stage_; }
-
-    [[nodiscard]] bool IsEnabled() const { return enabled_; }
-    void SetEnabled(const bool& enable) { enabled_ = enable; }
-
-private:
-    Pipeline::Stage stage_;
-    bool enabled_;
 };
 }

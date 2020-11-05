@@ -26,7 +26,7 @@ Image::Image(
           addressMode_(addressMode),
           layout_(layout) {}
 
-void Image::Destroy()
+void Image::Destroy() const
 {
     const auto& device = VkDevice(VkObjectsLocator::get().device);
 
@@ -36,7 +36,8 @@ void Image::Destroy()
     vkDestroyImage(device, image_, nullptr);
 }
 
-WriteDescriptorSet Image::GetWriteDescriptor(uint32_t binding, VkDescriptorType descriptorType) const
+WriteDescriptorSet Image::GetWriteDescriptor(const uint32_t binding,
+    const VkDescriptorType descriptorType) const
 {
     VkDescriptorImageInfo imageInfo;
     imageInfo.sampler = sampler_;

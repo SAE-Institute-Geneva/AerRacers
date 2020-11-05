@@ -21,18 +21,12 @@ public:
     void SetupDebugMessenger();
     void DestroyDebugUtilsMessengerExt(const VkAllocationCallbacks* pAllocator) const;
 
-    [[nodiscard]] std::vector<const char*> GetRequiredInstanceExtensions(SDL_Window& window) const;
+    [[nodiscard]] static std::vector<const char*> GetRequiredInstanceExtensions(SDL_Window& window);
 
 private:
     VkInstance instance_{};
     VkDebugUtilsMessengerEXT debugMessenger_{};
 };
-
-static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
-	VkDebugUtilsMessageSeverityFlagBitsEXT msgSeverity,
-	VkDebugUtilsMessageTypeFlagsEXT msgType,
-	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-	void* pUserData);
 
 static void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 

@@ -117,6 +117,11 @@ const Attachment& RenderStage::GetAttachment(uint32_t binding) const
     neko_assert(false, "Attachment with binding" << binding << " doesn't exist")
 }
 
+uint32_t RenderStage::GetAttachmentCount(const uint32_t subpass) const
+{
+    return subpassAttachmentCount_[subpass];
+}
+
 const VkFramebuffer& RenderStage::GetActiveFramebuffer(const uint32_t& activeSwapchainImage) const
 {
     if (activeSwapchainImage > framebuffers_->GetFramebuffers().size())
@@ -132,8 +137,8 @@ bool RenderStage::HasSwapchain() const
 
 void RenderStage::Destroy() const
 {
-    depthStencil_->Destroy();
-    framebuffers_->Destroy();
-    renderPass_->Destroy();
+    if(depthStencil_) depthStencil_->Destroy();
+    if(framebuffers_) framebuffers_->Destroy();
+    if(renderPass_) renderPass_->Destroy();
 }
 }

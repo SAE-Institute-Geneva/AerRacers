@@ -1,7 +1,5 @@
 #pragma once
 #include "vk/vulkan_include.h"
-#include "vk/core/instance.h"
-#include "vk/core/physical_device.h"
 
 namespace neko::vk
 {

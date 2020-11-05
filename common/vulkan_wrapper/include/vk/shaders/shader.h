@@ -1,10 +1,13 @@
 #pragma once
-#include "graphics/shader.h"
-#include "vk/shaders/uniform.h"
+#include <string>
+#include <vector>
+
+//#include "graphics/shader.h"
+#include "vk/shaders/uniform_block.h"
 
 namespace neko::vk
 {
-//Represents an input attribute (e.g.: vertex positions, uv, normals...)
+//Represents a shader attribute (e.g.: vertex positions, uv, normals...)
 struct Attribute
 {
     enum class AttributeType

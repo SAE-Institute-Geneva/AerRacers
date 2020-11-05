@@ -48,7 +48,7 @@ private:
 	std::array<Light, 4> lights_;
 	gl::RenderSphere sphere_{ Vec3f::zero, 1.0f };
 	gl::Shader pbrShader_;
-	sdl::Camera3D camera_;
+	sdl::MovableCamera3D camera_;
 	gl::TextureManager textureManager_;
 	TextureName albedo_;
 	TextureId albedoId_;

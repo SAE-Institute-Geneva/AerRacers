@@ -9,11 +9,17 @@ DescriptorHandle::DescriptorHandle(const Pipeline& pipeline)
           changed_(true),
           descriptorSet_(std::make_unique<DescriptorSet>(pipeline)) {}
 
+void DescriptorHandle::Destroy() const
+{
+	for (auto& descriptor : descriptor_)
+		descriptor.second.descriptor->Destroy();
+	if (descriptorSet_) descriptorSet_.get()->Destroy();
+}
+
 DescriptorHandle::DescriptorHandle(const DescriptorHandle& other)
         : shader_(other.shader_),
           pushDescriptor_(other.pushDescriptor_),
           changed_(other.changed_),
-          descriptorSet_(nullptr),
           descriptor_(other.descriptor_),
           writeDescriptorSets_(other.writeDescriptorSets_)
 {

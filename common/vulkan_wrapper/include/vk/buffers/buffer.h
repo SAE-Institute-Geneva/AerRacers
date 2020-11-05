@@ -22,15 +22,13 @@ public:
     void MapMemory(char** dataPtr) const;
     void UnmapMemory() const;
 
-    explicit operator const VkBuffer &() const { return buffer_; }
     explicit operator const VkDeviceMemory &() const { return memory_; }
 
     [[nodiscard]] VkDeviceSize GetSize() const { return size_; }
     [[nodiscard]] const VkBuffer& GetBuffer() const { return buffer_; }
     [[nodiscard]] const VkDeviceMemory& GetBufferMemory() const { return memory_; }
 
-    void Destroy() const;
-
+    virtual void Destroy() const;
 
     static uint32_t FindMemoryType(uint32_t typeFilter, const VkMemoryPropertyFlags& properties);
 

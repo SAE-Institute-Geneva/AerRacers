@@ -84,24 +84,18 @@ VkRenderer::~VkRenderer()
     //ImGui_ImplSDL2_Shutdown();
     //ImGui::DestroyContext();
 
-    modelCommandBuffer.Clear();
-
     const auto& graphicsQueue = device.GetGraphicsQueue();
     vkQueueWaitIdle(graphicsQueue);
     vkDestroyPipelineCache(VkDevice(device), pipelineCache, nullptr);
 
-    for (size_t i = 0; i < kMaxFramesInFlight; i++)
+    for (size_t i = 0; i < inFlightFences_.size(); i++)
     {
-        vkDestroySemaphore(VkDevice(device), renderFinishedSemaphores_[i], nullptr);
-        vkDestroySemaphore(VkDevice(device), imageAvailableSemaphores_[i], nullptr);
         vkDestroyFence(VkDevice(device), inFlightFences_[i], nullptr);
+        vkDestroySemaphore(VkDevice(device), imageAvailableSemaphores_[i], nullptr);
+        vkDestroySemaphore(VkDevice(device), renderFinishedSemaphores_[i], nullptr);
     }
 
-    const auto& renderStages = renderer_->GetRenderStages();
-    for (const auto& renderStage : renderStages)
-    {
-        renderStage->Destroy();
-    }
+    renderer->Destroy();
 
     for (auto& commandBuffer : commandBuffers)
     {
@@ -137,12 +131,12 @@ void VkRenderer::AfterRenderLoop()
     Renderer::AfterRenderLoop();
 
     const uint32_t windowFlags = SDL_GetWindowFlags(&vkWindow->GetWindow());
-    if (renderer_ == nullptr || windowFlags & SDL_WINDOW_MINIMIZED) return;
+    if (renderer == nullptr || windowFlags & SDL_WINDOW_MINIMIZED) return;
 
-    if (!renderer_->HasStarted())
+    if (!renderer->HasStarted())
     {
         ResetRenderStages();
-        renderer_->Start();
+        renderer->Start();
 
         graphicsPipeline.Init(
                 Pipeline::Stage(0, 0),
@@ -156,7 +150,7 @@ void VkRenderer::AfterRenderLoop()
                 VK_FRONT_FACE_CLOCKWISE,
                 false);
 
-        renderer_->GetRendererContainer().Get<SubrendererOpaque>().SetUniformBlock(testShader_.GetUniformBlock(HashString("UboScene")));
+        renderer->GetRendererContainer().Get<SubrendererOpaque>().SetUniformBlock(testShader_.GetUniformBlock(HashString("UboScene")));
     }
 
     const auto acquireResult = swapchain->AcquireNextImage(
@@ -172,7 +166,7 @@ void VkRenderer::AfterRenderLoop()
     if (acquireResult != VK_SUCCESS && acquireResult != VK_SUBOPTIMAL_KHR) return;
 
     Pipeline::Stage stage;
-    for (auto& renderStage : renderer_->GetRenderStages())
+    for (auto& renderStage : renderer->GetRenderStages())
     {
         renderStage->Update();
         if (!StartRenderPass(*renderStage)) return;
@@ -183,7 +177,7 @@ void VkRenderer::AfterRenderLoop()
             stage.subPassId = subpass.binding;
 
             // Renders subpass subrender pipelines.
-            renderer_->GetRendererContainer().RenderStage(stage, *commandBuffer);
+            renderer->GetRendererContainer().RenderStage(stage, *commandBuffer);
 
             if (subpass.binding != renderStage->GetSubpasses().back().binding)
                 vkCmdNextSubpass(VkCommandBuffer(*commandBuffer), VK_SUBPASS_CONTENTS_INLINE);
@@ -210,7 +204,7 @@ bool VkRenderer::StartRenderPass(RenderStage& renderStage)
                 Begin(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
     }
 
-    VkRect2D renderArea = {};
+    VkRect2D renderArea;
     renderArea.offset = {0, 0};
     renderArea.extent = {
             static_cast<uint32_t>(renderStage.GetSize().x),
@@ -227,7 +221,7 @@ bool VkRenderer::StartRenderPass(RenderStage& renderStage)
     vkCmdSetViewport(VkCommandBuffer(*commandBuffers[swapchain->GetCurrentImageIndex()]),
             0, 1, &viewport);
 
-    VkRect2D scissor = {};
+    VkRect2D scissor;
     scissor.offset = {0, 0};
     scissor.extent = renderArea.extent;
     vkCmdSetScissor(VkCommandBuffer(*commandBuffers[swapchain->GetCurrentImageIndex()]),
@@ -281,7 +275,7 @@ void VkRenderer::ResetRenderStages()
     if (inFlightFences_.size() != swapchain->GetImageCount())
         RecreateCommandBuffers();
 
-    for (auto& renderStage : renderer_->GetRenderStages())
+    for (auto& renderStage : renderer->GetRenderStages())
         renderStage->Rebuild(*swapchain);
 
     RecreateAttachments();
@@ -293,7 +287,6 @@ void VkRenderer::RecreateSwapChain()
 
     vkDeviceWaitIdle(VkDevice(device));
 
-    const Vec2u size = BasicEngine::GetInstance()->config.windowSize;
     if (!swapchain) swapchain = std::make_unique<Swapchain>();
     swapchain->Init(*swapchain);
 
@@ -315,10 +308,10 @@ void VkRenderer::RecreateCommandBuffers()
     commandBuffers.clear();
     commandBuffers.resize(swapchain->GetImageCount());
 
-    VkSemaphoreCreateInfo semaphoreCreateInfo = {};
+    VkSemaphoreCreateInfo semaphoreCreateInfo{};
     semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
 
-    VkFenceCreateInfo fenceCreateInfo = {};
+    VkFenceCreateInfo fenceCreateInfo{};
     fenceCreateInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
     fenceCreateInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
@@ -367,7 +360,7 @@ void VkRenderer::RecreateAttachments()
 {
     attachments_.clear();
 
-    for (const auto& renderStage : renderer_->GetRenderStages())
+    for (const auto& renderStage : renderer->GetRenderStages())
     {
         const auto& descriptors = renderStage->GetDescriptors();
         attachments_.insert(descriptors.begin(), descriptors.end());
@@ -402,12 +395,12 @@ void VkRenderer::SetWindow(sdl::VulkanWindow* window)
 
 void VkRenderer::SetRenderer(std::unique_ptr<vk::Renderer>&& renderer)
 {
-    renderer_ = std::move(renderer);
-    renderer_->Init();
+    this->renderer = std::move(renderer);
+    this->renderer->Init();
 }
 
 RenderStage& VkRenderer::GetRenderStage(uint32_t index) const
 {
-    return renderer_->GetRenderStage(index);
+    return renderer->GetRenderStage(index);
 }
 }

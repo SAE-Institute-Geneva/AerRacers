@@ -55,7 +55,7 @@ private:
 	const size_t initEntityNmb_ = 10;
 	gl::RenderCuboid cube_{Vec3f::zero, Vec3f::one/2.0f};
 	gl::Shader shader_;
-	sdl::Camera3D camera_;
+	sdl::MovableCamera3D camera_;
 	const EntityMask cubeComponentType = EntityMask(ComponentType::OTHER_TYPE);
 	
 };

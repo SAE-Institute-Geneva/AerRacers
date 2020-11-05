@@ -3,9 +3,9 @@
 
 namespace neko::vk
 {
-Buffer::Buffer(VkDeviceSize size,
-               VkBufferUsageFlags usage,
-               VkMemoryPropertyFlags properties,
+Buffer::Buffer(const VkDeviceSize size,
+               const VkBufferUsageFlags usage,
+               const VkMemoryPropertyFlags properties,
                const void* data)
                : size_(size)
 {
@@ -170,7 +170,7 @@ void Buffer::EndSingleTimeCommands(
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commandBuffer;
 
-	vkQueueSubmit(graphicsQueue, 1, &submitInfo, nullptr);
+	vkQueueSubmit(graphicsQueue, 1, &submitInfo, {});
 	vkQueueWaitIdle(graphicsQueue);
 
 	vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);

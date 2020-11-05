@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include <memory>
 
 #include "optional.hpp"
 
@@ -11,11 +12,14 @@
 
 namespace neko::vk
 {
+class PushHandle;
 class DescriptorHandle
 {
 public:
     DescriptorHandle() = default;
     explicit DescriptorHandle(const Pipeline& pipeline);
+    void Destroy() const;
+	
     DescriptorHandle(const DescriptorHandle& other);
     DescriptorHandle(DescriptorHandle&& other) noexcept;
 
@@ -105,7 +109,8 @@ public:
     [[nodiscard]] const DescriptorSet& GetDescriptorSet() const { return *descriptorSet_; }
 
 private:
-    struct DescriptorValue {
+    struct DescriptorValue
+	{
         const IDescriptor* descriptor;
         WriteDescriptorSet writeDescriptor;
         uint32_t location;

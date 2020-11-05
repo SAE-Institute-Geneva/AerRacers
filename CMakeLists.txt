@@ -24,6 +24,7 @@ set(Aer_Lib ON CACHE BOOL "Activate Aer_Lib")
 set(Aer_Test ON CACHE BOOL "Activate Aer Test")
 set(Neko_KTX ON CACHE BOOL "Activate SFML Net Wrapper")
 set(Neko_SameThread OFF CACHE BOOL "Activate Same Thread Rendering and Resource Loading")
+set(Neko_XXHash ON CACHE BOOL "Activate XXHash")
 
 MESSAGE("CMAKE SYSTEM NAME: ${CMAKE_SYSTEM_NAME}")
 
@@ -73,6 +74,10 @@ if(Neko_KTX)
     add_dependencies(ktx mkvk)
 endif()
 
+if(Neko_XXHash)
+    add_compile_definitions("XXH_INLINE_ALL=1")
+endif()
+
 
 if(Neko_Profile)
     MESSAGE("Enable profiling")
@@ -112,7 +117,7 @@ if(Neko_GLES3)
     add_subdirectory(${GLES3_WRAPPER_DIR})
 endif()
 
-if(Neko_VULKAN)
+if(Neko_VULKAN) 
     add_compile_definitions("NEKO_VULKAN=1")
     set(VULKAN_WRAPPER_DIR "common/vulkan_wrapper" CACHE INTERNAL "")
     add_subdirectory(${VULKAN_WRAPPER_DIR})
@@ -129,7 +134,7 @@ if(Neko_SDL2)
         add_subdirectory(${SDL_DIR})
     ENDIF()
     include_directories(${SDL_DIR}/include ${SDL_DIR}/src)
-
+    
     add_subdirectory("common/sdl_engine")
     if(NOT Emscripten)
         target_precompile_headers(sdl_engine PRIVATE "common/sdl_engine/include/sdl_wrapper_pch.h")
@@ -229,4 +234,4 @@ foreach(main_project_path ${main_projects} )
     if(${main_project_name})
         add_subdirectory(${main_project_path})
     endif()
-endforeach()  
+endforeach()   

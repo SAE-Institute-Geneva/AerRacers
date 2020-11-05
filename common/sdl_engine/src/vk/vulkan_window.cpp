@@ -137,7 +137,7 @@ void VulkanWindow::InitImGui()
     initInfo.Device = VkDevice(vkObj.device);
     initInfo.QueueFamily = queueFamilyIndices.graphicsFamily;
     initInfo.Queue = VkQueue(graphicsQueue);
-    initInfo.PipelineCache = nullptr;
+    initInfo.PipelineCache = {};
     initInfo.DescriptorPool = imguiDescriptorPool_;
     initInfo.Allocator = nullptr;
     initInfo.MinImageCount = 2;

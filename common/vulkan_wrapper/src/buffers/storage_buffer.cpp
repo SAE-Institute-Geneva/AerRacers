@@ -18,10 +18,18 @@ void StorageBuffer::Update(const std::vector<char>& newStorageData) const
     UnmapMemory();
 }
 
+void StorageBuffer::Destroy() const
+{
+    const auto& vkObj = VkObjectsLocator::get();
+	
+	vkDestroyBuffer(VkDevice(vkObj.device), buffer_, nullptr);
+	vkFreeMemory(VkDevice(vkObj.device), memory_, nullptr);
+}
+
 VkDescriptorSetLayoutBinding StorageBuffer::GetDescriptorSetLayout(
-        uint32_t binding,
-        VkDescriptorType descriptorType,
-        VkShaderStageFlags stage)
+	const uint32_t binding,
+	const VkDescriptorType descriptorType,
+	const VkShaderStageFlags stage)
 {
     VkDescriptorSetLayoutBinding descriptorSetLayoutBinding;
     descriptorSetLayoutBinding.binding = binding;
@@ -41,7 +49,7 @@ WriteDescriptorSet StorageBuffer::GetWriteDescriptor(uint32_t binding, VkDescrip
 
     VkWriteDescriptorSet descriptorWrite{};
     descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-    descriptorWrite.dstSet = VK_NULL_HANDLE;
+    descriptorWrite.dstSet = {};
     descriptorWrite.dstBinding = binding;
     descriptorWrite.dstArrayElement = 0;
     descriptorWrite.descriptorCount = 1;

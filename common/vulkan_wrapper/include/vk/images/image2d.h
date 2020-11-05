@@ -4,7 +4,7 @@
 
 namespace neko::vk
 {
-class Image2d : public Image
+class Image2d final : public Image
 {
 public:
     explicit Image2d(

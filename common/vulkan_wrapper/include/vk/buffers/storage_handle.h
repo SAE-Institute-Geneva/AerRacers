@@ -8,6 +8,7 @@ class StorageHandle
 public:
     explicit StorageHandle(bool multiPipeline = false);
     explicit StorageHandle(const UniformBlock& uniformBlock, bool multiPipeline = false);
+	void Destroy() const;
 
     void Push(const void* data, std::size_t size);
 

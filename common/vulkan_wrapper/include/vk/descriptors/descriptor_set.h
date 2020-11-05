@@ -1,39 +1,9 @@
 #pragma once
-#include "mathematics/matrix.h"
-
-#include "vk/commands/command_buffer.h"
 #include "vk/pipelines/pipeline.h"
 
 namespace neko::vk
 {
-class WriteDescriptorSet {
-public:
-    WriteDescriptorSet(
-            VkWriteDescriptorSet writeDescriptorSet,
-            VkDescriptorImageInfo imageInfo);
-
-    WriteDescriptorSet(
-            VkWriteDescriptorSet writeDescriptorSet,
-            VkDescriptorBufferInfo bufferInfo);
-
-    VkWriteDescriptorSet GetWriteDescriptorSet();
-
-private:
-    VkWriteDescriptorSet writeDescriptorSet_{};
-    VkDescriptorImageInfo imageInfo_{};
-    VkDescriptorBufferInfo bufferInfo_{};
-};
-
-class IDescriptor
-{
-public:
-    IDescriptor() = default;
-    virtual ~IDescriptor() = default;
-
-    [[nodiscard]] virtual WriteDescriptorSet GetWriteDescriptor(
-            uint32_t binding, VkDescriptorType descriptorType) const = 0;
-};
-
+class CommandBuffer;
 class DescriptorSet
 {
 public:

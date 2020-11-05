@@ -1,6 +1,4 @@
 #pragma once
-#include <thread>
-
 #include "vk/vulkan_include.h"
 
 namespace neko::vk
@@ -18,16 +16,17 @@ public:
     void End();
 
     void SubmitIdle();
-    void Submit(const VkSemaphore& waitSemaphore = nullptr,
-            const VkSemaphore& signalSemaphore = nullptr,
-            VkFence fence = nullptr);
+    void Submit(const VkSemaphore& waitSemaphore = {},
+            const VkSemaphore& signalSemaphore = {},
+            VkFence fence = {});
 
     [[nodiscard]] bool IsRunning() const { return running_; }
     explicit operator const VkCommandBuffer &() const { return commandBuffer_; }
     [[nodiscard]] const VkCommandBuffer& GetCommandBuffer() const { return commandBuffer_; }
+	
 private:
     VkQueueFlagBits queueType_{};
-    VkCommandBuffer commandBuffer_ = VK_NULL_HANDLE;
+    VkCommandBuffer commandBuffer_{};
 
     bool running_ = false;
 

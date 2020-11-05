@@ -15,6 +15,13 @@ SubrendererOpaque::SubrendererOpaque(Pipeline::Stage stage)
     modelCmdBuffer_.Draw(drawCmd);
 }
 
+void SubrendererOpaque::Destroy() const
+{
+	uniformScene_.Destroy();
+	modelCmdBuffer_.Destroy();
+	quad_.Destroy();
+}
+
 void SubrendererOpaque::OnRender(const CommandBuffer& commandBuffer)
 {
     const auto& camera = CameraLocator::get();

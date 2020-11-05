@@ -27,7 +27,7 @@
 #include "engine/assert.h"
 #include <engine/log.h>
 #include <engine/resource.h>
-#include <xxhash.hpp>
+#include <xxhash.h>
 #include <sole.hpp>
 #include <utilities/service_locator.h>
 
@@ -44,7 +44,7 @@ const TextureName INVALID_TEXTURE_NAME = 0;
  */
 using TextureId = sole::uuid;
 const TextureId INVALID_TEXTURE_ID = sole::uuid();
-using TexturePathHash = xxh::hash32_t;
+using TexturePathHash = XXH32_hash_t;
 struct Image
 {
     Image() = default;

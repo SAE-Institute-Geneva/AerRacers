@@ -40,7 +40,6 @@ void HelloLightMapsProgram::Init()
             config.dataRootPath + "shaders/07_hello_light/lamp.vert",
             config.dataRootPath + "shaders/07_hello_light/lamp.frag");
 	cube_.Init();
-    camera_.InitData(<#initializer#>);
 }
 
 void HelloLightMapsProgram::Update(seconds dt)

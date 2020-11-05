@@ -45,9 +45,9 @@ private:
 	void CalculatePositions(size_t begin, size_t end);
 	void Culling(size_t begin, size_t end);
 
-
-	sdl::Camera3D camera_;
-	sdl::Camera3D overCamera_;
+	
+	sdl::MovableCamera3D camera_;
+	Camera3D overCamera_;
 	assimp::Model model_;
 
 	const size_t maxAsteroidNmb_ = 100'000;

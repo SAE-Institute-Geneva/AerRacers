@@ -2,6 +2,15 @@
 
 namespace neko::vk
 {
+void ModelCommandBuffer::Destroy()
+{
+	for (auto& forwardDrawCmd : forwardDrawingCmd_)
+	{
+		forwardDrawCmd.uniformHandle.Destroy();
+	}
+	Clear();
+}
+
 void ModelCommandBuffer::Draw(const ForwardDrawCmd& drawCommand)
 {
     forwardDrawingCmd_.emplace_back(drawCommand);

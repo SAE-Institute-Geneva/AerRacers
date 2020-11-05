@@ -13,6 +13,11 @@ StorageHandle::StorageHandle(const UniformBlock& uniformBlock, bool multiPipelin
           storageBuffer_(std::make_unique<StorageBuffer>(
                           static_cast<VkDeviceSize>(size_))) {}
 
+void StorageHandle::Destroy() const
+{
+	if (storageBuffer_) storageBuffer_->Destroy();
+}
+
 void StorageHandle::Push(const void* data, std::size_t size)
 {
     if (size != size_)
