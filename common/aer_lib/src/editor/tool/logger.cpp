@@ -1,89 +1,79 @@
-#include "editor/tool/logger.h"
-
 #include <utilities/file_utility.h>
 
-namespace neko::aer //TODOCR(Luca@Dylan) Apply Syntax Style
+#include "editor/tool/logger.h"
+
+namespace neko::aer
 {
-    Logger::Logger(TypeTool type) : Tool(type), status_(0) {
-        Log::provide(this);
-        logs_.reserve(kCapacityLog_);
-        status_ |= IS_RUNNING | IS_EMPTY;
-    }
-    
-    void Logger::Init()
-    {
+Logger::Logger(TypeTool type) : Tool(type)
+{
+    Log::provide(this);
+    logs_.reserve(kCapacityLog_);
+}
 
-    }
+void Logger::Init() { }
 
-    void Logger::Update(seconds dt)
-    {
-        
-    }
+void Logger::Update(seconds dt) { }
 
-    void Logger::Destroy()
-    {
-        WriteToFile();
-        logs_.clear();
-    }
+void Logger::Destroy()
+{
+    WriteToFile();
+    logs_.clear();
+}
 
 
-    void Logger::DrawImGui()
-    {
-        if (isVisible) {
-            //Number of Logs  
-            int nbrLog = logs_.size();
-            int nbrLogDisplayMax = ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing(); //TODOCR(Luca@Dylan) Can be const
+void Logger::DrawImGui()
+{
+    if (isVisible) {
+        //Number of Logs  
+        int nbrLog = logs_.size();
+        const int nbrLogDisplayMax =
+            ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing();
 
-            //Tool Logger
-            if (!ImGui::Begin("Logger Tool", &isVisible))
-            {
-                LimitationWindow();
-                ImGui::End();
+        //Tool Logger
+        if (!ImGui::Begin("Logger Tool", &isVisible)) {
+            LimitationWindow();
+            ImGui::End();
+        }
+        else {
+#pragma region Header
+            //Removes all Logs
+            if (ImGui::Button("Clear")) {
+                ClearLogs();
+                nbrLog = 0;
             }
-            else
-            {
-                #pragma region Header
-                //Removes all Logs
-                if (ImGui::Button("Clear")) {
-                    ClearLogs();
-                    nbrLog = 0;
-                }
 
-                //Scroll automatically
-                ImGui::SameLine();
-                if (ImGui::Checkbox("Auto Scrolling", &autoScroll)) {
-                    //autoScroll != autoScroll; //TODOCR(Luca@Dylan) Useless
-                }
-                
-                ImGui::SameLine();
-                ImGui::Text(("Log Counter: " + std::to_string(nbrLog)).c_str());
-                if (nbrLog >= kCapacityLogMax_) {
-                    ImGui::SameLine();
-                    ImGui::TextColored(RED, "MAX");
-                }
-                ImGui::Separator();
-                #pragma endregion
+            //Scroll automatically
+            ImGui::SameLine();
+            if (ImGui::Checkbox("Auto Scrolling", &autoScroll_)) {}
 
-                #pragma region Body
-                ImGui::BeginChild("Logs");
-                if (autoScroll) {
-                    pos_y = nbrLog - nbrLogDisplayMax;
-                    if (pos_y < 0) {
-                        pos_y = 0;
-                    }
-                }
-                else {
-                    pos_y = ImGui::GetScrollY() / ImGui::GetTextLineHeightWithSpacing();
-                    ImGui::SetCursorPos({ 0, pos_y * ImGui::GetTextLineHeightWithSpacing() });
-                }
-              
-                //Logs display
-                if (nbrLog != 0) {
-                    for (size_t i = pos_y; i < pos_y + nbrLogDisplayMax; i++)
-                    {
-                        if (i < nbrLog) {
-                            AerLog log = logs_[i];
-                            switch (log.severity) {
+            ImGui::SameLine();
+            ImGui::Text(("Log Counter: " + std::to_string(nbrLog)).c_str());
+            if (nbrLog >= kCapacityLogMax_) {
+                ImGui::SameLine();
+                ImGui::TextColored(kRed_, "MAX");
+            }
+            ImGui::Separator();
+#pragma endregion
+
+#pragma region Body
+            ImGui::BeginChild("Logs");
+            if (autoScroll_) {
+                posY_ = nbrLog - nbrLogDisplayMax;
+                if (posY_ < 0) { posY_ = 0; }
+            }
+            else {
+                posY_ = ImGui::GetScrollY() /
+                        ImGui::GetTextLineHeightWithSpacing();
+                ImGui::SetCursorPos(
+                    {0, posY_ * ImGui::GetTextLineHeightWithSpacing()});
+            }
+
+            //Logs display
+            if (nbrLog != 0) {
+                for (size_t i = posY_; i < posY_ + nbrLogDisplayMax; i++) {
+                    if (i < nbrLog) {
+                        AerLog log = logs_[i];
+                        switch (log.severity) {
                             case LogSeverity::DEBUG:
                                 ImGui::TextColored(kBlue_, log.msg.c_str());
                                 break;
@@ -91,114 +81,104 @@ namespace neko::aer //TODOCR(Luca@Dylan) Apply Syntax Style
                                 ImGui::Text(log.msg.c_str());
                                 break;
                             case LogSeverity::WARNING:
-                                ImGui::TextColored(YELLOW, log.msg.c_str());
+                                ImGui::TextColored(kYellow_, log.msg.c_str());
                                 break;
                             case LogSeverity::ERROOR:
-                                ImGui::TextColored(ORANGE, log.msg.c_str());
+                                ImGui::TextColored(kOrange_, log.msg.c_str());
                                 break;
                             case LogSeverity::CRITICAL:
-                                ImGui::TextColored(RED, log.msg.c_str());
+                                ImGui::TextColored(kRed_, log.msg.c_str());
                                 break;
                             default:
                                 break;
-                            }
                         }
                     }
                 }
-                else {
-                    ImGui::SetScrollY(0);
-                }
-
-                if (!autoScroll) {
-                    //Scroll Space
-                    ImGui::SetCursorPos({ 0, (float)nbrLog * ImGui::GetTextLineHeightWithSpacing() }); //TODOCR(Luca@Dylan) Cast already done with multiple
-                    ImGui::Text("");
-                }
-                ImGui::EndChild();
-                LimitationWindow();
-                ImGui::End();
-                #pragma endregion 
             }
+            else { ImGui::SetScrollY(0); }
+
+            if (!autoScroll_) {
+                //Scroll Space
+                ImGui::SetCursorPos(
+                    {0, nbrLog * ImGui::GetTextLineHeightWithSpacing()});
+                ImGui::Text("");
+            }
+            ImGui::EndChild();
+            LimitationWindow();
+            ImGui::End();
+#pragma endregion
         }
-      
     }
+}
 
-    void Logger::WriteToFile()
-    {
-        std::lock_guard<std::mutex> lock(logMutex_);
+void Logger::WriteToFile()
+{
+    std::lock_guard<std::mutex> lock(logMutex_);
 
-        status_ |= IS_WRITING;
-        status_ &= ~IS_EMPTY;
-
-                time_t curTime = time(nullptr);
+    time_t curTime = time(nullptr);
 #ifdef _MSC_VER
-                struct tm localTime {};
-                localtime_s(&localTime, &curTime);
+    struct tm localTime{};
+    localtime_s(&localTime, &curTime);
 #else
                 tm localTime = *localtime(&curTime);
 #endif
 
-                const std::string filePath = "../../data/logs/";
-                std::string dateTime;
-                dateTime = std::to_string(localTime.tm_mday) + "-" + std::to_string(localTime.tm_mon + 1) + "-" +
-                    std::to_string(localTime.tm_year + 1900) + "_" +
-                    std::to_string(localTime.tm_hour) + "-" +
-                    std::to_string(localTime.tm_min) + "-" +
-                    std::to_string(localTime.tm_sec);
+    const std::string filePath = "../../data/logs/";
+    std::string dateTime;
+    dateTime = std::to_string(localTime.tm_mday) + "-" + std::to_string(
+                   localTime.tm_mon + 1) + "-" +
+               std::to_string(localTime.tm_year + 1900) + "_" +
+               std::to_string(localTime.tm_hour) + "-" +
+               std::to_string(localTime.tm_min) + "-" +
+               std::to_string(localTime.tm_sec);
 
-                std::string fileContent =
-                    "/--------------------------------------------------------------------------------\\\n";
-                fileContent +=
-                    "|                                NekoEngine logs                                 |\n";
-                fileContent += "|                              " + dateTime + "                               |\n";
-                fileContent +=
-                    "|              Copyright (c) 2020 SAE Institute Switzerland AG              |\n";
-                fileContent +=
-                    "\\--------------------------------------------------------------------------------/\n\n";
+    std::string fileContent =
+        "/--------------------------------------------------------------------------------\\\n";
+    fileContent +=
+        "|                                NekoEngine logs                                 |\n";
+    fileContent += "|                              " + dateTime +
+        "                               |\n";
+    fileContent +=
+        "|              Copyright (c) 2020 SAE Institute Switzerland AG              |\n";
+    fileContent +=
+        "\\--------------------------------------------------------------------------------/\n\n";
 
-                fileContent += "Program start (=^ O ^=)\n";
-                fileContent +=
-                    "--------------------------------------------------------------------------------\n";
+    fileContent += "Program start (=^ O ^=)\n";
+    fileContent +=
+        "--------------------------------------------------------------------------------\n";
 
-                AerLog log;
-                log.severity = LogSeverity::DEBUG;
-                log.msg = "Successfully saved log output";
-                logs_.emplace_back(log);
+    AerLog log;
+    log.severity = LogSeverity::DEBUG;
+    log.msg = "Successfully saved log output";
+    logs_.emplace_back(log);
 
-                for (auto& line : logs_)
-                {
-                    fileContent += line.msg + "\n";
-                }
+    for (auto& line : logs_) { fileContent += line.msg + "\n"; }
 
-                CreateDirectory(filePath);
+    CreateDirectory(filePath);
 
-                if (FileExists(filePath + dateTime + ".log"))
-                    dateTime += "-1";
+    if (FileExists(filePath + dateTime + ".log"))
+        dateTime += "-1";
 
-                WriteStringToFile(filePath + dateTime + ".log", fileContent);
-
-                status_ &= ~IS_WRITING;
-
-    }
+    WriteStringToFile(filePath + dateTime + ".log", fileContent);
+}
 
 
-    void Logger::Log(LogSeverity severity, const std::string &msg)  //TODOCR(Luca@Dylan) Severity may be const
-    {
-        if (logs_.size() < kCapacityLogMax_) {
-            // current date/time based on current system
-            time_t now = time(0);
-            // convert now to string form
-            tm* ltm = localtime(&now);
+void Logger::Log(const LogSeverity severity, const std::string& msg)
+{
+    if (logs_.size() < kCapacityLogMax_) {
+        // current date/time based on current system
+        time_t now = time(0);
+        // convert now to string form
+        tm* ltm = localtime(&now);
 
-            std::string time_log = "[" + std::to_string(ltm->tm_hour) + ":"
-                + std::to_string(ltm->tm_min) + ":"
-                + std::to_string(ltm->tm_sec) + "]";
+        std::string time_log = "[" + std::to_string(ltm->tm_hour) + ":"
+                               + std::to_string(ltm->tm_min) + ":"
+                               + std::to_string(ltm->tm_sec) + "]";
 
-            AerLog log;
-            log.severity = severity;
+        AerLog log;
+        log.severity = severity;
 
-            switch (log.severity)
-            {
+        switch (log.severity) {
             case LogSeverity::DEBUG:
                 log.msg = time_log + " [Debug] " + msg;
                 break;
@@ -217,54 +197,55 @@ namespace neko::aer //TODOCR(Luca@Dylan) Apply Syntax Style
 
             default:
                 break;
-            }
+        }
+
+        logs_.emplace_back(log);
+    }
+    else {
+        if (logs_.size() == kCapacityLogMax_) {
+            // current date/time based on current system
+            time_t now = time(0);
+            // convert now to string form
+            tm* ltm = localtime(&now);
+
+            std::string time_log = "[" + std::to_string(ltm->tm_hour) + ":"
+                                   + std::to_string(ltm->tm_min) + ":"
+                                   + std::to_string(ltm->tm_sec) + "]";
+
+            AerLog log;
+            log.severity = LogSeverity::WARNING;
+            log.msg = time_log + " [Warning] " +
+                      "[Logger] Max log capacity reached; Please Clear";
 
             logs_.emplace_back(log);
         }
-        else {
-            if (logs_.size() == kCapacityLogMax_) {
-                // current date/time based on current system
-                time_t now = time(0);
-                // convert now to string form
-                tm* ltm = localtime(&now);
-
-                std::string time_log = "[" + std::to_string(ltm->tm_hour) + ":"
-                    + std::to_string(ltm->tm_min) + ":"
-                    + std::to_string(ltm->tm_sec) + "]";
-
-                AerLog log;
-                log.severity = LogSeverity::WARNING;
-                log.msg = time_log + " [Warning] " + "[Logger] Max log capacity reached; Please Clear";
-
-                logs_.emplace_back(log);
-            }
-        }
     }
+}
 
-    void Logger::ClearLogs() {
-        logs_.clear();
-    }
+void Logger::ClearLogs() { logs_.clear(); }
 
-    void Logger::OnEvent(const SDL_Event& event) { }
- 
+void Logger::OnEvent(const SDL_Event& event) { }
 
-    void DebugLog(const std::string &msg) {   
-        Log::get().Log(LogSeverity::DEBUG, msg);
-    }
 
-    void InfoLog(const std::string &msg) {
-        Log::get().Log(LogSeverity::INFO, msg);
-    }
+void DebugLog(const std::string& msg)
+{
+    Log::get().Log(LogSeverity::DEBUG, msg);
+}
 
-    void WarningLog(const std::string &msg) {
-        Log::get().Log(LogSeverity::WARNING, msg);
-    }
+void InfoLog(const std::string& msg) { Log::get().Log(LogSeverity::INFO, msg); }
 
-    void ErrorLog(const std::string &msg) {
-        Log::get().Log(LogSeverity::ERROOR, msg);
-    }
+void WarningLog(const std::string& msg)
+{
+    Log::get().Log(LogSeverity::WARNING, msg);
+}
 
-    void CriticalLog(const std::string &msg) {
-        Log::get().Log(LogSeverity::CRITICAL, msg);
-    }
+void ErrorLog(const std::string& msg)
+{
+    Log::get().Log(LogSeverity::ERROOR, msg);
+}
+
+void CriticalLog(const std::string& msg)
+{
+    Log::get().Log(LogSeverity::CRITICAL, msg);
+}
 }

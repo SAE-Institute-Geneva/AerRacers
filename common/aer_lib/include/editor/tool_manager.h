@@ -21,9 +21,13 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
- */ //TODOCR(Luca@Dylan)  Use good header 
+
+ Author : Dylan von Arx
+ Co-Author : 
+ Date : 03.11.2020
+---------------------------------------------------------- */
 #include <imgui.h>
-#include <editor/tool.h> //TODOCR(Luca@Dylan) Use coding style include ""
+#include "editor/tool.h"
 
 namespace neko::aer //TODOCR(Luca@Dylan)  Apply Code Style
 {
@@ -32,19 +36,15 @@ namespace neko::aer //TODOCR(Luca@Dylan)  Apply Code Style
     public:
         explicit ToolManager(AerEngine& engine);
         void Init() override;
-
-        void InitTools();
         void Update(seconds dt) override;
         void DrawList();
         void Destroy() override;
         void DrawImGui() override;
         void OnEvent(const SDL_Event& event) override;
-        Tool* GetTool(TypeTool type);
-
-    protected: //TODOCR(Luca@Dylan) Why protected 
+        Tool* GetTool(TypeTool type);      
+    private:
         AerEngine& engine_;
         std::vector<Tool*> tools_; //TODOCR(Luca@Dylan)  Nomenclature
-    private:  
-        bool about_IsVisible = false; //TODOCR(Luca@Dylan)  Nomenclature
+        bool aboutVisible_ = false;
     };
 }

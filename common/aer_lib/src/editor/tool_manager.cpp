@@ -1,29 +1,6 @@
-///*
-// MIT License
-//
-// Copyright (c) 2020 SAE Institute Switzerland AG
-//
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-//
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-// */
 #include "aer_engine.h"
 #include "editor/tool_manager.h"
-#include <editor/tool/logger.h> //TODOCR(Luca@Dylan)  Include guillmet
+#include "editor/tool/logger.h"
 
 namespace neko::aer //TODOCR(Luca@Dylan)  Apply Code Style
 {
@@ -33,15 +10,13 @@ namespace neko::aer //TODOCR(Luca@Dylan)  Apply Code Style
 
     void ToolManager::Init()
     {
-      
-    }
-    void ToolManager::InitTools() { //TODOCR(Dylan@Luca) Move to Init
         //LOGGER
-        tools_.push_back(new Logger(TypeTool::LOG)); //TODOCR(Luca@Dylan) Never use new use unique_ptr
+        tools_.push_back(new Logger(TypeTool::LOG));
         engine_.RegisterSystem(*tools_.back());
         engine_.RegisterOnEvent(*tools_.back());
         engine_.RegisterOnDrawUi(*tools_.back());
     }
+
 
 
     void ToolManager::Update(seconds dt)
@@ -51,8 +26,7 @@ namespace neko::aer //TODOCR(Luca@Dylan)  Apply Code Style
 
     void ToolManager::Destroy()
     {
-        for each (Tool * tool in tools_) //TODOCR(Luca@Dylan)  for each C#
-        {
+        for (Tool* tool : tools_) {
             tool->Destroy();
         }
     }
@@ -79,15 +53,15 @@ namespace neko::aer //TODOCR(Luca@Dylan)  Apply Code Style
             if (ImGui::BeginMenu("Help"))
             {
                 if (ImGui::MenuItem("About Neko")) {
-                    about_IsVisible = true;
+                    aboutVisible_ = true;
                 }
                 ImGui::EndMenu();
             }
             ImGui::EndMainMenuBar();
         }
 
-        if (about_IsVisible) {
-            ImGui::Begin("About", &about_IsVisible);
+        if (aboutVisible_) {
+            ImGui::Begin("About", &aboutVisible_);
             ImGui::Text(("Welcome to " + (engine_.config.windowName)).c_str());
             ImGui::Text("Best Editor Ever");
             ImGui::Separator();

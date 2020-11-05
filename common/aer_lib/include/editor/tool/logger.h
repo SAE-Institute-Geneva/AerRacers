@@ -27,10 +27,7 @@
  Date : 13.10.2020
 ---------------------------------------------------------- */
 #include <vector>
-#include <memory> //TODOCR(Luca@Dylan) Unused include 
 #include <mutex>
-#include <math.h> //TODOCR(Luca@Dylan) Unused include 
-
 #include <SDL_events.h>
 
 #include "editor/tool.h"
@@ -105,21 +102,6 @@ class NullLogManager final : public LogManagerInterface {
 };
 
 class Logger final : public Tool, public LogManagerInterface {
-    //-----------------------------------------------------------------------------
-    // LogManagerStatus
-    //-----------------------------------------------------------------------------
-    /// \brief To get the status of the engine
-    enum LogManagerStatus : std::uint8_t { //TODOCR(Luca@Dylan) Unused Enum
-        IS_RUNNING = 1u << 0u,
-        //To check if the LogManager is running
-        IS_EMPTY = 1u << 1u,
-        //To check if the LogManager has tasks
-        IS_LOG_WAITING = 1u << 2u,
-        //To check if the LogManager is waiting for a task
-        IS_WRITING = 1u << 3u
-        //To check if the LogManager is writing its output to a file
-    };
-
 public:
     //Constructor
     Logger(TypeTool type);
@@ -154,10 +136,9 @@ public:
     void WriteToFile();
 
 private:
-    int pos_y = 0; //TODOCR(Luca@Dylan) Nomenclature 
-    bool autoScroll = true; //TODOCR(Luca@Dylan) Nomenclature 
+    int posY_ = 0;
+    bool autoScroll_ = true;
 
-    std::atomic<std::uint8_t> status_;
     std::mutex logMutex_;
     std::vector<AerLog> logs_;
 
@@ -165,10 +146,10 @@ private:
     const size_t kCapacityLog_ = std::pow(2, 14);
     const size_t kCapacityLogMax_ = std::pow(2, 20);
     //COLOR
-    const ImVec4 kBlue_ = {0.5f, 0.5f, 1, 1}; //TODOCR(Luca@Dylan) Nomenclature 
-    const ImVec4 YELLOW = {1, 1, 0, 1}; //TODOCR(Luca@Dylan) Nomenclature 
-    const ImVec4 ORANGE = {1, 0.5f, 0, 1}; //TODOCR(Luca@Dylan) Nomenclature 
-    const ImVec4 RED{1, 0, 0, 1}; //TODOCR(Luca@Dylan) Nomenclature 
+    const ImVec4 kBlue_ = {0.5f, 0.5f, 1, 1};
+    const ImVec4 kYellow_ = {1, 1, 0, 1};
+    const ImVec4 kOrange_ = {1, 0.5f, 0, 1};
+    const ImVec4 kRed_{1, 0, 0, 1};
 };
 
 //-----------------------------------------------------------------------------

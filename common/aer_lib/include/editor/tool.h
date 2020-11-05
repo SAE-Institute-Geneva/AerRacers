@@ -21,29 +21,34 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
- */ //TODOCR(Luca@Dylan)  Wrong Header
+
+ Author : Dylan von Arx
+ Co-Author :
+ Date : 03.11.2020
+---------------------------------------------------------- */
 #include <sdl_engine/sdl_engine.h>
 #include <SDL_events.h>
 #include <imgui.h>
 
 namespace neko::aer //TODOCR(Luca@Dylan)  Apply Syntax Style
 {
-    enum class TypeTool { //TODOCR(Luca@Dylan)  enum class
+    enum class TypeTool {
         LOG,
         INSP,
     };
-    const int headerSpace = 20; //TODOCR(Luca@Dylan) Why here ? + Nomenclature
+  
     class Tool : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface {
     public:
 
-        Tool(TypeTool type) : type(type) { } //TODOCR(Luca@Dylan)  explicit
+        explicit Tool(TypeTool type) : type(type) { }
         virtual void Init() override {}
         virtual void Update(seconds dt) override {}
         virtual void DrawImGui() override {}
         virtual void Destroy() override {}
         virtual void OnEvent(const SDL_Event& event) override {}
 
-        void LimitationWindow() { //TODOCR(Luca@Dylan)  function can be const
+        void LimitationWindow() const
+        {
             // LIMITATION POSITION
             ImGuiIO& io = ImGui::GetIO();
             // X
@@ -55,8 +60,8 @@ namespace neko::aer //TODOCR(Luca@Dylan)  Apply Syntax Style
                 ImGui::SetWindowPos(ImVec2(io.DisplaySize.x - ImGui::GetWindowSize().x, ImGui::GetWindowPos().y));
             }
             // Y
-            if (ImGui::GetWindowPos().y < headerSpace) {
-                ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x, headerSpace));
+            if (ImGui::GetWindowPos().y < headerSpace_) {
+                ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x, headerSpace_));
             }
 
             if (ImGui::GetWindowPos().y + ImGui::GetWindowSize().y > io.DisplaySize.y) {
@@ -64,15 +69,13 @@ namespace neko::aer //TODOCR(Luca@Dylan)  Apply Syntax Style
             }
         }
 
-        void LimitationDock() {
-            //TODO (@Dylan)
-        }
-        
-        TypeTool type; //TODOCR(Luca@Dylan) Move on private
-        bool isVisible = false; 
+        bool isVisible = false;
+        TypeTool type;
     private:
+        ImGuiID dockspaceId_;
+        const int headerSpace_ = 20;
         int id_;
-    protected:
-        ImGuiID dockspaceID;  //TODOCR(Luca@Dylan)  Move on private + Nomenclature
+
+
     };
 }
