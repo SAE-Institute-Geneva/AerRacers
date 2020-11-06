@@ -15,10 +15,10 @@ public:
 
     template <typename T>
     void Push(const T& object,
-            const size_t offset,
-            const size_t size)
+            const std::size_t offset,
+            const std::size_t size)
     {
-        memcpy(&data_[0] + offset, &object, size);
+        std::memcpy(&data_[0] + offset, &object, size);
     }
 
     template <typename T>
@@ -34,10 +34,10 @@ public:
         if (realSize == 0)
         {
             realSize = std::min(sizeof(object),
-                    static_cast<size_t>(uniform.GetSize()));
+                    static_cast<std::size_t>(uniform.GetSize()));
         }
 
-        Push(object, static_cast<size_t>(uniform.GetOffset()), realSize);
+        Push(object, static_cast<std::size_t>(uniform.GetOffset()), realSize);
     }
 
     bool Update(const UniformBlock& uniformBlock);

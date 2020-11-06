@@ -24,8 +24,8 @@ public:
     [[nodiscard]] VkFormat GetFormat() const { return format_; }
     [[nodiscard]] const VkExtent2D& GetExtent() const { return extent_; }
 	[[nodiscard]] const std::vector<VkImageView>& GetImageViews() const { return imageViews_; }
-	[[nodiscard]] size_t GetImageCount() const { return images_.size(); }
-	[[nodiscard]] uint32_t GetCurrentImageIndex() const { return currentImage_; }
+	[[nodiscard]] std::size_t GetImageCount() const { return images_.size(); }
+	[[nodiscard]] std::uint32_t GetCurrentImageIndex() const { return currentImage_; }
 
     [[nodiscard]] bool CompareExtent(const VkExtent2D& extent2D) const;
 
@@ -39,7 +39,7 @@ private:
     std::vector<VkImage> images_;
     std::vector<VkImageView> imageViews_;
     std::vector<VkFramebuffer> framebuffers_;
-    uint32_t currentImage_ = std::numeric_limits<uint32_t>::max();
+    std::uint32_t currentImage_ = std::numeric_limits<uint32_t>::max();
 };
 
 [[nodiscard]] static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);

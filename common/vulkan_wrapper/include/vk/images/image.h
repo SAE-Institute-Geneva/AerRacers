@@ -14,13 +14,13 @@ public:
           VkImageLayout layout,
           VkImageUsageFlags usage,
           VkFormat format,
-          uint32_t mipLevels,
-          uint32_t arrayLayers,
+          std::uint32_t mipLevels,
+          std::uint32_t arrayLayers,
           const VkExtent3D &extent);
     void Destroy() const override;
 
     [[nodiscard]] WriteDescriptorSet GetWriteDescriptor(
-            uint32_t binding, VkDescriptorType descriptorType) const override;
+            std::uint32_t binding, VkDescriptorType descriptorType) const override;
 
     [[nodiscard]] const VkFormat& GetFormat() const { return format_; }
     [[nodiscard]] const VkImage& GetImage() const { return image_; }
@@ -28,7 +28,7 @@ public:
     VkSampler& GetSampler() { return sampler_; }
     [[nodiscard]] const VkImageView& GetView() const { return view_; }
 
-    static uint32_t GetMipLevels(const VkExtent3D& extent);
+    static std::uint32_t GetMipLevels(const VkExtent3D& extent);
 
     static bool HasDepth(VkFormat format);
     static bool HasStencil(VkFormat format);
@@ -41,44 +41,44 @@ public:
             VkImageTiling tiling,
             VkImageUsageFlags usage,
             VkMemoryPropertyFlags properties,
-            uint32_t mipLevels,
-            uint32_t arrayLayers,
+            std::uint32_t mipLevels,
+            std::uint32_t arrayLayers,
             VkImageType type);
 
     static VkSampler CreateImageSampler(
             VkFilter filter,
             VkSamplerAddressMode addressMode,
             bool anisotropic,
-            uint32_t mipLevels);
+            std::uint32_t mipLevels);
 
     static VkImageView CreateImageView(
             const VkImage& image,
             VkImageViewType type,
             VkFormat format,
             VkImageAspectFlags imageAspect,
-            uint32_t mipLevels,
-            uint32_t baseMipLevel,
-            uint32_t layerCount,
-            uint32_t baseArrayLayer);
+            std::uint32_t mipLevels,
+            std::uint32_t baseMipLevel,
+            std::uint32_t layerCount,
+            std::uint32_t baseArrayLayer);
 
     static void CreateMipmaps(
             const VkImage& image,
             VkExtent3D extent,
             VkFormat format,
             VkImageLayout dstImageLayout,
-            uint32_t mipLevels,
-            uint32_t baseArrayLayer,
-            uint32_t layerCount);
+            std::uint32_t mipLevels,
+            std::uint32_t baseArrayLayer,
+            std::uint32_t layerCount);
 
     static void TransitionImageLayout(
             const VkImage& image,
             VkImageLayout srcImageLayout,
             VkImageLayout dstImageLayout,
             VkImageAspectFlags imageAspect,
-            uint32_t mipLevels,
-            uint32_t baseMipLevel,
-            uint32_t layerCount,
-            uint32_t baseArrayLayer);
+            std::uint32_t mipLevels,
+            std::uint32_t baseMipLevel,
+            std::uint32_t layerCount,
+            std::uint32_t baseArrayLayer);
 
     static VkFormat FindSupportedFormat(
             const std::vector<VkFormat>& candidates,
@@ -90,8 +90,8 @@ protected:
     VkFormat format_;
     VkSampleCountFlagBits sample_;
     VkImageUsageFlags usage_;
-    uint32_t mipLevels_;
-    uint32_t arrayLayers_;
+    std::uint32_t mipLevels_;
+    std::uint32_t arrayLayers_;
 
     VkFilter filter_;
     VkSamplerAddressMode addressMode_;

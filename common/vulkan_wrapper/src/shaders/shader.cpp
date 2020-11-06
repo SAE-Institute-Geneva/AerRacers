@@ -9,10 +9,10 @@
 namespace neko::vk
 {
 Attribute::Attribute(
-        uint32_t set,
-        uint32_t location,
-        uint32_t size,
-        AttributeType type)
+        const std::uint32_t set,
+        const std::uint32_t location,
+        const std::uint32_t size,
+        const AttributeType type)
         : set_(set),
         location_(location),
         size_(size),
@@ -59,7 +59,7 @@ Shader::Shader(std::string filename, VkShaderStageFlags stages)
 
 void Shader::Init()
 {
-    std::map<VkDescriptorType, uint32_t> descriptorPoolCounts;
+    std::map<VkDescriptorType, std::uint32_t> descriptorPoolCounts;
 
     // Process to descriptors.
     for (const auto& uniformBlock : uniformBlocks_)
@@ -71,7 +71,7 @@ void Shader::Init()
                 descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
                 descriptorSetLayoutBindings_.emplace_back(
                         UniformBuffer::GetDescriptorSetLayout(
-                                static_cast<uint32_t>(uniformBlock.second.GetBinding()),
+                                static_cast<std::uint32_t>(uniformBlock.second.GetBinding()),
                                 descriptorType,
                                 uniformBlock.second.GetStageFlags()));
                 break;
@@ -80,7 +80,7 @@ void Shader::Init()
                     descriptorSetLayout_.emplace_back(
                             StorageBuffer::
                             GetDescriptorSetLayout(
-                                    static_cast<uint32_t>(uniformBlock.second.GetBinding()),
+                                    static_cast<std::uint32_t>(uniformBlock.second.GetBinding()),
                                     descriptorType,
                                     uniformBlock.second.GetStageFlags()));
                     break;*/
@@ -112,7 +112,7 @@ void Shader::Init()
                                  VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                 descriptorSetLayout_.emplace_back(
                         Image2d::GetDescriptorSetLayout(
-                                static_cast<uint32_t>(uniform.second.GetBinding()),
+                                static_cast<std::uint32_t>(uniform.second.GetBinding()),
                                 descriptorType,
                                 uniform.second.GetStageFlags()));
                 break;
@@ -123,7 +123,7 @@ void Shader::Init()
                                  VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
                 descriptorSetLayout_.emplace_back(
                         ImageCube::GetDescriptorSetLayout(
-                                static_cast<uint32_t>(uniform.second.GetBinding()),
+                                static_cast<std::uint32_t>(uniform.second.GetBinding()),
                                 descriptorType,
                                 uniform.second.GetStageFlags()));
                 break;
@@ -173,11 +173,11 @@ void Shader::Init()
         descriptorTypes_.emplace(descriptor.binding, descriptor.descriptorType);
 
     // Process attribute descriptions.
-    uint32_t currentOffset = 4;
+    std::uint32_t currentOffset = 4;
     for (const auto& attribute : attributes_)
     {
         VkVertexInputAttributeDescription attributeDescription = {};
-        attributeDescription.location = static_cast<uint32_t>(attribute.second.GetLocation());
+        attributeDescription.location = static_cast<std::uint32_t>(attribute.second.GetLocation());
         attributeDescription.binding = 0;
         attributeDescription.format = attribute.second.GetVkFormat();
         attributeDescription.offset = currentOffset;
@@ -187,7 +187,7 @@ void Shader::Init()
 }
 
 void Shader::IncrementDescriptorPool(
-        std::map<VkDescriptorType, uint32_t>& descriptorPoolCounts,
+        std::map<VkDescriptorType, std::uint32_t>& descriptorPoolCounts,
         VkDescriptorType type)
 {
     if (type == VK_DESCRIPTOR_TYPE_MAX_ENUM) { return; }
@@ -218,7 +218,7 @@ Shader::ShaderProgram Shader::CreateShaderProgram() const
         VkShaderModuleCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = file.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(file.data());
+        createInfo.pCode = reinterpret_cast<const std::uint32_t*>(file.data());
 
         const auto& vkObj = VkObjectsLocator::get();
 
@@ -259,7 +259,7 @@ void Shader::AddAttribute(XXH64_hash_t nameHash, const Attribute& attribute)
 std::vector<VkPushConstantRange> Shader::GetPushConstantRanges() const
 {
     std::vector<VkPushConstantRange> pushConstantRanges;
-    uint32_t currentOffset = 0;
+    std::uint32_t currentOffset = 0;
 
     for (const auto& uniformBlock : uniformBlocks_)
     {
@@ -269,7 +269,7 @@ std::vector<VkPushConstantRange> Shader::GetPushConstantRanges() const
         VkPushConstantRange pushConstantRange = {};
         pushConstantRange.stageFlags = uniformBlock.second.GetStageFlags();
         pushConstantRange.offset = currentOffset;
-        pushConstantRange.size = static_cast<uint32_t>(uniformBlock.second.GetSize());
+        pushConstantRange.size = static_cast<std::uint32_t>(uniformBlock.second.GetSize());
         pushConstantRanges.emplace_back(pushConstantRange);
         currentOffset += pushConstantRange.size;
     }
@@ -277,7 +277,7 @@ std::vector<VkPushConstantRange> Shader::GetPushConstantRanges() const
     return pushConstantRanges;
 }
 
-uint32_t Shader::GetDescriptorLocation(const std::string_view& name) const
+std::uint32_t Shader::GetDescriptorLocation(const std::string_view& name) const
 {
     const auto hash = HashString(name);
     const auto it = descriptorLocations_.find(hash);
@@ -287,7 +287,7 @@ uint32_t Shader::GetDescriptorLocation(const std::string_view& name) const
     return descriptorLocations_.at(hash);
 }
 
-uint32_t Shader::GetDescriptorLocation(const XXH64_hash_t& descriptorHash) const
+std::uint32_t Shader::GetDescriptorLocation(const XXH64_hash_t& descriptorHash) const
 {
     const auto it = descriptorLocations_.find(descriptorHash);
 
@@ -302,7 +302,7 @@ uint32_t Shader::GetDescriptorLocation(const XXH64_hash_t& descriptorHash) const
     return descriptorLocations_.at(descriptorHash);
 }
 
-VkDescriptorType Shader::GetDescriptorType(uint32_t location) const
+VkDescriptorType Shader::GetDescriptorType(const std::uint32_t location) const
 {
     const auto it = descriptorTypes_.find(location);
     neko_assert(it != descriptorTypes_.end(), "Descriptor doesn't exist")

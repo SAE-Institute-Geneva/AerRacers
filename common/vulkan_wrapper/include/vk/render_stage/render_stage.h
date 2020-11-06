@@ -25,9 +25,9 @@ public:
     void Destroy() const;
 
     [[nodiscard]] const Attachment& GetAttachment(const std::string_view& name) const;
-    [[nodiscard]] const Attachment& GetAttachment(uint32_t binding) const;
-	[[nodiscard]] uint32_t GetAttachmentCount(uint32_t subpass) const;
-    [[nodiscard]] const VkFramebuffer& GetActiveFramebuffer(const uint32_t& activeSwapchainImage) const;
+    [[nodiscard]] const Attachment& GetAttachment(std::uint32_t binding) const;
+	[[nodiscard]] std::uint32_t GetAttachmentCount(std::uint32_t subpass) const;
+    [[nodiscard]] const VkFramebuffer& GetActiveFramebuffer(const std::uint32_t& activeSwapchainImage) const;
     [[nodiscard]] const std::vector<Attachment>& GetAttachments() const { return attachments_; }
     [[nodiscard]] const std::vector<SubpassType>& GetSubpasses() const { return subpasses_; }
     [[nodiscard]] const RenderPass* GetRenderPass() const { return renderPass_.get(); }
@@ -52,7 +52,7 @@ private:
     std::map<XXH64_hash_t, const IDescriptor&> descriptors_;
 
     std::vector<VkClearValue> clearValues_;
-    std::vector<uint32_t> subpassAttachmentCount_;
+    std::vector<std::uint32_t> subpassAttachmentCount_;
     Attachment depthAttachment_{};
     Attachment swapchainAttachment_{};
 

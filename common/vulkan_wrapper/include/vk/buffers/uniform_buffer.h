@@ -24,11 +24,11 @@ struct UniformBuffer final : IDescriptor, Buffer
 	void Destroy() const override;
 
     static VkDescriptorSetLayoutBinding GetDescriptorSetLayout(
-            uint32_t binding,
+            std::uint32_t binding,
             VkDescriptorType descriptorType,
             VkShaderStageFlags stage);
 
-    [[nodiscard]] WriteDescriptorSet GetWriteDescriptor(uint32_t binding,
+    [[nodiscard]] WriteDescriptorSet GetWriteDescriptor(std::uint32_t binding,
             VkDescriptorType descriptorType) const override;
 };
 }

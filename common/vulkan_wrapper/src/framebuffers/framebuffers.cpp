@@ -3,8 +3,8 @@
 namespace neko::vk
 {
 Framebuffers::Framebuffers(
-        uint32_t width,
-        uint32_t height,
+        const std::uint32_t width,
+        const std::uint32_t height,
         const RenderStage& renderStage,
         const RenderPass& renderPass,
         const Swapchain& swapchain,
@@ -52,7 +52,7 @@ Framebuffers::Framebuffers(
 
     framebuffers_.resize(imageViews.size());
 
-    for (size_t i = 0; i < imageViews.size(); i++)
+    for (std::size_t i = 0; i < imageViews.size(); i++)
     {
         std::vector<VkImageView> attachments;
         attachments.reserve(renderStage.GetAttachments().size());
@@ -79,7 +79,7 @@ Framebuffers::Framebuffers(
         VkFramebufferCreateInfo framebufferInfo{};
         framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebufferInfo.renderPass = VkRenderPass(renderPass);
-        framebufferInfo.attachmentCount = static_cast<uint32_t>(attachments.size());
+        framebufferInfo.attachmentCount = static_cast<std::uint32_t>(attachments.size());
         framebufferInfo.pAttachments = attachments.data();
         framebufferInfo.width = swapchainExtent.width;
         framebufferInfo.height = swapchainExtent.height;

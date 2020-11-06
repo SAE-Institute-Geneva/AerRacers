@@ -15,12 +15,12 @@ public:
 	void Destroy() const override;
 
     static VkDescriptorSetLayoutBinding GetDescriptorSetLayout(
-            uint32_t binding,
+            std::uint32_t binding,
             VkDescriptorType descriptorType,
             VkShaderStageFlags stage);
 
     [[nodiscard]] WriteDescriptorSet GetWriteDescriptor(
-            uint32_t binding,
+            std::uint32_t binding,
             VkDescriptorType descriptorType) const override;
 };
 }

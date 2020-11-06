@@ -1,10 +1,5 @@
 #pragma once
-
-#include "utilities/service_locator.h"
-#include "vk/vulkan_window.h"
 #include "vk/vulkan_include.h"
-#include "vk/core/instance.h"
-#include "vk/core/physical_device.h"
 
 namespace neko::vk
 {

@@ -10,7 +10,7 @@ SubrendererOpaque::SubrendererOpaque(Pipeline::Stage stage)
 {
     quad_.Init();
     ForwardDrawCmd drawCmd;
-    drawCmd.worldMatrix = Mat4f::Identity;
+    drawCmd.worldMatrix = Transform3d::Rotate(Mat4f::Identity, degree_t(45.0f), Vec3f::up);
     drawCmd.uniformHandle = uniformScene_;
     modelCmdBuffer_.Draw(drawCmd);
 }
@@ -49,7 +49,7 @@ void SubrendererOpaque::OnRender(const CommandBuffer& commandBuffer)
 
 bool SubrendererOpaque::CmdRender(const CommandBuffer& commandBuffer, ForwardDrawCmd& modelDrawCommand)
 {
-    //modelDrawCommand.uniformHandle.Push(kTransformHash, modelDrawCommand.worldMatrix);
+    modelDrawCommand.uniformHandle.Push(kModelHash, modelDrawCommand.worldMatrix);
 
     /*auto& mat = MaterialsManagerLocator::Get().GetMaterial(modelDrawCommand.materialID);
     modelDrawCommand.uniformHandle.PushUniformData(mat.ExportUniformData());*/
@@ -69,7 +69,7 @@ bool SubrendererOpaque::CmdRender(const CommandBuffer& commandBuffer, ForwardDra
 
     // Updates descriptors.
     modelDrawCommand.descriptorHandle.Push(kUboSceneHash, uniformScene_);
-    //modelDrawCommand.descriptorHandle.Push(kUboObjectHash, modelDrawCommand.uniformHandle);
+    modelDrawCommand.descriptorHandle.Push(kUboObjectHash, modelDrawCommand.uniformHandle);
 
     //modelDrawCommand.descriptorHandle.PushDescriptorData(mat.ExportDescriptorData());
 

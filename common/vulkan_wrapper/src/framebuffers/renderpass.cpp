@@ -59,7 +59,7 @@ RenderPass::RenderPass(const RenderStage& renderStage,
         std::vector<VkAttachmentReference> subpassColorAttachments;
         subpassColorAttachments.reserve(subpassType.attachmentBindings.size());
 
-        uint32_t depthAttachment;
+        std::uint32_t depthAttachment;
         for (const auto& attachmentBinding : subpassType.attachmentBindings)
         {
             const auto& attachment = renderStage.GetAttachment(attachmentBinding);
@@ -125,11 +125,11 @@ RenderPass::RenderPass(const RenderStage& renderStage,
     // Creates the render pass.
     VkRenderPassCreateInfo renderPassInfo{};
     renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-    renderPassInfo.attachmentCount = static_cast<uint32_t>(attachmentDescriptions.size());
+    renderPassInfo.attachmentCount = static_cast<std::uint32_t>(attachmentDescriptions.size());
     renderPassInfo.pAttachments = attachmentDescriptions.data();
-    renderPassInfo.subpassCount = static_cast<uint32_t>(subpassDescriptions.size());
+    renderPassInfo.subpassCount = static_cast<std::uint32_t>(subpassDescriptions.size());
     renderPassInfo.pSubpasses = subpassDescriptions.data();
-    renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+    renderPassInfo.dependencyCount = static_cast<std::uint32_t>(dependencies.size());
     renderPassInfo.pDependencies = dependencies.data();
 
     const VkResult res = vkCreateRenderPass(VkDevice(vkObj.device), &renderPassInfo, nullptr, &renderPass_);

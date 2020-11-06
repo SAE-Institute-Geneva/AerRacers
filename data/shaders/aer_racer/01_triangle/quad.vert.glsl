@@ -15,13 +15,13 @@ layout(binding = 0) uniform UboScene
     mat4 proj;
 } ubo;
 
-/*layout(binding = 1) uniform UboObject 
+layout(binding = 1) uniform UboObject 
 {
 	mat4 model;
-} object;*/
+} object;
 
 void main() 
 {
-    gl_Position = ubo.proj * ubo.view /** object.model*/ * vec4(inPosition, 1.0);
+    gl_Position = ubo.proj * ubo.view * object.model * vec4(inPosition, 1.0);
     fragColor = vec3(inTexCoords.xy, 0.0);
 }

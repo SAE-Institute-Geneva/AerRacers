@@ -108,7 +108,7 @@ const Attachment& RenderStage::GetAttachment(const std::string_view& name) const
     neko_assert(false, "Attachment with name " << name << " doesn't exist")
 }
 
-const Attachment& RenderStage::GetAttachment(uint32_t binding) const
+const Attachment& RenderStage::GetAttachment(const std::uint32_t binding) const
 {
     for (const auto& attachment : attachments_)
         if (attachment.binding == binding)
@@ -117,12 +117,12 @@ const Attachment& RenderStage::GetAttachment(uint32_t binding) const
     neko_assert(false, "Attachment with binding" << binding << " doesn't exist")
 }
 
-uint32_t RenderStage::GetAttachmentCount(const uint32_t subpass) const
+std::uint32_t RenderStage::GetAttachmentCount(const std::uint32_t subpass) const
 {
     return subpassAttachmentCount_[subpass];
 }
 
-const VkFramebuffer& RenderStage::GetActiveFramebuffer(const uint32_t& activeSwapchainImage) const
+const VkFramebuffer& RenderStage::GetActiveFramebuffer(const std::uint32_t& activeSwapchainImage) const
 {
     if (activeSwapchainImage > framebuffers_->GetFramebuffers().size())
         return framebuffers_->GetFramebuffers().at(0);

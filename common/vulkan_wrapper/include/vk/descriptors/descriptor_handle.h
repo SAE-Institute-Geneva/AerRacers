@@ -113,7 +113,7 @@ private:
 	{
         const IDescriptor* descriptor;
         WriteDescriptorSet writeDescriptor;
-        uint32_t location;
+        std::uint32_t location;
     };
 
     std::experimental::optional<const Shader&> shader_ = std::experimental::nullopt;

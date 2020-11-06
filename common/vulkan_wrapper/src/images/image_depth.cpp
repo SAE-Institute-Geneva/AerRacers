@@ -8,7 +8,7 @@ ImageDepth::ImageDepth(const Vec2u& extent, VkSampleCountFlagBits samples)
         VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
         FindSupportedFormat(kAvailableFormats, VK_IMAGE_TILING_OPTIMAL,
                 VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT), 1, 1,
-        VkExtent3D{static_cast<uint32_t>(extent.x), static_cast<uint32_t>(extent.y), 1})
+        VkExtent3D{static_cast<std::uint32_t>(extent.x), static_cast<std::uint32_t>(extent.y), 1})
 {
     neko_assert(format_ != VK_FORMAT_UNDEFINED, "Invalid depth format!");
 

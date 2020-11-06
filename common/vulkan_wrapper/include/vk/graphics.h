@@ -67,16 +67,16 @@ struct IVkObjects
 
     VkPipelineCache pipelineCache{};
 
-    std::unique_ptr<vk::Renderer> renderer{};
+    std::unique_ptr<Renderer> renderer{};
 
-    [[nodiscard]] virtual RenderStage& GetRenderStage(uint32_t index) const = 0;
+    [[nodiscard]] virtual RenderStage& GetRenderStage(std::uint32_t index) const = 0;
 };
 
 struct NullVkObjects : IVkObjects
 {
     explicit NullVkObjects() : IVkObjects(nullptr) {}
 
-    [[nodiscard]] RenderStage& GetRenderStage(uint32_t index) const override
+    [[nodiscard]] RenderStage& GetRenderStage([[maybe_unused]] std::uint32_t index) const override
     {
         return renderer->GetRenderStage(INVALID_INDEX);
     }
@@ -98,7 +98,7 @@ public:
     void SetWindow(sdl::VulkanWindow* window);
     void SetRenderer(std::unique_ptr<vk::Renderer>&& renderer);
 
-    [[nodiscard]] RenderStage& GetRenderStage(uint32_t index) const override;
+    [[nodiscard]] RenderStage& GetRenderStage(std::uint32_t index) const override;
 
 private:
     bool StartRenderPass(RenderStage& renderStage);
@@ -115,19 +115,11 @@ private:
 
 	void RenderAll() override;
 
-    Job initJob_;
-
-    sdl::MovableCamera3D camera_;
-
-    uint32_t imageIndex_ = 0;
-    std::vector<VkFence> imagesInFlight_{};
-
     bool isFramebufferResized_ = false;
 
     Shader testShader_;
 
-
-    size_t currentFrame_ = 0;
+    std::size_t currentFrame_ = 0;
     std::vector<VkFence> inFlightFences_{};
     std::vector<VkSemaphore> imageAvailableSemaphores_{};
     std::vector<VkSemaphore> renderFinishedSemaphores_{};

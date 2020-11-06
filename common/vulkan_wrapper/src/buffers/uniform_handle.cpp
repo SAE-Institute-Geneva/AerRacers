@@ -2,7 +2,7 @@
 
 namespace neko::vk
 {
-UniformHandle::UniformHandle(bool multiPipeline) : multiPipeline_(multiPipeline)
+UniformHandle::UniformHandle(const bool multiPipeline) : multiPipeline_(multiPipeline)
 {}
 
 UniformHandle::UniformHandle(const UniformBlock& uniformBlock, bool multiPipeline)
@@ -84,7 +84,7 @@ bool UniformHandle::Update(const UniformBlock& uniformBlock)
             (uniformBlock_ && uniformBlock_ != uniformBlock &&
              uniformBlock_->GetSize() == size_))
         {
-            size_ = static_cast<uint32_t>(uniformBlock.GetSize());
+            size_ = static_cast<std::uint32_t>(uniformBlock.GetSize());
         }
 
         uniformBlock_ = std::experimental::optional<const UniformBlock&>(uniformBlock);

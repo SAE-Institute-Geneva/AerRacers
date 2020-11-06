@@ -7,14 +7,14 @@ namespace neko::vk
 {
 
 Image::Image(
-        VkFilter filter,
-        VkSamplerAddressMode addressMode,
-        VkSampleCountFlagBits samples,
-        VkImageLayout layout,
-        VkImageUsageFlags usage,
-        VkFormat format,
-        uint32_t mipLevels,
-        uint32_t arrayLayers,
+        const VkFilter filter,
+        const VkSamplerAddressMode addressMode,
+        const VkSampleCountFlagBits samples,
+        const VkImageLayout layout,
+        const VkImageUsageFlags usage,
+        const VkFormat format,
+        const std::uint32_t mipLevels,
+        const std::uint32_t arrayLayers,
         const VkExtent3D& extent)
         : extent_(extent),
           format_(format),
@@ -36,7 +36,7 @@ void Image::Destroy() const
     vkDestroyImage(device, image_, nullptr);
 }
 
-WriteDescriptorSet Image::GetWriteDescriptor(const uint32_t binding,
+WriteDescriptorSet Image::GetWriteDescriptor(const std::uint32_t binding,
     const VkDescriptorType descriptorType) const
 {
     VkDescriptorImageInfo imageInfo;
@@ -55,9 +55,9 @@ WriteDescriptorSet Image::GetWriteDescriptor(const uint32_t binding,
     return WriteDescriptorSet(descriptorWrite, imageInfo);
 }
 
-uint32_t Image::GetMipLevels(const VkExtent3D& extent)
+std::uint32_t Image::GetMipLevels(const VkExtent3D& extent)
 {
-    return static_cast<uint32_t>(
+    return static_cast<std::uint32_t>(
             floor(log2(std::max(extent.width,std::max(extent.height, extent.depth)))) + 1);
 }
 
@@ -73,15 +73,15 @@ bool Image::HasStencil(VkFormat format)
 
 VkImage Image::CreateImage(
         VkDeviceMemory& memory,
-        VkExtent3D extent,
-        VkFormat format,
-        VkSampleCountFlagBits samples,
-        VkImageTiling tiling,
-        VkImageUsageFlags usage,
-        VkMemoryPropertyFlags properties,
-        uint32_t mipLevels,
-        uint32_t arrayLayers,
-        VkImageType type)
+        const VkExtent3D extent,
+        const VkFormat format,
+        const VkSampleCountFlagBits samples,
+        const VkImageTiling tiling,
+        const VkImageUsageFlags usage,
+        const VkMemoryPropertyFlags properties,
+        const std::uint32_t mipLevels,
+        const std::uint32_t arrayLayers,
+        const VkImageType type)
 {
     const auto& gpu = VkPhysicalDevice(VkObjectsLocator::get().gpu);
     const auto& device = VkDevice(VkObjectsLocator::get().device);
@@ -125,7 +125,7 @@ VkSampler Image::CreateImageSampler(
         VkFilter filter,
         VkSamplerAddressMode addressMode,
         bool anisotropic,
-        uint32_t mipLevels)
+        std::uint32_t mipLevels)
 {
     const auto& gpu = VkPhysicalDevice(VkObjectsLocator::get().gpu);
     const auto& device = VkDevice(VkObjectsLocator::get().device);
@@ -162,13 +162,13 @@ VkSampler Image::CreateImageSampler(
 
 VkImageView Image::CreateImageView(
         const VkImage& image,
-        VkImageViewType type,
-        VkFormat format,
-        VkImageAspectFlags imageAspect,
-        uint32_t mipLevels,
-        uint32_t baseMipLevel,
-        uint32_t layerCount,
-        uint32_t baseArrayLayer)
+        const VkImageViewType type,
+        const VkFormat format,
+        const VkImageAspectFlags imageAspect,
+        const std::uint32_t mipLevels,
+        const std::uint32_t baseMipLevel,
+        const std::uint32_t layerCount,
+        const std::uint32_t baseArrayLayer)
 {
     VkImageView imageView;
     const auto& device = VkDevice(VkObjectsLocator::get().device);
@@ -202,9 +202,9 @@ void Image::CreateMipmaps(
         VkExtent3D extent,
         VkFormat format,
         VkImageLayout dstImageLayout,
-        uint32_t mipLevels,
-        uint32_t baseArrayLayer,
-        uint32_t layerCount)
+        std::uint32_t mipLevels,
+        std::uint32_t baseArrayLayer,
+        std::uint32_t layerCount)
 {
     const auto& gpu = VkPhysicalDevice(VkObjectsLocator::get().gpu);
 
@@ -221,7 +221,7 @@ void Image::CreateMipmaps(
     CommandBuffer commandBuffer;
     commandBuffer.Init();
 
-    for (uint32_t i = 1; i < mipLevels; i++)
+    for (std::uint32_t i = 1; i < mipLevels; i++)
     {
         VkImageMemoryBarrier barrier0{};
         barrier0.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -244,8 +244,8 @@ void Image::CreateMipmaps(
         VkImageBlit imageBlit{};
         imageBlit.srcOffsets[1] =
         {
-                int32_t(extent.width >> (i - 1)),
-                int32_t(extent.height >> (i - 1)),
+                int32_t(extent.width >> i - 1),
+                int32_t(extent.height >> i - 1),
                 1
         };
         imageBlit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -309,13 +309,13 @@ void Image::CreateMipmaps(
 
 void Image::TransitionImageLayout(
         const VkImage& image,
-        VkImageLayout srcImageLayout,
-        VkImageLayout dstImageLayout,
-        VkImageAspectFlags imageAspect,
-        uint32_t mipLevels,
-        uint32_t baseMipLevel,
-        uint32_t layerCount,
-        uint32_t baseArrayLayer)
+        const VkImageLayout srcImageLayout,
+        const VkImageLayout dstImageLayout,
+        const VkImageAspectFlags imageAspect,
+        const std::uint32_t mipLevels,
+        const std::uint32_t baseMipLevel,
+        const std::uint32_t layerCount,
+        const std::uint32_t baseArrayLayer)
 {
     CommandBuffer commandBuffer;
     commandBuffer.Init();
@@ -405,8 +405,8 @@ void Image::TransitionImageLayout(
 
 VkFormat Image::FindSupportedFormat(
         const std::vector<VkFormat>& candidates,
-        VkImageTiling tiling,
-        VkFormatFeatureFlags features)
+        const VkImageTiling tiling,
+        const VkFormatFeatureFlags features)
 {
     const auto& gpu = VkPhysicalDevice(VkObjectsLocator::get().gpu);
 

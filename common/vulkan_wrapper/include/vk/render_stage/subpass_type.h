@@ -8,16 +8,16 @@ namespace neko::vk
 struct SubpassType
 {
     SubpassType() = default;
-    explicit SubpassType(uint32_t binding,
+    explicit SubpassType(const std::uint32_t binding,
                          std::vector<uint32_t> attachmentBindings,
-                         bool multisampling = false)
+                         const bool multisampling = false)
             : binding(binding),
               attachmentBindings(std::move(attachmentBindings)),
               multisampling(multisampling)
     {}
 
-    uint32_t binding = 0;
-    std::vector<uint32_t> attachmentBindings;
+    std::uint32_t binding = 0;
+    std::vector<std::uint32_t> attachmentBindings;
     bool multisampling = false;
 };
 }

@@ -35,6 +35,6 @@ private:
     bool anisotropic_;
     bool mipmap_;
 
-    uint32_t components_ = 0;
+    std::uint32_t components_ = 0;
 };
 }

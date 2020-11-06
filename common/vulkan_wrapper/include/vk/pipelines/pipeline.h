@@ -44,7 +44,7 @@ public:
         uint32_t subPassId = 0;
 
         Stage() = default;
-        Stage(const uint32_t renderPassId, const uint32_t subPassId)
+        Stage(const std::uint32_t renderPassId, const std::uint32_t subPassId)
             : renderPassId(renderPassId), subPassId(subPassId) {}
 
         bool operator==(const Stage& right) const

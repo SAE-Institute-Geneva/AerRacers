@@ -24,18 +24,18 @@ Image2d::Image2d(
 }
 
 Image2d::Image2d(
-        Vec2u extent,
-        VkFormat format,
-        VkImageLayout layout,
-        VkImageUsageFlags usage,
-        VkFilter filter,
-        VkSamplerAddressMode addressMode,
-        VkSampleCountFlagBits samples,
-        bool anisotropic,
-        bool mipmap)
+        const Vec2u extent,
+        const VkFormat format,
+        const VkImageLayout layout,
+        const VkImageUsageFlags usage,
+        const VkFilter filter,
+        const VkSamplerAddressMode addressMode,
+        const VkSampleCountFlagBits samples,
+        const bool anisotropic,
+        const bool mipmap)
         : Image(filter, addressMode, samples, layout,
               usage | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-              format, 1, 1, { static_cast<uint32_t>(extent.x), static_cast<uint32_t>(extent.y), 1 }),
+              format, 1, 1, { static_cast<std::uint32_t>(extent.x), static_cast<std::uint32_t>(extent.y), 1 }),
         anisotropic_(anisotropic),
         mipmap_(mipmap),
         components_(4)

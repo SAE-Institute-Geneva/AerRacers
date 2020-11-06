@@ -4,15 +4,15 @@
 
 namespace neko::vk
 {
-const std::array<uint16_t, 6> kIndices = {
+const std::array<std::uint16_t, 6> kIndices = {
         0, 1, 2, 2, 3, 0
 };
 
-void IndexBuffer::Init(const uint16_t indices[], size_t indexNum)
+void IndexBuffer::Init(const std::uint16_t indices[], const std::size_t indexNum)
 {
     const auto& vkObj = VkObjectsLocator::get();
 
-	const VkDeviceSize bufferSize = sizeof(uint16_t) * indexNum;
+	const VkDeviceSize bufferSize = sizeof(std::uint16_t) * indexNum;
 
     VkBuffer stagingBuffer{};
     VkDeviceMemory stagingBufferMemory{};
@@ -22,7 +22,7 @@ void IndexBuffer::Init(const uint16_t indices[], size_t indexNum)
 
     void* data = nullptr;
     vkMapMemory(VkDevice(vkObj.device), stagingBufferMemory, 0, bufferSize, 0, &data);
-    memcpy(data, indices, static_cast<size_t>(bufferSize));
+    memcpy(data, indices, static_cast<std::size_t>(bufferSize));
     vkUnmapMemory(VkDevice(vkObj.device), stagingBufferMemory);
 
     CreateBuffer(VkPhysicalDevice(vkObj.gpu), VkDevice(vkObj.device), bufferSize,

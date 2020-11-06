@@ -21,7 +21,7 @@ void PhysicalDevice::Init()
 {
     const auto& vkObj = VkObjectsLocator::get();
 
-    uint32_t physDeviceCount(0);
+    std::uint32_t physDeviceCount(0);
     vkEnumeratePhysicalDevices(VkInstance(vkObj.instance), &physDeviceCount, nullptr);
     neko_assert(physDeviceCount != 0, "No GPU found!")
 #ifdef VALIDATION_LAYERS
@@ -66,7 +66,7 @@ void PhysicalDevice::Init()
 #endif
 
     // Find the number queues this device supports
-    uint32_t familyQueueCount(0);
+    std::uint32_t familyQueueCount(0);
     vkGetPhysicalDeviceQueueFamilyProperties(gpu_, &familyQueueCount, nullptr);
     neko_assert(familyQueueCount != 0, "Device has no family of queues associated with it")
 
@@ -75,8 +75,8 @@ void PhysicalDevice::Init()
     vkGetPhysicalDeviceQueueFamilyProperties(gpu_, &familyQueueCount, queueProperties.data());
 
     // Make sure the family of commands contains an option to issue graphical commands.
-    uint32_t queueNodeIndex = INVALID_INDEX;
-    for (uint32_t i = 0; i < familyQueueCount; i++)
+    std::uint32_t queueNodeIndex = INVALID_INDEX;
+    for (std::uint32_t i = 0; i < familyQueueCount; i++)
     {
         if (queueProperties[i].queueCount > 0 && queueProperties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
         {
@@ -107,7 +107,7 @@ QueueFamilyIndices PhysicalDevice::FindQueueFamilies(const VkPhysicalDevice& gpu
 {
 	QueueFamilyIndices indices;
 
-	uint32_t queueFamilyCount = 0;
+	std::uint32_t queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queueFamilyCount, nullptr);
 
 	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
@@ -155,7 +155,7 @@ QueueFamilyIndices PhysicalDevice::FindQueueFamilies(const VkPhysicalDevice& gpu
 
 bool PhysicalDevice::CheckDeviceExtensionSupport(const VkPhysicalDevice& gpu)
 {
-	uint32_t extensionCount = 0;
+	std::uint32_t extensionCount = 0;
 	VkResult res = vkEnumerateDeviceExtensionProperties(
 		gpu, nullptr, &extensionCount, nullptr);
 	neko_assert(res == VK_SUCCESS,
@@ -170,7 +170,7 @@ bool PhysicalDevice::CheckDeviceExtensionSupport(const VkPhysicalDevice& gpu)
 #ifdef VALIDATION_LAYERS
 	// Display layer names and find the ones we specified above
 	std::cout << "Found " << extensionCount << " device extensions:\n";
-	uint32_t count(0);
+	std::uint32_t count(0);
 	for (const auto& availableExtension : availableExtensions)
 	{
 		std::cout << count << ": " << availableExtension.extensionName << '\n';
@@ -239,7 +239,7 @@ SwapChainSupportDetails PhysicalDevice::QuerySwapChainSupport(const VkPhysicalDe
 	                                          &details.capabilities);
 
 	//Fill swap chain formats data
-	uint32_t formatCount = 0;
+	std::uint32_t formatCount = 0;
 	vkGetPhysicalDeviceSurfaceFormatsKHR(gpu, surface, &formatCount, nullptr);
 	if (formatCount != 0)
 	{
@@ -249,7 +249,7 @@ SwapChainSupportDetails PhysicalDevice::QuerySwapChainSupport(const VkPhysicalDe
 	}
 
 	//Fill swap chain presentation modes data
-	uint32_t presentModeCount = 0;
+	std::uint32_t presentModeCount = 0;
 	vkGetPhysicalDeviceSurfacePresentModesKHR(gpu, surface, &presentModeCount,
 	                                          nullptr);
 	if (presentModeCount != 0)

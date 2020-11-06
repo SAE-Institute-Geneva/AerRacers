@@ -27,7 +27,7 @@ void StorageBuffer::Destroy() const
 }
 
 VkDescriptorSetLayoutBinding StorageBuffer::GetDescriptorSetLayout(
-	const uint32_t binding,
+	const std::uint32_t binding,
 	const VkDescriptorType descriptorType,
 	const VkShaderStageFlags stage)
 {
@@ -40,7 +40,9 @@ VkDescriptorSetLayoutBinding StorageBuffer::GetDescriptorSetLayout(
     return descriptorSetLayoutBinding;
 }
 
-WriteDescriptorSet StorageBuffer::GetWriteDescriptor(uint32_t binding, VkDescriptorType descriptorType) const
+WriteDescriptorSet StorageBuffer::GetWriteDescriptor(
+	const std::uint32_t binding,
+	const VkDescriptorType descriptorType) const
 {
     VkDescriptorBufferInfo bufferInfo;
     bufferInfo.buffer = buffer_;

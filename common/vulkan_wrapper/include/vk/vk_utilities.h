@@ -1,9 +1,6 @@
 #pragma once
 #include <array>
 
-#include "SDL_vulkan.h"
-
-#include "engine/engine.h"
 #include "engine/globals.h"
 #include "vk/vulkan_include.h"
 
@@ -18,8 +15,8 @@ static const std::array<const char*, 1> kDeviceExtensions = {VK_KHR_SWAPCHAIN_EX
 
 struct QueueFamilyIndices
 {
-    uint32_t graphicsFamily = INVALID_INDEX;
-    uint32_t presentFamily = INVALID_INDEX;
+    std::uint32_t graphicsFamily = INVALID_INDEX;
+    std::uint32_t presentFamily = INVALID_INDEX;
 
     [[nodiscard]] bool IsComplete() const { return graphicsFamily != INVALID_INDEX && presentFamily != INVALID_INDEX; }
 };

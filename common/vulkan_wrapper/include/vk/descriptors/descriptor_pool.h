@@ -1,5 +1,4 @@
 #pragma once
-#include "vk/core/logical_device.h"
 #include "vk/framebuffers/swapchain.h"
 
 namespace neko::vk

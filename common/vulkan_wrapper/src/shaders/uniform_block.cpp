@@ -3,8 +3,8 @@
 namespace neko::vk
 {
 UniformBlock::UniformBlock(
-        const uint32_t binding,
-        const uint32_t size,
+        const std::uint32_t binding,
+        const std::uint32_t size,
         const VkShaderStageFlags stageFlags,
         const Type type)
         : binding_(binding),

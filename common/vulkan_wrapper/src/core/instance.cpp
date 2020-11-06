@@ -43,11 +43,11 @@ void Instance::Init(SDL_Window& window)
     // Get the instance extensions and check if they are supported
     std::vector<const char*> extensions = GetRequiredInstanceExtensions(window);
     neko_assert(CheckInstanceExtensionsSupport(extensions), "Required instance extensions not available!")
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+    createInfo.enabledExtensionCount = static_cast<std::uint32_t>(extensions.size());
     createInfo.ppEnabledExtensionNames = extensions.data();
 
 #ifdef VALIDATION_LAYERS
-    createInfo.enabledLayerCount = static_cast<uint32_t>(kValidationLayers.size());
+    createInfo.enabledLayerCount = static_cast<std::uint32_t>(kValidationLayers.size());
     createInfo.ppEnabledLayerNames = kValidationLayers.data();
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
@@ -109,7 +109,7 @@ void Instance::DestroyDebugUtilsMessengerExt(const VkAllocationCallbacks* pAlloc
 
 std::vector<const char*> Instance::GetRequiredInstanceExtensions(SDL_Window& window)
 {
-    uint32_t sdlExtCount = 0;
+    std::uint32_t sdlExtCount = 0;
     neko_assert(SDL_Vulkan_GetInstanceExtensions(&window, &sdlExtCount, nullptr),
                 "Unable to query the number of Vulkan instance extensions!")
 
@@ -155,7 +155,7 @@ void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create
 
 bool CheckInstanceExtensionsSupport(const std::vector<const char*>& extensions)
 {
-    uint32_t instExtCount = 0;
+    std::uint32_t instExtCount = 0;
     VkResult res = vkEnumerateInstanceExtensionProperties(nullptr, &instExtCount, nullptr);
     neko_assert(res == VK_SUCCESS, "Unable to query vulkan instance extension count")
 
@@ -166,7 +166,7 @@ bool CheckInstanceExtensionsSupport(const std::vector<const char*>& extensions)
 #ifndef NDEBUG
     // Display layer names and find the ones we specified above
     std::cout << "Found " << instExtCount << " instance extensions:\n";
-    uint32_t count(0);
+    std::uint32_t count(0);
     for (const auto& instExtName : instExtNames)
     {
         std::cout << count << ": " << instExtName.extensionName << '\n';
@@ -204,7 +204,7 @@ bool CheckInstanceExtensionsSupport(const std::vector<const char*>& extensions)
 
 bool CheckValidationLayerSupport()
 {
-	uint32_t instLayerCount = 0;
+	std::uint32_t instLayerCount = 0;
 	VkResult res = vkEnumerateInstanceLayerProperties(&instLayerCount, nullptr);
 	neko_assert(res == VK_SUCCESS,
 	            "Unable to query vulkan instance layer property count")
@@ -218,7 +218,7 @@ bool CheckValidationLayerSupport()
 #ifndef NDEBUG
 	// Display layer names and find the ones we specified above
 	std::cout << "Found " << instLayerCount << " instance layers:\n";
-	uint32_t count(0);
+	std::uint32_t count(0);
 	for (const auto& instLayerName : instLayerNames)
 	{
 		std::cout << count << ": " << instLayerName.layerName << ": " <<
@@ -256,12 +256,12 @@ bool CheckValidationLayerSupport()
 }
 
 void CmdPushDescriptorSetKhr(
-        VkDevice device,
-        VkCommandBuffer commandBuffer,
-        VkPipelineBindPoint pipelineBindPoint,
-        VkPipelineLayout layout,
-        uint32_t set,
-        uint32_t descriptorWriteCount,
+        const VkDevice device,
+        const VkCommandBuffer commandBuffer,
+        const VkPipelineBindPoint pipelineBindPoint,
+        const VkPipelineLayout layout,
+        const std::uint32_t set,
+        const std::uint32_t descriptorWriteCount,
         const VkWriteDescriptorSet*
         pDescriptorSet)
 {

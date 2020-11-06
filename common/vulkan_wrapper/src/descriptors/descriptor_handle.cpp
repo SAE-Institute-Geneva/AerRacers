@@ -154,7 +154,7 @@ void DescriptorHandle::BindDescriptor(const CommandBuffer& commandBuffer, const 
                 VkCommandBuffer(commandBuffer),
                 pipeline.GetPipelineBindPoint(),
                 pipeline.GetPipelineLayout(), 0,
-                static_cast<uint32_t>(writeDescriptorSets_.size()),
+                static_cast<std::uint32_t>(writeDescriptorSets_.size()),
                 writeDescriptorSets_.data());
     }
     else

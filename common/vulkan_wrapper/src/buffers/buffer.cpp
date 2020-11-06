@@ -12,7 +12,7 @@ Buffer::Buffer(const VkDeviceSize size,
     const auto& vkObj = VkObjectsLocator::get();
     const auto queueFamilyIndices = vkObj.gpu.GetQueueFamilyIndices();
 
-    std::array<uint32_t, 2> queueFamilies = {
+    std::array<std::uint32_t, 2> queueFamilies = {
             queueFamilyIndices.graphicsFamily,
             queueFamilyIndices.presentFamily,
             //computeFamily
@@ -24,7 +24,7 @@ Buffer::Buffer(const VkDeviceSize size,
     bufferInfo.size = size;
     bufferInfo.usage = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    bufferInfo.queueFamilyIndexCount = static_cast<uint32_t>(queueFamilies.size());
+    bufferInfo.queueFamilyIndexCount = static_cast<std::uint32_t>(queueFamilies.size());
     bufferInfo.pQueueFamilyIndices = queueFamilies.data();
 
     VkResult res = vkCreateBuffer(VkDevice(vkObj.device), &bufferInfo, nullptr, &buffer_);
@@ -90,14 +90,16 @@ void Buffer::UnmapMemory() const
     vkUnmapMemory(device, memory_);
 }
 
-uint32_t Buffer::FindMemoryType(uint32_t typeFilter, const VkMemoryPropertyFlags& properties)
+std::uint32_t Buffer::FindMemoryType(
+	const std::uint32_t typeFilter, 
+	const VkMemoryPropertyFlags& properties)
 {
     const auto& vkObj = VkObjectsLocator::get();
 
 	VkPhysicalDeviceMemoryProperties memProperties;
 	vkGetPhysicalDeviceMemoryProperties(VkPhysicalDevice(vkObj.gpu), &memProperties);
 
-	for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+	for (std::uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
 		if (typeFilter & 1 << i && (memProperties.memoryTypes[i].propertyFlags &
 			properties) == properties)
 			return i;

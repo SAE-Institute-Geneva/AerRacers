@@ -2,13 +2,13 @@
 
 namespace neko::vk
 {
-StorageHandle::StorageHandle(bool multiPipeline)
+StorageHandle::StorageHandle(const bool multiPipeline)
         : multiPipeline_(multiPipeline) {}
 
 StorageHandle::StorageHandle(const UniformBlock& uniformBlock, bool multiPipeline)
         : multiPipeline_(multiPipeline),
           uniformBlock_(uniformBlock),
-          size_(static_cast<uint32_t>(uniformBlock_->GetSize())),
+          size_(static_cast<std::uint32_t>(uniformBlock_->GetSize())),
           arbitraryStorageData_(std::vector<char>(size_)),
           storageBuffer_(std::make_unique<StorageBuffer>(
                           static_cast<VkDeviceSize>(size_))) {}
@@ -18,11 +18,11 @@ void StorageHandle::Destroy() const
 	if (storageBuffer_) storageBuffer_->Destroy();
 }
 
-void StorageHandle::Push(const void* data, std::size_t size)
+void StorageHandle::Push(const void* data, const std::size_t size)
 {
     if (size != size_)
     {
-        size_ = static_cast<uint32_t>(size);
+        size_ = static_cast<std::uint32_t>(size);
         handleStatus_ = Buffer::Status::RESET;
         return;
     }
@@ -44,9 +44,9 @@ bool StorageHandle::Update(const UniformBlock& uniformBlock)
     {
         if ((size_ == 0 && !uniformBlock_) ||
             (uniformBlock_ && *uniformBlock_ != uniformBlock &&
-             static_cast<uint32_t>(uniformBlock_->GetSize()) == size_))
+             static_cast<std::uint32_t>(uniformBlock_->GetSize()) == size_))
         {
-            size_ = static_cast<uint32_t>(uniformBlock.GetSize());
+            size_ = static_cast<std::uint32_t>(uniformBlock.GetSize());
         }
 
         uniformBlock_ = std::experimental::optional<const UniformBlock&>(uniformBlock);

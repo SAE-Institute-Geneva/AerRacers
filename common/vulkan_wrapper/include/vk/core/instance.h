@@ -38,8 +38,8 @@ static void CmdPushDescriptorSetKhr(
         VkCommandBuffer commandBuffer,
         VkPipelineBindPoint pipelineBindPoint,
         VkPipelineLayout layout,
-        uint32_t set,
-        uint32_t descriptorWriteCount,
+        std::uint32_t set,
+        std::uint32_t descriptorWriteCount,
         const VkWriteDescriptorSet*
         pDescriptorSet);
 }

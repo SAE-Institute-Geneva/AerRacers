@@ -6,7 +6,7 @@ namespace neko::vk
 class Buffer
 {
 public:
-    enum class Status : uint8_t
+    enum class Status : std::uint8_t
     {
         RESET = 0,
         CHANGED,
@@ -30,7 +30,7 @@ public:
 
     virtual void Destroy() const;
 
-    static uint32_t FindMemoryType(uint32_t typeFilter, const VkMemoryPropertyFlags& properties);
+    static std::uint32_t FindMemoryType(std::uint32_t typeFilter, const VkMemoryPropertyFlags& properties);
 
     static void CreateBuffer(
             const VkPhysicalDevice& gpu,

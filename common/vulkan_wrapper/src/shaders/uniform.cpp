@@ -3,13 +3,13 @@
 namespace neko::vk
 {
 Uniform::Uniform(
-        uint32_t binding,
-        uint32_t offset,
-        uint32_t size,
-        uint32_t glType,
-        bool readOnly,
-        bool writeOnly,
-        VkShaderStageFlags stageFlags)
+        const std::uint32_t binding,
+        const std::uint32_t offset,
+        const std::uint32_t size,
+        const std::uint32_t glType,
+        const bool readOnly,
+        const bool writeOnly,
+        const VkShaderStageFlags stageFlags)
         : binding_(binding),
         offset_(offset),
         size_(size),

@@ -52,7 +52,7 @@ private:
     bool multiPipeline_;
 
     std::experimental::optional<const UniformBlock&> uniformBlock_ = std::experimental::nullopt;
-    uint32_t size_ = 0;
+    std::uint32_t size_ = 0;
     std::vector<char> arbitraryStorageData_;
     std::unique_ptr<StorageBuffer> storageBuffer_ = nullptr;
 

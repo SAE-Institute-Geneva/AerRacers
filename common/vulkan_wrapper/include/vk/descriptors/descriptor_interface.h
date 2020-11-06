@@ -12,6 +12,6 @@ public:
 	virtual void Destroy() const = 0;
 
     [[nodiscard]] virtual WriteDescriptorSet GetWriteDescriptor(
-            uint32_t binding, VkDescriptorType descriptorType) const = 0;
+            std::uint32_t binding, VkDescriptorType descriptorType) const = 0;
 };
 }

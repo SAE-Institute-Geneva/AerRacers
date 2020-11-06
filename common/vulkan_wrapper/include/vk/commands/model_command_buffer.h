@@ -56,7 +56,7 @@ private:
     //std::vector<std::unique_ptr<ModelInstance>> modelInstances_;
 
     //Data for forward rendering
-    uint64_t nextFreeForwardIndex_ = 0;
+    std::uint64_t nextFreeForwardIndex_ = 0;
     std::vector<ForwardDrawCmd> forwardDrawingCmd_;
 };
 }

@@ -58,7 +58,7 @@ public:
 private:
     bool multiPipeline_;
 
-    uint32_t size_ = 0;
+    std::uint32_t size_ = 0;
     std::vector<char> arbitraryUniformData_{};
 
     std::experimental::optional<const UniformBlock&> uniformBlock_ = std::experimental::nullopt;

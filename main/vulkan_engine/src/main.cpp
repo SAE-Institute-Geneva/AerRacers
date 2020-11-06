@@ -7,17 +7,18 @@
 
 int main(int argc, char** argv)
 {
-    neko::Configuration config;
-    config.windowSize = neko::Vec2u(1280, 720);
+	using namespace neko;
+    Configuration config;
+    config.windowSize = Vec2u(1280, 720);
     config.windowName = "Vulkan Creation Test";
 
-    neko::vk::VkEngine engine(&config);
-    neko::sdl::VulkanWindow window;
+    vk::VkEngine engine(&config);
+    sdl::VulkanWindow window;
     engine.SetWindowAndRenderer(&window);
     engine.Init();
 
-    neko::vk::VkRenderer renderer(&window);
-    renderer.SetRenderer(std::make_unique<neko::vk::RendererEditor>());
+    vk::VkRenderer renderer(&window);
+    renderer.SetRenderer(std::make_unique<vk::RendererEditor>());
     engine.SetWindowAndRenderer(&window, &renderer);
 
     engine.EngineLoop();

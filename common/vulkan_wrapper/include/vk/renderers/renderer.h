@@ -25,7 +25,7 @@ public:
         renderStages_.emplace_back(std::move(renderStage));
     }
 
-    [[nodiscard]] RenderStage& GetRenderStage(const uint32_t index) const
+    [[nodiscard]] RenderStage& GetRenderStage(const std::uint32_t index) const
     {
         neko_assert(!renderStages_.empty() && renderStages_.size() > index, "Error while accessing render stages!")
 

@@ -24,6 +24,6 @@ void PushHandle::BindPush(const CommandBuffer& commandBuffer, const Pipeline& pi
     vkCmdPushConstants(VkCommandBuffer(commandBuffer),
             pipeline.GetPipelineLayout(),
             uniformBlock_->GetStageFlags(), 0,
-            static_cast<uint32_t>(uniformBlock_->GetSize()), &data_[0]);
+            static_cast<std::uint32_t>(uniformBlock_->GetSize()), &data_[0]);
 }
 }

@@ -1,5 +1,4 @@
 #pragma once
-#include "vk/vulkan_include.h"
 #include "mathematics/vector.h"
 
 namespace neko::vk

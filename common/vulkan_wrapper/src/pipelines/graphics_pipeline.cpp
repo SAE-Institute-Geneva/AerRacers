@@ -78,7 +78,7 @@ void GraphicsPipeline::CreateDescriptorLayout()
     descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
     descriptorSetLayoutCreateInfo.flags = pushDescriptors_ ?
                                           VK_DESCRIPTOR_SET_LAYOUT_CREATE_PUSH_DESCRIPTOR_BIT_KHR : 0;
-    descriptorSetLayoutCreateInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayouts.size());
+    descriptorSetLayoutCreateInfo.bindingCount = static_cast<std::uint32_t>(descriptorSetLayouts.size());
     descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayouts.data();
     const VkResult res = vkCreateDescriptorSetLayout(
             VkDevice(vkObj.device), &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout_);
@@ -95,7 +95,7 @@ void GraphicsPipeline::CreateDescriptorPool()
     descriptorPoolCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
     descriptorPoolCreateInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
     descriptorPoolCreateInfo.maxSets = 8192; // 16384;
-    descriptorPoolCreateInfo.poolSizeCount = static_cast<uint32_t>(descriptorPools.size());
+    descriptorPoolCreateInfo.poolSizeCount = static_cast<std::uint32_t>(descriptorPools.size());
     descriptorPoolCreateInfo.pPoolSizes = descriptorPools.data();
     const VkResult res = vkCreateDescriptorPool(
             VkDevice(vkObj.device), &descriptorPoolCreateInfo, nullptr, &descriptorPool_);
@@ -112,7 +112,7 @@ void GraphicsPipeline::CreatePipelineLayout()
     pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipelineLayoutCreateInfo.setLayoutCount = 1;
     pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout_;
-    pipelineLayoutCreateInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstantRanges.size());
+    pipelineLayoutCreateInfo.pushConstantRangeCount = static_cast<std::uint32_t>(pushConstantRanges.size());
     pipelineLayoutCreateInfo.pPushConstantRanges = pushConstantRanges.data();
     const VkResult res = vkCreatePipelineLayout(
             VkDevice(vkObj.device), &pipelineLayoutCreateInfo, nullptr, &layout_);
@@ -192,7 +192,7 @@ void GraphicsPipeline::CreateAttributes()
     }
 
     dynamicStateCreateInfo_.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-    dynamicStateCreateInfo_.dynamicStateCount = static_cast<uint32_t>(kDynamicStates.size());
+    dynamicStateCreateInfo_.dynamicStateCount = static_cast<std::uint32_t>(kDynamicStates.size());
     dynamicStateCreateInfo_.pDynamicStates = kDynamicStates.data();
 
     tessellationStateCreateInfo_.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
@@ -206,7 +206,7 @@ void GraphicsPipeline::CreatePipeline()
 
     std::vector<VkVertexInputBindingDescription> bindingDescriptions;
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
-    uint32_t lastAttribute = 0;
+    std::uint32_t lastAttribute = 0;
 
     for (const auto& vertexInput : vertexInputs_)
     {
@@ -224,15 +224,15 @@ void GraphicsPipeline::CreatePipeline()
 
     vertexInputStateCreateInfo_.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertexInputStateCreateInfo_.vertexBindingDescriptionCount =
-            static_cast<uint32_t>(bindingDescriptions.size());
+            static_cast<std::uint32_t>(bindingDescriptions.size());
     vertexInputStateCreateInfo_.pVertexBindingDescriptions = bindingDescriptions.data();
     vertexInputStateCreateInfo_.vertexAttributeDescriptionCount =
-            static_cast<uint32_t>(attributeDescriptions.size());
+            static_cast<std::uint32_t>(attributeDescriptions.size());
     vertexInputStateCreateInfo_.pVertexAttributeDescriptions = attributeDescriptions.data();
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
     pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineCreateInfo.stageCount = static_cast<uint32_t>(shaderProgram_.pipelineStages.size());
+    pipelineCreateInfo.stageCount = static_cast<std::uint32_t>(shaderProgram_.pipelineStages.size());
     pipelineCreateInfo.pStages = shaderProgram_.pipelineStages.data();
 
     pipelineCreateInfo.pVertexInputState = &vertexInputStateCreateInfo_;
@@ -265,7 +265,7 @@ void GraphicsPipeline::CreatePipelineMrt()
     std::vector<VkPipelineColorBlendAttachmentState> blendAttachmentStates;
     blendAttachmentStates.reserve(attachmentCount);
 
-    for (uint32_t i = 0; i < attachmentCount; i++)
+    for (std::uint32_t i = 0; i < attachmentCount; i++)
     {
         VkPipelineColorBlendAttachmentState blendAttachmentState = {};
         blendAttachmentState.blendEnable = VK_TRUE;
@@ -281,7 +281,7 @@ void GraphicsPipeline::CreatePipelineMrt()
         blendAttachmentStates.emplace_back(blendAttachmentState);
     }
 
-    colorBlendStateCreateInfo_.attachmentCount = static_cast<uint32_t>(blendAttachmentStates.size());
+    colorBlendStateCreateInfo_.attachmentCount = static_cast<std::uint32_t>(blendAttachmentStates.size());
     colorBlendStateCreateInfo_.pAttachments = blendAttachmentStates.data();
 
     CreatePipeline();

@@ -2,8 +2,6 @@
 #include <utility>
 
 #include "vk/vulkan_include.h"
-#include "vk/core/logical_device.h"
-#include "vk/framebuffers/swapchain.h"
 #include "vk/render_stage/render_stage.h"
 
 namespace neko::vk
@@ -19,14 +17,14 @@ public:
         SubpassDescription(
                 const VkPipelineBindPoint bindPoint,
                 std::vector<VkAttachmentReference> colorAttachments,
-                uint32_t depthAttachment = INVALID_INDEX)
+                const std::uint32_t depthAttachment = INVALID_INDEX)
                 : subpassDescription_({})
                 , colorAttachments_(std::move(colorAttachments))
                 , depthStencilAttachment_({})
         {
             subpassDescription_.pipelineBindPoint = bindPoint;
             subpassDescription_.colorAttachmentCount =
-                    static_cast<uint32_t>(colorAttachments_.size());
+                    static_cast<std::uint32_t>(colorAttachments_.size());
             subpassDescription_.pColorAttachments = colorAttachments_.data();
 
             if (depthAttachment != INVALID_INDEX)

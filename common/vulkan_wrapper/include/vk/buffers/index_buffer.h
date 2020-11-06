@@ -6,6 +6,6 @@ namespace neko::vk
 class IndexBuffer : public Buffer
 {
 public:
-    void Init(const uint16_t indices[], size_t indexNum);
+    void Init(const std::uint16_t indices[], std::size_t indexNum);
 };
 }

@@ -11,7 +11,7 @@ namespace neko::vk
 class RenderPipeline;
 class UniformHandle;
 
-class SubrendererOpaque : public RenderPipeline
+class SubrendererOpaque final : public RenderPipeline
 {
 public:
     explicit SubrendererOpaque(Pipeline::Stage stage);
@@ -29,12 +29,12 @@ private:
     UniformHandle uniformScene_;
 
     ModelCommandBuffer& modelCmdBuffer_;
-
+    
+    inline static const auto kUboSceneHash = HashString("UboScene");
     inline static const auto kProjectionHash = HashString("proj");
     inline static const auto kViewHash = HashString("view");
-    inline static const auto kTransformHash = HashString("transform");
-    inline static const auto kUboSceneHash = HashString("UboScene");
     inline static const auto kUboObjectHash = HashString("UboObject");
+    inline static const auto kModelHash = HashString("model");
 
     RenderQuad quad_{Vec3f::zero, Vec2f::one};
 };

@@ -23,7 +23,7 @@ DescriptorSet::DescriptorSet(const Pipeline& pipeline)
 void DescriptorSet::Update(const std::vector<VkWriteDescriptorSet>& descriptors)
 {
     const auto& device = VkDevice(VkObjectsLocator::get().device);
-    vkUpdateDescriptorSets(device, static_cast<uint32_t>(descriptors.size()),
+    vkUpdateDescriptorSets(device, static_cast<std::uint32_t>(descriptors.size()),
             descriptors.data(), 0, nullptr);
 }
 

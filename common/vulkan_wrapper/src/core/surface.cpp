@@ -12,7 +12,7 @@ void Surface::SetFormat()
 {
     const auto& vkObj = VkObjectsLocator::get();
 
-    uint32_t formatCount = 0;
+    std::uint32_t formatCount = 0;
     vkGetPhysicalDeviceSurfaceFormatsKHR(VkPhysicalDevice(vkObj.gpu), surface_,
                                          &formatCount, nullptr);
     std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);

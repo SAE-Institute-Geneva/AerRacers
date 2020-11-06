@@ -3,7 +3,7 @@
 
 namespace neko::vk
 {
-class RendererEditor : public Renderer
+class RendererEditor final : public Renderer
 {
 public:
     RendererEditor() = default;

@@ -11,7 +11,7 @@ void LogicalDevice::Init()
     const QueueFamilyIndices& queueFamilyIndices = vkObj.gpu.GetQueueFamilyIndices();
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    uint32_t uniqueQueueFamilies[] = {
+    std::uint32_t uniqueQueueFamilies[] = {
             queueFamilyIndices.graphicsFamily,
             queueFamilyIndices.presentFamily
     };
@@ -28,7 +28,7 @@ void LogicalDevice::Init()
     }
     else
     {
-        for (uint32_t queueFamily : uniqueQueueFamilies)
+        for (std::uint32_t queueFamily : uniqueQueueFamilies)
         {
             VkDeviceQueueCreateInfo queueCreateInfo{};
             queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
@@ -46,17 +46,17 @@ void LogicalDevice::Init()
     VkDeviceCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
     createInfo.pQueueCreateInfos = queueCreateInfos.data();
-    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+    createInfo.queueCreateInfoCount = static_cast<std::uint32_t>(queueCreateInfos.size());
     createInfo.pEnabledFeatures = &deviceFeatures;
 
 #ifdef VALIDATION_LAYERS
-    createInfo.enabledLayerCount = static_cast<uint32_t>(kValidationLayers.size());
+    createInfo.enabledLayerCount = static_cast<std::uint32_t>(kValidationLayers.size());
     createInfo.ppEnabledLayerNames = kValidationLayers.data();
 #else
     createInfo.enabledLayerCount = 0;
 #endif
 
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(kDeviceExtensions.size());
+    createInfo.enabledExtensionCount = static_cast<std::uint32_t>(kDeviceExtensions.size());
     createInfo.ppEnabledExtensionNames = kDeviceExtensions.data();
 
     // Finally we're ready to create a new device

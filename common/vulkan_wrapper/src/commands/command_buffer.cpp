@@ -63,14 +63,17 @@ void CommandBuffer::SubmitIdle()
     submitInfo.commandBufferCount = 1;
     submitInfo.pCommandBuffers = &commandBuffer_;
 
-    VkResult res = vkQueueSubmit(queueSelected, 1, &submitInfo, VK_NULL_HANDLE);
+    VkResult res = vkQueueSubmit(queueSelected, 1, &submitInfo, nullptr);
     neko_assert(res == VK_SUCCESS, "Could not submit command buffer to queue!")
 
     res = vkQueueWaitIdle(queueSelected);
     neko_assert(res == VK_SUCCESS, "Error while waiting for queue!")
 }
 
-void CommandBuffer::Submit(VkSemaphore const& waitSemaphore, VkSemaphore const& signalSemaphore, VkFence fence)
+void CommandBuffer::Submit(
+    const VkSemaphore& waitSemaphore, 
+    const VkSemaphore& signalSemaphore,
+    VkFence fence)
 {
     const auto& vkObj = VkObjectsLocator::get();
     const auto queueSelected = GetQueue();
@@ -103,7 +106,7 @@ void CommandBuffer::Submit(VkSemaphore const& waitSemaphore, VkSemaphore const& 
     if (fence)
     {
         res = vkWaitForFences(VkDevice(vkObj.device), 1, &fence,
-                        VK_TRUE, std::numeric_limits<uint64_t>::max());
+                        VK_TRUE, std::numeric_limits<std::uint64_t>::max());
         neko_assert(res == VK_SUCCESS, "Error while waiting for fence!")
 
         res = vkResetFences(VkDevice(vkObj.device), 1, &fence);

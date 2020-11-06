@@ -27,11 +27,11 @@ void UniformBuffer::Destroy() const
 }
 
 VkDescriptorSetLayoutBinding UniformBuffer::GetDescriptorSetLayout(
-	const uint32_t binding,
+	const std::uint32_t binding,
 	const VkDescriptorType descriptorType,
 	const VkShaderStageFlags stage)
 {
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
+    VkDescriptorSetLayoutBinding uboLayoutBinding;
     uboLayoutBinding.binding = binding;
     uboLayoutBinding.descriptorType = descriptorType;
     uboLayoutBinding.descriptorCount = 1;
@@ -41,10 +41,10 @@ VkDescriptorSetLayoutBinding UniformBuffer::GetDescriptorSetLayout(
 }
 
 WriteDescriptorSet UniformBuffer::GetWriteDescriptor(
-	const uint32_t binding,
+	const std::uint32_t binding,
 	const VkDescriptorType descriptorType) const
 {
-    VkDescriptorBufferInfo bufferInfo{};
+    VkDescriptorBufferInfo bufferInfo;
     bufferInfo.buffer = buffer_;
     bufferInfo.offset = 0;
     bufferInfo.range = size_;

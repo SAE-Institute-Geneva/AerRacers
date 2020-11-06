@@ -14,7 +14,7 @@ void Swapchain::Init()
     const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
     const VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
     const VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities);
-    uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+    std::uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
     if (swapChainSupport.capabilities.maxImageCount > 0 &&
         imageCount > swapChainSupport.capabilities.maxImageCount)
         imageCount = swapChainSupport.capabilities.maxImageCount;
@@ -36,7 +36,7 @@ void Swapchain::Init()
     createInfo.oldSwapchain = {};
 
     const QueueFamilyIndices& queueIndices = vkObj.gpu.GetQueueFamilyIndices();
-    uint32_t queueFamilyIndices[] = {
+    std::uint32_t queueFamilyIndices[] = {
             queueIndices.graphicsFamily,
             queueIndices.presentFamily
     };
@@ -78,7 +78,7 @@ void Swapchain::Init(Swapchain& oldSwapchain)
     const VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
     const VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities);
     extent_ = extent;
-    uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+    std::uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
     if (swapChainSupport.capabilities.maxImageCount > 0 &&
         imageCount > swapChainSupport.capabilities.maxImageCount)
         imageCount = swapChainSupport.capabilities.maxImageCount;
@@ -100,7 +100,7 @@ void Swapchain::Init(Swapchain& oldSwapchain)
     createInfo.oldSwapchain = VkSwapchainKHR(oldSwapchain);
 
     const QueueFamilyIndices& queueIndices = vkObj.gpu.GetQueueFamilyIndices();
-    uint32_t queueFamilyIndices[] = {
+    std::uint32_t queueFamilyIndices[] = {
             queueIndices.graphicsFamily,
             queueIndices.presentFamily
     };
@@ -144,12 +144,12 @@ void Swapchain::Destroy()
 VkResult Swapchain::AcquireNextImage(const VkSemaphore& presentCompleteSemaphore, VkFence fence)
 {
     const auto& device = VkDevice(VkObjectsLocator::get().device);
-    if (fence != VK_NULL_HANDLE)
+    if (fence)
         vkWaitForFences(device, 1, &fence, VK_TRUE, std::numeric_limits<std::uint64_t>::max());
 
     const VkResult res = vkAcquireNextImageKHR(device, swapchain_,
-            std::numeric_limits<uint64_t>::max(), presentCompleteSemaphore,
-            VK_NULL_HANDLE, &currentImage_);
+            std::numeric_limits<std::uint64_t>::max(), presentCompleteSemaphore,
+            nullptr, &currentImage_);
     neko_assert(res == VK_SUCCESS || res == VK_SUBOPTIMAL_KHR || res == VK_ERROR_OUT_OF_DATE_KHR,
             "Failed to acquire swapchain image")
 

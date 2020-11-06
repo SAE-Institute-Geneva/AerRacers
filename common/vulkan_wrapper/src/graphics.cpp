@@ -57,23 +57,24 @@ VkRenderer::VkRenderer(sdl::VulkanWindow* window) : Renderer(), IVkObjects(windo
             Attribute(63, 1, sizeof(Vec3f), Attribute::AttributeType::VEC3F));
     testShader_.AddAttribute(HashString("inTexCoords"),
             Attribute(63, 2, sizeof(Vec2f), Attribute::AttributeType::VEC2F));
-    /*testShader_.AddAttribute(HashString("inModelMatrix"),
-            Attribute(63, 5, sizeof(Mat4f), Attribute::AttributeType::VEC4F));*/
 
-    UniformBlock ubo(0, sizeof(Mat4f) * 2, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
+    UniformBlock ubo(0, sizeof(Mat4f) * 2, VK_SHADER_STAGE_VERTEX_BIT);
     ubo.AddUniform(HashString("view"),
-            Uniform(0, 0, sizeof(Mat4f), VK_FORMAT_R32G32B32A32_SFLOAT, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT));
+            Uniform(0, 0, sizeof(Mat4f), VK_FORMAT_R32G32B32A32_SFLOAT, VK_SHADER_STAGE_VERTEX_BIT));
     ubo.AddUniform(HashString("proj"),
-            Uniform(0, sizeof(Mat4f), sizeof(Mat4f), VK_FORMAT_R32G32B32A32_SFLOAT, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT));
+            Uniform(0, sizeof(Mat4f), sizeof(Mat4f), VK_FORMAT_R32G32B32A32_SFLOAT, VK_SHADER_STAGE_VERTEX_BIT));
+	
+    UniformBlock object(1, sizeof(Mat4f), VK_SHADER_STAGE_VERTEX_BIT);
+    object.AddUniform(HashString("model"),
+            Uniform(0, 0, sizeof(Mat4f), VK_FORMAT_R32G32B32A32_SFLOAT, VK_SHADER_STAGE_VERTEX_BIT));
 
     testShader_.AddUniformBlock(HashString("UboScene"), ubo);
+    testShader_.AddUniformBlock(HashString("UboObject"), object);
 
     commandPools = std::make_unique<CommandPool>();
     commandPools->Init();
 
     CreatePipelineCache();
-
-    Renderer::AddPreRenderJob(&initJob_);
 }
 
 VkRenderer::~VkRenderer()
@@ -399,7 +400,7 @@ void VkRenderer::SetRenderer(std::unique_ptr<vk::Renderer>&& renderer)
     this->renderer->Init();
 }
 
-RenderStage& VkRenderer::GetRenderStage(uint32_t index) const
+RenderStage& VkRenderer::GetRenderStage(const uint32_t index) const
 {
     return renderer->GetRenderStage(index);
 }

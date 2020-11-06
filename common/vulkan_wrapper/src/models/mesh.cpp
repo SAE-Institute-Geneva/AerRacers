@@ -2,10 +2,10 @@
 
 namespace neko::vk
 {
-Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<std::uint32_t>& indices)
     : Mesh() { InitData(vertices, indices); }
 
-void Mesh::InitData(const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+void Mesh::InitData(const std::vector<Vertex>& vertices, const std::vector<std::uint32_t>& indices)
 {
     SetVertices(vertices);
     SetIndices(indices);
@@ -47,7 +47,7 @@ void Mesh::Init()
     InitData(GetVertices(0), GetIndices(0));
 }
 
-bool Mesh::CmdRender(const CommandBuffer& commandBuffer, uint32_t instance) const
+bool Mesh::CmdRender(const CommandBuffer& commandBuffer, const std::uint32_t instance) const
 {
     if (!vertexBuffer_) return false;
 
@@ -61,7 +61,7 @@ bool Mesh::CmdRender(const CommandBuffer& commandBuffer, uint32_t instance) cons
     return true;
 }
 
-std::vector<Vertex> Mesh::GetVertices(const size_t offset) const
+std::vector<Vertex> Mesh::GetVertices(const std::size_t offset) const
 {
     if (!vertexBuffer_) return {};
     const Buffer vertexStaging(
@@ -85,7 +85,7 @@ std::vector<Vertex> Mesh::GetVertices(const size_t offset) const
 
     const auto sizeOfSrcT = vertexStaging.GetSize() / vertexCount_;
 
-    for (uint32_t i = 0; i < vertexCount_; i++)
+    for (std::uint32_t i = 0; i < vertexCount_; i++)
     {
         memcpy(&vertices[i],
                static_cast<char *>(verticesMemory) + (i * sizeOfSrcT) + offset,
@@ -99,7 +99,7 @@ std::vector<Vertex> Mesh::GetVertices(const size_t offset) const
 void Mesh::SetVertices(const std::vector<Vertex>& vertices)
 {
     vertexBuffer_.reset();
-    vertexCount_ = static_cast<uint32_t>(vertices.size());
+    vertexCount_ = static_cast<std::uint32_t>(vertices.size());
 
     if (vertices.empty()) return;
 
@@ -126,7 +126,7 @@ void Mesh::SetVertices(const std::vector<Vertex>& vertices)
 	vertexStaging.Destroy();
 }
 
-std::vector<uint32_t> Mesh::GetIndices(size_t offset) const
+std::vector<std::uint32_t> Mesh::GetIndices(const std::size_t offset) const
 {
     if (!indexBuffer_) return {};
 
@@ -146,30 +146,30 @@ std::vector<uint32_t> Mesh::GetIndices(size_t offset) const
 
     char *indicesMemory;
     indexStaging.MapMemory(&indicesMemory);
-    std::vector<uint32_t> indices(indexCount_);
+    std::vector<std::uint32_t> indices(indexCount_);
 
     const auto sizeOfSrcT = indexStaging.GetSize() / indexCount_;
 
-    for (uint32_t i = 0; i < indexCount_; i++)
+    for (std::uint32_t i = 0; i < indexCount_; i++)
     {
         memcpy(&indices[i],
                static_cast<char *>(indicesMemory) + (i * sizeOfSrcT) + offset,
-               sizeof(uint32_t));
+               sizeof(std::uint32_t));
     }
 
     indexStaging.UnmapMemory();
     return indices;
 }
 
-void Mesh::SetIndices(const std::vector<uint32_t>& indices)
+void Mesh::SetIndices(const std::vector<std::uint32_t>& indices)
 {
     indexBuffer_.reset();
-    indexCount_ = static_cast<uint32_t>(indices.size());
+    indexCount_ = static_cast<std::uint32_t>(indices.size());
 
     if (indices.empty()) return;
 
     const auto indexStaging = Buffer(
-            sizeof(uint32_t) * indices.size(),
+            sizeof(std::uint32_t) * indices.size(),
             VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
             indices.data());

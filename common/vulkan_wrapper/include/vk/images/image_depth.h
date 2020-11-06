@@ -4,7 +4,7 @@
 
 namespace neko::vk
 {
-class ImageDepth : public Image
+class ImageDepth final : public Image
 {
 public:
     explicit ImageDepth(const Vec2u& extent, VkSampleCountFlagBits samples = VK_SAMPLE_COUNT_1_BIT);

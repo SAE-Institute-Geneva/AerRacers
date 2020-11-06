@@ -19,22 +19,22 @@ struct Attribute
     };
 
     explicit Attribute(
-            uint32_t set = INVALID_INDEX,
-            uint32_t location = INVALID_INDEX,
-            uint32_t size = INVALID_INDEX,
+            std::uint32_t set = INVALID_INDEX,
+            std::uint32_t location = INVALID_INDEX,
+            std::uint32_t size = INVALID_INDEX,
             AttributeType type = AttributeType::UNDEFINED);
 
-    [[nodiscard]] uint32_t GetSet() const { return set_; }
-    [[nodiscard]] uint32_t GetLocation() const { return location_; }
-    [[nodiscard]] uint32_t GetSize() const { return size_; }
+    [[nodiscard]] std::uint32_t GetSet() const { return set_; }
+    [[nodiscard]] std::uint32_t GetLocation() const { return location_; }
+    [[nodiscard]] std::uint32_t GetSize() const { return size_; }
     [[nodiscard]] AttributeType GetType() const { return type_; }
 
     [[nodiscard]] VkFormat GetVkFormat() const;
 
 private:
-    uint32_t set_ = INVALID_INDEX;
-    uint32_t location_ = INVALID_INDEX;
-    uint32_t size_ = INVALID_INDEX;
+    std::uint32_t set_ = INVALID_INDEX;
+    std::uint32_t location_ = INVALID_INDEX;
+    std::uint32_t size_ = INVALID_INDEX;
     AttributeType type_ = AttributeType::UNDEFINED;
 };
 
@@ -61,9 +61,9 @@ public:
             GetDescriptorPoolSizes() const { return descriptorPoolSizes_; }
     [[nodiscard]] std::vector<VkPushConstantRange> GetPushConstantRanges() const;
 
-    [[nodiscard]] uint32_t GetDescriptorLocation(const std::string_view& name) const;
-    [[nodiscard]] uint32_t GetDescriptorLocation(const XXH64_hash_t& descriptorHash) const;
-    [[nodiscard]] VkDescriptorType GetDescriptorType(uint32_t location) const;
+    [[nodiscard]] std::uint32_t GetDescriptorLocation(const std::string_view& name) const;
+    [[nodiscard]] std::uint32_t GetDescriptorLocation(const XXH64_hash_t& descriptorHash) const;
+    [[nodiscard]] VkDescriptorType GetDescriptorType(std::uint32_t location) const;
 
     [[nodiscard]] const UniformBlock& GetUniformBlock(const std::string_view& name) const;
     [[nodiscard]] const UniformBlock& GetUniformBlock(XXH64_hash_t descriptorHash) const;
@@ -74,7 +74,7 @@ public:
 
 private:
     static void IncrementDescriptorPool(
-            std::map<VkDescriptorType, uint32_t>& descriptorPoolCounts,
+            std::map<VkDescriptorType, std::uint32_t>& descriptorPoolCounts,
             VkDescriptorType type);
 
     std::string shaderPath_{};
@@ -84,13 +84,13 @@ private:
     std::map<XXH64_hash_t, Uniform> uniforms_{};
     std::map<XXH64_hash_t, Attribute> attributes_{};
 
-    std::map<XXH64_hash_t, uint32_t> descriptorLocations_{};
-    std::map<XXH64_hash_t, uint32_t> descriptorSizes_{};
+    std::map<XXH64_hash_t, std::uint32_t> descriptorLocations_{};
+    std::map<XXH64_hash_t, std::uint32_t> descriptorSizes_{};
 
-    uint32_t lastDescriptorBinding_ = 0;
+    std::uint32_t lastDescriptorBinding_ = 0;
     std::vector<VkVertexInputAttributeDescription> attributeDescriptions_{};
     std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings_{};
     std::vector<VkDescriptorPoolSize> descriptorPoolSizes_{};
-    std::map<uint32_t, VkDescriptorType> descriptorTypes_{};
+    std::map<std::uint32_t, VkDescriptorType> descriptorTypes_{};
 };
 }
