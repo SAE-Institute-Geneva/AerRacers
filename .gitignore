@@ -34,13 +34,25 @@
 *.out
 *.app
 
+# Resharper C++ Files
+.idea/*
+*.user
+
 #clion generation files
+*/.vs/*
+.vs/*
+Build/*
+CMakeSettings.json
+Folder.DotSettings.user
+build/*
 cmake-build-debug/*
 cmake-build-release/*
 cmake-build-relwithdebinfo/*
-CMakeSettings.json
 out/*
-.vs/*
-build/*
-Build/*
 web_build/*
+
+# glsl validator temp files
+/scripts/validator/__pycache__/*
+
+# log files
+/data/logs/*
