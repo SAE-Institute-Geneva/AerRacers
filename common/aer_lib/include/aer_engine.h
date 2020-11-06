@@ -55,7 +55,7 @@ public:
 
     void GenerateUiFrame() override;
 
-    Tool* GetTool(TypeTool type); //TODO (Luca@Dylan) Find another way to recup tool for testing
+    EditorToolInterface* GetTool(ToolType type); //TODO (Luca@Dylan) Find another way to recup tool for testing
 
 private:
     ModeEnum mode_;
@@ -63,6 +63,6 @@ private:
     DrawSystem drawSystem_;
     std::unique_ptr<LogManager> logManager_;
 
-    ToolManager toolManager_;
+    EditorToolManager toolManager_;
 };
 }

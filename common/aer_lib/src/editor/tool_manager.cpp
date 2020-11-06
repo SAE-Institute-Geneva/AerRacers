@@ -2,97 +2,94 @@
 #include "editor/tool_manager.h"
 #include "editor/tool/logger.h"
 
-namespace neko::aer //TODOCR(Luca@Dylan)  Apply Code Style
+namespace neko::aer
 {
-    ToolManager::ToolManager(AerEngine& engine) : engine_(engine)
-    {
-    }
+EditorToolManager::EditorToolManager(AerEngine& engine) : engine_(engine)
+{
+}
 
-    void ToolManager::Init()
-    {
-        //LOGGER
-        tools_.push_back(new Logger(TypeTool::LOG));
-        engine_.RegisterSystem(*tools_.back());
-        engine_.RegisterOnEvent(*tools_.back());
-        engine_.RegisterOnDrawUi(*tools_.back());
-    }
+void EditorToolManager::Init()
+{
+	AddEditorTool<Logger, ToolType::LOG>();
+}
 
 
+void EditorToolManager::Update(seconds dt)
+{
+	for (auto& tool : tools_)
+	{
+		tool->Update(dt);
+	}
+}
 
-    void ToolManager::Update(seconds dt)
-    {
+void EditorToolManager::Destroy()
+{
+	for (auto& tool : tools_)
+	{
+		tool->Destroy();
+	}
 
-    }
+	tools_.clear();
+}
 
-    void ToolManager::Destroy()
-    {
-        for (Tool* tool : tools_) {
-            tool->Destroy();
-        }
-    }
+void EditorToolManager::DrawImGui()
+{
+	ImGuiIO io = ImGui::GetIO();
 
-    void ToolManager::DrawImGui()
-    {
-        ImGuiIO io = ImGui::GetIO();
+	//Editor Menu
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("Settings"))
+		{
+			DrawList();
+			ImGui::EndMenu();
+		}
 
-        //Editor Menu
-        if (ImGui::BeginMainMenuBar())
-        {
-            if (ImGui::BeginMenu("Settings"))
-            {
-                DrawList();
-                ImGui::EndMenu();
-            }
+		if (ImGui::BeginMenu("Tools"))
+		{
+			DrawList();
+			ImGui::EndMenu();
+		}
 
-            if (ImGui::BeginMenu("Tools"))
-            {
-                DrawList();
-                ImGui::EndMenu();
-            }
+		if (ImGui::BeginMenu("Help"))
+		{
+			if (ImGui::MenuItem("About Neko"))
+			{
+				aboutVisible_ = true;
+			}
+			ImGui::EndMenu();
+		}
+		ImGui::EndMainMenuBar();
+	}
 
-            if (ImGui::BeginMenu("Help"))
-            {
-                if (ImGui::MenuItem("About Neko")) {
-                    aboutVisible_ = true;
-                }
-                ImGui::EndMenu();
-            }
-            ImGui::EndMainMenuBar();
-        }
+	if (aboutVisible_)
+	{
+		//Todo Change
+		ImGui::Begin("About", &aboutVisible_);
+		ImGui::Text(("Welcome to " + (engine_.config.windowName)).c_str());
+		ImGui::Text("Best Editor Ever");
+		ImGui::Separator();
+		ImGui::Text("Neko is a 3D game engine based on SDL2 and OpenGL ES 3.0 that works on Desktop,");
+		ImGui::Text("WebGL2 and Nintendo Switch (port to Android and iOS possible) used at SAE Institute Geneva.");
+		ImGui::Text("");
+		ImGui::Text("Copyright(c) 2020 SAE Institute Switzerland AG");
+		ImGui::End();
+	}
 
-        if (aboutVisible_) {
-            ImGui::Begin("About", &aboutVisible_);
-            ImGui::Text(("Welcome to " + (engine_.config.windowName)).c_str());
-            ImGui::Text("Best Editor Ever");
-            ImGui::Separator();
-            ImGui::Text("Neko is a 3D game engine based on SDL2 and OpenGL ES 3.0 that works on Desktop,");
-            ImGui::Text("WebGL2 and Nintendo Switch (port to Android and iOS possible) used at SAE Institute Geneva.");
-            ImGui::Text("");
-            ImGui::Text("Copyright(c) 2020 SAE Institute Switzerland AG");
-            ImGui::End();
-        }
-    }
+	// TODO DrawImgui Tools
+}
 
-    void ToolManager::DrawList()
-    {
-        if (ImGui::MenuItem("Logger", "Ctrl+L")) {
-            GetTool(TypeTool::LOG)->isVisible = true;
-        }
-    }
+void EditorToolManager::DrawList()
+{
+	//std::find_if
+	if (ImGui::MenuItem("Logger", "Ctrl+L"))
+	{
+		GetTool(ToolType::LOG)->isVisible = true;
+	}
+}
 
-
-    Tool* ToolManager::GetTool(TypeTool type) {
-        for (Tool* t : tools_) {
-            if (t->type == type) {
-                return t;
-            }
-        }
-        return nullptr;
-    }
-
-    void ToolManager::OnEvent(const SDL_Event& event)
-    {
-
-    }
-
+void EditorToolManager::OnEvent(const SDL_Event& event)
+{
+	// Todo Even Tools
+}
 }

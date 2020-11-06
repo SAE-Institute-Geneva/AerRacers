@@ -35,170 +35,189 @@
 #include "editor/tool/logger.h"
 #include "log.h"
 
-class SimulateLogger : public neko::SystemInterface {
-    public:
-        SimulateLogger(neko::aer::AerEngine& engine) : engine_(engine)
-        {
-            logger_ = engine_.GetTool(neko::aer::TypeTool::LOG);
-            if (logger_ == nullptr) {
-                neko::LogDebug("Logger not found");
-                engine_.Stop();
-            }
-        }
+class SimulateLogger : public neko::SystemInterface
+{
+public:
+	SimulateLogger(neko::aer::AerEngine& engine) : engine_(engine)
+	{
+		logger_ = engine_.GetTool(neko::aer::TypeTool::LOG);
+		if (logger_ == nullptr)
+		{
+			neko::LogDebug("Logger not found");
+			engine_.Stop();
+		}
+	}
 
-        void Init() override { }
+	void Init() override
+	{
+	}
 
-        void Update(neko::seconds dt) override
-        {
-            if (!testSucces_) {
-                if (nextTest_) {
-                    numberTest_++;
-                    if (numberTest_ == 4) {
-                        //TEST SUCCESS
-                        testSucces_ = true;
-                        return;
-                    }
-                    neko::LogDebug(msgTest_[numberTest_]);
-                    nextTest_ = false;
-                }
-                switch (numberTest_) {
-                    case 0: //TEST 1
-                    {
-                        if (logger_->isVisible) {
-                            neko::LogDebug("[TEST] Opening the Logger: OK");
-                            loggerOpen_ = true;
-                            nextTest_ = true;
-                        }
-                        else { logger_->isVisible = true; }
-                    }
-                    break;
+	void Update(neko::seconds dt) override
+	{
+		if (!testSucces_)
+		{
+			if (nextTest_)
+			{
+				numberTest_++;
+				if (numberTest_ == 4)
+				{
+					//TEST SUCCESS
+					testSucces_ = true;
+					return;
+				}
+				neko::LogDebug(msgTest_[numberTest_]);
+				nextTest_ = false;
+			}
+			switch (numberTest_)
+			{
+				case 0: //TEST 1
+					{
+						if (logger_->isVisible)
+						{
+							neko::LogDebug("[TEST] Opening the Logger: OK");
+							loggerOpen_ = true;
+							nextTest_ = true;
+						}
+						else { logger_->isVisible = true; }
+					}
+					break;
 
-                    case 1: //TEST 2
-                    {
-                        int nbr = neko::aer::Log::get().GetLogs().size();
-                        if (nbr <= std::pow(2, 20)) {
-                            for (size_t i = 0; i < 5000; i++) {
-                                int rdm = rand() % 5;
-                                switch (rdm) {
-                                    case 0:
-                                        neko::aer::DebugLog(
-                                            msgTest_[numberTest_]);
-                                        break;
-                                    case 1:
-                                        neko::aer::InfoLog(
-                                            msgTest_[numberTest_]);
-                                        break;
-                                    case 2:
-                                        neko::aer::WarningLog(
-                                            msgTest_[numberTest_]);
-                                        break;
-                                    case 3:
-                                        neko::aer::ErrorLog(
-                                            msgTest_[numberTest_]);
-                                        break;
-                                    case 4:
-                                        neko::aer::CriticalLog(
-                                            msgTest_[numberTest_]);
-                                        break;
-                                }
-                            }
-                        }
-                        else {
-                            neko::LogDebug("[TEST] Maximum of logs: OK");
-                            capacityMax_ = true;
-                            nextTest_ = true;
-                        }
-                    }
-                    break;
+				case 1: //TEST 2
+					{
+						int nbr = neko::aer::Log::get().GetLogs().size();
+						if (nbr <= std::pow(2, 20))
+						{
+							for (size_t i = 0; i < 5000; i++)
+							{
+								int rdm = rand() % 5;
+								switch (rdm)
+								{
+									case 0:
+										neko::aer::DebugLog(
+											msgTest_[numberTest_]);
+										break;
+									case 1:
+										neko::aer::InfoLog(
+											msgTest_[numberTest_]);
+										break;
+									case 2:
+										neko::aer::WarningLog(
+											msgTest_[numberTest_]);
+										break;
+									case 3:
+										neko::aer::ErrorLog(
+											msgTest_[numberTest_]);
+										break;
+									case 4:
+										neko::aer::CriticalLog(
+											msgTest_[numberTest_]);
+										break;
+								}
+							}
+						}
+						else
+						{
+							neko::LogDebug("[TEST] Maximum of logs: OK");
+							capacityMax_ = true;
+							nextTest_ = true;
+						}
+					}
+					break;
 
-                    case 2: //TEST 3
-                    {
-                        int nbr = neko::aer::Log::get().GetLogs().size();
-                        if (nbr <= 0) {
-                            neko::LogDebug("[TEST] Erasing logs: OK");
-                            capacityClear_ = true;
-                            nextTest_ = true;
-                        }
-                        else { neko::aer::Log::get().ClearLogs(); }
-                    }
-                    break;
+				case 2: //TEST 3
+					{
+						int nbr = neko::aer::Log::get().GetLogs().size();
+						if (nbr <= 0)
+						{
+							neko::LogDebug("[TEST] Erasing logs: OK");
+							capacityClear_ = true;
+							nextTest_ = true;
+						}
+						else { neko::aer::Log::get().ClearLogs(); }
+					}
+					break;
 
-                    case 3: //TEST 4
-                    {
-                        if (!engine_.GetTool(neko::aer::TypeTool::LOG)->
-                                     isVisible) {
-                            neko::LogDebug("[TEST] Closing the Logger: OK");
-                            loggerClose_ = true;
-                            nextTest_ = true;
-                        }
-                        else { logger_->isVisible = false; }
-                    }
-                    break;
-                }
-            }
-            else {
-                neko::LogDebug("[TEST] All tests were validated");
-                engine_.Stop();
-            }
-        }
+				case 3: //TEST 4
+					{
+						if (!engine_.GetTool(neko::aer::TypeTool::LOG)->
+						             isVisible)
+						{
+							neko::LogDebug("[TEST] Closing the Logger: OK");
+							loggerClose_ = true;
+							nextTest_ = true;
+						}
+						else { logger_->isVisible = false; }
+					}
+					break;
+			}
+		}
+		else
+		{
+			neko::LogDebug("[TEST] All tests were validated");
+			engine_.Stop();
+		}
+	}
 
-        void Destroy() override { }
+	void Destroy() override
+	{
+	}
 
-        void HasSucceed() const
-        {
-            EXPECT_TRUE(loggerOpen_);
-            EXPECT_TRUE(capacityMax_);
-            EXPECT_TRUE(capacityClear_);
-            EXPECT_TRUE(loggerClose_);
-            EXPECT_TRUE(testSucces_);
-        }
+	void HasSucceed() const
+	{
+		EXPECT_TRUE(loggerOpen_);
+		EXPECT_TRUE(capacityMax_);
+		EXPECT_TRUE(capacityClear_);
+		EXPECT_TRUE(loggerClose_);
+		EXPECT_TRUE(testSucces_);
+	}
 
-    private:
-        neko::aer::Tool* logger_;
-        bool loggerOpen_ = false;
-        bool loggerClose_ = false;
-        bool capacityMax_ = false;
-        bool capacityClear_ = false;
-        bool testSucces_ = false;
+private:
+	neko::aer::Tool* logger_;
+	bool loggerOpen_ = false;
+	bool loggerClose_ = false;
+	bool capacityMax_ = false;
+	bool capacityClear_ = false;
+	bool testSucces_ = false;
 
-        bool nextTest_ = true;
-        int numberTest_ = -1;
+	bool nextTest_ = true;
+	int numberTest_ = -1;
 
-        std::string msgTest_[4] = {
-            "[Action] Please open the logger",
-            "[Action] Please Wait",
-            "[Action] Please clear the logs",
-            "[Action] Please Close the Logger"
-        };
+	std::string msgTest_[4] = {
+		"[Action] Please open the logger",
+		"[Action] Please Wait",
+		"[Action] Please clear the logs",
+		"[Action] Please Close the Logger"
+	};
 
-        neko::aer::AerEngine& engine_;
+	neko::aer::AerEngine& engine_;
 };
 
 TEST(Tool, TestLogger)
 {
-    //Travis Fix because Windows can't open a window
-    char* env = getenv("WIN_TRAVIS");
-    if (env != nullptr) {
-        std::cout << "Test skip for travis windows" << std::endl;
-        return;
-    }
+	//Travis Fix because Windows can't open a window
+	char* env = getenv("WIN_TRAVIS");
+	if (env != nullptr)
+	{
+		std::cout << "Test skip for travis windows" << std::endl;
+		return;
+	}
 
-    neko::Configuration config;
-    config.windowName = "AerEditor";
-    config.windowSize = neko::Vec2u(1400, 900);
+	neko::Configuration config;
+	config.windowName = "AerEditor";
+	config.windowSize = neko::Vec2u(1400, 900);
 
-    neko::sdl::Gles3Window window;
-    neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::EDITOR);
+	neko::sdl::Gles3Window window;
+	neko::gl::Gles3Renderer renderer;
+	neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::EDITOR);
 
-    engine.SetWindowAndRenderer(&window, &renderer);
+	engine.SetWindowAndRenderer(&window, &renderer);
 
-    engine.Init();
+	engine.Init();
 
-    SimulateLogger simulateLogger(engine);
-    engine.RegisterSystem(simulateLogger);
+	SimulateLogger simulateLogger(engine);
+	engine.RegisterSystem(simulateLogger);
 
-    engine.EngineLoop();
+	engine.EngineLoop();
 
-    simulateLogger.HasSucceed();
+	simulateLogger.HasSucceed();
 }

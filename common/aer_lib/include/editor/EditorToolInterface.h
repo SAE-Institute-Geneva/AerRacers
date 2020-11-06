@@ -26,30 +26,32 @@
  Co-Author :
  Date : 03.11.2020
 ---------------------------------------------------------- */
-#include <sdl_engine/sdl_engine.h>
-#include <SDL_events.h>
 #include <imgui.h>
+#include <sdl_engine/sdl_engine.h>
+// TODO RENAME FILE
 
 namespace neko::aer //TODOCR(Luca@Dylan)  Apply Syntax Style
 {
-    enum class TypeTool {
-        LOG,
-        INSP,
+    enum class ToolType {
+    	NONE,
+        LOG, // TODO
+        INSP, // TODO
     };
-  
-    class Tool : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface {
+
+	// ToolInterface.
+    class EditorToolInterface : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface {
     public:
 
-        explicit Tool(TypeTool type) : type(type) { }
-        virtual void Init() override {}
-        virtual void Update(seconds dt) override {}
-        virtual void DrawImGui() override {}
-        virtual void Destroy() override {}
-        virtual void OnEvent(const SDL_Event& event) override {}
+        explicit EditorToolInterface(ToolType type) : type(type) { }
 
+        bool isVisible = false;
+        ToolType type = ToolType::NONE;
+    protected:
+
+        // Limit window move
         void LimitationWindow() const
         {
-            // LIMITATION POSITION
+
             ImGuiIO& io = ImGui::GetIO();
             // X
             if (ImGui::GetWindowPos().x < 0) {
@@ -68,14 +70,7 @@ namespace neko::aer //TODOCR(Luca@Dylan)  Apply Syntax Style
                 ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x, io.DisplaySize.y - ImGui::GetWindowSize().y));
             }
         }
-
-        bool isVisible = false;
-        TypeTool type;
     private:
-        ImGuiID dockspaceId_;
-        const int headerSpace_ = 20;
-        int id_;
-
-
+        const int headerSpace_ = 20; // In Pixel
     };
 }

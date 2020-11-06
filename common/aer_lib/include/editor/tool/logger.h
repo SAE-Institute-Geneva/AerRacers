@@ -30,7 +30,7 @@
 #include <mutex>
 #include <SDL_events.h>
 
-#include "editor/tool.h"
+#include "editor/EditorToolInterface.h"
 
 namespace neko::aer {
 enum class LogSeverity : std::uint8_t {
@@ -44,16 +44,16 @@ enum class LogSeverity : std::uint8_t {
 
 struct AerLog {
     std::string msg;
-    LogSeverity severity;
+    LogSeverity severity = LogSeverity::NONE;
 };
 
 //-----------------------------------------------------------------------------
 // LogManagerInterface
 //-----------------------------------------------------------------------------
-class LogManagerInterface {
-protected:
-    ~LogManagerInterface() = default;
+class LogManagerInterface
+{
 public:
+    virtual ~LogManagerInterface() = default;
     /**
      * \brief Generate a log message.
      * @param severity the type of the log message
@@ -101,12 +101,9 @@ class NullLogManager final : public LogManagerInterface {
     }
 };
 
-class Logger final : public Tool, public LogManagerInterface {
+class Logger final : public EditorToolInterface, public LogManagerInterface {
 public:
-    //Constructor
-    Logger(TypeTool type);
-    // conversion from Tool (assignment):
-    Logger* operator=(const Tool* tool) { return this; }
+    explicit Logger(ToolType type);
 
     const std::vector<AerLog>& GetLogs() override
     {
@@ -143,8 +140,8 @@ private:
     std::vector<AerLog> logs_;
 
     //CAPACITY
-    const size_t kCapacityLog_ = std::pow(2, 14);
-    const size_t kCapacityLogMax_ = std::pow(2, 20);
+    const size_t kCapacityLog_ = 1 << 14;
+    const size_t kCapacityLogMax_ = 1 << 20;
     //COLOR
     const ImVec4 kBlue_ = {0.5f, 0.5f, 1, 1};
     const ImVec4 kYellow_ = {1, 1, 0, 1};

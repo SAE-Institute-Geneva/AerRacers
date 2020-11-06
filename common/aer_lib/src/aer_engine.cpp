@@ -39,7 +39,7 @@ void AerEngine::Destroy()
 void AerEngine::ManageEvent() { SdlEngine::ManageEvent(); }
 
 void AerEngine::GenerateUiFrame() { SdlEngine::GenerateUiFrame(); }
-Tool* AerEngine::GetTool(TypeTool tool) {
+EditorToolInterface* AerEngine::GetTool(ToolType tool) {
     return toolManager_.GetTool(tool);
 }
 }
