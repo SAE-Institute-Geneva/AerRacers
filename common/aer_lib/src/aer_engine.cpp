@@ -36,12 +36,16 @@ void AerEngine::Destroy()
     SdlEngine::Destroy();
 }
 
-void AerEngine::ManageEvent() { SdlEngine::ManageEvent(); }
-
-void AerEngine::GenerateUiFrame() { SdlEngine::GenerateUiFrame(); }
-EditorToolInterface* AerEngine::GetTool(ToolType tool) {
-    return toolManager_.GetTool(tool);
+void AerEngine::ManageEvent()
+{
+	SdlEngine::ManageEvent();
 }
+
+void AerEngine::GenerateUiFrame()
+{
+	SdlEngine::GenerateUiFrame();
+}
+
 }
 
 

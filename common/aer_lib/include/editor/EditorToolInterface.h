@@ -28,49 +28,60 @@
 ---------------------------------------------------------- */
 #include <imgui.h>
 #include <sdl_engine/sdl_engine.h>
-// TODO RENAME FILE
 
-namespace neko::aer //TODOCR(Luca@Dylan)  Apply Syntax Style
+namespace neko::aer
 {
-    enum class ToolType {
-    	NONE,
-        LOG, // TODO
-        INSP, // TODO
-    };
 
-	// ToolInterface.
-    class EditorToolInterface : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface {
-    public:
+class EditorToolInterface
+    : public SystemInterface, public DrawImGuiInterface,
+      public sdl::SdlEventSystemInterface {
+public:
+  enum class ToolType {
+    NONE = -1,
+    LOGGER,
+    INSPECTOR,
+  };
 
-        explicit EditorToolInterface(ToolType type) : type(type) { }
+  explicit EditorToolInterface(ToolType type)
+    : type(type) {
+    name_ = toolNames_[(int)type];
+  }
 
-        bool isVisible = false;
-        ToolType type = ToolType::NONE;
-    protected:
+  bool isVisible = true;
+  ToolType type = ToolType::NONE;
+  std::string name_ = "";
+protected:
 
-        // Limit window move
-        void LimitationWindow() const
-        {
+  // Limit window move
+  void LimitationWindow() const {
 
-            ImGuiIO& io = ImGui::GetIO();
-            // X
-            if (ImGui::GetWindowPos().x < 0) {
-                ImGui::SetWindowPos(ImVec2(0, ImGui::GetWindowPos().y));
-            }
+    ImGuiIO &io = ImGui::GetIO();
+    // X
+    if (ImGui::GetWindowPos().x < 0) {
+      ImGui::SetWindowPos(ImVec2(0, ImGui::GetWindowPos().y));
+    }
 
-            if (ImGui::GetWindowPos().x + ImGui::GetWindowSize().x > io.DisplaySize.x) {
-                ImGui::SetWindowPos(ImVec2(io.DisplaySize.x - ImGui::GetWindowSize().x, ImGui::GetWindowPos().y));
-            }
-            // Y
-            if (ImGui::GetWindowPos().y < headerSpace_) {
-                ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x, headerSpace_));
-            }
+    if (ImGui::GetWindowPos().x + ImGui::GetWindowSize().x > io.DisplaySize.x) {
+      ImGui::SetWindowPos(ImVec2(io.DisplaySize.x - ImGui::GetWindowSize().x,
+                                 ImGui::GetWindowPos().y));
+    }
+    // Y
+    if (ImGui::GetWindowPos().y < headerSpace_) {
+      ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x, headerSpace_));
+    }
 
-            if (ImGui::GetWindowPos().y + ImGui::GetWindowSize().y > io.DisplaySize.y) {
-                ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x, io.DisplaySize.y - ImGui::GetWindowSize().y));
-            }
-        }
-    private:
-        const int headerSpace_ = 20; // In Pixel
-    };
+    if (ImGui::GetWindowPos().y + ImGui::GetWindowSize().y > io.DisplaySize.y) {
+      ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x,
+                                 io.DisplaySize.y - ImGui::GetWindowSize().y));
+    }
+  }
+
+private:
+  const int headerSpace_ = 20; // In Pixel
+
+  std::string toolNames_[2]{
+      "Logger",
+      "Inspecteur"
+  };
+};
 }

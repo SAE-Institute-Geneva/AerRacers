@@ -39,6 +39,7 @@ namespace neko::aer {
 enum class ModeEnum : std::uint8_t {
     EDITOR = 0,
     GAME = 1,
+    TEST = 2
 };
 
 class AerEngine final : public sdl::SdlEngine {
@@ -55,7 +56,9 @@ public:
 
     void GenerateUiFrame() override;
 
-    EditorToolInterface* GetTool(ToolType type); //TODO (Luca@Dylan) Find another way to recup tool for testing
+    ModeEnum GetMode() {
+        return mode_;
+    }
 
 private:
     ModeEnum mode_;

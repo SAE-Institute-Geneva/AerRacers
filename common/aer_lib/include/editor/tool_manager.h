@@ -29,32 +29,32 @@
 #include <imgui.h>
 #include "editor/EditorToolInterface.h"
 
-namespace neko::aer //TODOCR(Luca@Dylan)  Apply Code Style
-{
+namespace neko::aer {
 class AerEngine;
 
-class EditorToolManager final : public SystemInterface, public DrawImGuiInterface, public sdl::SdlEventSystemInterface
-{
+class EditorToolManager final : public SystemInterface,
+                                public DrawImGuiInterface,
+                                public sdl::SdlEventSystemInterface {
 public:
-	explicit EditorToolManager(AerEngine& engine);
-	void Init() override;
-	void Update(seconds dt) override;
-	void Destroy() override;
-	void DrawImGui() override;
-	void OnEvent(const SDL_Event& event) override;
-	template<typename T, ToolType Type>
-	void AddEditorTool()
-	{
-		auto newTool = std::make_unique<T>(Type);
-		newTool->Init();
-		tools_.push_back(std::move(newTool));
-	}
+  explicit EditorToolManager(AerEngine &engine);
+  void Init() override;
+  void Update(seconds dt) override;
+  void Destroy() override;
+  void DrawImGui() override;
+  void OnEvent(const SDL_Event &event) override;
+
+  template <typename T, EditorToolInterface::ToolType Type>
+  void AddEditorTool() {
+    auto newTool = std::make_unique<T>(Type);
+    newTool->Init();
+    tools_.push_back(std::move(newTool));
+  }
+
 private:
-	void DrawList();
-	
-	AerEngine& engine_;
-	//std::vector<Tool*> tools_; //TODOCR(Luca@Dylan)  Nomenclature
-	std::vector<std::unique_ptr<EditorToolInterface>> tools_;
-	bool aboutVisible_ = false;
+  void DrawList();
+
+  AerEngine &engine_;
+  std::vector<std::unique_ptr<EditorToolInterface>> tools_;
+  bool aboutVisible_ = false;
 };
 }
