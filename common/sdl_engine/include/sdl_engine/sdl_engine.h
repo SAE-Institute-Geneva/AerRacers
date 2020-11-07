@@ -57,7 +57,6 @@ public:
 protected:
     Action<const SDL_Event&> onEventAction_;
 	InputManager inputManager_;
-
 };
 
 }
