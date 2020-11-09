@@ -235,11 +235,7 @@ public:
 	}
 	Mat4<T> operator*(const Mat4<T> & rhs) const noexcept
 	{
-#ifdef EMSCRIPTEN
-		return MultiplyNaive(rhs);
-#else
 		return MultiplyIntrinsincs(rhs);
-#endif
 	}
 
 	inline Mat4<T> MultiplyNaive(const Mat4<T> & rhs) const noexcept
@@ -497,7 +493,7 @@ inline Mat4f Mat4f::MultiplyIntrinsincs(const Mat4f& rhs) const noexcept
 }
 #endif
 
-#if defined(EMSCRIPTEN) || defined(__arm__) || defined(__ANDROID__)
+#if defined(EMSCRIPTEN) || defined(__arm__) || defined(__ANDROID__) || defined(__aarch64__)
 template<>
 inline Mat4f Mat4f::MultiplyIntrinsincs(const Mat4f& rhs) const noexcept
 {

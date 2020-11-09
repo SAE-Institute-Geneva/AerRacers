@@ -42,6 +42,7 @@ enum class PacketType : std::uint8_t
     VALIDATE_STATE,
     START_GAME,
     JOIN_ACK,
+    WIN_GAME,
     NONE,
 };
 
@@ -77,19 +78,21 @@ struct TypedPacket : Packet
 template<typename T, size_t N>
 sf::Packet& operator<<(sf::Packet& packet, const std::array<T, N>& t)
 {
-	for (auto& tmp : t)
-	{
-		packet << tmp;
-	}
-	return packet;
+    for (auto& tmp : t)
+    {
+        packet << tmp;
+    }
+    return packet;
 }
 
 template <typename T, size_t N>
-sf::Packet& operator>>(sf::Packet& packet, std::array<T, N>& t) {
-  for (auto& tmp : t) {
-    packet >> tmp;
-  }
-  return packet;
+sf::Packet& operator>>(sf::Packet& packet, std::array<T, N>& t)
+{
+    for (auto& tmp : t)
+    {
+        packet >> tmp;
+    }
+    return packet;
 }
 
 /**
@@ -103,12 +106,12 @@ struct JoinPacket : TypedPacket<PacketType::JOIN>
 
 inline sf::Packet& operator<<(sf::Packet& packet, const JoinPacket& joinPacket)
 {
-	return packet << joinPacket.clientId << joinPacket.startTime;
+    return packet << joinPacket.clientId << joinPacket.startTime;
 }
 
 inline sf::Packet& operator>>(sf::Packet& packet, JoinPacket& joinPacket)
 {
-	return packet >> joinPacket.clientId >> joinPacket.startTime;
+    return packet >> joinPacket.clientId >> joinPacket.startTime;
 }
 /**
  * \brief TCP Packet sent by the server to the client to answer a join packet
@@ -142,7 +145,7 @@ struct SpawnPlayerPacket : TypedPacket<PacketType::SPAWN_PLAYER>
 
 inline sf::Packet& operator<<(sf::Packet& packet, const SpawnPlayerPacket& spawnPlayerPacket)
 {
-    return packet << spawnPlayerPacket.clientId << spawnPlayerPacket.playerNumber << 
+    return packet << spawnPlayerPacket.clientId << spawnPlayerPacket.playerNumber <<
         spawnPlayerPacket.pos << spawnPlayerPacket.angle;
 }
 
@@ -196,7 +199,7 @@ inline sf::Packet& operator>>(sf::Packet& packet, StartGamePacket& startGamePack
 struct ValidateFramePacket : TypedPacket<PacketType::VALIDATE_STATE>
 {
     std::array<std::uint8_t, sizeof(net::Frame)> newValidateFrame{};
-    std::array<std::uint8_t, sizeof(asteroid::PhysicsState) * maxPlayerNmb> physicsState{};
+    std::array<std::uint8_t, sizeof(asteroid::PhysicsState)* maxPlayerNmb> physicsState{};
 };
 
 inline sf::Packet& operator<<(sf::Packet& packet, const ValidateFramePacket& validateFramePacket)
@@ -209,22 +212,37 @@ inline sf::Packet& operator>>(sf::Packet& packet, ValidateFramePacket& ValidateF
     return packet >> ValidateFramePacket.newValidateFrame >> ValidateFramePacket.physicsState;
 }
 
+struct WinGamePacket : TypedPacket<PacketType::WIN_GAME>
+{
+    net::PlayerNumber winner = net::INVALID_PLAYER;
+};
+
+inline sf::Packet& operator<<(sf::Packet& packet, const WinGamePacket& winGamePacket)
+{
+    return packet << winGamePacket.winner;
+}
+
+inline sf::Packet& operator>>(sf::Packet& packet, WinGamePacket& winGamePacket)
+{
+    return packet >> winGamePacket.winner;
+}
+
 inline void GeneratePacket(sf::Packet& packet, asteroid::Packet& sendingPacket)
 {
     packet << sendingPacket;
-	switch (sendingPacket.packetType)
-	{
-    case PacketType::JOIN: 
+    switch (sendingPacket.packetType)
+    {
+    case PacketType::JOIN:
     {
         auto& packetTmp = static_cast<JoinPacket&>(sendingPacket);
-		packet << packetTmp;
-    	break;
+        packet << packetTmp;
+        break;
     }
-    case PacketType::SPAWN_PLAYER: 
+    case PacketType::SPAWN_PLAYER:
     {
-		auto& packetTmp = static_cast<SpawnPlayerPacket&>(sendingPacket);
-		packet << packetTmp;
-		break;
+        auto& packetTmp = static_cast<SpawnPlayerPacket&>(sendingPacket);
+        packet << packetTmp;
+        break;
     }
     case PacketType::INPUT:
     {
@@ -250,8 +268,15 @@ inline void GeneratePacket(sf::Packet& packet, asteroid::Packet& sendingPacket)
         packet << packetTmp;
         break;
     }
-	default: ;
-	}
+    case PacketType::WIN_GAME:
+    {
+        auto& packetTmp = static_cast<WinGamePacket&>(sendingPacket);
+        packet << packetTmp;
+        break;
+    }
+
+    default:;
+    }
 }
 inline std::unique_ptr<Packet> GenerateReceivedPacket(sf::Packet& packet)
 {
@@ -280,7 +305,7 @@ inline std::unique_ptr<Packet> GenerateReceivedPacket(sf::Packet& packet)
         packet >> *playerInputPacket;
         return playerInputPacket;
     }
-    case PacketType::VALIDATE_STATE: 
+    case PacketType::VALIDATE_STATE:
     {
         auto validateFramePacket = std::make_unique<ValidateFramePacket>();
         validateFramePacket->packetType = packetTmp.packetType;
@@ -301,7 +326,14 @@ inline std::unique_ptr<Packet> GenerateReceivedPacket(sf::Packet& packet)
         packet >> *joinAckPacket;
         return joinAckPacket;
     }
-    default: ;
+    case PacketType::WIN_GAME:
+    {
+        auto winGamePacket = std::make_unique<WinGamePacket>();
+        winGamePacket->packetType = packetTmp.packetType;
+        packet >> *winGamePacket;
+        return winGamePacket;
+    }
+    default:;
     }
     return nullptr;
 }

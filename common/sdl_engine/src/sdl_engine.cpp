@@ -29,6 +29,8 @@
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 
+#include <fmt/format.h>
+
 #ifdef NEKO_GLES3
 #include "gl/gles3_window.h"
 #endif
@@ -58,8 +60,6 @@ void SdlEngine::Init()
 void SdlEngine::Destroy()
 {
     BasicEngine::Destroy();
-    destroyAction_.Execute();
-    window_->Destroy();
 
     // Shutdown SDL 2
     SDL_Quit();
@@ -84,6 +84,8 @@ void SdlEngine::ManageEvent()
         {
             if (event.window.event == SDL_WINDOWEVENT_RESIZED)
             {
+                logDebug(fmt::format("Windows resized with new size: ({},{})", 
+                    event.window.data1, event.window.data2));
                 config.windowSize = Vec2u(event.window.data1, event.window.data2);
                 window_->OnResize(config.windowSize);
             }

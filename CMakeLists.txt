@@ -8,6 +8,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS On)
 
 include(cmake/neko_executable.cmake)
 
+add_compile_definitions("FMT_HEADER_ONLY=1")
 
 set(Neko_Profile OFF CACHE BOOL "Activate Profiling with Easy Profile")
 set(Neko_GLES3 ON CACHE BOOL "Activate OpenGL ES 3.0")
@@ -21,8 +22,8 @@ set(Neko_Assimp ON CACHE BOOL "Activate Assimp Wrapper")
 set(Neko_SFML_NET ON CACHE BOOL "Activate SFML Net Wrapper")
 set(Aer_Lib ON CACHE BOOL "Activate Aer_Lib")
 set(Aer_Test ON CACHE BOOL "Activate Aer Test")
+set(Neko_KTX ON CACHE BOOL "Activate SFML Net Wrapper")
 set(Neko_SameThread OFF CACHE BOOL "Activate Same Thread Rendering and Resource Loading")
-
 
 MESSAGE("CMAKE SYSTEM NAME: ${CMAKE_SYSTEM_NAME}")
 
@@ -32,6 +33,9 @@ if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
     set(CMAKE_STATIC_LIBRARY_SUFFIX ".a")
     set(Neko_SameThread ON CACHE BOOL "")
     mark_as_advanced(Neko_SameThread)
+    #We currently disable SFML Net
+    set(Neko_SFML_NET OFF CACHE BOOL "")
+    mark_as_advanced(Neko_SFML_NET)
 endif()
 
 if(UNIX)
@@ -40,11 +44,16 @@ if(UNIX)
     if("${ARCHITECTURE}" MATCHES "arm")
         include(cmake/platforms/arm.cmake)
     endif()
+    if("${ARCHITECTURE}" MATCHES "aarch")
+        include(cmake/platforms/arm.cmake)
+    endif()
 endif()
 
 if(MSVC)
     include(cmake/platforms/msvc.cmake)
 endif()
+
+include(cmake/neko_executable.cmake)
 
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/externals CACHE INTERNAL "Externals folder")
 set(UTILITIES_DIR "${EXTERNAL_DIR}/utilities" CACHE INTERNAL "")
@@ -55,6 +64,13 @@ endif()
 
 if(Neko_SameThread)
     add_compile_definitions("NEKO_SAMETHREAD=1")
+endif()
+
+if(Neko_KTX)
+    set(KTX_DIR "${EXTERNAL_DIR}/KTX-Software")
+    set(KTX_VERSION_FULL "v4.0.0-beta4" CACHE STRING "")
+    add_subdirectory("${KTX_DIR}")
+    add_dependencies(ktx mkvk)
 endif()
 
 
@@ -151,7 +167,6 @@ if(Neko_Freetype)
     include_directories("${FREETYPE_DIR}")
     add_subdirectory("${FREETYPE_DIR}")
     set_target_properties (freetype PROPERTIES FOLDER Externals)
-    add_subdirectory("common/ft_wrapper")
 endif()
 
 if(Neko_Test OR Aer_Test)
@@ -171,10 +186,13 @@ endif()
 
 if(Neko_Benchmark)
     #Google benchmark
-    set(GOOGLE_BENCH_DIR "${EXTERNAL_DIR}/benchmark-1.5.0" CACHE STRING "")
-
+    set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "")
+    set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "")
+    set(GOOGLE_BENCH_DIR "${EXTERNAL_DIR}/benchmark-1.5.2" CACHE STRING "")
+    set(HAVE_STD_REGEX ON CACHE BOOL "")
     add_subdirectory(${GOOGLE_BENCH_DIR})
     add_subdirectory("benchmark/")
+    neko_lib_config(benchmark)
     set_target_properties (benchmark PROPERTIES FOLDER Externals/GTest)
     set_target_properties(benchmark_main PROPERTIES FOLDER Externals/GTest)
 endif()

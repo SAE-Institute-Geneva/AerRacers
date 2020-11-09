@@ -28,6 +28,8 @@
 
 #include "engine/log.h"
 
+#include <fmt/format.h>
+
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
 #endif
@@ -59,7 +61,7 @@ void CheckGlError(const char* file, int line)
         default:
         	continue;
         }
-        logDebug(log + " in file: " + file + " at line: " + std::to_string(line));
+        logDebug(fmt::format("{} in file: {} at line: {}",log, file, line));
     }
 }
 
@@ -87,7 +89,7 @@ void CheckFramebuffer(const char* file, int line)
             default:
                 return;
         }
-        logDebug(log + " in file: " + file + " at line: " + std::to_string(line));
+        logDebug(fmt::format("{} in file: {} at line: {}", log, file, line));
     }
 }
 
@@ -110,7 +112,6 @@ void Gles3Renderer::ClearScreen()
 void Gles3Renderer::BeforeRenderLoop()
 {
     Renderer::BeforeRenderLoop();
-	
     glEnable(GL_DEPTH_TEST);
 }
 

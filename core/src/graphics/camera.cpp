@@ -23,6 +23,7 @@
  */
 
 #include "graphics/camera.h"
+#include "engine/log.h"
 
 namespace neko
 {
@@ -74,7 +75,7 @@ void Camera::WorldLookAt(Vec3f target, Vec3f lookUp)
 
 }
 
-void Camera2D::SetSize(Vec2f size)
+void Camera2D::SetExtends(Vec2f size)
 {
     left = -size.x;
     right = size.x;

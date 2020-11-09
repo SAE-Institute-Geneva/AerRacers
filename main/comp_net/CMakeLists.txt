@@ -1,3 +1,7 @@
+if (NOT Neko_GLES3 OR NOT Neko_SDL2 OR NOT Neko_SFML_NET)
+    return()
+endif()
+
 include_directories("include/")
 
 file(GLOB_RECURSE comp_net_src include/*.h src/*.cpp)
@@ -9,6 +13,7 @@ set_target_properties (comp_net_lib PROPERTIES FOLDER Neko/Main/CompNet)
 set_target_properties(comp_net_lib PROPERTIES UNITY_BUILD ON)
 set(net_main_project_dir "main/")
 file(GLOB net_main_projects "${net_main_project_dir}/*")
+neko_lib_config(comp_net_lib)
 
 foreach(net_main_project_path ${net_main_projects} )
     # I used a simple string replace, to cut off .cpp.
@@ -23,7 +28,9 @@ foreach(net_main_project_path ${net_main_projects} )
     if(EMSCRIPTEN)
         get_target_property(bin_link_flags ${net_main_project_name} LINK_FLAGS)
         set_target_properties(${net_main_project_name} PROPERTIES LINK_FLAGS
-                "${bin_link_flags} -s USE_SDL=2 -s USE_WEBGL2=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2")
+                "${bin_link_flags} -s USE_SDL=2 -s USE_WEBGL2=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2
+                -lwebsocket.js -s PROXY_POSIX_SOCKETS=1 -s USE_PTHREADS=1 -s PROXY_TO_PTHREAD=1 --preload-file ${CMAKE_BINARY_DIR}/data/@ ")
+        set_target_properties(${net_main_project_name} PROPERTIES SUFFIX ".html")
     endif()
     set_target_properties(${net_main_project_name} PROPERTIES UNITY_BUILD ON)
     if(NOT Emscripten)
