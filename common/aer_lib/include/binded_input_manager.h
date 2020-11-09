@@ -24,7 +24,7 @@
 
  Author : Floreau Luca
  Co-Author :
- Date : 23.10.2020
+ Date : 07.11.2020
 ---------------------------------------------------------- */
 
 #include <cstdint>
@@ -60,12 +60,22 @@ enum class ActionAxisType : std::uint8_t {
 };
 
 /**
- * \brief Struct of inputs (button state and axis) and id of a controller
+ * \brief Struct of inputs (button state and axis) and id of a player
  */
-struct ActionInputs {
-    std::array<sdl::ButtonState, static_cast<size_t>(ActionButtonType::LENGTH)> controllerButtonStates;
-    std::array<float, static_cast<size_t>(ActionAxisType::LENGTH)> controllerAxis;
-    PlayerId playerId;
+struct BindingInputs {
+    std::array<sdl::KeyCodeType, static_cast<size_t>(ActionButtonType::LENGTH)> pcBindingButtons =
+        std::array<sdl::KeyCodeType, static_cast<size_t>(ActionButtonType::LENGTH)>();
+    std::array<sdl::ControllerButtonType, static_cast<size_t>(ActionButtonType::LENGTH)> controllerBindingButtons =
+        std::array<sdl::ControllerButtonType, static_cast<size_t>(ActionButtonType::LENGTH)>();
+    std::array<sdl::SwitchButtonType, static_cast<size_t>(ActionButtonType::LENGTH)> switchBindingButtons =
+        std::array<sdl::SwitchButtonType, static_cast<size_t>(ActionButtonType::LENGTH)>();
+    std::array<sdl::ControllerAxisType, static_cast<size_t>(ActionAxisType::LENGTH)> controllerBindingAxis =
+        std::array<sdl::ControllerAxisType, static_cast<size_t>(ActionAxisType::LENGTH)>();
+    std::array<sdl::SwitchAxisType, static_cast<size_t>(ActionAxisType::LENGTH)> switchBindingAxis =
+        std::array<sdl::SwitchAxisType, static_cast<size_t>(ActionAxisType::LENGTH)>();
+    PlayerId playerId = 0;
+    sdl::ControllerId bindedControllerId = 0;
+    sdl::SwitchJoyId bindedSwitchJoyId = 0;
 };
 
 /**
@@ -75,7 +85,16 @@ class IBindedInputManager {
 public:
     virtual ~IBindedInputManager() = default;
 
-    virtual void SetPlayerAction()
+    /**
+     * \brief Get Player action inputs binding
+     */
+    virtual BindingInputs GetPlayerActions(PlayerId playerId) = 0;
+
+    /**
+     * \brief  Set Player action inputs binding
+     * \param bindingInputs BindingInputs to save
+     */
+    virtual void SetPlayerActions(BindingInputs bindingInputs) = 0;
 
     /**
      * \brief  Get action button state
@@ -84,7 +103,7 @@ public:
      */
     virtual sdl::ButtonState GetActionButtonState(
         unsigned playerId,
-        ActionButtonType actionButton) const;
+        ActionButtonType actionButton) const = 0;
 
     /**
      * \brief  Get action axis value
@@ -93,7 +112,7 @@ public:
      */
     virtual float GetActionAxis(
         unsigned playerId,
-        ActionAxisType actionAxis) const;
+        ActionAxisType actionAxis) const = 0;
 
     /**
     * \brief Translate Action enum to string
@@ -106,5 +125,72 @@ public:
     virtual std::string ActionEnumToString(ActionAxisType actionAxis) = 0;
 };
 
-class 
+class BindedInputManager final : public IBindedInputManager {
+
+public:
+   BindedInputManager();
+
+    BindingInputs GetPlayerActions(PlayerId playerId) override;
+
+    void SetPlayerActions(BindingInputs actionInputs) override;
+
+    sdl::ButtonState GetActionButtonState(
+        unsigned playerId,
+        ActionButtonType actionButton) const override;
+
+    float GetActionAxis(
+        unsigned playerId,
+        ActionAxisType actionAxis) const override;
+
+    std::string ActionEnumToString(ActionButtonType actionInputs) override;
+
+    std::string ActionEnumToString(ActionAxisType actionAxis) override;
+
+private :
+    unsigned FindActionIndexFromId(PlayerId playerId) const;
+
+    std::vector<BindingInputs> actionBindingInputs_;
+
+    sdl::IInputManager* inputLocator_;
+};
+
+class NullBindedInputManager final : public IBindedInputManager {
+
+public:
+
+    ~NullBindedInputManager() override {}
+
+    BindingInputs GetPlayerActions(PlayerId playerId) override
+    {
+        return BindingInputs();
+    }
+
+    void SetPlayerActions(BindingInputs actionInputs) override {}
+
+    sdl::ButtonState GetActionButtonState(
+        unsigned playerId,
+        ActionButtonType actionButton) const override
+    {
+        return sdl::ButtonState::NONE;
+    }
+
+    float GetActionAxis(
+        unsigned playerId,
+        ActionAxisType actionAxis) const override
+    {
+        return 0.0f;
+    }
+
+    std::string ActionEnumToString(ActionButtonType actionInputs) override
+    {
+        return "";
+    }
+
+    std::string ActionEnumToString(ActionAxisType actionAxis) override
+    {
+        return "";
+    }
+};
+
+using BindedInputLocator = Locator<IBindedInputManager, NullBindedInputManager>;
 }

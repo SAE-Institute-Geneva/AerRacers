@@ -81,7 +81,7 @@ unsigned InputManager::FindControllerIndexFromId(
         [controllerId](ControllerInputs controllerInputs) {
             return controllerInputs.controllerId == controllerId;
         });
-    if (controllerInputIt == controllerInputs_.end()) {
+    if (controllerInputIt >= controllerInputs_.end()) {
         logDebug("Invalid controllerId : " + controllerId);
         return controllerInputs_.size();
     }
@@ -100,7 +100,7 @@ unsigned InputManager::FindSwitchIndexFromId(
         SwitchInputs switchInputs) {
             return switchInputs.switchJoyId == switchJoyId;
         });
-    if (switchInputIt == switchInputs_.end()) {
+    if (switchInputIt >= switchInputs_.end()) {
         logDebug("Invalid switchJoyId : " + switchJoyId);
         return switchInputs_.size();
     }
@@ -397,6 +397,7 @@ void InputManager::OnEvent(SDL_Event event)
 
 ButtonState InputManager::GetKeyState(KeyCodeType key) const
 {
+    // TODO(@Luca) add an asert
     return keyPressedState_[static_cast<size_t>(key)];
 }
 
@@ -458,6 +459,15 @@ float InputManager::GetControllerAxis(
     }
     return controllerInputs_[controllerIndex].controllerAxis[
         static_cast<size_t>(axis)];
+}
+
+std::vector<ControllerId> InputManager::GetControllerIdVector() const
+{
+    std::vector<ControllerId> controllerIdVector;
+    for (auto controllerInput : controllerInputs_) {
+        controllerIdVector.push_back(controllerInput.controllerId);
+    }
+    return controllerIdVector;
 }
 
 void InputManager::PrintJoystick(const int device) const
@@ -613,8 +623,16 @@ std::string InputManager::PcInputsEnumToString(const KeyCodeType keyCode)
             return "Right_Ctrl";
         case KeyCodeType::KEY_LEFT_ALT:
             return "Left_Alt";
+        case KeyCodeType::LEFT:
+            return "Left";
+        case KeyCodeType::RIGHT:
+            return "Rightt";
+        case KeyCodeType::UP:
+            return "Up";
+        case KeyCodeType::DOWN:
+            return "Down";
         default:
-            return "";
+            return "Not register key";
     }
 }
 

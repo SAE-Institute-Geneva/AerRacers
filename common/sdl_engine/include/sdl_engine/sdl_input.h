@@ -24,7 +24,7 @@
 
  Author : Floreau Luca
  Co-Author :
- Date : 23.10.2020
+ Date : 07.11.2020
 ---------------------------------------------------------- */
 #include <vector>
 #include <cstdint>
@@ -359,10 +359,11 @@ enum class ButtonState : std::uint8_t {
  */
 struct ControllerInputs {
     std::array<ButtonState, static_cast<size_t>(ControllerButtonType::LENGTH)>
-    controllerButtonStates;
+    controllerButtonStates =
+        std::array<ButtonState, static_cast<size_t>(ControllerButtonType::LENGTH)>();
     std::array<float, static_cast<size_t>(ControllerAxisType::LENGTH)>
-    controllerAxis;
-    ControllerId controllerId;
+    controllerAxis = std::array<float, static_cast<size_t>(ControllerAxisType::LENGTH)>();
+    ControllerId controllerId = 0;
 };
 
 /**
@@ -370,9 +371,11 @@ struct ControllerInputs {
  */
 struct SwitchInputs {
     std::array<ButtonState, static_cast<size_t>(SwitchButtonType::LENGTH)>
-    switchButtonStates;
-    std::array<float, static_cast<size_t>(SwitchAxisType::LENGTH)> switchAxis;
-    SwitchJoyId switchJoyId;
+        switchButtonStates =
+        std::array<ButtonState, static_cast<size_t>(SwitchButtonType::LENGTH)>();
+    std::array<float, static_cast<size_t>(SwitchAxisType::LENGTH)> switchAxis =
+        std::array<float, static_cast<size_t>(SwitchAxisType::LENGTH)>();
+    SwitchJoyId switchJoyId = 0;
 };
 
 /**
@@ -407,6 +410,12 @@ public:
     virtual float GetSwitchAxis(
         SwitchJoyId switchJoyId,
         SwitchAxisType axis) const = 0;
+
+    /**
+     * \brief Get controller button state
+     * \param controllerId Id of the controller to get
+     */
+    virtual std::vector<ControllerId> GetControllerIdVector() const = 0;
 
     /**
      * \brief Get controller button state
@@ -493,6 +502,8 @@ public:
         ControllerId controllerId,
         ControllerAxisType axis) const override;
 
+    std::vector<ControllerId> GetControllerIdVector() const override;
+
     std::string PcInputsEnumToString(KeyCodeType keyCode) override;
 
     std::string MouseInputsEnumToString(MouseButtonType mouseButton) override;
@@ -577,6 +588,10 @@ public:
         return 0.0f;
     }
 
+    std::vector<ControllerId> GetControllerIdVector() const override
+    {
+        return std::vector<ControllerId>();
+    }
     std::string PcInputsEnumToString(KeyCodeType keyCode) override
     {
         return "";

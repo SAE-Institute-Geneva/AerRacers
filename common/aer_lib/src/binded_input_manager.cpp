@@ -1,75 +1,166 @@
-//
-//void InputManager::BindAction()
-//{
-//    //TODO(@Luca) Function to bind action
-//    for (unsigned i = 0; i < 4; i++) {
-//        bindingPcInput_[i][static_cast<unsigned>(ActionButton::FORWARD)] =
-//            static_cast<unsigned>(KeyCodeType::W);
-//        bindingPcInput_[i][static_cast<unsigned>(ActionButton::BACKWARD)] =
-//            static_cast<unsigned>(KeyCodeType::S);
-//        bindingPcInput_[i][static_cast<unsigned>(ActionButton::RIGHT)] =
-//            static_cast<unsigned>(KeyCodeType::D);
-//        bindingPcInput_[i][static_cast<unsigned>(ActionButton::LEFT)] =
-//            static_cast<unsigned>(KeyCodeType::A);
-//        bindingPcInput_[i][static_cast<unsigned>(ActionButton::MAIN_SHOOT)] =
-//            static_cast<unsigned>(KeyCodeType::E);
-//        bindingPcInput_[i][static_cast<unsigned>(ActionButton::CAMERA)] =
-//            static_cast<unsigned>(KeyCodeType::F);
-//        bindingPcInput_[i][static_cast<unsigned>(ActionButton::MENU)] =
-//            static_cast<unsigned>(KeyCodeType::ESCAPE);
-//
-//        bindingControllerInput_[i][static_cast<unsigned>(ActionButton::FORWARD)]
-//            = PairedControllerInput(ControllerButtonType::BUTTON_A, i);
-//        bindingControllerInput_[i][static_cast<unsigned>(ActionButton::BACKWARD)]
-//            = PairedControllerInput(ControllerButtonType::BUTTON_A, i);
-//        bindingControllerInput_[i][static_cast<unsigned>(ActionButton::RIGHT)] =
-//            PairedControllerInput(ControllerButtonType::BUTTON_A, i);
-//        bindingControllerInput_[i][static_cast<unsigned>(ActionButton::LEFT)] =
-//            PairedControllerInput(ControllerButtonType::BUTTON_A, i);
-//        bindingControllerInput_[i][static_cast<unsigned>(ActionButton::MAIN_SHOOT
-//            )] =
-//            PairedControllerInput(ControllerButtonType::BUTTON_A, i);
-//        bindingControllerInput_[i][static_cast<unsigned>(ActionButton::CAMERA)] =
-//            PairedControllerInput(ControllerButtonType::BUTTON_A, i);
-//        bindingControllerInput_[i][static_cast<unsigned>(ActionButton::MENU)] =
-//            PairedControllerInput(ControllerButtonType::BUTTON_A, i);
-//    }
-//}
-//
-//std::string InputManager::ActionEnumToString(const ActionButton actionInputs)
-//{
-//    switch (actionInputs) {
-//    case ActionButton::FORWARD:
-//        return "Forward";
-//    case ActionButton::BACKWARD:
-//        return "Backward";
-//    case ActionButton::LEFT:
-//        return "Left";
-//    case ActionButton::RIGHT:
-//        return "Right";
-//    case ActionButton::MAIN_SHOOT:
-//        return "Main_Shoot";
-//    case ActionButton::CAMERA:
-//        return "Camera";
-//    case ActionButton::MENU:
-//        return "Menu";
-//    default:
-//        return "";
-//    }
-//}
-//
-//std::string InputManager::ActionEnumToString(ActionAxis actionAxis)
-//{
-//    switch (actionAxis) {
-//    case ActionAxis::HORIZONTAL:
-//        return "Horizontal";
-//    case ActionAxis::VERTICAL:
-//        return "Vertical";
-//    case ActionAxis::CAMERA_HORIZONTAL:
-//        return "CameraHorizontal";
-//    case ActionAxis::CAMERA_VERTICAL:
-//        return "CameraVertical";
-//    default:
-//        return "";
-//    }
-//}
+#include "binded_input_manager.h"
+#include <log.h>
+
+namespace neko::aer {
+
+BindedInputManager::BindedInputManager()
+{
+    inputLocator_ = &sdl::InputLocator::get();
+    BindedInputLocator::provide(this);
+}
+
+BindingInputs BindedInputManager::GetPlayerActions(
+    PlayerId playerId)
+{
+    unsigned playerIndex = FindActionIndexFromId(playerId);
+    if (playerIndex >= actionBindingInputs_.size()) {
+        LogDebug(
+            "Unknow Player : " + std::to_string(playerId));
+        return BindingInputs();
+    }
+    return actionBindingInputs_[playerIndex];
+}
+
+void BindedInputManager::SetPlayerActions(BindingInputs actionInputs)
+{
+    unsigned playerIndex = FindActionIndexFromId(actionInputs.playerId);
+    if (playerIndex >= actionBindingInputs_.size()) {
+        actionBindingInputs_.push_back(actionInputs);
+    }
+    actionBindingInputs_[playerIndex] = actionInputs;
+}
+
+sdl::ButtonState BindedInputManager::GetActionButtonState(
+    unsigned playerId,
+    ActionButtonType actionButton) const
+{
+    unsigned playerIndex = FindActionIndexFromId(playerId);
+    if (playerIndex >= actionBindingInputs_.size()) {
+        LogDebug(
+            "Unknow Player : " + std::to_string(playerId));
+        return sdl::ButtonState::NONE;
+    }
+    if (inputLocator_->GetSwitchButtonState(
+            actionBindingInputs_[playerIndex].bindedSwitchJoyId,
+            actionBindingInputs_[playerIndex].switchBindingButtons[
+                static_cast<size_t>(actionButton)]) != sdl::ButtonState::NONE) {
+        return inputLocator_->GetSwitchButtonState(
+            actionBindingInputs_[playerIndex].bindedSwitchJoyId,
+            actionBindingInputs_[playerIndex].switchBindingButtons[
+                static_cast<size_t>(actionButton)]);
+    }
+    else if (inputLocator_->GetControllerButtonState(
+                 actionBindingInputs_[playerIndex].bindedControllerId,
+                 actionBindingInputs_[playerIndex].controllerBindingButtons[
+                     static_cast<size_t>(actionButton)]) !=
+             sdl::ButtonState::NONE) {
+        return inputLocator_->GetControllerButtonState(
+            actionBindingInputs_[playerIndex].bindedControllerId,
+            actionBindingInputs_[playerIndex].controllerBindingButtons[
+                static_cast<size_t>(actionButton)]);
+    }
+    else if (inputLocator_->GetKeyState(
+                 actionBindingInputs_[playerIndex].pcBindingButtons[
+                     static_cast<size_t>(actionButton)]) !=
+             sdl::ButtonState::NONE) {
+        return inputLocator_->GetKeyState(
+            actionBindingInputs_[playerIndex].pcBindingButtons[
+                static_cast<size_t>(actionButton)]);
+    }
+    else {
+        return sdl::ButtonState::NONE;
+    }
+}
+
+float BindedInputManager::GetActionAxis(
+    unsigned playerId,
+    ActionAxisType actionAxis) const
+{
+    unsigned playerIndex = FindActionIndexFromId(playerId);
+    if (playerIndex >= actionBindingInputs_.size()) {
+        LogDebug(
+            "Unknow Player : " + std::to_string(playerId));
+        return 0.0f;
+    }
+    if (inputLocator_->GetSwitchAxis(
+        actionBindingInputs_[playerIndex].bindedSwitchJoyId,
+        actionBindingInputs_[playerIndex].switchBindingAxis[
+            static_cast<size_t>(actionAxis)]) != 0.0f) {
+        return inputLocator_->GetSwitchAxis(
+            actionBindingInputs_[playerIndex].bindedSwitchJoyId,
+            actionBindingInputs_[playerIndex].switchBindingAxis[
+                static_cast<size_t>(actionAxis)]);
+    }
+    else if (inputLocator_->GetControllerAxis(
+        actionBindingInputs_[playerIndex].bindedControllerId,
+        actionBindingInputs_[playerIndex].controllerBindingAxis[
+            static_cast<size_t>(actionAxis)]) != 0.0f) {
+        return inputLocator_->GetControllerAxis(
+            actionBindingInputs_[playerIndex].bindedControllerId,
+            actionBindingInputs_[playerIndex].controllerBindingAxis[
+                static_cast<size_t>(actionAxis)]);
+    }
+    else {
+        return 0.0f;
+    }
+}
+
+unsigned BindedInputManager::FindActionIndexFromId(
+    const PlayerId playerId) const
+{
+    const auto actionInputIt = std::find_if(
+        actionBindingInputs_.begin(),
+        actionBindingInputs_.end(),
+        [playerId](
+        BindingInputs actionInputs) {
+            return actionInputs.playerId == playerId;
+        });
+    if (actionInputIt >= actionBindingInputs_.end()) {
+        LogDebug(
+            "Unknow Player : " + std::to_string(playerId));
+        return actionBindingInputs_.size();
+    }
+    const unsigned index = std::distance(actionBindingInputs_.begin(),
+                                         actionInputIt);
+    return index;
+}
+
+std::string BindedInputManager::ActionEnumToString(
+    const ActionButtonType actionInputs)
+{
+    switch (actionInputs) {
+        case ActionButtonType::FORWARD:
+            return "Forward";
+        case ActionButtonType::BACKWARD:
+            return "Backward";
+        case ActionButtonType::LEFT:
+            return "Left";
+        case ActionButtonType::RIGHT:
+            return "Right";
+        case ActionButtonType::MAIN_SHOOT:
+            return "Main_Shoot";
+        case ActionButtonType::CAMERA:
+            return "Camera";
+        case ActionButtonType::MENU:
+            return "Menu";
+        default:
+            return "";
+    }
+}
+
+std::string BindedInputManager::ActionEnumToString(ActionAxisType actionAxis)
+{
+    switch (actionAxis) {
+        case ActionAxisType::HORIZONTAL:
+            return "Horizontal";
+        case ActionAxisType::VERTICAL:
+            return "Vertical";
+        case ActionAxisType::CAMERA_HORIZONTAL:
+            return "CameraHorizontal";
+        case ActionAxisType::CAMERA_VERTICAL:
+            return "CameraVertical";
+        default:
+            return "";
+    }
+}
+}
