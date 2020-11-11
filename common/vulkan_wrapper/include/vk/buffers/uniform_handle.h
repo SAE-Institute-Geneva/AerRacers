@@ -1,14 +1,11 @@
 #pragma once
 #include "optional.hpp"
 
-#include "vk/buffers/buffer.h"
-#include "vk/shaders/uniform.h"
+#include "vk/buffers/uniform_buffer.h"
+#include "vk/shaders/uniform_block.h"
 
 namespace neko::vk
 {
-struct UniformBlock;
-struct UniformBuffer;
-
 class UniformHandle
 {
 public:
