@@ -61,7 +61,7 @@ private:
     std::uint32_t size_ = 0;
     std::vector<char> arbitraryUniformData_{};
 
-    std::experimental::optional<const UniformBlock&> uniformBlock_ = std::experimental::nullopt;
+    std::neko::optional<const UniformBlock&> uniformBlock_ = std::neko::nullopt;
     std::unique_ptr<UniformBuffer> uniformBuffer_ = nullptr;
 
     Buffer::Status handleStatus_ = Buffer::Status::NORMAL;

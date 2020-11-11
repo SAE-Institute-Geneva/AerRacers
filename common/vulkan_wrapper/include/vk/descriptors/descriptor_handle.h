@@ -116,7 +116,7 @@ private:
         std::uint32_t location;
     };
 
-    std::experimental::optional<const Shader&> shader_ = std::experimental::nullopt;
+    std::neko::optional<const Shader&> shader_ = std::neko::nullopt;
 
     bool pushDescriptor_ = false;
     bool changed_ = false;

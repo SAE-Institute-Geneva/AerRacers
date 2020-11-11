@@ -11,7 +11,7 @@ bool PushHandle::Update(const UniformBlock& uniformBlock)
 {
     if (!uniformBlock_ || uniformBlock_ != uniformBlock)
     {
-        uniformBlock_ = std::experimental::optional<const UniformBlock&>(uniformBlock);
+        uniformBlock_ = std::neko::optional<const UniformBlock&>(uniformBlock);
         data_ = std::vector<char>(uniformBlock.GetSize());
         return false;
     }

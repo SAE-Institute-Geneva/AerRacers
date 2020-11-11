@@ -87,7 +87,7 @@ bool UniformHandle::Update(const UniformBlock& uniformBlock)
             size_ = static_cast<std::uint32_t>(uniformBlock.GetSize());
         }
 
-        uniformBlock_ = std::experimental::optional<const UniformBlock&>(uniformBlock);
+        uniformBlock_ = std::neko::optional<const UniformBlock&>(uniformBlock);
         arbitraryUniformData_ = std::vector<char>(size_);
 
         uniformBuffer_ = std::make_unique<UniformBuffer>(static_cast<VkDeviceSize>(size_));

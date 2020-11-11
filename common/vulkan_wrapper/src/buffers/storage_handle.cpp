@@ -49,7 +49,7 @@ bool StorageHandle::Update(const UniformBlock& uniformBlock)
             size_ = static_cast<std::uint32_t>(uniformBlock.GetSize());
         }
 
-        uniformBlock_ = std::experimental::optional<const UniformBlock&>(uniformBlock);
+        uniformBlock_ = std::neko::optional<const UniformBlock&>(uniformBlock);
         arbitraryStorageData_ = std::vector<char>(size_);
 
         storageBuffer_ = std::make_unique<StorageBuffer>(static_cast<VkDeviceSize>(size_));

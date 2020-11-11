@@ -45,7 +45,7 @@ public:
     void BindPush(const CommandBuffer& commandBuffer, const Pipeline& pipeline) const;
 
 private:
-    std::experimental::optional<const UniformBlock&> uniformBlock_ = std::experimental::nullopt;
+    std::neko::optional<const UniformBlock&> uniformBlock_ = std::neko::nullopt;
     std::vector<char> data_;
 };
 }

@@ -17,6 +17,7 @@
 # include <functional>
 # include <string>
 # include <stdexcept>
+# include <iostream>
 
 # define TR2_OPTIONAL_REQUIRES(...) typename enable_if<__VA_ARGS__::value, bool>::type = false
 
@@ -97,9 +98,7 @@
 #   define OPTIONAL_MUTABLE_CONSTEXPR constexpr
 # endif
 
-namespace std{
-
-namespace experimental{
+namespace std::neko{
 
 // BEGIN workaround for missing is_trivially_destructible
 # if defined TR2_OPTIONAL_GCC_4_8_AND_HIGHER___
@@ -538,15 +537,15 @@ public:
   }
 
   constexpr T const& value() const& {
-    return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    return initialized() ? contained_val() : (cerr << "bad optional access", abort(), contained_val());
   }
   
   OPTIONAL_MUTABLE_CONSTEXPR T& value() & {
-    return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
+    return initialized() ? contained_val() : (cerr << "bad optional access", abort(), contained_val());
   }
   
   OPTIONAL_MUTABLE_CONSTEXPR T&& value() && {
-    if (!initialized()) throw bad_optional_access("bad optional access");
+    if (!initialized()) { cerr << "bad optional access"; abort(); }
 	return std::move(contained_val());
   }
   
@@ -702,7 +701,7 @@ public:
   }
   
   constexpr T& value() const {
-    return ref ? *ref : (throw bad_optional_access("bad optional access"), *ref);
+    return ref ? *ref : (std::cerr << "bad optional access", abort(), *ref);
   }
   
   explicit constexpr operator bool() const noexcept {
@@ -1031,17 +1030,15 @@ constexpr optional<X&> make_optional(reference_wrapper<X> v)
   return optional<X&>(v.get());
 }
 
-
-} // namespace experimental
 } // namespace std
 
 namespace std
 {
   template <typename T>
-  struct hash<std::experimental::optional<T>>
+  struct hash<neko::optional<T>>
   {
     typedef typename hash<T>::result_type result_type;
-    typedef std::experimental::optional<T> argument_type;
+    typedef neko::optional<T> argument_type;
     
     constexpr result_type operator()(argument_type const& arg) const {
       return arg ? std::hash<T>{}(*arg) : result_type{};
@@ -1049,10 +1046,10 @@ namespace std
   };
   
   template <typename T>
-  struct hash<std::experimental::optional<T&>>
+  struct hash<neko::optional<T&>>
   {
     typedef typename hash<T>::result_type result_type;
-    typedef std::experimental::optional<T&> argument_type;
+    typedef neko::optional<T&> argument_type;
     
     constexpr result_type operator()(argument_type const& arg) const {
       return arg ? std::hash<T>{}(*arg) : result_type{};

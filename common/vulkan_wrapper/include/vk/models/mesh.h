@@ -75,8 +75,8 @@ public:
     [[nodiscard]] float GetRadius() const { return radius_; }
 
 protected:
-    std::experimental::optional<Buffer> vertexBuffer_;
-    std::experimental::optional<Buffer> indexBuffer_;
+    std::neko::optional<Buffer> vertexBuffer_;
+    std::neko::optional<Buffer> indexBuffer_;
 
     Vec3f positionOffset_ = Vec3f::zero;
 
