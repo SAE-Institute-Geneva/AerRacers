@@ -1,5 +1,5 @@
 #include "aer_engine.h"
-#include "editor/tool_manager.h"
+#include "editor/editor_tool_manager.h"
 #include "editor/tool/logger.h"
 
 namespace neko::aer {
@@ -44,28 +44,7 @@ void EditorToolManager::DrawImGui() {
       ImGui::EndMenu();
     }
 
-    if (ImGui::BeginMenu("Help")) {
-      if (ImGui::MenuItem("About Neko")) {
-        aboutVisible_ = true;
-      }
-      ImGui::EndMenu();
-    }
     ImGui::EndMainMenuBar();
-  }
-
-  if (aboutVisible_) {
-    //Todo Change
-    ImGui::Begin("About", &aboutVisible_);
-    ImGui::Text(("Welcome to " + (engine_.config.windowName)).c_str());
-    ImGui::Text("Best Editor Ever");
-    ImGui::Separator();
-    ImGui::Text(
-        "Neko is a 3D game engine based on SDL2 and OpenGL ES 3.0 that works on Desktop,");
-    ImGui::Text(
-        "WebGL2 and Nintendo Switch (port to Android and iOS possible) used at SAE Institute Geneva.");
-    ImGui::Text("");
-    ImGui::Text("Copyright(c) 2020 SAE Institute Switzerland AG");
-    ImGui::End();
   }
 
   for (auto &tool : tools_) {
@@ -74,9 +53,9 @@ void EditorToolManager::DrawImGui() {
 }
 
 void EditorToolManager::DrawList() {
-  //std::find_if
   for (auto &tool : tools_) {
-    if (ImGui::MenuItem(tool->name_.c_str())) {
+      std::string name = tool->GetName() + " " + std::to_string(tool->GetId());
+    if (ImGui::MenuItem((name).c_str())) {
       tool->isVisible = true;
     }
   }
@@ -87,5 +66,16 @@ void EditorToolManager::OnEvent(const SDL_Event &event) {
     tool->OnEvent(event);
   }
 }
+
+template <typename T, EditorToolInterface::ToolType Type> void EditorToolManager::AddEditorTool() {
+    auto newTool = std::make_unique<T>(Type, tools_.size());
+    newTool->Init();
+    tools_.push_back(std::move(newTool));
+}
+
+int EditorToolManager::GetNumberTools() {
+    return tools_.size();
+}
+
 
 }

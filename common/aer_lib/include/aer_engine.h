@@ -32,7 +32,7 @@ Last Modif: 13.10.2020
 
 #include "draw_system.h"
 #include "log.h"
-#include "editor/tool_manager.h"
+#include "editor/editor_tool_manager.h"
 
 namespace neko::aer {
 

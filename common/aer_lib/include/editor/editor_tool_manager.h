@@ -26,13 +26,12 @@
  Co-Author : 
  Date : 03.11.2020
 ---------------------------------------------------------- */
-#include <imgui.h>
-#include "editor/EditorToolInterface.h"
+#include "editor/editor_tool_interface.h"
 
 namespace neko::aer {
 class AerEngine;
 
-class EditorToolManager final : public SystemInterface,
+class EditorToolManager : public SystemInterface,
                                 public DrawImGuiInterface,
                                 public sdl::SdlEventSystemInterface {
 public:
@@ -43,18 +42,18 @@ public:
   void DrawImGui() override;
   void OnEvent(const SDL_Event &event) override;
 
+  // Adds a tool in the EditorToolManager and instantiates it
   template <typename T, EditorToolInterface::ToolType Type>
-  void AddEditorTool() {
-    auto newTool = std::make_unique<T>(Type);
-    newTool->Init();
-    tools_.push_back(std::move(newTool));
-  }
+  void AddEditorTool();
+
+  // Get the number of tool
+  int GetNumberTools();
 
 private:
+  // Displays the list of tools in the main menu
   void DrawList();
 
   AerEngine &engine_;
   std::vector<std::unique_ptr<EditorToolInterface>> tools_;
-  bool aboutVisible_ = false;
 };
 }

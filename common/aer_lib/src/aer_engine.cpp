@@ -1,5 +1,4 @@
 #include "aer_engine.h"
-#include "editor/tool/logger.h"
 
 namespace neko::aer {
 AerEngine::AerEngine(Configuration* config, ModeEnum mode)

@@ -69,7 +69,7 @@ public:
       {
         int nbr = neko::aer::Log::get().GetLogs().size();
         if (nbr <= std::pow(2, 20)) {
-          for (size_t i = 0; i < 5000; i++) {
+          for (size_t i = 0; i < 2500; i++) {
             int rdm = rand() % 5;
             switch (rdm) {
             case 0:

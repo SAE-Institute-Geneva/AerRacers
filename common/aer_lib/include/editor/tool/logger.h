@@ -26,11 +26,11 @@
  Co-Author : Dylan von Arx
  Date : 13.10.2020
 ---------------------------------------------------------- */
-#include <vector>
 #include <mutex>
 #include <SDL_events.h>
+#include <vector>
 
-#include "editor/EditorToolInterface.h"
+#include "editor/editor_tool_interface.h"
 
 namespace neko::aer {
 enum class LogSeverity : std::uint8_t {
@@ -103,7 +103,7 @@ class NullLogManager final : public LogManagerInterface {
 
 class Logger final : public EditorToolInterface, public LogManagerInterface {
 public:
-    explicit Logger(ToolType type);
+    explicit Logger(ToolType type, int id);
 
     const std::vector<AerLog>& GetLogs() override
     {
@@ -119,6 +119,7 @@ public:
     void Destroy() override;
 
     void OnEvent(const SDL_Event& event) override;
+
     /**
     * \brief Generate a log message.
     * @param severity the type of the log message
@@ -129,7 +130,9 @@ public:
     * \brief Deletes all logs 
     */
     void ClearLogs() override;
-
+    /**
+   * \brief Exports the logs in a txt format file.
+   */
     void WriteToFile();
 
 private:

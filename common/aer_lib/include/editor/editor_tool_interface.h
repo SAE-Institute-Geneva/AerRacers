@@ -26,7 +26,6 @@
  Co-Author :
  Date : 03.11.2020
 ---------------------------------------------------------- */
-#include <imgui.h>
 #include <sdl_engine/sdl_engine.h>
 
 namespace neko::aer
@@ -37,51 +36,27 @@ class EditorToolInterface
       public sdl::SdlEventSystemInterface {
 public:
   enum class ToolType {
-    NONE = -1,
-    LOGGER,
-    INSPECTOR,
+    NONE = 0,
+    LOGGER
   };
 
-  explicit EditorToolInterface(ToolType type)
-    : type(type) {
-    name_ = toolNames_[(int)type];
-  }
+  explicit EditorToolInterface(ToolType type, int id);
+
+  int GetId() const;
+  ToolType GetType() const;
+  std::string GetName() const;
 
   bool isVisible = true;
-  ToolType type = ToolType::NONE;
-  std::string name_ = "";
-protected:
-
-  // Limit window move
-  void LimitationWindow() const {
-
-    ImGuiIO &io = ImGui::GetIO();
-    // X
-    if (ImGui::GetWindowPos().x < 0) {
-      ImGui::SetWindowPos(ImVec2(0, ImGui::GetWindowPos().y));
-    }
-
-    if (ImGui::GetWindowPos().x + ImGui::GetWindowSize().x > io.DisplaySize.x) {
-      ImGui::SetWindowPos(ImVec2(io.DisplaySize.x - ImGui::GetWindowSize().x,
-                                 ImGui::GetWindowPos().y));
-    }
-    // Y
-    if (ImGui::GetWindowPos().y < headerSpace_) {
-      ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x, headerSpace_));
-    }
-
-    if (ImGui::GetWindowPos().y + ImGui::GetWindowSize().y > io.DisplaySize.y) {
-      ImGui::SetWindowPos(ImVec2(ImGui::GetWindowPos().x,
-                                 io.DisplaySize.y - ImGui::GetWindowSize().y));
-    }
-  }
 
 private:
-  const int headerSpace_ = 20; // In Pixel
+    const int id_;
+    std::string name_ = "";
+    ToolType type_ = ToolType::NONE;
 
-  std::string toolNames_[2]{
+  std::string toolNames_[3]{
+      "Tool",
       "Logger",
-      "Inspecteur"
+      "Inspector"
   };
 };
 }
