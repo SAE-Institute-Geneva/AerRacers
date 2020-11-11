@@ -49,14 +49,15 @@ public:
   bool isVisible = true;
 
 private:
-    const int id_;
+    const int id_ = -1;
     std::string name_ = "";
     ToolType type_ = ToolType::NONE;
 
-  std::string toolNames_[3]{
+  std::string toolNames_[2]{
       "Tool",
-      "Logger",
-      "Inspector"
+      "Logger"
   };
 };
+
+
 }

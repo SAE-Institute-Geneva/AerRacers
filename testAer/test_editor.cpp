@@ -32,121 +32,97 @@
 #include <gl/graphics.h>
 
 #include "aer_engine.h"
-#include "editor/tool/logger.h"
-#include "log.h"
+#include "editor/editor_tool_interface.h"
 
-class SimulateLogger : public neko::SystemInterface {
+class TestToolInterface : neko::aer::EditorToolInterface {
+public:
+  explicit TestToolInterface(ToolType type, int id) : EditorToolInterface(type, id) {
+ 
+  }
+
+  void Update(neko::seconds dt) override {
+      counterTime += dt.count();
+    if(counterTime >= timeToWait_) {
+        counterTime = -std::rand() % 2;
+        isVisible = !isVisible;
+    }       
+  }
+
+  void Destroy() override {
+  }
+
+  void Init() override {
+      color_ = ImVec4(std::rand() % 2, std::rand() % 2, std::rand() % 2, 1);
+      counterTime = -std::rand() % 2;
+  }
+
+  void DrawImGui() override {
+    
+  }
+
+  void OnEvent(const SDL_Event &event) override {
+    
+  }
+
+private:
+    ImVec4 color_;
+    float counterTime = 0.0f;
+    const float timeToWait_ = 0.6f;
+};
+
+class SimulateEditor : public neko::SystemInterface {
 public:
 
-  SimulateLogger(neko::aer::AerEngine &engine)
+    SimulateEditor(neko::aer::AerEngine &engine)
     : engine_(engine) {
       toolManager_ = std::make_unique<neko::aer::EditorToolManager>(engine_);
       engine_.RegisterSystem(*toolManager_);
       engine_.RegisterOnDrawUi(*toolManager_);
-      engine_.RegisterOnEvent(*toolManager_);
-     
+      engine_.RegisterOnEvent(*toolManager_);    
   }
 
-  void Init() override {
-      toolManager_->AddEditorTool<neko::aer::Logger, neko::aer::EditorToolInterface::ToolType::LOGGER>();
-  }
+
+void Init() override {
+    for (int i = 0; i < KNbrTool_; ++i) {
+        toolManager_->AddEditorTool<TestToolInterface, neko::aer::EditorToolInterface::ToolType::NONE>();
+    }
+
+    if (toolManager_->GetNumberTools() == KNbrTool_) {
+        allToolInit_ = true;
+    }
+}
 
   void Update(neko::seconds dt) override {
-    if (!testSucces_) {
-      if (nextTest_) {
-        numberTest_++;
-        if (numberTest_ == 2) {
-          //TEST SUCCESS
+      counterTime_ += dt.count();
+      if(counterTime_ >= timeToWait_) {
           testSucces_ = true;
-          neko::LogDebug("[TEST] All tests were validated");
           engine_.Stop();
-          return;
-        }
-        neko::LogDebug(msgTest_[numberTest_]);
-        nextTest_ = false;
       }
-      switch (numberTest_) {
-      case 0: //TEST 1
-      {
-        int nbr = neko::aer::Log::get().GetLogs().size();
-        if (nbr <= std::pow(2, 20)) {
-          for (size_t i = 0; i < 2500; i++) {
-            int rdm = rand() % 5;
-            switch (rdm) {
-            case 0:
-              neko::aer::DebugLog(
-                  msgTest_[numberTest_]);
-              break;
-            case 1:
-              neko::aer::InfoLog(
-                  msgTest_[numberTest_]);
-              break;
-            case 2:
-              neko::aer::WarningLog(
-                  msgTest_[numberTest_]);
-              break;
-            case 3:
-              neko::aer::ErrorLog(
-                  msgTest_[numberTest_]);
-              break;
-            case 4:
-              neko::aer::CriticalLog(
-                  msgTest_[numberTest_]);
-              break;
-            }
-          }
-        } else {
-          neko::LogDebug("[TEST] Maximum of logs: OK");
-          capacityMax_ = true;
-          nextTest_ = true;
-        }
-      }
-      break;
-
-      case 1: //TEST 2
-      {
-        int nbr = neko::aer::Log::get().GetLogs().size();
-        if (nbr <= 0) {
-          neko::LogDebug("[TEST] Erasing logs: OK");
-          capacityClear_ = true;
-          nextTest_ = true;
-        } else { neko::aer::Log::get().ClearLogs(); }
-      }
-      break;
-
-      }
-    }
   }
 
   void Destroy() override {
   }
 
   void HasSucceed() const {
-    EXPECT_TRUE(capacityMax_);
-    EXPECT_TRUE(capacityClear_);
+    EXPECT_TRUE(allToolInit_);
     EXPECT_TRUE(testSucces_);
   }
 
 private:
   std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
-  bool capacityMax_ = false;
-  bool capacityClear_ = false;
+  bool allToolInit_ = false;
   bool testSucces_ = false;
 
   bool nextTest_ = true;
-  int numberTest_ = -1;
 
-  std::string msgTest_[2] = {
-      "[Action] Please Wait",
-      "[Action] Please clear the logs"
-  };
-
-  neko::aer::Logger* logger_;
   neko::aer::AerEngine &engine_;
 
+  float counterTime_ = 0.0f;
+  const float timeToWait_ = 5.0f;
+  const int KNbrTool_ = 10;
 };
 
-TEST(Tool, TestLogger) {
+TEST(Editor, TestEditor) {
   //Travis Fix because Windows can't open a window
   char *env = getenv("WIN_TRAVIS");
   if (env != nullptr) {
@@ -166,10 +142,10 @@ TEST(Tool, TestLogger) {
 
   engine.Init();
 
-  SimulateLogger simulateLogger(engine);
-  engine.RegisterSystem(simulateLogger);
+  SimulateEditor simulateEditor(engine);
+  engine.RegisterSystem(simulateEditor);
 
   engine.EngineLoop();
 
-  simulateLogger.HasSucceed();
+  simulateEditor.HasSucceed();
 }

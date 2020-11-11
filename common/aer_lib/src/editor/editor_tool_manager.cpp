@@ -73,7 +73,7 @@ template <typename T, EditorToolInterface::ToolType Type> void EditorToolManager
     tools_.push_back(std::move(newTool));
 }
 
-int EditorToolManager::GetNumberTools() {
+int EditorToolManager::GetNumberTools() const {
     return tools_.size();
 }
 

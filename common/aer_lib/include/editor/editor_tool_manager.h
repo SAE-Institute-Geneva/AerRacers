@@ -47,7 +47,7 @@ public:
   void AddEditorTool();
 
   // Get the number of tool
-  int GetNumberTools();
+  int GetNumberTools() const;
 
 private:
   // Displays the list of tools in the main menu

@@ -5,7 +5,6 @@ EditorToolInterface::EditorToolInterface(ToolType type, int id) : type_(type), i
     name_ = toolNames_[(int)type];
 }
 
-
 std::string EditorToolInterface::GetName() const {
   return name_;
 }
@@ -17,6 +16,5 @@ int EditorToolInterface::GetId() const {
 EditorToolInterface::ToolType EditorToolInterface::GetType() const {
   return type_;
 }
-
 
 }
