@@ -3,7 +3,7 @@
 #include "vk/commands/command_buffer.h"
 #include "vk/commands/model_command_buffer.h"
 #include "vk/buffers/uniform_handle.h"
-#include "vk/pipelines/pipeline.h"
+#include "vk/pipelines/render_pipeline.h"
 #include "vk/models/quad.h"
 
 namespace neko::vk

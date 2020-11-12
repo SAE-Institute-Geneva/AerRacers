@@ -22,7 +22,7 @@ public:
 private:
     Pipeline::Stage pipelineStage_;
     GraphicsPipelineCreateInfo pipelineGraphicsCreate_;
-    neko::optional<const RenderStage&> renderStage_;
+    std::neko::optional<const RenderStage&> renderStage_ = std::neko::nullopt;
     std::unique_ptr<GraphicsPipeline> pipeline_ = nullptr;
 };
 

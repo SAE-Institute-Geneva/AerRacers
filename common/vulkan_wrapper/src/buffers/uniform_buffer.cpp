@@ -1,5 +1,7 @@
 #include "vk/buffers/uniform_buffer.h"
 
+#include "vk/graphics.h"
+
 namespace neko::vk
 {
 UniformBuffer::UniformBuffer(const VkDeviceSize size, 

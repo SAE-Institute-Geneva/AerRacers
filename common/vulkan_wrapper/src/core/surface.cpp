@@ -1,4 +1,7 @@
 #include "vk/core/surface.h"
+
+#include "SDL_vulkan.h"
+
 #include "vk/graphics.h"
 
 namespace neko::vk

@@ -1,7 +1,8 @@
 #pragma once
-#include <xxhash.h>
 #include <map>
+#include <xxhash.h>
 
+#include "engine/globals.h"
 #include "vk/shaders/uniform.h"
 
 namespace neko::vk

@@ -28,7 +28,7 @@
 #ifdef NEKO_VULKAN
 #include "vulkan/vulkan.h"
 
-#ifndef NDEBUG
+#if !defined (NDEBUG) && !defined (NN_NINTENDO_SDK)
 #define VALIDATION_LAYERS
 #endif
 #endif

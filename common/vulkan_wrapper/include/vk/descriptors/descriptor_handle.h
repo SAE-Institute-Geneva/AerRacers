@@ -6,6 +6,7 @@
 
 #include "vk/buffers/push_handle.h"
 #include "vk/buffers/storage_handle.h"
+#include "vk/buffers/uniform_handle.h"
 #include "vk/descriptors/descriptor_set.h"
 #include "vk/pipelines/pipeline.h"
 #include "vk/shaders/shader.h"

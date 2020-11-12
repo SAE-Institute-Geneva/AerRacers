@@ -163,7 +163,7 @@ bool CheckInstanceExtensionsSupport(const std::vector<const char*>& extensions)
     res = vkEnumerateInstanceExtensionProperties(nullptr, &instExtCount, instExtNames.data());
     neko_assert(res == VK_SUCCESS, "Unable to retrieve vulkan instance extension names")
 
-#ifndef NDEBUG
+#ifdef VALIDATION_LAYERS
     // Display layer names and find the ones we specified above
     std::cout << "Found " << instExtCount << " instance extensions:\n";
     std::uint32_t count(0);
@@ -192,7 +192,7 @@ bool CheckInstanceExtensionsSupport(const std::vector<const char*>& extensions)
         }
     }
 
-#ifndef NDEBUG
+#ifdef VALIDATION_LAYERS
     // Print the ones we're enabling
     for (const auto& ext : extensions)
         std::cout << "Applying extension: " << ext << "\n";
@@ -215,7 +215,7 @@ bool CheckValidationLayerSupport()
 	neko_assert(res == VK_SUCCESS,
 	            "Unable to retrieve vulkan instance layer names")
 
-#ifndef NDEBUG
+#ifdef VALIDATION_LAYERS
 	// Display layer names and find the ones we specified above
 	std::cout << "Found " << instLayerCount << " instance layers:\n";
 	std::uint32_t count(0);
@@ -245,7 +245,7 @@ bool CheckValidationLayerSupport()
 		}
 	}
 
-#ifndef NDEBUG
+#ifdef VALIDATION_LAYERS
 	// Print the ones we're enabling
 	for (const auto& layer : kValidationLayers)
 		std::cout << "Applying layer: " << layer << "\n";
@@ -255,7 +255,7 @@ bool CheckValidationLayerSupport()
 	return true;
 }
 
-void CmdPushDescriptorSetKhr(
+void Instance::CmdPushDescriptorSetKhr(
         const VkDevice device,
         const VkCommandBuffer commandBuffer,
         const VkPipelineBindPoint pipelineBindPoint,

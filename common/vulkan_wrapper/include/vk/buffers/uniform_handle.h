@@ -1,6 +1,7 @@
 #pragma once
 #include "optional.hpp"
 
+#include "mathematics/hash.h"
 #include "vk/buffers/uniform_buffer.h"
 #include "vk/shaders/uniform_block.h"
 

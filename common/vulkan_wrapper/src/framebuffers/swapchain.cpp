@@ -1,6 +1,6 @@
 #include "vk/framebuffers/swapchain.h"
 
-#include "vk/core/physical_device.h"
+#include "vk/graphics.h"
 
 namespace neko::vk
 {

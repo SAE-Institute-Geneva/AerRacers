@@ -1,5 +1,4 @@
 #pragma once
-#include "vk/vulkan_include.h"
 #include "vk/vulkan_window.h"
 
 namespace neko::vk
@@ -23,6 +22,16 @@ public:
 
     [[nodiscard]] static std::vector<const char*> GetRequiredInstanceExtensions(SDL_Window& window);
 
+    static void CmdPushDescriptorSetKhr(
+            VkDevice device,
+            VkCommandBuffer commandBuffer,
+            VkPipelineBindPoint pipelineBindPoint,
+            VkPipelineLayout layout,
+            std::uint32_t set,
+            std::uint32_t descriptorWriteCount,
+            const VkWriteDescriptorSet*
+            pDescriptorSet);
+
 private:
     VkInstance instance_{};
     VkDebugUtilsMessengerEXT debugMessenger_{};
@@ -32,14 +41,4 @@ static void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT&
 
 static bool CheckInstanceExtensionsSupport(const std::vector<const char*>& extensions);
 static bool CheckValidationLayerSupport();
-
-static void CmdPushDescriptorSetKhr(
-        VkDevice device,
-        VkCommandBuffer commandBuffer,
-        VkPipelineBindPoint pipelineBindPoint,
-        VkPipelineLayout layout,
-        std::uint32_t set,
-        std::uint32_t descriptorWriteCount,
-        const VkWriteDescriptorSet*
-        pDescriptorSet);
 }

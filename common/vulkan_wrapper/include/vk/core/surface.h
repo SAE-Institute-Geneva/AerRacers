@@ -1,4 +1,6 @@
 #pragma once
+#include "SDL.h"
+
 #include "vk/vulkan_include.h"
 
 namespace neko::vk

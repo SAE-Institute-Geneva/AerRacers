@@ -1,5 +1,6 @@
 #include "vk/descriptors/descriptor_handle.h"
-#include "vk/core/instance.h"
+
+#include "vk/graphics.h"
 
 namespace neko::vk
 {
@@ -149,7 +150,7 @@ void DescriptorHandle::BindDescriptor(const CommandBuffer& commandBuffer, const 
     if (pushDescriptor_)
     {
         const auto& vkObj = VkObjectsLocator::get();
-        CmdPushDescriptorSetKhr(
+        Instance::CmdPushDescriptorSetKhr(
                 VkDevice(vkObj.device),
                 VkCommandBuffer(commandBuffer),
                 pipeline.GetPipelineBindPoint(),

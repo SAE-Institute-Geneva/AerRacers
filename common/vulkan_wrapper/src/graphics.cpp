@@ -49,7 +49,8 @@ VkRenderer::VkRenderer(sdl::VulkanWindow* window) : Renderer(), IVkObjects(windo
     surface.SetFormat();
     device.Init();
 
-    testShader_ = Shader("../../data/shaders/aer_racer/01_triangle/quad",
+	const auto& config = BasicEngine::GetInstance()->config;
+    testShader_ = Shader(config.dataRootPath + "shaders/aer_racer/01_triangle/quad",
                          VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
     testShader_.AddAttribute(HashString("inPosition"),
             Attribute(63, 0, sizeof(Vec3f), Attribute::AttributeType::VEC3F));

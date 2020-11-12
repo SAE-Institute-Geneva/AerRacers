@@ -227,7 +227,8 @@ bool PhysicalDevice::IsDeviceSuitable(const VkPhysicalDevice& gpu, const VkSurfa
 	return queueFamilyIndices.IsComplete() && extensionsSupported &&
 		swapChainAdequate &&
 		supportedFeatures.samplerAnisotropy &&
-		deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
+		(deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU || 
+			deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU) &&
 		deviceFeatures.geometryShader;
 }
 

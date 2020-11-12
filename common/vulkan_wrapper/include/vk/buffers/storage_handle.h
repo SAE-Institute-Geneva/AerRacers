@@ -1,8 +1,14 @@
 #pragma once
+#include <optional.hpp>
+
+#include "mathematics/hash.h"
 #include "vk/buffers/storage_buffer.h"
+#include "vk/shaders/uniform_block.h"
 
 namespace neko::vk
 {
+struct UniformBlock;
+
 class StorageHandle
 {
 public:

@@ -1,6 +1,7 @@
 #pragma once
 #include "optional.hpp"
 
+#include "mathematics/vector.h"
 #include "vk/buffers/buffer.h"
 #include "vk/commands/command_buffer.h"
 
@@ -75,8 +76,8 @@ public:
     [[nodiscard]] float GetRadius() const { return radius_; }
 
 protected:
-    std::neko::optional<Buffer> vertexBuffer_;
-    std::neko::optional<Buffer> indexBuffer_;
+    std::neko::optional<Buffer> vertexBuffer_ = std::neko::nullopt;
+    std::neko::optional<Buffer> indexBuffer_ = std::neko::nullopt;
 
     Vec3f positionOffset_ = Vec3f::zero;
 

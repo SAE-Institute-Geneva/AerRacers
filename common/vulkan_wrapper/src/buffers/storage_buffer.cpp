@@ -1,5 +1,7 @@
 #include "vk/buffers/storage_buffer.h"
 
+#include "vk/graphics.h"
+
 namespace neko::vk
 {
 StorageBuffer::StorageBuffer(const VkDeviceSize& size, const std::vector<char>& data)

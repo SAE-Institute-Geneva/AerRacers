@@ -3,10 +3,6 @@
 
 namespace neko::vk
 {
-class Instance;
-class PhysicalDevice;
-class Surface;
-
 class LogicalDevice final
 {
 public:

@@ -1,5 +1,7 @@
 #include "vk/framebuffers/renderpass.h"
 
+#include "vk/graphics.h"
+
 namespace neko::vk
 {
 RenderPass::RenderPass(const RenderStage& renderStage,

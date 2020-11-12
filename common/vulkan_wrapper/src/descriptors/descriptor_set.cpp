@@ -1,5 +1,7 @@
 #include "vk/descriptors/descriptor_set.h"
 
+#include "vk/graphics.h"
+
 namespace neko::vk
 {
 DescriptorSet::DescriptorSet(const Pipeline& pipeline)
