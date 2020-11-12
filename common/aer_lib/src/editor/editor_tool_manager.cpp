@@ -8,10 +8,10 @@ EditorToolManager::EditorToolManager(AerEngine &engine)
 }
 
 void EditorToolManager::Init() {
-    ModeEnum mode = engine_.GetMode();
-    if (mode == ModeEnum::EDITOR) {
-        AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
-    }
+  ModeEnum mode = engine_.GetMode();
+  if (mode == ModeEnum::EDITOR) {
+    AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
+  }
 }
 
 
@@ -54,7 +54,7 @@ void EditorToolManager::DrawImGui() {
 
 void EditorToolManager::DrawList() {
   for (auto &tool : tools_) {
-      std::string name = tool->GetName() + " " + std::to_string(tool->GetId());
+    std::string name = tool->GetName() + " " + std::to_string(tool->GetId());
     if (ImGui::MenuItem((name).c_str())) {
       tool->isVisible = true;
     }
@@ -67,14 +67,15 @@ void EditorToolManager::OnEvent(const SDL_Event &event) {
   }
 }
 
-template <typename T, EditorToolInterface::ToolType Type> void EditorToolManager::AddEditorTool() {
-    auto newTool = std::make_unique<T>(Type, tools_.size());
-    newTool->Init();
-    tools_.push_back(std::move(newTool));
+template <typename T, EditorToolInterface::ToolType Type> void
+EditorToolManager::AddEditorTool() {
+  auto newTool = std::make_unique<T>(Type, tools_.size());
+  newTool->Init();
+  tools_.push_back(std::move(newTool));
 }
 
 int EditorToolManager::GetNumberTools() const {
-    return tools_.size();
+  return tools_.size();
 }
 
 

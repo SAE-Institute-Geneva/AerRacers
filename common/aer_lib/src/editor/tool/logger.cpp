@@ -56,11 +56,11 @@ void Logger::DrawImGui() {
 #pragma region Body
       ImGui::BeginChild("Logs");
       if (autoScroll_) {
-         // Calculation of the y-position in pixel
-          posY_ = nbrLog - nbrLogDisplayMax;
+        // Calculation of the y-position in pixel
+        posY_ = nbrLog - nbrLogDisplayMax;
         if (posY_ < 0) { posY_ = 0; }
       } else {
-          posY_ = ImGui::GetScrollY() /
+        posY_ = ImGui::GetScrollY() /
                 ImGui::GetTextLineHeightWithSpacing();
         ImGui::SetCursorPos(
             {0, posY_ * ImGui::GetTextLineHeightWithSpacing()});

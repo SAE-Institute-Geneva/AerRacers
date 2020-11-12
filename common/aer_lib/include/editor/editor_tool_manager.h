@@ -31,9 +31,10 @@
 namespace neko::aer {
 class AerEngine;
 
-class EditorToolManager : public SystemInterface,
-                                public DrawImGuiInterface,
-                                public sdl::SdlEventSystemInterface {
+class EditorToolManager
+    : public SystemInterface,
+      public DrawImGuiInterface,
+      public sdl::SdlEventSystemInterface {
 public:
   explicit EditorToolManager(AerEngine &engine);
   void Init() override;

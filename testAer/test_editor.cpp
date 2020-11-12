@@ -23,7 +23,7 @@
 
  Author : Dylan von Arx
  Co-Author :
- Date : 03.11.2020
+ Date : 11.11.2020
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
 #include <sdl_engine/sdl_engine.h>
@@ -32,72 +32,113 @@
 #include <gl/graphics.h>
 
 #include "aer_engine.h"
-#include "editor/editor_tool_interface.h"
+#include "editor/tool/logger.h"
 
-class TestToolInterface : neko::aer::EditorToolInterface {
+class TestToolInterface : public neko::aer::EditorToolInterface {
 public:
-  explicit TestToolInterface(ToolType type, int id) : EditorToolInterface(type, id) {
- 
+  explicit TestToolInterface(ToolType type, int id)
+    : EditorToolInterface(type, id) {
+    color_ = ImVec4(std::rand() % 2, std::rand() % 2, std::rand() % 2, 1);
+    counterTime = -std::rand() % 2;
+  }
+
+  void Init() override {
+
   }
 
   void Update(neko::seconds dt) override {
-      counterTime += dt.count();
-    if(counterTime >= timeToWait_) {
-        counterTime = -std::rand() % 2;
-        isVisible = !isVisible;
-    }       
+    counterTime += dt.count();
+    if (counterTime >= timeToWait_) {
+      counterTime = -std::rand() % 2;
+      isVisible = !isVisible;
+    }
+  }
+
+  void DrawImGui() override {
+    if (isVisible) {
+      // Beginning of the Test window
+      if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(),
+                        &isVisible)) {
+        ImGui::End();
+      } else {
+        ImGui::End();
+      }
+    }
+  }
+
+  void OnEvent(const SDL_Event &event) override {
+
   }
 
   void Destroy() override {
   }
 
-  void Init() override {
-      color_ = ImVec4(std::rand() % 2, std::rand() % 2, std::rand() % 2, 1);
-      counterTime = -std::rand() % 2;
-  }
-
-  void DrawImGui() override {
-    
-  }
-
-  void OnEvent(const SDL_Event &event) override {
-    
-  }
-
 private:
-    ImVec4 color_;
-    float counterTime = 0.0f;
-    const float timeToWait_ = 0.6f;
+  ImVec4 color_;
+  float counterTime = 0.0f;
+  const float timeToWait_ = 0.6f;
 };
 
 class SimulateEditor : public neko::SystemInterface {
 public:
 
-    SimulateEditor(neko::aer::AerEngine &engine)
+  SimulateEditor(neko::aer::AerEngine &engine)
     : engine_(engine) {
-      toolManager_ = std::make_unique<neko::aer::EditorToolManager>(engine_);
-      engine_.RegisterSystem(*toolManager_);
-      engine_.RegisterOnDrawUi(*toolManager_);
-      engine_.RegisterOnEvent(*toolManager_);    
+    toolManager_ = std::make_unique<neko::aer::EditorToolManager>(engine_);
+    engine_.RegisterSystem(*toolManager_);
+    engine_.RegisterOnDrawUi(*toolManager_);
+    engine_.RegisterOnEvent(*toolManager_);
+
+    toolManager_->AddEditorTool<neko::aer::Logger,
+                                neko::aer::EditorToolInterface::ToolType::LOGGER
+    >();
+    toolManager_->AddEditorTool<neko::aer::Logger,
+                                neko::aer::EditorToolInterface::ToolType::LOGGER
+    >();
+
+    toolManager_->AddEditorTool<neko::aer::Logger,
+                                neko::aer::EditorToolInterface::ToolType::LOGGER
+    >();
+    toolManager_->AddEditorTool<neko::aer::Logger,
+                                neko::aer::EditorToolInterface::ToolType::LOGGER
+    >();
+
+    toolManager_->AddEditorTool<neko::aer::Logger,
+                                neko::aer::EditorToolInterface::ToolType::LOGGER
+    >();
+    toolManager_->AddEditorTool<neko::aer::Logger,
+                                neko::aer::EditorToolInterface::ToolType::LOGGER
+    >();
+
+    toolManager_->AddEditorTool<neko::aer::Logger,
+                                neko::aer::EditorToolInterface::ToolType::LOGGER
+    >();
+    toolManager_->AddEditorTool<neko::aer::Logger,
+                                neko::aer::EditorToolInterface::ToolType::LOGGER
+    >();
+
+    toolManager_->AddEditorTool<neko::aer::Logger,
+                                neko::aer::EditorToolInterface::ToolType::LOGGER
+    >();
+    toolManager_->AddEditorTool<neko::aer::Logger,
+                                neko::aer::EditorToolInterface::ToolType::LOGGER
+    >();
+
+    if (toolManager_->GetNumberTools() == kNbrTool_) {
+      allToolInit_ = true;
+    }
   }
 
 
-void Init() override {
-    for (int i = 0; i < KNbrTool_; ++i) {
-        toolManager_->AddEditorTool<TestToolInterface, neko::aer::EditorToolInterface::ToolType::NONE>();
-    }
-
-    if (toolManager_->GetNumberTools() == KNbrTool_) {
-        allToolInit_ = true;
-    }
-}
+  void Init() override {
+  }
 
   void Update(neko::seconds dt) override {
-      counterTime_ += dt.count();
-      if(counterTime_ >= timeToWait_) {
-          testSucces_ = true;
-          engine_.Stop();
-      }
+    counterTime_ += dt.count();
+    if (counterTime_ >= timeToWait_) {
+      testSuccess_ = true;
+      engine_.Stop();
+    }
   }
 
   void Destroy() override {
@@ -105,21 +146,19 @@ void Init() override {
 
   void HasSucceed() const {
     EXPECT_TRUE(allToolInit_);
-    EXPECT_TRUE(testSucces_);
+    EXPECT_TRUE(testSuccess_);
   }
 
 private:
   std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
   bool allToolInit_ = false;
-  bool testSucces_ = false;
-
-  bool nextTest_ = true;
+  bool testSuccess_ = false;
 
   neko::aer::AerEngine &engine_;
 
   float counterTime_ = 0.0f;
   const float timeToWait_ = 5.0f;
-  const int KNbrTool_ = 10;
+  const int kNbrTool_ = 10;
 };
 
 TEST(Editor, TestEditor) {

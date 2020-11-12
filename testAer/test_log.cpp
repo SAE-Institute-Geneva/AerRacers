@@ -44,11 +44,12 @@ public:
       engine_.RegisterSystem(*toolManager_);
       engine_.RegisterOnDrawUi(*toolManager_);
       engine_.RegisterOnEvent(*toolManager_);
+      toolManager_->AddEditorTool<neko::aer::Logger, neko::aer::EditorToolInterface::ToolType::LOGGER>();
      
   }
 
   void Init() override {
-      toolManager_->AddEditorTool<neko::aer::Logger, neko::aer::EditorToolInterface::ToolType::LOGGER>();
+     
   }
 
   void Update(neko::seconds dt) override {
