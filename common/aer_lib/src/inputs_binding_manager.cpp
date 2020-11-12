@@ -1,15 +1,15 @@
-#include "binded_input_manager.h"
+#include "inputs_binding_manager.h"
 #include <log.h>
 
 namespace neko::aer {
 
-BindedInputManager::BindedInputManager()
+InputBindingManager::InputBindingManager()
 {
     inputLocator_ = &sdl::InputLocator::get();
     BindedInputLocator::provide(this);
 }
 
-BindingInputs BindedInputManager::GetPlayerActions(
+BindingInputs InputBindingManager::GetPlayerActions(
     PlayerId playerId)
 {
     unsigned playerIndex = FindActionIndexFromId(playerId);
@@ -21,7 +21,7 @@ BindingInputs BindedInputManager::GetPlayerActions(
     return actionBindingInputs_[playerIndex];
 }
 
-void BindedInputManager::SetPlayerActions(BindingInputs actionInputs)
+void InputBindingManager::SetPlayerActions(BindingInputs actionInputs)
 {
     unsigned playerIndex = FindActionIndexFromId(actionInputs.playerId);
     if (playerIndex >= actionBindingInputs_.size()) {
@@ -30,7 +30,7 @@ void BindedInputManager::SetPlayerActions(BindingInputs actionInputs)
     actionBindingInputs_[playerIndex] = actionInputs;
 }
 
-sdl::ButtonState BindedInputManager::GetActionButtonState(
+sdl::ButtonState InputBindingManager::GetActionButtonState(
     unsigned playerId,
     ActionButtonType actionButton) const
 {
@@ -72,7 +72,7 @@ sdl::ButtonState BindedInputManager::GetActionButtonState(
     }
 }
 
-float BindedInputManager::GetActionAxis(
+float InputBindingManager::GetActionAxis(
     unsigned playerId,
     ActionAxisType actionAxis) const
 {
@@ -105,7 +105,7 @@ float BindedInputManager::GetActionAxis(
     }
 }
 
-unsigned BindedInputManager::FindActionIndexFromId(
+unsigned InputBindingManager::FindActionIndexFromId(
     const PlayerId playerId) const
 {
     const auto actionInputIt = std::find_if(
@@ -125,7 +125,7 @@ unsigned BindedInputManager::FindActionIndexFromId(
     return index;
 }
 
-std::string BindedInputManager::ActionEnumToString(
+std::string InputBindingManager::ActionEnumToString(
     const ActionButtonType actionInputs)
 {
     switch (actionInputs) {
@@ -148,7 +148,7 @@ std::string BindedInputManager::ActionEnumToString(
     }
 }
 
-std::string BindedInputManager::ActionEnumToString(ActionAxisType actionAxis)
+std::string InputBindingManager::ActionEnumToString(ActionAxisType actionAxis)
 {
     switch (actionAxis) {
         case ActionAxisType::HORIZONTAL:

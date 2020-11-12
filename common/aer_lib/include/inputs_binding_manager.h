@@ -81,9 +81,9 @@ struct BindingInputs {
 /**
  * \brief Manage inputs binding
  */
-class IBindedInputManager {
+class IInputBindingManager {
 public:
-    virtual ~IBindedInputManager() = default;
+    virtual ~IInputBindingManager() = default;
 
     /**
      * \brief Get Player action inputs binding
@@ -125,10 +125,10 @@ public:
     virtual std::string ActionEnumToString(ActionAxisType actionAxis) = 0;
 };
 
-class BindedInputManager final : public IBindedInputManager {
+class InputBindingManager final : public IInputBindingManager {
 
 public:
-   BindedInputManager();
+   InputBindingManager();
 
     BindingInputs GetPlayerActions(PlayerId playerId) override;
 
@@ -154,11 +154,11 @@ private :
     sdl::IInputManager* inputLocator_;
 };
 
-class NullBindedInputManager final : public IBindedInputManager {
+class NullInputBindingManager final : public IInputBindingManager {
 
 public:
 
-    ~NullBindedInputManager() override {}
+    ~NullInputBindingManager() override {}
 
     BindingInputs GetPlayerActions(PlayerId playerId) override
     {
@@ -192,5 +192,5 @@ public:
     }
 };
 
-using BindedInputLocator = Locator<IBindedInputManager, NullBindedInputManager>;
+using BindedInputLocator = Locator<IInputBindingManager, NullInputBindingManager>;
 }
