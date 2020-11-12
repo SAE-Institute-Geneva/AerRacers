@@ -19,6 +19,7 @@ set(Neko_Assert ON CACHE BOOL "Activate Neko Assertion")
 set(Neko_Benchmark ON CACHE BOOL "Activate Benchmark")
 set(Neko_Assimp ON CACHE BOOL "Activate Assimp Wrapper")
 set(Neko_SFML_NET ON CACHE BOOL "Activate SFML Net Wrapper")
+set(Neko_PhysX ON CACHE BOOL "Activate PhysX")
 set(Aer_Lib ON CACHE BOOL "Activate Aer_Lib")
 set(Aer_Test ON CACHE BOOL "Activate Aer Test")
 set(Neko_SameThread OFF CACHE BOOL "Activate Same Thread Rendering and Resource Loading")
@@ -144,6 +145,44 @@ if(Neko_SFML_NET)
 	set(SFML_DIR "${EXTERNAL_DIR}/SFML-2.5.1" CACHE STRING "")
 	include_directories("${SFML_DIR}/include")
 	add_subdirectory("${SFML_DIR}")
+endif()
+
+if(Neko_PhysX)
+	#### Build PhysX library ####
+    set(PHYSX_VERSION 4.1)
+    set(PHYSX_DIR ${EXTERNAL_DIR}/PhysX-${PHYSX_VERSION}/)
+	set(PHYSX_ROOT_DIR ${PHYSX_DIR}/physx)
+	set(PHYSX_INCLUDE_DIRS ${PHYSX_ROOT_DIR}/include/ ${PHYSX_ROOT_DIR}/../pxshared/include/ )
+	set(PHYSX_LIBRARIES
+		PhysXExtensions
+		PhysX
+		PhysXPvdSDK
+		PhysXVehicle
+		PhysXCharacterKinematic
+		PhysXCooking
+		PhysXCommon
+		PhysXFoundation
+		# SnippetUtils
+	)
+
+	set(CMAKE_CONFIGURATION_TYPES "debug") #enum configTypes {debug checked profile release}
+	set(TARGET_BUILD_PLATFORM "windows") # has to match the TARGET_BUILD_PLATFORM in $ENV{PHYSX_PATH}/physix/buildtools/cmake_generate_projects.py
+	set(PX_BUILDSNIPPETS OFF CACHE BOOL "Generate the snippets")
+	set(PX_BUILDPUBLICSAMPLES OFF CACHE BOOL "Generate the samples projects")
+	set(PX_GENERATE_STATIC_LIBRARIES OFF CACHE BOOL "Generate static libraries")
+	set(PX_FLOAT_POINT_PRECISE_MATH OFF CACHE BOOL "Float point precise math")
+	set(NV_USE_STATIC_WINCRT ON CACHE BOOL "Use the statically linked windows CRT")
+	set(NV_USE_DEBUG_WINCRT ON CACHE BOOL "Use the debug version of the CRT")
+	set(PXSHARED_PATH ${PHYSX_ROOT_DIR}/../pxshared)
+	set(PXSHARED_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+	set(CMAKEMODULES_VERSION "1.27")
+	set(CMAKEMODULES_PATH ${PHYSX_ROOT_DIR}/../externals/cmakemodules)
+	set(PX_OUTPUT_LIB_DIR ${PHYSX_DIR})
+	set(PX_OUTPUT_BIN_DIR ${PHYSX_DIR})
+	# Call into PhysX's CMake scripts
+	include_directories(${PHYSX_ROOT_DIR}/include)
+	include_directories(${PXSHARED_PATH}/include)
+	add_subdirectory(${PHYSX_ROOT_DIR}/compiler/public ${PHYSX_DIR})
 endif()
 
 if(Neko_Freetype)

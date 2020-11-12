@@ -13,9 +13,19 @@
 #include <mathematics/quaternion.h>
 #include <mathematics/matrix.h>
 #include "mathematics/vector.h"
-
+#include "PxPhysicsAPI.h"
+#include <log.h>
 
 const float maxNmb = 100.0f;
+
+class PxAllocatorCallback
+{
+public:
+    virtual ~PxAllocatorCallback() {}
+    virtual void* allocate(size_t size, const char* typeName, const char* filename,
+        int line) = 0;
+    virtual void deallocate(void* ptr) = 0;
+};
 
 void RandomFill(std::vector<float>& numbers, float start = -maxNmb, float end = maxNmb)
 {
@@ -23,6 +33,18 @@ void RandomFill(std::vector<float>& numbers, float start = -maxNmb, float end = 
 	std::mt19937 g(rd());
 	std::uniform_real_distribution<float> dist{ start, end };
 	std::generate(numbers.begin(), numbers.end(), [&g, &dist]() {return dist(g); });
+}
+
+TEST(Engine, TestPhysX)
+{
+    static physx::PxDefaultErrorCallback gDefaultErrorCallback;
+    static physx::PxDefaultAllocator gDefaultAllocatorCallback;
+
+    physx::PxFoundation* mFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, gDefaultAllocatorCallback,
+        gDefaultErrorCallback);
+    if (!mFoundation)
+        neko::LogDebug("PxCreateFoundation failed!");
+    mFoundation->release();
 }
 
 TEST(Engine, TestSinTable)

@@ -9,7 +9,7 @@ add_executable(Aer_TEST ${TEST_FILES})
 
 include_directories(${NEKO_CORE_DIR}/include)
 
-target_link_libraries(Aer_TEST aer_lib gtest gtest_main Neko_Core sdl_engine gles3_wrapper)
+target_link_libraries(Aer_TEST aer_lib gtest gtest_main Neko_Core sdl_engine gles3_wrapper PhysX)
 neko_bin_config(Aer_TEST)
 if(UNIX)
 #target_compile_options(Aer_TEST PUBLIC "--coverage")

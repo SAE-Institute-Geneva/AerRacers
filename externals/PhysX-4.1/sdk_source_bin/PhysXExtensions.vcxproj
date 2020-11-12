@@ -1,0 +1,479 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+  </PropertyGroup>
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="debug|x64">
+      <Configuration>debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="checked|x64">
+      <Configuration>checked</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="profile|x64">
+      <Configuration>profile</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="release|x64">
+      <Configuration>release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2CE8DF15-7EEB-312D-86BF-B67A4FC93F2A}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>PhysXExtensions</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='checked|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='profile|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='debug|x64'">C:\Storage\AerRacers\externals\PhysX-4.1\bin\win.x86_64.vc142.mt\debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='debug|x64'">PhysXExtensions.dir\debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='debug|x64'">PhysXExtensions_staticd</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='checked|x64'">C:\Storage\AerRacers\externals\PhysX-4.1\bin\win.x86_64.vc142.mt\checked\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='checked|x64'">PhysXExtensions.dir\checked\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='checked|x64'">PhysXExtensions_static</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='checked|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='profile|x64'">C:\Storage\AerRacers\externals\PhysX-4.1\bin\win.x86_64.vc142.mt\profile\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='profile|x64'">PhysXExtensions.dir\profile\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='profile|x64'">PhysXExtensions_static</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='profile|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='release|x64'">C:\Storage\AerRacers\externals\PhysX-4.1\bin\win.x86_64.vc142.mt\release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='release|x64'">PhysXExtensions.dir\release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='release|x64'">PhysXExtensions_static</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='release|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.74;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\..\pxshared\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\Common\src\windows;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\contact;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\common;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\convex;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\distance;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\sweep;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\gjk;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\intersection;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\mesh;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\hf;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\pcm;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\core\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvdsdk\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physx\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvd\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\fastxml\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\foundation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /d2Zi+</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BasicRuntimeChecks>UninitializedLocalUsageCheck</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4514;4820;4127;4710;4711;4577;4996</DisableSpecificWarnings>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>true</OmitFramePointers>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <StringPooling>true</StringPooling>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>_DEBUG;WIN32;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_DEBUG=1;PX_CHECKED=1;PX_NVTX=0;PX_SUPPORT_PVD=1;NOMINMAX;NEKO_ASSERT=1;NEKO_GLES3=1;CMAKE_INTDIR="debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>C:\Storage\AerRacers\externals\PhysX-4.1\bin\win.x86_64.vc142.mt\debug\PhysXExtensions_staticd.pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_DEBUG=1;PX_CHECKED=1;PX_NVTX=0;PX_SUPPORT_PVD=1;NOMINMAX;NEKO_ASSERT=1;NEKO_GLES3=1;CMAKE_INTDIR=\"debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.74;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\..\pxshared\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\Common\src\windows;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\contact;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\common;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\convex;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\distance;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\sweep;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\gjk;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\intersection;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\mesh;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\hf;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\pcm;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\core\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvdsdk\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physx\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvd\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\fastxml\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\foundation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.74;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\..\pxshared\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\Common\src\windows;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\contact;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\common;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\convex;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\distance;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\sweep;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\gjk;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\intersection;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\mesh;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\hf;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\pcm;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\core\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvdsdk\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physx\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvd\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\fastxml\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\foundation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='checked|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.74;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\..\pxshared\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\Common\src\windows;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\contact;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\common;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\convex;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\distance;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\sweep;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\gjk;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\intersection;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\mesh;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\hf;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\pcm;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\core\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvdsdk\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physx\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvd\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\fastxml\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\foundation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /d2Zi+</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4514;4820;4127;4710;4711;4577;4996</DisableSpecificWarnings>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>true</OmitFramePointers>
+      <Optimization>Full</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <StringPooling>true</StringPooling>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>_HAS_ITERATOR_DEBUGGING=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;WIN32;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_CHECKED=1;PX_NVTX=0;PX_SUPPORT_PVD=1;NOMINMAX;NEKO_ASSERT=1;NEKO_GLES3=1;CMAKE_INTDIR="checked";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>C:\Storage\AerRacers\externals\PhysX-4.1\bin\win.x86_64.vc142.mt\checked\PhysXExtensions_static.pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_HAS_ITERATOR_DEBUGGING=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_CHECKED=1;PX_NVTX=0;PX_SUPPORT_PVD=1;NOMINMAX;NEKO_ASSERT=1;NEKO_GLES3=1;CMAKE_INTDIR=\"checked\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.74;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\..\pxshared\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\Common\src\windows;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\contact;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\common;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\convex;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\distance;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\sweep;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\gjk;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\intersection;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\mesh;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\hf;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\pcm;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\core\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvdsdk\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physx\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvd\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\fastxml\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\foundation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.74;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\..\pxshared\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\Common\src\windows;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\contact;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\common;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\convex;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\distance;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\sweep;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\gjk;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\intersection;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\mesh;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\hf;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\pcm;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\core\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvdsdk\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physx\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvd\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\fastxml\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\foundation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='profile|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.74;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\..\pxshared\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\Common\src\windows;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\contact;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\common;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\convex;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\distance;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\sweep;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\gjk;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\intersection;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\mesh;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\hf;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\pcm;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\core\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvdsdk\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physx\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvd\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\fastxml\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\foundation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /d2Zi+</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4514;4820;4127;4710;4711;4577;4996</DisableSpecificWarnings>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>true</OmitFramePointers>
+      <Optimization>Full</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <StringPooling>true</StringPooling>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>_HAS_ITERATOR_DEBUGGING=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;WIN32;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_PROFILE=1;PX_NVTX=0;PX_SUPPORT_PVD=1;NOMINMAX;NEKO_ASSERT=1;NEKO_GLES3=1;CMAKE_INTDIR="profile";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>C:\Storage\AerRacers\externals\PhysX-4.1\bin\win.x86_64.vc142.mt\profile\PhysXExtensions_static.pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_HAS_ITERATOR_DEBUGGING=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_PROFILE=1;PX_NVTX=0;PX_SUPPORT_PVD=1;NOMINMAX;NEKO_ASSERT=1;NEKO_GLES3=1;CMAKE_INTDIR=\"profile\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.74;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\..\pxshared\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\Common\src\windows;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\contact;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\common;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\convex;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\distance;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\sweep;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\gjk;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\intersection;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\mesh;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\hf;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\pcm;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\core\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvdsdk\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physx\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvd\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\fastxml\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\foundation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.74;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\..\pxshared\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\Common\src\windows;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\contact;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\common;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\convex;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\distance;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\sweep;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\gjk;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\intersection;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\mesh;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\hf;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\pcm;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\core\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvdsdk\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physx\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvd\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\fastxml\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\foundation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.74;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\..\pxshared\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\Common\src\windows;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\contact;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\common;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\convex;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\distance;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\sweep;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\gjk;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\intersection;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\mesh;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\hf;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\pcm;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\core\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvdsdk\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physx\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvd\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\fastxml\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\foundation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /d2Zi+</AdditionalOptions>
+      <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <CallingConvention>Cdecl</CallingConvention>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4514;4820;4127;4710;4711;4577;4996</DisableSpecificWarnings>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <FloatingPointModel>Precise</FloatingPointModel>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>true</OmitFramePointers>
+      <Optimization>Full</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <StringPooling>true</StringPooling>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>_HAS_ITERATOR_DEBUGGING=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;WIN32;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_SUPPORT_PVD=0;NOMINMAX;NEKO_ASSERT=1;NEKO_GLES3=1;CMAKE_INTDIR="release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <ProgramDataBaseFileName>C:\Storage\AerRacers\externals\PhysX-4.1\bin\win.x86_64.vc142.mt\release\PhysXExtensions_static.pdb</ProgramDataBaseFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_HAS_ITERATOR_DEBUGGING=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;WIN64;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;_WINSOCK_DEPRECATED_NO_WARNINGS;PX_SUPPORT_PVD=0;NOMINMAX;NEKO_ASSERT=1;NEKO_GLES3=1;CMAKE_INTDIR=\"release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.74;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\..\pxshared\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\Common\src\windows;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\contact;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\common;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\convex;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\distance;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\sweep;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\gjk;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\intersection;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\mesh;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\hf;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\pcm;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\core\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvdsdk\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physx\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvd\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\fastxml\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\foundation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.74;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\..\pxshared\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\Common\src\windows;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\common\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\contact;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\common;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\convex;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\distance;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\sweep;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\gjk;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\intersection;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\mesh;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\hf;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\geomutils\src\pcm;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\core\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvdsdk\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physx\src;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\pvd\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\fastxml\include;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\foundation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='debug|x64'">Building Custom Rule C:/Storage/AerRacers/externals/PhysX-4.1/physx/source/compiler/cmake/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='debug|x64'">setlocal
+D:\App\CMake\bin\cmake.exe -SC:/Storage/AerRacers -BC:/Storage/AerRacers/build --check-stamp-file C:/Storage/AerRacers/externals/PhysX-4.1/sdk_source_bin/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='debug|x64'">C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\GetCompilerAndPlatform.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\NvidiaBuildOptions.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\SetOutputPaths.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\template\PxIncludeTemplate.h;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\FastXml.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\LowLevel.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\LowLevelAABB.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\LowLevelDynamics.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysX.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXCharacterKinematic.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXCommon.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXCooking.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXExtensions.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXFoundation.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXPvdSDK.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXTask.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXVehicle.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\SceneQuery.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\SimulationController.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\CMakeLists.txt;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\FastXml.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\LowLevel.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\LowLevelAABB.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\LowLevelDynamics.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysX.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXCharacterKinematic.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXCommon.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXCooking.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXExtensions.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXFoundation.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXPvdSDK.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXTask.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXVehicle.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\SceneQuery.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\SimulationController.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='debug|x64'">C:\Storage\AerRacers\externals\PhysX-4.1\sdk_source_bin\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='checked|x64'">Building Custom Rule C:/Storage/AerRacers/externals/PhysX-4.1/physx/source/compiler/cmake/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='checked|x64'">setlocal
+D:\App\CMake\bin\cmake.exe -SC:/Storage/AerRacers -BC:/Storage/AerRacers/build --check-stamp-file C:/Storage/AerRacers/externals/PhysX-4.1/sdk_source_bin/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='checked|x64'">C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\GetCompilerAndPlatform.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\NvidiaBuildOptions.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\SetOutputPaths.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\template\PxIncludeTemplate.h;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\FastXml.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\LowLevel.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\LowLevelAABB.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\LowLevelDynamics.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysX.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXCharacterKinematic.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXCommon.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXCooking.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXExtensions.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXFoundation.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXPvdSDK.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXTask.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXVehicle.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\SceneQuery.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\SimulationController.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\CMakeLists.txt;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\FastXml.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\LowLevel.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\LowLevelAABB.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\LowLevelDynamics.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysX.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXCharacterKinematic.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXCommon.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXCooking.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXExtensions.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXFoundation.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXPvdSDK.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXTask.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXVehicle.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\SceneQuery.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\SimulationController.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='checked|x64'">C:\Storage\AerRacers\externals\PhysX-4.1\sdk_source_bin\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='checked|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='profile|x64'">Building Custom Rule C:/Storage/AerRacers/externals/PhysX-4.1/physx/source/compiler/cmake/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='profile|x64'">setlocal
+D:\App\CMake\bin\cmake.exe -SC:/Storage/AerRacers -BC:/Storage/AerRacers/build --check-stamp-file C:/Storage/AerRacers/externals/PhysX-4.1/sdk_source_bin/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='profile|x64'">C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\GetCompilerAndPlatform.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\NvidiaBuildOptions.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\SetOutputPaths.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\template\PxIncludeTemplate.h;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\FastXml.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\LowLevel.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\LowLevelAABB.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\LowLevelDynamics.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysX.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXCharacterKinematic.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXCommon.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXCooking.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXExtensions.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXFoundation.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXPvdSDK.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXTask.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXVehicle.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\SceneQuery.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\SimulationController.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\CMakeLists.txt;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\FastXml.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\LowLevel.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\LowLevelAABB.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\LowLevelDynamics.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysX.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXCharacterKinematic.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXCommon.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXCooking.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXExtensions.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXFoundation.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXPvdSDK.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXTask.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXVehicle.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\SceneQuery.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\SimulationController.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='profile|x64'">C:\Storage\AerRacers\externals\PhysX-4.1\sdk_source_bin\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='profile|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='release|x64'">Building Custom Rule C:/Storage/AerRacers/externals/PhysX-4.1/physx/source/compiler/cmake/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='release|x64'">setlocal
+D:\App\CMake\bin\cmake.exe -SC:/Storage/AerRacers -BC:/Storage/AerRacers/build --check-stamp-file C:/Storage/AerRacers/externals/PhysX-4.1/sdk_source_bin/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='release|x64'">C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\GetCompilerAndPlatform.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\NvidiaBuildOptions.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\SetOutputPaths.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\externals\cmakemodules\template\PxIncludeTemplate.h;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\FastXml.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\LowLevel.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\LowLevelAABB.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\LowLevelDynamics.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysX.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXCharacterKinematic.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXCommon.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXCooking.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXExtensions.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXFoundation.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXPvdSDK.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXTask.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\PhysXVehicle.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\SceneQuery.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\SimulationController.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\CMakeLists.txt;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\FastXml.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\LowLevel.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\LowLevelAABB.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\LowLevelDynamics.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysX.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXCharacterKinematic.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXCommon.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXCooking.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXExtensions.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXFoundation.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXPvdSDK.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXTask.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\PhysXVehicle.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\SceneQuery.cmake;C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\compiler\cmake\windows\SimulationController.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='release|x64'">C:\Storage\AerRacers\externals\PhysX-4.1\sdk_source_bin\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='release|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="C:\Storage\AerRacers\externals\PhysX-4.1\sdk_source_bin\FastXml.dir\$(Configuration)\PsFastXml.obj" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtBroadPhase.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtCollection.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtConvexMeshExt.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtCpuWorkerThread.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtD6Joint.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtD6JointCreate.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtDefaultCpuDispatcher.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtDefaultErrorCallback.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtDefaultSimulationFilterShader.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtDefaultStreams.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtDistanceJoint.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtContactJoint.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtExtensions.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtFixedJoint.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtJoint.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtMetaData.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtPrismaticJoint.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtPvd.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtPxStringTable.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtRaycastCCD.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtRevoluteJoint.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtRigidBodyExt.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtRigidActorExt.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtSceneQueryExt.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtSimpleFactory.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtSmoothNormals.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtSphericalJoint.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtTriangleMeshExt.cpp" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtConstraintHelper.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtCpuWorkerThread.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtD6Joint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtDefaultCpuDispatcher.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtDistanceJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtContactJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtFixedJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtInertiaTensor.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtJointData.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtJointMetaDataExtensions.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtPlatform.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtPrismaticJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtPvd.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtRevoluteJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtSerialization.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtSharedQueueEntryPool.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtSphericalJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\ExtTaskQueueHelper.h" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\src\PxExtensionAutoGeneratedMetaDataObjects.cpp" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include\PxExtensionAutoGeneratedMetaDataObjectNames.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include\PxExtensionAutoGeneratedMetaDataObjects.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxmetadata\extensions\include\PxExtensionMetaDataObjects.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxBinaryConverter.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxBroadPhaseExt.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxCollectionExt.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxConstraintExt.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxContactJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxConvexMeshExt.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxD6Joint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxD6JointCreate.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxDefaultAllocator.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxDefaultCpuDispatcher.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxDefaultErrorCallback.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxDefaultSimulationFilterShader.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxDefaultStreams.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxDistanceJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxExtensionsAPI.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxFixedJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxJointLimit.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxMassProperties.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxPrismaticJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxRaycastCCD.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxRepXSerializer.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxRepXSimpleType.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxRevoluteJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxRigidActorExt.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxRigidBodyExt.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxSceneQueryExt.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxSerialization.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxShapeExt.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxSimpleFactory.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxSmoothNormals.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxSphericalJoint.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxStringTableExt.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\extensions\PxTriangleMeshExt.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\include\filebuf\PxFileBuf.h" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\SnSerialization.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\SnSerializationRegistry.cpp" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\SnSerializationRegistry.h" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\SnSerialUtils.cpp" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\SnSerialUtils.h" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnJointRepXSerializer.cpp" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnJointRepXSerializer.h" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnRepXCoreSerializer.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnRepXUpgrader.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlSerialization.cpp" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnPxStreamOperators.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnRepX1_0Defaults.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnRepX3_1Defaults.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnRepX3_2Defaults.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnRepXCollection.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnRepXCoreSerializer.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnRepXSerializerImpl.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnRepXUpgrader.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnSimpleXmlWriter.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlDeserializer.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlImpl.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlMemoryAllocator.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlMemoryPool.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlMemoryPoolStreams.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlReader.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlSerializer.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlSimpleXmlWriter.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlStringToType.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlVisitorReader.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlVisitorWriter.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Xml\SnXmlWriter.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\File\SnFile.h" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnBinaryDeserialization.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnBinarySerialization.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX_Align.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX_Convert.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX_Error.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX_MetaData.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX_Output.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX_Union.cpp" />
+    <ClCompile Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnSerializationContext.cpp" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX_Align.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX_Common.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX_MetaData.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX_Output.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnConvX_Union.h" />
+    <ClInclude Include="C:\Storage\AerRacers\externals\PhysX-4.1\physx\source\physxextensions\src\serialization\Binary\SnSerializationContext.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Storage\AerRacers\build\ZERO_CHECK.vcxproj">
+      <Project>{B70A1ECC-C1A5-38A2-9A29-C8096FC6B5F5}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Storage\AerRacers\externals\PhysX-4.1\sdk_source_bin\FastXml.vcxproj">
+      <Project>{137D387E-9065-3C34-8993-337367651F1E}</Project>
+      <Name>FastXml</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\Storage\AerRacers\externals\PhysX-4.1\sdk_source_bin\PhysX.vcxproj">
+      <Project>{BA684D06-746C-35E1-88F1-AD1E86115D35}</Project>
+      <Name>PhysX</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Storage\AerRacers\externals\PhysX-4.1\sdk_source_bin\PhysXFoundation.vcxproj">
+      <Project>{546AE3D6-FF98-39CD-B63C-216199BF0A51}</Project>
+      <Name>PhysXFoundation</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Storage\AerRacers\externals\PhysX-4.1\sdk_source_bin\PhysXPvdSDK.vcxproj">
+      <Project>{0CC6AE98-7C52-3A38-ADFD-BC42EBD01409}</Project>
+      <Name>PhysXPvdSDK</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
