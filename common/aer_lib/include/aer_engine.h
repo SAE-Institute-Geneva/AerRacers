@@ -56,7 +56,8 @@ public:
 
     void GenerateUiFrame() override;
 
-    ModeEnum GetMode() {
+    ModeEnum GetMode() const
+    {
         return mode_;
     }
 

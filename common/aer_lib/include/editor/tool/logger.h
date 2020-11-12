@@ -103,7 +103,7 @@ class NullLogManager final : public LogManagerInterface {
 
 class Logger final : public EditorToolInterface, public LogManagerInterface {
 public:
-    explicit Logger(ToolType type, int id);
+    explicit Logger(ToolType type, int id, std::string name);
 
     const std::vector<AerLog>& GetLogs() override
     {

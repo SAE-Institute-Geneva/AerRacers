@@ -1,21 +1,27 @@
 #include "editor/editor_tool_interface.h"
 
 namespace neko::aer {
-EditorToolInterface::EditorToolInterface(ToolType type, int id)
-  : type_(type), id_(id) {
-  name_ = toolNames_[(int)type];
+EditorToolInterface::EditorToolInterface(
+    ToolType type,
+    int id,
+    std::string name)
+    : kId_(id),
+      name_(name),
+      type_(type) {}
+
+std::string EditorToolInterface::GetName() const
+{
+    return name_;
 }
 
-std::string EditorToolInterface::GetName() const {
-  return name_;
+int EditorToolInterface::GetId() const
+{
+    return kId_;
 }
 
-int EditorToolInterface::GetId() const {
-  return id_;
-}
-
-EditorToolInterface::ToolType EditorToolInterface::GetType() const {
-  return type_;
+EditorToolInterface::ToolType EditorToolInterface::GetType() const
+{
+    return type_;
 }
 
 }

@@ -3,8 +3,8 @@
 #include "editor/tool/logger.h"
 
 namespace neko::aer {
-Logger::Logger(ToolType type, int id)
-  : EditorToolInterface(type, id) {
+Logger::Logger(ToolType type, int id, std::string name)
+  : EditorToolInterface(type, id, name) {
   Log::provide(this);
   logs_.reserve(kCapacityLog_);
 }
@@ -16,7 +16,7 @@ void Logger::Update(seconds dt) {
 }
 
 void Logger::Destroy() {
-  WriteToFile();
+  //WriteToFile();
   logs_.clear();
 }
 

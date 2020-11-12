@@ -36,25 +36,30 @@ class EditorToolManager
       public DrawImGuiInterface,
       public sdl::SdlEventSystemInterface {
 public:
-  explicit EditorToolManager(AerEngine &engine);
-  void Init() override;
-  void Update(seconds dt) override;
-  void Destroy() override;
-  void DrawImGui() override;
-  void OnEvent(const SDL_Event &event) override;
+    explicit EditorToolManager(AerEngine& engine);
+    void Init() override;
+    void Update(seconds dt) override;
+    void Destroy() override;
+    void DrawImGui() override;
+    void OnEvent(const SDL_Event& event) override;
 
-  // Adds a tool in the EditorToolManager and instantiates it
-  template <typename T, EditorToolInterface::ToolType Type>
-  void AddEditorTool();
+    // Adds a tool in the EditorToolManager and instantiates it
+    template <typename T, EditorToolInterface::ToolType Type>
+    void AddEditorTool();
 
-  // Get the number of tool
-  int GetNumberTools() const;
+    // Get the number of tool
+    int GetNumberTools() const;
 
 private:
-  // Displays the list of tools in the main menu
-  void DrawList();
+    // Displays the list of tools in the main menu
+    void DrawList();
 
-  AerEngine &engine_;
-  std::vector<std::unique_ptr<EditorToolInterface>> tools_;
+    AerEngine& engine_;
+    std::vector<std::unique_ptr<EditorToolInterface>> tools_;
+
+    std::string toolNames_[2]{
+        "Tool",
+        "Logger"
+    };
 };
 }

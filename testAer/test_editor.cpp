@@ -36,8 +36,8 @@
 
 class TestToolInterface : public neko::aer::EditorToolInterface {
 public:
-  explicit TestToolInterface(ToolType type, int id)
-    : EditorToolInterface(type, id) {
+  explicit TestToolInterface(ToolType type, int id, std::string name)
+    : EditorToolInterface(type, id, name) {
     color_ = ImVec4(std::rand() % 2, std::rand() % 2, std::rand() % 2, 1);
     counterTime = -std::rand() % 2;
   }
@@ -135,7 +135,7 @@ public:
 
   void Update(neko::seconds dt) override {
     counterTime_ += dt.count();
-    if (counterTime_ >= timeToWait_) {
+    if (counterTime_ >= kTimeToWait_) {
       testSuccess_ = true;
       engine_.Stop();
     }
@@ -157,7 +157,7 @@ private:
   neko::aer::AerEngine &engine_;
 
   float counterTime_ = 0.0f;
-  const float timeToWait_ = 5.0f;
+  const float kTimeToWait_ = 5.0f;
   const int kNbrTool_ = 10;
 };
 

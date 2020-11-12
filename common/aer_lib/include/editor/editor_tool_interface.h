@@ -31,31 +31,27 @@
 namespace neko::aer {
 
 class EditorToolInterface
-    : public SystemInterface, public DrawImGuiInterface,
+    : public SystemInterface,
+      public DrawImGuiInterface,
       public sdl::SdlEventSystemInterface {
 public:
-  enum class ToolType {
-    NONE = 0,
-    LOGGER
-  };
+    enum class ToolType {
+        NONE = 0,
+        LOGGER
+    };
 
-  explicit EditorToolInterface(ToolType type, int id);
+    explicit EditorToolInterface(ToolType type, int id, std::string name);
 
-  int GetId() const;
-  ToolType GetType() const;
-  std::string GetName() const;
+    int GetId() const;
+    ToolType GetType() const;
+    std::string GetName() const;
 
-  bool isVisible = true;
+    bool isVisible = true;
 
 private:
-  const int id_;
-  std::string name_ = "";
-  ToolType type_ = ToolType::NONE;
-
-  std::string toolNames_[2]{
-      "Tool",
-      "Logger"
-  };
+    const int kId_;
+    std::string name_ = "";
+    ToolType type_ = ToolType::NONE;
 };
 
 

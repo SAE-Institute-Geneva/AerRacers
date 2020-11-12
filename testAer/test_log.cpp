@@ -53,12 +53,12 @@ public:
   }
 
   void Update(neko::seconds dt) override {
-    if (!testSucces_) {
+    if (!testSuccess_) {
       if (nextTest_) {
         numberTest_++;
         if (numberTest_ == 2) {
           //TEST SUCCESS
-          testSucces_ = true;
+          testSuccess_ = true;
           neko::LogDebug("[TEST] All tests were validated");
           engine_.Stop();
           return;
@@ -125,14 +125,14 @@ public:
   void HasSucceed() const {
     EXPECT_TRUE(capacityMax_);
     EXPECT_TRUE(capacityClear_);
-    EXPECT_TRUE(testSucces_);
+    EXPECT_TRUE(testSuccess_);
   }
 
 private:
   std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
   bool capacityMax_ = false;
   bool capacityClear_ = false;
-  bool testSucces_ = false;
+  bool testSuccess_ = false;
 
   bool nextTest_ = true;
   int numberTest_ = -1;
@@ -142,7 +142,6 @@ private:
       "[Action] Please clear the logs"
   };
 
-  neko::aer::Logger* logger_;
   neko::aer::AerEngine &engine_;
 
 };
@@ -165,10 +164,10 @@ TEST(Tool, TestLogger) {
 
   engine.SetWindowAndRenderer(&window, &renderer);
 
-  engine.Init();
-
   SimulateLogger simulateLogger(engine);
   engine.RegisterSystem(simulateLogger);
+
+  engine.Init();
 
   engine.EngineLoop();
 
