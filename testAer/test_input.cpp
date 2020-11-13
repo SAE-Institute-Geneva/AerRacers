@@ -46,8 +46,6 @@ public:
         auto& inputLocator = neko::sdl::InputLocator::get();
         SimulateKeyDown(neko::sdl::KeyCodeType::A);
         SimulateKeyUp(neko::sdl::KeyCodeType::B);
-        SimulateMouseDown(neko::sdl::MouseButtonType::LEFT);
-        SimulateMouseUp(neko::sdl::MouseButtonType::RIGHT);
         auto controllerIdVector = inputLocator.GetControllerIdVector();
         for (int controllerIndex = 0; controllerIndex < controllerIdVector.size(); controllerIndex++) {
             const neko::sdl::ControllerId controllerId = controllerIdVector[controllerIndex];
@@ -82,7 +80,6 @@ public:
                 controllerUp_ = true;
             }
         }
-
         updateCount_++;
         if (updateCount_ == kEngineDuration_) {
             engine_.Stop();
@@ -115,48 +112,6 @@ public:
         SDL_Event sdlEvent = {};
         sdlEvent.type = SDL_KEYUP;
         sdlEvent.key.keysym.scancode = static_cast<SDL_Scancode>(key);
-        if (SDL_PushEvent(&sdlEvent) < 1) {
-            logDebug("SDL_Init failed: " + std::string(SDL_GetError()));
-        }
-    }
-
-    void SimulateMouseDown(const neko::sdl::MouseButtonType button)
-    {
-        SDL_Event sdlEvent = {};
-        sdlEvent.type = SDL_MOUSEBUTTONDOWN;
-        switch (button) {
-        case neko::sdl::MouseButtonType::LEFT:
-            sdlEvent.button.button = SDL_BUTTON_LEFT;
-            break;
-        case neko::sdl::MouseButtonType::RIGHT:
-            sdlEvent.button.button = SDL_BUTTON_RIGHT;
-            break;
-        case neko::sdl::MouseButtonType::MIDDLE:
-            sdlEvent.button.button = SDL_BUTTON_MIDDLE;
-            break;
-        default:;
-        }
-        if (SDL_PushEvent(&sdlEvent) < 1) {
-            logDebug("SDL_Init failed: " + std::string(SDL_GetError()));
-        }
-    }
-
-    void SimulateMouseUp(const neko::sdl::MouseButtonType button)
-    {
-        SDL_Event sdlEvent = {};
-        sdlEvent.type = SDL_MOUSEBUTTONUP;
-        switch (button) {
-        case neko::sdl::MouseButtonType::LEFT:
-            sdlEvent.button.button = SDL_BUTTON_LEFT;
-            break;
-        case neko::sdl::MouseButtonType::RIGHT:
-            sdlEvent.button.button = SDL_BUTTON_RIGHT;
-            break;
-        case neko::sdl::MouseButtonType::MIDDLE:
-            sdlEvent.button.button = SDL_BUTTON_MIDDLE;
-            break;
-        default:;
-        }
         if (SDL_PushEvent(&sdlEvent) < 1) {
             logDebug("SDL_Init failed: " + std::string(SDL_GetError()));
         }

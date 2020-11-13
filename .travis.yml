@@ -103,6 +103,8 @@ matrix:
         - cmake --build .
         - ./testNeko/Debug/Neko_TEST.exe
         - ./testAer/Debug/Aer_TEST.exe
+        - ./testNeko/Release/Neko_TEST.exe
+        - ./testAer/Release/Aer_TEST.exe
 
 # Don't send notifications on success
 notifications:

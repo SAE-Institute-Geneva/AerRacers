@@ -81,7 +81,7 @@ void Logger::DrawImGui()
 						LogMessage log = Log::get().GetLogs()[i];
 						switch (log.type)
 						{
-							case LogType::DEBUG:
+							case LogType::DEBUG_:
 								ImGui::TextColored(kBlue_, log.log.c_str());
 								break;
 							case LogType::INFO:
@@ -90,7 +90,7 @@ void Logger::DrawImGui()
 							case LogType::WARNING:
 								ImGui::TextColored(kYellow_, log.log.c_str());
 								break;
-							case LogType::FAILURE:
+							case LogType::ERROR_:
 								ImGui::TextColored(kOrange_, log.log.c_str());
 								break;
 							case LogType::CRITICAL:

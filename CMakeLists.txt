@@ -183,6 +183,13 @@ if(Neko_Test)
     set_target_properties(gtest_main PROPERTIES FOLDER Externals/GTest)
 endif()
 
+if(Aer_Test)
+    include_directories(${GOOGLE_TEST_DIR}/include)
+    add_subdirectory("testAer/")
+    set_target_properties (gtest PROPERTIES FOLDER Externals/GTest)
+    set_target_properties(gtest_main PROPERTIES FOLDER Externals/GTest)
+endif()
+
 if(Neko_Benchmark)
     #Google benchmark
     set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "")
@@ -198,13 +205,6 @@ endif()
 
 if(Aer_Lib)
     add_subdirectory("common/aer_lib")
-endif()
-
-if(Aer_Test)
-    include_directories(${GOOGLE_TEST_DIR}/include)
-    add_subdirectory("testAer/")
-    set_target_properties (gtest PROPERTIES FOLDER Externals/GTest)
-    set_target_properties(gtest_main PROPERTIES FOLDER Externals/GTest)
 endif()
 
 set(main_project_dir "main/")

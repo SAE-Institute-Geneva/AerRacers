@@ -29,7 +29,7 @@ void LogMessage::Generate()
 
 	switch (type)
 	{
-	case LogType::DEBUG:
+	case LogType::DEBUG_:
 		message << "[DEBUG] ";
 		break;
 	case LogType::INFO:
@@ -38,8 +38,8 @@ void LogMessage::Generate()
 	case LogType::WARNING:
 		message << "[WARNING] ";
 		break;
-	case LogType::FAILURE:
-		message << "[FAILURE] ";
+	case LogType::ERROR_:
+		message << "[ERROR] ";
 		break;
 	case LogType::CRITICAL:
 		message << "[CRITICAL] ";
@@ -252,12 +252,12 @@ void LogManager::WriteToFile()
 //-----------------------------------------------------------------------------
 void LogDebug(const std::string& msg)
 {
-	Log::get().Log(LogType::DEBUG, msg);
+	Log::get().Log(LogType::INFO, msg);
 }
 
 void LogDebug(const LogCategory category, const std::string& msg)
 {
-	Log::get().Log(category, LogType::DEBUG, msg);
+	Log::get().Log(category, LogType::INFO, msg);
 }
 
 void LogInfo(const std::string& msg)
@@ -282,12 +282,12 @@ void LogWarning(const LogCategory category, const std::string& msg)
 
 void LogError(const std::string& msg)
 {
-	Log::get().Log(LogType::FAILURE, msg);
+	Log::get().Log(LogType::ERROR_, msg);
 }
 
 void LogError(const LogCategory category, const std::string& msg)
 {
-	Log::get().Log(category, LogType::FAILURE, msg);
+	Log::get().Log(category, LogType::ERROR_, msg);
 }
 
 void LogCritical(const std::string& msg)

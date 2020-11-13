@@ -1,7 +1,4 @@
-
-
 #Google Test
-
 
 SET(Aer_TEST_DIR ${CMAKE_SOURCE_DIR}/testAer)
 file(GLOB TEST_FILES ${Aer_TEST_DIR}/*.cpp)
@@ -14,5 +11,9 @@ neko_bin_config(Aer_TEST)
 if(UNIX)
 #target_compile_options(Aer_TEST PUBLIC "--coverage")
 #target_link_options(Aer_TEST PUBLIC "--coverage")
+endif()
+
+if(EMSCRIPTEN)
+    set_target_properties(Aer_TEST PROPERTIES SUFFIX ".js")
 endif()
 set_target_properties (Aer_TEST PROPERTIES FOLDER Neko/Core)
