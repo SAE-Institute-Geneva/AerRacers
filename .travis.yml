@@ -9,6 +9,9 @@ matrix:
       arch: amd64
       dist: focal
       compiler: clang
+      services:
+        - xvfb
+      env:
       addons:
         apt:
           packages:
@@ -81,7 +84,10 @@ matrix:
         - node testNeko/Neko_TEST.js
     - name: "Windows MSVC"
       os: windows
+      services:
+        - xvfb
       env:
+        - WIN_TRAVIS="true"
         - CMAKE_PATH="/c/Program Files/CMake/bin"
         - MSBUILD_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin"
       before_install:

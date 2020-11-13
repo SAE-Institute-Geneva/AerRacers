@@ -48,7 +48,7 @@ void sdl::SdlWindow::Init()
 
     auto flags = SDL_WINDOW_RESIZABLE |
 #ifdef NEKO_GLES3
-        SDL_WINDOW_OPENGL
+        SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
 #endif
         ;
 #if defined(__ANDROID__)
@@ -84,6 +84,7 @@ void sdl::SdlWindow::Init()
     if (window_ == nullptr)
     {
         logDebug("[Error] Unable to create window\n");
+        logDebug(SDL_GetError());
         return;
     }
 }
@@ -96,15 +97,21 @@ void sdl::SdlWindow::InitImGui()
 // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    (void) io;
-	
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Keyboard Gamepad
+    ImGuiIO& io = ImGui::GetIO(); (void) io;
 
+    //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewport / Platform Windows
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;   // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Keyboard Gamepad
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;   // Enable Docking
+
+    //io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;         // We can honor GetMouseCursor() values (optional)
+    //io.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;          // We can honor io.WantSetMousePos requests (optional, rarely used)
+    //io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;    // We can create multi-viewports on the Platform side (optional)
+   
     // Setup Dear ImGui style
     //ImGui::StyleColorsDark();
-    ImGui::StyleColorsClassic();
+    //ImGui::StyleColorsLight();
+    //ImGui::StyleColorsClassic();
 }
 
 
@@ -124,8 +131,6 @@ void sdl::SdlWindow::Destroy()
     ImGui::DestroyContext();
     // Destroy our window
     SDL_DestroyWindow(window_);
-
-
 }
 
 void sdl::SdlWindow::SwapBuffer()
