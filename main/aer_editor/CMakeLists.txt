@@ -7,7 +7,7 @@ file(GLOB_RECURSE shaders_src ${CMAKE_SOURCE_DIR}/data/shaders/aer_racer/*.vert 
 source_group("Shaders"	FILES ${shaders_src})
 
 add_executable(aer_editor ${aer_editor_src} ${shaders_src})
-target_link_libraries(aer_editor PUBLIC Neko_Core aer_lib sdl_engine gles3_wrapper)
+target_link_libraries(aer_editor PUBLIC Neko_Core aer_lib sdl_engine gles3_wrapper assimp_wrapper ft_wrapper)
 neko_bin_config(aer_editor)
 
 if(EMSCRIPTEN)

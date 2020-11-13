@@ -1,4 +1,4 @@
-/*
+/* ----------------------------------------------------
  MIT License
 
  Copyright (c) 2020 SAE Institute Switzerland AG
@@ -20,18 +20,29 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
- */
 
-#include <gl/graphics.h>
+ Author : Floreau Luca
+ Co-Author :
+ Date : 29.09.2020
+---------------------------------------------------------- */
+
+#include "gl/graphics.h"
 #include "gl/gles3_window.h"
+
 #include "aer_engine.h"
 
 
 int main(int argc, char** argv)
 {
+    neko::Configuration config;
+    config.windowName = "AerEditor Version 0.01";
+    config.windowSize = neko::Vec2u(1400, 900);
+
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine;
+    neko::aer::AerEngine engine(
+        &config,
+        neko::aer::ModeEnum::EDITOR);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
