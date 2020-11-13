@@ -38,8 +38,8 @@ void LogMessage::Generate()
 	case LogType::WARNING:
 		message << "[WARNING] ";
 		break;
-	case LogType::ERROOR:
-		message << "[ERROR] ";
+	case LogType::FAILURE:
+		message << "[FAILURE] ";
 		break;
 	case LogType::CRITICAL:
 		message << "[CRITICAL] ";
@@ -282,12 +282,12 @@ void LogWarning(const LogCategory category, const std::string& msg)
 
 void LogError(const std::string& msg)
 {
-	Log::get().Log(LogType::ERROOR, msg);
+	Log::get().Log(LogType::FAILURE, msg);
 }
 
 void LogError(const LogCategory category, const std::string& msg)
 {
-	Log::get().Log(category, LogType::ERROOR, msg);
+	Log::get().Log(category, LogType::FAILURE, msg);
 }
 
 void LogCritical(const std::string& msg)

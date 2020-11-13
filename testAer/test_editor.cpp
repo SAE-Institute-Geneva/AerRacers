@@ -36,155 +36,152 @@
 
 class TestToolInterface : public neko::aer::EditorToolInterface {
 public:
-  explicit TestToolInterface(ToolType type, int id, std::string name)
-    : EditorToolInterface(type, id, name) {
-    color_ = ImVec4(std::rand() % 2, std::rand() % 2, std::rand() % 2, 1);
-    counterTime = -std::rand() % 2;
-  }
-
-  void Init() override {
-
-  }
-
-  void Update(neko::seconds dt) override {
-    counterTime += dt.count();
-    if (counterTime >= timeToWait_) {
-      counterTime = -std::rand() % 2;
-      isVisible = !isVisible;
+    explicit TestToolInterface(ToolType type, int id, std::string name)
+        : EditorToolInterface(type, id, name)
+    {
+        color_ = ImVec4(std::rand() % 2, std::rand() % 2, std::rand() % 2, 1);
+        counterTime_ = -std::rand() % 2;
     }
-  }
 
-  void DrawImGui() override {
-    if (isVisible) {
-      // Beginning of the Test window
-      if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(),
-                        &isVisible)) {
-        ImGui::End();
-      } else {
-        ImGui::End();
-      }
+    void Init() override { }
+
+    void Update(neko::seconds dt) override
+    {
+        counterTime_ += dt.count();
+        if (counterTime_ >= kTimeToWait_) {
+            counterTime_ = -std::rand() % 2;
+            isVisible = !isVisible;
+        }
     }
-  }
 
-  void OnEvent(const SDL_Event &event) override {
+    void DrawImGui() override
+    {
+        if (isVisible) {
+            // Beginning of the Test window
+            if (!ImGui::Begin(
+                (GetName() + "##" + std::to_string(GetId())).c_str(),
+                &isVisible)) { ImGui::End(); } else { ImGui::End(); }
+        }
+    }
 
-  }
+    void OnEvent(const SDL_Event& event) override { }
 
-  void Destroy() override {
-  }
+    void Destroy() override { }
 
 private:
-  ImVec4 color_;
-  float counterTime = 0.0f;
-  const float timeToWait_ = 0.6f;
+    ImVec4 color_;
+    float counterTime_ = 0.0f;
+    const float kTimeToWait_ = 0.6f;
 };
 
 class SimulateEditor : public neko::SystemInterface {
 public:
 
-  SimulateEditor(neko::aer::AerEngine &engine)
-    : engine_(engine) {
-    toolManager_ = std::make_unique<neko::aer::EditorToolManager>(engine_);
-    engine_.RegisterSystem(*toolManager_);
-    engine_.RegisterOnDrawUi(*toolManager_);
-    engine_.RegisterOnEvent(*toolManager_);
+    SimulateEditor(neko::aer::AerEngine& engine)
+        : engine_(engine)
+    {
+        toolManager_ = std::make_unique<neko::aer::EditorToolManager>(engine_);
+        engine_.RegisterSystem(*toolManager_);
+        engine_.RegisterOnDrawUi(*toolManager_);
+        engine_.RegisterOnEvent(*toolManager_);
 
-    toolManager_->AddEditorTool<neko::aer::Logger,
-                                neko::aer::EditorToolInterface::ToolType::LOGGER
-    >();
-    toolManager_->AddEditorTool<neko::aer::Logger,
-                                neko::aer::EditorToolInterface::ToolType::LOGGER
-    >();
+        toolManager_->AddEditorTool<neko::aer::Logger,
+                                    neko::aer::EditorToolInterface::ToolType::LOGGER
+        >();
+        toolManager_->AddEditorTool<neko::aer::Logger,
+                                    neko::aer::EditorToolInterface::ToolType::LOGGER
+        >();
 
-    toolManager_->AddEditorTool<neko::aer::Logger,
-                                neko::aer::EditorToolInterface::ToolType::LOGGER
-    >();
-    toolManager_->AddEditorTool<neko::aer::Logger,
-                                neko::aer::EditorToolInterface::ToolType::LOGGER
-    >();
+        toolManager_->AddEditorTool<neko::aer::Logger,
+                                    neko::aer::EditorToolInterface::ToolType::LOGGER
+        >();
+        toolManager_->AddEditorTool<neko::aer::Logger,
+                                    neko::aer::EditorToolInterface::ToolType::LOGGER
+        >();
 
-    toolManager_->AddEditorTool<neko::aer::Logger,
-                                neko::aer::EditorToolInterface::ToolType::LOGGER
-    >();
-    toolManager_->AddEditorTool<neko::aer::Logger,
-                                neko::aer::EditorToolInterface::ToolType::LOGGER
-    >();
+        toolManager_->AddEditorTool<neko::aer::Logger,
+                                    neko::aer::EditorToolInterface::ToolType::LOGGER
+        >();
+        toolManager_->AddEditorTool<neko::aer::Logger,
+                                    neko::aer::EditorToolInterface::ToolType::LOGGER
+        >();
 
-    toolManager_->AddEditorTool<neko::aer::Logger,
-                                neko::aer::EditorToolInterface::ToolType::LOGGER
-    >();
-    toolManager_->AddEditorTool<neko::aer::Logger,
-                                neko::aer::EditorToolInterface::ToolType::LOGGER
-    >();
+        toolManager_->AddEditorTool<neko::aer::Logger,
+                                    neko::aer::EditorToolInterface::ToolType::LOGGER
+        >();
+        toolManager_->AddEditorTool<neko::aer::Logger,
+                                    neko::aer::EditorToolInterface::ToolType::LOGGER
+        >();
 
-    toolManager_->AddEditorTool<neko::aer::Logger,
-                                neko::aer::EditorToolInterface::ToolType::LOGGER
-    >();
-    toolManager_->AddEditorTool<neko::aer::Logger,
-                                neko::aer::EditorToolInterface::ToolType::LOGGER
-    >();
+        toolManager_->AddEditorTool<neko::aer::Logger,
+                                    neko::aer::EditorToolInterface::ToolType::LOGGER
+        >();
+        toolManager_->AddEditorTool<neko::aer::Logger,
+                                    neko::aer::EditorToolInterface::ToolType::LOGGER
+        >();
 
-    if (toolManager_->GetNumberTools() == kNbrTool_) {
-      allToolInit_ = true;
+        if (toolManager_->GetNumberTools() == kNbrTool_) {
+            allToolInit_ = true;
+        }
     }
-  }
 
 
-  void Init() override {
-  }
+    void Init() override { }
 
-  void Update(neko::seconds dt) override {
-    counterTime_ += dt.count();
-    if (counterTime_ >= kTimeToWait_) {
-      testSuccess_ = true;
-      engine_.Stop();
+    void Update(neko::seconds dt) override
+    {
+        counterTime_ += dt.count();
+        if (counterTime_ >= kTimeToWait_) {
+            testSuccess_ = true;
+            engine_.Stop();
+        }
     }
-  }
 
-  void Destroy() override {
-  }
+    void Destroy() override { }
 
-  void HasSucceed() const {
-    EXPECT_TRUE(allToolInit_);
-    EXPECT_TRUE(testSuccess_);
-  }
+    void HasSucceed() const
+    {
+        EXPECT_TRUE(allToolInit_);
+        EXPECT_TRUE(testSuccess_);
+    }
 
 private:
-  std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
-  bool allToolInit_ = false;
-  bool testSuccess_ = false;
+    std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
+    bool allToolInit_ = false;
+    bool testSuccess_ = false;
 
-  neko::aer::AerEngine &engine_;
+    neko::aer::AerEngine& engine_;
 
-  float counterTime_ = 0.0f;
-  const float kTimeToWait_ = 2.0f;
-  const int kNbrTool_ = 10;
+    float counterTime_ = 0.0f;
+    const float kTimeToWait_ = 2.0f;
+    const int kNbrTool_ = 10;
 };
 
-TEST(Editor, TestEditor) {
-  //Travis Fix because Windows can't open a window
-  char *env = getenv("WIN_TRAVIS");
-  if (env != nullptr) {
-    std::cout << "Test skip for travis windows" << std::endl;
-    return;
-  }
+TEST(Editor, TestEditor)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("WIN_TRAVIS");
+    if (env != nullptr) {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
 
-  neko::Configuration config;
-  config.windowName = "AerEditor";
-  config.windowSize = neko::Vec2u(1400, 900);
+    neko::Configuration config;
+    config.windowName = "AerEditor";
+    config.windowSize = neko::Vec2u(1400, 900);
 
-  neko::sdl::Gles3Window window;
-  neko::gl::Gles3Renderer renderer;
-  neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
+    neko::sdl::Gles3Window window;
+    neko::gl::Gles3Renderer renderer;
+    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
 
-  engine.SetWindowAndRenderer(&window, &renderer);
+    engine.SetWindowAndRenderer(&window, &renderer);
 
-  engine.Init();
+    engine.Init();
 
-  SimulateEditor simulateEditor(engine);
-  engine.RegisterSystem(simulateEditor);
+    SimulateEditor simulateEditor(engine);
+    engine.RegisterSystem(simulateEditor);
 
-  engine.EngineLoop();
+    engine.EngineLoop();
 
-  simulateEditor.HasSucceed();
+    simulateEditor.HasSucceed();
 }

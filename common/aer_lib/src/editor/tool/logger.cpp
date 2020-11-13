@@ -90,7 +90,7 @@ void Logger::DrawImGui()
 							case LogType::WARNING:
 								ImGui::TextColored(kYellow_, log.log.c_str());
 								break;
-							case LogType::ERROOR:
+							case LogType::FAILURE:
 								ImGui::TextColored(kOrange_, log.log.c_str());
 								break;
 							case LogType::CRITICAL:

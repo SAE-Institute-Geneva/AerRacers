@@ -48,10 +48,10 @@ namespace neko
 /// \brief To differentiate log messages
 enum class LogType : std::uint8_t
 {
-	DEBUG = 1, //For regular debug messages
-	INFO,
-	WARNING, //For non-critical errors
-	ERROOR,
+	DEBUG = 1, //For devlop debug messages
+	INFO, // For regular message
+	WARNING, //For mistake errors
+	FAILURE, // For non-critical error
 	CRITICAL, //For critical errors
 	LENGTH
 };

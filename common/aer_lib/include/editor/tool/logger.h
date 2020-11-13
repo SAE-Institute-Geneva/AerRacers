@@ -22,8 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  
- Author : Canas Simon
- Co-Author : Dylan von Arx
+ Author : Dylan von Arx
+ Co-Author : 
  Date : 13.10.2020
 ---------------------------------------------------------- */
 #include <mutex>
