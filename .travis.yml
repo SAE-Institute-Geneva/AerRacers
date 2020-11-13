@@ -18,7 +18,7 @@ matrix:
             - libsdl2-dev
             - python3-dev
             - glslang-tools
-
+            - libzstd-dev
       before_install:
         - eval "CC=clang-8 && CXX=clang++-8"
       script:
@@ -27,7 +27,7 @@ matrix:
         - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
         - ./testNeko/Neko_TEST
         - ./testAer/Aer_TEST
-    - name: "Windows"
+  - name: "Windows MSVC"
       os: windows
       services:
         - xvfb
@@ -48,7 +48,7 @@ matrix:
         - cmake --build .
         - ./testNeko/Debug/Neko_TEST.exe
         - ./testAer/Debug/Aer_TEST.exe
-
+        
 # Don't send notifications on success
 notifications:
   email:
