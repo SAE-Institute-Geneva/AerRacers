@@ -217,7 +217,7 @@ TEST(Engine, TestSimulateInput)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config);
+    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
@@ -415,7 +415,7 @@ TEST(Engine, TestSimulateBindedInput)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config);
+    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
@@ -858,11 +858,11 @@ TEST(Engine, TestInteractiveInput)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config);
+    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
-    neko::aer::InputBindingManager bindedInputManager;
+    neko::aer::InputBindingManager  bindedInputManager;
     InteractiveBindingInput interactiveBindedInput(engine, false);
     engine.RegisterSystem(interactiveBindedInput);
     engine.RegisterOnDrawUi(interactiveBindedInput);

@@ -40,26 +40,32 @@ sdl::ButtonState InputBindingManager::GetActionButtonState(
             "Unknow Player : " + std::to_string(playerId));
         return sdl::ButtonState::NONE;
     }
-    if (inputLocator_->GetSwitchButtonState(
+    const auto& switchJoyIdVector = inputLocator_->GetSwitchJoyIdVector();
+    if (std::find(switchJoyIdVector.begin(), switchJoyIdVector.end(), actionBindingInputs_[playerIndex].bindedSwitchJoyId) != switchJoyIdVector.end()) {
+        if (inputLocator_->GetSwitchButtonState(
             actionBindingInputs_[playerIndex].bindedSwitchJoyId,
             actionBindingInputs_[playerIndex].switchBindingButtons[
                 static_cast<size_t>(actionButton)]) != sdl::ButtonState::NONE) {
-        return inputLocator_->GetSwitchButtonState(
-            actionBindingInputs_[playerIndex].bindedSwitchJoyId,
-            actionBindingInputs_[playerIndex].switchBindingButtons[
-                static_cast<size_t>(actionButton)]);
+            return inputLocator_->GetSwitchButtonState(
+                actionBindingInputs_[playerIndex].bindedSwitchJoyId,
+                actionBindingInputs_[playerIndex].switchBindingButtons[
+                    static_cast<size_t>(actionButton)]);
+        }
     }
-    else if (inputLocator_->GetControllerButtonState(
-                 actionBindingInputs_[playerIndex].bindedControllerId,
-                 actionBindingInputs_[playerIndex].controllerBindingButtons[
-                     static_cast<size_t>(actionButton)]) !=
-             sdl::ButtonState::NONE) {
-        return inputLocator_->GetControllerButtonState(
+    const auto& controllerIdVector = inputLocator_->GetControllerIdVector();
+    if (std::find(controllerIdVector.begin(), controllerIdVector.end(), actionBindingInputs_[playerIndex].bindedControllerId) != controllerIdVector.end()) {
+        if (inputLocator_->GetControllerButtonState(
             actionBindingInputs_[playerIndex].bindedControllerId,
             actionBindingInputs_[playerIndex].controllerBindingButtons[
-                static_cast<size_t>(actionButton)]);
+                static_cast<size_t>(actionButton)]) !=
+            sdl::ButtonState::NONE) {
+            return inputLocator_->GetControllerButtonState(
+                actionBindingInputs_[playerIndex].bindedControllerId,
+                actionBindingInputs_[playerIndex].controllerBindingButtons[
+                    static_cast<size_t>(actionButton)]);
+        }
     }
-    else if (inputLocator_->GetKeyState(
+    if (inputLocator_->GetKeyState(
                  actionBindingInputs_[playerIndex].pcBindingButtons[
                      static_cast<size_t>(actionButton)]) !=
              sdl::ButtonState::NONE) {
@@ -82,27 +88,32 @@ float InputBindingManager::GetActionAxis(
             "Unknow Player : " + std::to_string(playerId));
         return 0.0f;
     }
-    if (inputLocator_->GetSwitchAxis(
-        actionBindingInputs_[playerIndex].bindedSwitchJoyId,
-        actionBindingInputs_[playerIndex].switchBindingAxis[
-            static_cast<size_t>(actionAxis)]) != 0.0f) {
-        return inputLocator_->GetSwitchAxis(
+    const auto& switchJoyIdVector = inputLocator_->GetSwitchJoyIdVector();
+    if (std::find(switchJoyIdVector.begin(), switchJoyIdVector.end(), actionBindingInputs_[playerIndex].bindedSwitchJoyId) != switchJoyIdVector.end()) {
+
+        if (inputLocator_->GetSwitchAxis(
             actionBindingInputs_[playerIndex].bindedSwitchJoyId,
             actionBindingInputs_[playerIndex].switchBindingAxis[
-                static_cast<size_t>(actionAxis)]);
+                static_cast<size_t>(actionAxis)]) != 0.0f) {
+            return inputLocator_->GetSwitchAxis(
+                actionBindingInputs_[playerIndex].bindedSwitchJoyId,
+                actionBindingInputs_[playerIndex].switchBindingAxis[
+                    static_cast<size_t>(actionAxis)]);
+        }
     }
-    else if (inputLocator_->GetControllerAxis(
-        actionBindingInputs_[playerIndex].bindedControllerId,
-        actionBindingInputs_[playerIndex].controllerBindingAxis[
-            static_cast<size_t>(actionAxis)]) != 0.0f) {
-        return inputLocator_->GetControllerAxis(
+    const auto& controllerIdVector = inputLocator_->GetControllerIdVector();
+    if (std::find(controllerIdVector.begin(), controllerIdVector.end(), actionBindingInputs_[playerIndex].bindedControllerId) != controllerIdVector.end()) {
+        if (inputLocator_->GetControllerAxis(
             actionBindingInputs_[playerIndex].bindedControllerId,
             actionBindingInputs_[playerIndex].controllerBindingAxis[
-                static_cast<size_t>(actionAxis)]);
+                static_cast<size_t>(actionAxis)]) != 0.0f) {
+            return inputLocator_->GetControllerAxis(
+                actionBindingInputs_[playerIndex].bindedControllerId,
+                actionBindingInputs_[playerIndex].controllerBindingAxis[
+                    static_cast<size_t>(actionAxis)]);
+        }
     }
-    else {
-        return 0.0f;
-    }
+    return 0.0f;
 }
 
 unsigned InputBindingManager::FindActionIndexFromId(

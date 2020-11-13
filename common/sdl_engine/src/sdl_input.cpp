@@ -218,7 +218,7 @@ void InputManager::OnEvent(SDL_Event event)
             }
             logDebug("There are " + std::to_string(SDL_NumJoysticks()) +
                      " joysticks attached");
-            for (int i = 0; i < SDL_NumJoysticks(); ++i) { PrintJoystick(i); }
+            //for (int i = 0; i < SDL_NumJoysticks(); ++i) { PrintJoystick(i); }
             const unsigned controllerId = SDL_JoystickInstanceID(joystick_);
             const unsigned controllerIndex = FindControllerIndexFromId(
                 controllerId);
@@ -495,11 +495,21 @@ float InputManager::GetControllerAxis(
 std::vector<ControllerId> InputManager::GetControllerIdVector() const
 {
     std::vector<ControllerId> controllerIdVector;
-    for (auto controllerInput : controllerInputs_)
+    for (const ControllerInputs& controllerInput : controllerInputs_)
     {
         controllerIdVector.push_back(controllerInput.controllerId);
     }
     return controllerIdVector;
+}
+
+std::vector<SwitchJoyId> InputManager::GetSwitchJoyIdVector() const
+{
+    std::vector<SwitchJoyId> switchJoyIdVector;
+    for (const SwitchInputs& switchInput : switchInputs_)
+    {
+        switchJoyIdVector.push_back(switchInput.switchJoyId);
+    }
+    return switchJoyIdVector;
 }
 
 void InputManager::PrintJoystick(const int device)
@@ -561,8 +571,8 @@ void InputManager::PrintJoystick(const int device)
                 type = "Unknown";
                 break;
         }
-
-        logDebug("type: " + type + " \n" +
+        //Display for more information
+        /*logDebug("type: " + type + " \n" +
                  "axes: " + std::to_string(SDL_JoystickNumAxes(joystick)) +
                  '\n' +
                  "balls: " + std::to_string(SDL_JoystickNumBalls(joystick)) +
@@ -583,7 +593,7 @@ void InputManager::PrintJoystick(const int device)
                      static_cast<int>(SDL_JoystickGetVendor(joystick))) +
                  ":" + std::to_string(
                      static_cast<int>(SDL_JoystickGetProduct(
-                         joystick))));
+                         joystick))));*/
 
         SDL_JoystickClose(joystick);
     }

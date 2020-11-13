@@ -34,7 +34,7 @@
 namespace neko::aer
 {
 
-using PlayerId = std::uint8_t;
+using PlayerId = unsigned;
 /**
 * \brief Enum of the action button
 */
@@ -164,33 +164,33 @@ class NullInputBindingManager final : public IInputBindingManager
 public:
     ~NullInputBindingManager() override = default;
 
-    BindingInputs GetPlayerActions(PlayerId playerId) override
+    BindingInputs GetPlayerActions([[maybe_unused]] PlayerId playerId) override
     {
         return BindingInputs();
     }
 
-    void SetPlayerActions(BindingInputs actionInputs) override {}
+    void SetPlayerActions([[maybe_unused]] BindingInputs actionInputs) override {}
 
     [[nodiscard]] sdl::ButtonState GetActionButtonState(
-        unsigned playerId,
-        ActionButtonType actionButton) const override
+        [[maybe_unused]] unsigned playerId,
+        [[maybe_unused]] ActionButtonType actionButton) const override
     {
         return sdl::ButtonState::NONE;
     }
 
     [[nodiscard]] float GetActionAxis(
-        unsigned playerId,
-        ActionAxisType actionAxis) const override
+        [[maybe_unused]] unsigned playerId,
+        [[maybe_unused]] ActionAxisType actionAxis) const override
     {
         return 0.0f;
     }
 
-    std::string ActionEnumToString(ActionButtonType actionInputs) override
+    std::string ActionEnumToString([[maybe_unused]] ActionButtonType actionInputs) override
     {
         return "";
     }
 
-    std::string ActionEnumToString(ActionAxisType actionAxis) override
+    std::string ActionEnumToString([[maybe_unused]] ActionAxisType actionAxis) override
     {
         return "";
     }

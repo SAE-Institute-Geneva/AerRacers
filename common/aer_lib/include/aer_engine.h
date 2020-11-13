@@ -31,6 +31,7 @@ Last Modif: 13.10.2020
 #include "sdl_engine/sdl_engine.h"
 
 #include "draw_system.h"
+#include "inputs_binding_manager.h"
 #include "log.h"
 #include "editor/editor_tool_manager.h"
 
@@ -66,6 +67,7 @@ private:
 
     DrawSystem drawSystem_;
     std::unique_ptr<LogManager> logManager_;
+    std::unique_ptr<InputBindingManager>  bindedInputManager_;
 
     EditorToolManager toolManager_;
 };

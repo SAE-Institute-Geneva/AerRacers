@@ -6,6 +6,11 @@ AerEngine::AerEngine(Configuration* config, ModeEnum mode)
       drawSystem_(*this),
       toolManager_(*this)
 {
+    logManager_ = std::make_unique<LogManager>();
+    if (mode_ != ModeEnum::TEST)
+    {
+        bindedInputManager_ = std::make_unique<InputBindingManager>();
+    }
     mode_ = mode;
     RegisterSystem(drawSystem_);
     RegisterOnEvent(drawSystem_);
@@ -21,7 +26,6 @@ AerEngine::AerEngine(Configuration* config, ModeEnum mode)
 void AerEngine::Init()
 {
     SdlEngine::Init();
-    logManager_ = std::make_unique<LogManager>();
 	
     if (mode_ == ModeEnum::GAME)
     {
