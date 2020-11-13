@@ -6,7 +6,6 @@ set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS On)
 
-include(cmake/neko_executable.cmake)
 
 add_compile_definitions("FMT_HEADER_ONLY=1")
 

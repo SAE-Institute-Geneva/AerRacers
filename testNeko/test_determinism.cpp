@@ -2,7 +2,7 @@
 #include "gtest/gtest.h"
 #include "mathematics/checksum.h"
 #include "mathematics/vector.h"
-
+#include <fmt/format.h>
 TEST(CompNet, FloatDeterminism)
 {
   std::uint8_t checksum = 0;
