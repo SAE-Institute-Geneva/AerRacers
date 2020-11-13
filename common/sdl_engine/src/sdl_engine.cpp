@@ -39,7 +39,7 @@
 
 namespace neko::sdl
 {
-SdlEngine::SdlEngine(Configuration* config) : BasicEngine(config), inputManager_(*this)
+SdlEngine::SdlEngine(Configuration* config) : BasicEngine(config)
 {
 }
 
@@ -68,11 +68,10 @@ void SdlEngine::Destroy()
 
 void SdlEngine::ManageEvent()
 {
-    inputManager_.OnPreUserInput();
-    
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Manage Event");
 #endif
+    inputManager_.OnPreUserInput();
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
@@ -90,7 +89,7 @@ void SdlEngine::ManageEvent()
                 window_->OnResize(config.windowSize);
             }
         }
-        inputManager_.ProcessInputs(event);
+        inputManager_.OnEvent(event);
         onEventAction_.Execute(event);
     }
 }
