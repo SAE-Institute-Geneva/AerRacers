@@ -31,13 +31,15 @@
 
 #include "sdl_engine/sdl_input.h"
 
-namespace neko::aer {
+namespace neko::aer
+{
 
 using PlayerId = std::uint8_t;
 /**
 * \brief Enum of the action button
 */
-enum class ActionButtonType : std::uint8_t {
+enum class ActionButtonType : std::uint8_t
+{
     FORWARD = 0,
     BACKWARD = 1,
     LEFT = 2,
@@ -51,7 +53,8 @@ enum class ActionButtonType : std::uint8_t {
 /**
 * \brief Enum of the action axis
 */
-enum class ActionAxisType : std::uint8_t {
+enum class ActionAxisType : std::uint8_t
+{
     HORIZONTAL = 0,
     VERTICAL = 1,
     CAMERA_HORIZONTAL = 2,
@@ -62,7 +65,8 @@ enum class ActionAxisType : std::uint8_t {
 /**
  * \brief Struct of inputs (button state and axis) and id of a player
  */
-struct BindingInputs {
+struct BindingInputs
+{
     std::array<sdl::KeyCodeType, static_cast<size_t>(ActionButtonType::LENGTH)> pcBindingButtons =
         std::array<sdl::KeyCodeType, static_cast<size_t>(ActionButtonType::LENGTH)>();
     std::array<sdl::ControllerButtonType, static_cast<size_t>(ActionButtonType::LENGTH)> controllerBindingButtons =
@@ -81,7 +85,8 @@ struct BindingInputs {
 /**
  * \brief Manage inputs binding
  */
-class IInputBindingManager {
+class IInputBindingManager
+{
 public:
     virtual ~IInputBindingManager() = default;
 
@@ -101,7 +106,7 @@ public:
      * \param playerId Id of the player to get
      * \return 
      */
-    virtual sdl::ButtonState GetActionButtonState(
+    [[nodiscard]] virtual sdl::ButtonState GetActionButtonState(
         unsigned playerId,
         ActionButtonType actionButton) const = 0;
 
@@ -110,7 +115,7 @@ public:
      * \param playerId Id of the player to get
      * \return
      */
-    virtual float GetActionAxis(
+    [[nodiscard]] virtual float GetActionAxis(
         unsigned playerId,
         ActionAxisType actionAxis) const = 0;
 
@@ -125,8 +130,8 @@ public:
     virtual std::string ActionEnumToString(ActionAxisType actionAxis) = 0;
 };
 
-class InputBindingManager final : public IInputBindingManager {
-
+class InputBindingManager final : public IInputBindingManager
+{
 public:
    InputBindingManager();
 
@@ -134,11 +139,11 @@ public:
 
     void SetPlayerActions(BindingInputs actionInputs) override;
 
-    sdl::ButtonState GetActionButtonState(
+    [[nodiscard]] sdl::ButtonState GetActionButtonState(
         unsigned playerId,
         ActionButtonType actionButton) const override;
 
-    float GetActionAxis(
+    [[nodiscard]] float GetActionAxis(
         unsigned playerId,
         ActionAxisType actionAxis) const override;
 
@@ -147,18 +152,17 @@ public:
     std::string ActionEnumToString(ActionAxisType actionAxis) override;
 
 private :
-    unsigned FindActionIndexFromId(PlayerId playerId) const;
+    [[nodiscard]] unsigned FindActionIndexFromId(PlayerId playerId) const;
 
     std::vector<BindingInputs> actionBindingInputs_;
 
     sdl::IInputManager* inputLocator_;
 };
 
-class NullInputBindingManager final : public IInputBindingManager {
-
+class NullInputBindingManager final : public IInputBindingManager
+{
 public:
-
-    ~NullInputBindingManager() override {}
+    ~NullInputBindingManager() override = default;
 
     BindingInputs GetPlayerActions(PlayerId playerId) override
     {
@@ -167,14 +171,14 @@ public:
 
     void SetPlayerActions(BindingInputs actionInputs) override {}
 
-    sdl::ButtonState GetActionButtonState(
+    [[nodiscard]] sdl::ButtonState GetActionButtonState(
         unsigned playerId,
         ActionButtonType actionButton) const override
     {
         return sdl::ButtonState::NONE;
     }
 
-    float GetActionAxis(
+    [[nodiscard]] float GetActionAxis(
         unsigned playerId,
         ActionAxisType actionAxis) const override
     {
