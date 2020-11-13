@@ -27,8 +27,6 @@ void AerEngine::Init()
     {
    
     }
-  
-    LogInfo("Aer Engine initialization: Success");
 }
 
 void AerEngine::Destroy()
