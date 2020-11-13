@@ -10,7 +10,7 @@ AerEngine::AerEngine(Configuration* config, ModeEnum mode)
     RegisterSystem(drawSystem_);
     RegisterOnEvent(drawSystem_);
     RegisterOnDrawUi(drawSystem_);
-    if (mode == ModeEnum::EDITOR)
+	if (mode_ == ModeEnum::EDITOR)
     {
         RegisterSystem(toolManager_);
         RegisterOnEvent(toolManager_);
@@ -21,11 +21,14 @@ AerEngine::AerEngine(Configuration* config, ModeEnum mode)
 void AerEngine::Init()
 {
     SdlEngine::Init();
+    logManager_ = std::make_unique<LogManager>();
+	
     if (mode_ == ModeEnum::GAME)
     {
-        logManager_ = std::make_unique<LogManager>();
+   
     }
-
+  
+    LogInfo("Aer Engine initialization: Success");
 }
 
 void AerEngine::Destroy()

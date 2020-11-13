@@ -49,7 +49,9 @@ namespace neko
 enum class LogType : std::uint8_t
 {
 	DEBUG = 1, //For regular debug messages
+	INFO,
 	WARNING, //For non-critical errors
+	ERROOR,
 	CRITICAL, //For critical errors
 	LENGTH
 };
@@ -66,6 +68,7 @@ enum class LogCategory : std::uint8_t
 	GRAPHICS,
 	IO,
 	SOUND,
+	TOOL,
 	LENGTH
 };
 
@@ -76,7 +79,7 @@ enum class LogCategory : std::uint8_t
 struct LogMessage
 {
     LogCategory category = LogCategory::NONE;
-	LogType type = LogType::DEBUG;
+	LogType type = LogType::INFO;
 	std::string log;
 
 	explicit LogMessage(std::string log)
@@ -134,6 +137,11 @@ public:
 	 * \brief Retrieves the log history
 	 */
 	virtual const std::vector<LogMessage>& GetLogs() = 0;
+
+	/**
+  * \brief Clear the logs
+  */
+	virtual void ClearLogs() = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -169,6 +177,12 @@ public:
 	const std::vector<LogMessage>& GetLogs() override
 	{
 		neko_assert(false, "Impossible to get log history from a null LogManager")
+	}
+
+	void ClearLogs() override
+	{
+		std::cerr << "Impossible to clear log history from a null LogManager\n";
+		assert(false);
 	}
 
 private:
@@ -211,6 +225,11 @@ public:
 		return logHistory_;
 	}
 
+	/**
+	* \brief Deletes all logs
+	*/
+	void ClearLogs() override;
+
 	void WriteToFile();
 
 private:
@@ -243,6 +262,16 @@ void LogDebug(const std::string& msg);
 void LogDebug(LogCategory category, const std::string& msg);
 
 /**
+ * \brief Generate a info type log message
+ */
+void LogInfo(const std::string& msg);
+
+/**
+ * \brief Generate a info type log message
+ */
+void LogInfo(LogCategory category, const std::string& msg);
+
+/**
  * \brief Generate a warning type log message
  */
 void LogWarning(const std::string& msg);
@@ -261,6 +290,16 @@ void LogError(const std::string& msg);
  * \brief Generate an error type log message
  */
 void LogError(LogCategory category, const std::string& msg);
+
+/**
+ * \brief Generate an critical type log message
+ */
+void LogCritical(const std::string& msg);
+
+/**
+ * \brief Generate an critical type log message
+ */
+void LogCritical(LogCategory category, const std::string& msg);
 
 /**
  * \brief Retrieves the log history

@@ -157,7 +157,7 @@ private:
   neko::aer::AerEngine &engine_;
 
   float counterTime_ = 0.0f;
-  const float kTimeToWait_ = 5.0f;
+  const float kTimeToWait_ = 2.0f;
   const int kNbrTool_ = 10;
 };
 

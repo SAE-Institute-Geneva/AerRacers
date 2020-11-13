@@ -28,87 +28,14 @@
 ---------------------------------------------------------- */
 #include <mutex>
 #include <SDL_events.h>
-#include <vector>
 
 #include "editor/editor_tool_interface.h"
 
 namespace neko::aer {
-enum class LogSeverity : std::uint8_t {
-    NONE = 0,
-    DEBUG,
-    INFO,
-    WARNING,
-    ERROOR,
-    CRITICAL
-};
 
-struct AerLog {
-    std::string msg;
-    LogSeverity severity = LogSeverity::NONE;
-};
-
-//-----------------------------------------------------------------------------
-// LogManagerInterface
-//-----------------------------------------------------------------------------
-class LogManagerInterface
-{
-public:
-    virtual ~LogManagerInterface() = default;
-    /**
-     * \brief Generate a log message.
-     * @param severity the type of the log message
-     * @param msg the log message
-     */
-    virtual void Log(LogSeverity severity, const std::string& msg) = 0;
-
-    /**
-     * \brief Retrieves the logs
-     */
-    virtual const std::vector<AerLog>& GetLogs() = 0;
-
-    /**
-     * \brief Clear the logs
-     */
-    virtual void ClearLogs() = 0;
-};
-
-//-----------------------------------------------------------------------------
-// NullLogManager
-//-----------------------------------------------------------------------------
-class NullLogManager final : public LogManagerInterface {
-    void Log(
-        [[maybe_unused]] LogSeverity severity,
-        [[maybe_unused]] const std::string& msg) override
-    {
-        std::cout << msg;
-        std::cout <<
-            "[WARNING] LogManager is null! History will NOT be saved\n";
-    }
-
-    const std::vector<AerLog>& GetLogs() override
-    {
-        std::cerr << "Impossible to get log history from a null LogManager\n";
-        assert(false);
-#ifdef _MSC_VER
-        return {};
-#endif
-    }
-
-    void ClearLogs() override
-    {
-        std::cerr << "Impossible to clear log history from a null LogManager\n";
-        assert(false);
-    }
-};
-
-class Logger final : public EditorToolInterface, public LogManagerInterface {
+class Logger final : public EditorToolInterface {
 public:
     explicit Logger(ToolType type, int id, std::string name);
-
-    const std::vector<AerLog>& GetLogs() override
-    {
-        return logs_;
-    }
 
     void Init() override;
 
@@ -121,30 +48,14 @@ public:
     void OnEvent(const SDL_Event& event) override;
 
     /**
-    * \brief Generate a log message.
-    * @param severity the type of the log message
-    * @param msg the log message
-    */
-    void Log(LogSeverity severity, const std::string& msg) override;
-    /**
     * \brief Deletes all logs 
     */
-    void ClearLogs() override;
-    /**
-   * \brief Exports the logs in a txt format file.
-   */
-    void WriteToFile();
+    static void ClearLogs();
 
 private:
     int posY_ = 0;
     bool autoScroll_ = true;
 
-    std::mutex logMutex_;
-    std::vector<AerLog> logs_;
-
-    //CAPACITY
-    const size_t kCapacityLog_ = 1 << 14;
-    const size_t kCapacityLogMax_ = 1 << 20;
     //COLOR
     const ImVec4 kBlue_ = {0.5f, 0.5f, 1, 1};
     const ImVec4 kYellow_ = {1, 1, 0, 1};
@@ -152,18 +63,4 @@ private:
     const ImVec4 kRed_{1, 0, 0, 1};
 };
 
-//-----------------------------------------------------------------------------
-// Service Locator definition
-//-----------------------------------------------------------------------------
-using Log = Locator<LogManagerInterface, NullLogManager>;
-
-void DebugLog(const std::string& msg);
-
-void InfoLog(const std::string& msg);
-
-void WarningLog(const std::string& msg);
-
-void ErrorLog(const std::string& msg);
-
-void CriticalLog(const std::string& msg);
 }
