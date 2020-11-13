@@ -11,7 +11,6 @@ matrix:
       compiler: clang
       services:
         - xvfb
-      env:
       addons:
         apt:
           packages:
@@ -33,6 +32,8 @@ matrix:
       arch: arm64
       dist: focal
       compiler: clang
+      services:
+        - xvfb
       addons:
         apt:
           packages:
@@ -103,8 +104,6 @@ matrix:
         - cmake --build .
         - ./testNeko/Debug/Neko_TEST.exe
         - ./testAer/Debug/Aer_TEST.exe
-        - ./testNeko/Release/Neko_TEST.exe
-        - ./testAer/Release/Aer_TEST.exe
 
 # Don't send notifications on success
 notifications:
