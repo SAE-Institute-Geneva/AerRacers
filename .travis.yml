@@ -23,7 +23,8 @@ matrix:
         - mkdir build
         - cd build
         - cmake .. && make
-        - ./test/Neko_TEST
+        - ./testNeko/Neko_TEST
+        - ./testAer/Aer_TEST
     - name: "Linux ARM64 Clang"
       os: linux
       arch: arm64
@@ -46,7 +47,8 @@ matrix:
         - mkdir build
         - cd build
         - cmake -DCMAKE_CXX_COMPILER=$COMPILER .. && make
-        - ./test/Neko_TEST
+        - ./testNeko/Neko_TEST
+        - ./testAer/Aer_TEST
     - name: "Emscripten"
       os: linux
       arch: amd64
@@ -93,7 +95,8 @@ matrix:
         - mkdir build && cd build
         - cmake -G "Visual Studio 16 2019" ..
         - cmake --build .
-        - ./test/Debug/Neko_TEST.exe
+        - ./testNeko/Debug/Neko_TEST.exe
+        - ./testAer/Debug/Aer_TEST.exe
 
 # Don't send notifications on success
 notifications:
