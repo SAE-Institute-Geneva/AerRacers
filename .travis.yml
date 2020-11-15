@@ -9,6 +9,8 @@ matrix:
       arch: amd64
       dist: focal
       compiler: clang
+      services:
+        - xvfb
       addons:
         apt:
           packages:
@@ -30,6 +32,8 @@ matrix:
       arch: arm64
       dist: focal
       compiler: clang
+      services:
+        - xvfb
       addons:
         apt:
           packages:
@@ -54,6 +58,8 @@ matrix:
       arch: amd64
       dist: focal
       compiler: clang
+      env:
+        - WIN_TRAVIS="true"
       addons:
         apt:
           packages:
@@ -78,10 +84,11 @@ matrix:
         - cd build
         - emcmake cmake .. || true
         - emcmake cmake .. && make comp_graph Neko_TEST
-        - node test/Neko_TEST.js
+        - node testNeko/Neko_TEST.js
     - name: "Windows MSVC"
       os: windows
       env:
+        - WIN_TRAVIS="true"
         - CMAKE_PATH="/c/Program Files/CMake/bin"
         - MSBUILD_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin"
       before_install:
