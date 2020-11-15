@@ -34,6 +34,8 @@ matrix:
       compiler: clang
       services:
         - xvfb
+      env:
+        - WIN_TRAVIS="true"
       addons:
         apt:
           packages:
