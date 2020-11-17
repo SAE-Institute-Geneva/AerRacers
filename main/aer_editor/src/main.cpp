@@ -35,16 +35,14 @@
 int main(int argc, char** argv)
 {
     neko::Configuration config;
-    config.windowName = "AerEditor";
+    config.windowName = "AerEditor Version 0.01";
     config.windowSize = neko::Vec2u(1400, 900);
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
     neko::aer::AerEngine engine(
         &config,
-        neko::aer::ToolsMask(neko::aer::ToolsFlags::ENTITY_VIEWER) |
-        neko::aer::ToolsMask(neko::aer::ToolsFlags::INSPECTOR) |
-        neko::aer::ToolsMask(neko::aer::ToolsFlags::LOGGER));
+        neko::aer::ModeEnum::EDITOR);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 

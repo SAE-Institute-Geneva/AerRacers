@@ -38,7 +38,7 @@ typedef float v4f __attribute__ ((vector_size (16)));
 	#endif
 #endif
 
-#if defined(__arm__) || defined(__ANDROID__)
+#if defined(__arm__) || defined(__ANDROID__) || defined(__aarch64__)
 typedef float v4f __attribute__ ((vector_size (16)));
 #endif
 

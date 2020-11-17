@@ -6,37 +6,34 @@
 #include "mathematics/vector.h"
 #include "gl/shape.h"
 #include "asteroid/packet_type.h"
+#include "asteroid/client.h"
 
 namespace neko::net
 {
 class SimulationServer;
 
-class SimulationClient : public RenderProgram, public DrawImGuiInterface, public asteroid::PacketSenderInterface
+class SimulationClient : public Client
 {
 public:
-	explicit SimulationClient(SimulationServer& server);
+    explicit SimulationClient(SimulationServer& server);
 
-	void Init() override;
-	void Update(seconds dt) override;
+    void Init() override;
+    void Update(seconds dt) override;
 
-	void Destroy() override;
-	void Render() override;
+    void Destroy() override;
+    void Render() override;
 
-	[[nodiscard]] const gl::Framebuffer& GetFramebuffer() const { return framebuffer_; }
-
-	void SendUnreliablePacket(std::unique_ptr<asteroid::Packet> packet) override;
-	void SendReliablePacket(std::unique_ptr<asteroid::Packet> packet) override;
-    void ReceivePacket(const asteroid::Packet* packet);
+    
+    void SendUnreliablePacket(std::unique_ptr<asteroid::Packet> packet) override;
+    void SendReliablePacket(std::unique_ptr<asteroid::Packet> packet) override;
+    
 
     void DrawImGui() override;
-	void SetPlayerInput(net::PlayerInput input);
+    void SetPlayerInput(net::PlayerInput input);
 
+    void SetWindowSize(Vec2u windowSize);
 private:
-	asteroid::ClientGameManager gameManager_;
-	gl::Framebuffer framebuffer_;
-	Vec2u windowSize_;
-	SimulationServer& server_;
-	ClientId clientId_ = 0;
+    SimulationServer& server_;
 
 };
 }

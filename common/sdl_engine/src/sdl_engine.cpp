@@ -29,6 +29,8 @@
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 
+#include <fmt/format.h>
+
 #ifdef NEKO_GLES3
 #include "gl/gles3_window.h"
 #endif
@@ -50,16 +52,15 @@ void SdlEngine::Init()
     EASY_BLOCK("InitSdl");
 #endif
     assert(window_ != nullptr);
-    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
     window_->Init();
     initAction_.Execute();
+    inputManager_.Init();
 }
 
 void SdlEngine::Destroy()
 {
     BasicEngine::Destroy();
-    destroyAction_.Execute();
-    window_->Destroy();
 
     // Shutdown SDL 2
     SDL_Quit();
@@ -67,10 +68,10 @@ void SdlEngine::Destroy()
 
 void SdlEngine::ManageEvent()
 {
-    
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Manage Event");
 #endif
+    inputManager_.OnPreUserInput();
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
@@ -84,10 +85,13 @@ void SdlEngine::ManageEvent()
         {
             if (event.window.event == SDL_WINDOWEVENT_RESIZED)
             {
+                logDebug(fmt::format("Windows resized with new size: ({},{})", 
+                    event.window.data1, event.window.data2));
                 config.windowSize = Vec2u(event.window.data1, event.window.data2);
                 window_->OnResize(config.windowSize);
             }
         }
+        inputManager_.OnEvent(event);
         onEventAction_.Execute(event);
     }
 }

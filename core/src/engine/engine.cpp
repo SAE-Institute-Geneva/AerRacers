@@ -118,13 +118,7 @@ void BasicEngine::Update(seconds dt)
 	
     Job eventJob([this]
     {
-#if defined(__ANDROID__) or defined(EMSCRIPTEN)
-        window_->MakeCurrentContext();
-#endif
 	    ManageEvent();
-#if defined(__ANDROID__) or defined(EMSCRIPTEN)
-        window_->LeaveCurrentContext();
-#endif
     });
     Job updateJob([this, &dt]{updateAction_.Execute(dt);});
     updateJob.AddDependency(&eventJob);
@@ -152,13 +146,9 @@ void BasicEngine::Update(seconds dt)
 
 void BasicEngine::Destroy()
 {
-
-#ifndef NEKO_SAMETHREAD
-    Job leaveContext([this] {window_->LeaveCurrentContext(); });
-    jobSystem_.ScheduleJob(&leaveContext, JobThreadType::RENDER_THREAD);
-#endif
-    window_->MakeCurrentContext();
+	destroyAction_.Execute();
     renderer_->Destroy();
+	window_->Destroy();
 	jobSystem_.Destroy();
 	instance_ = nullptr;
 }
@@ -178,13 +168,9 @@ void EmLoop(void* arg)
 void BasicEngine::EngineLoop()
 {
 	isRunning_ = true;
-    window_->LeaveCurrentContext();
-	Job initRenderJob([this]{window_->MakeCurrentContext();});
-	jobSystem_.ScheduleJob(&initRenderJob, JobThreadType::RENDER_THREAD);
 	clock = std::chrono::system_clock::now();
 #ifdef EMSCRIPTEN
 	// void emscripten_set_main_loop(em_callback_func func, int fps, int simulate_infinite_loop);
-
 	emscripten_set_main_loop_arg(&EmLoop, this, 0, 1);
 #else
 	while (isRunning_)
@@ -193,10 +179,14 @@ void BasicEngine::EngineLoop()
 		const auto dt = std::chrono::duration_cast<seconds>(start - clock);
 		clock = start;
 		Update(dt);
-
 	}
 #endif
 	Destroy();
+}
+
+void BasicEngine::Stop()
+{
+	isRunning_ = false;
 }
 
 void BasicEngine::SetWindowAndRenderer(Window* window, Renderer* renderer)
@@ -212,7 +202,7 @@ void BasicEngine::GenerateUiFrame()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Generate ImGui Frame");
 #endif
-	ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_FirstUseEver);
+	ImGui::SetNextWindowPos(ImVec2(0, 20), ImGuiCond_FirstUseEver);
 	ImGui::Begin("Neko Window");
 
 	std::ostringstream oss;

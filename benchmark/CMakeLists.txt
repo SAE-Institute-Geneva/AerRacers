@@ -4,8 +4,6 @@ set_target_properties (benchmark benchmark_main PROPERTIES
 
 SET(BENCH_DIR ${CMAKE_SOURCE_DIR}/benchmark)
 file(GLOB BENCH_FILES ${BENCH_DIR}/*.cpp)
-neko_lib_config(benchmark)
-neko_lib_config(benchmark_main)
 include_directories("include/")
 foreach(bench_file ${BENCH_FILES} )
     # I used a simple string replace, to cut off .cpp.
@@ -17,9 +15,12 @@ foreach(bench_file ${BENCH_FILES} )
     neko_bin_config(${bench_name})
     IF(MSVC)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Oi /Ox /fp:fast /FAs /arch:AVX2")
-    elseif(UNIX)
+    elseif(UNIX AND NOT EMSCRIPTEN)
         set_property(TARGET ${bench_name} APPEND_STRING PROPERTY COMPILE_FLAGS " -fno-omit-frame-pointer -save-temps ")
     ENDIF(MSVC)
+    if(EMSCRIPTEN)
+        set_target_properties(${bench_name} PROPERTIES SUFFIX ".js")
+    endif()
     set_target_properties (${bench_name} PROPERTIES
             FOLDER Neko/Benchmark)
     IF(APPLE)

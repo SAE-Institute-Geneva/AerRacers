@@ -26,6 +26,9 @@
 #include <functional>
 #include "engine/log.h"
 
+#include <fmt/format.h>
+
+
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
 #endif
@@ -108,7 +111,7 @@ void BufferFile::Load(std::string_view path)
 	dataLength = static_cast<const size_t>(AAsset_getLength64(file));
 
 	// Allocate memory to read your file
-	dataBuffer = new char[dataLength + 1];
+	dataBuffer = new unsigned char[dataLength + 1];
 	dataBuffer[dataLength] = '\0';
 
 	// Read your file
@@ -185,26 +188,23 @@ void BufferFile::Load(std::string_view path)
     {
         Destroy();
     }
-	std::ifstream is(path.data(),std::ifstream::binary);
-	if(!is)
-	{
-		std::ostringstream oss;
-		oss << "[Error] Could not open file: " << path << " for BufferFile";
-		logDebug(oss.str());
-		dataLength = 0;
-		dataBuffer = nullptr;
-		return;
-	}
-	if(is)
-	{
-		is.seekg(0, is.end);
-		dataLength = is.tellg();
-		is.seekg(0, is.beg);
-		dataBuffer = new char[dataLength+1];
-		dataBuffer[dataLength] = 0;
-		is.read(dataBuffer, dataLength);
-		is.close();
-	}
+    std::ifstream is(path.data(),std::ifstream::binary);
+    if(!is)
+    {
+        logDebug(fmt::format("[Error] Could not open file: {}  for BufferFile", path));
+        dataLength = 0;
+        dataBuffer = nullptr;
+    }
+    else
+    {
+        is.seekg(0, is.end);
+        dataLength = is.tellg();
+        is.seekg(0, is.beg);
+        dataBuffer = new unsigned char[dataLength+1];
+        dataBuffer[dataLength] = 0;
+        is.read(reinterpret_cast<char*>(dataBuffer), dataLength);
+        is.close();
+    }
 }
 
 void BufferFile::Destroy()
@@ -293,10 +293,7 @@ void IterateDirectory(const std::string_view dirname, std::function<void(const s
 	}
 	else
 	{
-		std::string msg = "[Error] Path: ";
-		msg += dirname;
-		msg += " is not a directory!";
-		logDebug(msg);
+		logDebug(fmt::format("[Error] Path: {}  is not a directory!", dirname));
 	}
 }
 

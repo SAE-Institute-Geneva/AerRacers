@@ -25,6 +25,7 @@
 #pragma once
 
 #include <gl/sprite.h>
+#include "gl/font.h"
 #include "asteroid/physics_manager.h"
 #include "engine/component.h"
 #include "engine/transform.h"
@@ -36,6 +37,7 @@
 
 namespace neko::asteroid
 {
+
 class GameManager : public SystemInterface
 {
 public:
@@ -46,6 +48,7 @@ public:
 	void Destroy() override;
 	virtual void SpawnPlayer(net::PlayerNumber playerNumber, Vec2f position, degree_t rotation);
 	virtual Entity SpawnBullet(net::PlayerNumber, Vec2f position, Vec2f velocity);
+	virtual void DestroyBullet(Entity entity);
 	[[nodiscard]] Entity GetEntityFromPlayerNumber(net::PlayerNumber playerNumber) const;
 	[[nodiscard]] net::Frame GetCurrentFrame() const { return currentFrame_; }
 	[[nodiscard]] net::Frame GetLastValidateFrame() const { return rollbackManager_.GetLastValidateFrame(); }
@@ -58,15 +61,19 @@ public:
     void Validate(net::Frame newValidateFrame);
     static constexpr float PixelPerUnit = 100.0f;
 	static constexpr float FixedPeriod = 0.02f; //50fps
+    net::PlayerNumber CheckWinner() const;
+    virtual void WinGame(net::PlayerNumber winner);
 protected:
 	EntityManager entityManager_;
 	Transform2dManager transformManager_;
 	RollbackManager rollbackManager_;
 	std::array<Entity, maxPlayerNmb> entityMap_{};
 	net::Frame currentFrame_ = 0;
+	net::PlayerNumber winner_ = net::INVALID_PLAYER;
 };
 
-class ClientGameManager : public GameManager, public RenderCommandInterface, public DrawImGuiInterface
+class ClientGameManager : public GameManager,
+    public RenderCommandInterface, public DrawImGuiInterface
 {
 public:
     enum State : std::uint32_t
@@ -91,7 +98,7 @@ public:
     void DrawImGui() override;
     void ConfirmValidateFrame(net::Frame newValidateFrame, const std::array<PhysicsState, maxPlayerNmb>& physicsStates);
 	[[nodiscard]] net::PlayerNumber GetPlayerNumber() const { return clientPlayer_; }
-
+    void WinGame(net::PlayerNumber winner) override;
     [[nodiscard]] std::uint32_t GetState() const {return state_;}
 protected:
     PacketSenderInterface& packetSenderInterface_;
@@ -99,13 +106,15 @@ protected:
 	Camera2D camera_;
 	net::PlayerNumber clientPlayer_ = net::INVALID_PLAYER;
 	gl::TextureManager textureManager_;
-	gl::SpriteManager spriteManager_;
-	float fixedTimer_ = 0.0f;
+    gl::FontManager fontManager_;
+    gl::SpriteManager spriteManager_;
+    float fixedTimer_ = 0.0f;
     unsigned long long startingTime_ = 0;
 	std::uint32_t state_ = 0;
 
     TextureId shipTextureId_ = INVALID_TEXTURE_ID;
     TextureId bulletTextureId_ = INVALID_TEXTURE_ID;
+    FontId fontId_ = INVALID_FONT_ID;
     std::mutex renderMutex_;
 };
 

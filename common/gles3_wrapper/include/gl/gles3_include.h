@@ -26,6 +26,7 @@
 
 #ifdef NEKO_GLES3
 #ifdef EMSCRIPTEN
+#include <emscripten.h>
 #include <GLES3/gl3.h>
 #else
 #include <glad/glad.h>

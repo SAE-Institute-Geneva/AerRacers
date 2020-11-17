@@ -98,7 +98,6 @@ public:
 
     /**
      * \brief Send the RenderCommand to the queue for next frame
-     * @param command
      */
     void Render(RenderCommandInterface* command) override;
 
@@ -131,6 +130,7 @@ protected:
     void PreRender();
     virtual void RenderAll();
     virtual void BeforeRenderLoop();
+
     virtual void AfterRenderLoop();
 
     Action<> syncBuffersAction_;

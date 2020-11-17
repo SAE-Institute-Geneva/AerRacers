@@ -29,14 +29,20 @@ void LogMessage::Generate()
 
 	switch (type)
 	{
-	case LogType::DEBUG:
+	case LogType::DEBUG_:
 		message << "[DEBUG] ";
+		break;
+	case LogType::INFO:
+		message << "[INFO] ";
 		break;
 	case LogType::WARNING:
 		message << "[WARNING] ";
 		break;
-	case LogType::CRITICAL:
+	case LogType::ERROR_:
 		message << "[ERROR] ";
+		break;
+	case LogType::CRITICAL:
+		message << "[CRITICAL] ";
 		break;
 	default:
 		break;
@@ -47,6 +53,7 @@ void LogMessage::Generate()
 	case LogCategory::ENGINE:
 		message << "[ENGINE] ";
 		break;
+	
 	case LogCategory::MATH:
 		message << "[MATH] ";
 		break;
@@ -58,6 +65,9 @@ void LogMessage::Generate()
 		break;
 	case LogCategory::SOUND:
 		message << "[SOUND] ";
+		break;
+	case LogCategory::TOOL:
+		message << "[TOOL] ";
 		break;
 	default:
 		break;
@@ -169,6 +179,12 @@ void LogManager::Log(LogCategory category, LogType logType, const std::string& l
 	conditionVariable_.notify_one();
 }
 
+void LogManager::ClearLogs()
+{
+	logHistory_.clear();
+}
+
+
 void LogManager::WriteToFile()
 {
 	std::lock_guard<std::mutex> lock(logMutex_);
@@ -208,7 +224,7 @@ void LogManager::WriteToFile()
 		fileContent +=
 			"--------------------------------------------------------------------------------\n";
 
-		LogMessage message(LogCategory::IO, LogType::DEBUG, "Successfully saved log output");
+		LogMessage message(LogCategory::IO, LogType::INFO, "Successfully saved log output");
 		logHistory_.emplace_back(message);
 		message.Display();
 		
@@ -236,12 +252,22 @@ void LogManager::WriteToFile()
 //-----------------------------------------------------------------------------
 void LogDebug(const std::string& msg)
 {
-	Log::get().Log(LogType::DEBUG, msg);
+	Log::get().Log(LogType::INFO, msg);
 }
 
 void LogDebug(const LogCategory category, const std::string& msg)
 {
-	Log::get().Log(category, LogType::DEBUG, msg);
+	Log::get().Log(category, LogType::INFO, msg);
+}
+
+void LogInfo(const std::string& msg)
+{
+	Log::get().Log(LogType::INFO, msg);
+}
+
+void LogInfo(const LogCategory category, const std::string& msg)
+{
+	Log::get().Log(category, LogType::INFO, msg);
 }
 
 void LogWarning(const std::string& msg)
@@ -256,10 +282,20 @@ void LogWarning(const LogCategory category, const std::string& msg)
 
 void LogError(const std::string& msg)
 {
-	Log::get().Log(LogType::CRITICAL, msg);
+	Log::get().Log(LogType::ERROR_, msg);
 }
 
 void LogError(const LogCategory category, const std::string& msg)
+{
+	Log::get().Log(category, LogType::ERROR_, msg);
+}
+
+void LogCritical(const std::string& msg)
+{
+	Log::get().Log(LogType::CRITICAL, msg);
+}
+
+void LogCritical(const LogCategory category, const std::string& msg)
 {
 	Log::get().Log(category, LogType::CRITICAL, msg);
 }

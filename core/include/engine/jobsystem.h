@@ -62,17 +62,17 @@ public:
     virtual ~Job() = default;
     Job(const Job&) = delete;
     Job& operator=(const Job&) = delete;
-    Job(Job&& job) noexcept;;
+    Job(Job&& job) noexcept;
     Job& operator=(Job&& job) noexcept;
 
-#ifndef NEKO_SAMETHREAD
+
     /**
      * \brief Wait for the Job to be done,
      * used when dependencies are not done
      * useful when dependencies are on other threads
      */
     void Join() const;
-#endif
+
     /**
      * \brief Execute is called by the JobSystem
      */
@@ -87,7 +87,7 @@ public:
     void AddDependency(const Job* dep);
 
     std::function<void()> GetTask() const { return task_; }
-    void SetTask(std::function<void()> task) { task_ = task; }
+    void SetTask(std::function<void()> task) { task_ = std::move(task); }
     virtual void Reset();
 
 protected:

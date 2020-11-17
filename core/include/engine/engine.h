@@ -77,6 +77,7 @@ public:
     virtual void GenerateUiFrame();
 
     void EngineLoop();
+    void Stop();
 
     void SetWindowAndRenderer(Window* window, Renderer* renderer);
 

@@ -30,6 +30,8 @@
 #include "mathematics/angle.h"
 #include "mathematics/trigo.h"
 
+#include <fmt/format.h>
+
 namespace neko
 {
 //-----------------------------------------------------------------------------
@@ -174,14 +176,14 @@ struct Vec2
         return *this;
     }
 
-    bool operator==(const Vec2<T>& right) const
+    bool operator==(const Vec2<T>& other) const
     {
-        return x == right.x && y == right.y;
+        return x == other.x && y == other.y;
     }
 
-    bool operator!=(const Vec2<T>& right) const
+    bool operator!=(const Vec2<T>& other) const
     {
-        return !(*this == right);
+        return !(*this == other);
     }
 
     const T& operator[](size_t p_axis) const
@@ -200,6 +202,11 @@ struct Vec2
     {
         os << "Vec2(" << dt.x << "," << dt.y << ")";
         return os;
+    }
+
+    std::string ToString() const
+    {
+        return fmt::format("Vec2({},{})", x, y);
     }
 
     //Used to specialize in case of other kind of vector
@@ -494,14 +501,14 @@ public:
         return *this;
     }
 
-    bool operator==(const Vec3<T>& right) const
+    bool operator==(const Vec3<T>& other) const
     {
-        return x == right.x && y == right.y && z == right.z;
+        return x == other.x && y == other.y && z == other.z;
     }
 
-    bool operator!=(const Vec3<T>& right) const
+    bool operator!=(const Vec3<T>& other) const
     {
-        return !(*this == right);
+        return !(*this == other);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Vec3<T>& dt)
@@ -509,7 +516,10 @@ public:
         os << "Vec3(" << dt.x << "," << dt.y << "," << dt.z << ")";
         return os;
     }
-
+    std::string ToString()
+    {
+        return fmt::format("Vec3({},{},{})", x, y, z);
+    }
 
     //-----------------------------------------------------------------------------
     // Formulas
@@ -784,14 +794,14 @@ public:
         return *this;
     }
 
-    bool operator==(const Vec4<T>& right) const
+    bool operator==(const Vec4<T>& other) const
     {
-        return x == right.x && y == right.y && z == right.z && w == right.w;
+        return x == other.x && y == other.y && z == other.z && w == other.w;
     }
 
-    bool operator!=(const Vec4<T>& right) const
+    bool operator!=(const Vec4<T>& other) const
     {
-        return !(*this == right);
+        return !(*this == other);
     }
 
     const T& operator[](size_t p_axis) const
@@ -809,6 +819,11 @@ public:
     {
         os << "Vec4(" << dt.x << "," << dt.y << "," << dt.z << "," << dt.w << ")";
         return os;
+    }
+
+    std::string ToString()
+    {
+        return fmt::format("Vec4({},{},{},{})", x, y, z, w);
     }
 
     //-----------------------------------------------------------------------------

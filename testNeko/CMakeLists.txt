@@ -1,7 +1,4 @@
-
-
 #Google Test
-
 
 SET(Neko_TEST_DIR ${CMAKE_SOURCE_DIR}/testNeko)
 file(GLOB TEST_FILES ${Neko_TEST_DIR}/*.cpp)
@@ -14,5 +11,9 @@ neko_bin_config(Neko_TEST)
 if(UNIX)
 #target_compile_options(Neko_TEST PUBLIC "--coverage")
 #target_link_options(Neko_TEST PUBLIC "--coverage")
+endif()
+
+if(EMSCRIPTEN)
+    set_target_properties(Neko_TEST PROPERTIES SUFFIX ".js")
 endif()
 set_target_properties (Neko_TEST PROPERTIES FOLDER Neko/Core)
