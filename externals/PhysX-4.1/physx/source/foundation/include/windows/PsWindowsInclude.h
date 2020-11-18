@@ -84,7 +84,7 @@
 #define NOPROFILER
 #define NODEFERWINDOWPOS
 #define NOMCX
-#define WIN32_LEAN_AND_MEAN
+//#define WIN32_LEAN_AND_MEAN
 // We need a slightly wider API surface for e.g. MultiByteToWideChar
 #if !PX_UWP
 #define NOUSER

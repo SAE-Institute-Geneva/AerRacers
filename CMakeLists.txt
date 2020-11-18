@@ -195,9 +195,10 @@ if(Neko_PhysX)
 	set(PX_OUTPUT_LIB_DIR ${PHYSX_DIR})
 	set(PX_OUTPUT_BIN_DIR ${PHYSX_DIR})
 	# Call into PhysX's CMake scripts
-	include_directories(${PHYSX_ROOT_DIR}/include)
-	include_directories(${PXSHARED_PATH}/include)
-	add_subdirectory(${PHYSX_ROOT_DIR}/compiler/public ${PHYSX_DIR})
+    add_subdirectory(${PHYSX_ROOT_DIR}/compiler/public ${PHYSX_DIR})
+    set_target_properties (PhysX PROPERTIES
+            FOLDER Externals)
+    add_subdirectory("common/physx_wrapper")
 endif()
 
 if(Neko_Freetype)
