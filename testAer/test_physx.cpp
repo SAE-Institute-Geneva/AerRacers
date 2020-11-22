@@ -46,20 +46,20 @@ public :
 
     void Update(neko::seconds dt) override
     {
-        //updateCount_++;
+        updateCount_++;
         if (updateCount_ == kEngineDuration_) {
             engine_.Stop();
         }
     }
 
-    void Destroy() override { physicsEngine_.Stop(); }
+    void Destroy() override { physicsEngine_.Destroy(); }
 
 private :
     int updateCount_ = 0;
-    const int kEngineDuration_ = 10;
+    const int kEngineDuration_ = 300;
 
     neko::aer::AerEngine& engine_;
-    neko::PhysicsEngine physicsEngine_;
+    neko::physics::PhysicsEngine physicsEngine_;
 };
 
 TEST(PhysX, TestPhysX)

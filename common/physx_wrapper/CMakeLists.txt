@@ -16,7 +16,7 @@
 	set(TARGET_BUILD_PLATFORM "windows") # has to match the TARGET_BUILD_PLATFORM in $ENV{PHYSX_PATH}/physix/buildtools/cmake_generate_projects.py
 	set(PX_BUILDSNIPPETS OFF CACHE BOOL "Generate the snippets")
 	set(PX_BUILDPUBLICSAMPLES OFF CACHE BOOL "Generate the samples projects")
-	set(PX_GENERATE_STATIC_LIBRARIES OFF CACHE BOOL "Generate static libraries")
+	set(PX_GENERATE_STATIC_LIBRARIES ON CACHE BOOL "Generate static libraries")
 	set(PX_FLOAT_POINT_PRECISE_MATH OFF CACHE BOOL "Float point precise math")
 	set(NV_USE_STATIC_WINCRT ON CACHE BOOL "Use the statically linked windows CRT")
 	set(NV_USE_DEBUG_WINCRT ON CACHE BOOL "Use the debug version of the CRT")

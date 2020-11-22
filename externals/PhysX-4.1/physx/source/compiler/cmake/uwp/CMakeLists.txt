@@ -118,8 +118,7 @@ SET(PHYSXDISTRO_LIBS PhysXFoundation PhysX PhysXCharacterKinematic PhysXPvdSDK P
 INSTALL(
 	TARGETS ${PHYSXDISTRO_LIBS}
 	EXPORT PhysXSDK
-	DESTINATION $<$<CONFIG:debug>:${PX_ROOT_LIB_DIR}/debug>$<$<CONFIG:release>:${PX_ROOT_LIB_DIR}/release>$<$<CONFIG:checked>:${PX_ROOT_LIB_DIR}/checked>$<$<CONFIG:profile>:${PX_ROOT_LIB_DIR}/profile>	
-	)
+		DESTINATION $<$<CONFIG:Debug>:${PX_ROOT_LIB_DIR}/Debug>$<$<CONFIG:Release>:${PX_ROOT_LIB_DIR}/Release>$<$<CONFIG:Checked>:${PX_ROOT_LIB_DIR}/Checked>$<$<CONFIG:Profile>:${PX_ROOT_LIB_DIR}/Profile>	)
 
 IF(PX_GENERATE_STATIC_LIBRARIES)
 	STRING(APPEND HEADER_CONTENT "#define PX_PHYSX_STATIC_LIB\n")	

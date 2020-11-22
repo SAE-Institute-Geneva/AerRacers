@@ -70,13 +70,13 @@ IF(PX_CMAKE_SUPPRESS_REGENERATION)
 ENDIF()
 
 # Add PhysX SDK Source code to solution
-ADD_SUBDIRECTORY(${PHYSX_ROOT_DIR}/source/compiler/cmake ${CMAKE_CURRENT_BINARY_DIR}/sdk_source_bin)
+ADD_SUBDIRECTORY(${PHYSX_ROOT_DIR}/source/compiler/cmake ${PX_OUTPUT_BIN_DIR}/sdk_source_bin)
 
 MESSAGE("Added PhysX")
 
 IF(PX_BUILDSNIPPETS)
 	# Add Snippets projects into the solution
-	ADD_SUBDIRECTORY(${PHYSX_ROOT_DIR}/snippets/compiler/cmake ${CMAKE_CURRENT_BINARY_DIR}/sdk_snippets_bin)
+	ADD_SUBDIRECTORY(${PHYSX_ROOT_DIR}/snippets/compiler/cmake ${PX_OUTPUT_BIN_DIR}/sdk_snippets_bin)
 
 	MESSAGE("Added Snippets")
 ENDIF()
@@ -84,12 +84,12 @@ ENDIF()
 IF(PX_BUILDPUBLICSAMPLES)
 	IF(TARGET_BUILD_PLATFORM STREQUAL "windows" OR TARGET_BUILD_PLATFORM STREQUAL "linux")
 		# Add samples projects into the solution
-		ADD_SUBDIRECTORY(${PHYSX_ROOT_DIR}/samples/compiler/cmake ${CMAKE_CURRENT_BINARY_DIR}/sdk_samples_bin)
+		ADD_SUBDIRECTORY(${PHYSX_ROOT_DIR}/samples/compiler/cmake ${PX_OUTPUT_BIN_DIR}/sdk_samples_bin)
 
 		MESSAGE("Added Samples")
 	ENDIF()
 ENDIF()
 IF(TARGET_BUILD_PLATFORM STREQUAL "switch")
-	FILE(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/ALL_BUILD.vcxproj.user" INPUT  "${CMAKE_MODULE_PATH}/switch/Microsoft.Cpp.${NX_TARGET_DEVKIT}.user.props" CONDITION  1)
-	FILE(GENERATE OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/INSTALL.vcxproj.user" INPUT  "${CMAKE_MODULE_PATH}/switch/Microsoft.Cpp.${NX_TARGET_DEVKIT}.user.props" CONDITION  1)
+	FILE(GENERATE OUTPUT "${PX_OUTPUT_BIN_DIR}/ALL_BUILD.vcxproj.user" INPUT  "${CMAKE_MODULE_PATH}/switch/Microsoft.Cpp.${NX_TARGET_DEVKIT}.user.props" CONDITION  1)
+	FILE(GENERATE OUTPUT "${PX_OUTPUT_BIN_DIR}/INSTALL.vcxproj.user" INPUT  "${CMAKE_MODULE_PATH}/switch/Microsoft.Cpp.${NX_TARGET_DEVKIT}.user.props" CONDITION  1)
 ENDIF()

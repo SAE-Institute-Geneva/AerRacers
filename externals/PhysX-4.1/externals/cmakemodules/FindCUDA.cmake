@@ -6,7 +6,7 @@
 #
 # This script locates the NVIDIA CUDA C tools.  It should work on linux,
 # windows, and mac and should be reasonably up to date with CUDA C
-# releases.
+# Releases.
 #
 # This script makes use of the standard find_package arguments of
 # <VERSION>, REQUIRED and QUIET.  CUDA_FOUND will report if an
@@ -1255,7 +1255,7 @@ macro(CUDA_WRAP_SRCS cuda_target format generated_files)
 
   # Figure out which configure we will use and pass that in as an argument to
   # the script.  We need to defer the decision until compilation time, because
-  # for VS projects we won't know if we are making a debug or release build
+  # for VS projects we won't know if we are making a Debug or Release build
   # until build time.
   if(CMAKE_GENERATOR MATCHES "Visual Studio")
     set( CUDA_build_configuration "$(ConfigurationName)" )

@@ -352,7 +352,7 @@ def presetProvided(pName):
                   os.environ['PHYSX_ROOT_DIR'] + '/compiler/' + cmakeMasterDir + '\"' + cmakeParams)
         os.chdir(os.environ['PHYSX_ROOT_DIR'])
     else:
-        configs = ['debug', 'checked', 'profile', 'release']
+        configs = ['Debug', 'Checked', 'Profile', 'Release']
         for config in configs:
             # cleanup and create output directory
             outputDir = os.path.join('compiler', parsedPreset.presetName + '-' + config)

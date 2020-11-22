@@ -50,7 +50,7 @@ set_target_properties(Cg PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include/Cg"
 )
 
-# Import target "Cg" for configuration "debug"
+# Import target "Cg" for configuration "Debug"
 set_property(TARGET Cg APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(Cg PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
@@ -64,7 +64,7 @@ set_target_properties(CgGL PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include/Cg"
 )
 
-# Import target "CgGL" for configuration "debug"
+# Import target "CgGL" for configuration "Debug"
 set_property(TARGET CgGL APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(CgGL PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"

@@ -25,46 +25,15 @@
  Co-Author :
  Date : 22.11.2020
 ---------------------------------------------------------- */
-
-#include <iostream>
-
 #include "PxPhysicsAPI.h"
+
 namespace neko::physics {
 
-class PxAllocatorCallback
-{
+class Shape {
 public:
-    virtual ~PxAllocatorCallback() {}
-    virtual void* allocate(size_t size, const char* typeName, const char* filename,
-        int line) = 0;
-    virtual void deallocate(void* ptr) = 0;
-};
-
-class UserErrorCallback : public physx::PxErrorCallback
-{
-public:
-    virtual void reportError(
-        physx::PxErrorCode::Enum code, const char* message, const char* file,
-        int line)
-    {
-        // error processing implementation
-    }
-};
-
-class PhysicsEngine
-{
-public:
-    void Start();
-
-    void Update(float dt);
-
-    void Destroy();
+    Shape();
 private:
-    physx::PxFoundation* mFoundation_ = nullptr;
-    physx::PxPhysics* mPhysics_ = nullptr;
-    physx::PxPvd* mPvd_ = nullptr;
-    physx::PxCooking* mCooking_ = nullptr;
-    physx::PxScene* scene_ = nullptr;
+    physx::PxShape* shape_;
 };
 
 }

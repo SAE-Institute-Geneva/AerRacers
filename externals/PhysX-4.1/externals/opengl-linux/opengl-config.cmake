@@ -50,7 +50,7 @@ set_target_properties(GL PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include/GL"
 )
 
-# Import target "GL" for configuration "debug"
+# Import target "GL" for configuration "Debug"
 set_property(TARGET GL APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(GL PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
@@ -63,7 +63,7 @@ set_target_properties(GLU PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include/GL"
 )
 
-# Import target "GLU" for configuration "debug"
+# Import target "GLU" for configuration "Debug"
 set_property(TARGET GLU APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(GLU PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
@@ -85,7 +85,7 @@ set_target_properties(GLUT PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include/GL"
 )
 
-# Import target "GLUT" for configuration "debug"
+# Import target "GLUT" for configuration "Debug"
 set_property(TARGET GLUT APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(GLUT PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
@@ -99,7 +99,7 @@ set_target_properties(Xmu PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include/GL"
 )
 
-# Import target "Xmu" for configuration "debug"
+# Import target "Xmu" for configuration "Debug"
 set_property(TARGET Xmu APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(Xmu PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
@@ -114,7 +114,7 @@ set_target_properties(Xi PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "${_IMPORT_PREFIX}/include;${_IMPORT_PREFIX}/include/GL"
 )
 
-# Import target "Xi" for configuration "debug"
+# Import target "Xi" for configuration "Debug"
 set_property(TARGET Xi APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(Xi PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"

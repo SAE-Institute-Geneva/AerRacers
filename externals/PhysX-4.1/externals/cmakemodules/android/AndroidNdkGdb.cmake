@@ -36,7 +36,7 @@
 #    android_ndk_gdb_enable()
 #    # for each target
 #    add_library(MyLibrary ...)
-#    android_ndk_gdb_debuggable(MyLibrary)    
+#    android_ndk_gdb_Debuggable(MyLibrary)    
 
 
 # add gdbserver and general gdb configuration to project
@@ -78,9 +78,9 @@ macro(android_ndk_gdb_enable)
     endif()
 endmacro()
 
-# register a target for remote debugging
-# copies the debug version to NDK_GDB_SOLIB_PATH then strips symbols of original
-macro(android_ndk_gdb_debuggable TARGET_NAME)
+# register a target for remote Debugging
+# copies the Debug version to NDK_GDB_SOLIB_PATH then strips symbols of original
+macro(android_ndk_gdb_Debuggable TARGET_NAME)
     if(ANDROID)
         get_property(TARGET_LOCATION TARGET ${TARGET_NAME} PROPERTY LOCATION)
         
