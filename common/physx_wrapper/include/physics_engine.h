@@ -65,7 +65,7 @@ public:
         bool recordMemoryAllocations = true;
 
         mPhysics = PxCreatePhysics(PX_PHYSICS_VERSION, *mFoundation,
-            physx::PxTolerancesScale(), recordMemoryAllocations, mPvd);
+            physx::PxTolerancesScale(), recordMemoryAllocations);
         if (!mPhysics)
             std::cout << "PxCreatePhysics failed!" << std::endl;
     }

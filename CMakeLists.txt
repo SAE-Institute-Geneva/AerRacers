@@ -180,7 +180,7 @@ if(Neko_PhysX)
 		# SnippetUtils
 	)
 
-	set(CMAKE_CONFIGURATION_TYPES "debug") #enum configTypes {debug checked profile release}
+	set(CMAKE_CONFIGURATION_TYPES CACHE STRING "debug") #enum configTypes {debug checked profile release}
 	set(TARGET_BUILD_PLATFORM "windows") # has to match the TARGET_BUILD_PLATFORM in $ENV{PHYSX_PATH}/physix/buildtools/cmake_generate_projects.py
 	set(PX_BUILDSNIPPETS OFF CACHE BOOL "Generate the snippets")
 	set(PX_BUILDPUBLICSAMPLES OFF CACHE BOOL "Generate the samples projects")
@@ -194,10 +194,9 @@ if(Neko_PhysX)
 	set(CMAKEMODULES_PATH ${PHYSX_ROOT_DIR}/../externals/cmakemodules)
 	set(PX_OUTPUT_LIB_DIR ${PHYSX_DIR})
 	set(PX_OUTPUT_BIN_DIR ${PHYSX_DIR})
+	set(PX_GENERATE_GPU_PROJECTS OFF CACHE BOOL "Generate GPU PROJECTS")
 	# Call into PhysX's CMake scripts
     add_subdirectory(${PHYSX_ROOT_DIR}/compiler/public ${PHYSX_DIR})
-    set_target_properties (PhysX PROPERTIES
-            FOLDER Externals)
     add_subdirectory("common/physx_wrapper")
 endif()
 
