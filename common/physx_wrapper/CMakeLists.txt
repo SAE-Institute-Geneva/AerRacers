@@ -24,11 +24,12 @@
 	set(PXSHARED_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
 	set(CMAKEMODULES_VERSION "1.27")
 	set(CMAKEMODULES_PATH ${PHYSX_ROOT_DIR}/../externals/cmakemodules)
-	set(PX_OUTPUT_LIB_DIR ${PHYSX_DIR})
-	set(PX_OUTPUT_BIN_DIR ${PHYSX_DIR})
+	set(PX_OUTPUT_LIB_DIR ${CMAKE_SOURCE_DIR}/build/externals/PhysX-4.1)
+	set(PX_OUTPUT_BIN_DIR ${CMAKE_SOURCE_DIR}/build/externals/PhysX-4.1)
 	
 LIST(APPEND PHYSX_WRAPPER_LIBS Neko_Core ${PHYSX_LIBRARIES})
 file(GLOB_RECURSE physx_wrapper_src include/*.h src/*.cpp)
+add_subdirectory(${PHYSX_ROOT_DIR}/compiler/public ${PHYSX_DIR})
 
 add_library(physx_wrapper STATIC ${physx_wrapper_src})
 target_link_libraries(physx_wrapper PUBLIC ${PHYSX_WRAPPER_LIBS})

@@ -1,2 +1,0 @@
-﻿  Vcpkg is unable to link because we cannot decide between Release and Debug libraries. Please define the property VcpkgConfiguration to be 'Release' or 'Debug' (currently 'debug').
-  PhysXTask.vcxproj -> C:\Storage\AerRacers\externals\PhysX-4.1\bin\win.x86_64.vc142.mt\debug\PhysXTask_staticd.lib

@@ -167,36 +167,7 @@ if(Neko_PhysX)
     set(PHYSX_VERSION 4.1)
     set(PHYSX_DIR ${EXTERNAL_DIR}/PhysX-${PHYSX_VERSION}/)
 	set(PHYSX_ROOT_DIR ${PHYSX_DIR}/physx)
-	set(PHYSX_INCLUDE_DIRS ${PHYSX_ROOT_DIR}/include/ ${PHYSX_ROOT_DIR}/../pxshared/include/ )
-	set(PHYSX_LIBRARIES
-		PhysXExtensions
-		PhysX
-		PhysXPvdSDK
-		PhysXVehicle
-		PhysXCharacterKinematic
-		PhysXCooking
-		PhysXCommon
-		PhysXFoundation
-		# SnippetUtils
-	)
-
-	set(CMAKE_CONFIGURATION_TYPES CACHE STRING "debug") #enum configTypes {debug checked profile release}
-	set(TARGET_BUILD_PLATFORM "windows") # has to match the TARGET_BUILD_PLATFORM in $ENV{PHYSX_PATH}/physix/buildtools/cmake_generate_projects.py
-	set(PX_BUILDSNIPPETS OFF CACHE BOOL "Generate the snippets")
-	set(PX_BUILDPUBLICSAMPLES OFF CACHE BOOL "Generate the samples projects")
-	set(PX_GENERATE_STATIC_LIBRARIES OFF CACHE BOOL "Generate static libraries")
-	set(PX_FLOAT_POINT_PRECISE_MATH OFF CACHE BOOL "Float point precise math")
-	set(NV_USE_STATIC_WINCRT ON CACHE BOOL "Use the statically linked windows CRT")
-	set(NV_USE_DEBUG_WINCRT ON CACHE BOOL "Use the debug version of the CRT")
-	set(PXSHARED_PATH ${PHYSX_ROOT_DIR}/../pxshared)
-	set(PXSHARED_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-	set(CMAKEMODULES_VERSION "1.27")
-	set(CMAKEMODULES_PATH ${PHYSX_ROOT_DIR}/../externals/cmakemodules)
-	set(PX_OUTPUT_LIB_DIR ${PHYSX_DIR})
-	set(PX_OUTPUT_BIN_DIR ${PHYSX_DIR})
-	set(PX_GENERATE_GPU_PROJECTS OFF CACHE BOOL "Generate GPU PROJECTS")
 	# Call into PhysX's CMake scripts
-    add_subdirectory(${PHYSX_ROOT_DIR}/compiler/public ${PHYSX_DIR})
     add_subdirectory("common/physx_wrapper")
 endif()
 

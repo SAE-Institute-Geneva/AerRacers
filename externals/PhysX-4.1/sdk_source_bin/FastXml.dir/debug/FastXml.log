@@ -1,2 +1,0 @@
-﻿  Vcpkg is unable to link because we cannot decide between Release and Debug libraries. Please define the property VcpkgConfiguration to be 'Release' or 'Debug' (currently 'debug').
-  FastXml.vcxproj -> C:\Storage\AerRacers\externals\PhysX-4.1\sdk_source_bin\FastXml.dir\debug\FastXml.lib
