@@ -16454,7 +16454,8 @@ template <class Key, class T, class IgnoredLess = std::less<Key>,
             }
         }
 
-        throw std::out_of_range("key not found");
+
+        JSON_THROW(invalid_iterator::create(205, "iterator out of range"));
     }
 
     const T& at(const Key& key) const
@@ -16467,7 +16468,7 @@ template <class Key, class T, class IgnoredLess = std::less<Key>,
             }
         }
 
-        throw std::out_of_range("key not found");
+        JSON_THROW(invalid_iterator::create(205, "iterator out of range"));
     }
 
     size_type erase(const Key& key)

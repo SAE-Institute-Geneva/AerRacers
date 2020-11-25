@@ -71,6 +71,16 @@ void Renderer::RenderAll()
 	}
 }
 
+void Renderer::BeforeRenderLoop()
+{
+	window_->BeforeRenderLoop();
+}
+
+void Renderer::AfterRenderLoop()
+{
+	window_->AfterRenderLoop();
+}
+
 void Renderer::ScheduleJobs()
 {
     auto* engine = BasicEngine::GetInstance();

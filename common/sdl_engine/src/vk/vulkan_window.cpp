@@ -183,8 +183,6 @@ void VulkanWindow::Destroy()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("DestroyWindow");
 #endif
-	MakeCurrentContext();
-
     /*const auto& vkObj = vk::VkResourcesLocator::get();
     vkDestroyDescriptorPool(VkDevice(vkObj.device), imguiDescriptorPool_, nullptr);
 
@@ -208,37 +206,6 @@ void VulkanWindow::OnResize(const Vec2u newWindowSize)
 {
 	onResizeCommand_.SetWindowSize(newWindowSize);
 	RendererLocator::get().Render(&onResizeCommand_);
-}
-
-void VulkanWindow::MakeCurrentContext()
-{
-	//SDL_GL_MakeCurrent(window_, vkSurface_);
-#ifndef EMSCRIPTEN
-	auto* const currentContext = SDL_GL_GetCurrentContext();
-	std::ostringstream oss;
-	//oss << "Current Context: " << currentContext << " Render Context: " << vkSurface_ << " from Thread: " << std::this_thread::get_id();
-	if(currentContext == nullptr)
-	{
-		oss << "\nSDL Error: " << SDL_GetError();
-	}
-	//logDebug(oss.str());
-#endif
-}
-
-void VulkanWindow::LeaveCurrentContext()
-{
-	SDL_GL_MakeCurrent(window_, nullptr);
-#ifndef EMSCRIPTEN
-	auto* const currentContext = SDL_GL_GetCurrentContext();
-
-	std::ostringstream oss;
-	oss << "Leave current context from thread: " << std::this_thread::get_id();
-	if(currentContext != nullptr)
-	{
-		oss << "[Error] After Leave Current Context, context: " << currentContext;
-	}
-	//logDebug(oss.str());
-#endif
 }
 
 void VulkanWindow::MinimizedLoop() const

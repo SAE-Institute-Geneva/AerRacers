@@ -70,9 +70,6 @@ public:
 
     void OnResize(Vec2u newWindowSize) override;
 
-    void MakeCurrentContext() override;
-    void LeaveCurrentContext() override;
-
     void MinimizedLoop() const;
 
 protected:
