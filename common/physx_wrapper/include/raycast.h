@@ -27,8 +27,7 @@
 ---------------------------------------------------------- */
 #include "PxPhysicsAPI.h"
 
-namespace neko::physics {
-
+namespace neko::physics::px {
 class Raycast {
 public:
 	Raycast();

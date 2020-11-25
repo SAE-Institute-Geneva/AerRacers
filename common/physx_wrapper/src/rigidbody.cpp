@@ -2,7 +2,6 @@
 #include <engine\log.h>
 
 
-namespace neko::physics {
-
+namespace neko::physics::px {
 RigidBody::RigidBody() { }
 }

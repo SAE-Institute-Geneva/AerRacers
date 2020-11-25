@@ -29,8 +29,7 @@
 #include <iostream>
 
 #include "PxPhysicsAPI.h"
-namespace neko::physics {
-
+namespace neko::physics::px {
 class PxAllocatorCallback
 {
 public:
@@ -51,7 +50,7 @@ public:
     }
 };
 
-class PhysicsEngine
+class PxPhysicsEngine
 {
 public:
     void Start();

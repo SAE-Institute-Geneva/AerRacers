@@ -50,14 +50,12 @@ void InitActors()
     physx::PxMaterial* material = physicsEngine_.mPhysics_->createMaterial(0.5f, 0.5f, 0.1f);
     if (!material)
         std::cerr << "createMaterial failed!";
-    physx::PxReal d = -1.0f;
+    physx::PxReal d = -3.0f;
     physx::PxTransform pose = physx::PxTransform(physx::PxVec3(0.0f, d, -5.0f), physx::PxQuat(physx::PxHalfPi, physx::PxVec3(0.0f, 0.0f, 1.0f)));
     plane = physicsEngine_.mPhysics_->createRigidStatic(pose);
     if (!plane)
         std::cerr << "create plane failed!";
     shape = physicsEngine_.mPhysics_->createShape(physx::PxPlaneGeometry(), *material);
-    shape->setMaterials(&material, 1);
-    shape->setGeometry(physx::PxPlaneGeometry());
     plane->attachShape(*shape);
     if (!shape)
         std::cerr << "create shape failed!";
@@ -131,7 +129,6 @@ void Init() override
 
             delete[] shapes;
         }
-        neko::RendererLocator::get().Render(this);
         const auto& config = neko::BasicEngine::GetInstance()->config;
         projection_ = neko::Transform3d::Perspective(
             neko::degree_t(45.0f),
@@ -139,6 +136,7 @@ void Init() override
             0.1f,
             100.0f);
         textureManager_.Update(dt);
+        neko::RendererLocator::get().Render(this);
         updateCount_++;
         if (updateCount_ == kEngineDuration_) {
             engine_.Stop();
@@ -159,19 +157,20 @@ void Init() override
         shader_.SetMat4("view", view_);
         shader_.SetMat4("projection", projection_);
 
-        //for (const auto cubePosition : cubePositions)
-        //{
-        //    neko::Mat4f model = neko::Mat4f::Identity; //model transform matrix
-        //    model = neko::Transform3d::Translate(model, cubePosition);
-        //    shader_.SetMat4("model", model);
-        //    cube_.Draw();
-        //}
+        for (const auto cubePosition : cubePositions)
+        {
+            neko::Mat4f model = neko::Mat4f::Identity; //model transform matrix
+            model = neko::Transform3d::Translate(model, cubePosition);
+            shader_.SetMat4("model", model);
+            cube_.Draw();
+        }
         neko::Mat4f model = neko::Mat4f::Identity; //model transform matrix
-        model = neko::Transform3d::Translate(model, cubePosition_);
+        /*model = neko::Transform3d::Translate(model, cubePosition_);
         shader_.SetMat4("model", model);
-        cube_.Draw();
+        cube_.Draw();*/
+        model = neko::Mat4f::Identity; //model transform matrix
+        model = neko::Transform3d::Rotate(model, neko::degree_t(90.0f), neko::Vec3f::right);
         model = neko::Transform3d::Translate(model, planePosition_);
-        model = neko::Transform3d::Rotate(model, neko::degree_t(90.0f), neko::Vec3f::up);
         shader_.SetMat4("model", model);
         quad_.Draw();
     }
@@ -188,17 +187,17 @@ void Init() override
 
 private :
     int updateCount_ = 0;
-    const int kEngineDuration_ = 500;
+    const int kEngineDuration_ = 200;
 
     neko::aer::AerEngine& engine_;
-    neko::physics::PhysicsEngine physicsEngine_;
+    neko::physics::px::PxPhysicsEngine physicsEngine_;
     physx::PxShape* shape;
     physx::PxRigidActor* plane;
     physx::PxRigidDynamic* actor;
 
 
-    neko::gl::RenderCuboid cube_{neko::Vec3f::zero, neko::Vec3f::one };
-    neko::gl::RenderQuad quad_{neko::Vec3f::zero, neko::Vec2f::one };
+    neko::gl::RenderCuboid cube_{neko::Vec3f::zero, neko::Vec3f::one*2.0f };
+    neko::gl::RenderQuad quad_{neko::Vec3f::zero, neko::Vec2f::one*2.0f };
     const static size_t cubeNumbers_ = 10;
     neko::Vec3f cubePosition_ = neko::Vec3f::one;
     neko::Vec3f planePosition_ = neko::Vec3f::one;

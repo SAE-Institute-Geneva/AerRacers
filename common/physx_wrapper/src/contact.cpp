@@ -2,6 +2,6 @@
 #include <engine\log.h>
 
 
-namespace neko::physics {
-Contact::Contact() { }
+namespace neko::physics::px {
+	Contact::Contact() { }
 }

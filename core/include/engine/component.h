@@ -49,8 +49,13 @@ enum class ComponentType : EntityMask
     CIRCLE_COLLIDER2D = 1u << 10u,
     POLYGON_COLLIDER2D = 1u << 11u,
     CONVEX_SHAPE2D = 1u << 12u,
-    PREFAB = 1u << 13u,
-    OTHER_TYPE = 1u << 14u
+    RIGIDBODY = 1u << 13u,
+    BOX_COLLIDER = 1u << 14u,
+    CIRCLE_COLLIDER = 1u << 15u,
+    POLYGON_COLLIDER = 1u << 16u,
+    COLLIDER = BOX_COLLIDER | CIRCLE_COLLIDER | POLYGON_COLLIDER,
+    PREFAB = 1u << 17u,
+    OTHER_TYPE = 1u << 18u
 };
 
 struct Component

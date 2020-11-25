@@ -2,9 +2,9 @@
 #include <engine\log.h>
 
 
-namespace neko::physics {
+namespace neko::physics::px {
 
-void PhysicsEngine::Start()
+void PxPhysicsEngine::Start()
 {
     static physx::PxDefaultErrorCallback gDefaultErrorCallback;
     static physx::PxDefaultAllocator gDefaultAllocatorCallback;
@@ -40,7 +40,7 @@ void PhysicsEngine::Start()
     CreateScene();
 }
 
-void PhysicsEngine::CreateScene()
+void PxPhysicsEngine::CreateScene()
 {
     physx::PxSceneDesc sceneDesc = physx::PxTolerancesScale();
     sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
@@ -55,14 +55,13 @@ void PhysicsEngine::CreateScene()
         std::cerr << "createScene failed!";
 }
 
-void PhysicsEngine::Update(float dt)
+void PxPhysicsEngine::Update(float dt)
 {
     scene_->simulate(dt);
     scene_->fetchResults(true);
-
 }
 
-void PhysicsEngine::Destroy()
+void PxPhysicsEngine::Destroy()
 {
     mPhysics_->release();
     mFoundation_->release();

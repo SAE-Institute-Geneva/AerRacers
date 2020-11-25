@@ -27,8 +27,7 @@
 ---------------------------------------------------------- */
 #include "PxPhysicsAPI.h"
 
-namespace neko::physics {
-
+namespace neko::physics::px {
 class Shape {
 public:
     Shape();
