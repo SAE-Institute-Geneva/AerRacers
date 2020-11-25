@@ -37,7 +37,22 @@ void PhysicsEngine::Start()
 
     if (!PxInitExtensions(*mPhysics_, mPvd_))
         logDebug("PxInitExtensions failed!");
+    CreateScene();
+}
 
+void PhysicsEngine::CreateScene()
+{
+    physx::PxSceneDesc sceneDesc = physx::PxTolerancesScale();
+    sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
+    physx::PxSimulationFilterShader gDefaultFilterShader = physx::PxDefaultSimulationFilterShader;
+    sceneDesc.filterShader = gDefaultFilterShader;
+    mCpuDispatcher_ = physx::PxDefaultCpuDispatcherCreate(1);
+    if (!mCpuDispatcher_)
+        std::cerr << "PxDefaultCpuDispatcherCreate failed!";
+    sceneDesc.cpuDispatcher = mCpuDispatcher_;
+    scene_ = mPhysics_->createScene(sceneDesc);
+    if (!scene_)
+        std::cerr << "createScene failed!";
 }
 
 void PhysicsEngine::Update(float dt)
