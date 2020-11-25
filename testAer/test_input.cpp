@@ -27,6 +27,7 @@
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
 
+#ifdef NEKO_GLES3
 #include "sdl_engine/sdl_engine.h"
 #include "sdl_engine/sdl_input.h"
 #include "gl/gles3_window.h"
@@ -831,3 +832,4 @@ TEST(Engine, TestInteractiveInput)
 
     engine.EngineLoop();
 }
+#endif

@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#ifdef NEKO_VULKAN
 #include "mathematics/hash.h"
 #include "mathematics/matrix.h"
 #include "utilities/file_utility.h"
@@ -48,3 +49,4 @@ TEST(Materials, TestLoadShader)
 	EXPECT_EQ(shader.GetUniformBlocks().size(), 2);
 }
 }
+#endif

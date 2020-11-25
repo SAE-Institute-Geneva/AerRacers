@@ -20,6 +20,7 @@ public:
 
 	void CreatePipeline(const VertexInput& vertexInput) override;
 
+	void SetShaderPath(const std::string& shaderPath) { shaderPath_ = shaderPath; }
 	[[nodiscard]] std::string GetShaderPath() const { return shaderPath_; }
 	[[nodiscard]] MaterialType GetType() const override { return MaterialType::DIFFUSE; }
 

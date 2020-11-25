@@ -1,7 +1,7 @@
 {
     "name": "Test",
-    "type": 0,
     "shaderPath": "aer_racers/shaders/quad_color.aershader",
+    "type": 0,
     "color": {
         "r": 0.0,
         "g": 0.0,

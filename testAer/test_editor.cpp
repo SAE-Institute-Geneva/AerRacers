@@ -26,6 +26,8 @@
  Date : 11.11.2020
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
+
+#ifdef NEKO_GLES3
 #include <sdl_engine/sdl_engine.h>
 #include <sdl_engine/sdl_input.h>
 #include <gl/gles3_window.h>
@@ -185,3 +187,4 @@ TEST(Editor, TestEditor)
 
     simulateEditor.HasSucceed();
 }
+#endif

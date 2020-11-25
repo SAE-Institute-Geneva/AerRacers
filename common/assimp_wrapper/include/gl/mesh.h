@@ -23,6 +23,7 @@
  SOFTWARE.
  */
 
+#ifdef NEKO_GLES3
 #include <vector>
 
 #include "assimp/material.h"
@@ -94,3 +95,4 @@ namespace neko::assimp
 		void SetupMesh();
 	};
 }
+#endif
