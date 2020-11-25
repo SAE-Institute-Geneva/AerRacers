@@ -14,6 +14,7 @@ const std::array<VkDynamicState, 3> kDynamicStates =
     VK_DYNAMIC_STATE_LINE_WIDTH
 };
 
+struct GraphicsPipelineCreateInfo;
 class GraphicsPipeline final : public Pipeline
 {
 public:
@@ -31,9 +32,14 @@ public:
         READ_WRITE = READ | WRITE
     };
 
-    void Init(Stage pipelineStage,
-            const Shader& shader,
-            const std::vector<VertexInput>& vertexInputs,
+	GraphicsPipeline(
+			Stage stage,
+			const GraphicsPipelineCreateInfo& createInfo);
+
+	GraphicsPipeline(
+			Stage stage,
+            const std::string& shaderPath,
+            std::vector<VertexInput> vertexInputs,
             Mode mode, Depth depthMode,
             VkPrimitiveTopology topology,
             VkPolygonMode polygonMode,
@@ -56,7 +62,7 @@ public:
     [[nodiscard]] VkPipelineBindPoint GetPipelineBindPoint() const override { return pipelineBindPoint_; }
 
 private:
-    void CreateShaderProgram();
+    void CreateShaderProgram(const json& jsonShader);
     void CreateDescriptorLayout();
     void CreateDescriptorPool();
     void CreatePipelineLayout();
@@ -69,7 +75,7 @@ private:
 
     VkPipeline pipeline_{};
     VkPipelineLayout layout_{};
-    VkPipelineBindPoint pipelineBindPoint_{};
+    VkPipelineBindPoint pipelineBindPoint_ = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
     Stage stage_{};
     std::vector<VertexInput> vertexInputs_{};
@@ -81,8 +87,9 @@ private:
     VkFrontFace frontFace_{};
     bool pushDescriptors_{};
 
-    Shader shader_{};
-    Shader::ShaderProgram shaderProgram_{};
+	Shader shader_;
+	std::vector<VkShaderModule> modules_;
+	std::vector<VkPipelineShaderStageCreateInfo> stages_;
 
     VkPipelineVertexInputStateCreateInfo vertexInputStateCreateInfo_{};
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyStateCreateInfo_{};
@@ -99,7 +106,7 @@ private:
 struct GraphicsPipelineCreateInfo
 {
     explicit GraphicsPipelineCreateInfo(
-            Shader shader,
+		    const std::string& shaderPath,
             std::vector<VertexInput> vertexInputs = {},
             const GraphicsPipeline::Mode mode = GraphicsPipeline::Mode::POLYGON,
             const GraphicsPipeline::Depth depth = GraphicsPipeline::Depth::READ_WRITE,
@@ -107,10 +114,9 @@ struct GraphicsPipelineCreateInfo
             VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
             const VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL,
             const VkCullModeFlags cullMode = VK_CULL_MODE_BACK_BIT,
-            const VkFrontFace frontFace = VK_FRONT_FACE_CLOCKWISE,
+            const VkFrontFace frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
             const bool pushDescriptors = false)
-            : shader(std::move(shader)),
-              vertexInputs(std::move(vertexInputs)),
+            : vertexInputs(std::move(vertexInputs)),
               mode(mode),
               depth(depth),
               topology(topology),
@@ -119,6 +125,13 @@ struct GraphicsPipelineCreateInfo
               frontFace(frontFace),
               isPushDescriptor(pushDescriptors)
     {
+	    shaderJson = LoadJson(shaderPath);
+
+	    if (CheckJsonExists(shaderJson, "vert"))
+		    shaderStages.emplace_back(shaderJson["vert"].get<std::string>());
+
+	    if (CheckJsonExists(shaderJson, "frag"))
+		    shaderStages.emplace_back(shaderJson["frag"].get<std::string>());
     }
 
     bool operator==(const GraphicsPipelineCreateInfo& other) const
@@ -137,7 +150,7 @@ struct GraphicsPipelineCreateInfo
         return !(*this == other);
     }
 
-    Shader shader;
+	std::vector<std::string> shaderStages;
     std::vector<VertexInput> vertexInputs;
 
     GraphicsPipeline::Mode mode;
@@ -147,5 +160,6 @@ struct GraphicsPipelineCreateInfo
     VkCullModeFlags cullMode;
     VkFrontFace frontFace;
     bool isPushDescriptor;
+	ordered_json shaderJson;
 };
 }

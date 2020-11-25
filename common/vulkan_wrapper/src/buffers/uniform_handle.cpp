@@ -68,11 +68,27 @@ UniformHandle& UniformHandle::operator=(UniformHandle&& other) noexcept
     return *this;
 }
 
-/*void UniformHandle::PushUniformData(const Material::PushDataContainer& dataContainer)
+void UniformHandle::PushUniformData(const Material::PushDataContainer& dataContainer)
 {
     for (const auto& data : dataContainer)
-        Push(data.first, data.second);
-}*/
+    {
+	    switch (data.second.GetType())
+	    {
+	    	case MaterialExportData::Type::FLOAT:
+			    Push(data.first, data.second.GetFloat());
+		    case MaterialExportData::Type::INT:
+			    Push(data.first, data.second.GetInt());
+		    case MaterialExportData::Type::IMAGE_2D:
+			    Push(data.first, data.second.GetImage2d());
+			/*case MaterialExportData::Type::IMAGE_CUBE:
+			    Push(data.first, data.second.GetImageCube());*/
+		    case MaterialExportData::Type::COLOR:
+			    Push(data.first, data.second.GetColor());
+		    default:
+			    Push(data.first, nullptr);
+	    }
+    }
+}
 
 bool UniformHandle::Update(const UniformBlock& uniformBlock)
 {

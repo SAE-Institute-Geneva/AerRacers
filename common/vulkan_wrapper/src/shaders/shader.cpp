@@ -9,53 +9,73 @@
 namespace neko::vk
 {
 Attribute::Attribute(
-        const std::uint32_t set,
+		std::string name,
         const std::uint32_t location,
         const std::uint32_t size,
-        const AttributeType type)
-        : set_(set),
+        const Type type)
+        : name_(std::move(name)),
         location_(location),
         size_(size),
         type_(type)
 {}
 
+Attribute::Attribute(const json& attributeJson)
+{
+	FromJson(attributeJson);
+}
+
 VkFormat Attribute::GetVkFormat() const
 {
     switch (type_)
     {
-        case AttributeType::FLOAT:
+        case Type::FLOAT:
             return VK_FORMAT_R32_SFLOAT;
-        case AttributeType::VEC2F:
+        case Type::VEC2F:
             return VK_FORMAT_R32G32_SFLOAT;
-        case AttributeType::VEC3F:
+        case Type::VEC3F:
             return VK_FORMAT_R32G32B32_SFLOAT;
-        case AttributeType::VEC4F:
+        case Type::VEC4F:
             return VK_FORMAT_R32G32B32A32_SFLOAT;
-        case AttributeType::INT:
+        case Type::INT:
             return VK_FORMAT_R32_SINT;
-        case AttributeType::VEC2I:
+        case Type::VEC2I:
             return VK_FORMAT_R32G32_SINT;
-        case AttributeType::VEC3I:
+        case Type::VEC3I:
             return VK_FORMAT_R32G32B32_SINT;
-        case AttributeType::VEC4I:
+        case Type::VEC4I:
             return VK_FORMAT_R32G32B32A32_SINT;
-        case AttributeType::UINT:
+        case Type::UINT:
             return VK_FORMAT_R32_SINT;
-        case AttributeType::VEC2U:
+        case Type::VEC2U:
             return VK_FORMAT_R32G32_SINT;
-        case AttributeType::VEC3U:
+        case Type::VEC3U:
             return VK_FORMAT_R32G32B32_SINT;
-        case AttributeType::VEC4U:
+        case Type::VEC4U:
             return VK_FORMAT_R32G32B32A32_SINT;
-        case AttributeType::UNDEFINED:
+        case Type::UNDEFINED:
         default:
             return VK_FORMAT_UNDEFINED;
     }
 }
 
-Shader::Shader(std::string filename, VkShaderStageFlags stages)
-    : shaderPath_(std::move(filename)), stages_(stages)
-{}
+void Attribute::FromJson(const json& attributeJson)
+{
+	name_ = attributeJson["name"].get<std::string>();
+	location_ = attributeJson["location"].get<std::uint32_t>();
+	size_ = attributeJson["size"].get<std::uint32_t>();
+	type_ = attributeJson["type"].get<Type>();
+}
+
+ordered_json Attribute::ToJson() const
+{
+	ordered_json attributeJson;
+	attributeJson["name"] = name_;
+	attributeJson["location"] = location_;
+	attributeJson["size"] = size_;
+	attributeJson["type"] = type_;
+
+	return attributeJson;
+}
 
 void Shader::Init()
 {
@@ -75,15 +95,15 @@ void Shader::Init()
                                 descriptorType,
                                 uniformBlock.second.GetStageFlags()));
                 break;
-                /*case UniformBlock::Type::STORAGE:
-                    descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-                    descriptorSetLayout_.emplace_back(
-                            StorageBuffer::
-                            GetDescriptorSetLayout(
-                                    static_cast<std::uint32_t>(uniformBlock.second.GetBinding()),
-                                    descriptorType,
-                                    uniformBlock.second.GetStageFlags()));
-                    break;*/
+            case UniformBlock::Type::STORAGE:
+                descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		        descriptorSetLayoutBindings_.emplace_back(
+                        StorageBuffer::
+                        GetDescriptorSetLayout(
+                                static_cast<std::uint32_t>(uniformBlock.second.GetBinding()),
+                                descriptorType,
+                                uniformBlock.second.GetStageFlags()));
+                break;
             default:
                 break;
         }
@@ -98,35 +118,26 @@ void Shader::Init()
     }
 
     //Uniform for textures
-    /*for (const auto& uniform : uniform_)
+    for (const auto& uniform : uniforms_)
     {
-        auto descriptorType = VK_DESCRIPTOR_TYPE_MAX_ENUM;
-        switch (uniform.second.GetGlType())
+        auto descriptorType = uniform.second.IsWriteOnly() ?
+        		VK_DESCRIPTOR_TYPE_STORAGE_IMAGE : VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        switch (uniform.second.GetType())
         {
-            case 0x8B5E: // GL_SAMPLER_2D
-            case 0x904D: // GL_IMAGE_2D
-            case 0x9108: // GL_SAMPLER_2D_MULTISAMPLE
-            case 0x9055: // GL_IMAGE_2D_MULTISAMPLE
-                descriptorType = uniform.second.IsWriteOnly() ?
-                                 VK_DESCRIPTOR_TYPE_STORAGE_IMAGE :
-                                 VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                descriptorSetLayout_.emplace_back(
+            case Uniform::Type::SAMPLER_2D:
+                descriptorSetLayoutBindings_.emplace_back(
                         Image2d::GetDescriptorSetLayout(
                                 static_cast<std::uint32_t>(uniform.second.GetBinding()),
                                 descriptorType,
                                 uniform.second.GetStageFlags()));
                 break;
-            case 0x8B60: // GL_SAMPLER_CUBE
-            case 0x9050: // GL_IMAGE_CUBE
-                descriptorType = uniform.second.IsWriteOnly() ?
-                                 VK_DESCRIPTOR_TYPE_STORAGE_IMAGE :
-                                 VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-                descriptorSetLayout_.emplace_back(
+            /*case Uniform::UniformType::SAMPLER_3D:
+		        descriptorSetLayoutBindings_.emplace_back(
                         ImageCube::GetDescriptorSetLayout(
                                 static_cast<std::uint32_t>(uniform.second.GetBinding()),
                                 descriptorType,
                                 uniform.second.GetStageFlags()));
-                break;
+                break;*/
             default:
                 break;
         }
@@ -134,7 +145,7 @@ void Shader::Init()
         IncrementDescriptorPool(descriptorPoolCounts, descriptorType);
         descriptorLocations_.emplace(uniform.first, uniform.second.GetBinding());
         descriptorSizes_.emplace(uniform.first, uniform.second.GetSize());
-    }*/
+    }
 
     for (const auto& descriptor : descriptorPoolCounts)
     {
@@ -186,6 +197,43 @@ void Shader::Init()
     }
 }
 
+std::vector<VkShaderModule> Shader::LoadFromJson(const json& shaderJson)
+{
+	FromJson(shaderJson);
+
+	std::vector<VkShaderModule> shaderModules(stagePaths_.size());
+	for (std::size_t i = 0; i < stagePaths_.size(); ++i)
+	{
+		const auto& file = LoadFile(stagePaths_[i]);
+
+		VkShaderModuleCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+		createInfo.codeSize = file.size();
+		createInfo.pCode = reinterpret_cast<const uint32_t*>(file.data());
+
+		const VkResult res =
+				vkCreateShaderModule(VkDevice(VkObjectsLocator::get().device), &createInfo, nullptr, &shaderModules[i]);
+		neko_assert(res == VK_SUCCESS, "Could not create shader module!")
+	}
+
+    return shaderModules;
+}
+
+VkShaderStageFlagBits Shader::GetShaderStage(const std::string_view& filename)
+{
+	const size_t& size = filename.size() - std::string(".spv").size();
+    const auto fileExt = GetFilenameExtension(static_cast<std::string>(filename.substr(0, size)));
+    if (fileExt == ".vert") return VK_SHADER_STAGE_VERTEX_BIT;
+    if (fileExt == ".frag") return VK_SHADER_STAGE_FRAGMENT_BIT;
+    if (fileExt == ".geom") return VK_SHADER_STAGE_GEOMETRY_BIT;
+    if (fileExt == ".comp") return VK_SHADER_STAGE_COMPUTE_BIT;
+    if (fileExt == ".tese") return VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT;
+    if (fileExt == ".tesc") return VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT;
+
+    logDebug(fileExt + " is not a valid shader extension!");
+    return VK_SHADER_STAGE_ALL;
+}
+
 void Shader::IncrementDescriptorPool(
         std::map<VkDescriptorType, std::uint32_t>& descriptorPoolCounts,
         VkDescriptorType type)
@@ -198,62 +246,19 @@ void Shader::IncrementDescriptorPool(
     else descriptorPoolCounts.emplace(type, 1);
 }
 
-Shader::ShaderProgram Shader::CreateShaderProgram() const
+void Shader::AddAttribute(const Attribute& attribute)
 {
-    neko_assert(stages_ != 0, "No stages for this shader!")
-
-    std::vector<std::string> extensions;
-    if (stages_ & VK_SHADER_STAGE_VERTEX_BIT)
-        extensions.emplace_back(".vert.spv");
-    if (stages_ & VK_SHADER_STAGE_FRAGMENT_BIT)
-        extensions.emplace_back(".frag.spv");
-
-    ShaderProgram shaderProgram;
-    shaderProgram.modules.resize(extensions.size());
-    shaderProgram.pipelineStages.resize(extensions.size());
-    for (size_t i = 0; i < extensions.size(); ++i)
-    {
-        const auto file = LoadBinaries(shaderPath_ + extensions[i]);
-
-        VkShaderModuleCreateInfo createInfo = {};
-        createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = file.size();
-        createInfo.pCode = reinterpret_cast<const std::uint32_t*>(file.data());
-
-        const auto& vkObj = VkObjectsLocator::get();
-
-        const VkResult res = vkCreateShaderModule(VkDevice(vkObj.device), &createInfo,
-                                                  nullptr, &shaderProgram.modules[i]);
-        neko_assert(res == VK_SUCCESS, "Could not create shader module!")
-
-        VkShaderStageFlagBits stage;
-        if (extensions[i] == ".vert.spv")
-            stage = VK_SHADER_STAGE_VERTEX_BIT;
-        if (extensions[i] == ".frag.spv")
-            stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-
-        shaderProgram.pipelineStages[i].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        shaderProgram.pipelineStages[i].stage = stage;
-        shaderProgram.pipelineStages[i].module = shaderProgram.modules[i];
-        shaderProgram.pipelineStages[i].pName = "main";
-    }
-
-    return shaderProgram;
+	attributes_.emplace(HashString(attribute.GetName()), attribute);
 }
 
-void Shader::AddUniformBlock(XXH64_hash_t nameHash, const UniformBlock& uniformBlock)
+void Shader::AddUniform(const Uniform& uniform)
 {
-    uniformBlocks_.emplace(nameHash, uniformBlock);
+	uniforms_.emplace(HashString(uniform.GetName()), uniform);
 }
 
-void Shader::AddUniform(XXH64_hash_t nameHash, const Uniform& uniform)
+void Shader::AddUniformBlock(const UniformBlock& uniformBlock)
 {
-    uniforms_.emplace(nameHash, uniform);
-}
-
-void Shader::AddAttribute(XXH64_hash_t nameHash, const Attribute& attribute)
-{
-    attributes_.emplace(nameHash, attribute);
+    uniformBlocks_.emplace(HashString(uniformBlock.GetName()), uniformBlock);
 }
 
 std::vector<VkPushConstantRange> Shader::GetPushConstantRanges() const
@@ -310,11 +315,45 @@ VkDescriptorType Shader::GetDescriptorType(const std::uint32_t location) const
     return descriptorTypes_.at(location);
 }
 
+const Attribute& Shader::GetAttribute(const std::string_view& name) const
+{
+	const auto hash = HashString(name);
+	const auto it = attributes_.find(hash);
+	neko_assert(it != attributes_.end(), "Attribute doesn't exist")
+
+	return attributes_.at(hash);
+}
+
+const Attribute& Shader::GetAttribute(XXH64_hash_t descriptorHash) const
+{
+	const auto it = attributes_.find(descriptorHash);
+	neko_assert(it != attributes_.end(), "Attribute doesn't exist")
+
+	return attributes_.at(descriptorHash);
+}
+
+const Uniform& Shader::GetUniform(const std::string_view& name) const
+{
+	const auto hash = HashString(name);
+	const auto it = uniforms_.find(hash);
+	neko_assert(it != uniforms_.end(), "Uniform doesn't exist")
+
+	return uniforms_.at(hash);
+}
+
+const Uniform& Shader::GetUniform(XXH64_hash_t descriptorHash) const
+{
+	const auto it = uniforms_.find(descriptorHash);
+	neko_assert(it != uniforms_.end(), "Uniform doesn't exist")
+
+	return uniforms_.at(descriptorHash);
+}
+
 const UniformBlock& Shader::GetUniformBlock(const std::string_view& name) const
 {
     const auto hash = HashString(name);
     const auto it = uniformBlocks_.find(hash);
-    neko_assert(it != uniformBlocks_.end(), "Uniform block doesn't exist");
+    neko_assert(it != uniformBlocks_.end(), "Uniform block doesn't exist")
 
     return uniformBlocks_.at(hash);
 }
@@ -322,8 +361,101 @@ const UniformBlock& Shader::GetUniformBlock(const std::string_view& name) const
 const UniformBlock& Shader::GetUniformBlock(XXH64_hash_t descriptorHash) const
 {
     const auto it = uniformBlocks_.find(descriptorHash);
-    neko_assert(it != uniformBlocks_.end(), "Uniform block doesn't exist");
+    neko_assert(it != uniformBlocks_.end(), "Uniform block doesn't exist")
 
     return uniformBlocks_.at(descriptorHash);
+}
+
+void Shader::LoadAttribute(const json& attributeJson)
+{
+	const auto name = attributeJson["name"].get<std::string>();
+
+	Attribute attribute(attributeJson);
+	attributes_.emplace(HashString(name), attribute);
+}
+
+void Shader::LoadUniform(const json& uniformJson)
+{
+	const auto name = uniformJson["name"].get<std::string>();
+
+	Uniform uniform(uniformJson);
+	uniforms_.emplace(HashString(name), uniform);
+}
+
+void Shader::LoadUniformBlock(const json& uniformBlockJson)
+{
+	const auto name = uniformBlockJson["name"].get<std::string>();
+
+	UniformBlock uniformBlock(uniformBlockJson);
+	uniformBlocks_.emplace(HashString(name), uniformBlock);
+}
+
+void Shader::FromJson(const json& shaderJson)
+{
+	if (CheckJsonExists(shaderJson, "vert"))
+		stagePaths_.emplace_back(shaderJson["vert"].get<std::string>());
+
+	if (CheckJsonExists(shaderJson, "frag"))
+		stagePaths_.emplace_back(shaderJson["frag"].get<std::string>());
+
+	if (CheckJsonExists(shaderJson, "geom"))
+		stagePaths_.emplace_back(shaderJson["geom"].get<std::string>());
+
+	if (CheckJsonExists(shaderJson, "comp"))
+		stagePaths_.emplace_back(shaderJson["comp"].get<std::string>());
+
+	if (CheckJsonExists(shaderJson, "tesc"))
+		stagePaths_.emplace_back(shaderJson["tesc"].get<std::string>());
+
+	if (CheckJsonExists(shaderJson, "tese"))
+		stagePaths_.emplace_back(shaderJson["tese"].get<std::string>());
+
+	if (CheckJsonExists(shaderJson, "attributes"))
+		for (const auto& attributeJson : shaderJson["attributes"])
+			LoadAttribute(attributeJson);
+
+	if (CheckJsonExists(shaderJson, "uniforms"))
+		for (const auto& uniformJson : shaderJson["uniforms"])
+			LoadUniform(uniformJson);
+
+	if (CheckJsonExists(shaderJson, "uniformBlocks"))
+		for (const auto& uniformBlockJson : shaderJson["uniformBlocks"])
+			LoadUniformBlock(uniformBlockJson);
+}
+
+ordered_json Shader::ToJson() const
+{
+	ordered_json shaderJson;
+	for (const auto& stagePath : stagePaths_)
+	{
+		const auto& stage = GetShaderStage(stagePath);
+		switch (stage)
+		{
+			case VK_SHADER_STAGE_VERTEX_BIT: shaderJson["vert"] = stagePath; break;
+			case VK_SHADER_STAGE_FRAGMENT_BIT: shaderJson["frag"] = stagePath; break;
+			case VK_SHADER_STAGE_GEOMETRY_BIT: shaderJson["geom"] = stagePath; break;
+			case VK_SHADER_STAGE_COMPUTE_BIT: shaderJson["comp"] = stagePath; break;
+			case VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT: shaderJson["tesc"] = stagePath; break;
+			case VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT: shaderJson["tese"] = stagePath; break;
+			default: logDebug(stagePath + " isn't a valid shader stage!");
+		}
+	}
+
+	for (const auto& attribute : attributes_)
+	{
+		shaderJson["attributes"].emplace_back(attribute.second.ToJson());
+	}
+
+	for (const auto& uniform : uniforms_)
+	{
+		shaderJson["uniforms"].emplace_back(uniform.second.ToJson());
+	}
+
+	for (const auto& uniformBlocks : uniformBlocks_)
+	{
+		shaderJson["uniformBlocks"].emplace_back(uniformBlocks.second.ToJson());
+	}
+
+	return shaderJson;
 }
 }

@@ -3,6 +3,7 @@
 
 #include "mathematics/hash.h"
 #include "vk/buffers/uniform_buffer.h"
+#include "vk/material/material.h"
 #include "vk/shaders/uniform_block.h"
 
 namespace neko::vk
@@ -22,7 +23,7 @@ public:
     UniformHandle& operator=(const UniformHandle& other);
     UniformHandle& operator=(UniformHandle&& other) noexcept;
 
-    //void PushUniformData(const Material::PushDataContainer& dataContainer);
+    void PushUniformData(const Material::PushDataContainer& dataContainer);
 
     template <typename T>
     void Push(const T& object, const std::size_t offset, const std::size_t size)

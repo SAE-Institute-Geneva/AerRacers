@@ -1,5 +1,7 @@
 #include "vk/subrenderers/subrenderer_opaque.h"
+
 #include "vk/graphics.h"
+#include "vk/material/material_manager.h"
 
 namespace neko::vk
 {
@@ -10,7 +12,8 @@ SubrendererOpaque::SubrendererOpaque(Pipeline::Stage stage)
 {
     quad_.Init();
     ForwardDrawCmd drawCmd;
-    drawCmd.worldMatrix = Transform3d::Rotate(Mat4f::Identity, degree_t(45.0f), Vec3f::up);
+    drawCmd.worldMatrix = Transform3d::Rotate(Mat4f::Identity, degree_t(45.0f), Vec3f::left);
+    drawCmd.materialID = HashString("Test");
     drawCmd.uniformHandle = uniformScene_;
     modelCmdBuffer_.Draw(drawCmd);
 }
@@ -37,9 +40,12 @@ void SubrendererOpaque::OnRender(const CommandBuffer& commandBuffer)
 
     //Single Draw
     for (auto& modelDrawCommand : modelCmdBuffer_.GetForwardModels())
-        //if(modelDrawCommand.materialID != 0 && modelDrawCommand.materialID != 1)
-            //if (MaterialsManagerLocator::Get().GetMaterial(modelDrawCommand.materialID).GetRenderMode() == Material::RenderMode::OPAQUE)
-                CmdRender(commandBuffer, modelDrawCommand);
+        if(modelDrawCommand.materialID != 0 && modelDrawCommand.materialID != 1)
+        {
+        	const auto& material = MaterialManagerLocator::get().GetMaterial(modelDrawCommand.materialID);
+	        if (material.GetRenderMode() == Material::RenderMode::OPAQUE)
+		        CmdRender(commandBuffer, modelDrawCommand);
+        }
 
     //GPU Instancing
     /*for (auto& modelInstance : modelCmdBuffer_.GetModelInstances())
@@ -51,35 +57,31 @@ bool SubrendererOpaque::CmdRender(const CommandBuffer& commandBuffer, ForwardDra
 {
     modelDrawCommand.uniformHandle.Push(kModelHash, modelDrawCommand.worldMatrix);
 
-    /*auto& mat = MaterialsManagerLocator::Get().GetMaterial(modelDrawCommand.materialID);
-    modelDrawCommand.uniformHandle.PushUniformData(mat.ExportUniformData());*/
+    auto& mat = MaterialManagerLocator::get().GetMaterial(modelDrawCommand.materialID);
+    modelDrawCommand.uniformHandle.PushUniformData(mat.ExportUniformData());
 
     // Check if we are in the correct pipeline stage.
-    //const auto& materialPipeline = mat.GetPipelineMaterial();
-    const auto& materialPipeline = VkObjectsLocator::get().graphicsPipeline;
+    const auto& materialPipeline = mat.GetPipelineMaterial();
     if (materialPipeline.GetStage() != GetStage())
         return false;
 
     // Binds the material pipeline.
-    /*if (!materialPipeline.BindPipeline(commandBuffer))
-        return false;*/
-    materialPipeline.BindPipeline(commandBuffer);
+    if (!mat.BindPipeline(commandBuffer))
+        return false;
 
-    //const auto& pipeline = materialPipeline.GetPipeline();
+    const auto& pipeline = materialPipeline.GetPipeline();
 
     // Updates descriptors.
     modelDrawCommand.descriptorHandle.Push(kUboSceneHash, uniformScene_);
     modelDrawCommand.descriptorHandle.Push(kUboObjectHash, modelDrawCommand.uniformHandle);
 
-    //modelDrawCommand.descriptorHandle.PushDescriptorData(mat.ExportDescriptorData());
+    modelDrawCommand.descriptorHandle.PushDescriptorData(mat.ExportDescriptorData());
 
-    //if (!modelDrawCommand.descriptorHandle.Update(pipeline))
-    if (!modelDrawCommand.descriptorHandle.Update(materialPipeline))
+    if (!modelDrawCommand.descriptorHandle.Update(pipeline))
         return false;
 
     // Draws the object.
-    //modelDrawCommand.descriptorHandle.BindDescriptor(commandBuffer, pipeline);
-    modelDrawCommand.descriptorHandle.BindDescriptor(commandBuffer, materialPipeline);
+    modelDrawCommand.descriptorHandle.BindDescriptor(commandBuffer, pipeline);
 
     //return MeshManagerLocator::Get().GetMesh(modelDrawCommand.meshID).CmdRender(commandBuffer);
     return quad_.CmdRender(commandBuffer);

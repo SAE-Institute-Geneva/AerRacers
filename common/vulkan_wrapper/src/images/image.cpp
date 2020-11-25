@@ -36,6 +36,21 @@ void Image::Destroy() const
     vkDestroyImage(device, image_, nullptr);
 }
 
+VkDescriptorSetLayoutBinding Image::GetDescriptorSetLayout(
+		uint32_t binding,
+		VkDescriptorType descriptorType,
+		VkShaderStageFlags stage)
+{
+	VkDescriptorSetLayoutBinding descriptorSetLayoutBinding = {};
+	descriptorSetLayoutBinding.binding = binding;
+	descriptorSetLayoutBinding.descriptorType = descriptorType;
+	descriptorSetLayoutBinding.descriptorCount = 1;
+	descriptorSetLayoutBinding.stageFlags = stage;
+	descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+
+	return descriptorSetLayoutBinding;
+}
+
 WriteDescriptorSet Image::GetWriteDescriptor(const std::uint32_t binding,
     const VkDescriptorType descriptorType) const
 {

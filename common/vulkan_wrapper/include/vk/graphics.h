@@ -37,7 +37,10 @@
 #include "vk/descriptors/descriptor_pool.h"
 #include "vk/framebuffers/framebuffers.h"
 #include "vk/framebuffers/swapchain.h"
+#include "vk/material/material_manager.h"
 #include "vk/pipelines/graphics_pipeline.h"
+#include "vk/pipelines/material_pipeline.h"
+#include "vk/pipelines/material_pipeline_container.h"
 #include "vk/renderers/renderer.h"
 #include "vk/shaders/shader.h"
 #include "vk/vulkan_window.h"
@@ -64,13 +67,16 @@ struct IVkObjects
 
     DescriptorPool descriptorPool;
     ModelCommandBuffer modelCommandBuffer;
-	GraphicsPipeline graphicsPipeline;
+	std::unique_ptr<GraphicsPipeline> graphicsPipeline{};
 
     VkPipelineCache pipelineCache{};
 
     std::unique_ptr<Renderer> renderer{};
 
     [[nodiscard]] virtual RenderStage& GetRenderStage(std::uint32_t index) const = 0;
+	[[nodiscard]] virtual MaterialPipeline& AddMaterialPipeline(
+			const Pipeline::Stage& pipelineStage,
+			const GraphicsPipelineCreateInfo& pipelineCreate) const = 0;
 };
 
 struct NullVkObjects : IVkObjects
@@ -81,6 +87,13 @@ struct NullVkObjects : IVkObjects
     {
         return renderer->GetRenderStage(INVALID_INDEX);
     }
+
+	[[nodiscard]] MaterialPipeline& AddMaterialPipeline(
+			const Pipeline::Stage &pipelineStage,
+			const GraphicsPipelineCreateInfo &pipelineCreate) const override
+	{
+    	neko_assert(false, "Vulkan Engine is null!")
+	}
 };
 
 using VkObjectsLocator = Locator<IVkObjects, NullVkObjects>;
@@ -100,6 +113,9 @@ public:
     void SetRenderer(std::unique_ptr<vk::Renderer>&& renderer);
 
     [[nodiscard]] RenderStage& GetRenderStage(std::uint32_t index) const override;
+	[[nodiscard]] MaterialPipeline& AddMaterialPipeline(
+    		const Pipeline::Stage& pipelineStage,
+    		const GraphicsPipelineCreateInfo& pipelineCreate) const override;
 
 private:
     bool StartRenderPass(RenderStage& renderStage);
@@ -118,7 +134,10 @@ private:
 
     bool isFramebufferResized_ = false;
 
-    Shader testShader_;
+	std::unique_ptr<MaterialPipelineContainer> materialPipelineContainer_ =
+			std::make_unique<MaterialPipelineContainer>();
+
+	MaterialManager materialManager_;
 
     std::size_t currentFrame_ = 0;
     std::vector<VkFence> inFlightFences_{};

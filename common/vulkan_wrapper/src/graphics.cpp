@@ -49,29 +49,6 @@ VkRenderer::VkRenderer(sdl::VulkanWindow* window) : Renderer(), IVkObjects(windo
     surface.SetFormat();
     device.Init();
 
-	const auto& config = BasicEngine::GetInstance()->config;
-    testShader_ = Shader(config.dataRootPath + "shaders/aer_racer/01_triangle/quad",
-                         VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
-    testShader_.AddAttribute(HashString("inPosition"),
-            Attribute(63, 0, sizeof(Vec3f), Attribute::AttributeType::VEC3F));
-    testShader_.AddAttribute(HashString("inNormal"),
-            Attribute(63, 1, sizeof(Vec3f), Attribute::AttributeType::VEC3F));
-    testShader_.AddAttribute(HashString("inTexCoords"),
-            Attribute(63, 2, sizeof(Vec2f), Attribute::AttributeType::VEC2F));
-
-    UniformBlock ubo(0, sizeof(Mat4f) * 2, VK_SHADER_STAGE_VERTEX_BIT);
-    ubo.AddUniform(HashString("view"),
-            Uniform(0, 0, sizeof(Mat4f), VK_FORMAT_R32G32B32A32_SFLOAT, VK_SHADER_STAGE_VERTEX_BIT));
-    ubo.AddUniform(HashString("proj"),
-            Uniform(0, sizeof(Mat4f), sizeof(Mat4f), VK_FORMAT_R32G32B32A32_SFLOAT, VK_SHADER_STAGE_VERTEX_BIT));
-	
-    UniformBlock object(1, sizeof(Mat4f), VK_SHADER_STAGE_VERTEX_BIT);
-    object.AddUniform(HashString("model"),
-            Uniform(0, 0, sizeof(Mat4f), VK_FORMAT_R32G32B32A32_SFLOAT, VK_SHADER_STAGE_VERTEX_BIT));
-
-    testShader_.AddUniformBlock(HashString("UboScene"), ubo);
-    testShader_.AddUniformBlock(HashString("UboObject"), object);
-
     commandPools = std::make_unique<CommandPool>();
     commandPools->Init();
 
@@ -105,7 +82,7 @@ VkRenderer::~VkRenderer()
     }
     commandPools->Destroy();
 
-    graphicsPipeline.Destroy();
+    graphicsPipeline->Destroy();
 
     swapchain->Destroy();
 
@@ -140,19 +117,8 @@ void VkRenderer::AfterRenderLoop()
         ResetRenderStages();
         renderer->Start();
 
-        graphicsPipeline.Init(
-                Pipeline::Stage(0, 0),
-                testShader_,
-                {Vertex::GetVertexInput()},
-                GraphicsPipeline::Mode::POLYGON,
-                GraphicsPipeline::Depth::READ_WRITE,
-                VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-                VK_POLYGON_MODE_FILL,
-                VK_CULL_MODE_BACK_BIT,
-                VK_FRONT_FACE_CLOCKWISE,
-                false);
-
-        renderer->GetRendererContainer().Get<SubrendererOpaque>().SetUniformBlock(testShader_.GetUniformBlock(HashString("UboScene")));
+	    const auto& config = BasicEngine::GetInstance()->config;
+	    materialManager_.AddMaterial(config.dataRootPath + "aer_racers/materials/test.aermat");
     }
 
     const auto acquireResult = swapchain->AcquireNextImage(
@@ -188,6 +154,13 @@ void VkRenderer::AfterRenderLoop()
         EndRenderPass(*renderStage);
         stage.renderPassId++;
     }
+}
+
+MaterialPipeline& VkRenderer::AddMaterialPipeline(
+		const Pipeline::Stage& pipelineStage,
+		const GraphicsPipelineCreateInfo& pipelineCreate) const
+{
+	return materialPipelineContainer_->AddMaterial(pipelineStage, pipelineCreate);
 }
 
 bool VkRenderer::StartRenderPass(RenderStage& renderStage)

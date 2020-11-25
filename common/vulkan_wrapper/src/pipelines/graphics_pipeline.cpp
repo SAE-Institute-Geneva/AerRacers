@@ -1,13 +1,50 @@
 #include "vk/pipelines/graphics_pipeline.h"
 
+#include <utility>
+
+#include "utilities/json_utility.h"
 #include "vk/graphics.h"
 
 namespace neko::vk
 {
-void GraphicsPipeline::Init(
-        const Stage pipelineStage,
-        const Shader& shader,
-        const std::vector<VertexInput>& vertexInputs,
+GraphicsPipeline::GraphicsPipeline(
+		Pipeline::Stage stage,
+		const GraphicsPipelineCreateInfo& createInfo)
+		: stage_(stage),
+		  vertexInputs_(createInfo.vertexInputs),
+		  mode_(createInfo.mode),
+		  depthMode_(createInfo.depth),
+		  topology_(createInfo.topology),
+		  polygonMode_(createInfo.polygonMode),
+		  cullMode_(createInfo.cullMode),
+		  frontFace_(createInfo.frontFace),
+		  pushDescriptors_(createInfo.isPushDescriptor)
+{
+	//Sort the vertex inputs by binding
+	std::sort(vertexInputs_.begin(), vertexInputs_.end());
+	CreateShaderProgram(createInfo.shaderJson);
+	CreateDescriptorLayout();
+	CreateDescriptorPool();
+	CreatePipelineLayout();
+	CreateAttributes();
+
+	switch (mode_)
+	{
+		case Mode::POLYGON:
+			CreatePipeline();
+			break;
+		case Mode::MRT:
+			CreatePipelineMrt();
+			break;
+		default:
+			neko_assert(false, "Invalid pipeline mode")
+	}
+}
+
+GraphicsPipeline::GraphicsPipeline(
+        const Stage stage,
+        const std::string& shaderPath,
+        std::vector<VertexInput> vertexInputs,
         const Mode mode,
         const Depth depthMode,
         const VkPrimitiveTopology topology,
@@ -15,21 +52,21 @@ void GraphicsPipeline::Init(
         const VkCullModeFlags cullMode,
         const VkFrontFace frontFace,
         const bool pushDescriptors)
+        : stage_(stage),
+        vertexInputs_(std::move(vertexInputs)),
+        mode_(mode),
+        depthMode_(depthMode),
+        topology_(topology),
+        polygonMode_(polygonMode),
+        cullMode_(cullMode),
+        frontFace_(frontFace),
+        pushDescriptors_(pushDescriptors)
 {
-    stage_ = pipelineStage;
-    shader_ = shader;
-    vertexInputs_ = vertexInputs;
-    mode_ = mode;
-    depthMode_ = depthMode;
-    topology_ = topology;
-    polygonMode_ = polygonMode;
-    cullMode_ = cullMode;
-    frontFace_ = frontFace;
-    pushDescriptors_ = pushDescriptors;
+	const auto& shaderJson = LoadJson(shaderPath);
 
     //Sort the vertex inputs by binding
     std::sort(vertexInputs_.begin(), vertexInputs_.end());
-    CreateShaderProgram();
+    CreateShaderProgram(shaderJson);
     CreateDescriptorLayout();
     CreateDescriptorPool();
     CreatePipelineLayout();
@@ -44,7 +81,7 @@ void GraphicsPipeline::Init(
             CreatePipelineMrt();
             break;
         default:
-            neko_assert(false, "Invalid pipeline mode");
+            neko_assert(false, "Invalid pipeline mode")
     }
 }
 
@@ -54,7 +91,7 @@ void GraphicsPipeline::Destroy() const
 
 	vkDestroyDescriptorSetLayout(device, descriptorSetLayout_, nullptr);
 	vkDestroyDescriptorPool(device, descriptorPool_, nullptr);
-    for (auto& module : shaderProgram_.modules)
+    for (auto& module : modules_)
     {
 	    vkDestroyShaderModule(device, module, nullptr);
     }
@@ -62,9 +99,21 @@ void GraphicsPipeline::Destroy() const
     vkDestroyPipelineLayout(device, layout_, nullptr);
 }
 
-void GraphicsPipeline::CreateShaderProgram()
+void GraphicsPipeline::CreateShaderProgram(const json& jsonShader)
 {
-    shaderProgram_ = shader_.CreateShaderProgram();
+	modules_ = shader_.LoadFromJson(jsonShader);
+	const auto& stages = shader_.GetStagePaths();
+	for (std::size_t i = 0; i < modules_.size(); ++i)
+	{
+		const auto stageFlag = Shader::GetShaderStage(stages[i]);
+
+		VkPipelineShaderStageCreateInfo pipelineShaderStageCreateInfo = {};
+		pipelineShaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+		pipelineShaderStageCreateInfo.stage = stageFlag;
+		pipelineShaderStageCreateInfo.module = modules_[i];
+		pipelineShaderStageCreateInfo.pName = "main";
+		stages_.emplace_back(pipelineShaderStageCreateInfo);
+	}
     shader_.Init();
 }
 
@@ -232,8 +281,8 @@ void GraphicsPipeline::CreatePipeline()
 
     VkGraphicsPipelineCreateInfo pipelineCreateInfo = {};
     pipelineCreateInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-    pipelineCreateInfo.stageCount = static_cast<std::uint32_t>(shaderProgram_.pipelineStages.size());
-    pipelineCreateInfo.pStages = shaderProgram_.pipelineStages.data();
+    pipelineCreateInfo.stageCount = static_cast<std::uint32_t>(stages_.size());
+    pipelineCreateInfo.pStages = stages_.data();
 
     pipelineCreateInfo.pVertexInputState = &vertexInputStateCreateInfo_;
     pipelineCreateInfo.pInputAssemblyState = &inputAssemblyStateCreateInfo_;
@@ -281,8 +330,8 @@ void GraphicsPipeline::CreatePipelineMrt()
         blendAttachmentStates.emplace_back(blendAttachmentState);
     }
 
-    colorBlendStateCreateInfo_.attachmentCount = static_cast<std::uint32_t>(blendAttachmentStates.size());
-    colorBlendStateCreateInfo_.pAttachments = blendAttachmentStates.data();
+    //colorBlendStateCreateInfo_.attachmentCount = static_cast<std::uint32_t>(blendAttachmentStates.size());
+    //colorBlendStateCreateInfo_.pAttachments = blendAttachmentStates.data();
 
     CreatePipeline();
 }

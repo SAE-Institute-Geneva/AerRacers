@@ -56,16 +56,21 @@ file(GLOB_RECURSE MATERIAL_FILES
         "${PROJECT_SOURCE_DIR}/data/*.mat"
         "${PROJECT_SOURCE_DIR}/data/*.mtl")
 
+file(GLOB_RECURSE AER_FILES
+        "${PROJECT_SOURCE_DIR}/data/*.aermat"
+        "${PROJECT_SOURCE_DIR}/data/*.aershader"
+        )
 
 source_group("Scripts"		    FILES ${SCRIPT_FILES})
 source_group("Data/Font"        FILES ${FONT_FILES})
 source_group("Data/Text"        FILES ${TEXT_FILES})
 source_group("Data/Img"         FILES ${IMG_FILES})
 source_group("Data/Snd"			FILES ${SND_FILES})
-source_group("Shaders"		FILES ${SHADER_FILES})
-source_group("Data/Model" FILES ${MODEL_FILES})
-source_group("Data/Materials" FILES ${MATERIALS_FILES})
-LIST(APPEND DATA_FILES ${IMG_FILES} ${MODEL_FILES} ${SND_FILES} ${TEXT_FILES} ${SHADER_FILES} ${MATERIAL_FILES} ${FONT_FILES})
+source_group("Shaders"		    FILES ${SHADER_FILES})
+source_group("VkShaders"		FILES ${VK_SHADER_FILES})
+source_group("Data/Model"       FILES ${MODEL_FILES})
+source_group("Data/Materials"   FILES ${MATERIALS_FILES})
+LIST(APPEND DATA_FILES ${IMG_FILES} ${MODEL_FILES} ${SND_FILES} ${SHADER_FILES} ${TEXT_FILES} ${FONT_FILES} ${MATERIAL_FILES} ${AER_FILES})
 
 foreach(DATA ${DATA_FILES})
     get_filename_component(FILE_NAME ${DATA} NAME)
@@ -148,4 +153,4 @@ foreach(SHADER ${VK_SHADER_FILES})
     list(APPEND SHADER_BINARY_FILES ${SHADER_OUTPUT})
 endforeach(SHADER)
 
-add_custom_target(ShaderTarget DEPENDS ${SHADER_BINARY_FILES} ${shader_files})  
+add_custom_target(ShaderTarget DEPENDS ${SHADER_BINARY_FILES} ${shader_files})   

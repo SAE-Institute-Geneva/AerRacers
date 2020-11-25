@@ -8,6 +8,7 @@
 #include "vk/buffers/storage_handle.h"
 #include "vk/buffers/uniform_handle.h"
 #include "vk/descriptors/descriptor_set.h"
+#include "vk/material/material.h"
 #include "vk/pipelines/pipeline.h"
 #include "vk/shaders/shader.h"
 
@@ -36,7 +37,7 @@ public:
     template <typename T>
     static T* AsPtr(const std::unique_ptr<T>& obj) { return obj.get(); }
 
-    //void PushDescriptorData(const Material::PushDataContainer& dataContainer);
+    void PushDescriptorData(const Material::PushDataContainer& dataContainer);
 
     template <typename T>
     void Push(const XXH64_hash_t descriptorHash, const T& descriptor)

@@ -66,16 +66,16 @@ DescriptorHandle& DescriptorHandle::operator=(DescriptorHandle&& other) noexcept
     return *this;
 }
 
-/*void DescriptorHandle::PushDescriptorData(const Material::PushDataContainer& dataContainer)
+void DescriptorHandle::PushDescriptorData(const Material::PushDataContainer& dataContainer)
 {
     for (const auto& data : dataContainer)
     {
         if (data.second.GetType() == MaterialExportData::Type::IMAGE_2D)
-            Push(data.first, data.second.GetImage2D());
-        else
-            Push(data.first, data.second.GetImageCube());
+            Push(data.first, data.second.GetImage2d());
+        //else
+        //    Push(data.first, data.second.GetImageCube());
     }
-}*/
+}
 
 void DescriptorHandle::Push(const XXH64_hash_t descriptorHash, UniformHandle& uniformHandle)
 {

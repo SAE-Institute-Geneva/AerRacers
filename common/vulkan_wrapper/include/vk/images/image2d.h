@@ -29,6 +29,9 @@ public:
 
     void Load();
 
+    void SetFilename(const std::string& filename) { filename_ = filename; }
+    [[nodiscard]] const std::string& GetFilename() const { return filename_; }
+
 private:
     std::string filename_ = {};
 
