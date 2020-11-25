@@ -35,7 +35,7 @@ matrix:
       services:
         - xvfb
       env:
-        - WIN_TRAVIS="true"
+        - TRAVIS_DEACTIVATE_GUI="true"
       addons:
         apt:
           packages:
@@ -61,7 +61,7 @@ matrix:
       dist: focal
       compiler: clang
       env:
-        - WIN_TRAVIS="true"
+        - TRAVIS_DEACTIVATE_GUI="true"
       addons:
         apt:
           packages:
@@ -90,7 +90,7 @@ matrix:
     - name: "Windows MSVC"
       os: windows
       env:
-        - WIN_TRAVIS="true"
+        - TRAVIS_DEACTIVATE_GUI="true"
         - CMAKE_PATH="/c/Program Files/CMake/bin"
         - MSBUILD_PATH="C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin"
       before_install:
