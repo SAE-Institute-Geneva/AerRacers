@@ -1,3 +1,4 @@
+#pragma once
 /* ----------------------------------------------------
  MIT License
 
@@ -28,10 +29,12 @@
 
 #include <engine/component.h>
 
+namespace neko {
+class Transform3dManager;
+}
+
 namespace neko::physics
 {
-    class Transform3dManager;
-
     struct PhysicsMaterial {
         float dynamicFriction = 0.6f;
         float staticFriction = 0.6f;
@@ -44,24 +47,41 @@ namespace neko::physics
         ~Collider() = default;
         bool isTrigger = false;
         PhysicsMaterial material = PhysicsMaterial();
-        Vec3f center = Vec3f::zero;
+        Vec3f offset = Vec3f::zero;
+    };
+
+    struct SphereCollider : public Collider
+    {
+        float radius = 1.0f;
+    };
+
+    struct BoxCollider : public Collider
+    {
+    public:
         Vec3f size = Vec3f::one;
     };
 
-    class ColliderManager :
-        public ComponentManager<Collider, EntityMask(ComponentType::COLLIDER)>,
+    class BoxColliderManager :
+        public ComponentManager<BoxCollider, EntityMask(ComponentType::BOX_COLLIDER)>,
         public SystemInterface
     {
     public:
-        explicit ColliderManager(
-            EntityManager& entityManager,
-            Transform3dManager& transformManager) :
-            ComponentManager(entityManager),
-            transformManager_(transformManager)
-        {}
+        explicit BoxColliderManager(
+            EntityManager& entityManager);
 
-        void Update(seconds dt) override;
+        void FixedUpdate(seconds dt);
     protected:
-        Transform3dManager& transformManager_;
+    };
+
+    class CircleColliderManager :
+        public ComponentManager<SphereCollider, EntityMask(ComponentType::SPHERE_COLLIDER)>,
+        public SystemInterface
+    {
+    public:
+        explicit CircleColliderManager(
+            EntityManager& entityManager);
+
+        void FixedUpdate(seconds dt);
+    protected:
     };
 }

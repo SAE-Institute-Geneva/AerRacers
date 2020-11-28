@@ -35,6 +35,7 @@
 #include "physics_engine.h"
 #include "engine/engine.h"
 #include "engine/system.h"
+#include "engine/transform.h"
 #include "gl/gles3_window.h"
 #include "gl/graphics.h"
 #include "gl/shader.h"
@@ -42,39 +43,42 @@
 
 class TestPhysX : public neko::SystemInterface, neko::RenderCommandInterface{
 public :
-    TestPhysX(neko::aer::AerEngine& engine) : engine_(engine) { }
+    TestPhysX(neko::aer::AerEngine& engine, neko::EntityManager& entityManager,  neko::Transform3dManager& transform3dManager)
+        : engine_(engine),
+          entityManager_(entityManager),
+        transform3dManager_(transform3dManager),
+          physicsEngine_(entityManager, transform3dManager) { }
 
 void InitActors()
 {
     //Plane
-    physx::PxMaterial* material = physicsEngine_.mPhysics_->createMaterial(0.5f, 0.5f, 0.1f);
-    if (!material)
-        std::cerr << "createMaterial failed!";
-    physx::PxReal d = -3.0f;
-    physx::PxTransform pose = physx::PxTransform(physx::PxVec3(0.0f, d, -5.0f), physx::PxQuat(physx::PxHalfPi, physx::PxVec3(0.0f, 0.0f, 1.0f)));
-    plane = physicsEngine_.mPhysics_->createRigidStatic(pose);
-    if (!plane)
-        std::cerr << "create plane failed!";
-    shape = physicsEngine_.mPhysics_->createShape(physx::PxPlaneGeometry(), *material);
-    plane->attachShape(*shape);
-    if (!shape)
-        std::cerr << "create shape failed!";
-    physicsEngine_.scene_->addActor(*plane);
-    //Cube
-    physx::PxReal density = 1.0f;
-    physx::PxTransform transform = physx::PxTransform(physx::PxVec3(0.0f, 5.0f, -5.0f));
-    physx::PxVec3 dimensions(1.0f, 1.0f, 1.0f);
-    physx::PxBoxGeometry geometry(dimensions);
-
-   actor = PxCreateDynamic(
-       *physicsEngine_.mPhysics_,
-       transform,
-       geometry,
-       *material,
-       density);
-    if (!actor)
-        std::cerr << "create actor failed!";
-    physicsEngine_.scene_->addActor(*actor);
+    {
+        neko::Entity entity = entityManager_.CreateEntity();
+        transform3dManager_.AddComponent(entity);
+        transform3dManager_.SetPosition(entity, planePosition_);
+        neko::physics::px::BoxPhysicsShape boxPhysicsShape;
+        boxPhysicsShape.size = neko::Vec3f::one/2.0f;
+        boxPhysicsShape.material = neko::physics::PhysicsMaterial{ 0.5f, 0.5f, 0.5f };
+        boxPhysicsShape.isTrigger = true;
+        physicsEngine_.AddBoxPhysicsShape(entity, boxPhysicsShape);
+        neko::physics::px::RigidStatic rigidStatic;
+        physicsEngine_.AddRigidStatic(entity, rigidStatic);
+    }
+    {
+        neko::Entity entity = entityManager_.CreateEntity();
+        transform3dManager_.AddComponent(entity);
+        transform3dManager_.SetPosition(entity, cubePosition_);
+        neko::physics::px::BoxPhysicsShape boxPhysicsShape;
+        boxPhysicsShape.size = neko::Vec3f::one/2.0f;
+        boxPhysicsShape.material = neko::physics::PhysicsMaterial{ 0.5f, 0.5f, 0.5f };
+        boxPhysicsShape.isTrigger = true;
+        physicsEngine_.AddBoxPhysicsShape(entity, boxPhysicsShape);
+        neko::physics::px::RigidDynamic rigidDynamic;
+        rigidDynamic.mass = 1.0f;
+        rigidDynamic.useGravity = true;
+        rigidDynamic.freezeRotation = neko::Vec3<bool>(true);
+        physicsEngine_.AddRigidDynamic(entity, rigidDynamic);
+    }
 
 }
 
@@ -107,27 +111,16 @@ void Init() override
 
     void Update(neko::seconds dt) override
     {
-        float mStepSize = dt.count();
-        physicsEngine_.scene_->simulate(mStepSize);
-        physicsEngine_.scene_->fetchResults(true);
+        physicsEngine_.Update(dt.count());
+        for (neko::Entity entity = 0.0f; entity < entityManager_.GetEntitiesSize(); entity++)
         {
-            std::cout << "Result fetch" << std::endl;
-            std::cout << "\tplane" << std::endl;
-            physx::PxTransform np = physx::PxShapeExt::getGlobalPose(*shape, *plane);
-            std::cout << "\t( " << np.p.x << " ; " << np.p.y << " ; " << np.p.z << " )" << std::endl;
-            planePosition_ = neko::Vec3f(np.p);
-            std::cout << "\tcube" << std::endl;
-            physx::PxU32 nShapes = actor->getNbShapes();
-            physx::PxShape** shapes = new physx::PxShape * [nShapes];
-            actor->getShapes(shapes, nShapes);
-
-            while (nShapes--) {
-                physx::PxTransform np = physx::PxShapeExt::getGlobalPose(*shape, *actor);
-                std::cout << "\t( " << np.p.x << " ; " << np.p.y << " ; " << np.p.z << " )" << std::endl;
-                cubePosition_ = neko::Vec3f(np.p);
+            if (!entityManager_.HasComponent(entity, neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)) &&
+                !entityManager_.HasComponent(entity, neko::EntityMask(neko::ComponentType::RIGID_STATIC)))
+            {
+                continue;
             }
-
-            delete[] shapes;
+            neko::Vec3f pos = transform3dManager_.GetPosition(entity);
+            std::cout << pos << std::endl;
         }
         const auto& config = neko::BasicEngine::GetInstance()->config;
         projection_ = neko::Transform3d::Perspective(
@@ -156,23 +149,24 @@ void Init() override
         glBindTexture(GL_TEXTURE_2D, textureWall_);
         shader_.SetMat4("view", view_);
         shader_.SetMat4("projection", projection_);
-
-        for (const auto cubePosition : cubePositions)
+        for (neko::Entity entity = 0.0f; entity < entityManager_.GetEntitiesSize(); entity++)
         {
             neko::Mat4f model = neko::Mat4f::Identity; //model transform matrix
-            model = neko::Transform3d::Translate(model, cubePosition);
-            shader_.SetMat4("model", model);
-            cube_.Draw();
+            if (entityManager_.HasComponent(entity, neko::EntityMask(neko::ComponentType::BOX_COLLIDER)))
+            {
+                model = neko::Transform3d::Translate(model, transform3dManager_.GetPosition(entity));
+                shader_.SetMat4("model", model);
+                cube_.Draw();
+            }
+            // else if (entityManager_.HasComponent(entity, neko::EntityMask(neko::ComponentType::QUAD_COLLIDER) {
+            //    model = neko::Mat4f::Identity; //model transform matrix
+            //    model = neko::Transform3d::Rotate(model, neko::degree_t(90.0f), neko::Vec3f::right);
+            //    model = neko::Transform3d::Translate(model, planePosition_);
+            //    shader_.SetMat4("model", model);
+            //    quad_.Draw();
+            //    
+            //}
         }
-        neko::Mat4f model = neko::Mat4f::Identity; //model transform matrix
-        /*model = neko::Transform3d::Translate(model, cubePosition_);
-        shader_.SetMat4("model", model);
-        cube_.Draw();*/
-        model = neko::Mat4f::Identity; //model transform matrix
-        model = neko::Transform3d::Rotate(model, neko::degree_t(90.0f), neko::Vec3f::right);
-        model = neko::Transform3d::Translate(model, planePosition_);
-        shader_.SetMat4("model", model);
-        quad_.Draw();
     }
 
     void Destroy() override
@@ -190,17 +184,19 @@ private :
     const int kEngineDuration_ = 200;
 
     neko::aer::AerEngine& engine_;
-    neko::physics::px::PxPhysicsEngine physicsEngine_;
-    physx::PxShape* shape;
-    physx::PxRigidActor* plane;
-    physx::PxRigidDynamic* actor;
+    neko::EntityManager& entityManager_;
+    neko::Transform3dManager& transform3dManager_;
+    neko::physics::px::PhysicsEngine physicsEngine_;
+    //physx::PxShape* shape;
+    //physx::PxRigidActor* plane;
+    //physx::PxRigidDynamic* actor;
 
 
-    neko::gl::RenderCuboid cube_{neko::Vec3f::zero, neko::Vec3f::one*2.0f };
-    neko::gl::RenderQuad quad_{neko::Vec3f::zero, neko::Vec2f::one*2.0f };
+    neko::gl::RenderCuboid cube_{neko::Vec3f::zero, neko::Vec3f::one};
+    neko::gl::RenderQuad quad_{neko::Vec3f::zero, neko::Vec2f::one};
     const static size_t cubeNumbers_ = 10;
-    neko::Vec3f cubePosition_ = neko::Vec3f::one;
-    neko::Vec3f planePosition_ = neko::Vec3f::one;
+    neko::Vec3f cubePosition_ = neko::Vec3f(0.0f, 5.0f, -5.0f);
+    neko::Vec3f planePosition_ = neko::Vec3f(0.0f, -3.0f, -5.0f);
     neko::Vec3f cubePositions[cubeNumbers_] =
     {
          neko::Vec3f(0.0f, 0.0f, 0.0f),
@@ -243,7 +239,9 @@ TEST(PhysX, TestPhysX)
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
-    TestPhysX testPhysX(engine);
+    neko::EntityManager entityManager;
+    neko::Transform3dManager transform3dManager = neko::Transform3dManager(entityManager);
+    TestPhysX testPhysX(engine, entityManager, transform3dManager);
 
     engine.RegisterSystem(testPhysX);
     engine.Init();

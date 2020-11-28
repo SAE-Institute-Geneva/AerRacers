@@ -4,66 +4,209 @@
 
 namespace neko::physics::px {
 
-void PxPhysicsEngine::Start()
+
+PhysicsEngine::PhysicsEngine(
+    EntityManager& entityManager,
+    Transform3dManager& transform3d)
+    : entityManager_(entityManager),
+      transform3d_(transform3d),
+      boxPhysicsShapeManager_(entityManager),
+      spherePhysicsShapeManager_(entityManager),
+      rigidDynamicManager_(
+          entityManager,
+          boxPhysicsShapeManager_,
+          spherePhysicsShapeManager_,
+          transform3d_),
+      rigidStaticManager_(
+          entityManager,
+          boxPhysicsShapeManager_,
+          spherePhysicsShapeManager_,
+          transform3d_)
+{}
+
+void PhysicsEngine::Start()
 {
     static physx::PxDefaultErrorCallback gDefaultErrorCallback;
     static physx::PxDefaultAllocator gDefaultAllocatorCallback;
 
-    mFoundation_ = PxCreateFoundation(
+    foundation_ = PxCreateFoundation(
         PX_PHYSICS_VERSION,
         gDefaultAllocatorCallback,
         gDefaultErrorCallback);
-    if (!mFoundation_)
+    if (!foundation_)
         logDebug("PxCreateFoundation failed!");
     
     bool recordMemoryAllocations = true;
     std::string PVD_HOST = "0";
-    mPvd_ = physx::PxCreatePvd(*mFoundation_);
+    pvd_ = physx::PxCreatePvd(*foundation_);
     physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate(PVD_HOST.c_str(), 5425, 10);
-    mPvd_->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
+    pvd_->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
 
 
-    mPhysics_ = PxCreatePhysics(
+    physics_ = PxCreatePhysics(
         PX_PHYSICS_VERSION,
-        *mFoundation_,
+        *foundation_,
         physx::PxTolerancesScale(),
         recordMemoryAllocations);
-    if (!mPhysics_)
+    if (!physics_)
         logDebug("PxCreatePhysics failed!");
 
-    mCooking_ = PxCreateCooking(PX_PHYSICS_VERSION, *mFoundation_, physx::PxCookingParams(physx::PxTolerancesScale()));
-    if (!mCooking_)
+    cooking_ = PxCreateCooking(PX_PHYSICS_VERSION, *foundation_, physx::PxCookingParams(physx::PxTolerancesScale()));
+    if (!cooking_)
         logDebug("PxCreateCooking failed!");
 
-    if (!PxInitExtensions(*mPhysics_, mPvd_))
+    if (!PxInitExtensions(*physics_, pvd_))
         logDebug("PxInitExtensions failed!");
     CreateScene();
 }
 
-void PxPhysicsEngine::CreateScene()
+void PhysicsEngine::CreateScene()
 {
     physx::PxSceneDesc sceneDesc = physx::PxTolerancesScale();
     sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
     physx::PxSimulationFilterShader gDefaultFilterShader = physx::PxDefaultSimulationFilterShader;
     sceneDesc.filterShader = gDefaultFilterShader;
-    mCpuDispatcher_ = physx::PxDefaultCpuDispatcherCreate(1);
-    if (!mCpuDispatcher_)
+    cpuDispatcher_ = physx::PxDefaultCpuDispatcherCreate(1);
+    if (!cpuDispatcher_)
         std::cerr << "PxDefaultCpuDispatcherCreate failed!";
-    sceneDesc.cpuDispatcher = mCpuDispatcher_;
-    scene_ = mPhysics_->createScene(sceneDesc);
+    sceneDesc.cpuDispatcher = cpuDispatcher_;
+    scene_ = physics_->createScene(sceneDesc);
     if (!scene_)
         std::cerr << "createScene failed!";
 }
 
-void PxPhysicsEngine::Update(float dt)
+bool PhysicsEngine::Advance(physx::PxReal dt)
 {
-    scene_->simulate(dt);
-    scene_->fetchResults(true);
+    accumulator_ += dt;
+    if (accumulator_ < stepSize_.count())
+        return false;
+
+    accumulator_ -= stepSize_.count();
+
+    scene_->simulate(stepSize_.count());
+    return true;
 }
 
-void PxPhysicsEngine::Destroy()
+void PhysicsEngine::Update(float dt)
 {
-    mPhysics_->release();
-    mFoundation_->release();
+    if (Advance(dt))
+    {
+        scene_->fetchResults(true);
+        boxPhysicsShapeManager_.FixedUpdate(stepSize_);
+        spherePhysicsShapeManager_.FixedUpdate(stepSize_);
+        rigidDynamicManager_.FixedUpdate(stepSize_);
+        rigidStaticManager_.FixedUpdate(stepSize_);
+    }
+}
+
+void PhysicsEngine::Destroy()
+{
+    physics_->release();
+    foundation_->release();
+}
+
+physx::PxPhysics* PhysicsEngine::GetPhysx()
+{
+    return physics_;
+}
+
+physx::PxScene* PhysicsEngine::GetScene()
+{
+    return scene_;
+}
+
+void PhysicsEngine::AddRigidStatic(Entity entity, RigidStatic& rigidStatic)
+{
+    rigidStaticManager_.AddComponent(entity);
+    Vec3f position = transform3d_.GetPosition(entity);
+    EulerAngles euler = transform3d_.GetAngles(entity);
+    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::BOX_COLLIDER))) {
+        BoxPhysicsShape boxPhysicsShape = boxPhysicsShapeManager_.GetComponent(entity);
+        rigidStatic.Init(physics_, boxPhysicsShape, position, euler);
+    } else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::SPHERE_COLLIDER))) {
+        SpherePhysicsShape spherePhysicsShape = spherePhysicsShapeManager_.GetComponent(entity);
+        rigidStatic.Init(physics_, spherePhysicsShape, position, euler);
+    } else {
+        neko_assert(false, "No shape link to the rigidBody")
+    }
+    scene_->addActor(*rigidStatic.GetPxRigidStatic());
+    rigidStaticManager_.SetComponent(entity, rigidStatic);
+}
+
+const RigidStatic& PhysicsEngine::GetRigidStatic(Entity entity) const {
+    return     rigidStaticManager_.GetComponent(entity);
+}
+
+void PhysicsEngine::SetRigidStatic(Entity entity, const RigidStatic& body)
+{
+    rigidStaticManager_.SetComponent(entity, body);
+}
+
+void PhysicsEngine::AddRigidDynamic(Entity entity, RigidDynamic& rigidDynamic)
+{
+    rigidDynamicManager_.AddComponent(entity);
+    Vec3f position = transform3d_.GetPosition(entity);
+    EulerAngles euler = transform3d_.GetAngles(entity);
+    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::BOX_COLLIDER))) {
+        BoxPhysicsShape boxPhysicsShape = boxPhysicsShapeManager_.GetComponent(entity);
+        rigidDynamic.Init(physics_, boxPhysicsShape, position, euler);
+    }
+    else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::SPHERE_COLLIDER))) {
+        SpherePhysicsShape spherePhysicsShape = spherePhysicsShapeManager_.GetComponent(entity);
+        rigidDynamic.Init(physics_, spherePhysicsShape, position, euler);
+    }
+    else {
+        neko_assert(false, "No shape link to the rigidBody")
+    }
+    scene_->addActor(*rigidDynamic.GetPxRigidDynamic());
+    rigidDynamicManager_.SetComponent(entity, rigidDynamic);
+    
+}
+
+const RigidDynamic& PhysicsEngine::GetRigidDynamic(Entity entity) const {
+    return     rigidDynamicManager_.GetComponent(entity);
+}
+
+void PhysicsEngine::SetRigidDynamic(Entity entity, const RigidDynamic& body)
+{
+    rigidDynamicManager_.SetComponent(entity, body);
+}
+
+void PhysicsEngine::AddBoxPhysicsShape(Entity entity, BoxPhysicsShape& boxPhysicsShape)
+{
+    boxPhysicsShapeManager_.AddComponent(entity);
+    boxPhysicsShape.Init(physics_);
+    boxPhysicsShapeManager_.SetComponent(entity, boxPhysicsShape);
+}
+
+const BoxPhysicsShape& PhysicsEngine::GetBoxPhysicsShape(Entity entity) const {
+    return boxPhysicsShapeManager_.GetComponent(entity);
+}
+
+void PhysicsEngine::SetBoxPhysicsShape(
+    Entity entity,
+    const BoxPhysicsShape& body)
+{
+    boxPhysicsShapeManager_.SetComponent(entity, body);
+}
+
+void PhysicsEngine::AddSpherePhysicsShape(Entity entity, SpherePhysicsShape& spherePhysicsShape)
+{
+    spherePhysicsShapeManager_.AddComponent(entity);
+    spherePhysicsShape.Init(physics_);
+    spherePhysicsShapeManager_.SetComponent(entity, spherePhysicsShape);
+}
+
+const SpherePhysicsShape& PhysicsEngine::GetSpherePhysicsShape(
+    Entity entity) const {
+    return spherePhysicsShapeManager_.GetComponent(entity);
+}
+
+void PhysicsEngine::SetSpherePhysicsShape(
+    Entity entity,
+    const SpherePhysicsShape& body)
+{
+    spherePhysicsShapeManager_.SetComponent(entity, body);
+    
 }
 }

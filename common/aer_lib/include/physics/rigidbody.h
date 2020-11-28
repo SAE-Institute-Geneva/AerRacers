@@ -1,3 +1,4 @@
+#pragma once
 /* ----------------------------------------------------
  MIT License
 
@@ -28,15 +29,18 @@
 
 #include <engine/component.h>
 
+namespace neko {
+class Transform3dManager;
+}
+
 namespace neko::physics
 {
-    class Transform3dManager;
     class ColliderManager;
 
-    struct RigidBody
+    struct RigidDynamic
     {
-        RigidBody() = default;
-        ~RigidBody() = default;
+        RigidDynamic() = default;
+        ~RigidDynamic() = default;
         Vec3f velocity = Vec3f::zero;
         Vec3f angularVelocity = Vec3f::zero;
         float drag = 0.0f;
@@ -48,8 +52,15 @@ namespace neko::physics
         Vec3<bool> freezeRotation = Vec3<bool>(true);
     };
 
+
+    struct RigidStatic
+    {
+        RigidStatic() = default;
+        ~RigidStatic() = default;
+    };
+
     class RigidBodyManager :
-        public ComponentManager<RigidBody, EntityMask(ComponentType::RIGIDBODY)>,
+        public ComponentManager<RigidDynamic, EntityMask(ComponentType::RIGID_DYNAMIC)>,
         public SystemInterface
     {
     public:

@@ -1,3 +1,4 @@
+#pragma once
 /* ----------------------------------------------------
  MIT License
 
@@ -25,14 +26,59 @@
  Co-Author :
  Date : 22.11.2020
 ---------------------------------------------------------- */
+
 #include "PxPhysicsAPI.h"
+#include "physics/collider.h"
 
 namespace neko::physics::px {
-class Shape {
+class PhysicsEngine;
+struct PhysicsShape{
 public:
-    Shape();
-private:
-    physx::PxShape* shape_;
+    PhysicsShape() = default;
+    virtual ~PhysicsShape() = default;
+    virtual void Init(physx::PxPhysics* physics) = 0;
+    physx::PxShape* GetPxShape() const { return shape_; }
+    physx::PxMaterial* GetPxMaterial() const { return material_; }
+protected:
+    physx::PxMaterial* material_ = nullptr;
+
+    physx::PxShape* shape_ = nullptr;
 };
 
+struct SpherePhysicsShape : public physics::SphereCollider, public PhysicsShape {
+public:
+    SpherePhysicsShape() = default;
+    ~SpherePhysicsShape() = default;
+    void Init(physx::PxPhysics* physics) override;
+};
+
+struct BoxPhysicsShape : public physics::BoxCollider, public PhysicsShape {
+public:
+    BoxPhysicsShape() = default;
+    ~BoxPhysicsShape() = default;
+    void Init(physx::PxPhysics* physics) override;
+};
+
+class BoxPhysicsShapeManager :
+    public ComponentManager<BoxPhysicsShape, EntityMask(ComponentType::BOX_COLLIDER)>
+{
+public:
+    explicit BoxPhysicsShapeManager(
+        EntityManager& entityManager);
+
+    void FixedUpdate(seconds dt);
+protected:
+};
+
+class SpherePhysicsShapeManager :
+    public ComponentManager<SpherePhysicsShape, EntityMask(ComponentType::SPHERE_COLLIDER)>
+{
+public:
+    explicit SpherePhysicsShapeManager(
+        EntityManager& entityManager);
+
+    void FixedUpdate(seconds dt);
+protected:
+};
 }
+

@@ -1,3 +1,4 @@
+#pragma once
 /* ----------------------------------------------------
  MIT License
 
@@ -28,6 +29,8 @@
 
 #include <iostream>
 
+
+#include "engine/entity.h"
 #include "engine/system.h"
 
 namespace neko::physics {
@@ -47,5 +50,53 @@ namespace neko::physics {
     private:
 
     };
+    //enum class BodyType
+    //{
+    //    DYNAMIC,
+    //    STATIC
+    //};
+    //struct Body
+    //{
+    //    Vec2f position = Vec2f::zero;
+    //    Vec2f velocity = Vec2f::zero;
+    //    degree_t angularVelocity = degree_t(0.0f);
+    //    degree_t rotation = degree_t(0.0f);
+    //    BodyType bodyType = BodyType::DYNAMIC;
+    //};
+
+    //struct Box
+    //{
+    //    Vec2f extends = Vec2f::one;
+    //    bool isTrigger = false;
+    //};
+
+    //class OnCollisionInterface
+    //{
+    //public:
+    //    virtual void OnCollision(Entity entity1, Entity entity2) = 0;
+    //};
+
+    //class PhysicsManager
+    //{
+    //public:
+    //    explicit PhysicsManager(EntityManager& entityManager);
+    //    PhysicsManager(const PhysicsManager& physicsManager) = default;
+    //    void FixedUpdate(seconds dt);
+    //    [[nodiscard]] const Body& GetBody(Entity entity) const;
+    //    void SetBody(Entity entity, const Body& body);
+    //    void AddBody(Entity entity);
+
+    //    void AddBox(Entity entity);
+    //    void SetBox(Entity entity, const Box& box);
+    //    [[nodiscard]] const Box& GetBox(Entity entity) const;
+
+    //    void RegisterCollisionListener(OnCollisionInterface& collisionInterface);
+    //private:
+    //    std::reference_wrapper<EntityManager> entityManager_;
+    //    BodyManager bodyManager_;
+    //    BoxManager boxManager_;
+    //    Action<Entity, Entity> onCollisionAction_;
+    //};
 
 }
+

@@ -1,3 +1,4 @@
+#pragma once
 /* ----------------------------------------------------
  MIT License
 
@@ -26,12 +27,65 @@
  Date : 22.11.2020
 ---------------------------------------------------------- */
 #include "PxPhysicsAPI.h"
+#include "shape.h"
+#include "physics/rigidbody.h"
+#include "mathematics/transform.h"
 
 namespace neko::physics::px {
-class RigidBody {
+class PhysicsEngine;
+struct RigidStatic : public physics::RigidStatic {
 public:
-	RigidBody();
+    void Init(physx::PxPhysics* physics, const PhysicsShape& shape, const Vec3f& position, const  EulerAngles& eulerAngle);
+    physx::PxRigidStatic* GetPxRigidStatic() const;
 private:
+    physx::PxRigidStatic* rigidActor_ = nullptr;
+
 };
 
+struct RigidDynamic : public physics::RigidDynamic {
+public:
+    void Init(physx::PxPhysics* physics, const PhysicsShape& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
+    physx::PxRigidDynamic* GetPxRigidDynamic() const;
+private:
+    physx::PxRigidDynamic* rigidActor_ = nullptr;
+
+};
+
+class RigidStaticManager :
+    public ComponentManager<RigidStatic, EntityMask(ComponentType::RIGID_STATIC)>
+{
+public:
+
+    explicit RigidStaticManager(
+        EntityManager& entityManager,
+        BoxPhysicsShapeManager& boxShapeManager,
+        SpherePhysicsShapeManager& circlePhysicsShapeManager,
+        Transform3dManager& transform3dManager);
+
+    void FixedUpdate(seconds dt);
+protected:
+    BoxPhysicsShapeManager& boxShapeManager_;
+    SpherePhysicsShapeManager& spherePhysicsShapeManager_;
+    Transform3dManager& transform3dManager_;
+};
+
+class RigidDynamicManager :
+    public ComponentManager<RigidDynamic, EntityMask(ComponentType::RIGID_DYNAMIC)>
+{
+public:
+
+    explicit RigidDynamicManager(
+        EntityManager& entityManager,
+        BoxPhysicsShapeManager& boxShapeManager,
+        SpherePhysicsShapeManager& circlePhysicsShapeManager,
+        Transform3dManager& transform3dManager);
+
+    void FixedUpdate(seconds dt);
+    void AddForceAtPosition(Vec3f force, Vec3f position);
+    void AddForce(Vec3f force);
+protected:
+    BoxPhysicsShapeManager& boxShapeManager_;
+    SpherePhysicsShapeManager& spherePhysicsShapeManager_;
+    Transform3dManager& transform3dManager_;
+};
 }

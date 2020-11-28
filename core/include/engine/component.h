@@ -49,11 +49,10 @@ enum class ComponentType : EntityMask
     CIRCLE_COLLIDER2D = 1u << 10u,
     POLYGON_COLLIDER2D = 1u << 11u,
     CONVEX_SHAPE2D = 1u << 12u,
-    RIGIDBODY = 1u << 13u,
-    BOX_COLLIDER = 1u << 14u,
-    CIRCLE_COLLIDER = 1u << 15u,
-    POLYGON_COLLIDER = 1u << 16u,
-    COLLIDER = BOX_COLLIDER | CIRCLE_COLLIDER | POLYGON_COLLIDER,
+    RIGID_STATIC = 1u << 13u,
+    RIGID_DYNAMIC = 1u << 14u,
+    BOX_COLLIDER = 1u << 15u,
+    SPHERE_COLLIDER = 1u << 16u,
     PREFAB = 1u << 17u,
     OTHER_TYPE = 1u << 18u
 };
