@@ -1,6 +1,8 @@
 #include <physics_engine.h>
 #include <engine\log.h>
 
+#include "engine/engine.h"
+
 
 namespace neko::physics::px {
 
@@ -37,11 +39,18 @@ void PhysicsEngine::Start()
         logDebug("PxCreateFoundation failed!");
     
     bool recordMemoryAllocations = true;
-    std::string PVD_HOST = "0";
+    std::string PVD_HOST = "localhost";
     pvd_ = physx::PxCreatePvd(*foundation_);
-    physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate(PVD_HOST.c_str(), 5425, 10);
-    pvd_->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
+    //const auto& config = neko::BasicEngine::GetInstance()->config;
+    //const char* filename = "C:\\PvdCapture.pxd2";  // filename where the stream will be written to
+    //transport = physx::PxDefaultPvdFileTransportCreate(filename);
+    transport = physx::PxDefaultPvdSocketTransportCreate(PVD_HOST.c_str(), 5425, 10);
+    bool connec = pvd_->connect(*transport, physx::PxPvdInstrumentationFlag::ePROFILE);
+    if (connec)
+    {
+        std::cout << "Connected to PhysX Visual Debugger!\n";
 
+    }
 
     physics_ = PxCreatePhysics(
         PX_PHYSICS_VERSION,
@@ -73,6 +82,7 @@ void PhysicsEngine::CreateScene()
     scene_ = physics_->createScene(sceneDesc);
     if (!scene_)
         std::cerr << "createScene failed!";
+    scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 }
 
 bool PhysicsEngine::Advance(physx::PxReal dt)
@@ -102,6 +112,10 @@ void PhysicsEngine::Update(float dt)
 void PhysicsEngine::Destroy()
 {
     physics_->release();
+    cooking_->release();
+    PxCloseExtensions();
+    pvd_->release();
+    transport->release();
     foundation_->release();
 }
 

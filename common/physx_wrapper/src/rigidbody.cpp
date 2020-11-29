@@ -29,6 +29,12 @@ void RigidDynamic::Init(physx::PxPhysics* physics, const PhysicsShape& shape, co
     rigidActor_->attachShape(*shape.GetPxShape());
     if (!shape.GetPxShape())
         std::cerr << "create shape failed!";
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, false);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, false);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, false);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X, false);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, false);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, false);
 }
 
 physx::PxRigidDynamic* RigidDynamic::GetPxRigidDynamic() const
@@ -87,13 +93,14 @@ void RigidDynamicManager::FixedUpdate(seconds dt)
     
 }
 
-void RigidDynamicManager::AddForceAtPosition(Vec3f force, Vec3f position)
+void RigidDynamic::AddForceAtPosition(const Vec3f& force, const Vec3f& position) const
 {
-    
+    physx::PxRigidBodyExt::addForceAtLocalPos(*rigidActor_, ConvertToPxVec(force), ConvertToPxVec(position));
 }
 
-void RigidDynamicManager::AddForce(Vec3f force)
+void RigidDynamic::AddForce(const Vec3f& force)
 {
-    
+    rigidActor_->addForce(ConvertToPxVec(force));
+
 }
 }

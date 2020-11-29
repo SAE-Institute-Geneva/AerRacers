@@ -53,31 +53,32 @@ void InitActors()
 {
     //Plane
     {
-        neko::Entity entity = entityManager_.CreateEntity();
-        transform3dManager_.AddComponent(entity);
-        transform3dManager_.SetPosition(entity, planePosition_);
+        planeEntity_ = entityManager_.CreateEntity();
+        transform3dManager_.AddComponent(planeEntity_);
+        transform3dManager_.SetPosition(planeEntity_, planePosition_);
         neko::physics::px::BoxPhysicsShape boxPhysicsShape;
         boxPhysicsShape.size = neko::Vec3f::one/2.0f;
-        boxPhysicsShape.material = neko::physics::PhysicsMaterial{ 0.5f, 0.5f, 0.5f };
+        boxPhysicsShape.material = neko::physics::PhysicsMaterial{ 0.5f, 0.5f, 0.1f };
         boxPhysicsShape.isTrigger = true;
-        physicsEngine_.AddBoxPhysicsShape(entity, boxPhysicsShape);
+        physicsEngine_.AddBoxPhysicsShape(planeEntity_, boxPhysicsShape);
         neko::physics::px::RigidStatic rigidStatic;
-        physicsEngine_.AddRigidStatic(entity, rigidStatic);
+        physicsEngine_.AddRigidStatic(planeEntity_, rigidStatic);
     }
-    {
-        neko::Entity entity = entityManager_.CreateEntity();
-        transform3dManager_.AddComponent(entity);
-        transform3dManager_.SetPosition(entity, cubePosition_);
+    //Cube
+    { 
+        cubeEntity_ = entityManager_.CreateEntity();
+        transform3dManager_.AddComponent(cubeEntity_);
+        transform3dManager_.SetPosition(cubeEntity_, cubePosition_);
         neko::physics::px::BoxPhysicsShape boxPhysicsShape;
         boxPhysicsShape.size = neko::Vec3f::one/2.0f;
-        boxPhysicsShape.material = neko::physics::PhysicsMaterial{ 0.5f, 0.5f, 0.5f };
+        boxPhysicsShape.material = neko::physics::PhysicsMaterial{ 0.5f, 0.5f, 0.1f };
         boxPhysicsShape.isTrigger = true;
-        physicsEngine_.AddBoxPhysicsShape(entity, boxPhysicsShape);
+        physicsEngine_.AddBoxPhysicsShape(cubeEntity_, boxPhysicsShape);
         neko::physics::px::RigidDynamic rigidDynamic;
         rigidDynamic.mass = 1.0f;
         rigidDynamic.useGravity = true;
         rigidDynamic.freezeRotation = neko::Vec3<bool>(true);
-        physicsEngine_.AddRigidDynamic(entity, rigidDynamic);
+        physicsEngine_.AddRigidDynamic(cubeEntity_, rigidDynamic);
     }
 
 }
@@ -111,6 +112,17 @@ void Init() override
 
     void Update(neko::seconds dt) override
     {
+        auto& inputLocator = neko::sdl::InputLocator::get();
+        if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::SPACE) == neko::sdl::ButtonState::DOWN) {
+            neko::physics::px::RigidDynamic cubeRigid = physicsEngine_.GetRigidDynamic(cubeEntity_);
+            cubeRigid.AddForce(neko::Vec3f::up * 200.0f);
+        }
+        if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::KEY_LEFT_CTRL) == neko::sdl::ButtonState::DOWN) {
+            neko::physics::px::RigidDynamic cubeRigid = physicsEngine_.GetRigidDynamic(cubeEntity_);
+            cubeRigid.AddForceAtPosition(neko::Vec3f::up * 200.0f, neko::Vec3f::right);
+        }
+
+
         physicsEngine_.Update(dt.count());
         for (neko::Entity entity = 0.0f; entity < entityManager_.GetEntitiesSize(); entity++)
         {
@@ -130,7 +142,7 @@ void Init() override
             100.0f);
         textureManager_.Update(dt);
         neko::RendererLocator::get().Render(this);
-        updateCount_++;
+        //updateCount_++;
         if (updateCount_ == kEngineDuration_) {
             engine_.Stop();
         }
@@ -217,6 +229,9 @@ private :
      neko::Mat4f view_{ neko::Mat4f::Identity };
      neko::Mat4f projection_{ neko::Mat4f::Identity };
      neko::seconds timeSinceInit_{ 0 };
+
+     neko::Entity cubeEntity_;
+     neko::Entity planeEntity_;
 
 };
 

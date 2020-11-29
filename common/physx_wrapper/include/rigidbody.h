@@ -45,6 +45,8 @@ private:
 struct RigidDynamic : public physics::RigidDynamic {
 public:
     void Init(physx::PxPhysics* physics, const PhysicsShape& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
+    void AddForceAtPosition(const Vec3f& force, const Vec3f& position) const;
+    void AddForce(const Vec3f& force);
     physx::PxRigidDynamic* GetPxRigidDynamic() const;
 private:
     physx::PxRigidDynamic* rigidActor_ = nullptr;
@@ -81,8 +83,6 @@ public:
         Transform3dManager& transform3dManager);
 
     void FixedUpdate(seconds dt);
-    void AddForceAtPosition(Vec3f force, Vec3f position);
-    void AddForce(Vec3f force);
 protected:
     BoxPhysicsShapeManager& boxShapeManager_;
     SpherePhysicsShapeManager& spherePhysicsShapeManager_;

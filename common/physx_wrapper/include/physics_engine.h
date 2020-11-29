@@ -138,6 +138,7 @@ private:
     physx::PxFoundation* foundation_ = nullptr;
     physx::PxPhysics* physics_ = nullptr;
     physx::PxPvd* pvd_ = nullptr;
+    physx::PxPvdTransport* transport = nullptr;
     physx::PxCooking* cooking_ = nullptr;
     physx::PxDefaultCpuDispatcher* cpuDispatcher_ = nullptr;
     physx::PxScene* scene_ = nullptr;
