@@ -137,26 +137,26 @@ struct Quaternion
 	x degrees around the x axis, and y degrees around the y axis; 
 	applied in that order
 	*/
-	static Quaternion FromEuler(const EulerAngles& angle)
-	{
-		const auto cy = Cos(angle.x * 0.5f);
-		const auto sy = Sin(angle.x * 0.5f);
-		const auto cp = Cos(angle.y * 0.5f);
-		const auto sp = Sin(angle.y * 0.5f);
-		const auto cr = Cos(angle.z * 0.5f);
-		const auto sr = Sin(angle.z * 0.5f);
+    static Quaternion FromEuler(const EulerAngles& angle)
+    {
+        const auto cy = Cos(angle.x * 0.5f);
+        const auto sy = Sin(angle.x * 0.5f);
+        const auto cp = Cos(angle.y * 0.5f);
+        const auto sp = Sin(angle.y * 0.5f);
+        const auto cr = Cos(angle.z * 0.5f);
+        const auto sr = Sin(angle.z * 0.5f);
 
-		return Quaternion(
-			cy * cp * cr + sy * sp * sr,
-			cy * cp * sr - sy * sp * cr,
-			sy * cp * sr + cy * sp * cr,
-			sy * cp * cr - cy * sp * sr
-		);
-	}
+        return Quaternion(
+            cy * cp * cr + sy * sp * sr,
+            cy * cp * sr - sy * sp * cr,
+            sy * cp * sr + cy * sp * cr,
+            sy * cp * cr - cy * sp * sr
+        );
+    }
 
-	static EulerAngles ToEulerAngles(const Quaternion& q) {
+	static EulerAngles ToEulerAngles(Quaternion& q) {
 		EulerAngles angles;
-
+		q.x = -q.x;
 		// roll (x-axis rotation)
 		double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
 		double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);

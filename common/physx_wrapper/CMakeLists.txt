@@ -11,8 +11,6 @@
 		PhysXFoundation
 		# SnippetUtils
 	)
-
-	set(CMAKE_CONFIGURATION_TYPES CACHE STRING "debug") #enum configTypes {debug checked profile release}
 	set(TARGET_BUILD_PLATFORM "windows") # has to match the TARGET_BUILD_PLATFORM in $ENV{PHYSX_PATH}/physix/buildtools/cmake_generate_projects.py
 	set(PX_BUILDSNIPPETS OFF CACHE BOOL "Generate the snippets")
 	set(PX_BUILDPUBLICSAMPLES OFF CACHE BOOL "Generate the samples projects")
@@ -33,5 +31,18 @@ add_subdirectory(${PHYSX_ROOT_DIR}/compiler/public ${PHYSX_DIR})
 
 add_library(physx_wrapper STATIC ${physx_wrapper_src})
 target_link_libraries(physx_wrapper PUBLIC ${PHYSX_WRAPPER_LIBS} aer_lib Neko_Core)
+SET(PHYSX_COMPILE_DEFS
+	# Common to all configurations
+
+	${PHYSX_WINDOWS_COMPILE_DEFS};${PHYSX_LIBTYPE_DEFS};${PHYSXGPU_LIBTYPE_DEFS}
+
+	$<$<CONFIG:Debug>:${PHYSX_WINDOWS_DEBUG_COMPILE_DEFS};>
+	$<$<CONFIG:Checked>:${PHYSX_WINDOWS_CHECKED_COMPILE_DEFS};>
+	$<$<CONFIG:Profile>:${PHYSX_WINDOWS_PROFILE_COMPILE_DEFS};>
+	$<$<CONFIG:Release>:${PHYSX_WINDOWS_RELEASE_COMPILE_DEFS};>
+)
+TARGET_COMPILE_DEFINITIONS(physx_wrapper
+	PRIVATE ${PHYSX_COMPILE_DEFS}
+)
 target_include_directories(physx_wrapper PUBLIC "include/")
 set_target_properties (physx_wrapper PROPERTIES FOLDER Neko/Common)

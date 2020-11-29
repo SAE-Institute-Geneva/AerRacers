@@ -70,7 +70,9 @@
 #define NOMB
 #define NOMEMMGR
 #define NOMETAFILE
-//#define NOMINMAX
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
 #define NOOPENFILE
 #define NOSCROLL
 #define NOSERVICE
@@ -84,7 +86,9 @@
 #define NOPROFILER
 #define NODEFERWINDOWPOS
 #define NOMCX
-//#define WIN32_LEAN_AND_MEAN
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 // We need a slightly wider API surface for e.g. MultiByteToWideChar
 #if !PX_UWP
 #define NOUSER

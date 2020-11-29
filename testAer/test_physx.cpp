@@ -131,8 +131,8 @@ void Init() override
             {
                 continue;
             }
-            neko::Vec3f pos = transform3dManager_.GetPosition(entity);
-            std::cout << pos << std::endl;
+            //neko::Vec3f pos = transform3dManager_.GetPosition(entity);
+            //std::cout << pos << std::endl;
         }
         const auto& config = neko::BasicEngine::GetInstance()->config;
         projection_ = neko::Transform3d::Perspective(
@@ -166,6 +166,7 @@ void Init() override
             neko::Mat4f model = neko::Mat4f::Identity; //model transform matrix
             if (entityManager_.HasComponent(entity, neko::EntityMask(neko::ComponentType::BOX_COLLIDER)))
             {
+                model = neko::Transform3d::Rotate(model, transform3dManager_.GetAngles(entity));
                 model = neko::Transform3d::Translate(model, transform3dManager_.GetPosition(entity));
                 shader_.SetMat4("model", model);
                 cube_.Draw();

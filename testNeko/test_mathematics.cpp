@@ -104,7 +104,36 @@ TEST(Engine, Quaternion_Inverse)
 
 TEST(Engine, Quaternion_FromEuler)
 {
-    //TODO
+    float delta = 0.1f;
+    neko::Quaternion expectedQuat = neko::Quaternion(0.000f, 0.770f, 0.397f, 0.499f);
+    neko::EulerAngles angle = neko::EulerAngles(neko::radian_t(-1.867f), neko::radian_t(0.877f), neko::radian_t(2.473f));
+    neko::Quaternion quat = neko::Quaternion::FromEuler(angle);
+    std::cout << quat << std::endl;
+    std::cout << abs((quat.x - expectedQuat.x)) << std::endl;
+    std::cout << abs((quat.y - expectedQuat.y)) << std::endl;
+    std::cout << abs((quat.z - expectedQuat.z)) << std::endl;
+    std::cout << abs((quat.w - expectedQuat.w)) << std::endl;
+    //EXPECT_TRUE(
+    //    abs((quat.x - expectedQuat.x)) < delta &&
+    //    abs((quat.y - expectedQuat.y)) < delta &&
+    //    abs((quat.z - expectedQuat.z)) < delta &&
+    //    abs((quat.w - expectedQuat.w)) < delta);
+}
+
+TEST(Engine, Quaternion_ToEuler)
+{
+    float delta = 0.1f;
+    neko::Quaternion quat = neko::Quaternion(0.000f, 0.770f, 0.397f, 0.499f);
+    neko::EulerAngles expectedAngle = neko::EulerAngles(neko::radian_t(-1.867f), neko::radian_t(0.877f), neko::radian_t(2.473f));
+    neko::EulerAngles angles = neko::Quaternion::ToEulerAngles(quat);
+    std::cout << angles << std::endl;
+    std::cout << abs((angles.x).value() - (expectedAngle.x).value()) << std::endl;
+    std::cout << abs((angles.y - expectedAngle.y).value()) << std::endl;
+    std::cout << abs((angles.z - expectedAngle.z).value()) << std::endl;
+    EXPECT_TRUE(
+        abs((angles.x - expectedAngle.x).value()) < delta &&
+        abs((angles.y - expectedAngle.y).value()) < delta &&
+        abs((angles.z - expectedAngle.z).value()) < delta);
 }
 
 TEST(Aabb, Aabb2d_Aabb2d)

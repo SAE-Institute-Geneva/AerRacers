@@ -125,7 +125,7 @@ IF(PX_COPY_EXTERNAL_DLL)
 		FILE(COPY ${PHYSX_SLN_GLUT32_PATH}/x86/glut32.dll DESTINATION ${PX_EXE_OUTPUT_DIRECTORY_CHECKED})		
 	ENDIF()
 ENDIF()
-# for public release we copy the dlls for GPU other platforms so we dont keep duplicates around the repository
+# for public Release we copy the dlls for GPU other platforms so we dont keep duplicates around the repository
 IF(PUBLIC_RELEASE)
 	IF(NOT GPU_DLL_COPIED)
 		SET(GPU_DLL_COPIED 1 CACHE INTERNAL "PhysX GPU dlls copied")
@@ -193,11 +193,11 @@ ELSE()
 	INSTALL(
 		TARGETS ${PHYSXDISTRO_LIBS}
 		EXPORT PhysXSDK
-		DESTINATION $<$<CONFIG:Debug>:${PX_ROOT_LIB_DIR}/Debug>$<$<CONFIG:Release>:${PX_ROOT_LIB_DIR}/Release>$<$<CONFIG:Checked>:${PX_ROOT_LIB_DIR}/Checked>$<$<CONFIG:Profile>:${PX_ROOT_LIB_DIR}/Profile>
+		DESTINATION $<$<CONFIG:Debug>:${PX_ROOT_LIB_DIR}/Debug>$<$<CONFIG:Release>:${PX_ROOT_LIB_DIR}/Release>$<$<CONFIG:Checked>:${PX_ROOT_LIB_DIR}/Checked>$<$<CONFIG:Profile>:${PX_ROOT_LIB_DIR}/Profile>	
 		)
 	
 ENDIF()
 
 IF(PX_GENERATE_STATIC_LIBRARIES)
-	STRING(APPEND HEADER_CONTENT "#endif\n#ifndef DISABLE_CUDA_PHYSX\n#define DISABLE_CUDA_PHYSX\n#endif\n#ifndef PX_PHYSX_STATIC_LIB\n#define PX_PHYSX_STATIC_LIB\n#endif\n#ifndef PX_PHYSX_GPU_STATIC\n#define PX_PHYSX_GPU_STATIC\n")		
+	STRING(APPEND HEADER_CONTENT "#define PX_PHYSX_STATIC_LIB\n")	
 ENDIF()

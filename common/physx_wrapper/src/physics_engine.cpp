@@ -45,18 +45,17 @@ void PhysicsEngine::Start()
     //const char* filename = "C:\\PvdCapture.pxd2";  // filename where the stream will be written to
     //transport = physx::PxDefaultPvdFileTransportCreate(filename);
     transport = physx::PxDefaultPvdSocketTransportCreate(PVD_HOST.c_str(), 5425, 10);
-    bool connec = pvd_->connect(*transport, physx::PxPvdInstrumentationFlag::ePROFILE);
+    bool connec = pvd_->connect(*transport, physx::PxPvdInstrumentationFlag::eALL);
     if (connec)
     {
         std::cout << "Connected to PhysX Visual Debugger!\n";
-
     }
 
     physics_ = PxCreatePhysics(
         PX_PHYSICS_VERSION,
         *foundation_,
         physx::PxTolerancesScale(),
-        recordMemoryAllocations);
+        recordMemoryAllocations, pvd_);
     if (!physics_)
         logDebug("PxCreatePhysics failed!");
 
@@ -67,6 +66,9 @@ void PhysicsEngine::Start()
     if (!PxInitExtensions(*physics_, pvd_))
         logDebug("PxInitExtensions failed!");
     CreateScene();
+    scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+    scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+    scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 }
 
 void PhysicsEngine::CreateScene()
@@ -82,7 +84,6 @@ void PhysicsEngine::CreateScene()
     scene_ = physics_->createScene(sceneDesc);
     if (!scene_)
         std::cerr << "createScene failed!";
-    scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 }
 
 bool PhysicsEngine::Advance(physx::PxReal dt)
@@ -93,7 +94,6 @@ bool PhysicsEngine::Advance(physx::PxReal dt)
 
     accumulator_ -= stepSize_.count();
 
-    scene_->simulate(stepSize_.count());
     return true;
 }
 
@@ -101,6 +101,7 @@ void PhysicsEngine::Update(float dt)
 {
     if (Advance(dt))
     {
+        scene_->simulate(stepSize_.count());
         scene_->fetchResults(true);
         boxPhysicsShapeManager_.FixedUpdate(stepSize_);
         spherePhysicsShapeManager_.FixedUpdate(stepSize_);
@@ -111,6 +112,7 @@ void PhysicsEngine::Update(float dt)
 
 void PhysicsEngine::Destroy()
 {
+    pvd_->disconnect();
     physics_->release();
     cooking_->release();
     PxCloseExtensions();

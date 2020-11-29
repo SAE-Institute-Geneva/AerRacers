@@ -29,15 +29,7 @@
 #ifndef PX_CONFIG
 #define PX_CONFIG
 
-#endif
-#ifndef DISABLE_CUDA_PHYSX
-#define DISABLE_CUDA_PHYSX
-#endif
-#ifndef PX_PHYSX_STATIC_LIB
 #define PX_PHYSX_STATIC_LIB
-#endif
-#ifndef PX_PHYSX_GPU_STATIC
-#define PX_PHYSX_GPU_STATIC
 
 
 #endif  // PX_CONFIG
