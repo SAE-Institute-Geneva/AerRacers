@@ -78,6 +78,45 @@ static inline Quaternion ConvertFromPxQuat(const physx::PxQuat& quat)
     return Quaternion(quat.x, quat.y, quat.z, quat.w);
 }
 
+
+class PhysicsSimulationEventCallback : public physx::PxSimulationEventCallback
+{
+public:
+    void onConstraintBreak(
+        physx::PxConstraintInfo* constraints,
+        physx::PxU32 count) override
+    {
+        logDebug("onConstraintBreak");
+    }
+    void onWake(physx::PxActor** actors, physx::PxU32 count) override
+    {
+        logDebug("onWake");
+    }
+    void onSleep(physx::PxActor** actors, physx::PxU32 count) override
+    {
+        logDebug("onSleep");
+    }
+    void onContact(
+        const physx::PxContactPairHeader& pairHeader,
+        const physx::PxContactPair* pairs,
+        physx::PxU32 nbPairs) override
+    {
+        logDebug("onContact");
+    }
+    void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override
+    {
+        logDebug("onTrigger");
+    }
+    void onAdvance(
+        const physx::PxRigidBody* const* bodyBuffer,
+        const physx::PxTransform* poseBuffer,
+        const physx::PxU32 count) override
+    {
+        logDebug("onAdvance");
+    }
+};
+
+
 class PxAllocatorCallback
 {
 public:
@@ -134,6 +173,14 @@ public:
 private:
     void CreateScene();
     bool Advance(physx::PxReal dt);
+    static physx::PxFilterFlags ContactReportFilterShader(
+        physx::PxFilterObjectAttributes attributes0,
+        physx::PxFilterData filterData0,
+        physx::PxFilterObjectAttributes attributes1,
+        physx::PxFilterData filterData1,
+        physx::PxPairFlags& pairFlags,
+        const void* constantBlock,
+        physx::PxU32 constantBlockSize);
 
     physx::PxFoundation* foundation_ = nullptr;
     physx::PxPhysics* physics_ = nullptr;
@@ -144,6 +191,8 @@ private:
     physx::PxScene* scene_ = nullptr;
     float accumulator_ = 0.0f;
     seconds stepSize_ = seconds(1.0f / 60.0f);
+
+    PhysicsSimulationEventCallback eventCallback_;
 
     EntityManager& entityManager_;
     neko::Transform3dManager& transform3d_;

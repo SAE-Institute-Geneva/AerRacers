@@ -76,11 +76,14 @@ void PhysicsEngine::CreateScene()
     physx::PxSceneDesc sceneDesc = physx::PxTolerancesScale();
     sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
     physx::PxSimulationFilterShader gDefaultFilterShader = physx::PxDefaultSimulationFilterShader;
-    sceneDesc.filterShader = gDefaultFilterShader;
+    sceneDesc.filterShader = ContactReportFilterShader;
     cpuDispatcher_ = physx::PxDefaultCpuDispatcherCreate(1);
     if (!cpuDispatcher_)
         std::cerr << "PxDefaultCpuDispatcherCreate failed!";
     sceneDesc.cpuDispatcher = cpuDispatcher_;
+    sceneDesc.kineKineFilteringMode = physx::PxPairFilteringMode::eKEEP; // So kin-kin contacts with be reported
+    sceneDesc.staticKineFilteringMode = physx::PxPairFilteringMode::eKEEP; // So static-kin constacts will be reported
+    sceneDesc.simulationEventCallback = &eventCallback_;
     scene_ = physics_->createScene(sceneDesc);
     if (!scene_)
         std::cerr << "createScene failed!";
@@ -101,7 +104,10 @@ void PhysicsEngine::Update(float dt)
 {
     if (Advance(dt))
     {
-        scene_->simulate(stepSize_.count());
+        //scene_->simulate(stepSize_.count());
+        scene_->collide(stepSize_.count());
+        scene_->fetchCollision(true);
+        scene_->advance(); // Can this be skipped
         scene_->fetchResults(true);
         boxPhysicsShapeManager_.FixedUpdate(stepSize_);
         spherePhysicsShapeManager_.FixedUpdate(stepSize_);
@@ -119,6 +125,22 @@ void PhysicsEngine::Destroy()
     pvd_->release();
     transport->release();
     foundation_->release();
+}
+
+physx::PxFilterFlags PhysicsEngine::ContactReportFilterShader(physx::PxFilterObjectAttributes attributes0,
+    physx::PxFilterData filterData0,
+    physx::PxFilterObjectAttributes attributes1,
+    physx::PxFilterData filterData1,
+    physx::PxPairFlags& pairFlags,
+    const void* constantBlock,
+    physx::PxU32 constantBlockSize)
+{
+
+    pairFlags = physx::PxPairFlag::eSOLVE_CONTACT | physx::PxPairFlag::eDETECT_DISCRETE_CONTACT
+        | physx::PxPairFlag::eNOTIFY_TOUCH_FOUND
+        | physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS
+        | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
+    return physx::PxFilterFlag::eNOTIFY; //:eCALLBACK; //physx::PxFilterFlag::eDEFAULT;
 }
 
 physx::PxPhysics* PhysicsEngine::GetPhysx()
