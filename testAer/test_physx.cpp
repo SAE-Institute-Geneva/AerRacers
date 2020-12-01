@@ -121,6 +121,14 @@ void Init() override
             neko::physics::px::RigidDynamic cubeRigid = physicsEngine_.GetRigidDynamic(cubeEntity_);
             cubeRigid.AddForceAtPosition(neko::Vec3f::up * 200.0f, neko::Vec3f::right);
         }
+        neko::physics::px::PxRaycastInfo raycastInfo = physicsEngine_.Raycast(
+            transform3dManager_.GetPosition(cubeEntity_),
+            neko::Vec3f::down,
+            50.0f);
+        std::cout << "Raycast " << (raycastInfo.touch ? "hit" : "not hit") <<
+            " Distance : " << raycastInfo.GetDistance() <<
+            " Position : " << raycastInfo.GetPoint() <<
+            " Normal : " << raycastInfo.GetNormal() << std::endl;
 
 
         physicsEngine_.Update(dt.count());
@@ -131,7 +139,6 @@ void Init() override
             {
                 continue;
             }
-            //neko::Vec3f pos = transform3dManager_.GetPosition(entity);
             //std::cout << pos << std::endl;
         }
         const auto& config = neko::BasicEngine::GetInstance()->config;

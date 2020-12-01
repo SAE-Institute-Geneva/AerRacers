@@ -31,10 +31,10 @@
 #include <iostream>
 
 #include "PxPhysicsAPI.h"
+#include "raycast.h"
 #include "rigidbody.h"
 #include "engine/transform.h"
 #include "mathematics/vector.h"
-#include "mathematics/transform.h"
 
 namespace neko::physics::px {
 
@@ -169,6 +169,10 @@ public:
     [[nodiscard]] const SpherePhysicsShape& GetSpherePhysicsShape(Entity entity) const;
     void SetSpherePhysicsShape(Entity entity, const SpherePhysicsShape& body);
 
+    const PxRaycastInfo Raycast(
+        Vec3f origin,
+        Vec3f direction,
+        float maxDistance) const;
 
 private:
     void CreateScene();

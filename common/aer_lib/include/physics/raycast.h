@@ -31,12 +31,15 @@
 namespace neko::physics {
 
 	struct RaycastHit {
-		Vec3f point = Vec3f::zero;
-		Vec3f normal = Vec3f::zero;
-		unsigned faceId = 0;
-		float distance = 0.0f;
-		Vec2f uv = Vec2f::zero;
-		int collider = 0;
+    protected:
+        ~RaycastHit() = default;
+    public:
+        bool touch = false;
+		virtual Vec3f GetPoint() const { return Vec3f::zero; }
+		virtual Vec3f GetNormal() const { return Vec3f::zero; }
+		virtual unsigned GetFaceId() const { return 0; }
+		virtual float GetDistance() const { return 0.0f; }
+		virtual Vec2f GetUv() const { return Vec2f::zero; }
 
 	};
 

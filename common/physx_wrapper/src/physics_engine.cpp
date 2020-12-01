@@ -247,4 +247,17 @@ void PhysicsEngine::SetSpherePhysicsShape(
     spherePhysicsShapeManager_.SetComponent(entity, body);
     
 }
+
+const PxRaycastInfo PhysicsEngine::Raycast(
+    Vec3f origin,
+    Vec3f direction,
+    float maxDistance) const
+{
+    PxRaycastInfo raycastHit;
+    physx::PxQueryFilterData fd;
+    fd.flags |= physx::PxQueryFlag::eANY_HIT; // note the OR with the default value
+    raycastHit.touch = scene_->raycast(ConvertToPxVec(origin), ConvertToPxVec(direction), maxDistance, raycastHit.pxRaycastBuffer,
+                                  physx::PxHitFlags(physx::PxHitFlag::eDEFAULT), fd);
+    return raycastHit;
+}
 }
