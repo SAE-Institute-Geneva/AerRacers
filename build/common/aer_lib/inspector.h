@@ -22,38 +22,22 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 
- Author : Dylan von Arx
+ Author : Guillaume Jeannin
  Co-Author :
- Date : 03.11.2020
+ Date : 13.10.2020
 ---------------------------------------------------------- */
-#include <sdl_engine/sdl_engine.h>
+#include "editor/editor_tool_interface.h"
 
-namespace neko::aer {
-
-class EditorToolInterface
-    : public SystemInterface,
-      public DrawImGuiInterface,
-      public sdl::SdlEventSystemInterface {
-public:
-    enum class ToolType {
-        NONE = 0,
-        LOGGER,
-    	INSPECTOR
+namespace neko::aer
+{
+    class Inspector final : public EditorToolInterface
+    {
+    public:
+        explicit Inspector(ToolType type, int id, std::string name);
+        void Init() override;
+        void Update(seconds dt) override;
+        void DrawImGui() override;
+        void Destroy() override;
+        void OnEvent(const SDL_Event& event) override;
     };
-
-    explicit EditorToolInterface(ToolType type, int id, std::string name);
-
-    int GetId() const;
-    ToolType GetType() const;
-    std::string GetName() const;
-
-    bool isVisible = true;
-
-private:
-    const int kId_;
-    std::string name_ = "";
-    ToolType type_ = ToolType::NONE;
-};
-
-
 }
