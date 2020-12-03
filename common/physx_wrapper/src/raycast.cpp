@@ -3,7 +3,7 @@
 #include "physics_engine.h"
 
 
-namespace neko::physics::px {
+namespace neko::physics {
 Vec3f PxRaycastInfo::GetPoint() const
 {
     return ConvertFromPxVec(pxRaycastBuffer.block.position);

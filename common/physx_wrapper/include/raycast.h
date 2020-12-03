@@ -27,16 +27,17 @@
  Date : 22.11.2020
 ---------------------------------------------------------- */
 #include "PxPhysicsAPI.h"
-#include "physics/raycast.h"
+#include "mathematics/vector.h"
 
-namespace neko::physics::px {
-struct PxRaycastInfo : public physics::RaycastHit {
+namespace neko::physics {
+struct PxRaycastInfo {
 public:
-    Vec3f GetPoint() const override;;
-    Vec3f GetNormal() const override;;
-    unsigned GetFaceId() const override;;
-    float GetDistance() const override;;
-    Vec2f GetUv() const override;;
+    bool touch = false;
+    Vec3f GetPoint() const;
+    Vec3f GetNormal() const;
+    unsigned GetFaceId() const;
+    float GetDistance() const;
+    Vec2f GetUv() const;
     physx::PxRaycastBuffer pxRaycastBuffer;
 };
 }

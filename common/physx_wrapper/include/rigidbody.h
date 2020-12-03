@@ -26,31 +26,66 @@
  Co-Author :
  Date : 22.11.2020
 ---------------------------------------------------------- */
+#include "collider.h"
 #include "PxPhysicsAPI.h"
-#include "shape.h"
-#include "physics/rigidbody.h"
 #include "mathematics/transform.h"
 
-namespace neko::physics::px {
+namespace neko::physics {
 class PhysicsEngine;
-struct RigidStatic : public physics::RigidStatic {
+struct RigidDynamicData
+{
+    RigidDynamicData() = default;
+    ~RigidDynamicData() = default;
+    Vec3f velocity = Vec3f::zero;
+    Vec3f angularVelocity = Vec3f::zero;
+    float drag = 0.0f;
+    float angularDrag = 0.0f;
+    float mass = 1.0f;
+    bool useGravity = false;
+    bool isKinematic = false;
+    Vec3<bool> freezePosition = Vec3<bool>(false);
+    Vec3<bool> freezeRotation = Vec3<bool>(true);
+};
+
+
+struct RigidStaticData
+{
+    RigidStaticData() = default;
+    ~RigidStaticData() = default;
+};
+
+struct RigidActor {
 public:
-    void Init(physx::PxPhysics* physics, const PhysicsShape& shape, const Vec3f& position, const  EulerAngles& eulerAngle);
-    physx::PxRigidStatic* GetPxRigidStatic() const;
+    physx::PxShape* GetPxShape() const { return shape_; }
+    physx::PxMaterial* GetPxMaterial() const { return material_; }
+protected:
+    physx::PxMaterial* InitMaterial(physx::PxPhysics* physics, const PhysicsMaterial& material) const;
+    physx::PxShape* InitBoxShape(physx::PxPhysics* physics, physx::PxMaterial* material, const BoxCollider& boxCollider) const;
+    physx::PxShape* InitSphereShape(physx::PxPhysics* physics, physx::PxMaterial* material, const SphereCollider& sphereCollider) const;
+    physx::PxMaterial* material_ = nullptr;
+    physx::PxShape* shape_ = nullptr;
+};
+
+struct RigidStatic : RigidActor {
+    void Init(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic, const SphereCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
+    void Init(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic, const BoxCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
+    physx::PxRigidStatic* GetPxRigidStatic() const { return rigidActor_; }
 private:
+    void InitRigidStatic(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic) const;
     physx::PxRigidStatic* rigidActor_ = nullptr;
 
 };
 
-struct RigidDynamic : public physics::RigidDynamic {
+struct RigidDynamic : RigidActor {
 public:
-    void Init(physx::PxPhysics* physics, const PhysicsShape& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
+    void Init(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic, const SphereCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
+    void Init(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic, const BoxCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
     void AddForceAtPosition(const Vec3f& force, const Vec3f& position) const;
     void AddForce(const Vec3f& force);
-    physx::PxRigidDynamic* GetPxRigidDynamic() const;
+    physx::PxRigidDynamic* GetPxRigidDynamic() const { return rigidActor_; }
 private:
+    void InitRigidDynamic(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic) const;
     physx::PxRigidDynamic* rigidActor_ = nullptr;
-
 };
 
 class RigidStaticManager :
@@ -60,14 +95,10 @@ public:
 
     explicit RigidStaticManager(
         EntityManager& entityManager,
-        BoxPhysicsShapeManager& boxShapeManager,
-        SpherePhysicsShapeManager& circlePhysicsShapeManager,
         Transform3dManager& transform3dManager);
 
     void FixedUpdate(seconds dt);
 protected:
-    BoxPhysicsShapeManager& boxShapeManager_;
-    SpherePhysicsShapeManager& spherePhysicsShapeManager_;
     Transform3dManager& transform3dManager_;
 };
 
@@ -78,14 +109,10 @@ public:
 
     explicit RigidDynamicManager(
         EntityManager& entityManager,
-        BoxPhysicsShapeManager& boxShapeManager,
-        SpherePhysicsShapeManager& circlePhysicsShapeManager,
         Transform3dManager& transform3dManager);
 
     void FixedUpdate(seconds dt);
 protected:
-    BoxPhysicsShapeManager& boxShapeManager_;
-    SpherePhysicsShapeManager& spherePhysicsShapeManager_;
     Transform3dManager& transform3dManager_;
 };
 }

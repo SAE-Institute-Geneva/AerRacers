@@ -30,13 +30,15 @@
 #include <chrono>
 #include <iostream>
 
+
+#include "collider.h"
 #include "PxPhysicsAPI.h"
 #include "raycast.h"
 #include "rigidbody.h"
 #include "engine/transform.h"
 #include "mathematics/vector.h"
 
-namespace neko::physics::px {
+namespace neko::physics {
 
 static inline physx::PxVec2 ConvertToPxVec(const Vec2f& vec)
 {
@@ -82,40 +84,56 @@ static inline Quaternion ConvertFromPxQuat(const physx::PxQuat& quat)
 class PhysicsSimulationEventCallback : public physx::PxSimulationEventCallback
 {
 public:
-    void onConstraintBreak(
+    virtual void onConstraintBreak(
         physx::PxConstraintInfo* constraints,
         physx::PxU32 count) override
     {
         logDebug("onConstraintBreak");
     }
-    void onWake(physx::PxActor** actors, physx::PxU32 count) override
+    virtual void onWake(physx::PxActor** actors, physx::PxU32 count) override
     {
         logDebug("onWake");
     }
-    void onSleep(physx::PxActor** actors, physx::PxU32 count) override
+    virtual void onSleep(physx::PxActor** actors, physx::PxU32 count) override
     {
         logDebug("onSleep");
     }
-    void onContact(
+    virtual void onContact(
         const physx::PxContactPairHeader& pairHeader,
         const physx::PxContactPair* pairs,
         physx::PxU32 nbPairs) override
     {
         logDebug("onContact");
+        onCollisionAction.Execute(pairHeader);
     }
-    void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override
+    virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override
     {
         logDebug("onTrigger");
+        onTriggerAction.Execute(pairs);
     }
-    void onAdvance(
+    virtual void onAdvance(
         const physx::PxRigidBody* const* bodyBuffer,
         const physx::PxTransform* poseBuffer,
         const physx::PxU32 count) override
     {
         logDebug("onAdvance");
     }
+
+    Action<const physx::PxContactPairHeader&> onCollisionAction;
+    Action<physx::PxTriggerPair*> onTriggerAction;
 };
 
+class OnCollisionInterface
+{
+public:
+    virtual void OnCollision(const physx::PxContactPairHeader& pairHeader) = 0;
+};
+
+class OnTriggerInterface
+{
+public:
+    virtual void OnTrigger(physx::PxTriggerPair* pairs) = 0;
+};
 
 class PxAllocatorCallback
 {
@@ -153,27 +171,23 @@ public:
     physx::PxPhysics* GetPhysx();
     physx::PxScene* GetScene();
 
-    void AddRigidStatic(Entity entity, RigidStatic& body);
+    void AddRigidStatic(Entity entity, const RigidStaticData& body, BoxCollider& shape);
+    void AddRigidStatic(Entity entity, const RigidStaticData& body, const SphereCollider& shape);
     [[nodiscard]] const RigidStatic& GetRigidStatic(Entity entity) const;
     void SetRigidStatic(Entity entity, const RigidStatic& body);
 
-    void AddRigidDynamic(Entity entity, RigidDynamic& body);
+    void AddRigidDynamic(Entity entity, const RigidDynamicData& body, BoxCollider& shape);
+    void AddRigidDynamic(Entity entity, const RigidDynamicData& body, const SphereCollider& shape);
     [[nodiscard]] const RigidDynamic& GetRigidDynamic(Entity entity) const;
     void SetRigidDynamic(Entity entity, const RigidDynamic& body);
-
-    void AddBoxPhysicsShape(Entity entity, BoxPhysicsShape& body);
-    [[nodiscard]] const BoxPhysicsShape& GetBoxPhysicsShape(Entity entity) const;
-    void SetBoxPhysicsShape(Entity entity, const BoxPhysicsShape& body);
-
-    void AddSpherePhysicsShape(Entity entity, SpherePhysicsShape& body);
-    [[nodiscard]] const SpherePhysicsShape& GetSpherePhysicsShape(Entity entity) const;
-    void SetSpherePhysicsShape(Entity entity, const SpherePhysicsShape& body);
 
     const PxRaycastInfo Raycast(
         Vec3f origin,
         Vec3f direction,
         float maxDistance) const;
 
+    void RegisterCollisionListener(OnCollisionInterface& collisionInterface);
+    void RegisterTriggerListener(OnTriggerInterface& collisionInterface);
 private:
     void CreateScene();
     bool Advance(physx::PxReal dt);
@@ -201,8 +215,6 @@ private:
     EntityManager& entityManager_;
     neko::Transform3dManager& transform3d_;
 
-    BoxPhysicsShapeManager boxPhysicsShapeManager_;
-    SpherePhysicsShapeManager spherePhysicsShapeManager_;
     RigidDynamicManager rigidDynamicManager_;
     RigidStaticManager rigidStaticManager_;
 

@@ -4,31 +4,109 @@
 #include "mathematics/transform.h"
 
 
-namespace neko::physics::px {
-void RigidStatic::Init(physx::PxPhysics* physics, const PhysicsShape& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
+namespace neko::physics {
+physx::PxMaterial* RigidActor::InitMaterial(
+    physx::PxPhysics* physics,
+    const PhysicsMaterial& material) const {
+    return physics->createMaterial(material.staticFriction, material.dynamicFriction, material.bouciness);}
+
+physx::PxShape* RigidActor::InitBoxShape(
+    physx::PxPhysics* physics,
+    physx::PxMaterial* material,
+    const BoxCollider& boxCollider) const {
+    return physics->createShape(physx::PxBoxGeometry(boxCollider.size.x, boxCollider.size.y, boxCollider.size.z), *material);
+}
+
+physx::PxShape* RigidActor::InitSphereShape(
+    physx::PxPhysics* physics,
+    physx::PxMaterial* material,
+    const SphereCollider& sphereCollider) const {
+    return physics->createShape(physx::PxSphereGeometry(sphereCollider.radius), *material);
+}
+
+void RigidStatic::Init(physx::PxPhysics* physics, const RigidStaticData& rigidStatic, const SphereCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
 {
     physx::PxTransform transform = physx::PxTransform(ConvertToPxVec(position), ConvertToPxQuat(Quaternion::FromEuler(eulerAngle)));
     rigidActor_ = physics->createRigidStatic(transform);
     if (!rigidActor_)
-        std::cerr << "create plane failed!";
-    rigidActor_->attachShape(*shape.GetPxShape());
-    if (!shape.GetPxShape())
+        std::cerr << "create actor failed!";
+    material_ = InitMaterial(physics, shape.material);
+    if (!material_)
+        std::cerr << "createMaterial failed!";
+    shape_ = InitSphereShape(physics, material_, shape);
+    if (!shape_)
+        std::cerr << "createShpae failed!";
+    rigidActor_->attachShape(*shape_);
+    if (!shape_)
         std::cerr << "create shape failed!";
+    InitRigidStatic(physics, rigidStatic);
 }
 
-physx::PxRigidStatic* RigidStatic::GetPxRigidStatic() const {
-    return rigidActor_;
+void RigidStatic::Init(physx::PxPhysics* physics, const RigidStaticData& rigidStatic, const BoxCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
+{
+    physx::PxTransform transform = physx::PxTransform(ConvertToPxVec(position), ConvertToPxQuat(Quaternion::FromEuler(eulerAngle)));
+    rigidActor_ = physics->createRigidStatic(transform);
+    if (!rigidActor_)
+        std::cerr << "create actor failed!";
+    material_ = InitMaterial(physics, shape.material);
+    if (!material_)
+        std::cerr << "createMaterial failed!";
+    shape_ = InitBoxShape(physics, material_, shape);
+    if (!shape_)
+        std::cerr << "createShpae failed!";
+    rigidActor_->attachShape(*shape_);
+    if (!shape_)
+        std::cerr << "create shape failed!";
+    InitRigidStatic(physics, rigidStatic);
 }
 
-void RigidDynamic::Init(physx::PxPhysics* physics, const PhysicsShape& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
+void RigidStatic::InitRigidStatic(
+    physx::PxPhysics* physics,
+    const RigidStaticData& rigidStatic) const
+{
+    
+}
+
+void RigidDynamic::Init(physx::PxPhysics* physics, const RigidDynamicData& rigidDynamic, const SphereCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
 {
     physx::PxTransform transform = physx::PxTransform(ConvertToPxVec(position), ConvertToPxQuat(Quaternion::FromEuler(eulerAngle)));
     rigidActor_ = physics->createRigidDynamic(transform);
     if (!rigidActor_)
-        std::cerr << "create plane failed!";
-    rigidActor_->attachShape(*shape.GetPxShape());
-    if (!shape.GetPxShape())
+        std::cerr << "create actor failed!";
+    material_ = InitMaterial(physics, shape.material);
+    if (!material_)
+        std::cerr << "createMaterial failed!";
+    shape_ = InitSphereShape(physics, material_, shape);
+    if (!shape_)
+        std::cerr << "createShpae failed!";
+    rigidActor_->attachShape(*shape_);
+    if (!shape_)
         std::cerr << "create shape failed!";
+    InitRigidDynamic(physics, rigidDynamic);
+}
+
+
+void RigidDynamic::Init(physx::PxPhysics* physics, const RigidDynamicData& rigidDynamic, const BoxCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
+{
+    physx::PxTransform transform = physx::PxTransform(ConvertToPxVec(position), ConvertToPxQuat(Quaternion::FromEuler(eulerAngle)));
+    rigidActor_ = physics->createRigidDynamic(transform);
+    if (!rigidActor_)
+        std::cerr << "create actor failed!";
+    material_ = InitMaterial(physics, shape.material);
+    if (!material_)
+        std::cerr << "createMaterial failed!";
+    shape_ = InitBoxShape(physics, material_, shape);
+    if (!shape_)
+        std::cerr << "createShpae failed!";
+    rigidActor_->attachShape(*shape_);
+    if (!shape_)
+        std::cerr << "create shape failed!";
+    InitRigidDynamic(physics, rigidDynamic);
+}
+
+void RigidDynamic::InitRigidDynamic(
+    physx::PxPhysics* physics,
+    const RigidDynamicData& rigidDynamic) const {
     rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, false);
     rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, false);
     rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, false);
@@ -37,19 +115,10 @@ void RigidDynamic::Init(physx::PxPhysics* physics, const PhysicsShape& shape, co
     rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, false);
 }
 
-physx::PxRigidDynamic* RigidDynamic::GetPxRigidDynamic() const
-{
-    return rigidActor_;
-}
-
 RigidStaticManager::RigidStaticManager(
     EntityManager& entityManager,
-    BoxPhysicsShapeManager& boxShapeManager,
-    SpherePhysicsShapeManager& circlePhysicsShapeManager,
     Transform3dManager& transform3dManager)
     : ComponentManager<RigidStatic, EntityMask(ComponentType::RIGID_STATIC)>(entityManager),
-      boxShapeManager_(boxShapeManager),
-      spherePhysicsShapeManager_(circlePhysicsShapeManager),
       transform3dManager_(transform3dManager) {}
 
 void RigidStaticManager::FixedUpdate(seconds dt)
@@ -59,12 +128,8 @@ void RigidStaticManager::FixedUpdate(seconds dt)
 
 RigidDynamicManager::RigidDynamicManager(
     EntityManager& entityManager,
-    BoxPhysicsShapeManager& boxShapeManager,
-    SpherePhysicsShapeManager& circlePhysicsShapeManager,
     Transform3dManager& transform3dManager)
     : ComponentManager<RigidDynamic, EntityMask(ComponentType::RIGID_DYNAMIC)>(entityManager),
-      boxShapeManager_(boxShapeManager),
-      spherePhysicsShapeManager_(circlePhysicsShapeManager),
       transform3dManager_(transform3dManager) {}
 
 void RigidDynamicManager::FixedUpdate(seconds dt)
@@ -76,21 +141,10 @@ void RigidDynamicManager::FixedUpdate(seconds dt)
             continue;
         }
         physx::PxTransform transform;
-        if (entityManager_.get().HasComponent(entity, EntityMask(ComponentType::BOX_COLLIDER))) {
-            BoxPhysicsShape boxPhysicsShape = boxShapeManager_.GetComponent(entity);
-            transform = physx::PxShapeExt::getGlobalPose(*boxPhysicsShape.GetPxShape(), *GetComponent(entity).GetPxRigidDynamic());
-        }
-        else if (entityManager_.get().HasComponent(entity, EntityMask(ComponentType::SPHERE_COLLIDER))) {
-            SpherePhysicsShape spherePhysicsShape = spherePhysicsShapeManager_.GetComponent(entity);
-            transform = physx::PxShapeExt::getGlobalPose(*spherePhysicsShape.GetPxShape(), *GetComponent(entity).GetPxRigidDynamic());
-        }
-        else {
-            neko_assert(false, "No shape link to the rigidBody")
-        }
+        transform = physx::PxShapeExt::getGlobalPose(*GetComponent(entity).GetPxShape(), *GetComponent(entity).GetPxRigidDynamic());
         transform3dManager_.SetPosition(entity, ConvertFromPxVec(transform.p));
         transform3dManager_.SetRotation(entity, Quaternion::ToEulerAngles(ConvertFromPxQuat(transform.q)));
     }
-    
 }
 
 void RigidDynamic::AddForceAtPosition(const Vec3f& force, const Vec3f& position) const

@@ -30,7 +30,7 @@
 #include <engine/component.h>
 
 namespace neko {
-class Transform3dManager;
+    class Transform3dManager;
 }
 
 namespace neko::physics
@@ -60,28 +60,4 @@ namespace neko::physics
     public:
         Vec3f size = Vec3f::one;
     };
-
-    class BoxColliderManager :
-        public ComponentManager<BoxCollider, EntityMask(ComponentType::BOX_COLLIDER)>,
-        public SystemInterface
-    {
-    public:
-        explicit BoxColliderManager(
-            EntityManager& entityManager);
-
-        void FixedUpdate(seconds dt);
-    protected:
-    };
-
-    class CircleColliderManager :
-        public ComponentManager<SphereCollider, EntityMask(ComponentType::SPHERE_COLLIDER)>,
-        public SystemInterface
-    {
-    public:
-        explicit CircleColliderManager(
-            EntityManager& entityManager);
-
-        void FixedUpdate(seconds dt);
-    protected:
-    };
-}
+} 

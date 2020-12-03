@@ -4,7 +4,7 @@
 #include "engine/engine.h"
 
 
-namespace neko::physics::px {
+namespace neko::physics {
 
 
 PhysicsEngine::PhysicsEngine(
@@ -12,17 +12,11 @@ PhysicsEngine::PhysicsEngine(
     Transform3dManager& transform3d)
     : entityManager_(entityManager),
       transform3d_(transform3d),
-      boxPhysicsShapeManager_(entityManager),
-      spherePhysicsShapeManager_(entityManager),
       rigidDynamicManager_(
           entityManager,
-          boxPhysicsShapeManager_,
-          spherePhysicsShapeManager_,
           transform3d_),
       rigidStaticManager_(
           entityManager,
-          boxPhysicsShapeManager_,
-          spherePhysicsShapeManager_,
           transform3d_)
 {}
 
@@ -109,8 +103,6 @@ void PhysicsEngine::Update(float dt)
         scene_->fetchCollision(true);
         scene_->advance(); // Can this be skipped
         scene_->fetchResults(true);
-        boxPhysicsShapeManager_.FixedUpdate(stepSize_);
-        spherePhysicsShapeManager_.FixedUpdate(stepSize_);
         rigidDynamicManager_.FixedUpdate(stepSize_);
         rigidStaticManager_.FixedUpdate(stepSize_);
     }
@@ -153,20 +145,26 @@ physx::PxScene* PhysicsEngine::GetScene()
     return scene_;
 }
 
-void PhysicsEngine::AddRigidStatic(Entity entity, RigidStatic& rigidStatic)
+void PhysicsEngine::AddRigidStatic(Entity entity, const physics::RigidStaticData& rigidStaticData, BoxCollider& shape)
 {
     rigidStaticManager_.AddComponent(entity);
     Vec3f position = transform3d_.GetPosition(entity);
     EulerAngles euler = transform3d_.GetAngles(entity);
-    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::BOX_COLLIDER))) {
-        BoxPhysicsShape boxPhysicsShape = boxPhysicsShapeManager_.GetComponent(entity);
-        rigidStatic.Init(physics_, boxPhysicsShape, position, euler);
-    } else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::SPHERE_COLLIDER))) {
-        SpherePhysicsShape spherePhysicsShape = spherePhysicsShapeManager_.GetComponent(entity);
-        rigidStatic.Init(physics_, spherePhysicsShape, position, euler);
-    } else {
-        neko_assert(false, "No shape link to the rigidBody")
-    }
+    Vec3f scale = transform3d_.GetScale(entity);
+    shape.size = Vec3f(shape.size.x * scale.x, shape.size.y * scale.y, shape.size.z * scale.z);
+    RigidStatic rigidStatic = rigidStaticManager_.GetComponent(entity);
+    rigidStatic.Init(physics_, rigidStaticData, shape, position, euler);
+    scene_->addActor(*rigidStatic.GetPxRigidStatic());
+    rigidStaticManager_.SetComponent(entity, rigidStatic);
+}
+
+void PhysicsEngine::AddRigidStatic(Entity entity, const physics::RigidStaticData& rigidStaticData, const SphereCollider& shape)
+{
+    rigidStaticManager_.AddComponent(entity);
+    Vec3f position = transform3d_.GetPosition(entity);
+    EulerAngles euler = transform3d_.GetAngles(entity);
+    RigidStatic rigidStatic = rigidStaticManager_.GetComponent(entity);
+    rigidStatic.Init(physics_, rigidStaticData, shape, position, euler);
     scene_->addActor(*rigidStatic.GetPxRigidStatic());
     rigidStaticManager_.SetComponent(entity, rigidStatic);
 }
@@ -180,25 +178,29 @@ void PhysicsEngine::SetRigidStatic(Entity entity, const RigidStatic& body)
     rigidStaticManager_.SetComponent(entity, body);
 }
 
-void PhysicsEngine::AddRigidDynamic(Entity entity, RigidDynamic& rigidDynamic)
+void PhysicsEngine::AddRigidDynamic(Entity entity, const RigidDynamicData& rigidDynamicData, BoxCollider& shape)
 {
     rigidDynamicManager_.AddComponent(entity);
     Vec3f position = transform3d_.GetPosition(entity);
     EulerAngles euler = transform3d_.GetAngles(entity);
-    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::BOX_COLLIDER))) {
-        BoxPhysicsShape boxPhysicsShape = boxPhysicsShapeManager_.GetComponent(entity);
-        rigidDynamic.Init(physics_, boxPhysicsShape, position, euler);
-    }
-    else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::SPHERE_COLLIDER))) {
-        SpherePhysicsShape spherePhysicsShape = spherePhysicsShapeManager_.GetComponent(entity);
-        rigidDynamic.Init(physics_, spherePhysicsShape, position, euler);
-    }
-    else {
-        neko_assert(false, "No shape link to the rigidBody")
-    }
+    Vec3f scale = transform3d_.GetScale(entity);
+    shape.size = Vec3f(shape.size.x * scale.x, shape.size.y * scale.y, shape.size.z * scale.z);
+    RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(entity);
+    rigidDynamic.Init(physics_, rigidDynamicData, shape, position, euler);
     scene_->addActor(*rigidDynamic.GetPxRigidDynamic());
     rigidDynamicManager_.SetComponent(entity, rigidDynamic);
-    
+}
+
+
+void PhysicsEngine::AddRigidDynamic(Entity entity, const RigidDynamicData& rigidDynamicData, const SphereCollider& shape)
+{
+    rigidDynamicManager_.AddComponent(entity);
+    Vec3f position = transform3d_.GetPosition(entity);
+    EulerAngles euler = transform3d_.GetAngles(entity);
+    RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(entity);
+    rigidDynamic.Init(physics_, rigidDynamicData, shape, position, euler);
+    scene_->addActor(*rigidDynamic.GetPxRigidDynamic());
+    rigidDynamicManager_.SetComponent(entity, rigidDynamic);
 }
 
 const RigidDynamic& PhysicsEngine::GetRigidDynamic(Entity entity) const {
@@ -208,44 +210,6 @@ const RigidDynamic& PhysicsEngine::GetRigidDynamic(Entity entity) const {
 void PhysicsEngine::SetRigidDynamic(Entity entity, const RigidDynamic& body)
 {
     rigidDynamicManager_.SetComponent(entity, body);
-}
-
-void PhysicsEngine::AddBoxPhysicsShape(Entity entity, BoxPhysicsShape& boxPhysicsShape)
-{
-    boxPhysicsShapeManager_.AddComponent(entity);
-    boxPhysicsShape.Init(physics_);
-    boxPhysicsShapeManager_.SetComponent(entity, boxPhysicsShape);
-}
-
-const BoxPhysicsShape& PhysicsEngine::GetBoxPhysicsShape(Entity entity) const {
-    return boxPhysicsShapeManager_.GetComponent(entity);
-}
-
-void PhysicsEngine::SetBoxPhysicsShape(
-    Entity entity,
-    const BoxPhysicsShape& body)
-{
-    boxPhysicsShapeManager_.SetComponent(entity, body);
-}
-
-void PhysicsEngine::AddSpherePhysicsShape(Entity entity, SpherePhysicsShape& spherePhysicsShape)
-{
-    spherePhysicsShapeManager_.AddComponent(entity);
-    spherePhysicsShape.Init(physics_);
-    spherePhysicsShapeManager_.SetComponent(entity, spherePhysicsShape);
-}
-
-const SpherePhysicsShape& PhysicsEngine::GetSpherePhysicsShape(
-    Entity entity) const {
-    return spherePhysicsShapeManager_.GetComponent(entity);
-}
-
-void PhysicsEngine::SetSpherePhysicsShape(
-    Entity entity,
-    const SpherePhysicsShape& body)
-{
-    spherePhysicsShapeManager_.SetComponent(entity, body);
-    
 }
 
 const PxRaycastInfo PhysicsEngine::Raycast(
@@ -259,5 +223,18 @@ const PxRaycastInfo PhysicsEngine::Raycast(
     raycastHit.touch = scene_->raycast(ConvertToPxVec(origin), ConvertToPxVec(direction), maxDistance, raycastHit.pxRaycastBuffer,
                                   physx::PxHitFlags(physx::PxHitFlag::eDEFAULT), fd);
     return raycastHit;
+}
+
+
+void PhysicsEngine::RegisterCollisionListener(OnCollisionInterface& collisionInterface)
+{
+    eventCallback_.onCollisionAction.RegisterCallback(
+        [&collisionInterface](const physx::PxContactPairHeader& pairHeader) { collisionInterface.OnCollision(pairHeader); });
+}
+
+void PhysicsEngine::RegisterTriggerListener(OnTriggerInterface& collisionInterface)
+{
+    eventCallback_.onTriggerAction.RegisterCallback(
+        [&collisionInterface](physx::PxTriggerPair* pairs) { collisionInterface.OnTrigger(pairs); });
 }
 }
