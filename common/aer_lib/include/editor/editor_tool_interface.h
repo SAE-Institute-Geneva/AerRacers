@@ -37,7 +37,8 @@ class EditorToolInterface
 public:
     enum class ToolType {
         NONE = 0,
-        LOGGER
+        LOGGER,
+        HIERARCHY
     };
 
     explicit EditorToolInterface(ToolType type, int id, std::string name);
