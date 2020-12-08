@@ -81,20 +81,19 @@ public:
 
         cube_.Init();
         quad_.Init();
-
-        // note that we're translating the scene in the reverse direction of where we want to move
-        view_ = neko::Mat4f::Identity;
-        view_ = neko::Transform3d::Translate(
-            view_,
-            neko::Vec3f(0.0f, 0.0f, -3.0f));
-
-
+        gizmosRenderer_.Init();
         glEnable(GL_DEPTH_TEST);
     }
 
     void Init() override
     {
         InitActors();
+        camera_.position = kCameraOriginPos_;
+        camera_.reverseDirection = neko::Vec3f::forward;
+        camera_.fovY = neko::degree_t(45.0f);
+        camera_.nearPlane = 0.1f;
+        camera_.farPlane = 100.0f;
+        gizmosRenderer_.SetCamera(&camera_);
     }
 
     void Update(neko::seconds dt) override
@@ -107,15 +106,13 @@ public:
             neko::sdl::ButtonState::DOWN) {
         }
         const auto& config = neko::BasicEngine::GetInstance()->config;
-        projection_ = neko::Transform3d::Perspective(
-            neko::degree_t(45.0f),
-            static_cast<float>(config.windowSize.x) / config.windowSize.y,
-            0.1f,
-            100.0f);
+        camera_.SetAspect(static_cast<float>(config.windowSize.x) / config.windowSize.y);
         textureManager_.Update(dt);
         neko::RendererLocator::get().Render(this);
+        neko::RendererLocator::get().Render(&gizmosRenderer_);
         //updateCount_++;
         if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
+        gizmosRenderer_.Update(dt);
     }
 
     void Render() override
@@ -128,8 +125,9 @@ public:
         }
         shader_.Bind();
         glBindTexture(GL_TEXTURE_2D, textureWall_);
-        shader_.SetMat4("view", view_);
-        shader_.SetMat4("projection", projection_);
+        //shader_.SetMat4("view", view_);
+        shader_.SetMat4("view", camera_.GenerateViewMatrix());
+        shader_.SetMat4("projection", camera_.GenerateProjectionMatrix());
         for (neko::Entity entity = 0.0f;
             entity < entityManager_.GetEntitiesSize(); entity++) {
             neko::Mat4f model = neko::Mat4f::Identity; //model transform matrix
@@ -147,8 +145,10 @@ public:
                     transform3dManager_.GetPosition(entity));
                 shader_.SetMat4("model", model);
                 cube_.Draw();
+                gizmosRenderer_.DrawCube(transform3dManager_.GetPosition(entity), transform3dManager_.GetScale(entity), neko::Color::blue,10.0f);
             }
         }
+        gizmosRenderer_.Render();
     }
 
     void Destroy() override
@@ -157,6 +157,7 @@ public:
         cube_.Destroy();
         quad_.Destroy();
         textureManager_.Destroy();
+        gizmosRenderer_.Destroy();
     }
 
     void DrawImGui() override
@@ -172,6 +173,12 @@ private:
     neko::GizmosRenderer gizmosRenderer_;
 
     neko::Camera3D camera_;
+    //neko::Mat4f view_{ neko::Mat4f::Identity };
+    //neko::Mat4f projection_{ neko::Mat4f::Identity };
+    neko::EulerAngles cameraAngles_{ neko::degree_t(0.0f),  neko::degree_t(0.0f),  neko::degree_t(0.0f) };
+    const neko::Vec3f kCameraOriginPos_ = neko::Vec3f(0.0f, 0.0f, -3.0f);
+    const neko::EulerAngles kCameraOriginAngles_ = neko::EulerAngles(
+        neko::degree_t(0.0f), neko::degree_t(0.0f), neko::degree_t(0.0f));
 
     neko::gl::RenderCuboid cube_{ neko::Vec3f::zero, neko::Vec3f::one };
     neko::gl::RenderQuad quad_{ neko::Vec3f::zero, neko::Vec2f::one };
@@ -195,8 +202,6 @@ private:
     neko::gl::TextureManager textureManager_;
     neko::TextureName textureWall_ = neko::INVALID_TEXTURE_NAME;
     neko::TextureId textureWallId_;
-    neko::Mat4f view_{ neko::Mat4f::Identity };
-    neko::Mat4f projection_{ neko::Mat4f::Identity };
     neko::seconds timeSinceInit_{ 0 };
 
     neko::Entity cubeEntity_;

@@ -70,7 +70,7 @@ void GizmosRenderer::Render()
 			}
 			break;
 			default:
-				LogError("Invalid Gizmo shape!");
+				logDebug("Invalid Gizmo shape!");
 			}
 		}
 		gizmosQueue_.clear();
@@ -109,6 +109,7 @@ void GizmosRenderer::DrawCube(
 		gizmo.cubeSize = size;
 		gizmo.color = color;
 		gizmo.shape = GizmoShape::CUBE;
+		gizmo.lineThickness = lineThickness;
 		gizmosQueue_.push_back(gizmo);
 	}
 }
@@ -127,6 +128,7 @@ void GizmosRenderer::DrawLine(
 		gizmo.lineEndPos = endPos;
 		gizmo.color = color;
 		gizmo.shape = GizmoShape::LINE;
+		gizmo.lineThickness = lineThickness;
 		gizmosQueue_.push_back(gizmo);
 	}
 }
