@@ -43,9 +43,11 @@
 
 class TestPhysX
     : public neko::SystemInterface,
-      neko::RenderCommandInterface,
+      public neko::RenderCommandInterface,
+      public neko::DrawImGuiInterface,
       neko::physics::OnCollisionInterface,
-      neko::physics::OnTriggerInterface {
+      neko::physics::OnTriggerInterface,
+      neko::physics::FixedUpdateInterface{
 public :
     TestPhysX(
         neko::aer::AerEngine& engine,
@@ -55,10 +57,11 @@ public :
           entityManager_(entityManager),
           transform3dManager_(transform3dManager),
           physicsEngine_(entityManager, transform3dManager)
-{
+    {
         physicsEngine_.RegisterTriggerListener(*this);
         physicsEngine_.RegisterCollisionListener(*this);
-}
+        physicsEngine_.RegisterFixedUpdateListener(*this);
+    }
 
     void InitActors()
     {
@@ -157,10 +160,10 @@ public :
             transform3dManager_.GetPosition(cubeEntity_),
             neko::Vec3f::down,
             50.0f);
-        std::cout << "Raycast " << (raycastInfo.touch ? "hit" : "not hit") <<
-            " Distance : " << raycastInfo.GetDistance() <<
-            " Position : " << raycastInfo.GetPoint() <<
-            " Normal : " << raycastInfo.GetNormal() << std::endl;
+        //std::cout << "Raycast " << (raycastInfo.touch ? "hit" : "not hit") <<
+        //    " Distance : " << raycastInfo.GetDistance() <<
+        //    " Position : " << raycastInfo.GetPoint() <<
+        //    " Normal : " << raycastInfo.GetNormal() << std::endl;
 
 
         physicsEngine_.Update(dt.count());
@@ -235,13 +238,71 @@ public :
 
 
     void OnCollision(const physx::PxContactPairHeader& pairHeader) override
-{
-        logDebug(std::to_string(pairHeader.actors[0]->getNbShapes()));
-}
-    
+    {
+        //logDebug(std::to_string(pairHeader.actors[0]->getNbShapes()));
+    }
+
     void OnTrigger(physx::PxTriggerPair* pairs) override
+    {
+        //logDebug(std::to_string(pairs->otherActor->getNbShapes()));
+    }
+
+    void DrawImGui() override
+    {
+        std::string title = "RigidBody ";
+
+        for (neko::Entity entity = 0.0f;
+             entity < entityManager_.GetEntitiesSize(); entity++) {
+            neko::Mat4f model = neko::Mat4f::Identity; //model transform matrix
+            if (!entityManager_.HasComponent(
+                entity,
+                neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)))
+                continue;
+            title += std::to_string(entity);
+            neko::physics::RigidDynamic rigidDynamic = physicsEngine_.GetRigidDynamic(entity);
+
+            neko::physics::RigidDynamicData rigidDynamicData = rigidDynamic.GetRigidDynamicData();
+            ImGui::Begin(title.c_str());
+            neko::Vec3f linearVelocity = rigidDynamicData.linearVelocity;
+            ImGui::DragFloat3(
+                "linearVelocity",
+                linearVelocity.coord,0);
+            ImGui::DragFloat("linearDamping", &rigidDynamicData.linearDamping);
+            neko::Vec3f angularVelocity = rigidDynamicData.angularVelocity;
+            ImGui::DragFloat3(
+                "angularVelocity",
+                angularVelocity.coord, 0);
+            ImGui::DragFloat(
+                "angularDamping",
+                &rigidDynamicData.angularDamping);
+            ImGui::DragFloat("mass", &rigidDynamicData.mass,0.5, 0.0f, 1000);
+            ImGui::Checkbox("useGravity", &rigidDynamicData.useGravity);
+            ImGui::Checkbox("isKinematic", &rigidDynamicData.isKinematic);
+            ImGui::Text("freezePosition");
+            ImGui::SameLine();
+            ImGui::Checkbox("x", &rigidDynamicData.freezePosition.x);
+            ImGui::SameLine();
+            ImGui::Checkbox("y", &rigidDynamicData.freezePosition.y);
+            ImGui::SameLine();
+            ImGui::Checkbox("z", &rigidDynamicData.freezePosition.z);
+            ImGui::Text("freezeRotation");
+            ImGui::SameLine();
+            ImGui::Checkbox("x#", &rigidDynamicData.freezeRotation.x);
+            ImGui::SameLine();
+            ImGui::Checkbox("y#", &rigidDynamicData.freezeRotation.y);
+            ImGui::SameLine();
+            ImGui::Checkbox("z#", &rigidDynamicData.freezeRotation.z);
+            ImGui::End();
+            ImGui::ShowDemoWindow();
+            rigidDynamic.SetRigidDynamicData(rigidDynamicData);
+            physicsEngine_.SetRigidDynamic(entity, rigidDynamic);
+        }
+    }
+
+
+    void FixedUpdate(neko::seconds dt) override
 {
-        logDebug(std::to_string(pairs->otherActor->getNbShapes()));
+
 }
 private :
     int updateCount_ = 0;
@@ -313,6 +374,7 @@ TEST(PhysX, TestPhysX)
     TestPhysX testPhysX(engine, entityManager, transform3dManager);
 
     engine.RegisterSystem(testPhysX);
+    engine.RegisterOnDrawUi(testPhysX);
     engine.Init();
     neko::Job initJob{[&testPhysX]() { testPhysX.InitRenderer(); }};
     neko::BasicEngine::GetInstance()->ScheduleJob(

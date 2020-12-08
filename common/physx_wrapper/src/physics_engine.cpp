@@ -105,6 +105,7 @@ void PhysicsEngine::Update(float dt)
         scene_->fetchResults(true);
         rigidDynamicManager_.FixedUpdate(stepSize_);
         rigidStaticManager_.FixedUpdate(stepSize_);
+        fixedUpdateAction_.Execute(stepSize_);
     }
 }
 
@@ -232,9 +233,16 @@ void PhysicsEngine::RegisterCollisionListener(OnCollisionInterface& collisionInt
         [&collisionInterface](const physx::PxContactPairHeader& pairHeader) { collisionInterface.OnCollision(pairHeader); });
 }
 
-void PhysicsEngine::RegisterTriggerListener(OnTriggerInterface& collisionInterface)
+void PhysicsEngine::RegisterTriggerListener(OnTriggerInterface& triggerInterface)
 {
     eventCallback_.onTriggerAction.RegisterCallback(
-        [&collisionInterface](physx::PxTriggerPair* pairs) { collisionInterface.OnTrigger(pairs); });
+        [&triggerInterface](physx::PxTriggerPair* pairs) { triggerInterface.OnTrigger(pairs); });
+}
+
+void PhysicsEngine::RegisterFixedUpdateListener(
+    FixedUpdateInterface& fixedUpdateInterface)
+{
+    fixedUpdateAction_.RegisterCallback(
+        [&fixedUpdateInterface](seconds dt) { fixedUpdateInterface.FixedUpdate(dt); });
 }
 }

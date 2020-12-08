@@ -82,7 +82,7 @@ void RigidDynamic::Init(physx::PxPhysics* physics, const RigidDynamicData& rigid
     rigidActor_->attachShape(*shape_);
     if (!shape_)
         std::cerr << "create shape failed!";
-    InitRigidDynamic(physics, rigidDynamic);
+    SetRigidDynamicData(rigidDynamic);
 }
 
 
@@ -101,18 +101,61 @@ void RigidDynamic::Init(physx::PxPhysics* physics, const RigidDynamicData& rigid
     rigidActor_->attachShape(*shape_);
     if (!shape_)
         std::cerr << "create shape failed!";
-    InitRigidDynamic(physics, rigidDynamic);
+    SetRigidDynamicData(rigidDynamic);
 }
 
-void RigidDynamic::InitRigidDynamic(
-    physx::PxPhysics* physics,
-    const RigidDynamicData& rigidDynamic) const {
-    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, false);
-    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, false);
-    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, false);
-    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X, false);
-    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, false);
-    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, false);
+void RigidDynamic::SetRigidDynamicData(
+    const RigidDynamicData& rigidDynamic) {
+    rigidDynamicData_ = rigidDynamic;
+}
+
+void RigidDynamic::FixedUpdate(seconds dt)
+{
+    //rigidActor_->setLinearVelocity(ConvertToPxVec(rigidDynamicData_.linearVelocity));
+    //rigidActor_->setAngularVelocity(ConvertToPxVec(rigidDynamicData_.angularVelocity));
+    rigidActor_->setLinearDamping(rigidDynamicData_.linearDamping);
+    rigidActor_->setAngularDamping(rigidDynamicData_.angularDamping);
+    rigidActor_->setMass(rigidDynamicData_.mass);
+    rigidActor_->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, !rigidDynamicData_.useGravity);
+    rigidActor_->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, rigidDynamicData_.isKinematic);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, rigidDynamicData_.freezeRotation.x);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, rigidDynamicData_.freezeRotation.y);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, rigidDynamicData_.freezeRotation.z);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X, rigidDynamicData_.freezePosition.x);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, rigidDynamicData_.freezePosition.y);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, rigidDynamicData_.freezePosition.z);
+    rigidDynamicData_.linearVelocity = ConvertFromPxVec(rigidActor_->getLinearVelocity());
+    rigidDynamicData_.angularVelocity = ConvertFromPxVec(rigidActor_->getAngularVelocity());
+    rigidDynamicData_.linearDamping = rigidActor_->getLinearDamping();
+    rigidDynamicData_.angularDamping = rigidActor_->getAngularDamping();
+    rigidDynamicData_.mass = rigidActor_->getMass();
+    rigidDynamicData_.useGravity = (rigidActor_->getActorFlags() & physx::PxActorFlags(physx::PxActorFlag::eDISABLE_GRAVITY)) != physx::PxActorFlags(physx::PxActorFlag::eDISABLE_GRAVITY);
+    rigidDynamicData_.isKinematic = (rigidActor_->getRigidBodyFlags() & physx::PxRigidBodyFlags(physx::PxRigidBodyFlag::eKINEMATIC)) == physx::PxRigidBodyFlags(physx::PxRigidBodyFlag::eKINEMATIC);
+    rigidDynamicData_.freezeRotation = {
+        (rigidActor_->getRigidDynamicLockFlags() & physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X)) == physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X),
+        (rigidActor_->getRigidDynamicLockFlags() & physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y)) == physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y),
+        (rigidActor_->getRigidDynamicLockFlags() & physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z)) == physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z) };
+    rigidDynamicData_.freezePosition = {
+        (rigidActor_->getRigidDynamicLockFlags() & physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X)) == physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X),
+        (rigidActor_->getRigidDynamicLockFlags() & physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y)) == physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y),
+        (rigidActor_->getRigidDynamicLockFlags() & physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z)) == physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z) };
+}
+
+physics::RigidDynamicData RigidDynamic::GetRigidDynamicData() const
+{
+    return rigidDynamicData_;
+}
+
+
+void RigidDynamic::AddForceAtPosition(const Vec3f& force, const Vec3f& position) const
+{
+    physx::PxRigidBodyExt::addForceAtLocalPos(*rigidActor_, ConvertToPxVec(force), ConvertToPxVec(position));
+}
+
+void RigidDynamic::AddForce(const Vec3f& force)
+{
+    rigidActor_->addForce(ConvertToPxVec(force));
+
 }
 
 RigidStaticManager::RigidStaticManager(
@@ -144,17 +187,9 @@ void RigidDynamicManager::FixedUpdate(seconds dt)
         transform = physx::PxShapeExt::getGlobalPose(*GetComponent(entity).GetPxShape(), *GetComponent(entity).GetPxRigidDynamic());
         transform3dManager_.SetPosition(entity, ConvertFromPxVec(transform.p));
         transform3dManager_.SetRotation(entity, Quaternion::ToEulerAngles(ConvertFromPxQuat(transform.q)));
+        RigidDynamic rigidDynamic = GetComponent(entity);
+        rigidDynamic.FixedUpdate(dt);
+        SetComponent(entity, rigidDynamic);
     }
-}
-
-void RigidDynamic::AddForceAtPosition(const Vec3f& force, const Vec3f& position) const
-{
-    physx::PxRigidBodyExt::addForceAtLocalPos(*rigidActor_, ConvertToPxVec(force), ConvertToPxVec(position));
-}
-
-void RigidDynamic::AddForce(const Vec3f& force)
-{
-    rigidActor_->addForce(ConvertToPxVec(force));
-
 }
 }

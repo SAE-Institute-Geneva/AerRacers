@@ -36,10 +36,10 @@ struct RigidDynamicData
 {
     RigidDynamicData() = default;
     ~RigidDynamicData() = default;
-    Vec3f velocity = Vec3f::zero;
+    Vec3f linearVelocity = Vec3f::zero;
     Vec3f angularVelocity = Vec3f::zero;
-    float drag = 0.0f;
-    float angularDrag = 0.0f;
+    float linearDamping = 0.0f;
+    float angularDamping = 0.0f;
     float mass = 1.0f;
     bool useGravity = false;
     bool isKinematic = false;
@@ -82,10 +82,13 @@ public:
     void Init(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic, const BoxCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
     void AddForceAtPosition(const Vec3f& force, const Vec3f& position) const;
     void AddForce(const Vec3f& force);
+    void SetRigidDynamicData(const physics::RigidDynamicData& rigidDynamic);
+    void FixedUpdate(seconds dt);
+    physics::RigidDynamicData GetRigidDynamicData() const;
     physx::PxRigidDynamic* GetPxRigidDynamic() const { return rigidActor_; }
 private:
-    void InitRigidDynamic(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic) const;
     physx::PxRigidDynamic* rigidActor_ = nullptr;
+    RigidDynamicData rigidDynamicData_;
 };
 
 class RigidStaticManager :

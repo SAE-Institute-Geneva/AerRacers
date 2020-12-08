@@ -123,11 +123,18 @@ public:
     Action<physx::PxTriggerPair*> onTriggerAction;
 };
 
+class FixedUpdateInterface
+{
+public:
+    virtual void FixedUpdate(seconds dt) = 0;
+};
+
 class OnCollisionInterface
 {
 public:
     virtual void OnCollision(const physx::PxContactPairHeader& pairHeader) = 0;
 };
+
 
 class OnTriggerInterface
 {
@@ -187,7 +194,8 @@ public:
         float maxDistance) const;
 
     void RegisterCollisionListener(OnCollisionInterface& collisionInterface);
-    void RegisterTriggerListener(OnTriggerInterface& collisionInterface);
+    void RegisterTriggerListener(OnTriggerInterface& triggerInterface);
+    void RegisterFixedUpdateListener(FixedUpdateInterface& fixedUpdateInterface);
 private:
     void CreateScene();
     bool Advance(physx::PxReal dt);
@@ -218,7 +226,7 @@ private:
     RigidDynamicManager rigidDynamicManager_;
     RigidStaticManager rigidStaticManager_;
 
-
+    Action<seconds> fixedUpdateAction_;
 };
 
 }
