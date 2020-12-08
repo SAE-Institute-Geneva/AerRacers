@@ -83,6 +83,26 @@ protected:
     Vec3f size_;
 };
 
+class RenderWireFrameCuboid : public RenderShape
+{
+public:
+    RenderWireFrameCuboid() = delete;
+    explicit RenderWireFrameCuboid(const Vec3f& offset, const Vec3f& size) : RenderShape(offset), size_(size) {}
+
+protected:
+    Vec3f size_;
+};
+
+class RenderLine3d : public RenderShape
+{
+public:
+    RenderLine3d() = delete;
+    explicit RenderLine3d(Vec3f startPos, Vec3f endPos) : RenderShape(startPos), relativeEndPos_(endPos - startPos) {}
+
+protected:
+    Vec3f relativeEndPos_;
+};
+
 class RenderSphere : public RenderShape
 {
 public:
