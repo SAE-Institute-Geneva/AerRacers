@@ -252,7 +252,7 @@ void EntityViewer::DrawImGui()
 	
 	for(Entity entity = 0; entity < entityManager_.GetEntitiesSize(); entity++)
 	{
-		if(entityManager_.EntityExists(entity) and entityManager_.GetEntityParent(entity) == INVALID_ENTITY)
+		if(entityManager_.EntityExists(entity) && entityManager_.GetEntityParent(entity) == INVALID_ENTITY)
 		{
             DrawEntityHierarchy(entity, true, false);
 		}
@@ -394,7 +394,7 @@ void EntityViewer::DrawEntityHierarchy(neko::Entity entity, bool draw, bool dest
     {
         entityManager_.DestroyEntity(entity);
     }
-    if (nodeOpen and !leaf)
+    if (nodeOpen && !leaf)
     {
         ImGui::TreePop();
     }
