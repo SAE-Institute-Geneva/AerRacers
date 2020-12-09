@@ -1,4 +1,4 @@
-#include "inspector.h"
+#include "editor/tool/inspector.h"
 
 namespace neko::aer
 {
