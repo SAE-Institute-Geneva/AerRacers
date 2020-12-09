@@ -14,6 +14,7 @@ void EditorToolManager::Init()
 	if (mode == ModeEnum::EDITOR)
 	{
 		AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
+		AddEditorTool<Logger, EditorToolInterface::ToolType::INSPECTOR>();
 	}
 }
 
