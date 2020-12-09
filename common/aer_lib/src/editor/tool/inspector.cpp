@@ -17,7 +17,9 @@ namespace neko::aer
         if (isVisible) {
             if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(),
                 &isVisible)) {
-                //Here put your code
+                ImGui::Separator();
+                ImGui::Text("Cube");
+            	
                 ImGui::End();
             }
             else {
@@ -25,7 +27,7 @@ namespace neko::aer
             }
         }
     }
-
+	
     void Inspector::OnEvent(const SDL_Event& event) {}
 
 }
