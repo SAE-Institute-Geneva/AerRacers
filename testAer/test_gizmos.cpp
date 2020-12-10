@@ -148,7 +148,6 @@ public:
                 gizmosRenderer_.DrawCube(transform3dManager_.GetPosition(entity), transform3dManager_.GetScale(entity), neko::Color::blue,10.0f);
             }
         }
-        gizmosRenderer_.Render();
     }
 
     void Destroy() override

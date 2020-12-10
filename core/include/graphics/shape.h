@@ -89,8 +89,13 @@ public:
     RenderWireFrameCuboid() = delete;
     explicit RenderWireFrameCuboid(const Vec3f& offset, const Vec3f& size) : RenderShape(offset), size_(size) {}
 
+    void SetLineWidth(float lineWidth) 
+    {
+        lineWidth_ = lineWidth;
+    }
 protected:
     Vec3f size_;
+    float lineWidth_;
 };
 
 class RenderLine3d : public RenderShape
@@ -99,8 +104,13 @@ public:
     RenderLine3d() = delete;
     explicit RenderLine3d(Vec3f startPos, Vec3f endPos) : RenderShape(startPos), relativeEndPos_(endPos - startPos) {}
 
+    void SetLineWidth(float lineWidth) 
+    {
+        lineWidth_ = lineWidth;
+    }
 protected:
     Vec3f relativeEndPos_;
+    float lineWidth_;
 };
 
 class RenderSphere : public RenderShape

@@ -50,8 +50,7 @@ void GizmosRenderer::Render()
 				model = Transform3d::Scale(model, gizmo.cubeSize);
 				model = Transform3d::Translate(model, gizmo.pos);
 				shaderCube_.SetMat4("model", model);
-
-				glLineWidth(gizmo.lineThickness);
+				cube_.SetLineWidth(gizmo.lineThickness);
 				cube_.Draw();
 			}
 			break;
@@ -64,8 +63,7 @@ void GizmosRenderer::Render()
 				Mat4f model = Transform3d::Translate(Mat4f::Identity, gizmo.pos);
 				shaderLine_.SetMat4("model", model);
 				shaderLine_.SetVec3("endPos", gizmo.lineEndPos - gizmo.pos);
-				
-				glLineWidth(gizmo.lineThickness);
+				line_.SetLineWidth(gizmo.lineThickness);
 				line_.Draw();
 			}
 			break;

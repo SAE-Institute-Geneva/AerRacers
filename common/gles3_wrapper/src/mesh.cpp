@@ -550,6 +550,7 @@ void RenderWireFrameCuboid::Init()
 
 void RenderWireFrameCuboid::Draw() const
 {
+	glLineWidth(lineWidth_);
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_LINES, 0, 24);
 }
@@ -592,6 +593,7 @@ void RenderLine3d::Init()
 
 void RenderLine3d::Draw() const
 {
+	glLineWidth(lineWidth_);
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_LINES, 0, 2);
 }
