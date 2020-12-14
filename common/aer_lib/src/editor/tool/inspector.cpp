@@ -18,13 +18,15 @@ namespace neko::aer
             if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(),
                 &isVisible)) {
 
-                ImGui::Text("Test");
+                
             	
 
 
                 
             }
             else {
+
+                ImGui::Text("Test");
                 ImGui::End();
             }
         }
