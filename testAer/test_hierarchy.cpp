@@ -24,17 +24,15 @@ public:
 			engine_.RegisterOnDrawUi(*toolManager_); // Register in DrawUI
 			engine_.RegisterOnEvent(*toolManager_); // Register in Event
 			toolManager_->AddEditorTool<neko::aer::Hierarchy, neko::aer::EditorToolInterface::ToolType::HIERARCHY>(); // Create tool like it is in editor
-
-			entityManager_ = std::make_unique<neko::EntityManager>();
 		}
 	}
 
 	void Init() override // Where we create entities
 	{
-		entityManager_.get()->CreateEntity();
-		entityManager_.get()->CreateEntity();
-		entityManager_.get()->CreateEntity();
-		entityManager_.get()->CreateEntity();
+		engine_.GetEntityManager().CreateEntity();
+		engine_.GetEntityManager().CreateEntity();
+		engine_.GetEntityManager().CreateEntity();
+		engine_.GetEntityManager().CreateEntity();
 	}
 
 	void Update(neko::seconds dt) override // Where we simulate tests
@@ -129,7 +127,6 @@ public:
 
 private:
 	std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
-	std::unique_ptr<neko::EntityManager> entityManager_;
 	bool capacityMax_ = false;
 	bool capacityClear_ = false;
 	bool testSuccess_ = false;

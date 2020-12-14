@@ -1,13 +1,15 @@
 #include <editor/tool/hierarchy.h>
 #include <string>
+#include "aer_engine.h"
 
 namespace neko::aer
 {
 	Hierarchy::Hierarchy(
+		AerEngine& engine,
 		ToolType type,
 		int id, 
 		std::string name) : 
-		EditorToolInterface(type, id, name)
+		EditorToolInterface(engine, type, id, name)
 	{
 
 	}
@@ -27,8 +29,11 @@ namespace neko::aer
 			}
 			else
 			{
-				std::string nickiminaj = { "nicki minaj" };
-				ImGui::Text(nickiminaj.c_str());
+				/*std::string nickiminaj = { "nicki minaj" };
+				ImGui::Text(nickiminaj.c_str());*/
+				std::string text = "Entity : ";
+				text += std::to_string(engine_.GetEntityManager().GetEntitiesNmb(EntityMask(ComponentType::EMPTY)));
+				ImGui::Text(text.c_str());
 				ImGui::End();
 			}
 		}

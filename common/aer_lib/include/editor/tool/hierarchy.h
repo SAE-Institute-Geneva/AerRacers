@@ -8,7 +8,7 @@ namespace neko::aer
 	class Hierarchy final : public EditorToolInterface
 	{
 	public:
-		Hierarchy(ToolType type, int id, std::string name);
+		Hierarchy(AerEngine& engine, ToolType type, int id, std::string name);
 		void Init() override;
 		void Update(seconds dt) override;
 		void DrawImGui() override;
