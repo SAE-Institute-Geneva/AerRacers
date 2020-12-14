@@ -3,7 +3,11 @@
 
 namespace neko::aer
 {
-	Hierarchy::Hierarchy(ToolType type, int id, std::string name) : EditorToolInterface(type, id, name)
+	Hierarchy::Hierarchy(
+		ToolType type,
+		int id, 
+		std::string name) : 
+		EditorToolInterface(type, id, name)
 	{
 
 	}
@@ -23,6 +27,8 @@ namespace neko::aer
 			}
 			else
 			{
+				std::string nickiminaj = { "nicki minaj" };
+				ImGui::Text(nickiminaj.c_str());
 				ImGui::End();
 			}
 		}

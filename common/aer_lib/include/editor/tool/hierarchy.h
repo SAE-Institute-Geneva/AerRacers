@@ -1,6 +1,7 @@
 #pragma once
 #include <editor/editor_tool_interface.h>
 #include <string>
+#include <engine/entity.h>
 
 namespace neko::aer
 {
@@ -13,5 +14,6 @@ namespace neko::aer
 		void DrawImGui() override;
 		void Destroy() override;
 		void OnEvent(const SDL_Event& event) override;
+
 	};
 }
