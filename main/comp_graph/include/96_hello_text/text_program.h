@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+#ifdef NEKO_FREETYPE
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -57,3 +58,4 @@ private:
 	gl::VertexArrayObject textureQuad_;
 };
 }
+#endif

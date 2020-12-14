@@ -59,7 +59,7 @@ private:
 	void DestroyFramebuffer();
 	void CreateFramebuffer();
 	void RenderScene(const gl::Shader& shader);
-	sdl::Camera3D camera_;
+	sdl::MovableCamera3D camera_;
 	gl::TextureManager textureManager_;
 	TextureName container_ = INVALID_TEXTURE_NAME;
 	TextureId containerId_;

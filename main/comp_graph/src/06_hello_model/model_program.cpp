@@ -37,7 +37,6 @@ void HelloModelProgram::Init()
 	const std::string path = config.dataRootPath + "model/nanosuit2/nanosuit.obj";
     glCheckError();
 	model_.LoadModel(path);
-	camera_.Init();
     shader_.LoadFromFile(
             config.dataRootPath + "shaders/06_hello_model/model.vert",
             config.dataRootPath + "shaders/06_hello_model/model.frag");

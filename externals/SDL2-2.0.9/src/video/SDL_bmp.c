@@ -399,7 +399,7 @@ SDL_LoadBMP_RW(SDL_RWops * src, int freesrc)
         goto done;
     }
 
-    /* Load the palette, if any */
+    /* Init the palette, if any */
     palette = (surface->format)->palette;
     if (palette) {
         if (SDL_RWseek(src, fp_offset+14+biSize, RW_SEEK_SET) < 0) {

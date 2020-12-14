@@ -22,6 +22,7 @@
  SOFTWARE.
  */
 
+#ifdef NEKO_GLES3
 #include "gl/mesh.h"
 #include "assimp/mesh.h"
 #include "assimp/scene.h"
@@ -319,3 +320,4 @@ void Mesh::BindTextures(const gl::Shader& shader) const
     glCheckError();
 }
 }
+#endif

@@ -500,7 +500,7 @@ const aiScene* Importer::ReadFileFromMemory( const void* pBuffer,
 // ------------------------------------------------------------------------------------------------
 void WriteLogOpening(const std::string& file)
 {
-    ASSIMP_LOG_INFO_F("Load ", file);
+    ASSIMP_LOG_INFO_F("Init ", file);
 
     // print a full version dump. This is nice because we don't
     // need to ask the authors of incoming bug reports for

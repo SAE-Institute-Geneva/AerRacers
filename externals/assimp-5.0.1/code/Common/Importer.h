@@ -210,7 +210,7 @@ public:
      *  @param file File to be loaded
      *  @param steps Post-processing steps to be executed on the file
      *  @param map Optional configuration properties
-     *  @return 'Load request channel' - an unique ID that can later
+     *  @return 'Init request channel' - an unique ID that can later
      *    be used to access the imported file data.
      *  @see GetImport */
     unsigned int AddLoadRequest (

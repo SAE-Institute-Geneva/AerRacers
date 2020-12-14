@@ -30,6 +30,8 @@
 
 namespace neko::aer {
 
+class AerEngine;
+
 class EditorToolInterface
     : public SystemInterface,
       public DrawImGuiInterface,
@@ -41,7 +43,7 @@ public:
         HIERARCHY
     };
 
-    explicit EditorToolInterface(ToolType type, int id, std::string name);
+    explicit EditorToolInterface(AerEngine& engine, ToolType type, int id, std::string name);
 
     int GetId() const;
     ToolType GetType() const;
@@ -49,11 +51,10 @@ public:
 
     bool isVisible = true;
 
-private:
+protected:
     const int kId_;
     std::string name_ = "";
     ToolType type_ = ToolType::NONE;
+    AerEngine& engine_;
 };
-
-
 }

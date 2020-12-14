@@ -1,5 +1,12 @@
 
-LIST(APPEND ASSIMP_WRAPPER_LIBS Neko_Core assimp gles3_wrapper)
+LIST(APPEND ASSIMP_WRAPPER_LIBS Neko_Core assimp)
+if(Neko_GLES3 AND NOT Neko_VULKAN)
+    LIST(APPEND ASSIMP_WRAPPER_LIBS gles3_wrapper)
+endif()
+if(Neko_VULKAN)
+    LIST(APPEND ASSIMP_WRAPPER_LIBS vulkan_wrapper)
+endif()
+
 file(GLOB_RECURSE assimp_wrapper_src include/*.h src/*.cpp)
 
 add_library(assimp_wrapper STATIC ${assimp_wrapper_src})

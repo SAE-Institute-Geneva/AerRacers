@@ -49,7 +49,7 @@ private:
 		CCW = 1u << 2u
 	};
 	
-	sdl::Camera3D camera_;
+	sdl::MovableCamera3D camera_;
 	assimp::Model model_;
 	gl::RenderCuboid cube_{ Vec3f::zero, Vec3f::one };
 	gl::TextureManager textureManager_;
@@ -57,7 +57,7 @@ private:
 	TextureId cubeTextureId_;
 	gl::Shader modelShader_;
 
-	sdl::Camera3D externalCamera_;
+	Camera3D externalCamera_;
 
 	std::uint8_t flags_ = BACK_CULLING | CCW;
 };

@@ -41,10 +41,9 @@
 #clion generation files
 */.vs/*
 .vs/*
-Build/*
 CMakeSettings.json
 Folder.DotSettings.user
-build/*
+[Bb]uild/*
 cmake-build-debug/*
 cmake-build-release/*
 cmake-build-relwithdebinfo/*
@@ -56,3 +55,5 @@ web_build/*
 
 # log files
 /data/logs/*
+ 
+  

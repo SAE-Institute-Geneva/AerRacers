@@ -23,6 +23,7 @@
  SOFTWARE.
  */
 
+#ifdef NEKO_GLES3
 #include "gl/mesh.h"
 #include "gl/shader.h"
 #include <assimp/scene.h>
@@ -57,3 +58,4 @@ private:
     void ProcessNode(aiNode* node, const aiScene* scene);
 };
 }
+#endif

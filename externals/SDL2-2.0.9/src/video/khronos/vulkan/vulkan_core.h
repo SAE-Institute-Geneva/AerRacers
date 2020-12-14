@@ -4637,7 +4637,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorUpdateTemplate(
 
 VKAPI_ATTR void VKAPI_CALL vkUpdateDescriptorSetWithTemplate(
     VkDevice                                    device,
-    VkDescriptorSet                             descriptorSet,
+    VkDescriptorSet                             descriptorHandle,
     VkDescriptorUpdateTemplate                  descriptorUpdateTemplate,
     const void*                                 pData);
 
@@ -5538,7 +5538,7 @@ VKAPI_ATTR void VKAPI_CALL vkDestroyDescriptorUpdateTemplateKHR(
 
 VKAPI_ATTR void VKAPI_CALL vkUpdateDescriptorSetWithTemplateKHR(
     VkDevice                                    device,
-    VkDescriptorSet                             descriptorSet,
+    VkDescriptorSet                             descriptorHandle,
     VkDescriptorUpdateTemplate                  descriptorUpdateTemplate,
     const void*                                 pData);
 #endif

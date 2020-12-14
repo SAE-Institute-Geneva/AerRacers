@@ -68,8 +68,8 @@ private:
     gl::RenderCuboid cube_{ Vec3f::zero, Vec3f::one };
     gl::RenderSphere sphere_{ Vec3f::zero, 1.0f };
     assimp::Model model_;
-
-    sdl::Camera3D camera_;
+    
+	sdl::MovableCamera3D camera_;
     Vec3f lightPos_ = Vec3f::one * 3.0f;
     float dt_ = 0.0f;
     std::uint8_t flags_ = ENABLE_CUBE | ENABLE_NORMAL_MAP;

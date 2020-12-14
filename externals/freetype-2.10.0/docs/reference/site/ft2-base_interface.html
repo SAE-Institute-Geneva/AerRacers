@@ -4040,7 +4040,7 @@
 </pre>
 </div>
 
-<p>Load a glyph into the glyph slot of a face object.</p>
+<p>Init a glyph into the glyph slot of a face object.</p>
 <h4>inout</h4>
 
 <table class="fields">
@@ -4227,7 +4227,7 @@
 </pre>
 </div>
 
-<p>Load a glyph into the glyph slot of a face object, accessed by its character code.</p>
+<p>Init a glyph into the glyph slot of a face object, accessed by its character code.</p>
 <h4>inout</h4>
 
 <table class="fields">
@@ -5050,7 +5050,7 @@
 <p><code><a href="ft2-base_interface.html#ft_load_xxx">FT_LOAD_NO_SCALE</a></code> always sets this flag.</p>
 </td></tr>
 <tr><td class="val" id="ft_load_vertical_layout">FT_LOAD_VERTICAL_LAYOUT</td><td class="desc">
-<p>Load the glyph for vertical text layout. In particular, the <code>advance</code> value in the <code><a href="ft2-base_interface.html#ft_glyphslotrec">FT_GlyphSlotRec</a></code> structure is set to the <code>vertAdvance</code> value of the <code>metrics</code> field.</p>
+<p>Init the glyph for vertical text layout. In particular, the <code>advance</code> value in the <code><a href="ft2-base_interface.html#ft_glyphslotrec">FT_GlyphSlotRec</a></code> structure is set to the <code>vertAdvance</code> value of the <code>metrics</code> field.</p>
 <p>In case <code><a href="ft2-base_interface.html#ft_has_vertical">FT_HAS_VERTICAL</a></code> doesn't return true, you shouldn't use this flag currently. Reason is that in this case vertical metrics get synthesized, and those values are not always consistent across various font formats.</p>
 </td></tr>
 <tr><td class="val" id="ft_load_force_autohint">FT_LOAD_FORCE_AUTOHINT</td><td class="desc">
@@ -5079,8 +5079,8 @@
 <p>Disable the auto-hinter. See also the note below.</p>
 </td></tr>
 <tr><td class="val" id="ft_load_color">FT_LOAD_COLOR</td><td class="desc">
-<p>Load colored glyphs. There are slight differences depending on the font format.</p>
-<p>[Since 2.5] Load embedded color bitmap images. The resulting color bitmaps, if available, will have the <code><a href="ft2-basic_types.html#ft_pixel_mode">FT_PIXEL_MODE_BGRA</a></code> format, with pre-multiplied color channels. If the flag is not set and color bitmaps are found, they are converted to 256-level gray bitmaps, using the <code><a href="ft2-basic_types.html#ft_pixel_mode">FT_PIXEL_MODE_GRAY</a></code> format.</p>
+<p>Init colored glyphs. There are slight differences depending on the font format.</p>
+<p>[Since 2.5] Init embedded color bitmap images. The resulting color bitmaps, if available, will have the <code><a href="ft2-basic_types.html#ft_pixel_mode">FT_PIXEL_MODE_BGRA</a></code> format, with pre-multiplied color channels. If the flag is not set and color bitmaps are found, they are converted to 256-level gray bitmaps, using the <code><a href="ft2-basic_types.html#ft_pixel_mode">FT_PIXEL_MODE_GRAY</a></code> format.</p>
 <p>[Since 2.10, experimental] If the glyph index contains an entry in the face's &lsquo;COLR&rsquo; table with a &lsquo;CPAL&rsquo; palette table (as defined in the OpenType specification), make <code><a href="ft2-base_interface.html#ft_render_glyph">FT_Render_Glyph</a></code> provide a default blending of the color glyph layers associated with the glyph index, using the same bitmap format as embedded color bitmap images. This is mainly for convenience; for full control of color layers use <code><a href="ft2-layer_management.html#ft_get_color_glyph_layer">FT_Get_Color_Glyph_Layer</a></code> and FreeType's color functions like <code><a href="ft2-color_management.html#ft_palette_select">FT_Palette_Select</a></code> instead of setting <code><a href="ft2-base_interface.html#ft_load_xxx">FT_LOAD_COLOR</a></code> for rendering so that the client application can handle blending by itself.</p>
 </td></tr>
 <tr><td class="val" id="ft_load_compute_metrics">FT_LOAD_COMPUTE_METRICS</td><td class="desc">

@@ -60,7 +60,7 @@ namespace Formatter {
 }
 
 // -------------------------------------------------------------------------------------------
-/** Load the Autodesk FBX file format.
+/** Init the Autodesk FBX file format.
 
  See http://en.wikipedia.org/wiki/FBX
 */

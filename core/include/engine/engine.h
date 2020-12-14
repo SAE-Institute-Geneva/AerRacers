@@ -79,7 +79,7 @@ public:
     void EngineLoop();
     void Stop();
 
-    void SetWindowAndRenderer(Window* window, Renderer* renderer);
+    virtual void SetWindowAndRenderer(Window* window, Renderer* renderer);
 
     Configuration config;
 
