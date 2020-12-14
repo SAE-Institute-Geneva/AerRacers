@@ -17,10 +17,12 @@ namespace neko::aer
         if (isVisible) {
             if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(),
                 &isVisible)) {
-                ImGui::Separator();
-                ImGui::Text("Cube");
+
+                ImGui::Text("Test");
             	
-                ImGui::End();
+
+
+                
             }
             else {
                 ImGui::End();
