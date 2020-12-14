@@ -27,6 +27,8 @@
  Date : 03.11.2020
 ---------------------------------------------------------- */
 #include "editor/editor_tool_interface.h"
+#include "gl/texture.h"
+#include "graphics/texture.h"
 
 namespace neko::aer {
 class AerEngine;
@@ -57,9 +59,41 @@ private:
     AerEngine& engine_;
     std::vector<std::unique_ptr<EditorToolInterface>> tools_;
 
-    std::string toolNames_[2]{
+    std::string toolNames_[3]{
         "Tool",
-        "Logger"
+        "Logger",
+    	"Project"
     };
+};
+
+class TextureManager : public SystemInterface
+{
+	class AerTexture : TextureId
+	{
+        int id;
+        std::string path;
+	};
+    
+    TextureId texture;
+    
+
+    TextureManager();
+    ~TextureManager();
+    void Init() = 0;
+
+    void Update(seconds dt) = 0
+    {
+		// Load
+        //   CheckIsExist()
+    	//
+    	TextureName texture = neko::gl::stbCreateTexture(path);
+    	//  
+    	// Deload
+    	// 
+    }
+
+	
+
+    void Destroy() = 0;
 };
 }

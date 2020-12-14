@@ -24,31 +24,158 @@
  
  Author : Dylan von Arx
  Co-Author : 
- Date : 13.10.2020
+ Date : 25.11.2020
 ---------------------------------------------------------- */
 #include <SDL_events.h>
+#include <filesystem>
 
 #include "editor/editor_tool_interface.h"
+#include "gl/texture.h"
 
 namespace neko::aer {
+
+	struct DataResource
+	{
+		DataResource(std::string name, std::filesystem::path path); 
+		~DataResource();
+
+		
+		virtual void Display()
+		{
+			
+		}
+		virtual void OpenFile()
+		{
+			
+		}
+		virtual DataResource* GetResourceIsSelected() = 0
+		{
+			
+		}
+
+		std::string GetName() const;
+
+		bool GetIsSelect()
+		{
+			return isSelect_;
+		}
+
+		std::filesystem::path GetPath()
+		{
+			return path_;
+		}
+		bool isHover_= false;
+	protected:
+		std::filesystem::path path_;
+		std::string name_;
+	
+		bool isSelect_ = false;
+	};
+	
+	struct DataFile : public DataResource
+	{
+		enum class Type
+		{
+			None,
+			Data,
+			Text,
+			Model,
+			Prefab,
+			Scene,
+			Material,
+			Texture,
+			Sound,
+			Font,
+			Shader
+			
+		};
+		
+		DataFile(std::string name, std::filesystem::path path, Type type);
+
+		DataResource* GetResourceIsSelected() override
+		{
+			if (isSelect_) {
+				isSelect_ = false;
+				return this;
+			}
+		}
+
+		Type GetType()
+		{
+			return type_;
+		}
+
+		void Display() override;
+		void OpenFile() override;
+		
+	private:
+		Type type_ = Type::None;
+
+	};
+
+	struct DataFolder : public DataResource
+	{
+		DataFolder(std::string name, std::filesystem::path path);
+
+		void Display() override;
+
+		[[nodiscard]] std::vector<DataResource*> GetDataResources() const;
+		int GetFileNumber() const;
+		
+		std::vector<DataResource*> GetRessources()
+		{
+			return this->resources_;
+		}
+
+		virtual DataResource* GetResourceIsSelected()
+		{
+			if (isHover_)
+			{
+				return this;
+			}
+			else
+			{
+				for (auto element : resources_)
+				{
+					DataResource* resource = element->GetResourceIsSelected();
+					if(resource != nullptr)
+					{
+							return resource;
+					}
+				}
+			}
+
+			return nullptr;
+		}
+	
+		
+	private:
+		std::vector<DataResource*> resources_;
+		int fileNumber_ = 0;
+		
+	};
 
 class Project final : public EditorToolInterface {
 public:
     explicit Project(ToolType type, int id, std::string name);
-
     void Init() override;
-
     void Update(seconds dt) override;
-
     void DrawImGui() override;
-
     void Destroy() override;
-
     void OnEvent(const SDL_Event& event) override;
 
+	void LoadData(const std::string path);
 
 private:
     int posY_ = 0;
+	std::string path_ = "./../../data/";
+	DataResource* resources_;
+	bool contextMenuIsOpen_ = false;
+	DataResource* resourceHovered_ = nullptr;
+	gl::TextureManager textureManager_;
+
+	bool mouseButtonRight_ = false;
+	bool mouseButtonLeft_ = false;
 };
 
 }
