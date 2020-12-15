@@ -48,8 +48,8 @@ private:
 	int specularPow_ = 32;
 
 	gl::RenderCuboid cube_{ Vec3f::zero, Vec3f::one };
-
-	sdl::Camera3D camera_;
+	
+	sdl::MovableCamera3D camera_;
 	float time_ = 0.0f;
 	Vec3f lightPos_;
 	const float lightDist_ = 3.0f;

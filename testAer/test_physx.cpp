@@ -127,7 +127,6 @@ public :
         view_ = neko::Transform3d::Translate(
             view_,
             neko::Vec3f(0.0f, 0.0f, -3.0f));
-        shader_.SetVec3("color", neko::Color::black);
 
 
         glEnable(GL_DEPTH_TEST);

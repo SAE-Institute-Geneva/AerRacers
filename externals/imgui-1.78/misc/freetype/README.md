@@ -29,7 +29,7 @@ The default Dear ImGui styles will be impacted by this change (alpha values will
 #include "misc/freetype/imgui_freetype.h"
 #include "misc/freetype/imgui_freetype.cpp"
 
-// Load various small fonts
+// Init various small fonts
 ImGuiIO& io = ImGui::GetIO();
 io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 13.0f);
 io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 13.0f);

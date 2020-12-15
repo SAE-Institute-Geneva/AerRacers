@@ -503,7 +503,7 @@ class ObjReader {
   ~ObjReader() {}
 
   ///
-  /// Load .obj and .mtl from a file.
+  /// Init .obj and .mtl from a file.
   ///
   /// @param[in] filename wavefront .obj filename
   /// @param[in] config Reader configuration
@@ -535,12 +535,12 @@ class ObjReader {
   const std::vector<material_t> &GetMaterials() const { return materials_; }
 
   ///
-  /// Warning message(may be filled after `Load` or `Parse`)
+  /// Warning message(may be filled after `Init` or `Parse`)
   ///
   const std::string &Warning() const { return warning_; }
 
   ///
-  /// Error message(filled when `Load` or `Parse` failed)
+  /// Error message(filled when `Init` or `Parse` failed)
   ///
   const std::string &Error() const { return error_; }
 

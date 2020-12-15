@@ -716,7 +716,7 @@ GLES2_SelectProgram(GLES2_RenderData *data, GLES2_ImageSource source, int w, int
         goto fault;
     }
 
-    /* Load the requested shaders */
+    /* Init the requested shaders */
     vertex = GLES2_CacheShader(data, vtype);
     if (!vertex) {
         goto fault;

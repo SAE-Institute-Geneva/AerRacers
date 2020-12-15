@@ -1437,7 +1437,7 @@ COMPACT_RTF            = NO
 
 RTF_HYPERLINKS         = NO
 
-# Load style sheet definitions from file. Syntax is similar to doxygen's 
+# Init style sheet definitions from file. Syntax is similar to doxygen's
 # config file, i.e. a series of assignments. You only have to provide 
 # replacements, missing definitions are set to their default value.
 

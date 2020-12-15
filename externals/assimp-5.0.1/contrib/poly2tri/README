@@ -36,7 +36,7 @@ Windows command line:
 Running the Examples
 ----------------------------------------------
 
-Load data points from a file:
+Init data points from a file:
 p2t <filename> <center_x> <center_y> <zoom>
 
 Random distribution of points inside a consrained box:

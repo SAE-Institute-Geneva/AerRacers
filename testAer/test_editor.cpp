@@ -26,6 +26,8 @@
  Date : 11.11.2020
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
+
+#ifdef NEKO_GLES3
 #include <sdl_engine/sdl_engine.h>
 #include <sdl_engine/sdl_input.h>
 #include <gl/gles3_window.h>
@@ -36,8 +38,8 @@
 
 class TestToolInterface : public neko::aer::EditorToolInterface {
 public:
-    explicit TestToolInterface(ToolType type, int id, std::string name)
-        : EditorToolInterface(type, id, name)
+    explicit TestToolInterface(neko::aer::AerEngine& engine, ToolType type, int id, std::string name)
+        : EditorToolInterface(engine, type, id, name)
     {
         color_ = ImVec4(std::rand() % 2, std::rand() % 2, std::rand() % 2, 1);
         counterTime_ = -std::rand() % 2;
@@ -185,3 +187,4 @@ TEST(Editor, TestEditor)
 
     simulateEditor.HasSucceed();
 }
+#endif

@@ -35,11 +35,10 @@ public:
     Action() = default;
     virtual ~Action() = default;
 
-    void RegisterCallback(const std::function<void(Ts ...)>& callback)
-    {
-	callbacks_.push_back(callback);
-	    
-    }
+	void RegisterCallback(const std::function<void(Ts ...)>& callback)
+	{
+		callbacks_.push_back(callback);
+	}
     /*
     void UnregisterCallback(const std::function<void(Ts ...)>& callback)
     {
@@ -59,3 +58,4 @@ private:
 	std::vector<std::function<void(Ts...)>> callbacks_;
 };
 }
+ 

@@ -59,8 +59,8 @@ private:
 	[[nodiscard]] Camera2D CalculateOrthoLight(float cascadeNear, float cascadeFar, Vec3f lightDir) const;
 	void ShadowPass(int cascadeIndex);
 	void RenderScene(const gl::Shader& shader);
-
-	sdl::Camera3D camera_;
+	
+	sdl::MovableCamera3D camera_;
 
 	gl::Shader simpleDepthShader_;
 	gl::Shader shadowShader_;

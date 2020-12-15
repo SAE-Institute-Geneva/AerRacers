@@ -26,7 +26,6 @@
 #include "gl/gles3_window.h"
 #include "comp_graph/comp_graph_engine.h"
 
-
 int main(int argc, char** argv)
 {
     neko::sdl::Gles3Window window;

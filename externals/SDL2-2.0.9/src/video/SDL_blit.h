@@ -119,7 +119,7 @@ extern SDL_BlitFunc SDL_CalculateBlitA(SDL_Surface * surface);
 #define DECLARE_ALIGNED(t,v,a)  t v
 #endif
 
-/* Load pixel of the specified format from a buffer and get its R-G-B values */
+/* Init pixel of the specified format from a buffer and get its R-G-B values */
 #define RGB_FROM_PIXEL(Pixel, fmt, r, g, b)                             \
 {                                                                       \
     r = SDL_expand_byte[fmt->Rloss][((Pixel&fmt->Rmask)>>fmt->Rshift)]; \

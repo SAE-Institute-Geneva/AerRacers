@@ -50,8 +50,8 @@ namespace neko
 		TextureId grassTextureId_;
 		TextureName cubeTexture_ = INVALID_TEXTURE_NAME;
 		TextureId cubeTextureId_;
-
-		sdl::Camera3D camera_;
+		
+		sdl::MovableCamera3D camera_;
 		bool enableCutoff_ = false;
 		TextureName whiteTexture_ = 0;
 	};

@@ -1911,7 +1911,7 @@ int D3D11_CreateVertexShader(ID3D11Device1 *d3dDevice, ID3D11VertexShader **vert
     };
     HRESULT result;
 
-    /* Load in SDL's one and only vertex shader: */
+    /* Init in SDL's one and only vertex shader: */
     result = ID3D11Device_CreateVertexShader(d3dDevice,
         D3D11_VertexShader,
         sizeof(D3D11_VertexShader),

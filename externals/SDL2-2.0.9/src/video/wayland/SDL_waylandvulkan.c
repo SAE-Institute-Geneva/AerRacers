@@ -46,7 +46,7 @@ int Wayland_Vulkan_LoadLibrary(_THIS, const char *path)
     if(_this->vulkan_config.loader_handle)
         return SDL_SetError("Vulkan already loaded");
 
-    /* Load the Vulkan loader library */
+    /* Init the Vulkan loader library */
     if(!path)
         path = SDL_getenv("SDL_VULKAN_LIBRARY");
     if(!path)

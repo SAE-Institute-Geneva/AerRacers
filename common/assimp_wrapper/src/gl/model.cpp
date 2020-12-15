@@ -22,6 +22,7 @@
  SOFTWARE.
  */
 
+#ifdef NEKO_GLES3
 #include "gl/model.h"
 #include "gl/texture.h"
 
@@ -172,3 +173,4 @@ void Model::Destroy()
 	}
 
 }
+#endif

@@ -33,7 +33,6 @@ void HelloBlendingProgram::Init()
 	cutoffShader_.LoadFromFile(
 		config.dataRootPath + "shaders/28_hello_blending/blending.vert",
 		config.dataRootPath + "shaders/28_hello_blending/blending.frag");
-	camera_.Init();
 	windowTextureId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/blending_transparent_window.png");
 	
 	cubeTextureId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/container.jpg");

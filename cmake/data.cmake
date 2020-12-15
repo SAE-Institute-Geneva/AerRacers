@@ -27,6 +27,9 @@ file(GLOB_RECURSE SHADER_FILES
         "${PROJECT_SOURCE_DIR}/data/*.tesc"
         "${PROJECT_SOURCE_DIR}/data/*.tese"
         )
+file(GLOB_RECURSE VK_SHADER_FILES
+        "${PROJECT_SOURCE_DIR}/data/*.vk"
+        )
 file(GLOB_RECURSE IMG_FILES
         "${PROJECT_SOURCE_DIR}/data/*.jpg"
         "${PROJECT_SOURCE_DIR}/data/*.JPG"
@@ -53,16 +56,21 @@ file(GLOB_RECURSE MATERIAL_FILES
         "${PROJECT_SOURCE_DIR}/data/*.mat"
         "${PROJECT_SOURCE_DIR}/data/*.mtl")
 
+file(GLOB_RECURSE AER_FILES
+        "${PROJECT_SOURCE_DIR}/data/*.aermat"
+        "${PROJECT_SOURCE_DIR}/data/*.aershader"
+        )
 
-source_group("Scripts"				FILES ${SCRIPT_FILES})
-source_group("Data/Font"           FILES ${FONT_FILES})
-source_group("Data/Text"           FILES ${TEXT_FILES})
-source_group("Data/Img"            FILES ${IMG_FILES})
+source_group("Scripts"		    FILES ${SCRIPT_FILES})
+source_group("Data/Font"        FILES ${FONT_FILES})
+source_group("Data/Text"        FILES ${TEXT_FILES})
+source_group("Data/Img"         FILES ${IMG_FILES})
 source_group("Data/Snd"			FILES ${SND_FILES})
-source_group("Shaders"		FILES ${SHADER_FILES})
-source_group("Data/Model" FILES ${MODEL_FILES})
-source_group("Data/Materials" FILES ${MATERIALS_FILES})
-LIST(APPEND DATA_FILES ${IMG_FILES} ${MODEL_FILES} ${SND_FILES} ${TEXT_FILES} ${SHADER_FILES} ${MATERIAL_FILES} ${FONT_FILES})
+source_group("Shaders"		    FILES ${SHADER_FILES})
+source_group("VkShaders"		FILES ${VK_SHADER_FILES})
+source_group("Data/Model"       FILES ${MODEL_FILES})
+source_group("Data/Materials"   FILES ${MATERIALS_FILES})
+LIST(APPEND DATA_FILES ${IMG_FILES} ${MODEL_FILES} ${SND_FILES} ${SHADER_FILES} ${TEXT_FILES} ${FONT_FILES} ${MATERIAL_FILES} ${AER_FILES})
 
 foreach(DATA ${DATA_FILES})
     get_filename_component(FILE_NAME ${DATA} NAME)
@@ -116,3 +124,33 @@ find_program(GLSL_VALIDATOR_FOUND ${GLSL_VALIDATOR})
 IF(NOT GLSL_VALIDATOR_FOUND)
     MESSAGE(FATAL_ERROR "Please install VulkanSDK and put it in path (current path: $ENV{VULKAN_SDK})")
 ENDIF()
+
+set(SUPPORTED_STAGES "vert" "frag" "geom" "comp" "tesc" "tese")
+foreach(SHADER ${VK_SHADER_FILES})
+    get_filename_component(FILE_NAME ${SHADER} NAME)
+    get_filename_component(PATH_NAME ${SHADER} DIRECTORY)
+    get_filename_component(EXTENSION ${SHADER} EXT)
+    string(REPLACE ".vk" "" FILE_NAME ${FILE_NAME})
+
+    file(RELATIVE_PATH PATH_NAME "${PROJECT_SOURCE_DIR}" ${PATH_NAME})
+    set(SHADER_OUTPUT "${PROJECT_BINARY_DIR}/${PATH_NAME}/${FILE_NAME}.spv")
+    
+	foreach(SUPPORTED_STAGE ${SUPPORTED_STAGES})
+		string(COMPARE EQUAL "${EXTENSION}" ".${SUPPORTED_STAGE}.vk" _cmp)
+		if(_cmp)
+			set(STAGE ${SUPPORTED_STAGE})
+			break()
+		endif()
+	endforeach(SUPPORTED_STAGE)
+
+    add_custom_command(
+            OUTPUT ${SHADER_OUTPUT}
+            DEPENDS ${SHADER}
+            DEPENDS
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${PATH_NAME}"
+            COMMAND ${GLSL_VALIDATOR} -V -S "${STAGE}" "${SHADER}" -o ${SHADER_OUTPUT}
+    )
+    list(APPEND SHADER_BINARY_FILES ${SHADER_OUTPUT})
+endforeach(SHADER)
+
+add_custom_target(ShaderTarget DEPENDS ${SHADER_BINARY_FILES} ${shader_files})   

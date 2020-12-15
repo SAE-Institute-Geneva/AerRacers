@@ -34,11 +34,11 @@
 
 namespace neko
 {
-template<typename T>
+/*template<typename T>
 class Mat2
 {
-
-};
+glm::mat4
+};*/
 template<typename T>
 class Mat3
 {
@@ -143,7 +143,7 @@ public:
 		{
 			for (int row = 0; row < 4; row++)
 			{
-				if(col == 3 or row == 3)
+				if(col == 3 || row == 3)
 				{
 					columns_[col][row] = 0;
 				}
