@@ -110,7 +110,7 @@ public:
         textureManager_.Update(dt);
         neko::RendererLocator::get().Render(this);
         neko::RendererLocator::get().Render(&gizmosRenderer_);
-        //updateCount_++;
+        updateCount_++;
         if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
         gizmosRenderer_.Update(dt);
     }
@@ -164,7 +164,7 @@ public:
     }
 private:
     int updateCount_ = 0;
-    const int kEngineDuration_ = 200;
+    const int kEngineDuration_ = 50;
 
     neko::aer::AerEngine& engine_;
     neko::EntityManager& entityManager_;
