@@ -88,11 +88,14 @@ void EditorToolManager::OnEvent(const SDL_Event& event)
 template <typename T, EditorToolInterface::ToolType Type>
 void EditorToolManager::AddEditorTool()
 {
-	auto newTool = std::make_unique<T>(Type,
-	                                   tools_.size(),
-	                                   toolNames_[static_cast<int>(Type)]);
-	newTool->Init();
-	tools_.push_back(std::move(newTool));
+    auto newTool = std::make_unique<T>(
+        engine_,
+        Type,
+        tools_.size(),
+        toolNames_[static_cast<int>(Type)]
+    );
+    newTool->Init();
+    tools_.push_back(std::move(newTool));
 }
 
 int EditorToolManager::GetNumberTools() const

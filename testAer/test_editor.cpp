@@ -38,8 +38,8 @@
 
 class TestToolInterface : public neko::aer::EditorToolInterface {
 public:
-    explicit TestToolInterface(ToolType type, int id, std::string name)
-        : EditorToolInterface(type, id, name)
+    explicit TestToolInterface(neko::aer::AerEngine& engine, ToolType type, int id, std::string name)
+        : EditorToolInterface(engine, type, id, name)
     {
         color_ = ImVec4(std::rand() % 2, std::rand() % 2, std::rand() % 2, 1);
         counterTime_ = -std::rand() % 2;
