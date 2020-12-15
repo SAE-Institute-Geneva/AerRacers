@@ -172,7 +172,8 @@ TEST(Engine, TestSimulateInput)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem , &config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
@@ -370,7 +371,8 @@ TEST(Engine, TestSimulateBindedInput)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem , &config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
@@ -813,7 +815,8 @@ TEST(Engine, TestInteractiveInput)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem , &config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 

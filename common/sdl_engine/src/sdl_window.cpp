@@ -24,7 +24,7 @@
 
 #include <sstream>
 
-#include <utilities/service_locator.h>
+#include <utils/service_locator.h>
 #include <engine/log.h>
 #include "sdl_engine/sdl_window.h"
 #include "engine/engine.h"
@@ -43,10 +43,10 @@ void sdl::SdlWindow::Init()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("InitSdlWindow");
 #endif
-    auto& config = BasicEngine::GetInstance()->config;
+    const auto& config = BasicEngine::GetInstance()->GetConfig();
 
 
-    auto flags = SDL_WINDOW_RESIZABLE |
+    flags_ = SDL_WINDOW_RESIZABLE |
 #ifdef NEKO_GLES3
         SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
 #endif
@@ -56,30 +56,30 @@ void sdl::SdlWindow::Init()
     config.windowSize = Vec2u(1280, 720);
     config.fullscreen = true;
 #endif
-                    ;
+    ;
     auto windowSize = config.windowSize;
-    if (config.fullscreen)
+    if (config.flags & Configuration::FULLSCREEN)
     {
         windowSize = Vec2u::zero;
-        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        flags_ |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
     window_ = SDL_CreateWindow(
-            config.windowName.c_str(),
-            SDL_WINDOWPOS_UNDEFINED,
-            SDL_WINDOWPOS_UNDEFINED,
-            windowSize.x,
-            windowSize.y,
-            flags
+        config.windowName.c_str(),
+        SDL_WINDOWPOS_UNDEFINED,
+        SDL_WINDOWPOS_UNDEFINED,
+        windowSize.x,
+        windowSize.y,
+        flags_
     );
-	if(config.fullscreen)
-	{
+    if (config.flags & Configuration::FULLSCREEN)
+    {
         int windowSizeW = 0;
         int windowSizeH = 0;
         SDL_GetWindowSize(window_, &windowSizeW, &windowSizeH);
         windowSize.x = windowSizeW;
         windowSize.y = windowSizeH;
-        config.windowSize = windowSize;
-	}
+        //config.windowSize = windowSize;
+    }
     // Check that everything worked out okay
     if (window_ == nullptr)
     {
@@ -94,7 +94,7 @@ void sdl::SdlWindow::InitImGui()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("InitSdlImGui");
 #endif
-// Setup Dear ImGui context
+    // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void) io;

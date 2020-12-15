@@ -17,25 +17,13 @@ set(Neko_Test ON CACHE BOOL "Activate Neko Test")
 set(Neko_Freetype ON CACHE BOOL "Activate Freetype")
 set(Neko_Assert ON CACHE BOOL "Activate Neko Assertion")
 set(Neko_Benchmark ON CACHE BOOL "Activate Benchmark")
-set(Neko_Assimp ON CACHE BOOL "Activate Assimp Wrapper")
 set(Neko_SFML_NET ON CACHE BOOL "Activate SFML Net Wrapper")
 set(Aer_Lib ON CACHE BOOL "Activate Aer_Lib")
 set(Aer_Test ON CACHE BOOL "Activate Aer Test")
 set(Neko_KTX ON CACHE BOOL "Activate SFML Net Wrapper")
-set(Neko_SameThread OFF CACHE BOOL "Activate Same Thread Rendering and Resource Loading")
+set(Neko_PhysFS ON CACHE BOOL "Activate PhysFS Wrapper")
 
 MESSAGE("CMAKE SYSTEM NAME: ${CMAKE_SYSTEM_NAME}")
-
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Emscripten")
-    include(cmake/platforms/emscripten.cmake)
-    set(CMAKE_EXECUTABLE_SUFFIX ".html")
-    set(CMAKE_STATIC_LIBRARY_SUFFIX ".a")
-    set(Neko_SameThread ON CACHE BOOL "")
-    mark_as_advanced(Neko_SameThread)
-    #We currently disable SFML Net
-    set(Neko_SFML_NET OFF CACHE BOOL "")
-    mark_as_advanced(Neko_SFML_NET)
-endif()
 
 if(UNIX)
     EXECUTE_PROCESS(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE ARCHITECTURE)
@@ -53,16 +41,13 @@ if(MSVC)
 endif()
 
 include(cmake/neko_executable.cmake)
+include(cmake/data.cmake)
 
 set(EXTERNAL_DIR ${CMAKE_SOURCE_DIR}/externals CACHE INTERNAL "Externals folder")
 set(UTILITIES_DIR "${EXTERNAL_DIR}/utilities" CACHE INTERNAL "")
 
 if(Neko_Assert)
     add_compile_definitions("NEKO_ASSERT=1")
-endif()
-
-if(Neko_SameThread)
-    add_compile_definitions("NEKO_SAMETHREAD=1")
 endif()
 
 if(Neko_KTX)
@@ -72,6 +57,26 @@ if(Neko_KTX)
     add_dependencies(ktx mkvk)
 endif()
 
+if(Neko_Test OR Aer_Test)
+    enable_testing()
+    set(GOOGLE_TEST_DIR ${EXTERNAL_DIR}/googletest-1.8.1)
+    set(BUILD_GMOCK OFF CACHE INTERNAL "")
+    set(INSTALL_GTEST OFF CACHE INTERNAL "")
+    add_subdirectory(${GOOGLE_TEST_DIR})
+endif()
+
+if(Neko_Test)
+    include(cmake/test.cmake)
+    set_target_properties (gtest PROPERTIES FOLDER Externals/GTest)
+    set_target_properties(gtest_main PROPERTIES FOLDER Externals/GTest)
+endif()
+
+if(Neko_PhysFS)
+    set(PHYSFS_DIR "${EXTERNAL_DIR}/physfs-3.0.2" CACHE STRING "")
+    add_subdirectory(${PHYSFS_DIR})
+
+    add_subdirectory(common/physfs_wrapper)
+endif()
 
 if(Neko_Profile)
     MESSAGE("Enable profiling")
@@ -88,12 +93,28 @@ if(Neko_Profile)
 
 endif()
 
-include("cmake/data.cmake")
+set(tools_project_dir "tools/")
+file(GLOB tools_projects "${tools_project_dir}/*")
+
+foreach(tools_project_path ${tools_projects} )
+    # I used a simple string replace, to cut off .cpp.
+    get_filename_component(tools_project_name ${tools_project_path} NAME )
+
+    message("Tools project path: ${tools_project_path} and name: ${tools_project_name}")
+    set(${tools_project_name} ON CACHE BOOL "")
+
+    if(${tools_project_name})
+        add_subdirectory(${tools_project_path})
+    endif()
+endforeach()
+
+
+include("cmake/data_generation.cmake")
 set(NEKO_CORE_DIR "${CMAKE_SOURCE_DIR}/core/" CACHE INTERNAL "")
 add_subdirectory(${NEKO_CORE_DIR})
-if(NOT Emscripten)
+
 target_precompile_headers(Neko_Core PRIVATE "${NEKO_CORE_DIR}/include/core_pch.h")
-endif()
+
 #imgui
 set(IMGUI_VERSION "1.79WIP" CACHE INTERNAL "")
 set(IMGUI_ROOT "${EXTERNAL_DIR}/imgui-${IMGUI_VERSION}" CACHE STRING "")
@@ -103,33 +124,6 @@ set_target_properties(imgui PROPERTIES UNITY_BUILD ON)
 
 
 if(Neko_GLES3)
-    add_compile_definitions("NEKO_GLES3=1")
-    if(NOT Emscripten)
-    add_subdirectory("${EXTERNAL_DIR}/glad")
-    endif()
-    set(GLES3_WRAPPER_DIR "common/gles3_wrapper" CACHE INTERNAL "")
-    add_subdirectory(${GLES3_WRAPPER_DIR})
-endif()
-
-if(Neko_SDL2)
-    #sdl2
-    set(SDL_VERSION 2.0.9)
-    set(SDL_DIR ${EXTERNAL_DIR}/SDL2-${SDL_VERSION}/)
-    set(SDL_STATIC ON CACHE INTERNAL "")
-    set(SDL_SHARED OFF CACHE INTERNAL "")
-    set(SDL_ENGINE_DIR ON CACHE INTERNAL "")
-    if(NOT Emscripten)
-        add_subdirectory(${SDL_DIR})
-    ENDIF()
-    include_directories(${SDL_DIR}/include ${SDL_DIR}/src)
-
-    add_subdirectory("common/sdl_engine")
-    if(NOT Emscripten)
-        target_precompile_headers(sdl_engine PRIVATE "common/sdl_engine/include/sdl_wrapper_pch.h")
-    endif()
-endif()
-
-if(Neko_Assimp)
     set(ASSIMP_VERSION 5.0.1)
     set(ASSIMP_DIR "${EXTERNAL_DIR}/assimp-${ASSIMP_VERSION}")
     set(ASSIMP_NO_EXPORT ON CACHE INTERNAL "")
@@ -148,11 +142,25 @@ if(Neko_Assimp)
     add_subdirectory("${ASSIMP_DIR}")
     set_target_properties (assimp IrrXML PROPERTIES
             FOLDER Externals)
-    add_subdirectory("common/assimp_wrapper")
-    #    if(ZLIB_BUILD_ASSIMP)
-    #   set_target_properties (zlib PROPERTIES FOLDER Externals)
-    #   set_target_properties (zlibstatic PROPERTIES FOLDER Externals)
-    #endif()
+    add_compile_definitions("NEKO_GLES3=1")
+    add_subdirectory("${EXTERNAL_DIR}/glad")
+    set(GLES3_WRAPPER_DIR "common/gles3_wrapper" CACHE INTERNAL "")
+    add_subdirectory(${GLES3_WRAPPER_DIR})
+endif()
+
+if(Neko_SDL2)
+    #sdl2
+    set(SDL_VERSION 2.0.12)
+    set(SDL_DIR ${EXTERNAL_DIR}/SDL2-${SDL_VERSION}/)
+    set(SDL_STATIC ON CACHE INTERNAL "")
+    set(SDL_SHARED OFF CACHE INTERNAL "")
+    set(SDL_ENGINE_DIR ON CACHE INTERNAL "")
+    add_subdirectory(${SDL_DIR})
+    include_directories(${SDL_DIR}/include ${SDL_DIR}/src)
+
+    add_subdirectory("common/sdl_engine")
+    target_precompile_headers(sdl_engine PRIVATE "common/sdl_engine/include/sdl_wrapper_pch.h")
+
 endif()
 
 if(Neko_SFML_NET)
@@ -168,27 +176,6 @@ if(Neko_Freetype)
     set_target_properties (freetype PROPERTIES FOLDER Externals)
 endif()
 
-if(Neko_Test OR Aer_Test)
-    enable_testing()
-    set(GOOGLE_TEST_DIR ${EXTERNAL_DIR}/googletest-1.8.1)
-    set(BUILD_GMOCK OFF CACHE INTERNAL "")
-    set(INSTALL_GTEST OFF CACHE INTERNAL "")
-    add_subdirectory(${GOOGLE_TEST_DIR})
-endif()
-
-if(Neko_Test)
-    include_directories(${GOOGLE_TEST_DIR}/include)
-    add_subdirectory("testNeko/")
-    set_target_properties (gtest PROPERTIES FOLDER Externals/GTest)
-    set_target_properties(gtest_main PROPERTIES FOLDER Externals/GTest)
-endif()
-
-if(Aer_Test)
-    include_directories(${GOOGLE_TEST_DIR}/include)
-    add_subdirectory("testAer/")
-    set_target_properties (gtest PROPERTIES FOLDER Externals/GTest)
-    set_target_properties(gtest_main PROPERTIES FOLDER Externals/GTest)
-endif()
 
 if(Neko_Benchmark)
     #Google benchmark
@@ -201,6 +188,14 @@ if(Neko_Benchmark)
     neko_lib_config(benchmark)
     set_target_properties (benchmark PROPERTIES FOLDER Externals/GTest)
     set_target_properties(benchmark_main PROPERTIES FOLDER Externals/GTest)
+endif()
+
+
+if(Aer_Test)
+    include_directories(${GOOGLE_TEST_DIR}/include)
+    add_subdirectory("testAer/")
+    set_target_properties (gtest PROPERTIES FOLDER Externals/GTest)
+    set_target_properties(gtest_main PROPERTIES FOLDER Externals/GTest)
 endif()
 
 if(Aer_Lib)

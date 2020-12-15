@@ -40,7 +40,8 @@ int main(int argc, char** argv)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem,
         &config,
         neko::aer::ModeEnum::EDITOR);
 

@@ -24,12 +24,11 @@
  */
 
 #include <functional>
-#ifndef NEKO_SAMETHREAD
 #include <thread>
 #include <future>
 #include <condition_variable>
-#endif
-#include <queue>
+
+#include <vector>
 #include "engine/system.h"
 
 namespace neko
@@ -54,6 +53,7 @@ public:
     };
     enum JobStatus : std::uint8_t
     {
+        NONE = 0u,
         STARTED = 1u << 0u,
         DONE = 1u << 1u
     };
@@ -93,27 +93,23 @@ public:
 protected:
     std::vector<const Job*> dependencies_;
     std::function<void()> task_;
-#ifndef NEKO_SAMETHREAD
     mutable std::promise<void> promise_;
     mutable std::shared_future<void> taskDoneFuture_;
     mutable std::mutex statusLock_;
-#endif
-    std::uint8_t status_;
+    std::uint8_t status_= NONE;
 
 };
 
 struct JobQueue
 {
-#ifndef NEKO_SAMETHREAD
     std::mutex mutex_;
     std::condition_variable cv_;
-#endif
-    std::queue<Job*> jobs_;
+    std::vector<Job*> jobs_;
 };
 
 class JobSystem : SystemInterface
 {
-    enum Status : uint8_t
+    enum Status : std::uint8_t
     {
         NONE = 0u,
         RUNNING = 1u
@@ -128,26 +124,21 @@ public:
     void Update([[maybe_unused]]seconds dt) override{}
 
     void Destroy() override;
-
-#ifdef NEKO_SAMETHREAD
-    void KickJobs();
-#endif
+    [[nodiscard]] std::uint8_t GetWorkersNumber() const { return numberOfWorkers; }
 private:
 	void Work(JobQueue& jobQueue);
 
-    [[nodiscard]] bool IsRunning();
+    [[nodiscard]] bool IsRunning() const;
 
     Status status_ = NONE;
     JobQueue jobs_; // Managed via mutex. // TODO: replace with custom queue when those are implemented.
     JobQueue renderJobs_; // Managed via mutex. // TODO: replace with custom queue when those are implemented.
     JobQueue resourceJobs_; // Managed via mutex. // TODO: replace with custom queue when those are implemented.
-#ifndef NEKO_SAMETHREAD
     std::uint8_t workersStarted_ = 0;
-    [[nodiscard]] std::uint8_t CountStartedWorkers();
+    [[nodiscard]] std::uint8_t CountStartedWorkers() const;
     std::uint8_t numberOfWorkers;
     std::vector<std::thread> workers_; // TODO: replace with fixed vector when those are implemented.
     mutable std::mutex statusMutex_;
-#endif
 };
 
 }
