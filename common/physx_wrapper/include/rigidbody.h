@@ -60,26 +60,25 @@ public:
     physx::PxMaterial* GetPxMaterial() const { return material_; }
 protected:
     physx::PxMaterial* InitMaterial(physx::PxPhysics* physics, const PhysicsMaterial& material) const;
-    physx::PxShape* InitBoxShape(physx::PxPhysics* physics, physx::PxMaterial* material, const BoxCollider& boxCollider) const;
-    physx::PxShape* InitSphereShape(physx::PxPhysics* physics, physx::PxMaterial* material, const SphereCollider& sphereCollider) const;
+    physx::PxShape* InitBoxShape(physx::PxPhysics* physics, physx::PxMaterial* material, const BoxColliderData& boxCollider) const;
+    physx::PxShape* InitSphereShape(physx::PxPhysics* physics, physx::PxMaterial* material, const SphereColliderData& sphereCollider) const;
     physx::PxMaterial* material_ = nullptr;
     physx::PxShape* shape_ = nullptr;
 };
 
 struct RigidStatic : RigidActor {
-    void Init(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic, const SphereCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
-    void Init(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic, const BoxCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
+    void Init(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic, const SphereColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
+    void Init(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic, const BoxColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
     physx::PxRigidStatic* GetPxRigidStatic() const { return rigidActor_; }
 private:
     void InitRigidStatic(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic) const;
     physx::PxRigidStatic* rigidActor_ = nullptr;
-
 };
 
 struct RigidDynamic : RigidActor {
 public:
-    void Init(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic, const SphereCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
-    void Init(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic, const BoxCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
+    void Init(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic, const SphereColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
+    void Init(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic, const BoxColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
     void AddForceAtPosition(const Vec3f& force, const Vec3f& position) const;
     void AddForce(const Vec3f& force);
     void SetRigidDynamicData(const physics::RigidDynamicData& rigidDynamic);

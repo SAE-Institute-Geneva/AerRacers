@@ -13,18 +13,18 @@ physx::PxMaterial* RigidActor::InitMaterial(
 physx::PxShape* RigidActor::InitBoxShape(
     physx::PxPhysics* physics,
     physx::PxMaterial* material,
-    const BoxCollider& boxCollider) const {
+    const BoxColliderData& boxCollider) const {
     return physics->createShape(physx::PxBoxGeometry(boxCollider.size.x, boxCollider.size.y, boxCollider.size.z), *material);
 }
 
 physx::PxShape* RigidActor::InitSphereShape(
     physx::PxPhysics* physics,
     physx::PxMaterial* material,
-    const SphereCollider& sphereCollider) const {
+    const SphereColliderData& sphereCollider) const {
     return physics->createShape(physx::PxSphereGeometry(sphereCollider.radius), *material);
 }
 
-void RigidStatic::Init(physx::PxPhysics* physics, const RigidStaticData& rigidStatic, const SphereCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
+void RigidStatic::Init(physx::PxPhysics* physics, const RigidStaticData& rigidStatic, const SphereColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
 {
     physx::PxTransform transform = physx::PxTransform(ConvertToPxVec(position), ConvertToPxQuat(Quaternion::FromEuler(eulerAngle)));
     rigidActor_ = physics->createRigidStatic(transform);
@@ -42,7 +42,7 @@ void RigidStatic::Init(physx::PxPhysics* physics, const RigidStaticData& rigidSt
     InitRigidStatic(physics, rigidStatic);
 }
 
-void RigidStatic::Init(physx::PxPhysics* physics, const RigidStaticData& rigidStatic, const BoxCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
+void RigidStatic::Init(physx::PxPhysics* physics, const RigidStaticData& rigidStatic, const BoxColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
 {
     physx::PxTransform transform = physx::PxTransform(ConvertToPxVec(position), ConvertToPxQuat(Quaternion::FromEuler(eulerAngle)));
     rigidActor_ = physics->createRigidStatic(transform);
@@ -67,7 +67,7 @@ void RigidStatic::InitRigidStatic(
     
 }
 
-void RigidDynamic::Init(physx::PxPhysics* physics, const RigidDynamicData& rigidDynamic, const SphereCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
+void RigidDynamic::Init(physx::PxPhysics* physics, const RigidDynamicData& rigidDynamic, const SphereColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
 {
     physx::PxTransform transform = physx::PxTransform(ConvertToPxVec(position), ConvertToPxQuat(Quaternion::FromEuler(eulerAngle)));
     rigidActor_ = physics->createRigidDynamic(transform);
@@ -86,7 +86,7 @@ void RigidDynamic::Init(physx::PxPhysics* physics, const RigidDynamicData& rigid
 }
 
 
-void RigidDynamic::Init(physx::PxPhysics* physics, const RigidDynamicData& rigidDynamic, const BoxCollider& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
+void RigidDynamic::Init(physx::PxPhysics* physics, const RigidDynamicData& rigidDynamic, const BoxColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle)
 {
     physx::PxTransform transform = physx::PxTransform(ConvertToPxVec(position), ConvertToPxQuat(Quaternion::FromEuler(eulerAngle)));
     rigidActor_ = physics->createRigidDynamic(transform);

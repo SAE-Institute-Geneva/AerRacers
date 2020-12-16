@@ -495,4 +495,113 @@ void RenderCircle::Destroy()
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(2, &VBO[0]);
 }
+
+void RenderWireFrameCuboid::Init()
+{
+	Vec3f position[36] =
+	{
+		//Right face 
+		Vec3f(0.5f, 0.5f, 0.5f) * size_ + offset_, //Top Right
+		Vec3f(0.5f, -0.5f, 0.5f) * size_ + offset_, //Bottom Right
+
+		Vec3f(0.5f, 0.5f, -0.5f) * size_ + offset_, //Top Left
+		Vec3f(0.5f, -0.5f, -0.5f) * size_ + offset_, //Bottom Left
+
+		Vec3f(0.5f, -0.5f, 0.5f) * size_ + offset_, //Bottom Right
+		Vec3f(0.5f, -0.5f, -0.5f) * size_ + offset_, //Bottom Left
+
+		Vec3f(0.5f, 0.5f, -0.5f) * size_ + offset_, //Top Left
+		Vec3f(0.5f, 0.5f, 0.5f) * size_ + offset_, //Top Right
+
+		//Left face                 
+		Vec3f(-0.5f, 0.5f, 0.5f) * size_ + offset_, //Top Right
+		Vec3f(-0.5f, 0.5f, -0.5f) * size_ + offset_, //Top Left
+
+		Vec3f(-0.5f, -0.5f, 0.5f) * size_ + offset_, //Bottom Right
+		Vec3f(-0.5f, -0.5f, -0.5f) * size_ + offset_, //Bottom Left
+
+		Vec3f(-0.5f, -0.5f, 0.5f) * size_ + offset_, //Bottom Right
+		Vec3f(-0.5f, 0.5f, 0.5f) * size_ + offset_, //Top Right
+
+		Vec3f(-0.5f, 0.5f, -0.5f) * size_ + offset_, //Top Left
+		Vec3f(-0.5f, -0.5f, -0.5f) * size_ + offset_, //Bottom Left
+
+		//Top face                  
+		Vec3f(0.5f, 0.5f, 0.5f) * size_ + offset_, //Top Right
+		Vec3f(-0.5f, 0.5f, 0.5f) * size_ + offset_, //Top Left
+		Vec3f(0.5f, 0.5f, -0.5f) * size_ + offset_, //Bottom Right
+		Vec3f(-0.5f, 0.5f, -0.5f) * size_ + offset_, //Bottom Left
+		//Bottom face               
+		Vec3f(0.5f, -0.5f, 0.5f) * size_ + offset_, //Top Right
+		Vec3f(-0.5f, -0.5f, 0.5f) * size_ + offset_, //Top Left
+		Vec3f(0.5f, -0.5f, -0.5f) * size_ + offset_, //Bottom Right
+		Vec3f(-0.5f, -0.5f, -0.5f) * size_ + offset_, //Bottom Left
+	};
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(4, &VBO[0]);
+
+	glBindVertexArray(VAO);
+	// position attribute
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+	glEnableVertexAttribArray(0);
+}
+
+void RenderWireFrameCuboid::Draw() const
+{
+	glLineWidth(lineWidth_);
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_LINES, 0, 24);
+}
+
+void RenderWireFrameCuboid::Destroy()
+{
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO[0]);
+}
+
+void RenderLine3d::Init()
+{
+	Vec3f position[2] =
+	{
+		Vec3f(0.0f, 0.0f, 0.0f) * offset_, //Left
+		Vec3f(1.0f, 1.0f, 1.0f) * relativeEndPos_ + offset_, //Right
+	};
+
+	float linePos[2] =
+	{
+		0,
+		1
+	};
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(2, &VBO[0]);
+	// 1. bind Vertex Array Object
+	glBindVertexArray(VAO);
+	// 2. copy our vertices array in a buffer for OpenGL to use
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), (void*)nullptr);
+	glEnableVertexAttribArray(0);
+	//bind texture coords data
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(linePos), linePos, GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)nullptr);
+
+	glEnableVertexAttribArray(1);
+}
+
+void RenderLine3d::Draw() const
+{
+	glLineWidth(lineWidth_);
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_LINES, 0, 2);
+}
+
+void RenderLine3d::Destroy()
+{
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(2, &VBO[0]);
+}
+
 }

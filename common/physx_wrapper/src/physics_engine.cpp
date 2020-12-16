@@ -146,7 +146,7 @@ physx::PxScene* PhysicsEngine::GetScene()
     return scene_;
 }
 
-void PhysicsEngine::AddRigidStatic(Entity entity, const physics::RigidStaticData& rigidStaticData, BoxCollider& shape)
+void PhysicsEngine::AddRigidStatic(Entity entity, const physics::RigidStaticData& rigidStaticData, BoxColliderData& shape)
 {
     rigidStaticManager_.AddComponent(entity);
     Vec3f position = transform3d_.GetPosition(entity);
@@ -159,7 +159,7 @@ void PhysicsEngine::AddRigidStatic(Entity entity, const physics::RigidStaticData
     rigidStaticManager_.SetComponent(entity, rigidStatic);
 }
 
-void PhysicsEngine::AddRigidStatic(Entity entity, const physics::RigidStaticData& rigidStaticData, const SphereCollider& shape)
+void PhysicsEngine::AddRigidStatic(Entity entity, const physics::RigidStaticData& rigidStaticData, const SphereColliderData& shape)
 {
     rigidStaticManager_.AddComponent(entity);
     Vec3f position = transform3d_.GetPosition(entity);
@@ -179,7 +179,7 @@ void PhysicsEngine::SetRigidStatic(Entity entity, const RigidStatic& body)
     rigidStaticManager_.SetComponent(entity, body);
 }
 
-void PhysicsEngine::AddRigidDynamic(Entity entity, const RigidDynamicData& rigidDynamicData, BoxCollider& shape)
+void PhysicsEngine::AddRigidDynamic(Entity entity, const RigidDynamicData& rigidDynamicData, BoxColliderData& shape)
 {
     rigidDynamicManager_.AddComponent(entity);
     Vec3f position = transform3d_.GetPosition(entity);
@@ -193,7 +193,7 @@ void PhysicsEngine::AddRigidDynamic(Entity entity, const RigidDynamicData& rigid
 }
 
 
-void PhysicsEngine::AddRigidDynamic(Entity entity, const RigidDynamicData& rigidDynamicData, const SphereCollider& shape)
+void PhysicsEngine::AddRigidDynamic(Entity entity, const RigidDynamicData& rigidDynamicData, const SphereColliderData& shape)
 {
     rigidDynamicManager_.AddComponent(entity);
     Vec3f position = transform3d_.GetPosition(entity);

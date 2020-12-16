@@ -41,21 +41,21 @@ namespace neko::physics
         float bouciness = 0.6f;
     };
 
-    struct Collider
+    struct ColliderData
     {
-        Collider() = default;
-        ~Collider() = default;
+        ColliderData() = default;
+        ~ColliderData() = default;
         bool isTrigger = false;
         PhysicsMaterial material = PhysicsMaterial();
         Vec3f offset = Vec3f::zero;
     };
 
-    struct SphereCollider : public Collider
+    struct SphereColliderData : public ColliderData
     {
         float radius = 1.0f;
     };
 
-    struct BoxCollider : public Collider
+    struct BoxColliderData : public ColliderData
     {
     public:
         Vec3f size = Vec3f::one;

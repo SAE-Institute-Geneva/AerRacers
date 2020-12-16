@@ -178,13 +178,13 @@ public:
     physx::PxPhysics* GetPhysx();
     physx::PxScene* GetScene();
 
-    void AddRigidStatic(Entity entity, const RigidStaticData& body, BoxCollider& shape);
-    void AddRigidStatic(Entity entity, const RigidStaticData& body, const SphereCollider& shape);
+    void AddRigidStatic(Entity entity, const RigidStaticData& body, BoxColliderData& shape);
+    void AddRigidStatic(Entity entity, const RigidStaticData& body, const SphereColliderData& shape);
     [[nodiscard]] const RigidStatic& GetRigidStatic(Entity entity) const;
     void SetRigidStatic(Entity entity, const RigidStatic& body);
 
-    void AddRigidDynamic(Entity entity, const RigidDynamicData& body, BoxCollider& shape);
-    void AddRigidDynamic(Entity entity, const RigidDynamicData& body, const SphereCollider& shape);
+    void AddRigidDynamic(Entity entity, const RigidDynamicData& body, BoxColliderData& shape);
+    void AddRigidDynamic(Entity entity, const RigidDynamicData& body, const SphereColliderData& shape);
     [[nodiscard]] const RigidDynamic& GetRigidDynamic(Entity entity) const;
     void SetRigidDynamic(Entity entity, const RigidDynamic& body);
 

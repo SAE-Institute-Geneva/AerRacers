@@ -56,7 +56,8 @@ public :
         : engine_(engine),
           entityManager_(entityManager),
           transform3dManager_(transform3dManager),
-          physicsEngine_(entityManager, transform3dManager)
+          physicsEngine_(entityManager, transform3dManager),
+          gizmosRenderer_(nullptr)
     {
         physicsEngine_.RegisterTriggerListener(*this);
         physicsEngine_.RegisterCollisionListener(*this);
@@ -71,7 +72,7 @@ public :
             transform3dManager_.AddComponent(planeEntity_);
             transform3dManager_.SetPosition(planeEntity_, planePosition_);
             transform3dManager_.SetScale(planeEntity_, neko::Vec3f(5, 1, 5));
-            neko::physics::BoxCollider boxCollider;
+            neko::physics::BoxColliderData boxCollider;
             boxCollider.size = neko::Vec3f::one / 2.0f;
             boxCollider.material = neko::physics::PhysicsMaterial{
                 0.5f,
@@ -90,7 +91,7 @@ public :
             cubeEntity_ = entityManager_.CreateEntity();
             transform3dManager_.AddComponent(cubeEntity_);
             transform3dManager_.SetPosition(cubeEntity_, cubePosition_);
-            neko::physics::BoxCollider boxCollider;
+            neko::physics::BoxColliderData boxCollider;
             boxCollider.size = neko::Vec3f::one / 2.0f;
             boxCollider.material = neko::physics::PhysicsMaterial{
                 0.5f,
@@ -112,6 +113,7 @@ public :
     void InitRenderer()
     {
         textureManager_.Init();
+        gizmosRenderer_.Init();
         const auto& config = neko::BasicEngine::GetInstance()->config;
         shader_.LoadFromFile(
             config.dataRootPath + "shaders/aer_racer/coords.vert",
@@ -122,12 +124,6 @@ public :
         cube_.Init();
         quad_.Init();
 
-        // note that we're translating the scene in the reverse direction of where we want to move
-        view_ = neko::Mat4f::Identity;
-        view_ = neko::Transform3d::Translate(
-            view_,
-            neko::Vec3f(0.0f, 0.0f, -3.0f));
-
 
         glEnable(GL_DEPTH_TEST);
     }
@@ -136,10 +132,18 @@ public :
     {
         physicsEngine_.Start();
         InitActors();
+        camera_.position = kCameraOriginPos_;
+        camera_.reverseDirection = neko::Vec3f::forward;
+        camera_.fovY = neko::degree_t(45.0f);
+        camera_.nearPlane = 0.1f;
+        camera_.farPlane = 100.0f;
+        gizmosRenderer_.SetCamera(&camera_);
     }
 
     void Update(neko::seconds dt) override
     {
+        const auto& config = neko::BasicEngine::GetInstance()->config;
+        camera_.SetAspect(static_cast<float>(config.windowSize.x) / config.windowSize.y);
         auto& inputLocator = neko::sdl::InputLocator::get();
         if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::SPACE) ==
             neko::sdl::ButtonState::DOWN) {
@@ -176,16 +180,14 @@ public :
                     neko::EntityMask(neko::ComponentType::RIGID_STATIC))) {
                 continue;
             }
-            //std::cout << pos << std::endl;
+            neko::physics::RigidDynamic cubeRigid = physicsEngine_.
+                GetRigidDynamic(cubeEntity_);
+            gizmosRenderer_.DrawCube(neko::physics::ConvertFromPxVec(cubeRigid.GetPxRigidDynamic()->getGlobalPose().p), neko::physics::ConvertFromPxVec(cubeRigid.GetPxShape()->getGeometry().box().halfExtents) * 2.0f, neko::Quaternion::ToEulerAngles(neko::physics::ConvertFromPxQuat(cubeRigid.GetPxRigidDynamic()->getGlobalPose().q)));
         }
-        const auto& config = neko::BasicEngine::GetInstance()->config;
-        projection_ = neko::Transform3d::Perspective(
-            neko::degree_t(45.0f),
-            static_cast<float>(config.windowSize.x) / config.windowSize.y,
-            0.1f,
-            100.0f);
         textureManager_.Update(dt);
         neko::RendererLocator::get().Render(this);
+        neko::RendererLocator::get().Render(&gizmosRenderer_);
+        gizmosRenderer_.Update(dt);
         //updateCount_++;
         if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
     }
@@ -200,8 +202,8 @@ public :
         }
         shader_.Bind();
         glBindTexture(GL_TEXTURE_2D, textureWall_);
-        shader_.SetMat4("view", view_);
-        shader_.SetMat4("projection", projection_);
+        shader_.SetMat4("view", camera_.GenerateViewMatrix());
+        shader_.SetMat4("projection", camera_.GenerateProjectionMatrix());
         for (neko::Entity entity = 0.0f;
              entity < entityManager_.GetEntitiesSize(); entity++) {
             neko::Mat4f model = neko::Mat4f::Identity; //model transform matrix
@@ -233,6 +235,7 @@ public :
         cube_.Destroy();
         quad_.Destroy();
         textureManager_.Destroy();
+        gizmosRenderer_.Destroy();
     }
 
 
@@ -311,10 +314,18 @@ private :
     neko::EntityManager& entityManager_;
     neko::Transform3dManager& transform3dManager_;
     neko::physics::PhysicsEngine physicsEngine_;
+    neko::GizmosRenderer gizmosRenderer_;
     //physx::PxShape* shape;
     //physx::PxRigidActor* plane;
     //physx::PxRigidDynamic* actor;
 
+    neko::Camera3D camera_;
+    //neko::Mat4f view_{ neko::Mat4f::Identity };
+    //neko::Mat4f projection_{ neko::Mat4f::Identity };
+    neko::EulerAngles cameraAngles_{ neko::degree_t(0.0f),  neko::degree_t(0.0f),  neko::degree_t(0.0f) };
+    const neko::Vec3f kCameraOriginPos_ = neko::Vec3f(0.0f, 0.0f, -3.0f);
+    const neko::EulerAngles kCameraOriginAngles_ = neko::EulerAngles(
+        neko::degree_t(0.0f), neko::degree_t(0.0f), neko::degree_t(0.0f));
 
     neko::gl::RenderCuboid cube_{neko::Vec3f::zero, neko::Vec3f::one};
     neko::gl::RenderQuad quad_{neko::Vec3f::zero, neko::Vec2f::one};
@@ -338,8 +349,6 @@ private :
     neko::gl::TextureManager textureManager_;
     neko::TextureName textureWall_ = neko::INVALID_TEXTURE_NAME;
     neko::TextureId textureWallId_;
-    neko::Mat4f view_{neko::Mat4f::Identity};
-    neko::Mat4f projection_{neko::Mat4f::Identity};
     neko::seconds timeSinceInit_{0};
 
     neko::Entity cubeEntity_;
