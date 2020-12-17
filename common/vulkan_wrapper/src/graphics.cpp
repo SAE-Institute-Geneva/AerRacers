@@ -27,11 +27,11 @@
 ---------------------------------------------------------- */
 #include "vk/graphics.h"
 
+#include "ktxvulkan.h"
 #include "mathematics/hash.h"
 
 #include "vk/models/quad.h"
 #include "vk/renderers/renderer_editor.h"
-#include "vk/subrenderers/subrenderer_opaque.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -53,6 +53,30 @@ VkRenderer::VkRenderer(sdl::VulkanWindow* window) : Renderer(), IVkObjects(windo
     commandPools->Init();
 
     CreatePipelineCache();
+
+	const auto modelId = modelManager_.LoadModel("aer_racers/models/test/test.fbx");
+	preRenderJob_ = Job([this, modelId]()
+	{
+		const auto& model = modelManager_.GetModel(modelId);
+		const auto& meshCount = model->GetMeshCount();
+
+		std::vector<Mat4f> matrices =
+		{
+				Transform3d::Translate(Mat4f::Identity, Vec3f::zero),
+				Transform3d::Translate(Mat4f::Identity, Vec3f::right * 4),
+				Transform3d::Translate(Mat4f::Identity, Vec3f::left * 4),
+		};
+		for (std::size_t i = 0; i < meshCount; ++i)
+		{
+			const auto& mesh = model->GetMesh(i);
+			const auto& material = materialManager_.GetMaterial(mesh.GetMaterialId());
+			const auto& index = modelCommandBuffer.GetModelInstanceIndex(
+					material, mesh, matrices);
+		}
+	});
+
+	Renderer::AddPreRenderJob(&preRenderJob_);
+	BasicEngine::GetInstance()->RegisterSystem(modelManager_);
 }
 
 VkRenderer::~VkRenderer()
@@ -116,9 +140,6 @@ void VkRenderer::AfterRenderLoop()
     {
         ResetRenderStages();
         renderer->Start();
-
-	    const auto& config = BasicEngine::GetInstance()->config;
-	    materialManager_.AddMaterial(config.dataRootPath + "aer_racers/materials/test.aermat");
     }
 
     const auto acquireResult = swapchain->AcquireNextImage(
@@ -368,10 +389,10 @@ void VkRenderer::SetWindow(sdl::VulkanWindow* window)
     vkWindow = window;
 }
 
-void VkRenderer::SetRenderer(std::unique_ptr<vk::Renderer>&& renderer)
+void VkRenderer::SetRenderer(std::unique_ptr<vk::RendererEditor>&& newRenderer)
 {
-    this->renderer = std::move(renderer);
-    this->renderer->Init();
+    renderer = std::move(newRenderer);
+    renderer->Init();
 }
 
 RenderStage& VkRenderer::GetRenderStage(const uint32_t index) const

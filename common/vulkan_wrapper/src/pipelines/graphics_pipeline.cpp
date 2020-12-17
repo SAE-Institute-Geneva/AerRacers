@@ -2,6 +2,7 @@
 
 #include <utility>
 
+#include "engine/engine.h"
 #include "utilities/json_utility.h"
 #include "vk/graphics.h"
 
@@ -261,14 +262,14 @@ void GraphicsPipeline::CreatePipeline()
     {
         bindingDescriptions.emplace_back(vertexInput.GetBindingDescription());
 
-        for (const auto& attribute : vertexInput.GetAttributeDescriptions()) {
+        for (const auto& attribute : vertexInput.GetAttributeDescriptions())
+        {
             attributeDescriptions.push_back(attribute);
             attributeDescriptions[attributeDescriptions.size() - 1].location += lastAttribute;
         }
 
-        if (!vertexInput.GetAttributeDescriptions().empty()) {
+        if (!vertexInput.GetAttributeDescriptions().empty())
             lastAttribute = attributeDescriptions.back().location + 1;
-        }
     }
 
     vertexInputStateCreateInfo_.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -334,5 +335,33 @@ void GraphicsPipeline::CreatePipelineMrt()
     //colorBlendStateCreateInfo_.pAttachments = blendAttachmentStates.data();
 
     CreatePipeline();
+}
+
+GraphicsPipelineCreateInfo::GraphicsPipelineCreateInfo(
+		const std::string& shaderPath,
+		std::vector<VertexInput> vertexInputs,
+		const GraphicsPipeline::Mode mode,
+		const GraphicsPipeline::Depth depth,
+		const VkPrimitiveTopology topology,
+		const VkPolygonMode polygonMode,
+		const VkCullModeFlags cullMode,
+		const VkFrontFace frontFace,
+		const bool pushDescriptors)
+		: vertexInputs(std::move(vertexInputs)),
+		  mode(mode),
+		  depth(depth),
+		  topology(topology),
+		  polygonMode(polygonMode),
+		  cullMode(cullMode),
+		  frontFace(frontFace),
+		  isPushDescriptor(pushDescriptors)
+{
+	shaderJson = LoadJson(shaderPath);
+
+	if (CheckJsonExists(shaderJson, "vert"))
+		shaderStages.emplace_back(shaderJson["vert"].get<std::string>());
+
+	if (CheckJsonExists(shaderJson, "frag"))
+		shaderStages.emplace_back(shaderJson["frag"].get<std::string>());
 }
 }

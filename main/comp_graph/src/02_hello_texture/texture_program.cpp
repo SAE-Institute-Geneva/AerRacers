@@ -41,7 +41,7 @@ void HelloTextureProgram::Init()
     textureId_ = textureManager_.LoadTexture(texturePath);
     textureKtx_ = gl::CreateTextureFromKTX(
         config.dataRootPath + "sprites/wall.jpg.ktx");
-	//textureId_ = neko::gl::stbCreateTexture(texturePath);
+	//textureId_ = neko::gl::StbCreateTexture(texturePath);
     glEnable(GL_DEPTH_TEST);
 }
 

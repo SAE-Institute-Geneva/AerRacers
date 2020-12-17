@@ -29,6 +29,7 @@
 #include "engine/log.h"
 #include <sstream>
 #include <fmt/format.h>
+#include <iso646.h>
 
 namespace neko
 {

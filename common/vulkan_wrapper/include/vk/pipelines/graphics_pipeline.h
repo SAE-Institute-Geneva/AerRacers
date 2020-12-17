@@ -2,7 +2,7 @@
 #include <utility>
 #include <vector>
 
-#include "vk/models/mesh.h"
+#include "vk/models/vertex_input.h"
 #include "vk/pipelines/pipeline.h"
 
 namespace neko::vk
@@ -108,31 +108,14 @@ struct GraphicsPipelineCreateInfo
     explicit GraphicsPipelineCreateInfo(
 		    const std::string& shaderPath,
             std::vector<VertexInput> vertexInputs = {},
-            const GraphicsPipeline::Mode mode = GraphicsPipeline::Mode::POLYGON,
-            const GraphicsPipeline::Depth depth = GraphicsPipeline::Depth::READ_WRITE,
-            const VkPrimitiveTopology topology =
+            GraphicsPipeline::Mode mode = GraphicsPipeline::Mode::POLYGON,
+            GraphicsPipeline::Depth depth = GraphicsPipeline::Depth::READ_WRITE,
+            VkPrimitiveTopology topology =
             VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-            const VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL,
-            const VkCullModeFlags cullMode = VK_CULL_MODE_BACK_BIT,
-            const VkFrontFace frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
-            const bool pushDescriptors = false)
-            : vertexInputs(std::move(vertexInputs)),
-              mode(mode),
-              depth(depth),
-              topology(topology),
-              polygonMode(polygonMode),
-              cullMode(cullMode),
-              frontFace(frontFace),
-              isPushDescriptor(pushDescriptors)
-    {
-	    shaderJson = LoadJson(shaderPath);
-
-	    if (CheckJsonExists(shaderJson, "vert"))
-		    shaderStages.emplace_back(shaderJson["vert"].get<std::string>());
-
-	    if (CheckJsonExists(shaderJson, "frag"))
-		    shaderStages.emplace_back(shaderJson["frag"].get<std::string>());
-    }
+            VkPolygonMode polygonMode = VK_POLYGON_MODE_FILL,
+            VkCullModeFlags cullMode = VK_CULL_MODE_BACK_BIT,
+            VkFrontFace frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE,
+            bool pushDescriptors = false);
 
     bool operator==(const GraphicsPipelineCreateInfo& other) const
     {

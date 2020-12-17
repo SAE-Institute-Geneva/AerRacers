@@ -4,8 +4,7 @@
 
 namespace neko::vk
 {
-UniformBuffer::UniformBuffer(const VkDeviceSize size, 
-    const std::vector<char>& uniformData)
+UniformBuffer::UniformBuffer(const VkDeviceSize size, const std::vector<char>& uniformData)
         : Buffer(size,
         VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |

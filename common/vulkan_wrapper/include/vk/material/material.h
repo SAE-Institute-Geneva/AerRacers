@@ -5,6 +5,7 @@
 
 #include "vk/pipelines/material_pipeline.h"
 #include "vk/material/material_export_data.h"
+#include "vk/models/vertex_input.h"
 
 namespace neko::vk
 {
