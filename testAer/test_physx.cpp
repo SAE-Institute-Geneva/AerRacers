@@ -92,7 +92,7 @@ public :
             transform3dManager_.AddComponent(cubeEntity_);
             transform3dManager_.SetPosition(cubeEntity_, cubePosition_);
             neko::physics::BoxColliderData boxCollider;
-            boxCollider.size = neko::Vec3f::one / 2.0f;
+            boxCollider.size = neko::Vec3f::one;
             boxCollider.material = neko::physics::PhysicsMaterial{
                 0.5f,
                 0.5f,
@@ -182,7 +182,17 @@ public :
             }
             neko::physics::RigidDynamic cubeRigid = physicsEngine_.
                 GetRigidDynamic(cubeEntity_);
-            gizmosRenderer_.DrawCube(neko::physics::ConvertFromPxVec(cubeRigid.GetPxRigidDynamic()->getGlobalPose().p), neko::physics::ConvertFromPxVec(cubeRigid.GetPxShape()->getGeometry().box().halfExtents) * 2.0f, neko::Quaternion::ToEulerAngles(neko::physics::ConvertFromPxQuat(cubeRigid.GetPxRigidDynamic()->getGlobalPose().q)));
+            gizmosRenderer_.DrawCube(
+                neko::physics::ConvertFromPxVec(
+                    cubeRigid.GetPxRigidDynamic()->getGlobalPose().p),
+                neko::physics::ConvertFromPxVec(
+                    cubeRigid.GetPxShape()->getGeometry().box().halfExtents) *
+                2.0f,
+                neko::Quaternion::ToEulerAngles(
+                    neko::physics::ConvertFromPxQuat(
+                        cubeRigid.GetPxRigidDynamic()->getGlobalPose().q)),
+                neko::Color::green,
+                2.0f);
         }
         textureManager_.Update(dt);
         neko::RendererLocator::get().Render(this);
