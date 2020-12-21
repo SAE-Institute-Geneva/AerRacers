@@ -170,30 +170,6 @@ public :
 
 
         physicsEngine_.Update(dt.count());
-        for (neko::Entity entity = 0.0f;
-             entity < entityManager_.GetEntitiesSize(); entity++) {
-            if (!entityManager_.HasComponent(
-                    entity,
-                    neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)) &&
-                !entityManager_.HasComponent(
-                    entity,
-                    neko::EntityMask(neko::ComponentType::RIGID_STATIC))) {
-                continue;
-            }
-            neko::physics::RigidDynamic cubeRigid = physicsEngine_.
-                GetRigidDynamic(cubeEntity_);
-            gizmosRenderer_.DrawCube(
-                neko::physics::ConvertFromPxVec(
-                    cubeRigid.GetPxRigidDynamic()->getGlobalPose().p),
-                neko::physics::ConvertFromPxVec(
-                    cubeRigid.GetPxShape()->getGeometry().box().halfExtents) *
-                2.0f,
-                neko::Quaternion::ToEulerAngles(
-                    neko::physics::ConvertFromPxQuat(
-                        cubeRigid.GetPxRigidDynamic()->getGlobalPose().q)),
-                neko::Color::green,
-                2.0f);
-        }
         textureManager_.Update(dt);
         neko::RendererLocator::get().Render(this);
         neko::RendererLocator::get().Render(&gizmosRenderer_);
@@ -304,17 +280,121 @@ public :
             ImGui::Checkbox("y#", &rigidDynamicData.freezeRotation.y);
             ImGui::SameLine();
             ImGui::Checkbox("z#", &rigidDynamicData.freezeRotation.z);
+            
+
+            switch (rigidDynamic.GetType()) {
+            case neko::physics::RigidActor::ColliderType::INVALID:
+                break;
+            case neko::physics::RigidActor::ColliderType::BOX: {
+                neko::physics::BoxColliderData boxColliderData = rigidDynamic.GetBoxColliderData();
+                if (ImGui::CollapsingHeader("BoxCollider"))
+                {
+                    neko::Vec3f offset = boxColliderData.offset;
+                    ImGui::DragFloat3(
+                        "offset",
+                        offset.coord, 0);
+                    neko::Vec3f size = boxColliderData.size;
+                    ImGui::DragFloat3(
+                        "size",
+                        offset.coord, 0);
+
+                    if (ImGui::TreeNode("Material"))
+                    {
+                        ImGui::DragFloat(
+                            "bouciness",
+                            &boxColliderData.material.bouciness);
+                        ImGui::DragFloat(
+                            "staticFriction",
+                            &boxColliderData.material.staticFriction);
+                        ImGui::DragFloat(
+                            "dynamicFriction",
+                            &boxColliderData.material.dynamicFriction);
+                    }
+                    ImGui::Checkbox("isTrigger", &boxColliderData.isTrigger);
+                }
+            }
+                break;
+            case neko::physics::RigidActor::ColliderType::SPHERE: {
+                neko::physics::SphereColliderData sphereColliderData = rigidDynamic.GetSphereColliderData();
+                if (ImGui::CollapsingHeader("SphereCollider"))
+                {
+                    neko::Vec3f offset = sphereColliderData.offset;
+                    ImGui::DragFloat3(
+                        "offset",
+                        offset.coord, 0);
+                    ImGui::DragFloat(
+                        "radius",
+                        &sphereColliderData.radius);
+
+                    if (ImGui::TreeNode("Material"))
+                    {
+                        ImGui::DragFloat(
+                            "bouciness",
+                            &sphereColliderData.material.bouciness);
+                        ImGui::DragFloat(
+                            "staticFriction",
+                            &sphereColliderData.material.staticFriction);
+                        ImGui::DragFloat(
+                            "dynamicFriction",
+                            &sphereColliderData.material.dynamicFriction);
+                    }
+                    ImGui::Checkbox("isTrigger", &sphereColliderData.isTrigger);
+                }
+                
+            }
+                break;
+            default: ;
+            }
+            //rigidDynamic.SetRigidDynamicData(rigidDynamicData);
+            //physicsEngine_.SetRigidDynamic(entity, rigidDynamic);
             ImGui::End();
-            ImGui::ShowDemoWindow();
-            rigidDynamic.SetRigidDynamicData(rigidDynamicData);
-            physicsEngine_.SetRigidDynamic(entity, rigidDynamic);
         }
     }
 
 
     void FixedUpdate(neko::seconds dt) override
 {
-
+        for (neko::Entity entity = 0.0f;
+            entity < entityManager_.GetEntitiesSize(); entity++) {
+            if (!entityManager_.HasComponent(
+                entity,
+                neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)) &&
+                !entityManager_.HasComponent(
+                    entity,
+                    neko::EntityMask(neko::ComponentType::RIGID_STATIC))) {
+                continue;
+            }
+            neko::physics::RigidDynamic cubeRigid = physicsEngine_.
+                GetRigidDynamic(entity);
+            neko::physics::RigidActor::ColliderType colliderType = cubeRigid.GetType();
+            switch (colliderType) {
+            case neko::physics::RigidActor::ColliderType::INVALID:
+                break;
+            case neko::physics::RigidActor::ColliderType::BOX:
+            {
+                neko::physics::BoxColliderData boxColliderData = cubeRigid.GetBoxColliderData();
+                gizmosRenderer_.DrawCube(
+                    transform3dManager_.GetPosition(entity) + boxColliderData.offset,
+                    transform3dManager_.GetScale(entity) * boxColliderData.size,
+                    transform3dManager_.GetAngles(entity),
+                    boxColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
+                    2.0f);
+            }
+            break;
+            case neko::physics::RigidActor::ColliderType::SPHERE:
+            {
+                neko::physics::SphereColliderData sphereColliderData = cubeRigid.GetSphereColliderData();
+                //gizmosRenderer_.DrawSphere(
+                //    transform3dManager_.GetPosition(entity) + sphereColliderData.offset,
+                //    sphereColliderData.radius,
+                //    transform3dManager_.GetAngles(entity),
+                //    sphereColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
+                //    2.0f);
+            }
+            break;
+            default:;
+            }
+        }
 }
 private :
     int updateCount_ = 0;

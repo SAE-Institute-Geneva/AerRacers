@@ -5,6 +5,69 @@
 
 
 namespace neko::physics {
+RigidActor::ColliderType RigidActor::GetType() const
+{
+    if (shape_ == nullptr) {
+        return ColliderType::INVALID;
+    }
+
+    switch(shape_->getGeometryType()) {
+    case physx::PxGeometryType::eSPHERE:
+        return ColliderType::SPHERE;
+        break;
+    case physx::PxGeometryType::ePLANE:
+        return ColliderType::INVALID;
+        break;
+    case physx::PxGeometryType::eCAPSULE:
+        return ColliderType::INVALID;
+        break;
+    case physx::PxGeometryType::eBOX:
+        return ColliderType::BOX;
+        break;
+    case physx::PxGeometryType::eCONVEXMESH:
+        return ColliderType::INVALID;
+        break;
+    case physx::PxGeometryType::eTRIANGLEMESH:
+        return ColliderType::INVALID;
+        break;
+    case physx::PxGeometryType::eHEIGHTFIELD:
+        return ColliderType::INVALID;
+        break;
+    case physx::PxGeometryType::eGEOMETRY_COUNT:
+        return ColliderType::INVALID;
+        break;
+    case physx::PxGeometryType::eINVALID:
+        return ColliderType::INVALID;
+        break;
+    default:
+        return ColliderType::INVALID;;
+    }
+}
+
+SphereColliderData RigidActor::GetSphereColliderData() const
+{
+    SphereColliderData sphereColliderData;
+    sphereColliderData.offset = ConvertFromPxVec(shape_->getLocalPose().p);
+    sphereColliderData.radius = shape_->getGeometry().sphere().radius;
+    sphereColliderData.isTrigger = (shape_->getFlags() & physx::PxShapeFlags(physx::PxShapeFlag::eTRIGGER_SHAPE)) == physx::PxShapeFlags(physx::PxShapeFlag::eTRIGGER_SHAPE);
+    sphereColliderData.material.bouciness = material_->getRestitution();
+    sphereColliderData.material.staticFriction = material_->getStaticFriction();
+    sphereColliderData.material.dynamicFriction = material_->getDynamicFriction();
+    return sphereColliderData;
+}
+
+BoxColliderData RigidActor::GetBoxColliderData() const
+{
+    BoxColliderData boxColliderData;
+    boxColliderData.offset = ConvertFromPxVec(shape_->getLocalPose().p);
+    boxColliderData.size = ConvertFromPxVec(shape_->getGeometry().box().halfExtents * 2.0f);
+    boxColliderData.isTrigger = (shape_->getFlags() & physx::PxShapeFlags(physx::PxShapeFlag::eTRIGGER_SHAPE)) == physx::PxShapeFlags(physx::PxShapeFlag::eTRIGGER_SHAPE);
+    boxColliderData.material.bouciness = material_->getRestitution();
+    boxColliderData.material.staticFriction = material_->getStaticFriction();
+    boxColliderData.material.dynamicFriction = material_->getDynamicFriction();
+    return boxColliderData;
+}
+
 physx::PxMaterial* RigidActor::InitMaterial(
     physx::PxPhysics* physics,
     const PhysicsMaterial& material) const {

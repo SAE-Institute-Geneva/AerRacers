@@ -32,6 +32,9 @@
 
 namespace neko::physics {
 class PhysicsEngine;
+
+
+
 struct RigidDynamicData
 {
     RigidDynamicData() = default;
@@ -54,10 +57,19 @@ struct RigidStaticData
     ~RigidStaticData() = default;
 };
 
+
 struct RigidActor {
 public:
+    enum class ColliderType {
+        INVALID,
+        BOX,
+        SPHERE
+    };
     physx::PxShape* GetPxShape() const { return shape_; }
     physx::PxMaterial* GetPxMaterial() const { return material_; }
+    ColliderType GetType() const;
+    SphereColliderData GetSphereColliderData() const;
+    BoxColliderData GetBoxColliderData() const;
 protected:
     physx::PxMaterial* InitMaterial(physx::PxPhysics* physics, const PhysicsMaterial& material) const;
     physx::PxShape* InitBoxShape(physx::PxPhysics* physics, physx::PxMaterial* material, const BoxColliderData& boxCollider) const;
