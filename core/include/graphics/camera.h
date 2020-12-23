@@ -1,83 +1,70 @@
 #pragma once
-/*
- MIT License
+#include "engine/engine.h"
 
- Copyright (c) 2020 SAE Institute Switzerland AG
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
- */
-
-
-#include <mathematics/vector.h>
-#include <mathematics/matrix.h>
+#include "mathematics/vector.h"
+#include "mathematics/matrix.h"
 #include "mathematics/transform.h"
 #include "utils/service_locator.h"
 
 namespace neko
 {
-
 struct Camera
 {
-    virtual ~Camera() = default;
-    Vec3f position;
-    Vec3f reverseDir = Vec3f::back, rightDir = Vec3f::right, upDir = Vec3f::up;
+    Vec3f position = Vec3f::back;
+    Vec3f reverseDirection = Vec3f::back;
+
     float nearPlane = 0.1f;
-    float farPlane = 100.0f;
-    void WorldLookAt(Vec3f target, Vec3f lookUp = Vec3f::down);
+    float farPlane = 10'000.0f;
+
+    void WorldLookAt(const Vec3f& target);
+
+    [[nodiscard]] Vec3f GetRight() const;
+    [[nodiscard]] Vec3f GetUp() const;
+
+    [[nodiscard]] EulerAngles GetRotation() const;
+    [[nodiscard]] Mat4f GetRotationMat() const;
 
     [[nodiscard]] Mat4f GenerateViewMatrix() const;
 
     void SetDirectionFromEuler(const EulerAngles& angles);
+
     void Rotate(const EulerAngles& angles);
 
+    [[nodiscard]] float GetAspect() const { return aspect_; }
+
+    void SetAspect(const float aspect) { aspect_ = aspect; }
+
+    void SetAspect(const int width, const int height)
+    { aspect_ = static_cast<float>(width) / static_cast<float>(height); }
+
     [[nodiscard]] virtual Mat4f GenerateProjectionMatrix() const = 0;
+
+protected:
+    float aspect_ = 1.0f;
 };
 
 struct Camera2D : Camera
 {
-	float right = 0.0f, left = 0.0f, top = 0.0f, bottom =0.0f;
-	[[nodiscard]] Mat4f GenerateProjectionMatrix() const override;
-	void SetExtends(Vec2f size);
+    float size = 5.0f;
+    [[nodiscard]] Mat4f GenerateProjectionMatrix() const override;
 };
 
 struct Camera3D : Camera
 {
-	float aspect = 1.0f;
-	degree_t fovY = degree_t(45.0f);
+    degree_t fovY = degree_t(45.0f);
 
-	[[nodiscard]] Mat4f GenerateProjectionMatrix() const override;;
-
-	void SetAspect(int width, int height);
-
-	[[nodiscard]] radian_t GetFovX() const;
-
-	
+    [[nodiscard]] Mat4f GenerateProjectionMatrix() const override;
+    [[nodiscard]] radian_t GetFovX() const;
 };
+
 /**
- * \brief Exclusiviley used for the CameraLocator, please do not use!
+ * \brief Exclusively used for the CameraLocator, please do not use!
  */
 struct NullCamera : Camera
 {
     [[nodiscard]] Mat4f GenerateProjectionMatrix() const override;
-
 };
 
 using CameraLocator = Locator<Camera, NullCamera>;
 
-}
+}  

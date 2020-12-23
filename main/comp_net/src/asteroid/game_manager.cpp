@@ -278,7 +278,8 @@ void ClientGameManager::Destroy()
 void ClientGameManager::SetWindowSize(Vec2u windowsSize)
 {
     windowSize_ = windowsSize;
-    camera_.SetExtends(Vec2f(windowsSize) / PixelPerUnit);
+    camera_.SetAspect(windowsSize.x / windowsSize.y);
+    camera_.size = PixelPerUnit * windowsSize.x;
     fontManager_.SetWindowSize(Vec2f(windowsSize));
 }
 

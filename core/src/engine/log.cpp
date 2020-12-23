@@ -32,7 +32,7 @@ void logDebug(const std::string& msg)
 #if defined(__ANDROID__)
     __android_log_print(ANDROID_LOG_INFO, "NekoEngine", "%s", msg.c_str());
 #else
-	std::cout << msg << std::endl;
+	std::cout << msg << "\n";
 	//logs.push_back(msg);
 #endif
 }

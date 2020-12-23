@@ -77,7 +77,9 @@ void SdlEngine::ManageEvent()
     SDL_Event event;
     while (SDL_PollEvent(&event))
     {
+#ifndef NEKO_VULKAN
         ImGui_ImplSDL2_ProcessEvent(&event);
+#endif
         if (event.type == SDL_QUIT)
         {
             isRunning_ = false;
@@ -110,3 +112,4 @@ void SdlEngine::RegisterOnEvent(SdlEventSystemInterface& eventInterface)
 }
 
 }
+ 

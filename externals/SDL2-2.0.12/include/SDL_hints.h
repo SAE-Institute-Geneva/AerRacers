@@ -1102,7 +1102,7 @@ extern "C" {
  *
  *  This variable can be set to the following values:
  *    "0"       - Use ES profile of OpenGL, if available. (Default when not set.)
- *    "1"       - Load OpenGL ES library using the default library names.
+ *    "1"       - Init OpenGL ES library using the default library names.
  *
  */
 #define SDL_HINT_OPENGL_ES_DRIVER   "SDL_OPENGL_ES_DRIVER"

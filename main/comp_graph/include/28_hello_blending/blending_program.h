@@ -54,8 +54,8 @@ private:
 	TextureId windowTextureId_;
 	TextureName cubeTexture_ = INVALID_TEXTURE_NAME;
 	TextureId cubeTextureId_;
-
-	sdl::Camera3D camera_;
+	
+	sdl::MovableCamera3D camera_;
 
 	TextureName whiteTexture_ = 0;
 	std::uint8_t flags_ = NONE;

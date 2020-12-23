@@ -1198,7 +1198,7 @@ struct ImGuiContext
     bool                    NavDisableHighlight;                // When user starts using mouse, we hide gamepad/keyboard highlight (NB: but they are still available, which is why NavDisableHighlight isn't always != NavDisableMouseHover)
     bool                    NavDisableMouseHover;               // When user starts using gamepad/keyboard, we hide mouse hovering highlight until mouse is touched again.
     bool                    NavAnyRequest;                      // ~~ NavMoveRequest || NavInitRequest
-    bool                    NavInitRequest;                     // Init request for appearing window to select first item
+    bool                    NavInitRequest;                     // InitData request for appearing window to select first item
     bool                    NavInitRequestFromMove;
     ImGuiID                 NavInitResultId;                    // Init request result (first item of the window, or one for which SetItemDefaultFocus() was called)
     ImRect                  NavInitResultRectRel;               // Init request result rectangle (relative to parent window)
@@ -1798,7 +1798,7 @@ namespace ImGui
     inline ImFont*          GetDefaultFont() { ImGuiContext& g = *GImGui; return g.IO.FontDefault ? g.IO.FontDefault : g.IO.Fonts->Fonts[0]; }
     inline ImDrawList*      GetForegroundDrawList(ImGuiWindow* window) { IM_UNUSED(window); ImGuiContext& g = *GImGui; return &g.ForegroundDrawList; } // This seemingly unnecessary wrapper simplifies compatibility between the 'master' and 'docking' branches.
 
-    // Init
+    // InitData
     IMGUI_API void          Initialize(ImGuiContext* context);
     IMGUI_API void          Shutdown(ImGuiContext* context);    // Since 1.60 this is a _private_ function. You can call DestroyContext() to destroy the context created by CreateContext().
 

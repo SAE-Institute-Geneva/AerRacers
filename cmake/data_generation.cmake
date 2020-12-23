@@ -30,6 +30,9 @@ function(data_generate binary)
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.tesc"
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.tese"
             )
+	file(GLOB_RECURSE vk_shader_files
+			"${project_source_dir}/data/*.vk"
+			)
     file(GLOB_RECURSE IMG_FILES
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.jpg"
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.JPG"
@@ -59,7 +62,11 @@ function(data_generate binary)
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.mtl")
     file(GLOB_RECURSE PKG_FILES
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.pkg_json")
-
+	file(GLOB_RECURSE AER_FILES
+			"${PROJECT_SOURCE_DIR}/data/*.aermat"
+			"${PROJECT_SOURCE_DIR}/data/*.aershader"
+			)
+			
     set(data_generate_name "${binary}_Generate_Data")
 
     source_group("Data/Font"           FILES ${FONT_FILES})
@@ -68,11 +75,12 @@ function(data_generate binary)
     source_group("Data/Snd"			FILES ${SND_FILES})
     source_group("Data/Skybox"			FILES ${SKY_FILES})
     source_group("Shaders"		FILES ${SHADER_FILES})
+	source_group("VkShaders"		FILES ${VK_SHADER_FILES})
     source_group("Data/Model" FILES ${MODEL_FILES})
     source_group("Data/Materials" FILES ${MATERIALS_FILES})
     source_group("Data/Package" FILES ${PKG_FILES})
 
-    LIST(APPEND DATA_FILES ${IMG_FILES} ${SKY_FILES} ${MODEL_FILES} ${SND_FILES} ${TEXT_FILES} ${SHADER_FILES} ${MATERIAL_FILES} ${FONT_FILES} ${PKG_FILES})
+    LIST(APPEND DATA_FILES ${IMG_FILES} ${SHADER_FILES} ${SKY_FILES} ${MODEL_FILES} ${SND_FILES} ${TEXT_FILES} ${SHADER_FILES} ${MATERIAL_FILES} ${FONT_FILES} ${PKG_FILES} ${AER_FILES})
 
     foreach(DATA ${DATA_FILES})
         get_filename_component(FILE_NAME ${DATA} NAME)

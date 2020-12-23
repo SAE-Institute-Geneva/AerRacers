@@ -1136,6 +1136,7 @@ elseif(UNIX AND NOT APPLE AND NOT ANDROID AND NOT RISCOS)
   if(UNIX)
     file(GLOB CORE_UNIX_SOURCES ${SDL2_SOURCE_DIR}/src/core/unix/*.c)
     set(SOURCE_FILES ${SOURCE_FILES} ${CORE_UNIX_SOURCES})
+    add_compile_options(-fcommon)
   endif()
 
   if(LINUX)

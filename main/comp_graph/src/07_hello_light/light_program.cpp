@@ -29,7 +29,6 @@ namespace neko
 {
 void HelloLightProgram::Init()
 {
-	camera_.Init();
 	cube_.Init();
 	const auto config =  BasicEngine::GetInstance()->GetConfig();
     lightShader_.LoadFromFile(

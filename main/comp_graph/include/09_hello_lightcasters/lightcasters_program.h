@@ -60,7 +60,7 @@ private:
 
 	gl::RenderCuboid cube_{ Vec3f::zero, Vec3f::one };
 
-	sdl::Camera3D camera_;
+	sdl::MovableCamera3D camera_;
 	float time_ = 0.0f;
 	Vec3f lightPointPos_;
 	Vec3f lightDirection_ = Vec3f(-1.0f, -1.0f,0.0f).Normalized();

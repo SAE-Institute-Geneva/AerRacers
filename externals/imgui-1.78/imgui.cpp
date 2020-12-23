@@ -225,7 +225,7 @@ CODE
      ImGuiIO& io = ImGui::GetIO();
      // TODO: Set optional io.ConfigFlags values, e.g. 'io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard' to enable keyboard controls.
      // TODO: Fill optional fields of the io structure later.
-     // TODO: Load TTF/OTF fonts if you don't want to use the default font.
+     // TODO: Init TTF/OTF fonts if you don't want to use the default font.
 
      // Build and load the texture atlas into a texture
      // (In the examples/ app this is usually done within the ImGui_ImplXXX_Init() function from one of the demo Renderer)
@@ -1494,7 +1494,7 @@ ImU64   ImFileRead(void* data, ImU64 sz, ImU64 count, ImFileHandle f)           
 ImU64   ImFileWrite(const void* data, ImU64 sz, ImU64 count, ImFileHandle f)    { return fwrite(data, (size_t)sz, (size_t)count, f); }
 #endif // #ifndef IMGUI_DISABLE_DEFAULT_FILE_FUNCTIONS
 
-// Helper: Load file content into memory
+// Helper: Init file content into memory
 // Memory allocated with IM_ALLOC(), must be freed by user using IM_FREE() == ImGui::MemFree()
 // This can't really be used with "rt" because fseek size won't match read size.
 void*   ImFileLoadToMemory(const char* filename, const char* mode, size_t* out_file_size, int padding_bytes)
@@ -8285,7 +8285,7 @@ static void ImGui::NavProcessItem(ImGuiWindow* window, const ImRect& nav_bb, con
     const ImGuiItemFlags item_flags = window->DC.ItemFlags;
     const ImRect nav_bb_rel(nav_bb.Min - window->Pos, nav_bb.Max - window->Pos);
 
-    // Process Init Request
+    // Process InitData Request
     if (g.NavInitRequest && g.NavLayer == window->DC.NavLayerCurrent)
     {
         // Even if 'ImGuiItemFlags_NoNavDefaultFocus' is on (typically collapse/close button) we record the first ResultId so they can be used as a fallback
@@ -8515,7 +8515,7 @@ static void ImGui::NavUpdate()
     g.NavWrapRequestWindow = NULL;
     g.NavWrapRequestFlags = ImGuiNavMoveFlags_None;
 #if 0
-    if (g.NavScoringCount > 0) IMGUI_DEBUG_LOG("NavScoringCount %d for '%s' layer %d (Init:%d, Move:%d)\n", g.FrameCount, g.NavScoringCount, g.NavWindow ? g.NavWindow->Name : "NULL", g.NavLayer, g.NavInitRequest || g.NavInitResultId != 0, g.NavMoveRequest);
+    if (g.NavScoringCount > 0) IMGUI_DEBUG_LOG("NavScoringCount %d for '%s' layer %d (InitData:%d, Move:%d)\n", g.FrameCount, g.NavScoringCount, g.NavWindow ? g.NavWindow->Name : "NULL", g.NavLayer, g.NavInitRequest || g.NavInitResultId != 0, g.NavMoveRequest);
 #endif
 
     // Set input source as Gamepad when buttons are pressed (as some features differs when used with Gamepad vs Keyboard)
@@ -10727,3 +10727,4 @@ void ImGui::ShowMetricsWindow(bool*) { }
 //-----------------------------------------------------------------------------
 
 #endif // #ifndef IMGUI_DISABLE
+ 

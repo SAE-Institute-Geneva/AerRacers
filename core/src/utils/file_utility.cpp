@@ -333,7 +333,13 @@ const std::string LoadFile(const std::string& path)
 	return str;
 }
 
-
+const std::string LoadBinaries(const std::string& path)
+{
+	std::ifstream t(path, std::ios::binary);
+	std::string str((std::istreambuf_iterator<char>(t)),
+		std::istreambuf_iterator<char>());
+	return str;
+}
 }
 #endif
 

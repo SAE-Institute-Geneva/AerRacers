@@ -49,16 +49,16 @@ private:
 		CCW = 1u << 2u
 	};
 	
-	sdl::Camera3D camera_;
     gl::ModelId modelId_ = gl::INVALID_MODEL_ID;
     gl::ModelManager modelManager_;
+	sdl::MovableCamera3D camera_;
 	gl::RenderCuboid cube_{ Vec3f::zero, Vec3f::one };
 	gl::TextureManager textureManager_;
 	TextureName cubeTexture_ = INVALID_TEXTURE_NAME;
 	TextureId cubeTextureId_;
 	gl::Shader modelShader_;
 
-	sdl::Camera3D externalCamera_;
+	Camera3D externalCamera_;
 
 	std::uint8_t flags_ = BACK_CULLING | CCW;
 };

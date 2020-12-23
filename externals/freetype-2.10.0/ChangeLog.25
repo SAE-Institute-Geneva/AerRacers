@@ -4933,7 +4933,7 @@
 
 	* src/sfnt/ttsbit.c: Include FT_BITMAP_H and `pngshim.h'
 	(tt_face_load_eblc): Load `CBLC'.
-	(tt_sbit_decoder_init): Load `CBDT'.
+	(tt_sbit_decoder_init): Init `CBDT'.
 	(tt_sbit_decoder_alloc_bitmap): Pass load flags to select between
 	color and grayscale bitmaps.
 	Set `num_grays'.  This is used by `ftview' to choose the blending

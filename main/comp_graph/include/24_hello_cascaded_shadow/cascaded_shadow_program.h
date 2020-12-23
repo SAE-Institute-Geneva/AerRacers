@@ -60,10 +60,10 @@ private:
     void ShadowPass(int cascadeIndex);
     void RenderScene(const gl::Shader& shader);
 
-    sdl::Camera3D camera_;
-
     gl::Shader simpleDepthShader_;
     gl::Shader shadowShader_;
+	
+	sdl::MovableCamera3D camera_;
 
     const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
     unsigned fbo_ = 0;

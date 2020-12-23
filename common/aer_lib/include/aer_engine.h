@@ -63,10 +63,13 @@ public:
         return mode_;
     }
 
+    EntityManager& GetEntityManager() { return entityManager_; }
+
 private:
     ModeEnum mode_;
 
     DrawSystem drawSystem_;
+    EntityManager entityManager_;
     std::unique_ptr<LogManager> logManager_;
     std::unique_ptr<InputBindingManager>  bindedInputManager_;
 

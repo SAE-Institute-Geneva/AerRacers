@@ -45,13 +45,13 @@ private:
 	void CalculatePositions(size_t begin, size_t end);
 	void Culling(size_t begin, size_t end);
 
-
-	sdl::Camera3D camera_;
-	sdl::Camera3D overCamera_;
 	gl::ModelId modelId_ = gl::INVALID_MODEL_ID;
 	gl::ModelManager modelManager_;
 
 	gl::TextureManager textureManager_;
+	
+	sdl::MovableCamera3D camera_;
+	Camera3D overCamera_;
 
 	const size_t maxAsteroidNmb_ = 100'000;
 	const size_t minAsteroidNmb_ = 1'000;

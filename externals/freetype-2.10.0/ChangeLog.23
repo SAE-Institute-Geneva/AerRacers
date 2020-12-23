@@ -6715,7 +6715,7 @@
 	Do not allocate interpreter-specific tables in memory if we are not
 	going to load glyphs with the bytecode interpreter anyway.
 
-	* src/truetype/ttgload.c (tt_loader_init): Load execution context
+	* src/truetype/ttgload.c (tt_loader_init): Init execution context
 	only if glyph is hinted.
 	Updated.
 	* src/truetype/ttobjs.h (TT_SizeRec): Add members `bytecode_ready'

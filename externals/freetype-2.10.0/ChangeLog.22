@@ -2631,7 +2631,7 @@
 
 	* src/truetype/ttdriver.c (tt_driver_class): Use tt_slot_init for
 	glyph slot initialization.
-	(Load_Glyph): Load flag dependencies are handled here.  Return error
+	(Load_Glyph): Init flag dependencies are handled here.  Return error
 	if size is NULL.
 
 	* src/truetype/ttgload.c: Heavy cleanup and refactoring.

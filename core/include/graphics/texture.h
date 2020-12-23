@@ -25,7 +25,9 @@
 #include <queue>
 #include <map>
 
-#include <xxhash.hpp>
+#include "engine/assert.h"
+#include <engine/log.h>
+#include <xxhash.h>
 #include <sole.hpp>
 
 #include <engine/assert.h>
@@ -47,7 +49,7 @@ const TextureName INVALID_TEXTURE_NAME = 0;
  */
 using TextureId = sole::uuid;
 const TextureId INVALID_TEXTURE_ID = sole::uuid();
-using TexturePathHash = xxh::hash32_t;
+using TexturePathHash = XXH32_hash_t;
 /**
  * \brief Image stores the data from a image file.
  * Used for PNG JPG and other basic image format.
@@ -113,8 +115,8 @@ class NullTextureManager : public TextureManagerInterface
 public:
     TextureId LoadTexture([[maybe_unused]] std::string_view path, [[maybe_unused]] Texture::TextureFlags flags = Texture::DEFAULT) override
     {
-        neko_assert(false, "[Warning] Using NullTextureManager to Load Texture");
-        logDebug("[Warning] Using NullTextureManager to Load Texture");
+        neko_assert(false, "[Warning] Using NullTextureManager to Init Texture");
+        logDebug("[Warning] Using NullTextureManager to Init Texture");
 	    return INVALID_TEXTURE_ID;
     }
     [[nodiscard]] const Texture* GetTexture([[maybe_unused]] TextureId index) const override

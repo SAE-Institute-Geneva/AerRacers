@@ -23,6 +23,7 @@
  */
 
 #include <engine/jobsystem.h>
+#include <engine/engine.h>
 
 #include <utility>
 
@@ -128,7 +129,12 @@ void JobSystem::Work(JobQueue& jobQueue)
 void JobSystem::Init()
 {
     status_ = RUNNING;
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
+    auto basicEngine = BasicEngine::GetInstance();
+    auto config = Configuration();
+    if (basicEngine)
+    {
+        config = BasicEngine::GetInstance()->GetConfig();
+    }
     const auto minWorkerNumber = 3u;
     numberOfWorkers = config.workerNumber < minWorkerNumber ?
             std::max(minWorkerNumber, std::thread::hardware_concurrency() - 1):
@@ -315,3 +321,4 @@ void Job::Reset()
 
 
 }
+  

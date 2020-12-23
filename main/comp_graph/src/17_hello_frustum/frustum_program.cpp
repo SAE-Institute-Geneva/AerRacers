@@ -250,8 +250,8 @@ void HelloFrustumProgram::Render()
     glDisable(GL_DEPTH_TEST);
     screenShader_.Bind();
     const float miniMapSize = 0.2f;
-    screenShader_.SetVec2("offset", Vec2f((1.0f - miniMapSize/camera_.aspect) , 1.0f - miniMapSize));
-    screenShader_.SetVec2("scale", Vec2f( miniMapSize/camera_.aspect, miniMapSize));
+    screenShader_.SetVec2("offset", Vec2f((1.0f - miniMapSize / camera_.GetAspect()) , 1.0f - miniMapSize));
+    screenShader_.SetVec2("scale", Vec2f( miniMapSize / camera_.GetAspect(), miniMapSize));
 
     screenShader_.SetInt("screenTexture", 0);
     glActiveTexture(GL_TEXTURE0);
@@ -315,9 +315,9 @@ void HelloFrustumProgram::Culling(size_t begin, size_t end)
     const auto* model = modelManager_.GetModel(modelId_);
     const auto& asteroidMesh = model->GetMesh(0);
 	const auto asteroidRadius = (asteroidMesh.max-asteroidMesh.min).Magnitude()/2.0f;
-    const auto cameraDir = -camera_.reverseDir;
-    const auto cameraRight = camera_.rightDir;
-    const auto cameraUp = camera_.upDir;
+    const auto cameraDir = -camera_.reverseDirection;
+    const auto cameraRight = camera_.GetRight();
+    const auto cameraUp = camera_.GetUp();
     const auto fovX = camera_.GetFovX();
 	
     const auto rightQuaternion = Quaternion::AngleAxis(fovX / 2.0f, cameraUp);
@@ -345,7 +345,7 @@ void HelloFrustumProgram::Culling(size_t begin, size_t end)
         {
             const auto planePos = camera_.position + cameraDir * camera_.farPlane;
             const auto asterPos = asteroidPos - planePos;
-            const auto v = Vec3f::Dot(camera_.reverseDir, asterPos);
+            const auto v = Vec3f::Dot(camera_.reverseDirection, asterPos);
             if (v < -asteroidRadius)
                 continue;
         }

@@ -27,6 +27,7 @@
  Date : 29.09.2020
 ---------------------------------------------------------- */
 
+#include "gizmos_renderer.h"
 #include "sdl_engine/sdl_camera.h"
 
 namespace neko::aer {
@@ -34,7 +35,7 @@ class AerEngine;
 
 class DrawSystem final : public SystemInterface,
                          public sdl::SdlEventSystemInterface,
-                         public DrawImGuiInterface {
+                         public DrawImGuiInterface{
 public:
     explicit DrawSystem(AerEngine& engine);
     void Init() override;
@@ -43,9 +44,9 @@ public:
     void Update(seconds dt) override;
     void Destroy() override;
     void OnEvent(const SDL_Event& event) override;
-
 protected:
-    Camera3D* camera_;
+    Camera3D camera_;
     AerEngine& engine_;
+    std::unique_ptr<GizmosRenderer> gizmosRenderer_;
 };
 }

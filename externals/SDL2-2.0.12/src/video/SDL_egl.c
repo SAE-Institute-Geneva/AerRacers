@@ -409,7 +409,7 @@ SDL_EGL_LoadLibraryOnly(_THIS, const char *egl_path)
 
     _this->egl_data->dll_handle = dll_handle;
 
-    /* Load new function pointers */
+    /* Init new function pointers */
     LOAD_FUNC(eglGetDisplay);
     LOAD_FUNC(eglInitialize);
     LOAD_FUNC(eglTerminate);

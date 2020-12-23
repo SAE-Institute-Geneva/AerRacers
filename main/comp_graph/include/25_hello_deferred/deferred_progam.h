@@ -66,8 +66,8 @@ private:
 
     void CreateFramebuffer();
     void RenderScene(const gl::Shader& shader);
-
-    sdl::Camera3D camera_;
+    
+	sdl::MovableCamera3D camera_;
     gl::Shader deferredShader_;
     gl::Shader lightingShader_;
     gl::Shader forwardShader_;

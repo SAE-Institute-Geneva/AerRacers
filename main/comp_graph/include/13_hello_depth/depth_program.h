@@ -25,7 +25,6 @@
 #include "comp_graph/sample_program.h"
 #include "gl/shape.h"
 #include "gl/shader.h"
-#include "gl/texture.h"
 #include "sdl_engine/sdl_camera.h"
 
 namespace neko
@@ -52,8 +51,8 @@ private:
 	};
 
 	void DrawScene();
-	
-	sdl::Camera3D camera_;
+
+	sdl::MovableCamera3D camera_;
 	
 	gl::RenderCuboid cube_{Vec3f::zero, Vec3f::one};
 	gl::RenderQuad floor_{Vec3f::zero, Vec2f::one*5.0f};

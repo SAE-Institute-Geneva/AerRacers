@@ -22,6 +22,7 @@
  SOFTWARE.
  */
 
+#ifdef NEKO_GLES3
 #include "gl/mesh.h"
 #include "assimp/mesh.h"
 #include "assimp/scene.h"
@@ -315,3 +316,4 @@ void Mesh::Render()
 }
  */
 }
+#endif

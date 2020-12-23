@@ -27,6 +27,7 @@
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
 
+#ifdef NEKO_GLES3
 #include "sdl_engine/sdl_engine.h"
 #include "sdl_engine/sdl_input.h"
 #include "gl/gles3_window.h"
@@ -160,7 +161,7 @@ private:
 TEST(Engine, TestSimulateInput)
 {
     //Travis Fix because Windows can't open a window
-    char* env = getenv("WIN_TRAVIS");
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
     if (env != nullptr) {
         std::cout << "Test skip for travis windows" << std::endl;
         return;
@@ -359,7 +360,7 @@ private:
 TEST(Engine, TestSimulateBindedInput)
 {
     //Travis Fix because Windows can't open a window
-    char* env = getenv("WIN_TRAVIS");
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
     if (env != nullptr) {
         std::cout << "Test skip for travis windows" << std::endl;
         return;
@@ -803,7 +804,7 @@ private:
 TEST(Engine, TestInteractiveInput)
 {
     //Travis Fix because Windows can't open a window
-    char* env = getenv("WIN_TRAVIS");
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
     if (env != nullptr) {
         std::cout << "Test skip for travis windows" << std::endl;
         return;
@@ -834,3 +835,4 @@ TEST(Engine, TestInteractiveInput)
 
     engine.EngineLoop();
 }
+#endif

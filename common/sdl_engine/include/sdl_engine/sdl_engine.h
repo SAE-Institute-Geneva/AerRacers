@@ -33,7 +33,6 @@
 
 namespace neko::sdl
 {
-
 class SdlEventSystemInterface
 {
 public:
@@ -59,6 +58,6 @@ protected:
 	InputManager inputManager_;
 
 };
-
 }
 
+ 

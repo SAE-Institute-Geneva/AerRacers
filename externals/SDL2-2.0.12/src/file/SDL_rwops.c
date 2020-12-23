@@ -717,7 +717,7 @@ SDL_FreeRW(SDL_RWops * area)
     SDL_free(area);
 }
 
-/* Load all the data from an SDL data stream */
+/* Init all the data from an SDL data stream */
 void *
 SDL_LoadFile_RW(SDL_RWops * src, size_t *datasize, int freesrc)
 {

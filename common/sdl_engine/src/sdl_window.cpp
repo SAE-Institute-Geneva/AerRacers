@@ -36,33 +36,32 @@
 #endif
 namespace neko
 {
-
 void sdl::SdlWindow::Init()
 {
-
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("InitSdlWindow");
 #endif
     const auto& config = BasicEngine::GetInstance()->GetConfig();
 
-
-    flags_ = SDL_WINDOW_RESIZABLE |
-#ifdef NEKO_GLES3
-        SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI
+    flags_ = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
+#if defined (NEKO_GLES3) && !defined (NEKO_VULKAN)
+    flags_ |= SDL_WINDOW_OPENGL;
+#elif defined (NEKO_VULKAN)
+    flags_ |= SDL_WINDOW_VULKAN;
 #endif
-        ;
+
 #if defined(__ANDROID__)
     //config.fullscreen = true;
     config.windowSize = Vec2u(1280, 720);
     config.fullscreen = true;
 #endif
-    ;
     auto windowSize = config.windowSize;
     if (config.flags & Configuration::FULLSCREEN)
     {
         windowSize = Vec2u::zero;
         flags_ |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
+
     window_ = SDL_CreateWindow(
         config.windowName.c_str(),
         SDL_WINDOWPOS_UNDEFINED,
@@ -71,15 +70,15 @@ void sdl::SdlWindow::Init()
         windowSize.y,
         flags_
     );
-    if (config.flags & Configuration::FULLSCREEN)
-    {
+	if(config.flags & Configuration::FULLSCREEN)
+	{
         int windowSizeW = 0;
         int windowSizeH = 0;
         SDL_GetWindowSize(window_, &windowSizeW, &windowSizeH);
         windowSize.x = windowSizeW;
         windowSize.y = windowSizeH;
-        //config.windowSize = windowSize;
-    }
+	}
+
     // Check that everything worked out okay
     if (window_ == nullptr)
     {
@@ -128,7 +127,7 @@ void sdl::SdlWindow::Destroy()
     EASY_BLOCK("DestroySdlWindow");
 #endif
     ImGui_ImplSDL2_Shutdown();
-    ImGui::DestroyContext();
+    //ImGui::DestroyContext();
     // Destroy our window
     SDL_DestroyWindow(window_);
 }
@@ -143,4 +142,4 @@ void sdl::SdlWindow::RenderUi()
     ImGui::Render();
 }
 
-}
+}   

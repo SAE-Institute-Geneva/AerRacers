@@ -48,10 +48,10 @@ private:
 	Light light_;
 	int toonLayers_ = 4;
 	int specularLayers_ = 4;
-	sdl::Camera3D camera_;
 	gl::ModelId modelId_ = gl::INVALID_MODEL_ID;
 	gl::ModelManager modelManager_;
 	gl::TextureManager textureManager_;
+	sdl::MovableCamera3D camera_;
 	gl::Shader toonShader_;
 	gl::Shader blinnShader_;
 };

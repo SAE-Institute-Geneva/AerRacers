@@ -29,7 +29,7 @@ namespace neko
 
 /**
  * \brief Interface of System in the Entity-Component-System engine
- * Needs to implement Init, Update and Destroy
+ * Needs to implement InitData, Update and Destroy
  */
 class SystemInterface
 {

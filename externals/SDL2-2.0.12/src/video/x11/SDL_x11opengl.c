@@ -161,7 +161,7 @@ X11_GL_LoadLibrary(_THIS, const char *path)
         return SDL_SetError("OpenGL context already created");
     }
 
-    /* Load the OpenGL library */
+    /* Init the OpenGL library */
     if (path == NULL) {
         path = SDL_getenv("SDL_OPENGL_LIBRARY");
     }
@@ -187,7 +187,7 @@ X11_GL_LoadLibrary(_THIS, const char *path)
         return SDL_OutOfMemory();
     }
 
-    /* Load function pointers */
+    /* Init function pointers */
     handle = _this->gl_config.dll_handle;
     _this->gl_data->glXQueryExtension =
         (Bool (*)(Display *, int *, int *))

@@ -57,8 +57,8 @@ private:
 
 
     void RenderScene(const gl::Shader& shader);
-
-    sdl::Camera3D camera3D_;
+    
+	sdl::MovableCamera3D camera3D_;
     gl::RenderCuboid cube_{Vec3f::zero, Vec3f::one};
 
     gl::Shader lightCubeShader_;

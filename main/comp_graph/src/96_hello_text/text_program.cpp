@@ -22,6 +22,7 @@
  SOFTWARE.
  */
 
+#ifdef NEKO_FREETYPE
 #include "96_hello_text/text_program.h"
 #include "mathematics/transform.h"
 
@@ -62,7 +63,7 @@ void HelloTextProgram::Init()
     // load first 128 characters of ASCII set
     for (unsigned char c = 0; c < 128; c++)
     {
-        // Load character glyph 
+        // Init character glyph
         if (FT_Load_Char(face, c, FT_LOAD_RENDER))
         {
             std::cout << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
@@ -194,3 +195,4 @@ void HelloTextProgram::RenderText(gl::Shader& shader, std::string_view text, flo
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 }
+#endif

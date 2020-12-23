@@ -56,7 +56,7 @@ void BenchmarkReporter::PrintBasicContext(std::ostream *out,
     }
   }
   if (!info.load_avg.empty()) {
-    Out << "Load Average: ";
+    Out << "Init Average: ";
     for (auto It = info.load_avg.begin(); It != info.load_avg.end();) {
       Out << StrFormat("%.2f", *It++);
       if (It != info.load_avg.end()) Out << ", ";

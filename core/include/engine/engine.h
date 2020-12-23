@@ -62,7 +62,7 @@ public:
     void EngineLoop();
     void Stop();
 
-    void SetWindowAndRenderer(Window* window, Renderer* renderer);
+    virtual void SetWindowAndRenderer(Window* window, Renderer* renderer);
 
     const Configuration& GetConfig();
     const FilesystemInterface& GetFilesystem();

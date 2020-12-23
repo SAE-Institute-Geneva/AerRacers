@@ -90,8 +90,8 @@ private:
 
     gl::Shader simpleDepthShader_;
     gl::Shader modelShader_;
-
-    sdl::Camera3D camera_;
+    
+	sdl::MovableCamera3D camera_;
     Camera2D depthCamera_;
 
     unsigned int depthMapFbo_ = 0;

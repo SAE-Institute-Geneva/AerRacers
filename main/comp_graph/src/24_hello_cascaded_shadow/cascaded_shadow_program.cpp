@@ -198,7 +198,7 @@ Camera2D HelloCascadedShadowProgram::CalculateOrthoLight(float cascadeNear, floa
     lightCamera.WorldLookAt(lightDir);
 
     const auto tanHalfFovY = Tan(camera_.fovY / 2.0f);
-    const auto tanHalfFovX = tanHalfFovY * camera_.aspect;
+    const auto tanHalfFovX = tanHalfFovY * camera_.GetAspect();
     const float nearX = cascadeNear * tanHalfFovX;
     const float nearY = cascadeNear * tanHalfFovY;
     const float farX = cascadeFar * tanHalfFovX;
@@ -209,15 +209,15 @@ Camera2D HelloCascadedShadowProgram::CalculateOrthoLight(float cascadeNear, floa
     Vec3f frustumCorners[8] =
     {
         // near face
-        camera.position-cascadeNear*camera.reverseDir+camera.rightDir*nearX+camera.upDir*nearY,
-        camera.position-cascadeNear*camera.reverseDir-camera.rightDir*nearX+camera.upDir*nearY,
-        camera.position-cascadeNear*camera.reverseDir+camera.rightDir*nearX-camera.upDir*nearY,
-        camera.position-cascadeNear*camera.reverseDir-camera.rightDir*nearX-camera.upDir*nearY,
+        camera.position-cascadeNear*camera.reverseDirection+camera.GetRight()*nearX+camera.GetUp()*nearY,
+        camera.position-cascadeNear*camera.reverseDirection-camera.GetRight()*nearX+camera.GetUp()*nearY,
+        camera.position-cascadeNear*camera.reverseDirection+camera.GetRight()*nearX-camera.GetUp()*nearY,
+        camera.position-cascadeNear*camera.reverseDirection-camera.GetRight()*nearX-camera.GetUp()*nearY,
 
-        camera.position-cascadeFar*camera.reverseDir+camera.rightDir*farX+camera.upDir*farY,
-        camera.position-cascadeFar*camera.reverseDir-camera.rightDir*farX+camera.upDir*farY,
-        camera.position-cascadeFar*camera.reverseDir+camera.rightDir*farX-camera.upDir*farY,
-        camera.position-cascadeFar*camera.reverseDir-camera.rightDir*farX-camera.upDir*farY,
+        camera.position-cascadeFar*camera.reverseDirection+camera.GetRight()*farX+camera.GetUp()*farY,
+        camera.position-cascadeFar*camera.reverseDirection-camera.GetRight()*farX+camera.GetUp()*farY,
+        camera.position-cascadeFar*camera.reverseDirection+camera.GetRight()*farX-camera.GetUp()*farY,
+        camera.position-cascadeFar*camera.reverseDirection-camera.GetRight()*farX-camera.GetUp()*farY,
     };
 
     float minX = std::numeric_limits<float>::max();
@@ -246,14 +246,14 @@ Camera2D HelloCascadedShadowProgram::CalculateOrthoLight(float cascadeNear, floa
     if(flags_ & ENABLE_AABB_CASCADE)
     {
         //const auto maxSizeLength = std::max((maxX-minX)/2.0f, (maxY-minY)/2.0f);
-        const auto size = Vec2f((maxX - minX) / 2.0f, (maxY - minY) / 2.0f);
+        const auto size = (maxY - minY) / 2.0f;
         //const auto lightCenter = lightView.Inverse()*Vec4f((minX+maxX)/2.0f, (minY+maxY)/2.0f, (minZ+maxZ)/2.0f, 1.0f);
         center /= 8.0f;// = Vec3f(lightCenter);
-        lightCamera.SetExtends(size);
+        lightCamera.size = size;
         lightCamera.nearPlane = 0.0f;
 
         lightCamera.farPlane = (maxZ-minZ)*1.7f;
-        lightCamera.position = center + lightCamera.reverseDir * lightCamera.farPlane/2.0f;
+        lightCamera.position = center + lightCamera.reverseDirection * lightCamera.farPlane/2.0f;
     }
     else
     {
@@ -267,10 +267,10 @@ Camera2D HelloCascadedShadowProgram::CalculateOrthoLight(float cascadeNear, floa
             }
         }
         radius = std::sqrt(radius);
-        lightCamera.SetExtends(Vec2f(radius, radius));
+        lightCamera.size = radius;
         lightCamera.farPlane = 2.0f * radius;
         lightCamera.nearPlane = 0.0f;
-        lightCamera.position = center + lightCamera.reverseDir * radius;
+        lightCamera.position = center + lightCamera.reverseDirection * radius;
     }
     return lightCamera;
 }
@@ -325,3 +325,4 @@ void HelloCascadedShadowProgram::RenderScene(const gl::Shader& shader)
     plane_.Draw();
 }
 }
+ 

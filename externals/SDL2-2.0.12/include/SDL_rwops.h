@@ -220,7 +220,7 @@ extern DECLSPEC size_t SDLCALL SDL_RWwrite(SDL_RWops *context,
 extern DECLSPEC int SDLCALL SDL_RWclose(SDL_RWops *context);
 
 /**
- *  Load all the data from an SDL data stream.
+ *  Init all the data from an SDL data stream.
  *
  *  The data is allocated with a zero byte at the end (null terminated)
  *
@@ -236,7 +236,7 @@ extern DECLSPEC void *SDLCALL SDL_LoadFile_RW(SDL_RWops * src, size_t *datasize,
                                                     int freesrc);
 
 /**
- *  Load an entire file.
+ *  Init an entire file.
  *
  *  The data is allocated with a zero byte at the end (null terminated)
  *

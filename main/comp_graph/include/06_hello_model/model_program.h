@@ -38,7 +38,7 @@ public:
 	void Render() override;
 	void OnEvent(const SDL_Event& event) override;
 private:
-	sdl::Camera3D camera_;
+	sdl::MovableCamera3D camera_;
 	gl::TextureManager textureManager_;
     gl::ModelId modelId_ = gl::INVALID_MODEL_ID;
     gl::ModelManager modelManager_;

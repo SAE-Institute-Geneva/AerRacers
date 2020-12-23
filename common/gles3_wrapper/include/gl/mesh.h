@@ -27,6 +27,8 @@
 
 #include "assimp/material.h"
 #include "mathematics/vector.h"
+#ifdef NEKO_GLES3
+#include "gl/mesh.h"
 #include "gl/shader.h"
 #include "gl/texture.h"
 #include "mathematics/circle.h"
@@ -65,3 +67,4 @@ namespace neko::assimp
         Vec3f min, max;
     };
 }
+#endif

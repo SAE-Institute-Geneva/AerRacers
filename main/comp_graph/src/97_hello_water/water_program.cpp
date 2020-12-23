@@ -59,7 +59,6 @@ void HelloWaterProgram::Init()
 	
 	CreateFramebuffer();
 	CreateDepthbuffer();
-	camera_.Init();
 }
 
 void HelloWaterProgram::Update(seconds dt)
@@ -157,9 +156,9 @@ void HelloWaterProgram::Render()
 	};
 	//Reflection
 	Camera3D underWaterCamera = static_cast<Camera3D>(camera_);
-	underWaterCamera.reverseDir = Vec3f::Reflect(underWaterCamera.reverseDir, Vec3f::up);
+	underWaterCamera.reverseDirection = Vec3f::Reflect(underWaterCamera.reverseDirection, Vec3f::up);
 	underWaterCamera.position.y = underWaterCamera.position.y - 2.0f * std::abs(underWaterCamera.position.y - waterHeight_);
-	underWaterCamera.WorldLookAt(underWaterCamera.position - underWaterCamera.reverseDir, Vec3f::up);
+	underWaterCamera.WorldLookAt(underWaterCamera.position - underWaterCamera.reverseDirection);
 	glViewport(0, 0, reflectionFrameSize.x, reflectionFrameSize.y);
 	glBindFramebuffer(GL_FRAMEBUFFER, reflectionFramebuffer_);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

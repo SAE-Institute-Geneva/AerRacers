@@ -62,12 +62,12 @@ void HelloShadowProgram::Init()
     glDrawBuffers(1, &drawBuffers);
     glReadBuffer(GL_NONE);
 
-    glCheckFramebuffer();
-    glCheckError();
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    depthCamera_.SetExtends(Vec2f::one * 4.0f);
-    depthCamera_.position = light_.lightPos;
-    depthCamera_.WorldLookAt(light_.lightPos + light_.lightDir);
+	glCheckFramebuffer();
+	glCheckError();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	depthCamera_.size = 4.0f;
+	depthCamera_.position = light_.lightPos;
+	depthCamera_.WorldLookAt(light_.lightPos+light_.lightDir);
 
 
     camera_.position = Vec3f(0, 3, 3);
@@ -110,44 +110,40 @@ void HelloShadowProgram::Destroy()
 
 void HelloShadowProgram::DrawImGui()
 {
-    ImGui::Begin("Shadow Program");
-    if (ImGui::InputFloat3("Light Pos", &light_.lightPos[0]))
-    {
-        depthCamera_.position = light_.lightPos;
-    }
-    bool enableShadow = flags_ & ENABLE_SHADOW;
-    if (ImGui::Checkbox("Enable Shadow", &enableShadow))
-    {
-        flags_ = enableShadow ? flags_ | ENABLE_SHADOW : flags_ & ~ENABLE_SHADOW;
-    }
-    bool enableBias = flags_ & ENABLE_BIAS;
-    if (ImGui::Checkbox("Enable Bias", &enableBias))
-    {
-        flags_ = enableBias ? flags_ | ENABLE_BIAS : flags_ & ~ENABLE_BIAS;
-    }
-    ImGui::InputFloat("Shadow Bias", &shadowBias_, 0, 0, "%.6f");
-    bool enablePeterPanning = flags_ & ENABLE_PETER_PANNING;
-    if (ImGui::Checkbox("Peter Panning", &enablePeterPanning))
-    {
-        flags_ = enablePeterPanning ? flags_ | ENABLE_PETER_PANNING : flags_ & ~ENABLE_PETER_PANNING;
-    }
-    bool enableOverSampling = flags_ & ENABLE_OVER_SAMPLING;
-    if (ImGui::Checkbox("Over Sampling", &enableOverSampling))
-    {
-        flags_ = enableOverSampling ? flags_ | ENABLE_OVER_SAMPLING : flags_ & ~ENABLE_OVER_SAMPLING;
-    }
-    Vec2f depthCameraSize = Vec2f(depthCamera_.right, depthCamera_.top);
-    if (ImGui::InputFloat2("Depthmap Size", &depthCameraSize[0]))
-    {
-        depthCamera_.SetExtends(depthCameraSize);
-    }
-    bool enablePcf = flags_ & ENABLE_PCF;
-    if (ImGui::Checkbox("Enable PCF", &enablePcf))
-    {
-        flags_ = enablePcf ? flags_ | ENABLE_PCF : flags_ & ~ENABLE_PCF;
-    }
-
-    ImGui::End();
+	ImGui::Begin("Shadow Program");
+	if(ImGui::InputFloat3("Light Pos", &light_.lightPos[0]))
+	{
+		depthCamera_.position = light_.lightPos;
+	}
+	bool enableShadow = flags_ & ENABLE_SHADOW;
+	if(ImGui::Checkbox("Enable Shadow", &enableShadow))
+	{
+		flags_ = enableShadow ? flags_ | ENABLE_SHADOW : flags_ & ~ENABLE_SHADOW;
+	}
+	bool enableBias = flags_ & ENABLE_BIAS;
+	if(ImGui::Checkbox("Enable Bias", &enableBias))
+	{
+		flags_ = enableBias ? flags_ | ENABLE_BIAS : flags_ & ~ENABLE_BIAS;
+	}
+	ImGui::InputFloat("Shadow Bias", &shadowBias_, 0, 0, "%.6f");
+	bool enablePeterPanning = flags_ & ENABLE_PETER_PANNING;
+	if(ImGui::Checkbox("Peter Panning", &enablePeterPanning))
+	{
+		flags_ = enablePeterPanning ? flags_ | ENABLE_PETER_PANNING : flags_ & ~ENABLE_PETER_PANNING;
+	}
+	bool enableOverSampling = flags_ & ENABLE_OVER_SAMPLING;
+	if(ImGui::Checkbox("Over Sampling", &enableOverSampling))
+	{
+		flags_ = enableOverSampling ? flags_ | ENABLE_OVER_SAMPLING : flags_ & ~ENABLE_OVER_SAMPLING;
+	}
+	ImGui::InputFloat("Depthmap Size", &depthCamera_.size);
+	bool enablePcf = flags_ & ENABLE_PCF;
+	if(ImGui::Checkbox("Enable PCF", &enablePcf))
+	{
+		flags_ = enablePcf ? flags_ | ENABLE_PCF : flags_ & ~ENABLE_PCF;
+	}
+	
+	ImGui::End();
 }
 
 void HelloShadowProgram::Render()
@@ -243,4 +239,4 @@ void HelloShadowProgram::OnEvent(const SDL_Event& event)
 {
     camera_.OnEvent(event);
 }
-}
+} 

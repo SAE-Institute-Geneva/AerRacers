@@ -34,7 +34,6 @@ namespace neko
 		cutoffShader_.LoadFromFile(
 			config.dataRootPath + "shaders/27_hello_cutoff/cutoff.vert",
 			config.dataRootPath + "shaders/27_hello_cutoff/cutoff.frag");
-		camera_.Init();
 		grassTextureId_ = textureManager_.LoadTexture(
 			config.dataRootPath + "sprites/grass.png",
 			static_cast<Texture::TextureFlags>(Texture::CLAMP_WRAP));

@@ -53,7 +53,6 @@ private:
 
     InstancingType instancingType_ = InstancingType::NO_INSTANCING;
 
-    sdl::Camera3D camera_;
     gl::ModelId modelId_;
     gl::ModelManager modelManager_;
     gl::TextureManager textureManager_;
@@ -63,6 +62,8 @@ private:
     const size_t uniformChunkSize_ = 254;
     size_t instanceChunkSize_ = 1'000;
     size_t asteroidNmb_ = 1000;
+	
+	sdl::MovableCamera3D camera_;
 
     gl::Shader singleDrawShader_;
     gl::Shader uniformInstancingShader_;

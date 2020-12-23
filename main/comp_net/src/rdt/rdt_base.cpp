@@ -23,7 +23,7 @@ void RdtManager::Init()
     const auto& config = BasicEngine::GetInstance()->GetConfig();
     shapeShader_.LoadFromFile(config.dataRootPath+"shaders/comp_net/shape.vert",
                               config.dataRootPath+"shaders/comp_net/shape.frag");
-    camera_.SetExtends(Vec2f(config.windowSize));
+    camera_.SetAspect(config.windowSize.x / config.windowSize.y);
     camera_.position = Vec3f(0, 0, 1);
     camera_.WorldLookAt(Vec3f::zero);
 	
@@ -39,7 +39,7 @@ void RdtManager::Render()
 {
     const auto& config = BasicEngine::GetInstance()->GetConfig();
     const auto windowSize = Vec2f(config.windowSize);
-    camera_.SetExtends(windowSize);
+    camera_.SetAspect(config.windowSize.x / config.windowSize.y);
 	//Render both
     shapeShader_.Bind();
     shapeShader_.SetMat4("view", camera_.GenerateViewMatrix());

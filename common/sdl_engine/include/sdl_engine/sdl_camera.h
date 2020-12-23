@@ -29,9 +29,7 @@
 
 namespace neko::sdl
 {
-
-struct Camera3D : neko::Camera3D, SdlEventSystemInterface, SystemInterface
-{
+struct Camera3D : neko::Camera3D, SdlEventSystemInterface, SystemInterface {
 	void OnEvent(const SDL_Event& event) override;
 
 	void Init() override;
@@ -62,5 +60,76 @@ struct Camera3D : neko::Camera3D, SdlEventSystemInterface, SystemInterface
 
 	const float mouseMotionRatio_ = 25.0f;
 };
-	
+struct MovableCamera : SdlEventSystemInterface, SystemInterface
+{
+    float moveSpeed = 5.0f;
+    float mouseSpeed = 1.0f;
+    float mouseSensitivity = 0.5f;
+
+    MovableCamera& operator=(const MovableCamera& other);
+
+protected:
+    Vec2f mouseMotion_;
+};
+
+struct MovableCamera2D final : neko::Camera2D, MovableCamera
+{
+    MovableCamera2D& operator=(const MovableCamera2D& other);
+
+    void Init() override {}
+
+    void Update(seconds dt) override;
+    void OnEvent(const SDL_Event& event) override;
+
+    void Destroy() override {}
+};
+
+struct MovableCamera3D : neko::Camera3D, public MovableCamera
+{
+	void OnEvent(const SDL_Event& event) override;
+
+	void Init() override;
+
+	void Update(seconds dt) override;
+
+	void Destroy() override {}
+
+	enum CameraMovement : std::uint8_t
+	{
+		NONE = 0u,
+		UP = 1u << 0u,
+		DOWN = 1u << 1u,
+		LEFT = 1u << 2u,
+		RIGHT = 1u << 3u,
+		DISABLE = 1u << 4u,
+		ACCELERATE = 1u << 5u,
+		MOUSE_MOVE = 1u << 6u
+	};
+	float cameraSpeed_ = 3.0f;
+	degree_t cameraRotationSpeed_{ degree_t(10.0f) };
+	float cameraFast_ = 7.0f;
+	std::uint8_t cameraMovement_ = NONE;
+	const Vec3f cameraOriginPos = Vec3f(0.0f, 3.0f, -3.0f);
+	const EulerAngles cameraOriginAngles = EulerAngles(
+		degree_t(-45.0f), degree_t(0.0f), degree_t(0.0f));
+	Vec2f mouseMotion_ = Vec2f::zero;
+
+	const float mouseMotionRatio_ = 25.0f;
+    MovableCamera3D& operator=(const MovableCamera3D& other);
+
+};
+
+struct FpsCamera final : public MovableCamera3D
+{
+    bool freezeCam = false;
+
+    FpsCamera& operator=(const FpsCamera& other);
+
+    void Init() override;
+
+    void Update(seconds dt) override;
+    void OnEvent(const SDL_Event& event) override;
+
+    void Destroy() override {}
+};
 }

@@ -33,9 +33,9 @@ void Frustum::SetCamera(const Camera3D& camera)
     far_ = camera.farPlane;
 
     position_ = camera.position;
-    dir_ = -camera.reverseDir;
-    rightDir_ = camera.rightDir;
-    upDir_ = camera.upDir;
+    dir_ = -camera.reverseDirection;
+    rightDir_ = camera.GetRight();
+    upDir_ = camera.GetUp();
 
     const auto fovX = camera.GetFovX();
     const auto rightQuaternion = Quaternion::AngleAxis(fovX / 2.0f, upDir_);

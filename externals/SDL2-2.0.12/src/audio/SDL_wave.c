@@ -542,7 +542,7 @@ MS_ADPCM_DecodeBlockHeader(ADPCM_DecoderState *state)
     for (c = 0; c < channels; c++) {
         size_t o = c;
 
-        /* Load the coefficient pair into the channel state. */
+        /* Init the coefficient pair into the channel state. */
         coeffindex = state->block.data[o];
         if (coeffindex > ddata->coeffcount) {
             return SDL_SetError("Invalid MS ADPCM coefficient index in block header");
@@ -554,7 +554,7 @@ MS_ADPCM_DecodeBlockHeader(ADPCM_DecoderState *state)
         o = channels + c * 2;
         cstate[c].delta = state->block.data[o] | ((Uint16)state->block.data[o + 1] << 8);
 
-        /* Load the samples from the header. Interestingly, the sample later in
+        /* Init the samples from the header. Interestingly, the sample later in
          * the output stream comes first.
          */
         o = channels * 3 + c * 2;
@@ -621,7 +621,7 @@ MS_ADPCM_DecodeBlockData(ADPCM_DecoderState *state)
                 return -1;
             }
 
-            /* Load previous samples which may come from the block header. */
+            /* Init previous samples which may come from the block header. */
             sample1 = state->output.data[outpos - channels];
             sample2 = state->output.data[outpos - channels * 2];
 
@@ -1008,7 +1008,7 @@ IMA_ADPCM_DecodeBlockData(ADPCM_DecoderState *state)
 
         for (c = 0; c < channels; c++) {
             Uint8 nybble = 0;
-            /* Load previous sample which may come from the block header. */
+            /* Init previous sample which may come from the block header. */
             Sint16 sample = state->output.data[outpos + c - channels];
 
             for (i = 0; i < subblocksamples; i++) {

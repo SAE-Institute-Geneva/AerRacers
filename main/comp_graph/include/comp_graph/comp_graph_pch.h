@@ -22,6 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+
+#ifdef NEKO_GLES3
 #include "gl/gles3_include.h"
 #include "SDL.h"
 #include "imgui.h"
@@ -34,6 +36,7 @@
 #include "gl/shader.h"
 #include "gl/texture.h"
 #include "sdl_engine/sdl_camera.h"
+#endif
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"

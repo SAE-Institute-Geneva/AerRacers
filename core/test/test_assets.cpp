@@ -23,7 +23,7 @@ SOFTWARE.
 */
 #include <iostream>
 #include <fstream>
-#include <xxhash.hpp>
+#include <xxhash.h>
 #include <sole.hpp>
 #include <gtest/gtest.h>
 #include <engine/filesystem.h>
@@ -51,20 +51,21 @@ TEST(Engine, TestAssetImport)
 		config.dataRootPath+"fake/path/file.png",
 		config.dataRootPath+"other/fake/path/file.png",
 	};
-	std::vector<xxh::hash_t<64>> fileHashes;
+	std::vector<XXH64_hash_t> fileHashes;
 	fileHashes.reserve(filenames.size());
 	for (auto& filename : filenames)
 	{
-		xxh::hash_state_t<64> hash_stream(0);
-		hash_stream.update(filename);
+		XXH64_state_t* hashStream = XXH64_createState();
+		XXH64_reset(hashStream, 0);
+		XXH64_update(hashStream, filename.data(), filename.size());
 		neko::BufferFile bufferFile = filesystem.LoadFile(filename);
 		if (bufferFile.dataBuffer != nullptr)
 		{
-			hash_stream.update(bufferFile.dataBuffer, bufferFile.dataLength);
+			XXH64_update(hashStream, bufferFile.dataBuffer, bufferFile.dataLength);
 		}
 		bufferFile.Destroy();
-		const xxh::hash_t<64> final_hash = hash_stream.digest();
-		fileHashes.push_back(final_hash);
+		const XXH64_hash_t finalHash = XXH64_digest(hashStream);
+		fileHashes.push_back(finalHash);
 	}
 	EXPECT_NE(fileHashes[0], fileHashes[1]);
 	EXPECT_NE(fileHashes[1], fileHashes[2]);
