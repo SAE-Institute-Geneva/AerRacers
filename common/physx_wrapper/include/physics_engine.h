@@ -103,8 +103,16 @@ public:
         const physx::PxContactPair* pairs,
         physx::PxU32 nbPairs) override
     {
-        logDebug("onContact");
-        onCollisionAction.Execute(pairHeader);
+        for (physx::PxU32 i = 0; i < nbPairs; i++)
+        {
+            const physx::PxContactPair& cp = pairs[i];
+
+            if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
+            {
+                logDebug("onContact");
+                onCollisionAction.Execute(pairHeader);
+            }
+        }
     }
     virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override
     {
@@ -162,6 +170,24 @@ public:
     }
 };
 
+class RigidDynamicViewer : public DrawImGuiInterface, public FixedUpdateInterface
+{
+public:
+    explicit RigidDynamicViewer(EntityManager& entityManager, PhysicsEngine& physicsEngine);
+    void DrawImGui() override;
+    void SetSelectedEntity(Entity selectedEntity);
+    void FixedUpdate(seconds dt) override;
+    void Update(seconds dt);
+protected:
+    Entity selectedEntity_ = INVALID_ENTITY;
+    EntityManager& entityManager_;
+    RigidDynamicData rigidDynamicData_;
+    DynamicData dynamicData_;
+    PhysicsEngine& physicsEngine_;
+
+};
+
+
 class PhysicsEngine
 {
 public:
@@ -177,16 +203,34 @@ public:
     void Destroy();
     physx::PxPhysics* GetPhysx();
     physx::PxScene* GetScene();
+    RigidStaticManager& GetRididStaticManager() { return rigidStaticManager_; }
+    RigidDynamicManager& GetRigidDynamicManager() { return rigidDynamicManager_; }
 
     void AddRigidStatic(Entity entity, const RigidStaticData& body, BoxColliderData& shape);
     void AddRigidStatic(Entity entity, const RigidStaticData& body, const SphereColliderData& shape);
-    [[nodiscard]] const RigidStatic& GetRigidStatic(Entity entity) const;
-    void SetRigidStatic(Entity entity, const RigidStatic& body);
 
     void AddRigidDynamic(Entity entity, const RigidDynamicData& body, BoxColliderData& shape);
     void AddRigidDynamic(Entity entity, const RigidDynamicData& body, const SphereColliderData& shape);
+
+    void AddForceAtPosition(Entity entity, const Vec3f& force, const Vec3f& position) const;
+    void AddForce(Entity entity, const Vec3f& force) const;
+
+    [[nodiscard]] const RigidDynamicData& GetRigidDynamicData(Entity entity) const;
+    void SetRigidDynamicData(Entity entity, const RigidDynamicData& rigidDynamicData) const;
+
+    [[nodiscard]] const ColliderType& GetColliderType(Entity entity) const;
+
+    [[nodiscard]] const BoxColliderData& GetBoxColliderData(Entity entity) const;
+    void SetBoxColliderData(Entity entity, const BoxColliderData& boxColliderData) const;
+
+    [[nodiscard]] const SphereColliderData& GetSphereColliderData(Entity entity) const;
+    void SetSphereColliderData(Entity entity, const SphereColliderData& body) const;
+
     [[nodiscard]] const RigidDynamic& GetRigidDynamic(Entity entity) const;
     void SetRigidDynamic(Entity entity, const RigidDynamic& body);
+
+    [[nodiscard]] const RigidStatic& GetRigidStatic(Entity entity) const;
+    void SetRigidStatic(Entity entity, const RigidStatic& body);
 
     const PxRaycastInfo Raycast(
         Vec3f origin,
@@ -196,7 +240,14 @@ public:
     void RegisterCollisionListener(OnCollisionInterface& collisionInterface);
     void RegisterTriggerListener(OnTriggerInterface& triggerInterface);
     void RegisterFixedUpdateListener(FixedUpdateInterface& fixedUpdateInterface);
+
+    void StartPhysic();
+    void StopPhysic();
+
+    bool IsPhysicRunning() const;
+
 private:
+
     void CreateScene();
     bool Advance(physx::PxReal dt);
     static physx::PxFilterFlags ContactReportFilterShader(
@@ -211,12 +262,13 @@ private:
     physx::PxFoundation* foundation_ = nullptr;
     physx::PxPhysics* physics_ = nullptr;
     physx::PxPvd* pvd_ = nullptr;
-    physx::PxPvdTransport* transport = nullptr;
+    physx::PxPvdTransport* transport_ = nullptr;
     physx::PxCooking* cooking_ = nullptr;
     physx::PxDefaultCpuDispatcher* cpuDispatcher_ = nullptr;
     physx::PxScene* scene_ = nullptr;
     float accumulator_ = 0.0f;
     seconds stepSize_ = seconds(1.0f / 60.0f);
+    bool physicRunning_ = false;
 
     PhysicsSimulationEventCallback eventCallback_;
 

@@ -5,7 +5,7 @@
 
 
 namespace neko::physics {
-RigidActor::ColliderType RigidActor::GetType() const
+ColliderType RigidActor::GetType() const
 {
     if (shape_ == nullptr) {
         return ColliderType::INVALID;
@@ -66,6 +66,42 @@ BoxColliderData RigidActor::GetBoxColliderData() const
     boxColliderData.material.staticFriction = material_->getStaticFriction();
     boxColliderData.material.dynamicFriction = material_->getDynamicFriction();
     return boxColliderData;
+}
+
+void RigidActor::SetSphereColliderData(
+    const physics::SphereColliderData& sphereColliderData) const
+{
+    physx::PxTransform transform = shape_->getLocalPose();
+    transform.p = ConvertToPxVec(sphereColliderData.offset);
+    shape_->setLocalPose(transform);
+    physx::PxSphereGeometry geometry = shape_->getGeometry().sphere();
+    geometry.radius = sphereColliderData.radius;
+    shape_->setGeometry(geometry);
+    shape_->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, sphereColliderData.isTrigger);
+    material_->setRestitution(sphereColliderData.material.bouciness);
+    material_->setStaticFriction(sphereColliderData.material.staticFriction);
+    material_->setDynamicFriction(sphereColliderData.material.dynamicFriction);
+}
+
+void RigidActor::SetBoxColliderData(
+    const physics::BoxColliderData& boxColliderData) const
+{
+    physx::PxTransform transform = shape_->getLocalPose();
+    transform.p = ConvertToPxVec(boxColliderData.offset);
+    shape_->setLocalPose(transform);
+    physx::PxBoxGeometry geometry = shape_->getGeometry().box();
+    geometry.halfExtents = ConvertToPxVec(boxColliderData.size)/2.0f;
+    shape_->setGeometry(geometry);
+    if (boxColliderData.isTrigger) {
+        shape_->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, false);
+        shape_->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, boxColliderData.isTrigger);
+    } else {
+        shape_->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, boxColliderData.isTrigger);
+        shape_->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, true);
+    }
+    material_->setRestitution(boxColliderData.material.bouciness);
+    material_->setStaticFriction(boxColliderData.material.staticFriction);
+    material_->setDynamicFriction(boxColliderData.material.dynamicFriction);
 }
 
 physx::PxMaterial* RigidActor::InitMaterial(
@@ -168,54 +204,90 @@ void RigidDynamic::Init(physx::PxPhysics* physics, const RigidDynamicData& rigid
 }
 
 void RigidDynamic::SetRigidDynamicData(
-    const RigidDynamicData& rigidDynamic) {
-    rigidDynamicData_ = rigidDynamic;
+    const RigidDynamicData& rigidDynamicData) const
+{
+    rigidActor_->setLinearDamping(rigidDynamicData.linearDamping);
+    rigidActor_->setAngularDamping(rigidDynamicData.angularDamping);
+    rigidActor_->setMass(rigidDynamicData.mass);
+    rigidActor_->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, !rigidDynamicData.useGravity);
+    rigidActor_->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, rigidDynamicData.isKinematic);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, rigidDynamicData.freezeRotation.x);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, rigidDynamicData.freezeRotation.y);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, rigidDynamicData.freezeRotation.z);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X, rigidDynamicData.freezePosition.x);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, rigidDynamicData.freezePosition.y);
+    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, rigidDynamicData.freezePosition.z); 
+    switch (rigidDynamicData.colliderType) {
+    case ColliderType::INVALID:
+        break;
+    case ColliderType::BOX:
+        rigidActor_->detachShape(*shape_);
+        SetBoxColliderData(rigidDynamicData.boxColliderData);
+        rigidActor_->attachShape(*shape_);
+        break;
+    case ColliderType::SPHERE:
+        rigidActor_->detachShape(*shape_);
+        SetSphereColliderData(rigidDynamicData.sphereColliderData);
+        rigidActor_->attachShape(*shape_);
+        break;
+    default:;
+    }
 }
 
 void RigidDynamic::FixedUpdate(seconds dt)
 {
-    //rigidActor_->setLinearVelocity(ConvertToPxVec(rigidDynamicData_.linearVelocity));
-    //rigidActor_->setAngularVelocity(ConvertToPxVec(rigidDynamicData_.angularVelocity));
-    rigidActor_->setLinearDamping(rigidDynamicData_.linearDamping);
-    rigidActor_->setAngularDamping(rigidDynamicData_.angularDamping);
-    rigidActor_->setMass(rigidDynamicData_.mass);
-    rigidActor_->setActorFlag(physx::PxActorFlag::eDISABLE_GRAVITY, !rigidDynamicData_.useGravity);
-    rigidActor_->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, rigidDynamicData_.isKinematic);
-    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X, rigidDynamicData_.freezeRotation.x);
-    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y, rigidDynamicData_.freezeRotation.y);
-    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z, rigidDynamicData_.freezeRotation.z);
-    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X, rigidDynamicData_.freezePosition.x);
-    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y, rigidDynamicData_.freezePosition.y);
-    rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z, rigidDynamicData_.freezePosition.z);
-    rigidDynamicData_.linearVelocity = ConvertFromPxVec(rigidActor_->getLinearVelocity());
-    rigidDynamicData_.angularVelocity = ConvertFromPxVec(rigidActor_->getAngularVelocity());
-    rigidDynamicData_.linearDamping = rigidActor_->getLinearDamping();
-    rigidDynamicData_.angularDamping = rigidActor_->getAngularDamping();
-    rigidDynamicData_.mass = rigidActor_->getMass();
-    rigidDynamicData_.useGravity = (rigidActor_->getActorFlags() & physx::PxActorFlags(physx::PxActorFlag::eDISABLE_GRAVITY)) != physx::PxActorFlags(physx::PxActorFlag::eDISABLE_GRAVITY);
-    rigidDynamicData_.isKinematic = (rigidActor_->getRigidBodyFlags() & physx::PxRigidBodyFlags(physx::PxRigidBodyFlag::eKINEMATIC)) == physx::PxRigidBodyFlags(physx::PxRigidBodyFlag::eKINEMATIC);
-    rigidDynamicData_.freezeRotation = {
+}
+physics::RigidDynamicData RigidDynamic::GetRigidDynamicData() const
+{
+    RigidDynamicData rigidDynamicData;
+    rigidDynamicData.linearDamping = rigidActor_->getLinearDamping();
+    rigidDynamicData.angularDamping = rigidActor_->getAngularDamping();
+    rigidDynamicData.mass = rigidActor_->getMass();
+    rigidDynamicData.useGravity = (rigidActor_->getActorFlags() & physx::PxActorFlags(physx::PxActorFlag::eDISABLE_GRAVITY)) != physx::PxActorFlags(physx::PxActorFlag::eDISABLE_GRAVITY);
+    rigidDynamicData.isKinematic = (rigidActor_->getRigidBodyFlags() & physx::PxRigidBodyFlags(physx::PxRigidBodyFlag::eKINEMATIC)) == physx::PxRigidBodyFlags(physx::PxRigidBodyFlag::eKINEMATIC);
+    rigidDynamicData.freezeRotation = {
         (rigidActor_->getRigidDynamicLockFlags() & physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X)) == physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X),
         (rigidActor_->getRigidDynamicLockFlags() & physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y)) == physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y),
         (rigidActor_->getRigidDynamicLockFlags() & physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z)) == physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z) };
-    rigidDynamicData_.freezePosition = {
+    rigidDynamicData.freezePosition = {
         (rigidActor_->getRigidDynamicLockFlags() & physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X)) == physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X),
         (rigidActor_->getRigidDynamicLockFlags() & physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y)) == physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y),
         (rigidActor_->getRigidDynamicLockFlags() & physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z)) == physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z) };
+    rigidDynamicData.colliderType = GetType();
+    switch (rigidDynamicData.colliderType) {
+    case ColliderType::INVALID:
+        break;
+    case ColliderType::BOX:
+        rigidActor_->detachShape(*shape_);
+        rigidDynamicData.boxColliderData = GetBoxColliderData();
+        rigidActor_->attachShape(*shape_);
+        break;
+    case ColliderType::SPHERE:
+        rigidActor_->detachShape(*shape_);
+        rigidDynamicData.sphereColliderData = GetSphereColliderData();
+        rigidActor_->attachShape(*shape_);
+        break;
+    default:;
+    }
+
+    return rigidDynamicData;
 }
 
-physics::RigidDynamicData RigidDynamic::GetRigidDynamicData() const
+physics::DynamicData RigidDynamic::GetDynamicData() const
 {
-    return rigidDynamicData_;
-}
+    DynamicData dynamicData;
 
+    dynamicData.linearVelocity = ConvertFromPxVec(rigidActor_->getLinearVelocity());
+    dynamicData.angularVelocity = ConvertFromPxVec(rigidActor_->getAngularVelocity());
+    return dynamicData;
+}
 
 void RigidDynamic::AddForceAtPosition(const Vec3f& force, const Vec3f& position) const
 {
     physx::PxRigidBodyExt::addForceAtLocalPos(*rigidActor_, ConvertToPxVec(force), ConvertToPxVec(position));
 }
 
-void RigidDynamic::AddForce(const Vec3f& force)
+void RigidDynamic::AddForce(const Vec3f& force) const
 {
     rigidActor_->addForce(ConvertToPxVec(force));
 

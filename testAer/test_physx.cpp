@@ -57,11 +57,13 @@ public :
           entityManager_(entityManager),
           transform3dManager_(transform3dManager),
           physicsEngine_(entityManager, transform3dManager),
-          gizmosRenderer_(nullptr)
+          gizmosRenderer_(nullptr),
+        rigidDynamicViewer_(entityManager, physicsEngine_)
     {
         physicsEngine_.RegisterTriggerListener(*this);
         physicsEngine_.RegisterCollisionListener(*this);
         physicsEngine_.RegisterFixedUpdateListener(*this);
+        physicsEngine_.RegisterFixedUpdateListener(rigidDynamicViewer_);
     }
 
     void InitActors()
@@ -107,6 +109,7 @@ public :
                 cubeEntity_,
                 rigidDynamic,
                 boxCollider);
+            rigidDynamicViewer_.SetSelectedEntity(cubeEntity_);
         }
     }
 
@@ -142,20 +145,17 @@ public :
 
     void Update(neko::seconds dt) override
     {
+        rigidDynamicViewer_.Update(dt);
         const auto& config = neko::BasicEngine::GetInstance()->config;
         camera_.SetAspect(static_cast<float>(config.windowSize.x) / config.windowSize.y);
         auto& inputLocator = neko::sdl::InputLocator::get();
         if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::SPACE) ==
             neko::sdl::ButtonState::DOWN) {
-            neko::physics::RigidDynamic cubeRigid = physicsEngine_.
-                GetRigidDynamic(cubeEntity_);
-            cubeRigid.AddForce(neko::Vec3f::up * 200.0f);
+            physicsEngine_.AddForce(cubeEntity_, neko::Vec3f::up * 200.0f);
         }
         if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::KEY_LEFT_CTRL) ==
             neko::sdl::ButtonState::DOWN) {
-            neko::physics::RigidDynamic cubeRigid = physicsEngine_.
-                GetRigidDynamic(cubeEntity_);
-            cubeRigid.AddForceAtPosition(
+            physicsEngine_.AddForceAtPosition(cubeEntity_,
                 neko::Vec3f::up * 200.0f,
                 neko::Vec3f::right);
         }
@@ -167,7 +167,46 @@ public :
         //    " Distance : " << raycastInfo.GetDistance() <<
         //    " Position : " << raycastInfo.GetPoint() <<
         //    " Normal : " << raycastInfo.GetNormal() << std::endl;
+        for (neko::Entity entity = 0.0f;
+            entity < entityManager_.GetEntitiesSize(); entity++) {
+            if (!entityManager_.HasComponent(
+                entity,
+                neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)) &&
+                !entityManager_.HasComponent(
+                    entity,
+                    neko::EntityMask(neko::ComponentType::RIGID_STATIC))) {
+                continue;
+            }
 
+            neko::physics::ColliderType colliderType = physicsEngine_.GetColliderType(entity);
+            switch (colliderType) {
+            case neko::physics::ColliderType::INVALID:
+                break;
+            case neko::physics::ColliderType::BOX:
+            {
+                neko::physics::BoxColliderData boxColliderData = physicsEngine_.GetBoxColliderData(entity);
+                gizmosRenderer_.DrawCube(
+                    transform3dManager_.GetPosition(entity) + boxColliderData.offset,
+                    transform3dManager_.GetScale(entity) * boxColliderData.size,
+                    transform3dManager_.GetAngles(entity),
+                    boxColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
+                    2.0f);
+            }
+            break;
+            case neko::physics::ColliderType::SPHERE:
+            {
+                neko::physics::SphereColliderData sphereColliderData = physicsEngine_.GetSphereColliderData(entity);
+                //gizmosRenderer_.DrawSphere(
+                //    transform3dManager_.GetPosition(entity) + sphereColliderData.offset,
+                //    sphereColliderData.radius,
+                //    transform3dManager_.GetAngles(entity),
+                //    sphereColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
+                //    2.0f);
+            }
+            break;
+            default:;
+            }
+        }
 
         physicsEngine_.Update(dt.count());
         textureManager_.Update(dt);
@@ -234,119 +273,37 @@ public :
     {
         //logDebug(std::to_string(pairs->otherActor->getNbShapes()));
     }
-
-    void DrawImGui() override
+    
+    void DrawImGui()
     {
         std::string title = "RigidBody ";
 
         for (neko::Entity entity = 0.0f;
              entity < entityManager_.GetEntitiesSize(); entity++) {
-            neko::Mat4f model = neko::Mat4f::Identity; //model transform matrix
             if (!entityManager_.HasComponent(
                 entity,
                 neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)))
                 continue;
             title += std::to_string(entity);
-            neko::physics::RigidDynamic rigidDynamic = physicsEngine_.GetRigidDynamic(entity);
-
-            neko::physics::RigidDynamicData rigidDynamicData = rigidDynamic.GetRigidDynamicData();
+            neko::physics::RigidDynamicData rigidDynamicData;// = physicsEngine_.GetRigidDynamicData(entity);
             ImGui::Begin(title.c_str());
-            neko::Vec3f linearVelocity = rigidDynamicData.linearVelocity;
-            ImGui::DragFloat3(
-                "linearVelocity",
-                linearVelocity.coord,0);
-            ImGui::DragFloat("linearDamping", &rigidDynamicData.linearDamping);
-            neko::Vec3f angularVelocity = rigidDynamicData.angularVelocity;
-            ImGui::DragFloat3(
-                "angularVelocity",
-                angularVelocity.coord, 0);
-            ImGui::DragFloat(
-                "angularDamping",
-                &rigidDynamicData.angularDamping);
-            ImGui::DragFloat("mass", &rigidDynamicData.mass,0.5, 0.0f, 1000);
-            ImGui::Checkbox("useGravity", &rigidDynamicData.useGravity);
-            ImGui::Checkbox("isKinematic", &rigidDynamicData.isKinematic);
-            ImGui::Text("freezePosition");
-            ImGui::SameLine();
-            ImGui::Checkbox("x", &rigidDynamicData.freezePosition.x);
-            ImGui::SameLine();
-            ImGui::Checkbox("y", &rigidDynamicData.freezePosition.y);
-            ImGui::SameLine();
-            ImGui::Checkbox("z", &rigidDynamicData.freezePosition.z);
-            ImGui::Text("freezeRotation");
-            ImGui::SameLine();
-            ImGui::Checkbox("x#", &rigidDynamicData.freezeRotation.x);
-            ImGui::SameLine();
-            ImGui::Checkbox("y#", &rigidDynamicData.freezeRotation.y);
-            ImGui::SameLine();
-            ImGui::Checkbox("z#", &rigidDynamicData.freezeRotation.z);
+
+            if (physicsEngine_.IsPhysicRunning())
+            {
+                ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Physics is active");
+                if (ImGui::Button("Stop")) {
+                    physicsEngine_.StopPhysic();
+                }
+            } else {
+                ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Physics is not active");
+                if (ImGui::Button("Play")) {
+                    physicsEngine_.StartPhysic();
+                }
+            }
+
             
+            rigidDynamicViewer_.DrawImGui();
 
-            switch (rigidDynamic.GetType()) {
-            case neko::physics::RigidActor::ColliderType::INVALID:
-                break;
-            case neko::physics::RigidActor::ColliderType::BOX: {
-                neko::physics::BoxColliderData boxColliderData = rigidDynamic.GetBoxColliderData();
-                if (ImGui::CollapsingHeader("BoxCollider"))
-                {
-                    neko::Vec3f offset = boxColliderData.offset;
-                    ImGui::DragFloat3(
-                        "offset",
-                        offset.coord, 0);
-                    neko::Vec3f size = boxColliderData.size;
-                    ImGui::DragFloat3(
-                        "size",
-                        offset.coord, 0);
-
-                    if (ImGui::TreeNode("Material"))
-                    {
-                        ImGui::DragFloat(
-                            "bouciness",
-                            &boxColliderData.material.bouciness);
-                        ImGui::DragFloat(
-                            "staticFriction",
-                            &boxColliderData.material.staticFriction);
-                        ImGui::DragFloat(
-                            "dynamicFriction",
-                            &boxColliderData.material.dynamicFriction);
-                    }
-                    ImGui::Checkbox("isTrigger", &boxColliderData.isTrigger);
-                }
-            }
-                break;
-            case neko::physics::RigidActor::ColliderType::SPHERE: {
-                neko::physics::SphereColliderData sphereColliderData = rigidDynamic.GetSphereColliderData();
-                if (ImGui::CollapsingHeader("SphereCollider"))
-                {
-                    neko::Vec3f offset = sphereColliderData.offset;
-                    ImGui::DragFloat3(
-                        "offset",
-                        offset.coord, 0);
-                    ImGui::DragFloat(
-                        "radius",
-                        &sphereColliderData.radius);
-
-                    if (ImGui::TreeNode("Material"))
-                    {
-                        ImGui::DragFloat(
-                            "bouciness",
-                            &sphereColliderData.material.bouciness);
-                        ImGui::DragFloat(
-                            "staticFriction",
-                            &sphereColliderData.material.staticFriction);
-                        ImGui::DragFloat(
-                            "dynamicFriction",
-                            &sphereColliderData.material.dynamicFriction);
-                    }
-                    ImGui::Checkbox("isTrigger", &sphereColliderData.isTrigger);
-                }
-                
-            }
-                break;
-            default: ;
-            }
-            //rigidDynamic.SetRigidDynamicData(rigidDynamicData);
-            //physicsEngine_.SetRigidDynamic(entity, rigidDynamic);
             ImGui::End();
         }
     }
@@ -354,48 +311,10 @@ public :
 
     void FixedUpdate(neko::seconds dt) override
 {
-        for (neko::Entity entity = 0.0f;
-            entity < entityManager_.GetEntitiesSize(); entity++) {
-            if (!entityManager_.HasComponent(
-                entity,
-                neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)) &&
-                !entityManager_.HasComponent(
-                    entity,
-                    neko::EntityMask(neko::ComponentType::RIGID_STATIC))) {
-                continue;
-            }
-            neko::physics::RigidDynamic cubeRigid = physicsEngine_.
-                GetRigidDynamic(entity);
-            neko::physics::RigidActor::ColliderType colliderType = cubeRigid.GetType();
-            switch (colliderType) {
-            case neko::physics::RigidActor::ColliderType::INVALID:
-                break;
-            case neko::physics::RigidActor::ColliderType::BOX:
-            {
-                neko::physics::BoxColliderData boxColliderData = cubeRigid.GetBoxColliderData();
-                gizmosRenderer_.DrawCube(
-                    transform3dManager_.GetPosition(entity) + boxColliderData.offset,
-                    transform3dManager_.GetScale(entity) * boxColliderData.size,
-                    transform3dManager_.GetAngles(entity),
-                    boxColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
-                    2.0f);
-            }
-            break;
-            case neko::physics::RigidActor::ColliderType::SPHERE:
-            {
-                neko::physics::SphereColliderData sphereColliderData = cubeRigid.GetSphereColliderData();
-                //gizmosRenderer_.DrawSphere(
-                //    transform3dManager_.GetPosition(entity) + sphereColliderData.offset,
-                //    sphereColliderData.radius,
-                //    transform3dManager_.GetAngles(entity),
-                //    sphereColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
-                //    2.0f);
-            }
-            break;
-            default:;
-            }
-        }
+       
 }
+
+
 private :
     int updateCount_ = 0;
     const int kEngineDuration_ = 200;
@@ -404,6 +323,7 @@ private :
     neko::EntityManager& entityManager_;
     neko::Transform3dManager& transform3dManager_;
     neko::physics::PhysicsEngine physicsEngine_;
+    neko::physics::RigidDynamicViewer rigidDynamicViewer_;
     neko::GizmosRenderer gizmosRenderer_;
     //physx::PxShape* shape;
     //physx::PxRigidActor* plane;
@@ -419,10 +339,10 @@ private :
 
     neko::gl::RenderCuboid cube_{neko::Vec3f::zero, neko::Vec3f::one};
     neko::gl::RenderQuad quad_{neko::Vec3f::zero, neko::Vec2f::one};
-    const static size_t cubeNumbers_ = 10;
+    const static size_t kCubeNumbers = 10;
     neko::Vec3f cubePosition_ = neko::Vec3f(0.0f, 5.0f, -5.0f);
     neko::Vec3f planePosition_ = neko::Vec3f(0.0f, -3.0f, -5.0f);
-    neko::Vec3f cubePositions[cubeNumbers_] =
+    neko::Vec3f cubePositions_[kCubeNumbers] =
     {
         neko::Vec3f(0.0f, 0.0f, 0.0f),
         neko::Vec3f(2.0f, 5.0f, -15.0f),

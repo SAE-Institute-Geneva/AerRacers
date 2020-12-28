@@ -34,13 +34,21 @@ namespace neko::physics {
 class PhysicsEngine;
 
 
+enum class ColliderType {
+    INVALID,
+    BOX,
+    SPHERE
+};
+
+struct DynamicData {
+    Vec3f linearVelocity = Vec3f::zero;
+    Vec3f angularVelocity = Vec3f::zero;
+};
 
 struct RigidDynamicData
 {
     RigidDynamicData() = default;
     ~RigidDynamicData() = default;
-    Vec3f linearVelocity = Vec3f::zero;
-    Vec3f angularVelocity = Vec3f::zero;
     float linearDamping = 0.0f;
     float angularDamping = 0.0f;
     float mass = 1.0f;
@@ -48,6 +56,9 @@ struct RigidDynamicData
     bool isKinematic = false;
     Vec3<bool> freezePosition = Vec3<bool>(false);
     Vec3<bool> freezeRotation = Vec3<bool>(true);
+    ColliderType colliderType;
+    BoxColliderData boxColliderData;
+    SphereColliderData sphereColliderData;
 };
 
 
@@ -60,16 +71,13 @@ struct RigidStaticData
 
 struct RigidActor {
 public:
-    enum class ColliderType {
-        INVALID,
-        BOX,
-        SPHERE
-    };
     physx::PxShape* GetPxShape() const { return shape_; }
     physx::PxMaterial* GetPxMaterial() const { return material_; }
     ColliderType GetType() const;
     SphereColliderData GetSphereColliderData() const;
     BoxColliderData GetBoxColliderData() const;
+    void SetSphereColliderData(const physics::SphereColliderData& sphereColliderData) const;
+    void SetBoxColliderData(const physics::BoxColliderData& boxColliderData) const;
 protected:
     physx::PxMaterial* InitMaterial(physx::PxPhysics* physics, const PhysicsMaterial& material) const;
     physx::PxShape* InitBoxShape(physx::PxPhysics* physics, physx::PxMaterial* material, const BoxColliderData& boxCollider) const;
@@ -92,14 +100,14 @@ public:
     void Init(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic, const SphereColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
     void Init(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic, const BoxColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
     void AddForceAtPosition(const Vec3f& force, const Vec3f& position) const;
-    void AddForce(const Vec3f& force);
-    void SetRigidDynamicData(const physics::RigidDynamicData& rigidDynamic);
+    void AddForce(const Vec3f& force) const;
+    void SetRigidDynamicData(const physics::RigidDynamicData& rigidDynamicData) const;
     void FixedUpdate(seconds dt);
     physics::RigidDynamicData GetRigidDynamicData() const;
+    physics::DynamicData GetDynamicData() const;
     physx::PxRigidDynamic* GetPxRigidDynamic() const { return rigidActor_; }
 private:
     physx::PxRigidDynamic* rigidActor_ = nullptr;
-    RigidDynamicData rigidDynamicData_;
 };
 
 class RigidStaticManager :
@@ -129,4 +137,6 @@ public:
 protected:
     Transform3dManager& transform3dManager_;
 };
+
+
 }
