@@ -27,128 +27,14 @@
  Date : 22.11.2020
 ---------------------------------------------------------- */
 
-#include <chrono>
-#include <iostream>
 
-
-#include "collider.h"
 #include "PxPhysicsAPI.h"
 #include "raycast.h"
 #include "rigidbody.h"
+#include "engine/entity.h"
 #include "engine/transform.h"
-#include "mathematics/vector.h"
 
 namespace neko::physics {
-
-static inline physx::PxVec2 ConvertToPxVec(const Vec2f& vec)
-{
-    return physx::PxVec2(vec.x, vec.y);
-}
-
-static inline physx::PxVec3 ConvertToPxVec(const Vec3f& vec)
-{
-    return physx::PxVec3(vec.x, vec.y, vec.z);
-}
-
-static inline physx::PxVec4 ConvertToPxVec(const Vec4f& vec)
-{
-    return physx::PxVec4(vec.x, vec.y, vec.z, vec.w);
-}
-
-static inline physx::PxQuat ConvertToPxQuat(const Quaternion& quat)
-{
-    return physx::PxQuat(quat.x, quat.y, quat.z, quat.w);
-}
-
-static inline Vec2f ConvertFromPxVec(const physx::PxVec2& vec)
-{
-    return Vec2f(vec.x, vec.y);
-}
-
-static inline Vec3f ConvertFromPxVec(const physx::PxVec3& vec)
-{
-    return Vec3f(vec.x, vec.y, vec.z);
-}
-
-static inline Vec4f ConvertFromPxVec(const physx::PxVec4& vec)
-{
-    return Vec4f(vec.x, vec.y, vec.z, vec.w);
-}
-
-static inline Quaternion ConvertFromPxQuat(const physx::PxQuat& quat)
-{
-    return Quaternion(quat.x, quat.y, quat.z, quat.w);
-}
-
-
-class PhysicsSimulationEventCallback : public physx::PxSimulationEventCallback
-{
-public:
-    virtual void onConstraintBreak(
-        physx::PxConstraintInfo* constraints,
-        physx::PxU32 count) override
-    {
-        logDebug("onConstraintBreak");
-    }
-    virtual void onWake(physx::PxActor** actors, physx::PxU32 count) override
-    {
-        logDebug("onWake");
-    }
-    virtual void onSleep(physx::PxActor** actors, physx::PxU32 count) override
-    {
-        logDebug("onSleep");
-    }
-    virtual void onContact(
-        const physx::PxContactPairHeader& pairHeader,
-        const physx::PxContactPair* pairs,
-        physx::PxU32 nbPairs) override
-    {
-        for (physx::PxU32 i = 0; i < nbPairs; i++)
-        {
-            const physx::PxContactPair& cp = pairs[i];
-
-            if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
-            {
-                logDebug("onContact");
-                onCollisionAction.Execute(pairHeader);
-            }
-        }
-    }
-    virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override
-    {
-        logDebug("onTrigger");
-        onTriggerAction.Execute(pairs);
-    }
-    virtual void onAdvance(
-        const physx::PxRigidBody* const* bodyBuffer,
-        const physx::PxTransform* poseBuffer,
-        const physx::PxU32 count) override
-    {
-        logDebug("onAdvance");
-    }
-
-    Action<const physx::PxContactPairHeader&> onCollisionAction;
-    Action<physx::PxTriggerPair*> onTriggerAction;
-};
-
-class FixedUpdateInterface
-{
-public:
-    virtual void FixedUpdate(seconds dt) = 0;
-};
-
-class OnCollisionInterface
-{
-public:
-    virtual void OnCollision(const physx::PxContactPairHeader& pairHeader) = 0;
-};
-
-
-class OnTriggerInterface
-{
-public:
-    virtual void OnTrigger(physx::PxTriggerPair* pairs) = 0;
-};
 
 class PxAllocatorCallback
 {
@@ -169,24 +55,6 @@ public:
         // error processing implementation
     }
 };
-
-class RigidDynamicViewer : public DrawImGuiInterface, public FixedUpdateInterface
-{
-public:
-    explicit RigidDynamicViewer(EntityManager& entityManager, PhysicsEngine& physicsEngine);
-    void DrawImGui() override;
-    void SetSelectedEntity(Entity selectedEntity);
-    void FixedUpdate(seconds dt) override;
-    void Update(seconds dt);
-protected:
-    Entity selectedEntity_ = INVALID_ENTITY;
-    EntityManager& entityManager_;
-    RigidDynamicData rigidDynamicData_;
-    DynamicData dynamicData_;
-    PhysicsEngine& physicsEngine_;
-
-};
-
 
 class PhysicsEngine
 {
@@ -268,6 +136,7 @@ private:
     physx::PxScene* scene_ = nullptr;
     float accumulator_ = 0.0f;
     seconds stepSize_ = seconds(1.0f / 60.0f);
+    bool physicsStopped_ = false;
     bool physicRunning_ = false;
 
     PhysicsSimulationEventCallback eventCallback_;

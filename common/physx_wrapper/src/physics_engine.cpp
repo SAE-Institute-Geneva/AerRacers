@@ -1,154 +1,13 @@
-#include <imgui.h>
 #include <physics_engine.h>
 #include <engine\log.h>
 
+
+#include "physx_utility.h"
 #include "engine/engine.h"
 
 
 namespace neko::physics {
 
-
-RigidDynamicViewer::RigidDynamicViewer(
-    EntityManager& entityManager,
-    PhysicsEngine& physicsEngine)
-    : entityManager_(entityManager),
-      physicsEngine_(physicsEngine),
-      rigidDynamicData_() { }
-
-void RigidDynamicViewer::DrawImGui()
-{
-    if (selectedEntity_ == INVALID_ENTITY)
-        return;
-    if (entityManager_.HasComponent(selectedEntity_, static_cast<EntityMask>(ComponentType::RIGID_DYNAMIC)))
-    {
-        RigidDynamicData rigidDynamicData = rigidDynamicData_;
-        neko::Vec3f linearVelocity = dynamicData_.linearVelocity;
-        ImGui::DragFloat3(
-            "linearVelocity",
-            linearVelocity.coord, 0);
-        ImGui::DragFloat("linearDamping", &rigidDynamicData.linearDamping);
-        neko::Vec3f angularVelocity = dynamicData_.angularVelocity;
-        ImGui::DragFloat3(
-            "angularVelocity",
-            angularVelocity.coord, 0);
-        ImGui::DragFloat(
-            "angularDamping",
-            &rigidDynamicData.angularDamping);
-        ImGui::DragFloat("mass", &rigidDynamicData.mass, 0.5, 0.0f, 1000);
-        ImGui::Checkbox("useGravity", &rigidDynamicData.useGravity);
-        ImGui::Checkbox("isKinematic", &rigidDynamicData.isKinematic);
-        ImGui::Text("freezePosition");
-        ImGui::SameLine();
-        ImGui::Checkbox("x", &rigidDynamicData.freezePosition.x);
-        ImGui::SameLine();
-        ImGui::Checkbox("y", &rigidDynamicData.freezePosition.y);
-        ImGui::SameLine();
-        ImGui::Checkbox("z", &rigidDynamicData.freezePosition.z);
-        ImGui::Text("freezeRotation");
-        ImGui::SameLine();
-        ImGui::Checkbox("x#", &rigidDynamicData.freezeRotation.x);
-        ImGui::SameLine();
-        ImGui::Checkbox("y#", &rigidDynamicData.freezeRotation.y);
-        ImGui::SameLine();
-        ImGui::Checkbox("z#", &rigidDynamicData.freezeRotation.z);
-
-        switch (rigidDynamicData.colliderType) {
-        case neko::physics::ColliderType::INVALID:
-            break;
-        case neko::physics::ColliderType::BOX: {
-            neko::physics::BoxColliderData boxColliderData = rigidDynamicData.boxColliderData;
-            if (ImGui::CollapsingHeader("BoxCollider"))
-            {
-                if (ImGui::DragFloat3(
-                    "offset",
-                    boxColliderData.offset.coord)) {
-                }
-                if (ImGui::DragFloat3(
-                    "size",
-                   boxColliderData.size.coord)) {
-                    boxColliderData.size.ToString();
-                }
-
-                if (ImGui::TreeNode("Material"))
-                {
-                    ImGui::DragFloat(
-                        "bouciness",
-                        &boxColliderData.material.bouciness, 0.1f, 0.0f, 1.0f);
-                    ImGui::DragFloat(
-                        "staticFriction",
-                        &boxColliderData.material.staticFriction, 0.1f, 0.0f, 1.0f);
-                    ImGui::DragFloat(
-                        "dynamicFriction",
-                        &boxColliderData.material.dynamicFriction, 0.1f, 0.0f, 1.0f);
-                    ImGui::TreePop();
-                }
-                ImGui::Checkbox("isTrigger", &boxColliderData.isTrigger);
-                rigidDynamicData.boxColliderData = boxColliderData;
-            }
-            break;
-        }
-        case neko::physics::ColliderType::SPHERE: {
-            neko::physics::SphereColliderData sphereColliderData = rigidDynamicData.sphereColliderData;
-            if (ImGui::CollapsingHeader("SphereCollider"))
-            {
-                ImGui::DragFloat3(
-                    "offset",
-                    sphereColliderData.offset.coord, 0);
-                ImGui::DragFloat(
-                    "radius",
-                    &sphereColliderData.radius);
-
-                if (ImGui::TreeNode("Material"))
-                {
-                    ImGui::DragFloat(
-                        "bouciness",
-                        &sphereColliderData.material.bouciness, 0.1f, 0.0f, 1.0f);
-                    ImGui::DragFloat(
-                        "staticFriction",
-                        &sphereColliderData.material.staticFriction, 0.1f, 0.0f, 1.0f);
-                    ImGui::DragFloat(
-                        "dynamicFriction",
-                        &sphereColliderData.material.dynamicFriction, 0.1f, 0.0f, 1.0f);
-                    ImGui::TreePop();
-                }
-                ImGui::Checkbox("isTrigger", &sphereColliderData.isTrigger);
-                rigidDynamicData.sphereColliderData = sphereColliderData;
-            }
-            break;
-        }
-        default:;
-            break;
-        }
-
-        if (!physicsEngine_.IsPhysicRunning())
-        {
-            physicsEngine_.GetRigidDynamic(selectedEntity_).SetRigidDynamicData(rigidDynamicData);
-            rigidDynamicData_ = physicsEngine_.GetRigidDynamic(selectedEntity_).GetRigidDynamicData();
-            dynamicData_ = physicsEngine_.GetRigidDynamic(selectedEntity_).GetDynamicData();
-        }
-    }
-}
-
-void RigidDynamicViewer::SetSelectedEntity(Entity selectedEntity)
-{
-    selectedEntity_ = selectedEntity;
-    rigidDynamicData_ = physicsEngine_.GetRigidDynamic(selectedEntity_).GetRigidDynamicData();
-}
-
-void RigidDynamicViewer::FixedUpdate(seconds dt)
-{
-    if (selectedEntity_ == INVALID_ENTITY)
-        return;
-    if (entityManager_.HasComponent(selectedEntity_, static_cast<EntityMask>(ComponentType::RIGID_DYNAMIC)))
-    {
-        dynamicData_ = physicsEngine_.GetRigidDynamic(selectedEntity_).GetDynamicData();
-    }
-}
-
-void RigidDynamicViewer::Update(seconds dt)
-{
-    
-}
 
 PhysicsEngine::PhysicsEngine(
     EntityManager& entityManager,
@@ -239,6 +98,7 @@ bool PhysicsEngine::Advance(physx::PxReal dt)
 
 void PhysicsEngine::Update(float dt)
 {
+    physicRunning_ = physicsStopped_;
     if (physicRunning_)
     {
         if (Advance(dt))
@@ -278,6 +138,7 @@ physx::PxFilterFlags PhysicsEngine::ContactReportFilterShader(physx::PxFilterObj
     pairFlags = physx::PxPairFlag::eSOLVE_CONTACT | physx::PxPairFlag::eDETECT_DISCRETE_CONTACT
         | physx::PxPairFlag::eNOTIFY_TOUCH_FOUND
         | physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS
+        | physx::PxPairFlag::eNOTIFY_TOUCH_LOST
         | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
     return physx::PxFilterFlag::eDEFAULT; //eNOTIFY //:eCALLBACK; //physx::PxFilterFlag::eDEFAULT;
 }
@@ -459,14 +320,20 @@ const PxRaycastInfo PhysicsEngine::Raycast(
 
 void PhysicsEngine::RegisterCollisionListener(OnCollisionInterface& collisionInterface)
 {
-    eventCallback_.onCollisionAction.RegisterCallback(
-        [&collisionInterface](const physx::PxContactPairHeader& pairHeader) { collisionInterface.OnCollision(pairHeader); });
+    eventCallback_.onCollisionEnterAction.RegisterCallback(
+        [&collisionInterface](const physx::PxContactPairHeader& pairHeader) { collisionInterface.OnCollisionEnter(pairHeader); });
+    eventCallback_.onCollisionStayAction.RegisterCallback(
+        [&collisionInterface](const physx::PxContactPairHeader& pairHeader) { collisionInterface.OnCollisionStay(pairHeader); });
+    eventCallback_.onCollisionExitAction.RegisterCallback(
+        [&collisionInterface](const physx::PxContactPairHeader& pairHeader) { collisionInterface.OnCollisionExit(pairHeader); });
 }
 
 void PhysicsEngine::RegisterTriggerListener(OnTriggerInterface& triggerInterface)
 {
-    eventCallback_.onTriggerAction.RegisterCallback(
-        [&triggerInterface](physx::PxTriggerPair* pairs) { triggerInterface.OnTrigger(pairs); });
+    eventCallback_.onTriggerEnterAction.RegisterCallback(
+        [&triggerInterface](physx::PxTriggerPair* pairs) { triggerInterface.OnTriggerEnter(pairs); });
+    eventCallback_.onTriggerExitAction.RegisterCallback(
+        [&triggerInterface](physx::PxTriggerPair* pairs) { triggerInterface.OnTriggerExit(pairs); });
 }
 
 void PhysicsEngine::RegisterFixedUpdateListener(
@@ -478,12 +345,12 @@ void PhysicsEngine::RegisterFixedUpdateListener(
 
 void PhysicsEngine::StartPhysic()
 {
-    physicRunning_ = true;
+    physicsStopped_ = true;
 }
 
 void PhysicsEngine::StopPhysic()
 {
-    physicRunning_ = false;
+    physicsStopped_ = false;
 }
 
 bool PhysicsEngine::IsPhysicRunning() const

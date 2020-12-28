@@ -33,6 +33,7 @@
 
 #include "aer_engine.h"
 #include "physics_engine.h"
+#include "physics_callbacks.h"
 #include "engine/engine.h"
 #include "engine/system.h"
 #include "engine/transform.h"
@@ -95,6 +96,7 @@ public :
             transform3dManager_.SetPosition(cubeEntity_, cubePosition_);
             neko::physics::BoxColliderData boxCollider;
             boxCollider.size = neko::Vec3f::one;
+            boxCollider.offset = neko::Vec3f::one;
             boxCollider.material = neko::physics::PhysicsMaterial{
                 0.5f,
                 0.5f,
@@ -104,7 +106,8 @@ public :
             neko::physics::RigidDynamicData rigidDynamic;
             rigidDynamic.mass = 1.0f;
             rigidDynamic.useGravity = true;
-            rigidDynamic.freezeRotation = neko::Vec3<bool>(true);
+            rigidDynamic.freezeRotation = neko::Vec3<bool>(false);
+            rigidDynamic.boxColliderData = boxCollider;
             physicsEngine_.AddRigidDynamic(
                 cubeEntity_,
                 rigidDynamic,
@@ -145,7 +148,6 @@ public :
 
     void Update(neko::seconds dt) override
     {
-        rigidDynamicViewer_.Update(dt);
         const auto& config = neko::BasicEngine::GetInstance()->config;
         camera_.SetAspect(static_cast<float>(config.windowSize.x) / config.windowSize.y);
         auto& inputLocator = neko::sdl::InputLocator::get();
@@ -264,12 +266,12 @@ public :
     }
 
 
-    void OnCollision(const physx::PxContactPairHeader& pairHeader) override
+    void OnCollisionEnter(const physx::PxContactPairHeader& pairHeader) override
     {
         //logDebug(std::to_string(pairHeader.actors[0]->getNbShapes()));
     }
 
-    void OnTrigger(physx::PxTriggerPair* pairs) override
+    void OnTriggerEnter(physx::PxTriggerPair* pairs) override
     {
         //logDebug(std::to_string(pairs->otherActor->getNbShapes()));
     }
@@ -313,8 +315,6 @@ public :
 {
        
 }
-
-
 private :
     int updateCount_ = 0;
     const int kEngineDuration_ = 200;
@@ -325,15 +325,10 @@ private :
     neko::physics::PhysicsEngine physicsEngine_;
     neko::physics::RigidDynamicViewer rigidDynamicViewer_;
     neko::GizmosRenderer gizmosRenderer_;
-    //physx::PxShape* shape;
-    //physx::PxRigidActor* plane;
-    //physx::PxRigidDynamic* actor;
 
     neko::Camera3D camera_;
-    //neko::Mat4f view_{ neko::Mat4f::Identity };
-    //neko::Mat4f projection_{ neko::Mat4f::Identity };
     neko::EulerAngles cameraAngles_{ neko::degree_t(0.0f),  neko::degree_t(0.0f),  neko::degree_t(0.0f) };
-    const neko::Vec3f kCameraOriginPos_ = neko::Vec3f(0.0f, 0.0f, -3.0f);
+    const neko::Vec3f kCameraOriginPos_ = neko::Vec3f(0.0f, 0.0f, -5.0f);
     const neko::EulerAngles kCameraOriginAngles_ = neko::EulerAngles(
         neko::degree_t(0.0f), neko::degree_t(0.0f), neko::degree_t(0.0f));
 

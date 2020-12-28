@@ -27,6 +27,7 @@
  Date : 22.11.2020
 ---------------------------------------------------------- */
 #include "collider.h"
+#include "physics_callbacks.h"
 #include "PxPhysicsAPI.h"
 #include "mathematics/transform.h"
 
@@ -136,6 +137,23 @@ public:
     void FixedUpdate(seconds dt);
 protected:
     Transform3dManager& transform3dManager_;
+};
+
+
+class RigidDynamicViewer : public DrawImGuiInterface, public FixedUpdateInterface
+{
+public:
+    explicit RigidDynamicViewer(EntityManager& entityManager, PhysicsEngine& physicsEngine);
+    void DrawImGui() override;
+    void SetSelectedEntity(Entity selectedEntity);
+    void FixedUpdate(seconds dt) override;
+protected:
+    Entity selectedEntity_ = INVALID_ENTITY;
+    EntityManager& entityManager_;
+    RigidDynamicData rigidDynamicData_;
+    DynamicData dynamicData_;
+    PhysicsEngine& physicsEngine_;
+
 };
 
 

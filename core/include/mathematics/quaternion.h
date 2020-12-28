@@ -139,24 +139,28 @@ struct Quaternion
 	*/
     static Quaternion FromEuler(const EulerAngles& angle)
     {
-        const auto cy = Cos(angle.x * 0.5f);
-        const auto sy = Sin(angle.x * 0.5f);
+        const auto cy = Cos(angle.z * 0.5f);
+        const auto sy = Sin(angle.z * 0.5f);
         const auto cp = Cos(angle.y * 0.5f);
         const auto sp = Sin(angle.y * 0.5f);
-        const auto cr = Cos(angle.z * 0.5f);
-        const auto sr = Sin(angle.z * 0.5f);
-
-        return Quaternion(
-            cy * cp * cr + sy * sp * sr,
-            cy * cp * sr - sy * sp * cr,
-            sy * cp * sr + cy * sp * cr,
-            sy * cp * cr - cy * sp * sr
-        );
+        const auto cr = Cos(angle.x * 0.5f);
+        const auto sr = Sin(angle.x * 0.5f);
+		Quaternion q;
+		q.w = cr * cp * cy + sr * sp * sy;
+		q.x = sr * cp * cy - cr * sp * sy;
+		q.y = cr * sp * cy + sr * cp * sy;
+		q.z = cr * cp * sy - sr * sp * cy;
+		return q;
+        //return Quaternion(
+        //    cy * cp * cr + sy * sp * sr,
+        //    cy * cp * sr - sy * sp * cr,
+        //    sy * cp * sr + cy * sp * cr,
+        //    sy * cp * cr - cy * sp * sr
+        //);
     }
 
 	static EulerAngles ToEulerAngles(Quaternion& q) {
 		EulerAngles angles;
-		q.x = -q.x;
 		// roll (x-axis rotation)
 		double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
 		double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
@@ -165,7 +169,7 @@ struct Quaternion
 		// pitch (y-axis rotation)
 		double sinp = 2 * (q.w * q.y - q.z * q.x);
 		if (std::abs(sinp) >= 1)
-			angles.y = radian_t(std::copysign(M_PI / 2, sinp)); // use 90 degrees if out of range
+			angles.y = degree_t(std::copysign(M_PI / 2, sinp)); // use 90 degrees if out of range
 		else
 			angles.y = Asin(sinp);
 

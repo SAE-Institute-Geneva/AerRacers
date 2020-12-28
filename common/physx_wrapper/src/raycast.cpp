@@ -1,6 +1,7 @@
 #include <raycast.h>
 #include <engine\log.h>
 #include "physics_engine.h"
+#include "physx_utility.h"
 
 
 namespace neko::physics {
