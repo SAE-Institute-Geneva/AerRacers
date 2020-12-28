@@ -33,51 +33,82 @@ namespace neko
 
 static const std::string_view sceneExtension = ".scene";
 
-neko::SceneManager::SceneManager(EntityManager& entityManager, FilesystemInterface& filesystem) :
+neko::SceneManager::SceneManager(EntityManager& entityManager, const FilesystemInterface& filesystem) :
     filesystem_(filesystem),
     entityManager_(entityManager)
 {
 
 }
+
+void SceneManager::ParseComponentJson(
+    const json& componentJson,
+    Entity entity)
+{
+    if (CheckJsonParameter(componentJson, "transform", json::value_t::string))
+    {
+        currentScene_.sceneName = componentJson["transform"];
+    }
+}
+
+void SceneManager::ParseEntityJson(const json& entityJson)
+{
+    Entity entity = entityManager_.CreateEntity();
+    if (CheckJsonParameter(entityJson, "name", json::value_t::string))
+    {
+        currentScene_.sceneName = entityJson["name"];
+    }
+    if (CheckJsonParameter(entityJson, "instanceId", json::value_t::string))
+    {
+        currentScene_.sceneName = entityJson["instanceId"];
+    }
+
+    if (CheckJsonParameter(entityJson, "parent", json::value_t::string))
+    {
+        currentScene_.sceneName = entityJson["parent"];
+    }
+
+    if (CheckJsonParameter(entityJson, "layer", json::value_t::string))
+    {
+        currentScene_.sceneName = entityJson["layer"];
+    }
+    if (CheckJsonParameter(entityJson, "tag", json::value_t::string))
+    {
+        currentScene_.sceneName = entityJson["tag"];
+    }
+    ParseComponentJson(entityJson, entity);
+}
+
 void SceneManager::ParseSceneJson(const json& sceneJson)
 {
-    if (CheckJsonParameter(sceneJson, "sceneName", json::value_t::string))
+    if (CheckJsonParameter(sceneJson, "name", json::value_t::string))
     {
-        currentScene_.sceneName = sceneJson["sceneName"];
+        currentScene_.sceneName = sceneJson["name"];
     }
     else
     {
         currentScene_.sceneName = "New Scene";
     }
 
-    if(CheckJsonParameter(sceneJson, "scenePath", json::value_t::string))
+    if (CheckJsonParameter(sceneJson, "objects", json::value_t::array))
     {
-        std::string scenePath = sceneJson["scenePath"];
-        if(filesystem_.FileExists(scenePath))
-        {
-            currentScene_.scenePath = scenePath;
-        }
-        else
-        {
-            logDebug(fmt::format("[Warning] Scene Path in scene: {} contains a bad scene path", currentScene_.sceneName));
-        }
-    }
-
-    if(CheckJsonParameter(sceneJson, "sceneId", json::value_t::string))
-    {
-        SceneId sceneId = sole::rebuild(sceneJson["sceneId"]);
-        currentScene_.sceneId = sceneId;
-    }
-    if (CheckJsonParameter(sceneJson, "scenePath", json::value_t::string))
-    {
-        currentScene_.scenePath = sceneJson["scenePath"];
-    }
-    if (CheckJsonParameter(sceneJson, "entities", json::value_t::array))
-    {
-        for (auto& entityJson : sceneJson["entities"])
+        for (auto& entityJson : sceneJson["objects"])
         {
             ParseEntityJson(entityJson);
         }
+    }
+}
+
+void SceneManager::LoadScene(const std::string_view jsonPath)
+{
+    if (filesystem_.FileExists(jsonPath))
+    {
+        json scene = neko::LoadJson(jsonPath);
+        currentScene_.scenePath = jsonPath;
+        ParseSceneJson(scene);
+    }
+    else
+    {
+        logDebug(fmt::format("Scene not found", currentScene_.sceneName));
     }
 }
 
