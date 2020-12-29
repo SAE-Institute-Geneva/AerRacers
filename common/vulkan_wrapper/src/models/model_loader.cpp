@@ -14,9 +14,7 @@ ModelLoader::ModelLoader(Assimp::Importer& importer, std::string path, ModelId m
 	loadModelJob_([this]() { LoadModel(); }),
 	processModelJob_([this]() { ProcessModel(); }),
 	uploadMeshesToVkJob_([this]() { UploadMeshesToVk(); })
-{
-
-}
+{}
 
 ModelLoader::ModelLoader(ModelLoader&& other) noexcept
 	: path_(std::move(other.path_)),
@@ -30,8 +28,8 @@ ModelLoader::ModelLoader(ModelLoader&& other) noexcept
 void ModelLoader::Start()
 {
 	directoryPath_ = path_.substr(0, path_.find_last_of('/'));
-	LoadModel();
-	//BasicEngine::GetInstance()->ScheduleJob(&loadModelJob_, JobThreadType::RESOURCE_THREAD);
+	//LoadModel();
+	BasicEngine::GetInstance()->ScheduleJob(&loadModelJob_, JobThreadType::RESOURCE_THREAD);
 }
 
 void ModelLoader::Update()
@@ -63,8 +61,8 @@ void ModelLoader::LoadModel()
 		return;
 	}
 
-	ProcessModel();
-	//BasicEngine::GetInstance()->ScheduleJob(&processModelJob_, JobThreadType::OTHER_THREAD);
+	//ProcessModel();
+	BasicEngine::GetInstance()->ScheduleJob(&processModelJob_, JobThreadType::OTHER_THREAD);
 }
 
 void ModelLoader::ProcessModel()
@@ -81,8 +79,6 @@ void ModelLoader::ProcessModel()
 
 void ModelLoader::ProcessNode(aiNode* node)
 {
-	node->mTransformation = aiMatrix4x4::RotationY(90.f, node->mTransformation);
-
 	// process all the node's meshes (if any)
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
 	{
@@ -112,7 +108,7 @@ void ModelLoader::ProcessMesh(Mesh& mesh, const aiMesh* aMesh)
 		vertex.position = Vec3f(aMesh->mVertices[i]);
 		if (GetFilenameExtension(path_) == ".fbx")
 		{
-			vertex.position = Vec3f(Transform3d::RotationMatrixFrom(degree_t(90.0f), Vec3f::left) * Vec4f(vertex.position));
+			vertex.position = Quaternion::AngleAxis(degree_t(90.0f), Vec3f::left) * vertex.position;
 		}
 
 		vertex.normal = Vec3f(aMesh->mNormals[i]);

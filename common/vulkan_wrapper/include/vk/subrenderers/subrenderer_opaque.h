@@ -37,6 +37,7 @@ private:
     inline static const auto kUboSceneHash = HashString("UboScene");
     inline static const auto kProjectionHash = HashString("proj");
     inline static const auto kViewHash = HashString("view");
+	inline static const auto kViewPosHash = HashString("viewPos");
 
     inline static const auto kUboObjectHash = HashString("UboObject");
     inline static const auto kModelHash = HashString("model");

@@ -138,17 +138,11 @@ private:
 	std::unique_ptr<MaterialPipelineContainer> materialPipelineContainer_ =
 			std::make_unique<MaterialPipelineContainer>();
 
-	TextureManager textureManager_;
-	MaterialManager materialManager_;
-	ModelManager modelManager_;
-
     std::size_t currentFrame_ = 0;
     std::vector<VkFence> inFlightFences_{};
     std::vector<VkSemaphore> imageAvailableSemaphores_{};
     std::vector<VkSemaphore> renderFinishedSemaphores_{};
 
     std::map<XXH64_hash_t, const IDescriptor&> attachments_{};
-
-    Job preRenderJob_;
 };
 }

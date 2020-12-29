@@ -5,7 +5,7 @@
 namespace neko::vk
 {
 ModelCommandBuffer::ModelCommandBuffer()
-	: meshInstances_(std::vector<std::unique_ptr<MeshInstance>>(1))
+	: meshInstances_(std::vector<std::unique_ptr<MeshInstance>>())
 {}
 
 void ModelCommandBuffer::Destroy()

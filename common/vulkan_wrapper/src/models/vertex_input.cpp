@@ -27,7 +27,7 @@ VertexInput Vertex::GetVertexInput(std::uint32_t binding)
 	bindingDescription.stride = sizeof(Vertex);
 	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-	std::vector<VkVertexInputAttributeDescription> attributeDescriptions(3);
+	std::vector<VkVertexInputAttributeDescription> attributeDescriptions(5);
 	attributeDescriptions[0].binding = binding;
 	attributeDescriptions[0].location = 0;
 	attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
@@ -42,6 +42,16 @@ VertexInput Vertex::GetVertexInput(std::uint32_t binding)
 	attributeDescriptions[2].location = 2;
 	attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
 	attributeDescriptions[2].offset = offsetof(Vertex, texCoords);
+
+	attributeDescriptions[3].binding = binding;
+	attributeDescriptions[3].location = 3;
+	attributeDescriptions[3].format = VK_FORMAT_R32G32B32_SFLOAT;
+	attributeDescriptions[3].offset = offsetof(Vertex, tangent);
+
+	attributeDescriptions[4].binding = binding;
+	attributeDescriptions[4].location = 4;
+	attributeDescriptions[4].format = VK_FORMAT_R32G32B32_SFLOAT;
+	attributeDescriptions[4].offset = offsetof(Vertex, bitangent);
 
 	return VertexInput(binding, bindingDescription, attributeDescriptions);
 }

@@ -26,6 +26,7 @@ void SubrendererOpaque::OnRender(const CommandBuffer& commandBuffer)
 
     uniformScene_.Push(kProjectionHash, proj);
     uniformScene_.Push(kViewHash, view);
+    uniformScene_.Push(kViewPosHash, camera.position);
 
     modelCmdBuffer_.PrepareData();
 
