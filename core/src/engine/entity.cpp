@@ -31,6 +31,7 @@
 #include "engine/component.h"
 #include "engine/log.h"
 #include "engine/globals.h"
+#include "engine/scene.h"
 #include <utils/vector_utility.h>
 
 namespace neko

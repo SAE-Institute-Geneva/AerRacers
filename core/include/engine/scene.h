@@ -28,8 +28,11 @@
 #include <utils/json_utility.h>
 #include "engine/entity.h"
 #include <engine/component.h>
+
+#include "tag.h"
 #include "graphics/color.h"
 #include "engine/filesystem.h"
+#include "utils/service_locator.h"
 
 
 namespace neko
@@ -42,7 +45,7 @@ struct Scene
     std::string sceneName = "New Scene";
     std::string scenePath = "";
     std::vector<int> layers;
-    std::vector<std::string> tags;
+    std::vector<std::string> tags = { "Untagged" };
 };
 
 class SceneManager 
@@ -53,16 +56,14 @@ public:
     virtual void ParseComponentJson(const json& componentJson, Entity entity);
     virtual void ParseEntityJson(const json& entityJson);
     virtual void ParseSceneJson(const json& sceneJson);
-    void LoadScene(const std::string_view jsonPath);
+    bool LoadScene(const std::string_view& jsonPath);
     const Scene& GetCurrentScene() const { return currentScene_;}
-    void SetCurrentScene(const Scene& currentScene);
 	static SceneId GenerateSceneId() { return sole::uuid0(); };
 	static std::string_view GetExtension();
 protected:
     const FilesystemInterface& filesystem_;
-    std::map<ComponentType, std::function<void(Entity, const json&)>> componentParsingFuncMap_;
     Scene currentScene_;
     EntityManager& entityManager_;
+    TagManager tagManager_;
 };
-
 }

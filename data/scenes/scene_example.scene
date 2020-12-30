@@ -1,6 +1,6 @@
 {
   "name": "UI_Teleport",
-  "layers": [ 0, 1, 2 ],
+  "layers": [ 0, 1, 2, 3, 4, 5 ],
   "tags": [ "0", "1", "2" ],
   "objects": [
     {
@@ -8,7 +8,7 @@
       "instanceId": -2554,
       "parent": -1,
       "layer": 5,
-      "tag": "Untagged",
+      "tag": "0",
       "transform": {
         "position": {
           "x": 960.0,
@@ -33,7 +33,7 @@
       "instanceId": 16844,
       "parent": -2554,
       "layer": 5,
-      "tag": "Untagged",
+      "tag": "1",
       "transform": {
         "position": {
           "x": 815.1099853515625,
@@ -58,7 +58,7 @@
       "instanceId": -2498,
       "parent": -1,
       "layer": 0,
-      "tag": "Untagged",
+      "tag": "1",
       "transform": {
         "position": {
           "x": 0.0,

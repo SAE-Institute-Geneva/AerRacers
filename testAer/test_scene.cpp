@@ -36,10 +36,9 @@
 
 class TestSceneImporteur : public neko::SystemInterface {
 public:
-    TestSceneImporteur(neko::aer::AerEngine& engine)
-        : entityHierarchy_(engine.GetEntityManager()),
-          sceneManager_(engine.GetEntityManager(), engine.GetFilesystem()),
-          engine_(engine) { }
+    explicit TestSceneImporteur(neko::aer::AerEngine& engine) :
+          engine_(engine),
+          sceneManager_(engine_.GetEntityManager(), engine_.GetFilesystem()) { }
 
     void Init() override
     {
@@ -57,9 +56,13 @@ public:
 
     void Destroy() override { }
 
-    void HasSucceed() const
+    void HasSucceed()
     {
-        EXPECT_TRUE(true);
+        EXPECT_TRUE(neko::TagLocator::get().CompareEntitiesTag(1,2));
+        EXPECT_TRUE(neko::TagLocator::get().IsEntityTag(0,"0"));
+        EXPECT_TRUE(neko::TagLocator::get().IsEntityLayer(1, 5));
+        EXPECT_TRUE(engine_.GetEntityManager().HasComponent(0, neko::EntityMask(neko::ComponentType::TRANSFORM3D)));
+        //EXPECT_TRUE(entityManager_.GetEntityParent(0) == 1);
     }
 
 
@@ -69,12 +72,9 @@ private:
     int updateCount_ = 0;
     const int kEngineDuration_ = 10;
 
-    neko::EntityManager entityManager_;
-    neko::EntityHierarchy entityHierarchy_;
+    neko::aer::AerEngine& engine_;
 
     neko::SceneManager sceneManager_;
-
-    neko::aer::AerEngine& engine_;
 };
 
 TEST(Scene, TestSceneImporteur)
@@ -88,6 +88,7 @@ TEST(Scene, TestSceneImporteur)
 
     neko::Configuration config;
     config.windowName = "AerEditor";
+    config.dataRootPath = "../../data/";
     config.windowSize = neko::Vec2u(1400, 900);
 
     neko::sdl::Gles3Window window;
