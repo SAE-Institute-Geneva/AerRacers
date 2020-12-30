@@ -262,4 +262,28 @@ void Transform3dManager::AddComponent(Entity entity)
 	rotation3DManager_.AddComponent(entity);
 	return DoubleBufferComponentManager::AddComponent(entity);
 }
+
+json Transform3dManager::GetJsonFromComponent(Entity entity) const
+{
+	json transformComponent = json::object();
+	transformComponent["position"] = GetJsonFromVector3(GetPosition(entity));
+	transformComponent["rotation"] = GetJsonFromVector4(Vec4f(Quaternion::FromEuler(GetAngles(entity)).coord));
+	transformComponent["scale"] = GetJsonFromVector3(GetScale(entity));
+	return transformComponent;
+}
+
+void Transform3dManager::SetComponentFromJson(
+    Entity entity,
+    const json& jsonComponent)
+{
+    if (CheckJsonParameter(jsonComponent, "position", json::object())) {
+		SetPosition(entity, GetVector3FromJson(jsonComponent, "position"));
+    }
+	if (CheckJsonParameter(jsonComponent, "rotation", json::object())) {
+		//SetRotation(entity, GetVector4FromJson(jsonComponent, "rotation")); //TODO(@Luca) Merge after to euler
+	}
+	if (CheckJsonParameter(jsonComponent, "scale", json::object())) {
+		SetScale(entity, GetVector3FromJson(jsonComponent, "scale"));
+	}
+}
 }

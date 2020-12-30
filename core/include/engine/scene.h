@@ -33,11 +33,11 @@
 #include "graphics/color.h"
 #include "engine/filesystem.h"
 #include "utils/service_locator.h"
+#include <engine/transform.h>
 
 
 namespace neko
 {
-
 using SceneId = sole::uuid;
 const SceneId INVALID_SCENE_ID = sole::uuid{};
 struct Scene
@@ -51,7 +51,7 @@ struct Scene
 class SceneManager 
 {
 public:
-    explicit SceneManager(EntityManager&, const FilesystemInterface&);
+    explicit SceneManager(EntityManager& entityManager, const FilesystemInterface& fileSystem, Transform3dManager& transform3dManager);
 	virtual ~SceneManager() = default;
     virtual void ParseComponentJson(const json& componentJson, Entity entity);
     virtual void ParseEntityJson(const json& entityJson);
@@ -60,10 +60,13 @@ public:
     const Scene& GetCurrentScene() const { return currentScene_;}
 	static SceneId GenerateSceneId() { return sole::uuid0(); };
 	static std::string_view GetExtension();
+    void SaveCurrentScene();
 protected:
     const FilesystemInterface& filesystem_;
     Scene currentScene_;
     EntityManager& entityManager_;
     TagManager tagManager_;
+
+    Transform3dManager& transformManager_;
 };
 }

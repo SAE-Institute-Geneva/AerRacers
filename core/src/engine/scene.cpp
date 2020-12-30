@@ -35,10 +35,11 @@ namespace neko
 
 static const std::string_view sceneExtension = ".scene";
 
-neko::SceneManager::SceneManager(EntityManager& entityManager, const FilesystemInterface& filesystem) :
-    filesystem_(filesystem),
-    entityManager_(entityManager),
-    tagManager_(*this)
+neko::SceneManager::SceneManager(EntityManager& entityManager, const FilesystemInterface& filesystem, Transform3dManager& transform3dManager)
+    : filesystem_(filesystem),
+      entityManager_(entityManager),
+      tagManager_(*this),
+      transformManager_(transform3dManager)
 {
     TagLocator::provide(&tagManager_);
 }
@@ -49,7 +50,8 @@ void SceneManager::ParseComponentJson(
 {
     if (CheckJsonParameter(componentJson, "transform", json::value_t::object))
     {
-        entityManager_.AddComponentType(entity, EntityMask(ComponentType::TRANSFORM3D));
+        transformManager_.AddComponent(entity);
+        transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
     }
 }
 
@@ -58,18 +60,21 @@ void SceneManager::ParseEntityJson(const json& entityJson)
     Entity entity = entityManager_.CreateEntity();
     if (CheckJsonParameter(entityJson, "name", json::value_t::string))
     {
-        //entityManager_.SetEntityName(entity, entityJson["name"]); TODO(@Luca) set with name
+        //entityManager_.SetEntityName(entity, entityJson["name"]); TODO(@Luca) Set when name is done
     }
     if (CheckJsonParameter(entityJson, "instanceId", json::value_t::number_integer))
     {
         int instanceId = entityJson["instanceId"];
-        //entityManager_.SetEntityName(entity, std::to_string(instanceId));
+        entityManager_.SetEntityName(entity, std::to_string(instanceId));
     }
 
     if (CheckJsonParameter(entityJson, "parent", json::value_t::number_integer))
     {
         int parentInstanceId = entityJson["parent"];
-        //entityManager_.SetEntityParent(entity, entityManager_.FindEntityByName(std::to_string(parentInstanceId)));
+        Entity parentEntity = entityManager_.FindEntityByName(std::to_string(parentInstanceId));
+        if (parentEntity != INVALID_ENTITY) {
+            entityManager_.SetEntityParent(entity, parentEntity);
+        }
     }
 
     if (CheckJsonParameter(entityJson, "layer", json::value_t::number_unsigned))

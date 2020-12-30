@@ -38,7 +38,9 @@ class TestSceneImporteur : public neko::SystemInterface {
 public:
     explicit TestSceneImporteur(neko::aer::AerEngine& engine) :
           engine_(engine),
-          sceneManager_(engine_.GetEntityManager(), engine_.GetFilesystem()) { }
+          sceneManager_(engine_.GetEntityManager(), engine_.GetFilesystem(), transform3dManager_),
+          transform3dManager_(engine_.GetEntityManager())
+    { }
 
     void Init() override
     {
@@ -62,7 +64,8 @@ public:
         EXPECT_TRUE(neko::TagLocator::get().IsEntityTag(0,"0"));
         EXPECT_TRUE(neko::TagLocator::get().IsEntityLayer(1, 5));
         EXPECT_TRUE(engine_.GetEntityManager().HasComponent(0, neko::EntityMask(neko::ComponentType::TRANSFORM3D)));
-        //EXPECT_TRUE(entityManager_.GetEntityParent(0) == 1);
+        EXPECT_TRUE(engine_.GetEntityManager().GetEntityParent(1) == 0);
+        EXPECT_TRUE(transform3dManager_.GetPosition(0) == neko::Vec3f(960, 540, 0));
     }
 
 
@@ -75,6 +78,7 @@ private:
     neko::aer::AerEngine& engine_;
 
     neko::SceneManager sceneManager_;
+    neko::Transform3dManager transform3dManager_;
 };
 
 TEST(Scene, TestSceneImporteur)
