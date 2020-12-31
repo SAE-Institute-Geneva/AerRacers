@@ -1,8 +1,8 @@
 #include "aer_engine.h"
 
 namespace neko::aer {
-AerEngine::AerEngine(Configuration* config, ModeEnum mode)
-    : SdlEngine(config),
+AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* config, ModeEnum mode)
+    : SdlEngine(filesystem, *config),
       drawSystem_(*this),
       toolManager_(*this)
 {

@@ -36,7 +36,7 @@ struct Sprite
 {
     Sprite() = default;
     ~Sprite() = default;
-    Color4 color = Color::white;
+    Color4 color = Color4(Color::white, 1.0f);
     TextureId textureId = INVALID_TEXTURE_ID;
     Texture texture{};
 };
@@ -49,7 +49,7 @@ class SpriteManager :
 public:
     explicit SpriteManager(
         EntityManager& entityManager,
-        TextureManager& textureManager, 
+        TextureManagerInterface& textureManager,
         Transform2dManager& transformManager) :
     ComponentManager(entityManager),
 	textureManager_(textureManager),
@@ -59,7 +59,7 @@ public:
 	void Update(seconds dt) override;
 	void SetTexture(Entity entity, TextureId textureId);
 protected:
-    TextureManager& textureManager_;
+    TextureManagerInterface& textureManager_;
     Transform2dManager& transformManager_;
 };
 }

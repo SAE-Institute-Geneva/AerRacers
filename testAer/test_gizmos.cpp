@@ -72,12 +72,12 @@ public:
     void InitRenderer()
     {
         textureManager_.Init();
-        const auto& config = neko::BasicEngine::GetInstance()->config;
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         shader_.LoadFromFile(
             config.dataRootPath + "aer_racers/shaders/opengl/coords.vert",
             config.dataRootPath + "aer_racers/shaders/opengl/coords.frag");
         textureWallId_ = textureManager_.LoadTexture(
-            config.dataRootPath + "sprites/wall.jpg");
+            config.dataRootPath + "sprites/wall.jpg", neko::Texture::DEFAULT);
 
         cube_.Init();
         quad_.Init();
@@ -105,7 +105,7 @@ public:
         if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::KEY_LEFT_CTRL) ==
             neko::sdl::ButtonState::DOWN) {
         }
-        const auto& config = neko::BasicEngine::GetInstance()->config;
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         camera_.SetAspect(static_cast<float>(config.windowSize.x) / config.windowSize.y);
         textureManager_.Update(dt);
         neko::RendererLocator::get().Render(this);
@@ -120,7 +120,7 @@ public:
         if (shader_.GetProgram() == 0)
             return;
         if (textureWall_ == neko::INVALID_TEXTURE_NAME) {
-            textureWall_ = textureManager_.GetTexture(textureWallId_).name;
+            textureWall_ = textureManager_.GetTextureName(textureWallId_);
             return;
         }
         shader_.Bind();
@@ -145,7 +145,7 @@ public:
                     transform3dManager_.GetPosition(entity));
                 shader_.SetMat4("model", model);
                 cube_.Draw();
-                gizmosRenderer_.DrawCube(transform3dManager_.GetPosition(entity), transform3dManager_.GetScale(entity), transform3dManager_.GetAngles(entity), neko::Color::blue,10.0f);
+                gizmosRenderer_.DrawCube(transform3dManager_.GetPosition(entity), transform3dManager_.GetScale(entity),transform3dManager_.GetAngles(entity), neko::Color4(neko::Color::blue, 1.0f),10.0f);
             }
         }
     }
@@ -224,7 +224,8 @@ TEST(Engine, Gizmos)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 

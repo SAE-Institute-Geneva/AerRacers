@@ -22,7 +22,7 @@
  SOFTWARE.
  */
 #include "gl/shader.h"
-#include <utilities/file_utility.h>
+#include <utils/file_utility.h>
 #include <sstream>
 #include <engine/log.h>
 #include <fmt/format.h>
@@ -31,8 +31,7 @@ namespace neko::gl
 
 void Shader::LoadFromFile(const std::string_view vertexShaderPath, const std::string_view fragmentShaderPath)
 {
-    BufferFile vertexFile;
-    vertexFile.Load(vertexShaderPath);
+    BufferFile vertexFile = filesystem_.LoadFile(vertexShaderPath);
 
     GLuint vertexShader = LoadShader(vertexFile, GL_VERTEX_SHADER);
     vertexFile.Destroy();
@@ -41,8 +40,7 @@ void Shader::LoadFromFile(const std::string_view vertexShaderPath, const std::st
         logDebug(fmt::format("[Error] Loading vertex shader: {} unsuccessful", vertexShaderPath));
         return;
     }
-    BufferFile fragmentFile;
-    fragmentFile.Load(fragmentShaderPath);
+    BufferFile fragmentFile = filesystem_.LoadFile(fragmentShaderPath);
 
     GLuint fragmentShader = LoadShader(fragmentFile, GL_FRAGMENT_SHADER);
     fragmentFile.Destroy();
@@ -66,6 +64,7 @@ void Shader::LoadFromFile(const std::string_view vertexShaderPath, const std::st
 void Shader::Bind() const
 {
     glUseProgram(shaderProgram_);
+    glCheckError();
 }
 
 GLuint Shader::GetProgram() const
@@ -185,6 +184,11 @@ void Shader::SetCubemap(const std::string_view name, TextureName texture, unsign
 Shader::~Shader()
 {
     Destroy();
+}
+
+Shader::Shader() : filesystem_(BasicEngine::GetInstance()->GetFilesystem())
+{
+
 }
 
 GLuint LoadShader(const BufferFile& shaderfile, GLenum shaderType)

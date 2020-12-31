@@ -189,8 +189,8 @@ public :
                     boxColliderData.size,
                     transform3dManager_->GetAngles(entity),
                     boxColliderData.isTrigger ?
-                        neko::Color::yellow :
-                        neko::Color::green,
+                        neko::Color4(neko::Color::yellow, 1.0f) :
+                    neko::Color4(neko::Color::green, 1.0f),
                     2.0f);
             }
             break;
@@ -333,8 +333,8 @@ public:
                     boxColliderData.size,
                     transform3dManager_->GetAngles(entity),
                     boxColliderData.isTrigger ?
-                    neko::Color::yellow :
-                    neko::Color::green,
+                    neko::Color4(neko::Color::yellow, 1.0f) :
+                    neko::Color4(neko::Color::green, 1.0f),
                     2.0f);
             }
             }
@@ -423,8 +423,8 @@ public:
                 rayOrigin_,
                 rayOrigin_ + rayDirection_* 50.0f,
                 raycastInfo.touch ?
-                neko::Color::green :
-                neko::Color::red,
+                neko::Color4(neko::Color::green, 1.0f) :
+                neko::Color4(neko::Color::red, 1.0f),
                 2.0f);
         }
         {
@@ -444,8 +444,8 @@ public:
                 rayOrigin_ + neko::Vec3f::right * 2,
                 rayOrigin_ + neko::Vec3f::right * 2 + rayDirection_ * 2.0f,
                 raycastInfo.touch ?
-                neko::Color::green :
-                neko::Color::red,
+                neko::Color4(neko::Color::green, 1.0f) :
+                neko::Color4(neko::Color::red, 1.0f),
                 2.0f);
         }
         {
@@ -465,8 +465,8 @@ public:
                 rayOrigin_ + neko::Vec3f::left * 4,
                 rayOrigin_ + neko::Vec3f::left * 4 + rayDirection_ * 50.0f,
                 raycastInfo.touch ?
-                neko::Color::green :
-                neko::Color::red,
+                neko::Color4(neko::Color::green, 1.0f) :
+                neko::Color4(neko::Color::red, 1.0f),
                 2.0f);
         }
         {
@@ -486,8 +486,8 @@ public:
                 rayOrigin_ + neko::Vec3f::left * 2,
                 rayOrigin_ + neko::Vec3f::left * 2 + neko::Vec3f::up * 50.0f,
                 raycastInfo.touch ?
-                neko::Color::green :
-                neko::Color::red,
+                neko::Color4(neko::Color::green, 1.0f) :
+                neko::Color4(neko::Color::red, 1.0f),
                 2.0f);
         }
         //std::cout << std::endl;
@@ -606,8 +606,8 @@ public:
                     boxColliderData.size,
                     transform3dManager_->GetAngles(entity),
                     boxColliderData.isTrigger ?
-                    neko::Color::yellow :
-                    neko::Color::green,
+                    neko::Color4(neko::Color::yellow, 1.0f) :
+                    neko::Color4(neko::Color::green, 1.0f),
                     2.0f);
             }
             break;
@@ -669,12 +669,12 @@ public :
     {
         textureManager_.Init();
         gizmosRenderer_.Init();
-        const auto& config = neko::BasicEngine::GetInstance()->config;
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         shader_.LoadFromFile(
             config.dataRootPath + "shaders/aer_racer/coords.vert",
             config.dataRootPath + "shaders/aer_racer/coords.frag");
         textureWallId_ = textureManager_.LoadTexture(
-            config.dataRootPath + "sprites/wall.jpg");
+            config.dataRootPath + "sprites/wall.jpg", neko::Texture::DEFAULT);
 
         cube_.Init();
         quad_.Init();
@@ -706,7 +706,7 @@ public :
 
     void Update(neko::seconds dt) override
     {
-        const auto& config = neko::BasicEngine::GetInstance()->config;
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         camera_.SetAspect(
             static_cast<float>(config.windowSize.x) / config.windowSize.y);
 
@@ -728,7 +728,7 @@ public :
         if (shader_.GetProgram() == 0)
             return;
         if (textureWall_ == neko::INVALID_TEXTURE_NAME) {
-            textureWall_ = textureManager_.GetTexture(textureWallId_).name;
+            textureWall_ = textureManager_.GetTextureName(textureWallId_);
             return;
         }
         shader_.Bind();
@@ -857,7 +857,8 @@ TEST(PhysX, TestCubeFall)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
@@ -893,7 +894,8 @@ TEST(PhysX, TestRotation)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
@@ -929,7 +931,8 @@ TEST(PhysX, TestRaycast)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
@@ -965,7 +968,8 @@ TEST(PhysX, TestTriggerCollision)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 

@@ -5,7 +5,7 @@
 #include <graphics/camera.h>
 #include <graphics/color.h>
 #include <graphics/graphics.h>
-#include <utilities/service_locator.h>
+#include <utils/service_locator.h>
 
 namespace neko
 {
@@ -23,7 +23,7 @@ struct Gizmos
 	
 	Vec3f pos = Vec3f::zero;
 	EulerAngles rot = EulerAngles(degree_t(0));
-	Color4 color = Color::red;
+	Color4 color = Color4(Color::red, 1.0f);
 	GizmoShape shape = GizmoShape::CUBE;
 	float lineThickness = 1.0f;
 
@@ -49,7 +49,7 @@ public:
 		const Vec3f& pos,
 		const Vec3f& size = Vec3f::one,
 		const EulerAngles& rot = EulerAngles(degree_t(0)),
-		const Color4& color = Color::red,
+		const Color4& color = Color4(Color::red, 1.0f),
 		float lineThickness = 1.0f) = 0;
 
 	/**
@@ -58,7 +58,7 @@ public:
 	virtual void DrawLine(
 		const Vec3f& startPos,
 		const Vec3f& endPos,
-		const Color4& color = Color::red,
+		const Color4& color = Color4(Color::red, 1.0f),
 		float lineThickness = 1.0f) = 0;
 	
 	virtual void SetCamera(Camera3D* camera) = 0;
@@ -76,7 +76,7 @@ class NullGizmosRenderer final : public IGizmosRenderer
 		[[maybe_unused]] const Vec3f& pos,
 		[[maybe_unused]] const Vec3f& size = Vec3f::one,
 		[[maybe_unused]] const EulerAngles& rot = EulerAngles(degree_t(0)),
-		[[maybe_unused]] const Color4& color = Color::red,
+		[[maybe_unused]] const Color4& color = Color4(Color::red, 1.0f),
 		[[maybe_unused]] float lineThickness = 1.0f) override
 	{
 	}
@@ -84,7 +84,7 @@ class NullGizmosRenderer final : public IGizmosRenderer
 	void DrawLine(
 		[[maybe_unused]] const Vec3f& startPos,
 		[[maybe_unused]] const Vec3f& endPos,
-		[[maybe_unused]] const Color4& color = Color::red,
+		[[maybe_unused]] const Color4& color = Color4(Color::red, 1.0f),
 		[[maybe_unused]] float lineThickness = 1.0f) override
 	{
 	}
@@ -122,13 +122,13 @@ public:
 		const Vec3f& pos,
 		const Vec3f& size = Vec3f::one,
 		const EulerAngles& rot = EulerAngles(degree_t(0)),
-		const Color4& color = Color::red,
+		const Color4& color = Color4(Color::red, 1.0f),
 		float lineThickness = 1.0f) override;
 
 	void DrawLine(
 		const Vec3f& startPos,
 		const Vec3f& endPos,
-		const Color4& color = Color::red,
+		const Color4& color = Color4(Color::red, 1.0f),
 		float lineThickness = 1.0f) override;
 
 	void SetCamera(Camera3D* camera) override;

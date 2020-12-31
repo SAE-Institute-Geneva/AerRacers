@@ -13,7 +13,7 @@ GizmosRenderer::GizmosRenderer(Camera3D* camera)
 
 void GizmosRenderer::Init()
 {
-	const auto& config = BasicEngine::GetInstance()->config;
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	shaderCube_.LoadFromFile(
 		config.dataRootPath + "aer_racers/shaders/opengl/gizmoCube.vert",
 		config.dataRootPath + "aer_racers/shaders/opengl/gizmoCube.frag");

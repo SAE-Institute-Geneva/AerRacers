@@ -66,7 +66,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
-      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.79WIP;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.79WIP;C:\Storage\AerRacers\externals\SDL2-2.0.12\include;C:\Storage\AerRacers\externals\SDL2-2.0.12\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -92,7 +92,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Checked|x64'">
     <Midl>
-      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.79WIP;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.79WIP;C:\Storage\AerRacers\externals\SDL2-2.0.12\include;C:\Storage\AerRacers\externals\SDL2-2.0.12\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -118,7 +118,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
     <Midl>
-      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.79WIP;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.79WIP;C:\Storage\AerRacers\externals\SDL2-2.0.12\include;C:\Storage\AerRacers\externals\SDL2-2.0.12\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -144,7 +144,7 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
-      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.79WIP;C:\Storage\AerRacers\externals\SDL2-2.0.9\include;C:\Storage\AerRacers\externals\SDL2-2.0.9\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Storage\AerRacers\externals\imgui-1.79WIP;C:\Storage\AerRacers\externals\SDL2-2.0.12\include;C:\Storage\AerRacers\externals\SDL2-2.0.12\src;C:\Storage\AerRacers\externals\SFML-2.5.1\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>

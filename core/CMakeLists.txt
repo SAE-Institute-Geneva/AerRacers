@@ -1,7 +1,7 @@
 #source files
 file(GLOB_RECURSE Neko_ENGINE_SRC src/engine/*.cpp include/engine/*.h)
 file(GLOB_RECURSE Neko_GRAPHICS_SRC src/graphics/*.cpp include/graphics/*.h)
-file(GLOB_RECURSE Neko_UTILITY_SRC src/utilities/*.cpp include/utilities/*.h)
+file(GLOB_RECURSE Neko_UTILITY_SRC src/utils/*.cpp include/utils/*.h)
 file(GLOB_RECURSE Neko_PHYSICS_SRC src/physics/*.cpp include/physics/*.h)
 file(GLOB_RECURSE Neko_SOUND_SRC src/sound/*.cpp include/sound/*.h)
 file(GLOB_RECURSE Neko_MATH_SRC src/mathematics/*.cpp include/mathematics/*.h)
@@ -42,7 +42,7 @@ target_compile_options(Neko_Core PRIVATE $<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_C
         $<$<CXX_COMPILER_ID:MSVC>:
         /W4>)
 
-add_dependencies(Neko_Core DataTarget ShaderTarget)
+add_dependencies(Neko_Core ShaderTarget)
 target_compile_definitions(Neko_Core PUBLIC $<$<CONFIG:Debug>:__neko_dbg__>)
 target_compile_definitions(Neko_Core PUBLIC $<$<CONFIG:RelWithDebInfo>:__neko_dbg__>)
 target_compile_definitions(Neko_Core PUBLIC SOURCE_PATH="${CMAKE_SOURCE_DIR}")
@@ -54,3 +54,6 @@ target_include_directories(Neko_Core PUBLIC include/)
 target_include_directories(Neko_Core PUBLIC ${UTILITIES_DIR})
 neko_lib_config(Neko_Core)
 
+if(Neko_Test)
+    add_neko_test(Neko_Core)
+endif()

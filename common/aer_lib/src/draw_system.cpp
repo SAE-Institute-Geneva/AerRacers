@@ -24,7 +24,7 @@ void DrawSystem::Init()
 
 void DrawSystem::Update(seconds dt) {
 
-    const auto& config = neko::BasicEngine::GetInstance()->config;
+    const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
     camera_.SetAspect(static_cast<float>(config.windowSize.x) / config.windowSize.y);
 
     gizmosRenderer_->Update(dt);

@@ -1,0 +1,301 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "definitions": {
+    "vector2": {
+      "type": "object",
+      "required": [
+        "x",
+        "y"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      }
+    },
+    "vector3": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      }
+    },
+    "vector4": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "z",
+        "w"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        },
+        "w": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "title": "Scene",
+  "type": "object",
+  "required": [
+    "name",
+    "instanceId",
+    "parent",
+    "layer",
+    "tag",
+    "transformData"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "layers": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "instanceId",
+          "parent",
+          "layer",
+          "tag",
+          "transform"
+        ],
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "instanceId": {
+            "title": "Instanceid",
+            "type": "integer"
+          },
+          "parentId": {
+            "title": "parentId",
+            "type": "integer"
+          },
+          "layer": {
+            "title": "Layer",
+            "type": "integer"
+          },
+          "tag": {
+            "title": "Tag",
+            "type": "string"
+          },
+          "transform": {
+            "title": "Transform",
+            "type": "object",
+            "required": [
+              "position",
+              "rotation",
+              "scale"
+            ],
+            "properties": {
+              "position": {
+                "title": "Position",
+                "$ref": "#/definitions/vector3"
+              },
+              "rotation": {
+                "title": "Rotation",
+                "$ref": "#/definitions/vector3"
+              },
+              "scale": {
+                "title": "Scale",
+                "$ref": "#/definitions/vector3"
+              }
+            }
+          },
+          "shipControls": {
+            "title": "ShipControls",
+            "type": "object",
+            "required": [
+              "rotorMaxAngle",
+              "forwardForce",
+              "backwardForce",
+              "turnAngle",
+              "rotationAngle",
+              "hoverHeight",
+              "hoverForce",
+              "gravityForce",
+              "maxAirTime",
+              "dangerousForwardSpeed",
+              "maximumForwardSpeed",
+              "bounceForce"
+            ],
+            "properties": {
+              "rotorMaxAngle": { "type": "number" },
+              "forwardForce": { "type": "number" },
+              "backwardForce": { "type": "number" },
+              "turnAngle": { "type": "number" },
+              "rotationAngle": { "type": "number" },
+              "hoverHeight": { "type": "number" },
+              "hoverForce": { "type": "number" },
+              "gravityForce": { "type": "number" },
+              "maxAirTime": { "type": "number" },
+              "dangerousForwardSpeed": { "type": "number" },
+              "maximumForwardSpeed": { "type": "number" },
+              "bounceForce": { "type": "number" }
+            }
+          },
+          "shipRotation": {
+            "title": "ShipRotation",
+            "type": "object",
+            "required": [
+              "maxRollAngle",
+              "maxPitchAngle",
+              "inclineSpeed",
+              "rollPitchSpeed"
+            ],
+            "properties": {
+              "maxRollAngle": { "type": "number" },
+              "maxPitchAngle": { "type": "number" },
+              "inclineSpeed": { "type": "number" },
+              "rollPitchSpeed": { "type": "number" }
+            }
+          },
+          "modelRenderer": {
+            "title": "ModelRenderer",
+            "type": "object",
+            "required": [
+              "meshName"
+            ],
+            "properties": {
+              "meshName": {
+                "title": "meshName",
+                "type": "string"
+              }
+            }
+          },
+          "rigidbody": {
+            "title": "Rigidbody",
+            "type": "object",
+            "required": [
+              "status",
+              "linearDamping",
+              "angularDamping",
+              "useGravity"
+            ],
+            "properties": {
+              "status": { "type": "string" },
+              "linearDamping": { "type": "number" },
+              "angularDamping": { "type": "number" },
+              "useGravity": { "type": "boolean" },
+              "rotationLock": {
+                "type": "object",
+                "required": [
+                  "x",
+                  "y",
+                  "z"
+                ],
+                "properties": {
+                  "x": {
+                    "type": "boolean"
+                  },
+                  "y": {
+                    "type": "boolean"
+                  },
+                  "z": {
+                    "type": "boolean"
+                  }
+                },
+                "positionLock": {
+                  "type": "object",
+                  "required": [
+                    "x",
+                    "y",
+                    "z"
+                  ],
+                  "properties": {
+                    "x": {
+                      "type": "boolean"
+                    },
+                    "y": {
+                      "type": "boolean"
+                    },
+                    "z": {
+                      "type": "boolean"
+                    }
+                  }
+
+                }
+              }
+            }
+          },
+          "boxCollider": {
+            "title": "BoxCollider",
+            "type": "object",
+            "required": [
+              "offset",
+              "size",
+              "isTrigger"
+            ],
+            "properties": {
+              "offset": {
+                "$ref": "#/definitions/vector3"
+              },
+              "size": { "$ref": "#/definitions/vector3" },
+              "isTrigger": { "type": "boolean" }
+            }
+          },
+          "sphereCollider": {
+            "title": "SphereCollider",
+            "type": "object",
+            "required": [
+              "offset",
+              "radius",
+              "isTrigger"
+            ],
+            "properties": {
+              "offset": {
+                "$ref": "#/definitions/vector3"
+              },
+              "radius": { "type": "number" },
+              "isTrigger": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+

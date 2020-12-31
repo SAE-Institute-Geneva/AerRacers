@@ -28,8 +28,8 @@
 ---------------------------------------------------------- */
 
 #include "PxPhysicsAPI.h"
-#include "utilities/action_utility.h"
-#include "utilities/time_utility.h"
+#include "utils/action_utility.h"
+#include "utils/time_utility.h"
 
 namespace neko::physics {
 
