@@ -85,7 +85,6 @@ class OnTriggerInterface
 {
 public:
     virtual void OnTriggerEnter(physx::PxTriggerPair* pairs) {}
-    virtual void OnTriggerStay(physx::PxTriggerPair* pairs) {}
     virtual void OnTriggerExit(physx::PxTriggerPair* pairs) {}
 };
 

@@ -57,7 +57,8 @@ struct RigidDynamicData
     bool isKinematic = false;
     Vec3<bool> freezePosition = Vec3<bool>(false);
     Vec3<bool> freezeRotation = Vec3<bool>(true);
-    ColliderType colliderType;
+    PhysicsMaterial material;
+    ColliderType colliderType = ColliderType::INVALID;
     BoxColliderData boxColliderData;
     SphereColliderData sphereColliderData;
 };
@@ -67,6 +68,10 @@ struct RigidStaticData
 {
     RigidStaticData() = default;
     ~RigidStaticData() = default;
+    PhysicsMaterial material;
+    ColliderType colliderType;
+    BoxColliderData boxColliderData;
+    SphereColliderData sphereColliderData;
 };
 
 
@@ -77,8 +82,10 @@ public:
     ColliderType GetType() const;
     SphereColliderData GetSphereColliderData() const;
     BoxColliderData GetBoxColliderData() const;
-    void SetSphereColliderData(const physics::SphereColliderData& sphereColliderData) const;
-    void SetBoxColliderData(const physics::BoxColliderData& boxColliderData) const;
+    PhysicsMaterial GetMaterial() const;
+    void SetSphereColliderData(const SphereColliderData& sphereColliderData) const;
+    void SetBoxColliderData(const BoxColliderData& boxColliderData) const;
+    void SetMaterial(const PhysicsMaterial& physicsMaterial) const;
 protected:
     physx::PxMaterial* InitMaterial(physx::PxPhysics* physics, const PhysicsMaterial& material) const;
     physx::PxShape* InitBoxShape(physx::PxPhysics* physics, physx::PxMaterial* material, const BoxColliderData& boxCollider) const;
@@ -88,18 +95,17 @@ protected:
 };
 
 struct RigidStatic : RigidActor {
-    void Init(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic, const SphereColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
-    void Init(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic, const BoxColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
+    void Init(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic, const  Vec3f& position, const  EulerAngles& eulerAngle);
     physx::PxRigidStatic* GetPxRigidStatic() const { return rigidActor_; }
+    void SetRigidStaticData(const RigidStaticData& rigidStaticData) const;
+    RigidStaticData GetRigidStaticData() const;
 private:
-    void InitRigidStatic(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic) const;
     physx::PxRigidStatic* rigidActor_ = nullptr;
 };
 
 struct RigidDynamic : RigidActor {
 public:
-    void Init(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic, const SphereColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
-    void Init(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic, const BoxColliderData& shape, const  Vec3f& position, const  EulerAngles& eulerAngle);
+    void Init(physx::PxPhysics* physics, const physics::RigidDynamicData& rigidDynamic, const  Vec3f& position, const  EulerAngles& eulerAngle);
     void AddForceAtPosition(const Vec3f& force, const Vec3f& position) const;
     void AddForce(const Vec3f& force) const;
     void SetRigidDynamicData(const physics::RigidDynamicData& rigidDynamicData) const;

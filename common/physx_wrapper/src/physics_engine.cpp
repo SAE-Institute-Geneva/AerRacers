@@ -153,26 +153,15 @@ physx::PxScene* PhysicsEngine::GetScene()
     return scene_;
 }
 
-void PhysicsEngine::AddRigidStatic(Entity entity, const physics::RigidStaticData& rigidStaticData, BoxColliderData& shape)
+void PhysicsEngine::AddRigidStatic(Entity entity, physics::RigidStaticData& rigidStaticData)
 {
     rigidStaticManager_.AddComponent(entity);
     Vec3f position = transform3d_.GetPosition(entity);
     EulerAngles euler = transform3d_.GetAngles(entity);
     Vec3f scale = transform3d_.GetScale(entity);
-    shape.size = Vec3f(shape.size.x * scale.x, shape.size.y * scale.y, shape.size.z * scale.z);
+    rigidStaticData.boxColliderData.size = Vec3f(rigidStaticData.boxColliderData.size.x * scale.x, rigidStaticData.boxColliderData.size.y * scale.y, rigidStaticData.boxColliderData.size.z * scale.z);
     RigidStatic rigidStatic = rigidStaticManager_.GetComponent(entity);
-    rigidStatic.Init(physics_, rigidStaticData, shape, position, euler);
-    scene_->addActor(*rigidStatic.GetPxRigidStatic());
-    rigidStaticManager_.SetComponent(entity, rigidStatic);
-}
-
-void PhysicsEngine::AddRigidStatic(Entity entity, const physics::RigidStaticData& rigidStaticData, const SphereColliderData& shape)
-{
-    rigidStaticManager_.AddComponent(entity);
-    Vec3f position = transform3d_.GetPosition(entity);
-    EulerAngles euler = transform3d_.GetAngles(entity);
-    RigidStatic rigidStatic = rigidStaticManager_.GetComponent(entity);
-    rigidStatic.Init(physics_, rigidStaticData, shape, position, euler);
+    rigidStatic.Init(physics_, rigidStaticData, position, euler);
     scene_->addActor(*rigidStatic.GetPxRigidStatic());
     rigidStaticManager_.SetComponent(entity, rigidStatic);
 }
@@ -186,27 +175,15 @@ void PhysicsEngine::SetRigidStatic(Entity entity, const RigidStatic& body)
     rigidStaticManager_.SetComponent(entity, body);
 }
 
-void PhysicsEngine::AddRigidDynamic(Entity entity, const RigidDynamicData& rigidDynamicData, BoxColliderData& shape)
+void PhysicsEngine::AddRigidDynamic(Entity entity, RigidDynamicData& rigidDynamicData)
 {
     rigidDynamicManager_.AddComponent(entity);
     Vec3f position = transform3d_.GetPosition(entity);
     EulerAngles euler = transform3d_.GetAngles(entity);
     Vec3f scale = transform3d_.GetScale(entity);
-    shape.size = Vec3f(shape.size.x * scale.x, shape.size.y * scale.y, shape.size.z * scale.z);
+    rigidDynamicData.boxColliderData.size = Vec3f(rigidDynamicData.boxColliderData.size.x * scale.x, rigidDynamicData.boxColliderData.size.y * scale.y, rigidDynamicData.boxColliderData.size.z * scale.z);
     RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(entity);
-    rigidDynamic.Init(physics_, rigidDynamicData, shape, position, euler);
-    scene_->addActor(*rigidDynamic.GetPxRigidDynamic());
-    rigidDynamicManager_.SetComponent(entity, rigidDynamic);
-}
-
-
-void PhysicsEngine::AddRigidDynamic(Entity entity, const RigidDynamicData& rigidDynamicData, const SphereColliderData& shape)
-{
-    rigidDynamicManager_.AddComponent(entity);
-    Vec3f position = transform3d_.GetPosition(entity);
-    EulerAngles euler = transform3d_.GetAngles(entity);
-    RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(entity);
-    rigidDynamic.Init(physics_, rigidDynamicData, shape, position, euler);
+    rigidDynamic.Init(physics_, rigidDynamicData, position, euler);
     scene_->addActor(*rigidDynamic.GetPxRigidDynamic());
     rigidDynamicManager_.SetComponent(entity, rigidDynamic);
 }
@@ -305,14 +282,14 @@ void PhysicsEngine::AddForce(Entity entity, const Vec3f& force) const
 }
 
 const PxRaycastInfo PhysicsEngine::Raycast(
-    Vec3f origin,
-    Vec3f direction,
+    const Vec3f& origin,
+    const Vec3f& direction,
     float maxDistance) const
 {
     PxRaycastInfo raycastHit;
     physx::PxQueryFilterData fd;
     fd.flags |= physx::PxQueryFlag::eANY_HIT; // note the OR with the default value
-    raycastHit.touch = scene_->raycast(ConvertToPxVec(origin), ConvertToPxVec(direction), maxDistance, raycastHit.pxRaycastBuffer,
+    raycastHit.touch = scene_->raycast(ConvertToPxVec(origin), ConvertToPxVec(direction.Normalized()), maxDistance, raycastHit.pxRaycastBuffer,
                                   physx::PxHitFlags(physx::PxHitFlag::eDEFAULT), fd);
     return raycastHit;
 }

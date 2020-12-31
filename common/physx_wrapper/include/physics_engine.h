@@ -74,11 +74,9 @@ public:
     RigidStaticManager& GetRididStaticManager() { return rigidStaticManager_; }
     RigidDynamicManager& GetRigidDynamicManager() { return rigidDynamicManager_; }
 
-    void AddRigidStatic(Entity entity, const RigidStaticData& body, BoxColliderData& shape);
-    void AddRigidStatic(Entity entity, const RigidStaticData& body, const SphereColliderData& shape);
+    void AddRigidStatic(Entity entity, RigidStaticData& body);
 
-    void AddRigidDynamic(Entity entity, const RigidDynamicData& body, BoxColliderData& shape);
-    void AddRigidDynamic(Entity entity, const RigidDynamicData& body, const SphereColliderData& shape);
+    void AddRigidDynamic(Entity entity, RigidDynamicData& body);
 
     void AddForceAtPosition(Entity entity, const Vec3f& force, const Vec3f& position) const;
     void AddForce(Entity entity, const Vec3f& force) const;
@@ -101,8 +99,8 @@ public:
     void SetRigidStatic(Entity entity, const RigidStatic& body);
 
     const PxRaycastInfo Raycast(
-        Vec3f origin,
-        Vec3f direction,
+        const Vec3f& origin,
+        const Vec3f& direction,
         float maxDistance) const;
 
     void RegisterCollisionListener(OnCollisionInterface& collisionInterface);

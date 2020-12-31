@@ -46,7 +46,6 @@ namespace neko::physics
         ColliderData() = default;
         ~ColliderData() = default;
         bool isTrigger = false;
-        PhysicsMaterial material = PhysicsMaterial();
         Vec3f offset = Vec3f::zero;
     };
 

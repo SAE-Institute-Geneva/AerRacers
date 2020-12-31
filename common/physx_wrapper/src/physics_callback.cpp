@@ -9,17 +9,23 @@ void PhysicsSimulationEventCallback::onConstraintBreak(
     physx::PxConstraintInfo* constraints,
     physx::PxU32 count) {
 
-    logDebug("onConstraintBreak");
+    //logDebug("onConstraintBreak");
 
 }
 
 void PhysicsSimulationEventCallback::onWake(
     physx::PxActor** actors,
-    physx::PxU32 count) { logDebug("onWake"); }
+    physx::PxU32 count)
+{
+    //logDebug("onWake");
+}
 
 void PhysicsSimulationEventCallback::onSleep(
     physx::PxActor** actors,
-    physx::PxU32 count) { logDebug("onSleep"); }
+    physx::PxU32 count)
+{
+    //logDebug("onSleep");
+}
 
 void PhysicsSimulationEventCallback::onContact(
     const physx::PxContactPairHeader& pairHeader,
@@ -30,15 +36,15 @@ void PhysicsSimulationEventCallback::onContact(
         const physx::PxContactPair& cp = pairs[i];
 
         if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
-            logDebug("onContactEnter");
+            //logDebug("onContactEnter");
             onCollisionEnterAction.Execute(pairHeader);
         }
         if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS) {
-            logDebug("onContactStay");
+            //logDebug("onContactStay");
             onCollisionStayAction.Execute(pairHeader);
         }
         if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_LOST) {
-            logDebug("onContactExit");
+            //logDebug("onContactExit");
             onCollisionExitAction.Execute(pairHeader);
         }
     }
@@ -49,11 +55,11 @@ void PhysicsSimulationEventCallback::onTrigger(
     physx::PxU32 count)
 {
     if (pairs->status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
-        logDebug("onTriggerEnter");
+        //logDebug("onTriggerEnter");
         onTriggerEnterAction.Execute(pairs);
     }
     if (pairs->status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST) {
-        logDebug("onTriggerExit");
+        //logDebug("onTriggerExit");
         onTriggerExitAction.Execute(pairs);
     }
 }
@@ -63,6 +69,6 @@ void PhysicsSimulationEventCallback::onAdvance(
     const physx::PxTransform* poseBuffer,
     const physx::PxU32 count)
 {
-    logDebug("onAdvance");
+    //logDebug("onAdvance");
 }
 }

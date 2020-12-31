@@ -171,6 +171,7 @@ TEST(Engine, Quaternion_ToEuler)
         {1.0f, 0.0f, 0.0f, 0.0f},
         {0.0f, 0.0f, 1.0f, 0.0f},
         {0.0f, 0.0f, 0.0f, 1.0f},
+        {-0.501f, 0.690f, -0.501f, 0.151},
     };
     std::vector<neko::EulerAngles> expectedAngles =
     {
@@ -185,7 +186,7 @@ TEST(Engine, Quaternion_ToEuler)
             neko::radian_t(0.0f)
         },
         {
-            neko::radian_t(3.142f),
+            neko::radian_t(-3.142f),
             neko::radian_t(0.0f),
             neko::radian_t(0.0f)
         },
@@ -198,7 +199,12 @@ TEST(Engine, Quaternion_ToEuler)
             neko::radian_t(0.0f),
             neko::radian_t(0.0f),
             neko::radian_t(0.0f)
-        }
+        },
+        {
+            neko::radian_t(-2.269f),
+            neko::radian_t(0.789f),
+            neko::radian_t(0.873f)
+        },
     };
     for (int i = 0; i < quats.size(); ++i) {
         neko::EulerAngles angles = neko::Quaternion::ToEulerAngles(quats[i]);
