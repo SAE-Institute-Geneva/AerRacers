@@ -15,11 +15,11 @@ void GizmosRenderer::Init()
 {
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	shaderCube_.LoadFromFile(
-		config.dataRootPath + "aer_racers/shaders/opengl/gizmoCube.vert",
-		config.dataRootPath + "aer_racers/shaders/opengl/gizmoCube.frag");
+		config.dataRootPath + "shaders/opengl/gizmoCube.vert",
+		config.dataRootPath + "shaders/opengl/gizmoCube.frag");
 	shaderLine_.LoadFromFile(
-		config.dataRootPath + "aer_racers/shaders/opengl/gizmoLine.vert",
-		config.dataRootPath + "aer_racers/shaders/opengl/gizmoLine.frag");
+		config.dataRootPath + "shaders/opengl/gizmoLine.vert",
+		config.dataRootPath + "shaders/opengl/gizmoLine.frag");
 	cube_.Init();
 	line_.Init();
 	gizmosQueue_.reserve(kGizmoReserveSize);

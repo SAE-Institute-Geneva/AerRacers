@@ -211,7 +211,7 @@ public :
     }
 
 
-    void OnCollisionEnter(const physx::PxContactPairHeader& pairHeader) override
+    void OnCollisionEnter(const physx::PxContactPair& pairHeader) override
     {
         //logDebug(std::to_string(pairHeader.actors[0]->getNbShapes()));
     }
@@ -340,19 +340,6 @@ public:
             }
         }
     }
-
-
-    void OnCollisionEnter(const physx::PxContactPairHeader& pairHeader) override
-    {
-        //logDebug(std::to_string(pairHeader.actors[0]->getNbShapes()));
-    }
-
-    void OnTriggerEnter(physx::PxTriggerPair* pairs) override
-    {
-        //logDebug(std::to_string(pairs->otherActor->getNbShapes()));
-    }
-
-    void FixedUpdate(neko::seconds dt) override { }
 
     void DrawImGui() override { }
 private:
@@ -493,19 +480,6 @@ public:
         //std::cout << std::endl;
     }
 
-
-    void OnCollisionEnter(const physx::PxContactPairHeader& pairHeader) override
-    {
-        //logDebug(std::to_string(pairHeader.actors[0]->getNbShapes()));
-    }
-
-    void OnTriggerEnter(physx::PxTriggerPair* pairs) override
-    {
-        //logDebug(std::to_string(pairs->otherActor->getNbShapes()));
-    }
-
-    void FixedUpdate(neko::seconds dt) override { }
-
     void DrawImGui() override { }
 private:
     neko::Vec3f planePosition_ = neko::Vec3f(0.0f, -3.0f, -5.0f);
@@ -527,7 +501,7 @@ public:
         neko::Transform3dManager& transform3dManager,
         neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration = 10;
+        engineDuration = 100;
         entityManager_ = &entityManager;
         transform3dManager_ = &transform3dManager;
         physicsEngine_ = &physicsEngine;
@@ -537,47 +511,77 @@ public:
             planeEntity_ = entityManager_->CreateEntity();
             transform3dManager_->AddComponent(planeEntity_);
             transform3dManager_->SetPosition(planeEntity_, planePosition_);
-            transform3dManager_->SetScale(planeEntity_, neko::Vec3f(5, 1, 5));
+            transform3dManager_->SetScale(planeEntity_, neko::Vec3f(5, 0.5f, 5));
             neko::physics::RigidStaticData rigidStatic;
             rigidStatic.colliderType = neko::physics::ColliderType::BOX;
-            rigidStatic.material = neko::physics::PhysicsMaterial{
-                0.5f,
-                0.5f,
-                0.1f
-            };
-            rigidStatic.boxColliderData.isTrigger = true;
             physicsEngine_->AddRigidStatic(
                 planeEntity_,
                 rigidStatic);
         }
-        //Cube
+        //Cube Touch
         {
-            cubeEntity_ = entityManager_->CreateEntity();
-            transform3dManager_->AddComponent(cubeEntity_);
+            cubeTouchEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(cubeTouchEntity_);
             transform3dManager_->SetPosition(
-                cubeEntity_,
-                cubePosition_);
+                cubeTouchEntity_,
+                cubePosition_ + neko::Vec3f::left * 1.0f);
             neko::physics::RigidDynamicData rigidDynamic;
-            rigidDynamic.material = neko::physics::PhysicsMaterial{
-                0.5f,
-                0.5f,
-                0.1f
-            };
-            rigidDynamic.boxColliderData.isTrigger = true;
-            rigidDynamic.mass = 1.0f;
-            rigidDynamic.useGravity = true;
-            rigidDynamic.freezeRotation = neko::Vec3<bool>(false);
+            rigidDynamic.colliderType = neko::physics::ColliderType::BOX;
             physicsEngine_->AddRigidDynamic(
-                cubeEntity_,
+                cubeTouchEntity_,
                 rigidDynamic);
         }
-        viewedEntity = cubeEntity_;
+        //Cube Trigger
+        {
+            cubeTriggerEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(cubeTriggerEntity_);
+            transform3dManager_->SetPosition(
+                cubeTriggerEntity_,
+                cubePosition_ + neko::Vec3f::right * 1.0f);
+            neko::physics::RigidDynamicData rigidDynamic;
+            rigidDynamic.colliderType = neko::physics::ColliderType::BOX;
+            rigidDynamic.boxColliderData.isTrigger = true;
+            physicsEngine_->AddRigidDynamic(
+                cubeTriggerEntity_,
+                rigidDynamic);
+        }
+        //Cube Not Touch
+        {
+            cubeNotTouchEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(cubeNotTouchEntity_);
+            transform3dManager_->SetPosition(
+                cubeNotTouchEntity_,
+                cubePosition_ + neko::Vec3f::right * 5.0f);
+            neko::physics::RigidDynamicData rigidDynamic;
+            rigidDynamic.colliderType = neko::physics::ColliderType::BOX;
+            physicsEngine_->AddRigidDynamic(
+                cubeNotTouchEntity_,
+                rigidDynamic);
+        }
+        //Cube Not Trigger
+        {
+            cubeNotTriggerEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(cubeNotTriggerEntity_);
+            transform3dManager_->SetPosition(
+                cubeNotTriggerEntity_,
+                cubePosition_ + neko::Vec3f::left * 5.0f);
+            neko::physics::RigidDynamicData rigidDynamic;
+            rigidDynamic.colliderType = neko::physics::ColliderType::BOX;
+            rigidDynamic.boxColliderData.isTrigger = true;
+            physicsEngine_->AddRigidDynamic(
+                cubeNotTriggerEntity_,
+                rigidDynamic);
+        }
+        viewedEntity = cubeTouchEntity_;
     }
 
     void HasSucceed() override
     {
-        EXPECT_TRUE(true);
-        EXPECT_TRUE(true);
+        EXPECT_TRUE(cubeTouch_);
+        EXPECT_FALSE(cubeNotTouch_);
+        EXPECT_TRUE(cubeTrigger_);
+        EXPECT_TRUE(cubeTriggerExit_);
+        EXPECT_FALSE(cubeNotTrigger_);
     }
 
     void Update() override
@@ -616,14 +620,33 @@ public:
     }
 
 
-    void OnCollisionEnter(const physx::PxContactPairHeader& pairHeader) override
+    void OnCollisionEnter(const physx::PxContactPair& pairHeader) override
     {
-        //logDebug(std::to_string(pairHeader.actors[0]->getNbShapes()));
+        if (pairHeader.shapes[0]->getActor() == physicsEngine_->GetRigidDynamic(cubeTouchEntity_).GetPxRigidDynamic() ||
+            pairHeader.shapes[1]->getActor() == physicsEngine_->GetRigidDynamic(cubeTouchEntity_).GetPxRigidDynamic()) {
+            cubeTouch_ = true;
+        }
+        if (pairHeader.shapes[0]->getActor() == physicsEngine_->GetRigidDynamic(cubeNotTouchEntity_).GetPxRigidDynamic() ||
+            pairHeader.shapes[1]->getActor() == physicsEngine_->GetRigidDynamic(cubeNotTouchEntity_).GetPxRigidDynamic()) {
+            cubeNotTouchEntity_ = true;
+        }
     }
 
     void OnTriggerEnter(physx::PxTriggerPair* pairs) override
     {
-        //logDebug(std::to_string(pairs->otherActor->getNbShapes()));
+        if (pairs->triggerActor == physicsEngine_->GetRigidDynamic(cubeTriggerEntity_).GetPxRigidDynamic()) {
+            cubeTrigger_ = true;
+        }
+        if (pairs->triggerActor == physicsEngine_->GetRigidDynamic(cubeNotTriggerEntity_).GetPxRigidDynamic()) {
+            cubeNotTrigger_ = true;
+        }
+    }
+
+    void OnTriggerExit(physx::PxTriggerPair* pairs) override
+    {
+        if (pairs->triggerActor == physicsEngine_->GetRigidDynamic(cubeTriggerEntity_).GetPxRigidDynamic()) {
+            cubeTriggerExit_ = true;
+        }
     }
 
     void FixedUpdate(neko::seconds dt) override { }
@@ -632,10 +655,20 @@ public:
 private:
     const static size_t kCubeNumbers = 25;
     neko::Vec3f cubePosition_ = neko::Vec3f(0.0f, 5.0f, -5.0f);
-    neko::Vec3f planePosition_ = neko::Vec3f(0.0f, -3.0f, -5.0f);
+    neko::Vec3f planePosition_ = neko::Vec3f(0.0f, 0.0f, -5.0f);
 
-    neko::Entity cubeEntity_;
-    neko::Entity planeEntity_;
+    neko::Entity cubeTouchEntity_ = neko::INVALID_ENTITY;
+    neko::Entity cubeNotTouchEntity_ = neko::INVALID_ENTITY;
+    neko::Entity cubeTriggerEntity_ = neko::INVALID_ENTITY;
+    neko::Entity cubeNotTriggerEntity_ = neko::INVALID_ENTITY;
+
+    neko::Entity planeEntity_ = neko::INVALID_ENTITY;
+
+    bool cubeTouch_ = false;
+    bool cubeNotTouch_ = false;
+    bool cubeTrigger_ = false;
+    bool cubeNotTrigger_ = false;
+    bool cubeTriggerExit_ = false;
 
 };
 
@@ -671,8 +704,8 @@ public :
         gizmosRenderer_.Init();
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         shader_.LoadFromFile(
-            config.dataRootPath + "shaders/aer_racer/coords.vert",
-            config.dataRootPath + "shaders/aer_racer/coords.frag");
+            config.dataRootPath + "shaders/opengl/coords.vert",
+            config.dataRootPath + "shaders/opengl/coords.frag");
         textureWallId_ = textureManager_.LoadTexture(
             config.dataRootPath + "sprites/wall.jpg", neko::Texture::DEFAULT);
 
@@ -851,7 +884,7 @@ TEST(PhysX, TestCubeFall)
     }
 
     neko::Configuration config;
-    config.dataRootPath = "../data/";
+    //config.dataRootPath = "../data/";
     config.windowName = "AerEditor";
     config.windowSize = neko::Vec2u(1400, 900);
 
@@ -888,7 +921,7 @@ TEST(PhysX, TestRotation)
     }
 
     neko::Configuration config;
-    config.dataRootPath = "../data/";
+    //config.dataRootPath = "../data/";
     config.windowName = "AerEditor";
     config.windowSize = neko::Vec2u(1400, 900);
 
@@ -925,7 +958,7 @@ TEST(PhysX, TestRaycast)
     }
 
     neko::Configuration config;
-    config.dataRootPath = "../data/";
+    //config.dataRootPath = "../data/";
     config.windowName = "AerEditor";
     config.windowSize = neko::Vec2u(1400, 900);
 
@@ -962,7 +995,7 @@ TEST(PhysX, TestTriggerCollision)
     }
 
     neko::Configuration config;
-    config.dataRootPath = "../data/";
+    //config.dataRootPath = "../data/";
     config.windowName = "AerEditor";
     config.windowSize = neko::Vec2u(1400, 900);
 

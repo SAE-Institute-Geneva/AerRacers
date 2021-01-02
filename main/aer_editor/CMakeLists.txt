@@ -16,4 +16,4 @@ if(EMSCRIPTEN)
     set_target_properties(aer_editor PROPERTIES LINK_FLAGS
             "${bin_link_flags} -s USE_SDL=2 -s USE_WEBGL2=1 ")
 endif()
-set_target_properties (aer_editor PROPERTIES FOLDER Neko\\Main)
+set_target_properties (aer_editor PROPERTIES FOLDER Aer/Main)

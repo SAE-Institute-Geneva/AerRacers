@@ -16,4 +16,4 @@ if(EMSCRIPTEN)
     set_target_properties(aer_game PROPERTIES LINK_FLAGS
             "${bin_link_flags} -s USE_SDL=2 -s USE_WEBGL2=1 ")
 endif()
-set_target_properties (aer_game PROPERTIES FOLDER Neko\\Main)
+set_target_properties (aer_game PROPERTIES FOLDER Aer/Main)

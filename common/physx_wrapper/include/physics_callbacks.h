@@ -58,9 +58,9 @@ public:
         const physx::PxTransform* poseBuffer,
         const physx::PxU32 count) override;
 
-    Action<const physx::PxContactPairHeader&> onCollisionEnterAction;
-    Action<const physx::PxContactPairHeader&> onCollisionStayAction;
-    Action<const physx::PxContactPairHeader&> onCollisionExitAction;
+    Action<const physx::PxContactPair& > onCollisionEnterAction;
+    Action<const physx::PxContactPair& > onCollisionStayAction;
+    Action<const physx::PxContactPair& > onCollisionExitAction;
     Action<physx::PxTriggerPair*> onTriggerEnterAction;
     Action<physx::PxTriggerPair*> onTriggerExitAction;
 };
@@ -75,9 +75,9 @@ public:
 class OnCollisionInterface
 {
 public:
-    virtual void OnCollisionEnter(const physx::PxContactPairHeader& pairHeader) {}
-    virtual void OnCollisionStay(const physx::PxContactPairHeader& pairHeader) {}
-    virtual void OnCollisionExit(const physx::PxContactPairHeader& pairHeader) {}
+    virtual void OnCollisionEnter(const physx::PxContactPair& pairHeader) {}
+    virtual void OnCollisionStay(const physx::PxContactPair& pairHeader) {}
+    virtual void OnCollisionExit(const physx::PxContactPair& pairHeader) {}
 };
 
 

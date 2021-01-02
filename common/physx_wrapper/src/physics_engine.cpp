@@ -298,11 +298,11 @@ const PxRaycastInfo PhysicsEngine::Raycast(
 void PhysicsEngine::RegisterCollisionListener(OnCollisionInterface& collisionInterface)
 {
     eventCallback_.onCollisionEnterAction.RegisterCallback(
-        [&collisionInterface](const physx::PxContactPairHeader& pairHeader) { collisionInterface.OnCollisionEnter(pairHeader); });
+        [&collisionInterface](const physx::PxContactPair& pairHeader) { collisionInterface.OnCollisionEnter(pairHeader); });
     eventCallback_.onCollisionStayAction.RegisterCallback(
-        [&collisionInterface](const physx::PxContactPairHeader& pairHeader) { collisionInterface.OnCollisionStay(pairHeader); });
+        [&collisionInterface](const physx::PxContactPair& pairHeader) { collisionInterface.OnCollisionStay(pairHeader); });
     eventCallback_.onCollisionExitAction.RegisterCallback(
-        [&collisionInterface](const physx::PxContactPairHeader& pairHeader) { collisionInterface.OnCollisionExit(pairHeader); });
+        [&collisionInterface](const physx::PxContactPair& pairHeader) { collisionInterface.OnCollisionExit(pairHeader); });
 }
 
 void PhysicsEngine::RegisterTriggerListener(OnTriggerInterface& triggerInterface)

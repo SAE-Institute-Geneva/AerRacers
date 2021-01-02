@@ -29,16 +29,19 @@
 
 #include <engine/component.h>
 
-namespace neko {
-    class Transform3dManager;
-}
-
 namespace neko::physics
 {
+
+    enum class ColliderType {
+        INVALID,
+        BOX,
+        SPHERE
+    };
+
     struct PhysicsMaterial {
         float dynamicFriction = 0.6f;
         float staticFriction = 0.6f;
-        float bouciness = 0.6f;
+        float bouciness = 0.0f;
     };
 
     struct ColliderData

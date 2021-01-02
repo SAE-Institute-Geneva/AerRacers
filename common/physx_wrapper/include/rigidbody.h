@@ -31,15 +31,12 @@
 #include "PxPhysicsAPI.h"
 #include "mathematics/transform.h"
 
+namespace neko {
+class Transform3dManager;
+}
+
 namespace neko::physics {
 class PhysicsEngine;
-
-
-enum class ColliderType {
-    INVALID,
-    BOX,
-    SPHERE
-};
 
 struct DynamicData {
     Vec3f linearVelocity = Vec3f::zero;
@@ -53,10 +50,10 @@ struct RigidDynamicData
     float linearDamping = 0.0f;
     float angularDamping = 0.0f;
     float mass = 1.0f;
-    bool useGravity = false;
+    bool useGravity = true;
     bool isKinematic = false;
     Vec3<bool> freezePosition = Vec3<bool>(false);
-    Vec3<bool> freezeRotation = Vec3<bool>(true);
+    Vec3<bool> freezeRotation = Vec3<bool>(false);
     PhysicsMaterial material;
     ColliderType colliderType = ColliderType::INVALID;
     BoxColliderData boxColliderData;
@@ -69,7 +66,7 @@ struct RigidStaticData
     RigidStaticData() = default;
     ~RigidStaticData() = default;
     PhysicsMaterial material;
-    ColliderType colliderType;
+    ColliderType colliderType = ColliderType::INVALID;
     BoxColliderData boxColliderData;
     SphereColliderData sphereColliderData;
 };
