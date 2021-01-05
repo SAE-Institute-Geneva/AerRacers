@@ -1,3 +1,4 @@
+#pragma once
 /*
  MIT License
 
@@ -21,25 +22,25 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+#include <string_view>
+#include <graphics/texture.h>
+#include "gl/gles3_include.h"
 
-#include <gl/graphics.h>
-#include "gl/gles3_window.h"
-#include "comp_graph/comp_graph_engine.h"
-
-int main(int argc, char** argv)
+namespace neko::sr
 {
-	neko::Configuration config;
-	config.windowSize = neko::Vec2u(1280, 720);
-	config.windowName = "Comp Graph";
-	config.vSync = false;
+class TextureManager : public neko::TextureManager
+{
+public:
+	using neko::TextureManager::TextureManager;
+	void Destroy() override;
 
-    neko::sdl::Gles3Window window;
-    neko::gl::Gles3Renderer renderer;
-    neko::CompGraphEngine engine(&config);
+	TextureId LoadTexture(std::string_view path, neko::Texture::TextureFlags flags) override;
 
-    engine.SetWindowAndRenderer(&window, &renderer);
+protected:
+	void CreateTexture() override;
+};
 
-    engine.Init();
-    engine.EngineLoop();
-    return 0;
+TextureName stbCreateTexture(std::string_view filename, neko::Texture::TextureFlags flags = neko::Texture::DEFAULT);
+TextureName LoadCubemap(std::vector<std::string> facesFilename);
+void DestroyTexture(TextureName);
 }

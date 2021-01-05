@@ -142,4 +142,4 @@ neko::Mat4f NullCamera::GenerateProjectionMatrix() const
 {
     neko_assert(false, "[Error] No camera defined in CameraLocator!")
 }
-} 
+}

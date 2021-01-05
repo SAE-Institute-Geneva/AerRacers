@@ -1,3 +1,4 @@
+#pragma once
 /*
  MIT License
 
@@ -22,24 +23,21 @@
  SOFTWARE.
  */
 
-#include <gl/graphics.h>
-#include "gl/gles3_window.h"
-#include "comp_graph/comp_graph_engine.h"
+#ifdef NEKO_GLES3
+#include "gl/gles3_include.h"
+#include "SDL.h"
+#include "imgui.h"
+#include "mathematics/matrix.h"
+#include "mathematics/transform.h"
+#include "engine/entity.h"
+#include "engine/transform.h"
+#include "gl/model.h"
+#include "gl/shape.h"
+#include "gl/shader.h"
+#include "gl/texture.h"
+#include "sdl_engine/sdl_camera.h"
+#endif
 
-int main(int argc, char** argv)
-{
-	neko::Configuration config;
-	config.windowSize = neko::Vec2u(1280, 720);
-	config.windowName = "Comp Graph";
-	config.vSync = false;
-
-    neko::sdl::Gles3Window window;
-    neko::gl::Gles3Renderer renderer;
-    neko::CompGraphEngine engine(&config);
-
-    engine.SetWindowAndRenderer(&window, &renderer);
-
-    engine.Init();
-    engine.EngineLoop();
-    return 0;
-}
+#ifdef EASY_PROFILE_USE
+#include "easy/profiler.h"
+#endif

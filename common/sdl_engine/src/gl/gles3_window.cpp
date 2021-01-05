@@ -42,7 +42,6 @@ namespace neko::sdl
 {
 void OnResizeRenderCommand::Render()
 {
-	logDebug(fmt::format("Resize window with new size: {}", newWindowSize_.ToString()));
 	glViewport(0, 0, newWindowSize_.x, newWindowSize_.y);
 }
 
@@ -167,13 +166,12 @@ void Gles3Window::Destroy()
 
 void Gles3Window::RenderUi()
 {
-
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("ImGuiRender");
 #endif
+
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 }
 
 void Gles3Window::OnResize(Vec2u newWindowSize)

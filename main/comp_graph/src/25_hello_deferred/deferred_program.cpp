@@ -63,7 +63,12 @@ void HelloDeferredProgram::Init()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glCheckError();
 
-    model_.LoadModel(config.dataRootPath+"model/nanosuit2/nanosuit.obj");
+	preRender_ = Job([this, config]
+	{
+	    model_.LoadModel(config.dataRootPath+"model/nanosuit2/nanosuit.obj");
+	});
+	RendererLocator::get().AddPreRenderJob(&preRender_);
+
     cube_.Init();
     containerId_ = textureManager_.LoadTexture(config.dataRootPath + "material/container2.png");
     containerSpecularId_ = textureManager_.LoadTexture(config.dataRootPath + "material/container2_specular.png");

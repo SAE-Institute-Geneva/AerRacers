@@ -1,3 +1,4 @@
+#pragma once
 /*
  MIT License
 
@@ -21,25 +22,20 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+#include "sdl_engine/sdl_engine.h"
+#include "showroom/showroom_renderer.h"
 
-#include <gl/graphics.h>
-#include "gl/gles3_window.h"
-#include "comp_graph/comp_graph_engine.h"
-
-int main(int argc, char** argv)
+namespace neko
 {
-	neko::Configuration config;
-	config.windowSize = neko::Vec2u(1280, 720);
-	config.windowName = "Comp Graph";
-	config.vSync = false;
+class ShowRoomEngine : public sdl::SdlEngine
+{
+public:
+	explicit ShowRoomEngine(Configuration* config = nullptr);
 
-    neko::sdl::Gles3Window window;
-    neko::gl::Gles3Renderer renderer;
-    neko::CompGraphEngine engine(&config);
+	void GenerateUiFrame() override;
+    void Destroy() override;
 
-    engine.SetWindowAndRenderer(&window, &renderer);
-
-    engine.Init();
-    engine.EngineLoop();
-    return 0;
+private:
+	ShowRoomRenderer showRoomRenderer_;
+};
 }

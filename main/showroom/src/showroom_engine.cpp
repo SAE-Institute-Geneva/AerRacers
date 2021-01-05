@@ -22,24 +22,26 @@
  SOFTWARE.
  */
 
-#include <gl/graphics.h>
-#include "gl/gles3_window.h"
-#include "comp_graph/comp_graph_engine.h"
+#include "showroom/showroom_engine.h"
 
-int main(int argc, char** argv)
+namespace neko
 {
-	neko::Configuration config;
-	config.windowSize = neko::Vec2u(1280, 720);
-	config.windowName = "Comp Graph";
-	config.vSync = false;
+ShowRoomEngine::ShowRoomEngine(Configuration* config) : SdlEngine(config)
+{
+	RegisterSystem(showRoomRenderer_);
+	RegisterOnDrawUi(showRoomRenderer_);
+	RegisterOnEvent(showRoomRenderer_);
+}
 
-    neko::sdl::Gles3Window window;
-    neko::gl::Gles3Renderer renderer;
-    neko::CompGraphEngine engine(&config);
+void ShowRoomEngine::GenerateUiFrame()
+{
+	window_->GenerateUiFrame();
+	drawImGuiAction_.Execute();
+}
 
-    engine.SetWindowAndRenderer(&window, &renderer);
-
-    engine.Init();
-    engine.EngineLoop();
-    return 0;
+void ShowRoomEngine::Destroy()
+{
+	showRoomRenderer_.Destroy();
+    SdlEngine::Destroy();
+}
 }

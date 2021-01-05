@@ -87,8 +87,6 @@ void SdlEngine::ManageEvent()
         {
             if (event.window.event == SDL_WINDOWEVENT_RESIZED)
             {
-                logDebug(fmt::format("Windows resized with new size: ({},{})", 
-                    event.window.data1, event.window.data2));
                 config.windowSize = Vec2u(event.window.data1, event.window.data2);
                 window_->OnResize(config.windowSize);
             }

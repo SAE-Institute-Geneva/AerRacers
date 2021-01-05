@@ -34,6 +34,7 @@ void HelloSsaoProgram::Init()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Init SSAO Program");
 #endif
+	textureManager_.Init();
     const auto& config = BasicEngine::GetInstance()->config;
     glCheckError();
     CreateFramebuffer();
@@ -96,6 +97,7 @@ void HelloSsaoProgram::Init()
     glCheckError();
     plane_.Init();
     screenPlane_.Init();
+	cube_.Init();
     model_.LoadModel(config.dataRootPath + "model/nanosuit2/nanosuit.obj");
     glCheckError();
 }
@@ -106,6 +108,7 @@ void HelloSsaoProgram::Update(seconds dt)
     const auto& config = BasicEngine::GetInstance()->config;
     camera_.SetAspect(config.windowSize.x, config.windowSize.y);
     camera_.Update(dt);
+	textureManager_.Update(dt);
 }
 
 void HelloSsaoProgram::Destroy()
@@ -120,6 +123,7 @@ void HelloSsaoProgram::Destroy()
     plane_.Destroy();
     screenPlane_.Destroy();
     model_.Destroy();
+    textureManager_.Destroy();
 }
 
 void HelloSsaoProgram::DrawImGui()
@@ -352,7 +356,7 @@ void HelloSsaoProgram::RenderScene(const gl::Shader& shader)
     model = Transform3d::Translate(model, Vec3f::up*0.1f);
     shader.SetMat4("model", model);
     shader.SetMat4("normalMatrix", (view * model).Inverse().Transpose());
-	model_.Draw(shader);
+	cube_.Draw();
 	
     glCheckError();
 }

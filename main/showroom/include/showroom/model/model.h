@@ -1,3 +1,4 @@
+#pragma once
 /*
  MIT License
 
@@ -22,24 +23,36 @@
  SOFTWARE.
  */
 
-#include <gl/graphics.h>
-#include "gl/gles3_window.h"
-#include "comp_graph/comp_graph_engine.h"
+#ifdef NEKO_GLES3
+#include "showroom/model/mesh.h"
+#include "gl/shader.h"
+#include <assimp/scene.h>
 
-int main(int argc, char** argv)
+namespace neko::sr
 {
-	neko::Configuration config;
-	config.windowSize = neko::Vec2u(1280, 720);
-	config.windowName = "Comp Graph";
-	config.vSync = false;
+class Model
+{
+public:
+    Model();
+    void LoadModel(std::string_view path);
+    bool IsLoaded() const;
+    void Draw(const gl::Shader& shader);
+    void Destroy();
 
-    neko::sdl::Gles3Window window;
-    neko::gl::Gles3Renderer renderer;
-    neko::CompGraphEngine engine(&config);
+    [[nodiscard]] size_t GetMeshCount() const { return meshes_.size(); };
+    [[nodiscard]] std::vector<Mesh>& GetMeshes() { return meshes_; };
+    [[nodiscard]] const Mesh& GetMesh(size_t index) const { return meshes_[index]; };
+    [[nodiscard]] std::string_view GetPath() const { return path_; };
 
-    engine.SetWindowAndRenderer(&window, &renderer);
+private:
+	void ProcessModel();
+	void ProcessNode(aiNode* node, const aiScene* scene);
 
-    engine.Init();
-    engine.EngineLoop();
-    return 0;
+	std::string name_;
+    std::vector<Mesh> meshes_;
+    std::string directory_;
+    std::string path_;
+    Job processModelJob_;
+};
 }
+#endif

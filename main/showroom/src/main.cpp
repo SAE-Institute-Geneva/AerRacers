@@ -24,22 +24,23 @@
 
 #include <gl/graphics.h>
 #include "gl/gles3_window.h"
-#include "comp_graph/comp_graph_engine.h"
+#include "showroom/showroom_engine.h"
 
 int main(int argc, char** argv)
 {
-	neko::Configuration config;
-	config.windowSize = neko::Vec2u(1280, 720);
-	config.windowName = "Comp Graph";
+	using namespace neko;
+	Configuration config;
+	config.windowSize = Vec2u(1280, 720);
+	config.windowName = "Showroom";
 	config.vSync = false;
 
-    neko::sdl::Gles3Window window;
-    neko::gl::Gles3Renderer renderer;
-    neko::CompGraphEngine engine(&config);
+	sdl::Gles3Window window;
+	gl::Gles3Renderer renderer;
+	ShowRoomEngine engine(&config);
 
-    engine.SetWindowAndRenderer(&window, &renderer);
+	engine.SetWindowAndRenderer(&window, &renderer);
 
-    engine.Init();
-    engine.EngineLoop();
-    return 0;
+	engine.Init();
+	engine.EngineLoop();
+	return 0;
 }

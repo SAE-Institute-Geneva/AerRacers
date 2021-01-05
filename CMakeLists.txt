@@ -108,6 +108,7 @@ add_subdirectory("${IMGUI_ROOT}")
 set_target_properties(imgui PROPERTIES UNITY_BUILD ON)
 
 if(Neko_GLES3 AND NOT Neko_VULKAN)
+    message(STATUS "heyyo")
     add_compile_definitions("NEKO_GLES3=1")
     if(NOT Emscripten)
         add_subdirectory("${EXTERNAL_DIR}/glad")

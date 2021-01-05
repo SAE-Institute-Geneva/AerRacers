@@ -63,6 +63,7 @@ private:
 
     PointLight lights_[32];
 
+	Job preRender_;
 
     void CreateFramebuffer();
     void RenderScene(const gl::Shader& shader);
