@@ -261,13 +261,15 @@ namespace neko::aer
 		resources_ = new DataFolder("data", path);
 	}
 
-	void Project::OpenFile(const std::filesystem::path& path)
+	bool Project::OpenFile(const std::filesystem::path& path)
 	{
 		//Open Text File
 		if (path.extension() == ".txt") {
 			std::string filename = path.filename().string();
 			ShellExecute(0, 0, filename.c_str(), 0, 0, SW_SHOW);
+			return true;
 		}
+		return false;
 	}
 
 	void Project::SetEditorToolManager(EditorToolManager* editorToolManager)

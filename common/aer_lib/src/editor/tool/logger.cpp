@@ -125,7 +125,8 @@ void Logger::OnEvent(const SDL_Event& event)
 {
 }
 
-void Logger::OpenFile(const std::filesystem::path& path)
+bool Logger::OpenFile(const std::filesystem::path& path)
 {
+	return false;
 }
 }

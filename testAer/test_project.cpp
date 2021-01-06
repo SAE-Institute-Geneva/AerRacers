@@ -33,6 +33,7 @@
 
 #include "aer_engine.h"
 #include "editor/tool/project.h"
+#include "editor/editor_tool_manager.h"
 
 class SimulateProject : public neko::SystemInterface
 {
@@ -58,11 +59,13 @@ public:
 
 	void Update(neko::seconds dt) override
 	{
+
+		  if(fileOpened) {
+			  engine_.Stop();
+		  }
 		if (toolLaunched == true)
 		{
-			//TEST SUCCESS
-			neko::LogDebug("[TEST] All tests were validated");
-			engine_.Stop();
+			fileOpened = toolManager_->OpenFile("./../../data/testFile/LICENSE.txt");
 		}
 	}
 
@@ -73,11 +76,13 @@ public:
 	void HasSucceed() const
 	{
 		EXPECT_TRUE(toolLaunched);
+		EXPECT_TRUE(fileOpened);
 	}
 
 private:
 	std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
 	bool toolLaunched = false;
+	bool fileOpened = false;
 
 	neko::aer::AerEngine& engine_;
 };

@@ -43,16 +43,13 @@ public:
     };
 
     explicit EditorToolInterface(ToolType type, int id, std::string name);
-
-	
-    virtual void OpenFile(const std::filesystem::path& path) = 0;
+    virtual bool OpenFile(const std::filesystem::path& path);
 	
     int GetId() const;
     ToolType GetType() const;
     std::string GetName() const;
 
     bool isVisible = true;
-
 private:
     const int kId_;
     std::string name_ = "";

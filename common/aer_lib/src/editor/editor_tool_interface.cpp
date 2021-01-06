@@ -9,6 +9,11 @@ EditorToolInterface::EditorToolInterface(
       name_(name),
       type_(type) {}
 
+bool EditorToolInterface::OpenFile(const std::filesystem::path& path)
+{
+    return false;
+}
+
 
 std::string EditorToolInterface::GetName() const
 {

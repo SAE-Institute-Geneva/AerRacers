@@ -47,7 +47,7 @@ public:
 
     void OnEvent(const SDL_Event& event) override;
 
-	void OpenFile(const std::filesystem::path& path) override;
+	bool OpenFile(const std::filesystem::path& path) override;
 
     /**
     * \brief Deletes all logs 

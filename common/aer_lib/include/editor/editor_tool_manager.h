@@ -47,14 +47,7 @@ public:
     void DrawImGui() override;
     void OnEvent(const SDL_Event& event) override;
 
-	void OpenFile(const std::filesystem::path& path)
-	{
-		for (int i = 0; i < tools_.size(); i++)
-		{
-            tools_[i].get()->OpenFile(path);
-		}
-	}
-
+    bool OpenFile(const std::filesystem::path& path);
     // Adds a tool in the EditorToolManager and instantiates it
     template <typename T, EditorToolInterface::ToolType Type>
     void AddEditorTool();

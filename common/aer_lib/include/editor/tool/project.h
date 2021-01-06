@@ -109,7 +109,7 @@ public:
     void OnEvent(const SDL_Event& event) override;
 	
 	void LoadData(const std::string path);
-	void OpenFile(const std::filesystem::path& path) override;
+	bool OpenFile(const std::filesystem::path& path) override;
 	void SetEditorToolManager(EditorToolManager* editorToolManager);
 
 

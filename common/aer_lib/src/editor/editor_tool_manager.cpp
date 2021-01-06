@@ -40,9 +40,7 @@ void EditorToolManager::Destroy()
 	}
 
 	tools_.clear();
-}
-
-	
+}	
 
 void EditorToolManager::DrawImGui()
 {
@@ -93,6 +91,20 @@ void EditorToolManager::OnEvent(const SDL_Event& event)
 	}
 }
 
+bool EditorToolManager::OpenFile(const std::filesystem::path& path)
+{
+	bool isOpened = false;
+	for (int i = 0; i < tools_.size(); i++)
+	{
+		if (tools_[i].get()->OpenFile(path)) {
+			isOpened = true;
+			break;
+		}
+	}
+	return isOpened;
+}
+
+
 template <typename T, EditorToolInterface::ToolType Type>
 void EditorToolManager::AddEditorTool()
 {
@@ -107,4 +119,5 @@ int EditorToolManager::GetNumberTools() const
 {
 	return tools_.size();
 }
+	
 }
