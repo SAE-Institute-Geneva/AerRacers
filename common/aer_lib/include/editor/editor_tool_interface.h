@@ -26,6 +26,7 @@
  Co-Author :
  Date : 03.11.2020
 ---------------------------------------------------------- */
+#include <filesystem>
 #include <sdl_engine/sdl_engine.h>
 
 namespace neko::aer {
@@ -43,6 +44,9 @@ public:
 
     explicit EditorToolInterface(ToolType type, int id, std::string name);
 
+	
+    virtual void OpenFile(const std::filesystem::path& path) = 0;
+	
     int GetId() const;
     ToolType GetType() const;
     std::string GetName() const;

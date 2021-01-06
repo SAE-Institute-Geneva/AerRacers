@@ -26,6 +26,8 @@
  Co-Author : 
  Date : 03.11.2020
 ---------------------------------------------------------- */
+#include <filesystem>
+
 #include "editor/editor_tool_interface.h"
 #include "gl/texture.h"
 #include "graphics/texture.h"
@@ -44,6 +46,14 @@ public:
     void Destroy() override;
     void DrawImGui() override;
     void OnEvent(const SDL_Event& event) override;
+
+	void OpenFile(const std::filesystem::path& path)
+	{
+		for (int i = 0; i < tools_.size(); i++)
+		{
+            tools_[i].get()->OpenFile(path);
+		}
+	}
 
     // Adds a tool in the EditorToolManager and instantiates it
     template <typename T, EditorToolInterface::ToolType Type>
@@ -66,34 +76,5 @@ private:
     };
 };
 
-class TextureManager : public SystemInterface
-{
-	class AerTexture : TextureId
-	{
-        int id;
-        std::string path;
-	};
-    
-    TextureId texture;
-    
 
-    TextureManager();
-    ~TextureManager();
-    void Init() = 0;
-
-    void Update(seconds dt) = 0
-    {
-		// Load
-        //   CheckIsExist()
-    	//
-    	TextureName texture = neko::gl::stbCreateTexture(path);
-    	//  
-    	// Deload
-    	// 
-    }
-
-	
-
-    void Destroy() = 0;
-};
 }

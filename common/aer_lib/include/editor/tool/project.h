@@ -27,43 +27,24 @@
  Date : 25.11.2020
 ---------------------------------------------------------- */
 #include <SDL_events.h>
-#include <filesystem>
 
 #include "editor/editor_tool_interface.h"
-#include "gl/texture.h"
 
 namespace neko::aer {
-
+	class Project;
 	struct DataResource
 	{
 		DataResource(std::string name, std::filesystem::path path); 
 		~DataResource();
 
+		// Displays the resource in an interactive menu with imgui
+		virtual void Display(Project& projectManager) = 0;
 		
-		virtual void Display()
-		{
-			
-		}
-		virtual void OpenFile()
-		{
-			
-		}
-		virtual DataResource* GetResourceIsSelected() = 0
-		{
-			
-		}
-
+		virtual DataResource* GetResourceIsSelected() = 0;
 		std::string GetName() const;
+		bool GetIsSelect();
 
-		bool GetIsSelect()
-		{
-			return isSelect_;
-		}
-
-		std::filesystem::path GetPath()
-		{
-			return path_;
-		}
+		std::filesystem::path GetPath();
 		bool isHover_= false;
 	protected:
 		std::filesystem::path path_;
@@ -92,21 +73,11 @@ namespace neko::aer {
 		
 		DataFile(std::string name, std::filesystem::path path, Type type);
 
-		DataResource* GetResourceIsSelected() override
-		{
-			if (isSelect_) {
-				isSelect_ = false;
-				return this;
-			}
-		}
+		DataResource* GetResourceIsSelected() override;
 
-		Type GetType()
-		{
-			return type_;
-		}
+		Type GetType();
 
-		void Display() override;
-		void OpenFile() override;
+		void Display(Project& projectManager) override;
 		
 	private:
 		Type type_ = Type::None;
@@ -117,42 +88,15 @@ namespace neko::aer {
 	{
 		DataFolder(std::string name, std::filesystem::path path);
 
-		void Display() override;
-
-		[[nodiscard]] std::vector<DataResource*> GetDataResources() const;
-		int GetFileNumber() const;
+		void Display(Project& projectManager) override;
 		
-		std::vector<DataResource*> GetRessources()
-		{
-			return this->resources_;
-		}
-
-		virtual DataResource* GetResourceIsSelected()
-		{
-			if (isHover_)
-			{
-				return this;
-			}
-			else
-			{
-				for (auto element : resources_)
-				{
-					DataResource* resource = element->GetResourceIsSelected();
-					if(resource != nullptr)
-					{
-							return resource;
-					}
-				}
-			}
-
-			return nullptr;
-		}
-	
+		int GetSize();
 		
+		// Retrieves the resource that has been selected
+		virtual DataResource* GetResourceIsSelected();
+		[[nodiscard]] std::vector<DataResource*> GetResources() const;		
 	private:
-		std::vector<DataResource*> resources_;
-		int fileNumber_ = 0;
-		
+		std::vector<DataResource*> resources_;	
 	};
 
 class Project final : public EditorToolInterface {
@@ -163,19 +107,22 @@ public:
     void DrawImGui() override;
     void Destroy() override;
     void OnEvent(const SDL_Event& event) override;
-
+	
 	void LoadData(const std::string path);
+	void OpenFile(const std::filesystem::path& path) override;
+	void SetEditorToolManager(EditorToolManager* editorToolManager);
 
+
+	void Open();
+
+	bool contextMenuIsOpen_ = false;
+	bool openFile_ = false;
+	DataResource* resourceHovered_ = nullptr;
 private:
-    int posY_ = 0;
 	std::string path_ = "./../../data/";
 	DataResource* resources_;
-	bool contextMenuIsOpen_ = false;
-	DataResource* resourceHovered_ = nullptr;
-	gl::TextureManager textureManager_;
-
-	bool mouseButtonRight_ = false;
-	bool mouseButtonLeft_ = false;
+	
+	EditorToolManager* editorToolManager_;
 };
 
 }

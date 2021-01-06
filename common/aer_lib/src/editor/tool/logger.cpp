@@ -1,5 +1,5 @@
 #include <utilities/file_utility.h>
-
+#include <filesystem>
 #include "log.h"
 #include "editor/tool/logger.h"
 
@@ -122,6 +122,10 @@ void Logger::DrawImGui()
 void Logger::ClearLogs() { Log::get().ClearLogs(); }
 
 void Logger::OnEvent(const SDL_Event& event)
+{
+}
+
+void Logger::OpenFile(const std::filesystem::path& path)
 {
 }
 }

@@ -9,6 +9,7 @@ EditorToolInterface::EditorToolInterface(
       name_(name),
       type_(type) {}
 
+
 std::string EditorToolInterface::GetName() const
 {
     return name_;

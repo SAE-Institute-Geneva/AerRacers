@@ -15,8 +15,12 @@ void EditorToolManager::Init()
 	if (mode == ModeEnum::EDITOR)
 	{
 		AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
+		// Always in last !
 		AddEditorTool<Project, EditorToolInterface::ToolType::PROJECT>();
 	}
+
+	Project* project = static_cast<Project*>(tools_[tools_.size() - 1].get());
+	project->SetEditorToolManager(this);
 }
 
 
@@ -37,6 +41,8 @@ void EditorToolManager::Destroy()
 
 	tools_.clear();
 }
+
+	
 
 void EditorToolManager::DrawImGui()
 {
