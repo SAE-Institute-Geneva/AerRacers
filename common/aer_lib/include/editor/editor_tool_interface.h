@@ -39,7 +39,8 @@ class EditorToolInterface
 public:
     enum class ToolType {
         NONE = 0,
-        LOGGER
+        LOGGER,
+        MATERIAL_DESCRIPTION
     };
 
     explicit EditorToolInterface(AerEngine& engine, ToolType type, int id, std::string name);

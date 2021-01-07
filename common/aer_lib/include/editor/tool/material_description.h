@@ -32,14 +32,30 @@
 
 namespace neko::aer
 {
-	class MaterialDescription final : public EditorToolInterface
-	{
-	public:
-		MaterialDescription(AerEngine& engine, ToolType type, int id, std::string name);
-		void Init() override;
-		void Update(seconds dt) override;
-		void DrawImGui() override;
-		void Destroy() override;
-		void OnEvent(const SDL_Event& event) override;
-	};
+class MaterialDescription final : public EditorToolInterface
+{
+public:
+	MaterialDescription(AerEngine& engine, ToolType type, int id, std::string name);
+	void Init() override;
+	void Update(seconds dt) override;
+	void DrawImGui() override;
+	void Destroy() override;
+	void OnEvent(const SDL_Event& event) override;
+
+private:
+
+	const std::string filepath = "../../data/aer_racers/materials/";
+	std::vector<std::string> materialsPaths;
+	std::vector<json> materialsJson;
+	json selectedMaterial;
+	size_t selectedMaterialIndex = 0;
+	std::string selectedMaterialName;
+	const char* typeLabels[1] = {"Diffuse"};
+};
+}
+
+namespace ImGui
+{
+static int InputTextCallback(ImGuiInputTextCallbackData* data);
+bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags);
 }
