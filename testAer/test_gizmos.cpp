@@ -74,8 +74,8 @@ public:
         textureManager_.Init();
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         shader_.LoadFromFile(
-            config.dataRootPath + "aer_racers/shaders/opengl/coords.vert",
-            config.dataRootPath + "aer_racers/shaders/opengl/coords.frag");
+            config.dataRootPath + "shaders/opengl/coords.vert",
+            config.dataRootPath + "shaders/opengl/coords.frag");
         textureWallId_ = textureManager_.LoadTexture(
             config.dataRootPath + "sprites/wall.jpg", neko::Texture::DEFAULT);
 
@@ -218,7 +218,7 @@ TEST(Engine, Gizmos)
     }
 
     neko::Configuration config;
-    config.dataRootPath = "../data/";
+    // config.dataRootPath = "../data/";
     config.windowName = "AerEditor";
     config.windowSize = neko::Vec2u(1400, 900);
 
