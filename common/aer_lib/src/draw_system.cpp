@@ -8,7 +8,11 @@
 
 namespace neko::aer {
 DrawSystem::DrawSystem(AerEngine& engine) : engine_(engine) {
-    gizmosRenderer_ = std::make_unique<GizmosRenderer>(&camera_);
+#ifdef NEKO_GLES3
+    gizmosRenderer_ = std::make_unique<Gles3GizmosRenderer>(&camera_);
+#elif NEKO_VULKAN
+    gizmosRenderer_ = std::make_unique<NekoGizmosRenderer>(&camera_);
+#endif
 }
 
 void DrawSystem::Init()

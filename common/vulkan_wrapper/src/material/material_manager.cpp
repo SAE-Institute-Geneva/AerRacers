@@ -1,6 +1,6 @@
 #include "vk/material/material_manager.h"
 
-#include "utilities/json_utility.h"
+#include "utils/json_utility.h"
 
 namespace neko::vk
 {
@@ -62,7 +62,7 @@ void MaterialManager::AddMaterial(const std::string& materialPath)
 		{
 			diffuseMaterials_.emplace_back(DiffuseMaterial());
 			diffuseMaterials_.back().FromJson(materialJson);
-			diffuseMaterialIds_.emplace_back(HashString(materialJson["name"]));
+			diffuseMaterialIds_.emplace_back(HashString(std::string_view(materialJson["name"])));
 
 			//Textures defined in the material's JSON use the relative path to the data folder defined in "BasicEngine::config->dataRootPath"
 			if (CheckJsonExists(materialJson, "diffusePath"))

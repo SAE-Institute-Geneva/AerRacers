@@ -1,0 +1,89 @@
+{
+    "vert": "../../data/aer_racers/shaders/vulkan/quad.vert.spv",
+    "frag": "../../data/aer_racers/shaders/vulkan/quad.frag.spv",
+    "attributes": [
+        {
+            "name": "inTexCoords",
+            "set": 63,
+            "location": 2,
+            "size": 8,
+            "type": 2
+        },
+        {
+            "name": "inNormal",
+            "set": 63,
+            "location": 1,
+            "size": 12,
+            "type": 3
+        },
+        {
+            "name": "inPosition",
+            "set": 63,
+            "location": 0,
+            "size": 12,
+            "type": 3
+        }
+    ],
+    "uniforms": [
+        {
+            "name": "diffuse",
+            "binding": 2,
+            "offset": -1,
+            "size": -1,
+            "type": 1,
+            "readOnly": false,
+            "writeOnly": false,
+            "stageFlags": 16
+        }
+    ],
+    "uniformBlocks": [
+        {
+            "name": "UboObject",
+            "binding": 1,
+            "size": 64,
+            "stageFlags": 1,
+            "type": 0,
+            "uniforms": [
+                {
+                    "name": "model",
+                    "binding": 0,
+                    "offset": 0,
+                    "size": 64,
+                    "type": 0,
+                    "readOnly": false,
+                    "writeOnly": false,
+                    "stageFlags": 1
+                }
+            ]
+        },
+        {
+            "name": "UboScene",
+            "binding": 0,
+            "size": 128,
+            "stageFlags": 1,
+            "type": 0,
+            "uniforms": [
+                {
+                    "name": "view",
+                    "binding": 0,
+                    "offset": 0,
+                    "size": 64,
+                    "type": 0,
+                    "readOnly": false,
+                    "writeOnly": false,
+                    "stageFlags": 1
+                },
+                {
+                    "name": "proj",
+                    "binding": 0,
+                    "offset": 64,
+                    "size": 64,
+                    "type": 0,
+                    "readOnly": false,
+                    "writeOnly": false,
+                    "stageFlags": 1
+                }
+            ]
+        }
+    ]
+}

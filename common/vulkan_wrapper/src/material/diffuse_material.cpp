@@ -183,15 +183,15 @@ void DiffuseMaterial::SetRenderMode(const Material::RenderMode renderMode)
 void DiffuseMaterial::ResetPipeline()
 {
 	const VkCullModeFlags cullMode =
-			renderMode_ == RenderMode::OPAQUE ?
+			renderMode_ == RenderMode::VK_OPAQUE ?
 			VK_CULL_MODE_FRONT_BIT :
 			static_cast<VkCullModeFlags>(0);
 
 	const Pipeline::Stage stage =
-			renderMode_ == RenderMode::OPAQUE ?
+			renderMode_ == RenderMode::VK_OPAQUE ?
 			Pipeline::Stage{0, 0} : Pipeline::Stage{0, 1};
 
-	const auto& config = BasicEngine::GetInstance()->config;
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	pipelineMaterial_ = std::neko::optional<MaterialPipeline&>(
 			MaterialPipeline::CreateMaterialPipeline(
 					stage,

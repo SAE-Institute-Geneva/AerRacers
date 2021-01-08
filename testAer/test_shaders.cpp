@@ -3,8 +3,8 @@
 #ifdef NEKO_VULKAN
 #include "mathematics/hash.h"
 #include "mathematics/matrix.h"
-#include "utilities/file_utility.h"
-#include "utilities/json_utility.h"
+#include "utils/file_utility.h"
+#include "utils/json_utility.h"
 #include "vk/shaders/shader.h"
 
 namespace neko::vk

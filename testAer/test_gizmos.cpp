@@ -169,7 +169,7 @@ private:
     neko::aer::AerEngine& engine_;
     neko::EntityManager& entityManager_;
     neko::Transform3dManager& transform3dManager_;
-    neko::GizmosRenderer gizmosRenderer_;
+    neko::Gles3GizmosRenderer gizmosRenderer_;
 
     neko::Camera3D camera_;
     //neko::Mat4f view_{ neko::Mat4f::Identity };

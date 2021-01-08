@@ -43,13 +43,13 @@ void SubrendererOpaque::OnRender(const CommandBuffer& commandBuffer)
         if(modelDrawCommand.materialID != 0 && modelDrawCommand.materialID != 1)
         {
         	const auto& material = MaterialManagerLocator::get().GetMaterial(modelDrawCommand.materialID);
-	        if (material.GetRenderMode() == Material::RenderMode::OPAQUE)
+	        if (material.GetRenderMode() == Material::RenderMode::VK_OPAQUE)
 		        CmdRender(commandBuffer, modelDrawCommand);
         }
 
     //GPU Instancing
     /*for (auto& modelInstance : modelCmdBuffer_.GetModelInstances())
-        if (modelInstance->GetMaterial().GetRenderMode() == Material::RenderMode::OPAQUE)
+        if (modelInstance->GetMaterial().GetRenderMode() == Material::RenderMode::VK_OPAQUE)
             modelInstance->CmdRender(commandBuffer, uniformScene_);*/
 }
 

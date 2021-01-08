@@ -23,8 +23,8 @@ public:
 
     enum class RenderMode : std::uint8_t
     {
-        OPAQUE,
-        TRANSPARENT
+        VK_OPAQUE,
+        VK_TRANSPARENT
     };
 
     explicit Material() = default;
@@ -58,6 +58,6 @@ protected:
 	PushDataContainer uniformData_;
 	PushDataContainer descriptorData_;
 
-	RenderMode renderMode_ = RenderMode::OPAQUE;
+	RenderMode renderMode_ = RenderMode::VK_OPAQUE;
 };
 }

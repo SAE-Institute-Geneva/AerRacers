@@ -1,6 +1,6 @@
 #pragma once
 #include "mathematics/hash.h"
-#include "utilities/service_locator.h"
+#include "utils/service_locator.h"
 #include "vk/material/diffuse_material.h"
 #include "vk/pipelines/material_pipeline.h"
 

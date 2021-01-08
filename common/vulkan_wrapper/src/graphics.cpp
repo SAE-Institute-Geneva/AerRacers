@@ -117,7 +117,7 @@ void VkRenderer::AfterRenderLoop()
         ResetRenderStages();
         renderer->Start();
 
-	    const auto& config = BasicEngine::GetInstance()->config;
+	    const auto& config = BasicEngine::GetInstance()->GetConfig();
 	    materialManager_.AddMaterial(config.dataRootPath + "aer_racers/materials/test.aermat");
     }
 
@@ -314,7 +314,7 @@ void VkRenderer::RecreatePass(RenderStage& renderStage)
 {
     const auto& graphicQueue = device.GetGraphicsQueue();
 
-    const Vec2u& size = BasicEngine::GetInstance()->config.windowSize;
+    const Vec2u& size = BasicEngine::GetInstance()->GetConfig().windowSize;
     const VkExtent2D displayExtent = {
             static_cast<uint32_t>(size.x),
             static_cast<uint32_t>(size.y)
