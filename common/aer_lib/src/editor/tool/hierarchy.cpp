@@ -1,6 +1,10 @@
 #include <editor/tool/hierarchy.h>
+#include "vector"
 #include <string>
 #include "aer_engine.h"
+#include "imgui_internal.h"
+#include "imgui.h"
+#include "engine/entity.h"
 
 namespace neko::aer
 {
@@ -21,20 +25,65 @@ namespace neko::aer
 	{
 		if (isVisible)
 		{
-			if (!ImGui::Begin((GetName() + "##" +
+			if (ImGui::Begin((GetName() + "##" +
 				std::to_string(GetId())).c_str(),
 				&isVisible))
 			{
-				ImGui::End();
+				auto& entityManager = engine_.GetEntityManager();
+				for (auto entityIndex = 0; entityIndex < entityManager.GetEntitiesNmb(); entityIndex++)
+				{
+					if (entityManager.GetEntityParent(entityIndex) == INVALID_ENTITY)
+					{
+						std::string text = "Entity " + std::to_string(entityIndex);
+						if (ImGui::TreeNode(text.c_str()))
+						{
+							for (auto entityChildren = 0; entityChildren < entityManager.GetEntitiesNmb(); entityChildren++)
+							{
+								if (entityManager.GetEntityParent(entityChildren) == entityIndex)
+								{
+									std::string textChild = "Child" + std::to_string(entityChildren);
+									if (ImGui::TreeNode(textChild.c_str()))
+									{
+										DisplayChildren(entityChildren);
+										ImGui::TreePop();
+									}
+
+								}
+							}
+							ImGui::TreePop();
+						}
+					}
+					
+
+				}
+
 			}
-			else
+			ImGui::End();
+			/*if (ImGui::BeginPopupContextWindow())
 			{
-				/*std::string nickiminaj = { "nicki minaj" };
-				ImGui::Text(nickiminaj.c_str());*/
-				std::string text = "Entity : ";
-				text += std::to_string(engine_.GetEntityManager().GetEntitiesNmb(EntityMask(ComponentType::EMPTY)));
-				ImGui::Text(text.c_str());
-				ImGui::End();
+				if (ImGui::MenuItem("test"))
+				{
+
+				}
+				ImGui::EndPopup();
+			}*/
+		}
+	}
+
+	void Hierarchy::DisplayChildren(Entity entityIndex)
+	{
+		auto& entityManager = engine_.GetEntityManager();
+		for (auto entityChildren = 0; entityChildren < entityManager.GetEntitiesNmb(); entityChildren++)
+		{
+			if (entityManager.GetEntityParent(entityChildren) == entityIndex)
+			{
+				std::string textChild = "Child" + std::to_string(entityChildren);
+				if (ImGui::TreeNode(textChild.c_str()))
+				{
+					DisplayChildren(entityChildren);
+					ImGui::TreePop();
+				}
+
 			}
 		}
 	}
