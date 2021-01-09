@@ -27,7 +27,6 @@
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
 #include <sdl_engine/sdl_engine.h>
-#include <sdl_engine/sdl_input.h>
 #include <gl/gles3_window.h>
 #include <gl/graphics.h>
 
@@ -59,10 +58,10 @@ public:
 
 	void Update(neko::seconds dt) override
 	{
-
-		  if(fileOpened) {
-			  engine_.Stop();
-		  }
+		if (fileOpened)
+		{
+			engine_.Stop();
+		}
 		if (toolLaunched == true)
 		{
 			fileOpened = toolManager_->OpenFile("./../../data/testFile/LICENSE.txt");

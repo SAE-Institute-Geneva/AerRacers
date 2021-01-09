@@ -29,32 +29,32 @@
 #include <filesystem>
 #include <sdl_engine/sdl_engine.h>
 
-namespace neko::aer {
-
+namespace neko::aer
+{
 class EditorToolInterface
-    : public SystemInterface,
-      public DrawImGuiInterface,
-      public sdl::SdlEventSystemInterface {
+	: public SystemInterface,
+	  public DrawImGuiInterface,
+	  public sdl::SdlEventSystemInterface
+{
 public:
-    enum class ToolType {
-        NONE = 0,
-        LOGGER,
-    	PROJECT
-    };
+	enum class ToolType
+	{
+		NONE = 0,
+		LOGGER,
+		PROJECT
+	};
 
-    explicit EditorToolInterface(ToolType type, int id, std::string name);
-    virtual bool OpenFile(const std::filesystem::path& path);
-	
-    int GetId() const;
-    ToolType GetType() const;
-    std::string GetName() const;
+	explicit EditorToolInterface(ToolType type, int id, std::string name);
+	virtual bool OpenFile(const std::filesystem::path& path);
 
-    bool isVisible = true;
+	int GetId() const;
+	ToolType GetType() const;
+	std::string GetName() const;
+
+	bool isVisible = true;
 private:
-    const int kId_;
-    std::string name_ = "";
-    ToolType type_ = ToolType::NONE;
+	const int kId_;
+	std::string name_ = "";
+	ToolType type_ = ToolType::NONE;
 };
-
-
 }

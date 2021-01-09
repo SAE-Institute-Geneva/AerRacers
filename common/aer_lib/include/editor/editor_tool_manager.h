@@ -27,47 +27,44 @@
  Date : 03.11.2020
 ---------------------------------------------------------- */
 #include <filesystem>
-
 #include "editor/editor_tool_interface.h"
-#include "gl/texture.h"
-#include "graphics/texture.h"
 
-namespace neko::aer {
+namespace neko::aer
+{
 class AerEngine;
 
 class EditorToolManager
-    : public SystemInterface,
-      public DrawImGuiInterface,
-      public sdl::SdlEventSystemInterface {
+	: public SystemInterface,
+	  public DrawImGuiInterface,
+	  public sdl::SdlEventSystemInterface
+{
 public:
-    explicit EditorToolManager(AerEngine& engine);
-    void Init() override;
-    void Update(seconds dt) override;
-    void Destroy() override;
-    void DrawImGui() override;
-    void OnEvent(const SDL_Event& event) override;
+	explicit EditorToolManager(AerEngine& engine);
+	void Init() override;
+	void Update(seconds dt) override;
+	void Destroy() override;
+	void DrawImGui() override;
+	void OnEvent(const SDL_Event& event) override;
 
-    bool OpenFile(const std::filesystem::path& path);
-    // Adds a tool in the EditorToolManager and instantiates it
-    template <typename T, EditorToolInterface::ToolType Type>
-    void AddEditorTool();
+	bool OpenFile(const std::filesystem::path& path);
+	// Adds a tool in the EditorToolManager and instantiates it
+	template <typename T, EditorToolInterface::ToolType Type>
+	void AddEditorTool();
 
-    // Get the number of tool
-    int GetNumberTools() const;
+	// Get the number of tool
+	int GetNumberTools() const;
 
 private:
-    // Displays the list of tools in the main menu
-    void DrawList();
+	// Displays the list of tools in the main menu
+	void DrawList();
 
-    AerEngine& engine_;
-    std::vector<std::unique_ptr<EditorToolInterface>> tools_;
+	AerEngine& engine_;
+	std::vector<std::unique_ptr<EditorToolInterface>> tools_;
 
-    std::string toolNames_[3]{
-        "Tool",
-        "Logger",
-    	"Project"
-    };
+	std::string toolNames_[3]{
+		"Tool",
+		"Logger",
+		"Project"
+	};
 };
-
-
 }
