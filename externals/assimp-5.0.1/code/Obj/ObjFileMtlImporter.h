@@ -81,7 +81,7 @@ private:
     ObjFileMtlImporter(const ObjFileMtlImporter &rOther);
     /// \brief  Assignment operator, returns only a reference of this instance.
     ObjFileMtlImporter &operator = (const ObjFileMtlImporter &rOther);
-    /// Load the whole material description
+    /// Init the whole material description
     void load();
     /// Get color data.
     void getColorRGBA( aiColor3D *pColor);

@@ -14,8 +14,11 @@ if(NOT Emscripten)
     endif(MSVC)
 endif()
 
-if(Neko_GLES3)
+if(Neko_GLES3 AND NOT Neko_VULKAN)
     LIST(APPEND sdl_engine_libs gles3_wrapper)
+endif()
+if(Neko_VULKAN)
+    LIST(APPEND sdl_engine_libs vulkan_wrapper)
 endif()
 
 #imgui sdl

@@ -61,6 +61,7 @@ private:
         "Tool",
         "Logger",
     	"Inspector"
+        "Hierarchy"
     };
 };
 }

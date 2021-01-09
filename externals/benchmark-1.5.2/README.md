@@ -1266,7 +1266,7 @@ in a register.
 For example, an empty inner loop of using the ranged-based for method looks like:
 
 ```asm
-# Loop Init
+# Loop InitData
   mov rbx, qword ptr [r14 + 104]
   call benchmark::State::StartKeepRunning()
   test rbx, rbx

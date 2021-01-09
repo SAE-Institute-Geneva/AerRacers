@@ -97,8 +97,8 @@ private:
 			{Vec3f(-.8f,  2.4f, -1.0f), Color3(0.0f,   5.0f,  0.0f)}
 		}
 	};
-
-	sdl::Camera3D camera_;
+	
+	sdl::MovableCamera3D camera_;
 
 	unsigned int hdrFbo_ = 0;
 	unsigned int colorBuffers_[2]{};

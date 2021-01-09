@@ -97,7 +97,7 @@ namespace Assimp    {
 
 
 // -------------------------------------------------------------------------------------------
-/** Load blenders official binary format. The actual file structure (the `DNA` how they
+/** Init blenders official binary format. The actual file structure (the `DNA` how they
  *  call it is outsourced to BlenderDNA.cpp/BlenderDNA.h. This class only performs the
  *  conversion from intermediate format to aiScene. */
 // -------------------------------------------------------------------------------------------

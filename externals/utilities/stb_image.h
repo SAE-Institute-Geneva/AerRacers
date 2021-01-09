@@ -4273,7 +4273,7 @@ static const stbi_uc stbi__zdefault_distance[32] =
    5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
 };
 /*
-Init algorithm:
+InitData algorithm:
 {
    int i;   // use <= to match clearly with spec
    for (i=0; i <= 143; ++i)     stbi__zdefault_length[i]   = 8;
@@ -6907,7 +6907,7 @@ static float *stbi__hdr_load(stbi__context *s, int *x, int *y, int *comp, int re
    if (!hdr_data)
       return stbi__errpf("outofmem", "Out of memory");
 
-   // Load image data
+   // Init image data
    // image data is stored as some number of sca
    if ( width < 8 || width >= 32768) {
       // Read flat data

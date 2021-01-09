@@ -196,7 +196,7 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
             Log.v(TAG, "modify thread properties failed " + e.toString());
         }
 
-        // Load shared libraries
+        // Init shared libraries
         String errorMsgBrokenLib = "";
         try {
             loadLibraries();

@@ -25,8 +25,9 @@
 
 #include <ostream>
 #include <array>
+
+#include "engine/intrinsincs.h"
 #include "mathematics/const.h"
-#include <engine/intrinsincs.h>
 #include "mathematics/angle.h"
 #include "mathematics/trigo.h"
 
@@ -501,14 +502,14 @@ public:
         return *this;
     }
 
-    bool operator==(const Vec3<T>& other) const
+    bool operator==(const Vec3<T>& rh) const
     {
-        return x == other.x && y == other.y && z == other.z;
+        return x == rh.x && y == rh.y && z == rh.z;
     }
 
-    bool operator!=(const Vec3<T>& other) const
+    bool operator!=(const Vec3<T>& rh) const
     {
-        return !(*this == other);
+        return !(*this == rh);
     }
 
     friend std::ostream& operator<<(std::ostream& os, const Vec3<T>& dt)
@@ -600,7 +601,6 @@ public:
     }
 
     static neko::radian_t AngleBetween(const Vec3& v1, const Vec3& v2);
-
 };
 //-----------------------------------------------------------------------------
 // Vec3 Aliases
@@ -895,3 +895,4 @@ inline Vec4<T> const Vec4<T>::one = Vec4<T>(1);
 //-----------------------------------------------------------------------------
 
 }
+ 

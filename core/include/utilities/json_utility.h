@@ -27,10 +27,10 @@
 #include <memory>
  //Externals includes
 #include <json.hpp>
-#include "mathematics/vector.h"
 #include "mathematics/rect.h"
 
 using json = nlohmann::json;
+using ordered_json = nlohmann::ordered_json;
 
 namespace neko
 {

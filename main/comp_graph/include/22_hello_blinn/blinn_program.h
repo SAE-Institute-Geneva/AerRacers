@@ -58,7 +58,7 @@ private:
 		ENABLE_BLINN = 1u << 0u,
 		ONLY_SPECULAR = 1u << 1u
 	};
-	sdl::Camera3D camera_;
+	sdl::MovableCamera3D camera_;
 	Vec3f lightPos_;
 	float dt_ = 0.0f;
 	std::uint8_t flags_ = NONE;

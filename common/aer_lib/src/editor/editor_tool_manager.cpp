@@ -2,6 +2,7 @@
 #include "editor/editor_tool_manager.h"
 #include "editor/tool/logger.h"
 #include "editor/tool/inspector.h"
+#include "editor/tool/hierarchy.h"
 
 namespace neko::aer
 {
@@ -16,6 +17,7 @@ void EditorToolManager::Init()
 	{
 		AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
 		AddEditorTool<Inspector, EditorToolInterface::ToolType::INSPECTOR>();
+		AddEditorTool<Hierarchy, EditorToolInterface::ToolType::HIERARCHY>();
 	}
 }
 
@@ -90,11 +92,14 @@ void EditorToolManager::OnEvent(const SDL_Event& event)
 template <typename T, EditorToolInterface::ToolType Type>
 void EditorToolManager::AddEditorTool()
 {
-	auto newTool = std::make_unique<T>(Type,
-	                                   tools_.size(),
-	                                   toolNames_[static_cast<int>(Type)]);
-	newTool->Init();
-	tools_.push_back(std::move(newTool));
+    auto newTool = std::make_unique<T>(
+        engine_,
+        Type,
+        tools_.size(),
+        toolNames_[static_cast<int>(Type)]
+    );
+    newTool->Init();
+    tools_.push_back(std::move(newTool));
 }
 
 int EditorToolManager::GetNumberTools() const

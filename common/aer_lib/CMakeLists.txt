@@ -1,4 +1,10 @@
-LIST(APPEND aer_lib_libs Neko_Core sdl_engine gles3_wrapper assimp_wrapper)
+LIST(APPEND aer_lib_libs Neko_Core sdl_engine assimp_wrapper)
+if(Neko_GLES3 AND NOT Neko_VULKAN)
+    LIST(APPEND aer_lib_libs gles3_wrapper)
+endif()
+if(Neko_VULKAN)
+    LIST(APPEND aer_lib_libs vulkan_wrapper)
+endif()
 
 file(GLOB_RECURSE aer_lib_src include/*.h src/*.cpp)
 

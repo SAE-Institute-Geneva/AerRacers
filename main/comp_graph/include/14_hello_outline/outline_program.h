@@ -53,8 +53,8 @@ private:
 	gl::TextureManager textureManager_;
 	TextureName cubeTexture_ = INVALID_TEXTURE_NAME;
 	TextureId cubeTextureId_;
-
-	sdl::Camera3D camera_;
+	
+	sdl::MovableCamera3D camera_;
 
 	Vec3f outlineColor_ = Vec3f::one;
 	float outlineScale_ = 1.1f;

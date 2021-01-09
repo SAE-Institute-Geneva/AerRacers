@@ -1381,7 +1381,7 @@ inline void Asset::Load(const std::string& pFile, bool isBinary)
     }
 
 
-    // Load the metadata
+    // Init the metadata
     asset.Read(doc);
     ReadExtensionsUsed(doc);
 

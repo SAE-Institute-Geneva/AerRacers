@@ -182,7 +182,7 @@ extern DECLSPEC int SDLCALL SDL_LockSurface(SDL_Surface * surface);
 extern DECLSPEC void SDLCALL SDL_UnlockSurface(SDL_Surface * surface);
 
 /**
- *  Load a surface from a seekable SDL data stream (memory or file).
+ *  Init a surface from a seekable SDL data stream (memory or file).
  *
  *  If \c freesrc is non-zero, the stream will be closed after being read.
  *
@@ -194,7 +194,7 @@ extern DECLSPEC SDL_Surface *SDLCALL SDL_LoadBMP_RW(SDL_RWops * src,
                                                     int freesrc);
 
 /**
- *  Load a surface from a file.
+ *  Init a surface from a file.
  *
  *  Convenience macro.
  */

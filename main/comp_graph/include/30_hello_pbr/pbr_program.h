@@ -47,7 +47,7 @@ private:
 	std::array<Light, 4> lights_;
 	gl::RenderSphere sphere_{ Vec3f::zero, 1.0f };
 	gl::Shader pbrShader_;
-	sdl::Camera3D camera_;
+	sdl::MovableCamera3D camera_;
 
 	Vec3f baseColor_ = { 1.0f,0.5f,0.5f };
 	float spacing_ = 2.5f;

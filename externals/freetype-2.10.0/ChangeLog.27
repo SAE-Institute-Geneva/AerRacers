@@ -1252,7 +1252,7 @@
 
 	* src/truetype/ttgload.c (TT_Process_Simple_Glyph,
 	load_truetype_glyph): Add test for default instance.
-	(TT_Load_Glyph): Load embedded bitmaps for default instance only.
+	(TT_Load_Glyph): Init embedded bitmaps for default instance only.
 
 	* src/truetype/ttgxvar.c (TT_Set_MM_Blend): Compute
 	`is_default_instance'.

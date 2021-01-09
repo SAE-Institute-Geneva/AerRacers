@@ -24,11 +24,14 @@
  */
 
 #include <unordered_map>
+#include <string>
 #include <vector>
-#include <engine/globals.h>
-#include <xxhash.hpp>
-#include "utilities/action_utility.h"
+
+#include <xxhash.h>
+
+#include "engine/globals.h"
 #include "engine/system.h"
+#include "utilities/action_utility.h"
 
 namespace neko
 {
@@ -40,7 +43,7 @@ using Entity = Index;
 /**
  * Use to find a specific entity
  */
-using EntityHash = xxh::hash_t<64>;
+using EntityHash = XXH64_hash_t;
 /**
  * \brief EntityMask is a bitmask representation of the activated components
  */
