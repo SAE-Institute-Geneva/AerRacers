@@ -33,7 +33,7 @@ namespace neko::aer
     class Inspector final : public EditorToolInterface
     {
     public:
-        explicit Inspector(ToolType type, int id, std::string name);
+        explicit Inspector(AerEngine& engine, ToolType type, int id, std::string name);
         void Init() override;
         void Update(seconds dt) override;
         void DrawImGui() override;

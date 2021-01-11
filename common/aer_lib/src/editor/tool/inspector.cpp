@@ -2,8 +2,8 @@
 
 namespace neko::aer
 {
-    Inspector::Inspector(ToolType type, int id, std::string name)
-        : EditorToolInterface(type, id, name)
+    Inspector::Inspector(AerEngine& engine, ToolType type, int id, std::string name)
+        : EditorToolInterface(engine, type, id, name)
     {
     }
 	
