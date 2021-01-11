@@ -42,16 +42,18 @@ public:
 	void Destroy() override;
 	void OnEvent(const SDL_Event& event) override;
 	void LoadMaterialFiles();
+	ordered_json LoadOrderedJson(const std::string_view path);
 
 private:
 
 	const std::string filepath_ = "../../data/aer_racers/materials/";
 	std::vector<std::string> materialsPaths_;
-	std::vector<json> materialsJson_;
-	json selectedMaterial_;
+	std::vector<ordered_json> materialsJson_;
+	ordered_json selectedMaterial_;
 	std::string selectedMaterialName_;
 	int selectedMaterialIndex_;
 	const char* typeLabels_[1] = {"Diffuse"};
+	bool isNotShaderPath = false;
 };
 }
 

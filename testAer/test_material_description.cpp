@@ -67,7 +67,7 @@ public:
 			switch (testNumber_)
 			{
 			case 0:
-				
+				toolManager_;
 				break;
 			case 1:
 

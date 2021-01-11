@@ -103,8 +103,6 @@ void MaterialDescription::DrawImGui()
 
 				material << std::setw(4) << selectedMaterial_;
 
-				//std::cout << std::setw(4) << selectedMaterial_ << std::endl;
-				
 				LoadMaterialFiles();
 			}
 		}
@@ -136,7 +134,8 @@ void MaterialDescription::LoadMaterialFiles()
 	}
 	for (const auto& materialPath : materialsPaths_)
 	{
-		auto& materialJson = LoadJson(materialPath);
+		ordered_json materialJson = LoadOrderedJson(materialPath);
+		
 		auto it = std::find(materialsJson_.begin(), materialsJson_.end(), materialJson);
 
 		if (it == materialsJson_.end())
@@ -145,6 +144,22 @@ void MaterialDescription::LoadMaterialFiles()
 		}
 	}
 }
+ordered_json MaterialDescription::LoadOrderedJson(const std::string_view path)
+{
+	ordered_json orderedJson;
+
+	if (!neko::FileExists(path))
+	{
+		logDebug(fmt::format("[Error] File does not exist: {}", path));
+		return orderedJson;
+	}
+
+	const auto orderedJsonStr = LoadFile(path.data());
+	orderedJson = ordered_json::parse(orderedJsonStr, nullptr, false);
+	
+	return orderedJson;
+}
+	
 }
 
 int ImGui::InputTextCallback(ImGuiInputTextCallbackData* data)
