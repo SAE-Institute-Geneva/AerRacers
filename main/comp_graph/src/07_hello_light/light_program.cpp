@@ -30,7 +30,7 @@ namespace neko
 void HelloLightProgram::Init()
 {
 	cube_.Init();
-	const auto config =  BasicEngine::GetInstance()->config;
+	const auto config =  BasicEngine::GetInstance()->GetConfig();
     lightShader_.LoadFromFile(
             config.dataRootPath + "shaders/07_hello_light/lamp.vert",
             config.dataRootPath + "shaders/07_hello_light/lamp.frag");
@@ -47,7 +47,7 @@ void HelloLightProgram::Update(seconds dt)
 		Cos(radian_t(time_)),
 		0.0f,
 		Sin(radian_t(time_)))* lightDist_;
-	const auto& config = BasicEngine::GetInstance()->config;
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	camera_.SetAspect(config.windowSize.x, config.windowSize.y);;
 	camera_.Update(dt);
 }
@@ -113,4 +113,6 @@ void HelloLightProgram::OnEvent(const SDL_Event& event)
 {
 	camera_.OnEvent(event);
 }
+
+
 }

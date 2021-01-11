@@ -26,12 +26,11 @@
 #include <unordered_map>
 #include <string>
 #include <vector>
-
 #include <xxhash.h>
-
+#include <engine/globals.h>
+#include "utils/action_utility.h"
 #include "engine/globals.h"
 #include "engine/system.h"
-#include "utilities/action_utility.h"
 
 namespace neko
 {

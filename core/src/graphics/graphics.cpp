@@ -40,6 +40,9 @@ namespace neko
 Renderer::Renderer() :
     renderAllJob_([this]
         {
+#ifdef EASY_PROFILE_USE
+            EASY_BLOCK("Renderer Update");
+#endif
             auto* engine = BasicEngine::GetInstance();
             PreRender();
             ClearScreen();
@@ -62,7 +65,7 @@ void Renderer::Render(RenderCommandInterface* command)
 void Renderer::RenderAll()
 {
 #ifdef EASY_PROFILE_USE
-    EASY_BLOCK("RenderAllCPU");
+    EASY_BLOCK("Render Commands");
 #endif
 	
 	for (auto* renderCommand : currentCommandBuffer_)
@@ -99,7 +102,7 @@ void Renderer::RegisterSyncBuffersFunction(SyncBuffersInterface* syncBuffersInte
 void Renderer::SyncBuffers()
 {
 #ifdef EASY_PROFILE_USE
-    EASY_BLOCK("Swapping Render Command");
+    EASY_BLOCK("Sync Renderer");
 #endif
     std::swap(currentCommandBuffer_, nextCommandBuffer_);
     nextCommandBuffer_.clear();
@@ -109,9 +112,20 @@ void Renderer::SyncBuffers()
 
 void Renderer::PreRender()
 {
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("Renderer Pre Render");
+#endif
     using namespace std::chrono_literals;
     microseconds availableLoadingTime(8000);
-    while (availableLoadingTime < 8001us)
+    bool preRenderJobEmpty = false;
+    {
+        std::lock_guard<std::mutex> lock(preRenderJobsMutex_);
+        if (preRenderJobs_.empty())
+        {
+            preRenderJobEmpty = true;
+        }
+    }
+    while (!preRenderJobEmpty && availableLoadingTime < 8001us)
     {
         std::chrono::time_point<std::chrono::system_clock> start =
             std::chrono::system_clock::now();
@@ -124,6 +138,10 @@ void Renderer::PreRender()
             {
                 job = preRenderJobs_.front();
                 preRenderJobs_.erase(preRenderJobs_.begin());
+            }
+            else
+            {
+                preRenderJobEmpty = true;
             }
         }
 
@@ -145,7 +163,7 @@ void Renderer::PreRender()
 void Renderer::Destroy()
 {
 #ifdef EASY_PROFILE_USE
-    EASY_BLOCK("ClosingFromEngine");
+    EASY_BLOCK("Closing Renderer");
 #endif
 
     std::lock_guard<std::mutex> lock(statusMutex_);

@@ -28,7 +28,7 @@
 #include <mathematics/matrix.h>
 #include <gl/texture.h>
 #include "gl/shader.h"
-#include "utilities/json_utility.h"
+#include "utils/json_utility.h"
 
 namespace neko::gl
 {
@@ -51,7 +51,7 @@ enum class TextureType
 class Material
 {
 public:
-    explicit Material(gl::TextureManager& textureManager);
+    explicit Material(gl::TextureManager& textureManager, const FilesystemInterface& filesystem);
     void LoadFromFile(std::string_view path);
 
     void SetShader(gl::Shader& shader);
@@ -103,7 +103,7 @@ protected:
     void LoadTextures();
     void LoadShader();
 
-
+    const FilesystemInterface& filesystem_;
     gl::TextureManager& textureManager_;
     gl::Shader shader_;
     std::map<std::string, UniformId> uniformsMap_;
@@ -120,6 +120,6 @@ protected:
             {TextureType::AO, "aoMap"}
     };
     Job loadingMaterialContentJob_;
-    ResourceJob loadMaterialJsonJob_;
+    LoadingAssetJob loadMaterialJsonJob_;
 };
 }

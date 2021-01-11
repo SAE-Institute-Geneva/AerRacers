@@ -1,3 +1,5 @@
+
+if(Neko_VULKAN)
 include_directories("include/")
 
 file(GLOB_RECURSE vk_engine_src include/*.h src/*.cpp)
@@ -16,3 +18,5 @@ if(EMSCRIPTEN)
             "${bin_link_flags} -s USE_SDL=2 ")
 endif()
 set_target_properties (vk_engine PROPERTIES FOLDER Neko\\Main)
+
+endif()

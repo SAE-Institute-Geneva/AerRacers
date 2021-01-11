@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/system.h"
 #include "sdl_engine/sdl_engine.h"
-#include "vk/graphics.h"
+#include "sdl_engine/sdl_camera.h"
 
 namespace neko::vk
 {

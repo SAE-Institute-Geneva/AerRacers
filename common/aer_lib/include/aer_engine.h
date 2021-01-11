@@ -46,6 +46,7 @@ enum class ModeEnum : std::uint8_t {
 class AerEngine final : public sdl::SdlEngine {
 public:
     explicit AerEngine(
+        const FilesystemInterface& filesystem,
         Configuration* config = nullptr,
         ModeEnum mode = ModeEnum::EDITOR);
 

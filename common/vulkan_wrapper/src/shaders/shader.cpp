@@ -3,7 +3,7 @@
 #include <utility>
 
 #include "mathematics/hash.h"
-#include "utilities/file_utility.h"
+#include "utils/file_utility.h"
 #include "vk/graphics.h"
 
 namespace neko::vk

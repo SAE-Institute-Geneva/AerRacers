@@ -1,6 +1,6 @@
 #pragma once
 #include "mathematics/hash.h"
-#include "utilities/json_utility.h"
+#include "utils/json_utility.h"
 #include "vk/material/material.h"
 
 namespace neko::vk
@@ -10,7 +10,7 @@ class DiffuseMaterial : public Material
 public:
 	explicit DiffuseMaterial(
 			const std::string& name = "",
-			Color4 color = Color::white,
+			Color4 color = Color4(Color::white, 1.0f),
 			const std::neko::optional<const Image2d&>& textureAlbedo = std::neko::nullopt,
 			const std::neko::optional<const Image2d&>& textureSpecular = std::neko::nullopt,
 			const std::neko::optional<const Image2d&>& textureNormal = std::neko::nullopt);

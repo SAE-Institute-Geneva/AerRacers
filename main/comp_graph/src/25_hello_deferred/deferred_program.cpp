@@ -34,7 +34,7 @@ namespace neko
 void HelloDeferredProgram::Init()
 {
     textureManager_.Init();
-    const auto& config = BasicEngine::GetInstance()->config;
+    const auto& config = BasicEngine::GetInstance()->GetConfig();
     glCheckError();
     floor_.Init();
     screenQuad_.Init();
@@ -63,10 +63,10 @@ void HelloDeferredProgram::Init()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glCheckError();
 
-    model_.LoadModel(config.dataRootPath+"model/nanosuit2/nanosuit.obj");
+    modelId_ = modelManager_.LoadModel(config.dataRootPath+"model/nanosuit2/nanosuit.obj");
     cube_.Init();
-    containerId_ = textureManager_.LoadTexture(config.dataRootPath + "material/container2.png");
-    containerSpecularId_ = textureManager_.LoadTexture(config.dataRootPath + "material/container2_specular.png");
+    containerId_ = textureManager_.LoadTexture(config.dataRootPath + "material/container2.png", Texture::DEFAULT);
+    containerSpecularId_ = textureManager_.LoadTexture(config.dataRootPath + "material/container2_specular.png", Texture::DEFAULT);
 
 
     camera_.position = Vec3f(0.0f, 3.0f, -3.0f);
@@ -88,7 +88,7 @@ void HelloDeferredProgram::Update(seconds dt)
 {
 
     std::lock_guard<std::mutex> lock(updateMutex_);
-    const auto& config = BasicEngine::GetInstance()->config;
+    const auto& config = BasicEngine::GetInstance()->GetConfig();
     camera_.SetAspect(config.windowSize.x, config.windowSize.y);
     camera_.Update(dt);	textureManager_.Update(dt);
 
@@ -102,7 +102,7 @@ void HelloDeferredProgram::Destroy()
     glDeleteTextures(1, &gAlbedoSpec_);
     floor_.Destroy();
     screenQuad_.Destroy();
-    model_.Destroy();
+    modelManager_.Destroy();
     cube_.Destroy();
     glDeleteBuffers(1, &rbo_);
 
@@ -124,19 +124,19 @@ void HelloDeferredProgram::DrawImGui()
 
 void HelloDeferredProgram::Render()
 {
-    if(!model_.IsLoaded())
+    if(!modelManager_.IsLoaded(modelId_))
     {
         return;
     }
     if (containerSpecular_ == INVALID_TEXTURE_NAME)
     {
-        containerSpecular_ = textureManager_.GetTexture(containerSpecularId_).name;
+        containerSpecular_ = textureManager_.GetTextureName(containerSpecularId_);
         if (containerSpecular_ == INVALID_TEXTURE_NAME)
 			return;
     }
     if(container_ == INVALID_TEXTURE_NAME)
     {
-        container_ = textureManager_.GetTexture(containerId_).name;
+        container_ = textureManager_.GetTextureName(containerId_);
         if (container_ == INVALID_TEXTURE_NAME)
             return;
         return;
@@ -215,7 +215,7 @@ void HelloDeferredProgram::OnEvent(const SDL_Event& event)
 void HelloDeferredProgram::CreateFramebuffer()
 {
 	
-    const auto& config = BasicEngine::GetInstance()->config;
+    const auto& config = BasicEngine::GetInstance()->GetConfig();
     glCheckError();
     glGenFramebuffers(1, &gBuffer_);
     glBindFramebuffer(GL_FRAMEBUFFER, gBuffer_);
@@ -283,7 +283,7 @@ void HelloDeferredProgram::RenderScene(const gl::Shader& shader)
             model = Transform3d::Translate(model, Vec3f(2.0f*(float(x)+0.5f), 0.0f, 2.0f*(float(z)+2.5f)));
             shader.SetMat4("model", model);
             shader.SetMat4("transposeInverseModel", model.Inverse().Transpose());
-            model_.Draw(shader);
+            modelManager_.GetModel(modelId_)->Draw(shader);
         }
     }
     auto model = Mat4f::Identity;

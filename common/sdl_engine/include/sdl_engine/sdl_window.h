@@ -26,7 +26,7 @@
 
 #include "engine/window.h"
 #include <SDL.h>
-#include <utilities/time_utility.h>
+#include <utils/time_utility.h>
 
 namespace neko::sdl
 {
@@ -47,5 +47,7 @@ protected:
 
     virtual void InitImGui();
     SDL_Window* window_ = nullptr;
+
+    int flags_ = 0;
 };
 }
