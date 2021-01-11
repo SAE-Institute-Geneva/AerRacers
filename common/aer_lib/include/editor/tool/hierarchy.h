@@ -13,9 +13,15 @@ namespace neko::aer
 		void Init() override;
 		void Update(seconds dt) override;
 		void DrawImGui() override;
-		void DisplayChildren(Entity entityIndex);
+		void DisplayChildren(Entity entityParent);
 		void Destroy() override;
 		void OnEvent(const SDL_Event& event) override;
+
+	private:
+		size_t selectedEntity = -1;
+
+		const ImGuiTreeNodeFlags nodeTreeNotSelectedFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+		const ImGuiTreeNodeFlags nodeTreeSelectedFlags = nodeTreeNotSelectedFlags | ImGuiTreeNodeFlags_Selected;  // Add flag to node flags to show it's selected
 
 	};
 }
