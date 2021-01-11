@@ -479,7 +479,7 @@ namespace glTF2
 
 		/******************* Variables *******************/
 
-		//std::string uri; //!< The uri of the buffer. Can be a filepath, a data uri, etc. (required)
+		//std::string uri; //!< The uri of the buffer. Can be a filepath_, a data uri, etc. (required)
 		size_t byteLength; //!< The length of the buffer in bytes. (default: 0)
 		//std::string type; //!< XMLHttpRequest responseType (default: "arraybuffer")
         size_t capacity = 0; //!< The capacity of the buffer in bytes. (default: 0)

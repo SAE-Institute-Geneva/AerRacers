@@ -1322,7 +1322,7 @@ SDL_GameControllerLoadHints()
 }
 
 /*
- * Fill the given buffer with the expected controller mapping filepath. 
+ * Fill the given buffer with the expected controller mapping filepath_. 
  * Usually this will just be SDL_HINT_GAMECONTROLLERCONFIG_FILE, but for
  * Android, we want to get the internal storage path.
  */

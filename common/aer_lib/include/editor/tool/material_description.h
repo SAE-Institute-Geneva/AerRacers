@@ -41,16 +41,17 @@ public:
 	void DrawImGui() override;
 	void Destroy() override;
 	void OnEvent(const SDL_Event& event) override;
+	void LoadMaterialFiles();
 
 private:
 
-	const std::string filepath = "../../data/aer_racers/materials/";
-	std::vector<std::string> materialsPaths;
-	std::vector<json> materialsJson;
-	json selectedMaterial;
-	size_t selectedMaterialIndex = 0;
-	std::string selectedMaterialName;
-	const char* typeLabels[1] = {"Diffuse"};
+	const std::string filepath_ = "../../data/aer_racers/materials/";
+	std::vector<std::string> materialsPaths_;
+	std::vector<json> materialsJson_;
+	json selectedMaterial_;
+	std::string selectedMaterialName_;
+	int selectedMaterialIndex_;
+	const char* typeLabels_[1] = {"Diffuse"};
 };
 }
 

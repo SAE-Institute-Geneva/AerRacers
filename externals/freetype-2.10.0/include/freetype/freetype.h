@@ -481,7 +481,7 @@ FT_BEGIN_HEADER
    *   or more @FT_Size objects.
    *
    *   Use @FT_New_Face or @FT_Open_Face to create a new face object from a
-   *   given filepath or a custom input stream.
+   *   given filepath_ or a custom input stream.
    *
    *   Use @FT_Done_Face to destroy it (along with its slot and sizes).
    *
