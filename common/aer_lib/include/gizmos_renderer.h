@@ -1,8 +1,14 @@
 #pragma once
+#ifdef NEKO_GLES3
+
+#include "gl/shape.h"
+#include <gl/shader.h>
+#endif
 #include <graphics/camera.h>
 #include <graphics/color.h>
 #include <graphics/graphics.h>
 #include <utils/service_locator.h>
+
 
 namespace neko
 {
@@ -88,70 +94,9 @@ class NullGizmosRenderer final : public IGizmosRenderer
 
 	Vec3f GetCameraPos() const override { return {}; }
 };
-#ifdef NEKO_GLES3
-
-#include <gl/shader.h>
-#include <gl/shape.h>
-
-//-----------------------------------------------------------------------------
-// Gles3GizmosRenderer
-//-----------------------------------------------------------------------------
-/// \brief Draw gizmos
-class Gles3GizmosRenderer final : public RenderCommandInterface,
-                             public SystemInterface,
-                             public IGizmosRenderer
-{
-public:
-	explicit Gles3GizmosRenderer(Camera3D* camera);
-
-	void Init() override;
-
-	void Update(seconds dt) override;
-
-	void Render() override;
-
-	void Destroy() override;
-
-	void Start();
-	void Stop();
-	
-
-	void DrawCube(
-		const Vec3f& pos,
-		const Vec3f& size = Vec3f::one,
-		const Color4& color = Color4(Color::red, 1.0f),
-		float lineThickness = 1.0f) override;
-
-	void DrawLine(
-		const Vec3f& startPos,
-		const Vec3f& endPos,
-		const Color4& color = Color4(Color::red, 1.0f),
-		float lineThickness = 1.0f) override;
-
-	void SetCamera(Camera3D* camera) override;
-	Camera3D* GetCamera() const override { return camera_; }
-	Vec3f GetCameraPos() const override { return camera_->position; }
-		
-private:
-	std::mutex renderMutex_;
-
-	Camera3D* camera_;
-	gl::RenderWireFrameCuboid cube_{Vec3f::zero, Vec3f::one};
-	gl::RenderLine3d line_{Vec3f::zero, Vec3f::one};
-
-	gl::Shader shaderCube_;
-	gl::Shader shaderLine_;
-
-	std::vector<Gizmos> gizmosQueue_;
-	bool isRunning_ = true;
-};
-#endif
 
 
 #ifdef NEKO_GLES3
-
-#include <gl/shader.h>
-#include <gl/shape.h>
 
 //-----------------------------------------------------------------------------
 // Gles3GizmosRenderer
