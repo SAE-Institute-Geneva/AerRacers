@@ -11,7 +11,7 @@ source_group("Validator"			FILES ${VALIDATOR_FILES})
 
 
 function(data_generate binary)
-
+    set(CMAKE_BUILD_TYPE Release)
     file(GLOB_RECURSE TEXT_FILES
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.json"
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.txt"
