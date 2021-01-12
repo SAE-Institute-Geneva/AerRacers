@@ -33,9 +33,11 @@ public:
 		engine_.GetEntityManager().CreateEntity();
 		engine_.GetEntityManager().CreateEntity();
 		engine_.GetEntityManager().CreateEntity();
+		engine_.GetEntityManager().CreateEntity();
 		engine_.GetEntityManager().SetEntityParent(0, 1);
 		engine_.GetEntityManager().SetEntityParent(1, 2);
 		engine_.GetEntityManager().SetEntityParent(2, 3);
+		engine_.GetEntityManager().SetEntityParent(4, 3);
 	}
 
 	void Update(neko::seconds dt) override // Where we simulate tests
