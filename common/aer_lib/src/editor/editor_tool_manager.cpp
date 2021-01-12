@@ -2,6 +2,7 @@
 #include "editor/editor_tool_manager.h"
 #include "editor/tool/logger.h"
 #include "editor/tool/hierarchy.h"
+#include "editor/tool/inspector.h"
 
 namespace neko::aer
 {
