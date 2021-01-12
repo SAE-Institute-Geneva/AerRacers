@@ -57,11 +57,10 @@ private:
     AerEngine& engine_;
     std::vector<std::unique_ptr<EditorToolInterface>> tools_;
 
-    std::string toolNames_[4]{
+    std::string toolNames_[3]{
         "Tool",
         "Logger",
-        "Hierarchy",
-    	"Inspector"
+        "Hierarchy"
     };
 };
 }
