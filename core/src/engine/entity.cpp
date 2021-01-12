@@ -28,6 +28,9 @@
 #include "imgui.h"
 
 #include "engine/entity.h"
+
+#include <iso646.h>
+
 #include "engine/component.h"
 #include "engine/log.h"
 #include "engine/globals.h"

@@ -19,12 +19,12 @@ TEST(Materials, TestSaveShader)
 	shader.AddAttribute(Attribute("inTexCoords", 2, sizeof(Vec2f), Attribute::Type::VEC2F));
 
 	UniformBlock ubo("UboScene", 0, sizeof(Mat4f) * 2, VK_SHADER_STAGE_VERTEX_BIT);
-	ubo.AddUniform(Uniform("view", 0, 0, sizeof(Mat4f), VK_SHADER_STAGE_VERTEX_BIT));
-	ubo.AddUniform(Uniform("proj", 0, sizeof(Mat4f), sizeof(Mat4f), VK_SHADER_STAGE_VERTEX_BIT));
+	ubo.AddUniform(Uniform("view", 0, sizeof(Mat4f)));
+	ubo.AddUniform(Uniform("proj", sizeof(Mat4f), sizeof(Mat4f)));
 
 	UniformBlock object("UboObject", 1, sizeof(Mat4f) + sizeof(Vec4f), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT);
-	object.AddUniform(Uniform("model", 0, 0, sizeof(Mat4f), VK_SHADER_STAGE_VERTEX_BIT));
-	object.AddUniform(Uniform("color", 0, sizeof(Mat4f), sizeof(Vec4f), VK_SHADER_STAGE_FRAGMENT_BIT));
+	object.AddUniform(Uniform("model", 0, sizeof(Mat4f)));
+	object.AddUniform(Uniform("color", sizeof(Mat4f), sizeof(Vec4f)));
 
 	shader.AddUniformBlock(ubo);
 	shader.AddUniformBlock(object);

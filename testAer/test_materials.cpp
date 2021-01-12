@@ -9,8 +9,10 @@ namespace neko::vk
 {
 TEST(Materials, TestSaveMaterial)
 {
-	DiffuseMaterial material("Test", Color4(Color::blue, 1.0f));
-	material.SetShaderPath("shaders/quad_color.aershader");
+	auto image2d = Image2d("aer_racers/textures/stone.png.ktx");
+	auto image = std::neko::optional<const Image2d&>(image2d);
+	DiffuseMaterial material("Test", Color::blue, image);
+	material.SetShaderPath("aer_racers/shaders/quad_color.aershader");
 
 	ordered_json materialJson = material.ToJson();
 	WriteStringToFile("../../data/aer_racers/materials/test.aermat", materialJson.dump(4));
@@ -29,4 +31,4 @@ TEST(Materials, TestLoadMaterial)
 	EXPECT_EQ(material.GetType(), vk::MaterialType::DIFFUSE);
 }
 }
-#endif
+#endif 
