@@ -1,5 +1,4 @@
 #include "editor/tool/inspector.h"
-#include <editor/tool/hierarchy.h>
 
 namespace neko::aer
 {

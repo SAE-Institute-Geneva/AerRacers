@@ -24,7 +24,7 @@
  SOFTWARE.
  */
 
-#ifndef NEKO_GLES3
+#ifdef NEKO_GLES3
 
 #include <mathematics/vector.h>
 #include "gl/gles3_include.h"
