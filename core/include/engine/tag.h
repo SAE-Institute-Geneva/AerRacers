@@ -34,6 +34,9 @@ namespace neko
 using TagIndex = unsigned;
 using LayerIndex = unsigned;
 
+const std::string INVALID_TAG = "Untagged";
+const std::string INVALID_LAYER = "Default";
+
 class SceneManager;
 
 //-----------------------------------------------------------------------------
@@ -63,6 +66,13 @@ public:
 
     virtual bool CompareEntitiesTag(Entity entityA, Entity entityB) const = 0;
 
+    virtual std::string GetEntityTag(Entity entity) const = 0;
+
+    virtual TagIndex GetEntityTagIndex(Entity entity) const = 0;
+
+    virtual std::string GetEntityLayer(Entity entity) const = 0;
+
+    virtual LayerIndex GetEntityLayerIndex(Entity entity) const = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -121,6 +131,23 @@ public:
     {
         return false;
     }
+
+    std::string GetEntityTag(Entity entity) const override
+    {
+        return "Untagged";
+    }
+    TagIndex GetEntityTagIndex(Entity entity) const override
+    {
+        return 0;
+    }
+    std::string GetEntityLayer(Entity entity) const override
+    {
+        return "Default";
+    }
+    LayerIndex GetEntityLayerIndex(Entity entity) const override
+    {
+        return 0;
+    }
 };
 
 //-----------------------------------------------------------------------------
@@ -153,6 +180,10 @@ public:
     bool IsEntityLayer(
         Entity entity,
         const std::string& entityLayer) const override;
+    std::string GetEntityTag(Entity entity) const override;
+    TagIndex GetEntityTagIndex(Entity entity) const override;
+    std::string GetEntityLayer(Entity entity) const override;
+    LayerIndex GetEntityLayerIndex(Entity entity) const override;
 private:
 	std::vector<TagIndex> entityTagArray_;
 	std::vector<LayerIndex> entityLayerArray_;

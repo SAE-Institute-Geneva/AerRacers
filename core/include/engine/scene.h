@@ -46,8 +46,8 @@ struct Scene
 {
     std::string sceneName = "New Scene";
     std::string scenePath = "";
-    std::vector<std::string> layers = {};
-    std::vector<std::string> tags = {};
+    std::vector<std::string> layers = {INVALID_LAYER};
+    std::vector<std::string> tags = { INVALID_TAG };
 };
 
 class SceneManager 
@@ -60,9 +60,16 @@ public:
     virtual void ParseSceneJson(const json& sceneJson);
     bool LoadScene(const std::string_view& jsonPath);
     const Scene& GetCurrentScene() const { return currentScene_;}
+    void SetSceneName(const std::string& sceneName) { currentScene_.sceneName = sceneName; }
 	static SceneId GenerateSceneId() { return sole::uuid0(); };
 	static std::string_view GetExtension();
     void SaveCurrentScene();
+    virtual json WriteEntityJson(Entity entity);
+    virtual json WriteSceneJson();
+    virtual void AddTag(const std::string& tagName);
+    virtual void AddLayer(const std::string& layerName);
+    virtual const std::vector<std::string>& GetTags() const;
+    virtual const std::vector<std::string>& GetLayers() const;
 protected:
     const FilesystemInterface& filesystem_;
     Scene currentScene_;

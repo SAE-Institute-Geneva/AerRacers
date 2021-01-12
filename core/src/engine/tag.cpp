@@ -67,7 +67,6 @@ void TagManager::SetEntityTag(Entity entity, TagIndex entityTagIndex)
     else
     {
         logDebug("Entity invalid");
-        return;
     }
 }
 
@@ -81,7 +80,6 @@ void TagManager::SetEntityLayer(Entity entity, LayerIndex entityLayerIndex)
     else
     {
         logDebug("Entity invalid");
-        return;
     }
 }
 
@@ -175,5 +173,61 @@ bool TagManager::IsEntityLayer(
         const TagIndex entityTagIndex = entityLayerIt - layers.begin();
         return IsEntityLayer(entity, entityTagIndex);
     }
+}
+
+std::string TagManager::GetEntityTag(Entity entity) const
+{
+    if (entityTagArray_.empty()) {
+        logDebug("No Tags");
+        return INVALID_TAG;
+    }
+    auto tags = sceneManager_.GetCurrentScene().tags;
+    TagIndex tagIndex = GetEntityTagIndex(entity);
+    if (tagIndex >= entityTagArray_.size()) {
+        logDebug("Tag invalid");
+        return INVALID_TAG;
+    }
+    return tags[tagIndex];
+}
+
+TagIndex TagManager::GetEntityTagIndex(Entity entity) const
+{
+    if (entityTagArray_.empty()) {
+        logDebug("No Tags");
+        return 0;
+    }
+    if (entity == INVALID_ENTITY || entity >= entityTagArray_.size()) {
+        logDebug("Entity invalid");
+        return 0;
+    }
+    return entityTagArray_[entity];
+}
+
+std::string TagManager::GetEntityLayer(Entity entity) const
+{
+    if (entityLayerArray_.empty()) {
+        logDebug("No Layers");
+        return INVALID_LAYER;
+    }
+    auto layers = sceneManager_.GetCurrentScene().layers;
+    LayerIndex layerIndex = GetEntityLayerIndex(entity);
+    if (layerIndex >= entityLayerArray_.size()) {
+        logDebug("Layer invalid");
+        return INVALID_LAYER;
+    }
+    return layers[layerIndex];
+}
+
+LayerIndex TagManager::GetEntityLayerIndex(Entity entity) const
+{
+    if (entityLayerArray_.empty()) {
+        logDebug("No Layers");
+        return 0;
+    }
+    if (entity == INVALID_ENTITY || entity >= entityLayerArray_.size()) {
+        logDebug("Entity invalid");
+        return 0;
+    }
+    return entityLayerArray_[entity];
 }
 }

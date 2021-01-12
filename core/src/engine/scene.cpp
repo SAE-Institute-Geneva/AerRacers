@@ -28,6 +28,9 @@
 
 #include <fmt/format.h>
 
+
+#include "engine/configuration.h"
+#include "engine/engine.h"
 #include "engine/tag.h"
 
 namespace neko
@@ -166,14 +169,20 @@ void SceneManager::ParseSceneJson(const json& sceneJson)
     {
         for (auto& tag : sceneJson["tags"])
         {
-            currentScene_.tags.push_back(tag);
+            if (tag != INVALID_TAG)
+            {
+                currentScene_.tags.push_back(tag);
+            }
         }
     }
     if (CheckJsonParameter(sceneJson, "layers", json::value_t::array))
     {
         for (auto& layer : sceneJson["layers"])
         {
-            currentScene_.layers.push_back(layer);
+            if (layer != INVALID_LAYER)
+            {
+                currentScene_.layers.push_back(layer);
+            }
         }
     }
     if (CheckJsonParameter(sceneJson, "objects", json::value_t::array))
@@ -205,5 +214,93 @@ std::string_view SceneManager::GetExtension()
 {
     return sceneExtension;
 }
+
+void SceneManager::SaveCurrentScene()
+{
+    const neko::Configuration config = neko::BasicEngine::GetInstance()->GetConfig();
+    WriteStringToFile(config.dataRootPath + "scenes/" + currentScene_.sceneName + ".aerscene", WriteSceneJson().dump(4));
+}
+
+json SceneManager::WriteEntityJson(Entity entity)
+{
+    json entityJson = json::object();
+    //entity["name"] = TODO(@Luca) Implement name
+    entityJson["tag"] = TagLocator::get().GetEntityTag(entity);
+    entityJson["instanceId"] = entity;
+    entityJson["parent"] = entityManager_.GetEntityParent(entity);
+    entityJson["layer"] = TagLocator::get().GetEntityLayer(entity);
+    //entityJson["isActive"] = TagLocator::get().GetEntityTag(entity);  //TODO (@Luca) Set active
+    entityJson["transform"] = json::object();
+    entityJson["transform"] = transformManager_.GetJsonFromComponent(entity);
+    entityJson["transform"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
+    //entityJson["rigidbody"] = json::object();
+    //entityJson["rigidbody"] = transformManager_.GetJsonFromComponent(entity);
+    //entityJson["rigidbody"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
+    //entityJson["boxCollider"] = json::object();
+    //entityJson["boxCollider"] = transformManager_.GetJsonFromComponent(entity);
+    //entityJson["boxCollider"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
+    //entityJson["sphereCollider"] = json::object();
+    //entityJson["sphereCollider"] = transformManager_.GetJsonFromComponent(entity);
+    //entityJson["sphereCollider"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
+    //entityJson["shipControl"] = json::object();
+    //entityJson["shipControl"] = transformManager_.GetJsonFromComponent(entity);
+    //entityJson["shipControl"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
+    //entityJson["shipRotation"] = json::object();
+    //entityJson["shipRotation"] = transformManager_.GetJsonFromComponent(entity);
+    //entityJson["shipRotation"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
+    //entityJson["modelRenderer"] = json::object();
+    //entityJson["modelRenderer"] = transformManager_.GetJsonFromComponent(entity);
+    //entityJson["modelRenderer"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
+    return entityJson;
+}
+
+json SceneManager::WriteSceneJson()
+{
+    json scene = json::object();
+    scene["name"] = currentScene_.sceneName;
+    scene["tags"] = currentScene_.tags;
+    scene["layers"] = currentScene_.layers;
+    scene["objects"] = json::array_t();
+    for (int i = 0; i < entityManager_.GetEntitiesNmb(); ++i) {
+        scene["objects"][i] = WriteEntityJson(i);
+    }
+    return scene;
+}
+
+void SceneManager::AddTag(const std::string& newTagName)
+{
+    const auto entityTagIt = std::find_if(currentScene_.tags.begin(), currentScene_.tags.end(),
+        [newTagName](std::string tagName)
+        {
+            return newTagName == tagName;
+        });
+    if (entityTagIt == currentScene_.tags.end()) {
+        currentScene_.tags.push_back(newTagName);
+    } else {
+        logDebug("Tag already set");
+    }
+}
+void SceneManager::AddLayer(const std::string& newLayerName)
+{
+    const auto entityLayerIt = std::find_if(currentScene_.layers.begin(), currentScene_.layers.end(),
+        [newLayerName](std::string layerName)
+        {
+            return newLayerName == layerName;
+        });
+    if (entityLayerIt == currentScene_.layers.end()) {
+        currentScene_.layers.push_back(newLayerName);
+    }
+    else {
+        logDebug("Layer already set");
+    }
+}
+const std::vector<std::string>& SceneManager::GetTags() const
+{
+    return currentScene_.tags;
+}
+const std::vector<std::string>& SceneManager::GetLayers() const {
+    return currentScene_.layers;
+}
+
 
 }
