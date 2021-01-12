@@ -1,6 +1,7 @@
 #include "vk/material/diffuse_material.h"
 
 #include "engine/engine.h"
+#include "vk/models/mesh_instance.h"
 
 namespace neko::vk
 {
@@ -199,14 +200,14 @@ void DiffuseMaterial::ResetPipeline()
 							config.dataRootPath + shaderPath_,
 							{
 									Vertex::GetVertexInput(0),
-									//ModelInstance::Instance::GetVertexInput(1)
+									MeshInstance::Instance::GetVertexInput(1)
 							},
 							GraphicsPipeline::Mode::MRT,
 							GraphicsPipeline::Depth::READ_WRITE,
 							VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
 							VK_POLYGON_MODE_FILL,
 							cullMode,
-							VK_FRONT_FACE_COUNTER_CLOCKWISE
+							VK_FRONT_FACE_CLOCKWISE
 					)));
 }
 
@@ -223,17 +224,17 @@ ordered_json DiffuseMaterial::ToJson() const
 
 	if (diffuse_)
 	{
-		materialJson["diffusePath"] = diffuse_->GetFilename();
+		materialJson["diffusePath"] = diffuse_->GetFilePath();
 	}
 
 	if (specular_)
 	{
-		materialJson["specularPath"] = specular_->GetFilename();
+		materialJson["specularPath"] = specular_->GetFilePath();
 	}
 
 	if (normal_)
 	{
-		materialJson["normalPath"] = normal_->GetFilename();
+		materialJson["normalPath"] = normal_->GetFilePath();
 	}
 
 	return materialJson;
@@ -241,32 +242,33 @@ ordered_json DiffuseMaterial::ToJson() const
 
 void DiffuseMaterial::FromJson(const json& materialJson)
 {
-	name_ = materialJson["name"];
-	shaderPath_ = materialJson["shaderPath"];
+	name_ = materialJson["name"].get<std::string>();
+	shaderPath_ = materialJson["shaderPath"].get<std::string>();
 
 	Color4 color;
-	color.r = materialJson["color"]["r"];
-	color.g = materialJson["color"]["g"];
-	color.b = materialJson["color"]["b"];
-	color.a = materialJson["color"]["a"];
+	color.r = materialJson["color"]["r"].get<float>();
+	color.g = materialJson["color"]["g"].get<float>();
+	color.b = materialJson["color"]["b"].get<float>();
+	color.a = materialJson["color"]["a"].get<float>();
 	SetColor(color);
 
+	auto& textureManager = TextureManagerLocator::get();
 	if (CheckJsonExists(materialJson, "diffusePath"))
 	{
-		auto image = Image2d(materialJson["diffusePath"]);
-		SetDiffuse(Image2d(image));
+		const auto& path = materialJson["diffusePath"].get<std::string>();
+		SetDiffuse(textureManager.GetImage2d(path));
 	}
 
 	if (CheckJsonExists(materialJson, "specularPath"))
 	{
-		auto image = Image2d(materialJson["specularPath"]);
-		SetSpecular(Image2d(image));
+		const auto& path = materialJson["specularPath"].get<std::string>();
+		SetDiffuse(textureManager.GetImage2d(path));
 	}
 
 	if (CheckJsonExists(materialJson, "normalPath"))
 	{
-		auto image = Image2d(materialJson["normalPath"]);
-		SetNormal(Image2d(image));
+		const auto& path = materialJson["normalPath"].get<std::string>();
+		SetDiffuse(textureManager.GetImage2d(path));
 	}
 }
 }

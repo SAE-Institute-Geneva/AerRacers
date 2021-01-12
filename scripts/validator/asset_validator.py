@@ -49,7 +49,7 @@ def define_asset_type(filename) -> AssetType:
         return AssetType.TEXTURE
     if extension == '.mtl' or extension == '.mat':
         return AssetType.MTL
-    if extension == '.obj':
+    if extension == '.obj' or extension == '.fbx':
         return AssetType.OBJ
     if extension == '.vert':
         return AssetType.VERT_SHADER

@@ -2,6 +2,7 @@
 #include "mathematics/hash.h"
 #include "utils/json_utility.h"
 #include "vk/material/material.h"
+#include "vk/images/image2d.h"
 
 namespace neko::vk
 {
@@ -39,6 +40,9 @@ public:
 	[[nodiscard]] std::neko::optional<const Image2d&> GetNormal() const { return normal_; }
 	void ResetNormal();
 
+	void SetSpecularExponent(const float specularExp) { specularExp_ = specularExp; }
+	[[nodiscard]] float GetSpecularExponent() const { return specularExp_; }
+
 	void SetRenderMode(RenderMode renderMode) override;
 	[[nodiscard]] RenderMode GetRenderMode() const override { return renderMode_; }
 
@@ -48,12 +52,14 @@ public:
 private:
 	void ResetPipeline();
 
-	std::string shaderPath_;
+	std::string shaderPath_ = "aer_racers/shaders/quad_color_instancing.aershader";
 
 	Color4 color_;
 	std::neko::optional<const Image2d&> diffuse_;
 	std::neko::optional<const Image2d&> specular_;
 	std::neko::optional<const Image2d&> normal_;
+
+	float specularExp_ = 32.0f;
 
 	inline static const StringHash kDiffuseHash = HashString("diffuse");
 	inline static const StringHash kSpecularHash = HashString("specular");

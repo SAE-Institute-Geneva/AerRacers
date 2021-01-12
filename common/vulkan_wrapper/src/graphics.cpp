@@ -27,11 +27,11 @@
 ---------------------------------------------------------- */
 #include "vk/graphics.h"
 
+#include "ktxvulkan.h"
 #include "mathematics/hash.h"
 
 #include "vk/models/quad.h"
 #include "vk/renderers/renderer_editor.h"
-#include "vk/subrenderers/subrenderer_opaque.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -116,9 +116,6 @@ void VkRenderer::AfterRenderLoop()
     {
         ResetRenderStages();
         renderer->Start();
-
-	    const auto& config = BasicEngine::GetInstance()->GetConfig();
-	    materialManager_.AddMaterial(config.dataRootPath + "aer_racers/materials/test.aermat");
     }
 
     const auto acquireResult = swapchain->AcquireNextImage(
@@ -368,10 +365,10 @@ void VkRenderer::SetWindow(sdl::VulkanWindow* window)
     vkWindow = window;
 }
 
-void VkRenderer::SetRenderer(std::unique_ptr<vk::Renderer>&& renderer)
+void VkRenderer::SetRenderer(std::unique_ptr<vk::RendererEditor>&& newRenderer)
 {
-    this->renderer = std::move(renderer);
-    this->renderer->Init();
+    renderer = std::move(newRenderer);
+    renderer->Init();
 }
 
 RenderStage& VkRenderer::GetRenderStage(const uint32_t index) const
@@ -379,3 +376,4 @@ RenderStage& VkRenderer::GetRenderStage(const uint32_t index) const
     return renderer->GetRenderStage(index);
 }
 }
+ 

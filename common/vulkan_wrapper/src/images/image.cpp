@@ -5,7 +5,6 @@
 
 namespace neko::vk
 {
-
 Image::Image(
         const VkFilter filter,
         const VkSamplerAddressMode addressMode,
@@ -26,14 +25,28 @@ Image::Image(
           addressMode_(addressMode),
           layout_(layout) {}
 
+Image::Image(const ktxVulkanTexture& texture)
+		: extent_({texture.width, texture.height, texture.depth}),
+		format_(texture.imageFormat),
+		sample_(),
+		usage_(),
+		mipLevels_(texture.levelCount),
+		arrayLayers_(texture.layerCount),
+		filter_(),
+		addressMode_(),
+		layout_(texture.imageLayout),
+		image_(texture.image),
+		memory_(texture.deviceMemory)
+{}
+
 void Image::Destroy() const
 {
     const auto& device = VkDevice(VkObjectsLocator::get().device);
 
     vkDestroyImageView(device, view_, nullptr);
     vkDestroySampler(device, sampler_, nullptr);
+	vkDestroyImage(device, image_, nullptr);
     vkFreeMemory(device, memory_, nullptr);
-    vkDestroyImage(device, image_, nullptr);
 }
 
 VkDescriptorSetLayoutBinding Image::GetDescriptorSetLayout(
@@ -440,5 +453,36 @@ VkFormat Image::FindSupportedFormat(
     }
 
     neko_assert(false, "Failed to find supported format!")
+}
+
+void Image::CopyBufferToImage(
+		const VkBuffer& buffer,
+		const VkImage& image,
+		VkExtent3D extent,
+		std::uint32_t layerCount,
+		std::uint32_t baseArrayLayer)
+{
+	CommandBuffer commandBuffer = CommandBuffer();
+	commandBuffer.Init();
+
+	VkBufferImageCopy region = {};
+	region.bufferOffset = 0;
+	region.bufferRowLength = 0;
+	region.bufferImageHeight = 0;
+	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	region.imageSubresource.mipLevel = 0;
+	region.imageSubresource.baseArrayLayer = baseArrayLayer;
+	region.imageSubresource.layerCount = layerCount;
+	region.imageOffset = {0, 0, 0};
+	region.imageExtent = extent;
+	vkCmdCopyBufferToImage(
+			VkCommandBuffer(commandBuffer),
+			buffer,
+			image,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			1,
+			&region);
+
+	commandBuffer.SubmitIdle();
 }
 }
