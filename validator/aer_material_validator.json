@@ -1,0 +1,27 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": 
+	{
+		"name": { "type": "string" },
+		"shaderPath": { "type": "string" },
+		"type": { "type": "number" },
+		"color": { 
+		  	"properties": {
+				"r": { "type": "number" },
+				"g": { "type": "number" },
+				"b": { "type": "number" },
+				"a": { "type": "number" }
+			},
+			"required": ["r", "g", "b", "a"]
+		},
+		"diffusePath": { "type": "string" },
+		"specularPath": { "type": "string" },
+		"normalPath": { "type": "string" },
+		"emissivePath": { "type": "string" },
+		
+		"uuid": {"type":"string"}
+	},
+	"additionalProperties": false,
+	"required": ["name", "shaderPath", "type", "color"]
+}

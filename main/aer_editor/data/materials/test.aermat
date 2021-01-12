@@ -1,0 +1,11 @@
+{
+    "name": "Test",
+    "shaderPath": "shaders/quad_color.aershader",
+    "type": 0,
+    "color": {
+        "r": 0.0,
+        "g": 0.0,
+        "b": 1.0,
+        "a": 1.0
+    }
+}

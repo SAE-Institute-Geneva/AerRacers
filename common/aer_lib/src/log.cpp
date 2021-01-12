@@ -4,7 +4,7 @@
 #include <iomanip>
 #include <sstream>
 
-#include <utilities/file_utility.h>
+#include <utils/file_utility.h>
 
 namespace neko
 {
@@ -235,8 +235,8 @@ void LogManager::WriteToFile()
 
 		//CreateDirectory(filePath);
 
-		if (FileExists(filePath + dateTime + ".log"))
-			dateTime += "-1";
+		//if (FileExists(filePath + dateTime + ".log"))
+		//	dateTime += "-1";
 
 		WriteStringToFile(filePath + dateTime + ".log", fileContent);
 

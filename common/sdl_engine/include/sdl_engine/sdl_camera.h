@@ -41,7 +41,7 @@ protected:
     Vec2f mouseMotion_;
 };
 
-struct MovableCamera2D final : Camera2D, MovableCamera
+struct MovableCamera2D final : neko::Camera2D, MovableCamera
 {
     MovableCamera2D& operator=(const MovableCamera2D& other);
 
@@ -53,16 +53,15 @@ struct MovableCamera2D final : Camera2D, MovableCamera
     void Destroy() override {}
 };
 
-struct MovableCamera3D : Camera3D, public MovableCamera
+struct MovableCamera3D : neko::Camera3D, public MovableCamera
 {
-    MovableCamera3D& operator=(const MovableCamera3D& other);
+	MovableCamera3D& operator=(const MovableCamera3D& other);
 
-    void Init() override;
+	void Init() override;
+	void Update(seconds dt) override;
+	void Destroy() override {}
 
-    void Update(seconds dt) override;
-    void OnEvent(const SDL_Event& event) override;
-
-    void Destroy() override {}
+	void OnEvent(const SDL_Event& event) override;
 };
 
 struct FpsCamera final : public MovableCamera3D

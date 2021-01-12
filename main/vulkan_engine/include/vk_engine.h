@@ -10,7 +10,8 @@ class VkEngine final : public sdl::SdlEngine
 public:
     VkEngine() = delete;
 
-    explicit VkEngine(Configuration* config = nullptr) : SdlEngine(config)
+    explicit VkEngine(const FilesystemInterface& filesystem, Configuration* config = nullptr)
+		    : SdlEngine(filesystem, *config)
     {
         RegisterSystem(drawSystem_);
         RegisterOnEvent(drawSystem_);

@@ -1,6 +1,6 @@
 
 #vulkan
-LIST(APPEND VULKAN_WRAPPER_LIBS Neko_Core sdl_engine)
+LIST(APPEND VULKAN_WRAPPER_LIBS Neko_Core sdl_engine assimp ktx)
 
 find_package(Vulkan REQUIRED)
 include_directories(${VULKAN_INCLUDE_DIR})

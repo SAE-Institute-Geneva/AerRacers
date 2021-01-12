@@ -8,7 +8,11 @@
 
 namespace neko::aer {
 DrawSystem::DrawSystem(AerEngine& engine) : engine_(engine) {
-    gizmosRenderer_ = std::make_unique<GizmosRenderer>(&camera_);
+#ifdef NEKO_GLES3
+    gizmosRenderer_ = std::make_unique<Gles3GizmosRenderer>(&camera_);
+#elif NEKO_VULKAN
+    gizmosRenderer_ = std::make_unique<NekoGizmosRenderer>(&camera_);
+#endif
 }
 
 void DrawSystem::Init()
@@ -24,7 +28,7 @@ void DrawSystem::Init()
 
 void DrawSystem::Update(seconds dt) {
 
-    const auto& config = neko::BasicEngine::GetInstance()->config;
+    const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
     camera_.SetAspect(static_cast<float>(config.windowSize.x) / config.windowSize.y);
 
     gizmosRenderer_->Update(dt);

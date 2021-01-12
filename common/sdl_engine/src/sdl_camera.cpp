@@ -118,7 +118,7 @@ MovableCamera3D& MovableCamera3D::operator=(const MovableCamera3D& other)
 
 void MovableCamera3D::Init()
 {
-    const auto& config = BasicEngine::GetInstance()->config;
+    const auto& config = BasicEngine::GetInstance()->GetConfig();
     SetAspect(config.windowSize.x, config.windowSize.y);
 }
 

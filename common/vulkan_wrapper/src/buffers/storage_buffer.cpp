@@ -23,9 +23,9 @@ void StorageBuffer::Update(const std::vector<char>& newStorageData) const
 void StorageBuffer::Destroy() const
 {
     const auto& vkObj = VkObjectsLocator::get();
-	
-	vkDestroyBuffer(VkDevice(vkObj.device), buffer_, nullptr);
-	vkFreeMemory(VkDevice(vkObj.device), memory_, nullptr);
+
+	if (buffer_) vkDestroyBuffer(VkDevice(vkObj.device), buffer_, nullptr);
+	if (memory_) vkFreeMemory(VkDevice(vkObj.device), memory_, nullptr);
 }
 
 VkDescriptorSetLayoutBinding StorageBuffer::GetDescriptorSetLayout(

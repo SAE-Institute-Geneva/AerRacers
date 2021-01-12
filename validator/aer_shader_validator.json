@@ -1,0 +1,62 @@
+{
+	"$schema": "http://json-schema.org/schema#",
+	"type": "object",
+	"properties": 
+	{
+		"vert": { "type": "string" },
+		"frag": { "type": "string" },
+		"attributes": {
+			"type": "array", 
+			"items": { 
+				"properties": { 
+					"name": { "type": "string" },
+					"location": { "type": "number" },
+					"size": { "type": "number" },
+					"type": { "type": "number" }
+				},
+				"required": ["name", "location", "size", "type"]
+			}
+		},
+		"uniforms": {
+			"type": "array",
+			"items": { 
+				"properties": { 
+					"name": { "type": "string" },
+					"binding": { "type": "number" },
+					"type": { "type": "number" },
+					"stageFlags": { "type": "number" },
+					"writeOnly": { "type": "boolean" }
+				},
+				"required": ["name", "binding", "type", "stageFlags", "writeOnly"]
+			}
+		},
+		"uniformBlocks": {
+			"type": "array", 
+			"items": { 
+				"properties": { 
+					"name": { "type": "string" },
+					"binding": { "type": "number" },
+					"size": { "type": "number" },
+					"stageFlags": { "type": "number" },
+					"type": { "type": "number" },
+					"uniforms": { 
+						"type": "array",
+						"items": { 
+							"properties": { 
+								"name": { "type": "string" },
+								"offset": { "type": "number" },
+								"size": { "type": "number" },
+								"writeOnly": { "type": "boolean" }
+							},
+							"required": ["name", "offset", "size", "writeOnly"]
+						}
+					}
+				},
+				"required": ["name", "binding", "size", "stageFlags", "type", "uniforms"]
+			}
+		},
+		"uuid": {"type":"string"}
+	},
+	"additionalProperties": false,
+	"required": ["vert", "frag", "attributes", "uniforms", "uniformBlocks"]
+}
