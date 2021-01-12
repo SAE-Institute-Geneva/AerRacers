@@ -16,6 +16,7 @@ void EditorToolManager::Init()
 	{
 		AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
 		AddEditorTool<Hierarchy, EditorToolInterface::ToolType::HIERARCHY>();
+		AddEditorTool<Inspector, EditorToolInterface::ToolType::INSPECTOR>();
 	}
 }
 

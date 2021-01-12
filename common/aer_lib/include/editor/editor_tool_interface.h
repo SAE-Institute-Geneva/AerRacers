@@ -40,7 +40,8 @@ public:
     enum class ToolType {
         NONE = 0,
         LOGGER,
-        HIERARCHY
+        HIERARCHY,
+    	INSPECTOR
     };
 
     explicit EditorToolInterface(AerEngine& engine, ToolType type, int id, std::string name);
