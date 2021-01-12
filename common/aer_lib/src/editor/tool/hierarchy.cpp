@@ -45,35 +45,10 @@ namespace neko::aer
 						currentFlag = nodeTreeNotSelectedFlags;
 					}
 
-					/*bool openNode = ImGui::TreeNodeEx((void*)(intptr_t)entityIndex, nodeFlags, "Entity ", entityIndex);*/
-					
 					if (entityManager.GetEntityParent(entityIndex) == INVALID_ENTITY)
 					{
 						std::string text = "Entity " + std::to_string(entityIndex);
-						
-						////isSelected = selectedEntity == entityIndex;
-						//bool openedNode = ImGui::TreeNodeEx((void*)(intptr_t)entityIndex, nodeFlags, "Entity %d", entityIndex);
-						//if (ImGui::IsItemClicked)
-						//{
-						//	selectedEntity = entityIndex;
-						//}
-						//if (openedNode)
-						//{
-						//	ImGui::BulletText("Child");
-						//	ImGui::TreePop();
-						//}
-						//else
-						//{
-						//	nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-						//	ImGui::TreeNodeEx((void*)(intptr_t)entityIndex, nodeFlags, "Entity %d", entityIndex);
-						//	if (ImGui::IsItemClicked())
-						//		selectedEntity = entityIndex;
-						//}
-						//if (selectedEntity)
-						//{
-						//	nodeFlags |= ImGuiTreeNodeFlags_Selected;
-						//	ImGui::PushStyleColor(ImGuiCol_Text, (ImVec4)ImColor::HSV(entityIndex / 7.0f, 0.5f, 0.5f));
-						//}
+
 						if (ImGui::TreeNodeEx(text.c_str(), currentFlag))
 						{
 							if (ImGui::IsItemClicked())
@@ -85,26 +60,22 @@ namespace neko::aer
 
 							ImGui::TreePop();
 						}
-						//ImGui::PopStyleColor(1);
+						
 					}
+
+					
 				}
 			}
 			if (ImGui::BeginPopupContextWindow())
 			{
 				if (ImGui::MenuItem("Add Entity"))
 				{
-					if (ImGui::IsItemClicked())
-					{
-						entityManager.CreateEntity();
-					}
+					entityManager.CreateEntity();
 				}
-				//ImGui::EndPopup();
+				
 				if (ImGui::MenuItem("Delete Entity"))
 				{
-					if (ImGui::IsItemClicked())
-					{
-						
-					}
+						entityManager.DestroyEntity(selectedEntity);
 				}
 				ImGui::EndPopup();
 			}
@@ -141,6 +112,7 @@ namespace neko::aer
 
 			}
 		}
+		
 	}
 
 	void Hierarchy::OnEvent(const SDL_Event& event){}

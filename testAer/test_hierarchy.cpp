@@ -45,77 +45,7 @@ public:
 
 		if (!testSuccess_)
 		{
-			//if (nextTest_)
-			//{
-			//	numberTest_++;
-			//	if (numberTest_ == 2)
-			//	{
-			//		//TEST SUCCESS
-			//		testSuccess_ = true;
-			//		neko::LogDebug("[TEST] All tests were validated");
-			//		engine_.Stop();
-			//		return;
-			//	}
-			//	neko::LogDebug(msgTest_[numberTest_]);
-			//	nextTest_ = false;
-			//}
-			//switch (numberTest_)
-			//{
-			//case 0: //TEST 1
-			//{
-			//	int nbr = neko::Log::get().GetLogs().size();
-			//	if (nbr <= std::pow(2, 10))
-			//	{
-			//		for (size_t i = 0; i < 100; i++)
-			//		{
-			//			int rdm = rand() % 5;
-			//			switch (rdm)
-			//			{
-			//			case 0:
-			//				neko::LogDebug(
-			//					msgTest_[numberTest_]);
-			//				break;
-			//			case 1:
-			//				neko::LogInfo(
-			//					msgTest_[numberTest_]);
-			//				break;
-			//			case 2:
-			//				neko::LogWarning(
-			//					msgTest_[numberTest_]);
-			//				break;
-			//			case 3:
-			//				neko::LogError(
-			//					msgTest_[numberTest_]);
-			//				break;
-			//			case 4:
-			//				neko::LogCritical(
-			//					msgTest_[numberTest_]);
-			//				break;
-			//			}
-			//		}
-			//	}
-			//	else
-			//	{
-			//		neko::LogDebug("Maximum of logs: Success");
-			//		capacityMax_ = true;
-			//		nextTest_ = true;
-			//	}
-			//}
-			//break;
-
-			//case 1: //TEST 2
-			//{
-			//	neko::Log::get().ClearLogs();
-			//	int nbr = neko::Log::get().GetLogs().size();
-			//	if (nbr <= 0)
-			//	{
-			//		neko::LogDebug("Erasing logs: Success");
-			//		capacityClear_ = true;
-			//		nextTest_ = true;
-			//	}
-			//}
-			//break;
-			//}
+			
 		}
 	}
 
