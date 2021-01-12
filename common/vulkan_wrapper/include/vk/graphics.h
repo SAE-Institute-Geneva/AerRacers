@@ -38,10 +38,11 @@
 #include "vk/framebuffers/framebuffers.h"
 #include "vk/framebuffers/swapchain.h"
 #include "vk/material/material_manager.h"
+#include "vk/models/model_manager.h"
 #include "vk/pipelines/graphics_pipeline.h"
 #include "vk/pipelines/material_pipeline.h"
 #include "vk/pipelines/material_pipeline_container.h"
-#include "vk/renderers/renderer.h"
+#include "vk/renderers/renderer_editor.h"
 #include "vk/shaders/shader.h"
 #include "vk/vulkan_window.h"
 
@@ -60,6 +61,8 @@ struct IVkObjects
     PhysicalDevice gpu;
     LogicalDevice device;
 
+	std::unique_ptr<Renderer> renderer{};
+
     std::unique_ptr<Swapchain> swapchain{};
 
     std::unique_ptr<CommandPool> commandPools{};
@@ -71,26 +74,24 @@ struct IVkObjects
 
     VkPipelineCache pipelineCache{};
 
-    std::unique_ptr<Renderer> renderer{};
-
-    [[nodiscard]] virtual RenderStage& GetRenderStage(std::uint32_t index) const = 0;
+    [[nodiscard]] virtual RenderStage& GetRenderStage(std::uint32_t) const = 0;
 	[[nodiscard]] virtual MaterialPipeline& AddMaterialPipeline(
-			const Pipeline::Stage& pipelineStage,
-			const GraphicsPipelineCreateInfo& pipelineCreate) const = 0;
+			const Pipeline::Stage&,
+			const GraphicsPipelineCreateInfo&) const = 0;
 };
 
 struct NullVkObjects : IVkObjects
 {
     explicit NullVkObjects() : IVkObjects(nullptr) {}
 
-    [[nodiscard]] RenderStage& GetRenderStage([[maybe_unused]] std::uint32_t index) const override
+    [[nodiscard]] RenderStage& GetRenderStage(std::uint32_t) const override
     {
         return renderer->GetRenderStage(INVALID_INDEX);
     }
 
 	[[nodiscard]] MaterialPipeline& AddMaterialPipeline(
-			const Pipeline::Stage &pipelineStage,
-			const GraphicsPipelineCreateInfo &pipelineCreate) const override
+			const Pipeline::Stage&,
+			const GraphicsPipelineCreateInfo&) const override
 	{
     	neko_assert(false, "Vulkan Engine is null!")
 	}
@@ -110,7 +111,7 @@ public:
     void AfterRenderLoop() override;
 
     void SetWindow(sdl::VulkanWindow* window);
-    void SetRenderer(std::unique_ptr<vk::Renderer>&& renderer);
+    void SetRenderer(std::unique_ptr<vk::RendererEditor>&& newRenderer);
 
     [[nodiscard]] RenderStage& GetRenderStage(std::uint32_t index) const override;
 	[[nodiscard]] MaterialPipeline& AddMaterialPipeline(
@@ -136,8 +137,6 @@ private:
 
 	std::unique_ptr<MaterialPipelineContainer> materialPipelineContainer_ =
 			std::make_unique<MaterialPipelineContainer>();
-
-	MaterialManager materialManager_;
 
     std::size_t currentFrame_ = 0;
     std::vector<VkFence> inFlightFences_{};

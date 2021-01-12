@@ -40,7 +40,8 @@ int main(int argc, char** argv)
 
     neko::sdl::Gles3Window window;    //TODO(Luca@Simon) Move to Vulkan
     neko::gl::Gles3Renderer renderer; //TODO(Luca@Simon) Move to Vulkan
-    neko::aer::AerEngine engine(&config,
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config,
         neko::aer::ModeEnum::GAME);
     engine.SetWindowAndRenderer(&window, &renderer);
 

@@ -1,31 +1,17 @@
-#!/usr/bin/env python3
-
 import json
 import sys
 import os
+import os.path
+import uuid
+import shutil
+from pathlib import Path
+from enum import Enum
+
 from shader_validator import validate_shader
 from texture_validator import validate_texture
 from material_validator import validate_material
-from pathlib import Path
-from enum import Enum
-import os.path
-import uuid
-
-
-def create_out_subdirectories(data_out):
-    parent_dirs = []
-    data_path = Path(data_out).absolute()
-    print("Absolute path: "+str(data_path))
-    while not data_path.exists():
-        data_path = data_path.parent.absolute()
-        print("Parent path: "+str(data_path))
-        parent_dirs.append(data_path)
-    for p in parent_dirs[::-1]:
-        print(str(p.absolute()))
-        try:
-            os.mkdir(str(p.absolute()))
-        except FileExistsError:
-            pass
+from skybox_validator import validate_skybox
+from pkg_validator import validate_pkg
 
 
 class AssetType(Enum):
@@ -37,6 +23,8 @@ class AssetType(Enum):
     VERT_SHADER = 4
     FRAG_SHADER = 5
     FONT = 6
+    SKYBOX = 7
+    PKG = 8
 
 
 img_extension = [
@@ -61,7 +49,7 @@ def define_asset_type(filename) -> AssetType:
         return AssetType.TEXTURE
     if extension == '.mtl' or extension == '.mat':
         return AssetType.MTL
-    if extension == '.obj':
+    if extension == '.obj' or extension == '.fbx':
         return AssetType.OBJ
     if extension == '.vert':
         return AssetType.VERT_SHADER
@@ -69,6 +57,10 @@ def define_asset_type(filename) -> AssetType:
         return AssetType.FRAG_SHADER
     if extension == '.ttf':
         return AssetType.FONT
+    if extension == '.skybox':
+        return AssetType.SKYBOX
+    if extension == '.pkg_json':
+        return AssetType.PKG
     return AssetType.UNKNOWN
 
 
@@ -81,9 +73,22 @@ def validate_asset(src="", out=""):
     asset_type = define_asset_type(data_src)
     # load meta data
     if asset_type != AssetType.UNKNOWN:
+        if os.path.isfile(data_src+".meta"):
+            with open(data_src+".meta", 'r') as meta_file:
+                meta_content = json.load(meta_file)
+
         if os.path.isfile(data_out + ".meta"):
             with open(data_out + ".meta", "r") as meta_file:
-                meta_content = json.loads(meta_file.read())
+                meta_content2 = json.load(meta_file)
+                meta_content = {**meta_content2, **meta_content}
+
+    # Copy file except if meta files says no
+    if "copy" in meta_content:
+        copy = meta_content["copy"]
+    else:
+        copy = True
+    if copy:
+        shutil.copy(data_src, data_out)
 
     if asset_type == AssetType.TEXTURE:
         validate_texture(data_src, data_out, meta_content)
@@ -91,6 +96,10 @@ def validate_asset(src="", out=""):
         validate_shader(data_src, data_out, meta_content)
     if asset_type == AssetType.MTL:
         validate_material(data_src, data_out, meta_content)
+    if asset_type == AssetType.SKYBOX:
+        validate_skybox(data_src, data_out, meta_content)
+    if asset_type == AssetType.PKG:
+        validate_pkg(data_src, data_out, meta_content)
     # write new meta content to meta file
     if asset_type != AssetType.UNKNOWN:
         if not os.path.isfile(data_out + ".meta"):
@@ -100,10 +109,21 @@ def validate_asset(src="", out=""):
             json.dump(meta_content, meta_file, indent=4)
 
 
+def load_env_variables():
+    env_path = os.path.join(os.getenv("SRC_FOLDER"),"tmp/env.json")
+    with open(env_path, 'r') as env_file:
+        env_content = json.load(env_file)
+        for key in env_content:
+            os.environ[key] = env_content[key]
+
+
 if __name__ == "__main__":
     arguments = ", ".join(sys.argv)
     print("Data validator arugments: "+arguments)
     data_src = sys.argv[1]
     data_out = sys.argv[2]
-    create_out_subdirectories(data_out)
+    data_out_parent = Path(data_out).parent
+    if not data_out_parent.is_dir():
+        data_out_parent.mkdir(parents=True, exist_ok=True)
+    load_env_variables()
     validate_asset()

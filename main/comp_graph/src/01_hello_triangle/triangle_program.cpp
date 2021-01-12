@@ -32,7 +32,7 @@ namespace neko
 {
 void HelloTriangleProgram::Init()
 {
-    const auto& config = BasicEngine::GetInstance()->config;
+    const auto& config = BasicEngine::GetInstance()->GetConfig();
 
     //Initiliaze Triangle
     triangleProgram_.shader.LoadFromFile(config.dataRootPath + "shaders/01_hello_triangle/hello_pos.vert",

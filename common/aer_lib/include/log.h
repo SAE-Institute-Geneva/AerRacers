@@ -38,7 +38,7 @@
 #include <condition_variable>
 
 #include "engine/assert.h"
-#include "utilities/service_locator.h"
+#include "utils/service_locator.h"
 
 namespace neko
 {

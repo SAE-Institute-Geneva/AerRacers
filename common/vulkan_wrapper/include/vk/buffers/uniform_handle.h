@@ -13,12 +13,12 @@ class UniformHandle
 public:
     explicit UniformHandle(bool multiPipeline = false);
     explicit UniformHandle(const UniformBlock& uniformBlock, bool multiPipeline = false);
+	~UniformHandle();
+
 	void Destroy() const;
 
     UniformHandle(const UniformHandle& other);
     UniformHandle(UniformHandle&& other) noexcept;
-
-    ~UniformHandle() = default;
 
     UniformHandle& operator=(const UniformHandle& other);
     UniformHandle& operator=(UniformHandle&& other) noexcept;

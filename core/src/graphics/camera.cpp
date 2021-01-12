@@ -76,7 +76,7 @@ Mat4f Camera::GenerateViewMatrix() const
 {
     const Mat4f rotation = GetRotationMat();
     const Mat4f translation =
-            Transform3d::Translate(Mat4f::Identity, position * -1);
+            Transform3d::Translate(Mat4f::Identity, position);
     return rotation * translation;
 }
 

@@ -1,6 +1,7 @@
 #include "aer_engine.h"
 #include "editor/editor_tool_manager.h"
 #include "editor/tool/logger.h"
+#include "editor/tool/inspector.h"
 #include "editor/tool/hierarchy.h"
 #include "editor/tool/inspector.h"
 
@@ -16,6 +17,7 @@ void EditorToolManager::Init()
 	if (mode == ModeEnum::EDITOR)
 	{
 		AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
+		AddEditorTool<Inspector, EditorToolInterface::ToolType::INSPECTOR>();
 		AddEditorTool<Hierarchy, EditorToolInterface::ToolType::HIERARCHY>();
 		AddEditorTool<Inspector, EditorToolInterface::ToolType::INSPECTOR>();
 	}

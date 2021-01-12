@@ -5,6 +5,7 @@
 
 #include "vk/pipelines/material_pipeline.h"
 #include "vk/material/material_export_data.h"
+#include "vk/models/vertex_input.h"
 
 namespace neko::vk
 {
@@ -23,8 +24,8 @@ public:
 
     enum class RenderMode : std::uint8_t
     {
-        OPAQUE,
-        TRANSPARENT
+        VK_OPAQUE,
+        VK_TRANSPARENT
     };
 
     explicit Material() = default;
@@ -58,6 +59,6 @@ protected:
 	PushDataContainer uniformData_;
 	PushDataContainer descriptorData_;
 
-	RenderMode renderMode_ = RenderMode::OPAQUE;
+	RenderMode renderMode_ = RenderMode::VK_OPAQUE;
 };
 }

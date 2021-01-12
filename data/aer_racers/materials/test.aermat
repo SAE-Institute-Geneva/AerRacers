@@ -1,11 +1,12 @@
 {
     "name": "Test",
-    "shaderPath": "aer_racers/shaders/quad_color.aershader",
+    "shaderPath": "shaders/quad_color.aershader",
     "type": 0,
     "color": {
-        "r": 0.0,
-        "g": 0.0,
+        "r": 1.0,
+        "g": 1.0,
         "b": 1.0,
         "a": 1.0
-    }
+    },
+    "diffusePath": "aer_racers/textures/statue.png.ktx"
 }

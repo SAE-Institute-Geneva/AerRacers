@@ -1,12 +1,12 @@
 {
-    "vert": "../../data/aer_racers/shaders/vulkan/quad.vert.spv",
-    "frag": "../../data/aer_racers/shaders/vulkan/quad.frag.spv",
+    "vert": "aer_racers/shaders/vulkan/quad.vert.spv",
+    "frag": "aer_racers/shaders/vulkan/quad.frag.spv",
     "attributes": [
         {
-            "name": "inTexCoords",
-            "location": 2,
-            "size": 8,
-            "type": 2
+            "name": "inPosition",
+            "location": 0,
+            "size": 12,
+            "type": 3
         },
         {
             "name": "inNormal",
@@ -15,54 +15,22 @@
             "type": 3
         },
         {
-            "name": "inPosition",
-            "location": 0,
-            "size": 12,
-            "type": 3
+            "name": "inTexCoords",
+            "location": 2,
+            "size": 8,
+            "type": 2
         }
     ],
     "uniforms": [
         {
             "name": "diffuse",
             "binding": 2,
-            "offset": -1,
-            "size": -1,
             "type": 1,
-            "readOnly": false,
-            "writeOnly": false,
-            "stageFlags": 16
+            "stageFlags": 16,
+            "writeOnly": false
         }
     ],
     "uniformBlocks": [
-        {
-            "name": "UboObject",
-            "binding": 1,
-            "size": 80,
-            "stageFlags": 17,
-            "type": 0,
-            "uniforms": [
-                {
-                    "name": "color",
-                    "binding": 0,
-                    "offset": 64,
-                    "size": 16,
-                    "type": 0,
-                    "readOnly": false,
-                    "writeOnly": false,
-                    "stageFlags": 16
-                },
-                {
-                    "name": "model",
-                    "binding": 0,
-                    "offset": 0,
-                    "size": 64,
-                    "type": 0,
-                    "readOnly": false,
-                    "writeOnly": false,
-                    "stageFlags": 1
-                }
-            ]
-        },
         {
             "name": "UboScene",
             "binding": 0,
@@ -72,23 +40,36 @@
             "uniforms": [
                 {
                     "name": "view",
-                    "binding": 0,
                     "offset": 0,
                     "size": 64,
-                    "type": 0,
-                    "readOnly": false,
-                    "writeOnly": false,
-                    "stageFlags": 1
+                    "writeOnly": false
                 },
                 {
                     "name": "proj",
-                    "binding": 0,
                     "offset": 64,
                     "size": 64,
-                    "type": 0,
-                    "readOnly": false,
-                    "writeOnly": false,
-                    "stageFlags": 1
+                    "writeOnly": false
+                }
+            ]
+        },
+        {
+            "name": "UboObject",
+            "binding": 1,
+            "size": 80,
+            "stageFlags": 17,
+            "type": 0,
+            "uniforms": [
+                {
+                    "name": "model",
+                    "offset": 0,
+                    "size": 64,
+                    "writeOnly": false
+                },
+                {
+                    "name": "color",
+                    "offset": 64,
+                    "size": 16,
+                    "writeOnly": false
                 }
             ]
         }

@@ -30,7 +30,7 @@ namespace neko
 {
 void HelloTextProgram::Init()
 {
-	const auto& config = BasicEngine::GetInstance()->config;
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	textShader_.LoadFromFile(config.dataRootPath + "shaders/96_hello_text/text.vert",
 		config.dataRootPath + "shaders/96_hello_text/text.frag");
 	
@@ -121,7 +121,7 @@ void HelloTextProgram::Update(seconds dt)
 {
 
     std::lock_guard<std::mutex> lock(updateMutex_);
-    const auto& config = BasicEngine::GetInstance()->config;
+    const auto& config = BasicEngine::GetInstance()->GetConfig();
     projection_ = Transform3d::Orthographic(0.0f, config.windowSize.x, 0.0f, config.windowSize.y);
 }
 
@@ -138,7 +138,7 @@ void HelloTextProgram::Render()
 {
 
     std::lock_guard<std::mutex> lock(updateMutex_);
-    const auto& config = BasicEngine::GetInstance()->config;
+    const auto& config = BasicEngine::GetInstance()->GetConfig();
     glClear(GL_COLOR_BUFFER_BIT);
     textShader_.Bind();
     textShader_.SetMat4("projection", projection_);
