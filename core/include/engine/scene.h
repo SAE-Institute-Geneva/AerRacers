@@ -38,14 +38,16 @@
 
 namespace neko
 {
+using InstanceId = int;
+const InstanceId INVALID_INSTANCE_ID = -1;
 using SceneId = sole::uuid;
 const SceneId INVALID_SCENE_ID = sole::uuid{};
 struct Scene
 {
     std::string sceneName = "New Scene";
     std::string scenePath = "";
-    std::vector<int> layers;
-    std::vector<std::string> tags = { "Untagged" };
+    std::vector<std::string> layers = {};
+    std::vector<std::string> tags = {};
 };
 
 class SceneManager 
@@ -68,5 +70,6 @@ protected:
     TagManager tagManager_;
 
     Transform3dManager& transformManager_;
+    std::vector<InstanceId> entityInstanceIdArray_;
 };
 }

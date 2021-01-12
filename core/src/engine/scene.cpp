@@ -50,8 +50,58 @@ void SceneManager::ParseComponentJson(
 {
     if (CheckJsonParameter(componentJson, "transform", json::value_t::object))
     {
-        transformManager_.AddComponent(entity);
-        transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
+        if (CheckJsonParameter(componentJson["transform"], "exist", json::value_t::boolean))
+        {
+            if (componentJson["transform"]["exist"])
+            {
+                transformManager_.AddComponent(entity);
+                transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
+            }
+        }
+    }
+    if (CheckJsonParameter(componentJson, "rigidbody", json::value_t::object))
+    {
+        if (CheckJsonParameter(componentJson["rigidbody"], "exist", json::value_t::boolean))
+        {
+            if (componentJson["rigidbody"]["exist"])
+            {
+                //transformManager_.AddComponent(entity);
+                //transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
+            }
+        }
+    }
+    if (CheckJsonParameter(componentJson, "boxCollider", json::value_t::object))
+    {
+        if (CheckJsonParameter(componentJson["boxCollider"], "exist", json::value_t::boolean))
+        {
+            if (componentJson["boxCollider"]["exist"])
+            {
+                //transformManager_.AddComponent(entity);
+                //transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
+            }
+        }
+    }
+    if (CheckJsonParameter(componentJson, "sphereCollider", json::value_t::object))
+    {
+        if (CheckJsonParameter(componentJson["sphereCollider"], "exist", json::value_t::boolean))
+        {
+            if (componentJson["sphereCollider"]["exist"])
+            {
+                //transformManager_.AddComponent(entity);
+                //transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
+            }
+        }
+    }
+    if (CheckJsonParameter(componentJson, "shipControl", json::value_t::object))
+    {
+        if (CheckJsonParameter(componentJson["shipControl"], "exist", json::value_t::boolean))
+        {
+            if (componentJson["shipControl"]["exist"])
+            {
+                //transformManager_.AddComponent(entity);
+                //transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
+            }
+        }
     }
 }
 
@@ -64,26 +114,40 @@ void SceneManager::ParseEntityJson(const json& entityJson)
     }
     if (CheckJsonParameter(entityJson, "instanceId", json::value_t::number_integer))
     {
-        int instanceId = entityJson["instanceId"];
-        entityManager_.SetEntityName(entity, std::to_string(instanceId));
+        InstanceId instanceId = entityJson["instanceId"];
+        ResizeIfNecessary(entityInstanceIdArray_, entity, INVALID_INSTANCE_ID);
+        entityInstanceIdArray_[entity] = instanceId;
     }
 
     if (CheckJsonParameter(entityJson, "parent", json::value_t::number_integer))
     {
         int parentInstanceId = entityJson["parent"];
-        Entity parentEntity = entityManager_.FindEntityByName(std::to_string(parentInstanceId));
-        if (parentEntity != INVALID_ENTITY) {
-            entityManager_.SetEntityParent(entity, parentEntity);
+        if (parentInstanceId != INVALID_INSTANCE_ID) {
+            const auto entityInstanceIdIt =
+                std::find_if(
+                    entityInstanceIdArray_.begin(),
+                    entityInstanceIdArray_.end(),
+                    [parentInstanceId](InstanceId instanceId) {
+                        return instanceId == parentInstanceId;
+                    });
+            if (entityInstanceIdIt != entityInstanceIdArray_.end()) {
+                const Entity parentEntity = entityInstanceIdIt - entityInstanceIdArray_.begin();
+                entityManager_.SetEntityParent(entity, parentEntity);
+            }
         }
     }
 
-    if (CheckJsonParameter(entityJson, "layer", json::value_t::number_unsigned))
+    if (CheckJsonParameter(entityJson, "layer", json::value_t::string))
     {
-        TagLocator::get().SetEntityLayer(entity, entityJson["layer"]);
+        TagLocator::get().SetEntityLayer(entity, static_cast<std::string>(entityJson["layer"]));
     }
     if (CheckJsonParameter(entityJson, "tag", json::value_t::string))
     {
         TagLocator::get().SetEntityTag(entity, static_cast<std::string>(entityJson["tag"]));
+    }
+    if (CheckJsonParameter(entityJson, "isActive", json::value_t::boolean))
+    {
+        //TODO (@Luca) Set active
     }
     ParseComponentJson(entityJson, entity);
 }

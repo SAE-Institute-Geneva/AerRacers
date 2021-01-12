@@ -49,11 +49,15 @@ public:
 
 	virtual void SetEntityTag(Entity entity, TagIndex entityTagIndex) = 0;
 
+    virtual void SetEntityLayer(Entity entity, const std::string& entityLayer) = 0;
+
 	virtual void SetEntityLayer(Entity entity, LayerIndex entityLayerIndex) = 0;
 
 	virtual bool IsEntityTag(Entity entity, const std::string& entityTag) const = 0;
 
 	virtual bool IsEntityTag(Entity entity, TagIndex entityTagIndex) const = 0;
+
+    virtual bool IsEntityLayer(Entity entity, const std::string& entityLayer) const = 0;
 
 	virtual bool IsEntityLayer(Entity entity, LayerIndex entityLayerIndex) const = 0;
 
@@ -106,6 +110,17 @@ public:
     {
         return false;
     }
+
+    void SetEntityLayer(Entity entity, const std::string& entityLayer) override
+    {
+        
+    }
+    bool IsEntityLayer(
+        Entity entity,
+        const std::string& entityLayer) const override
+    {
+        return false;
+    }
 };
 
 //-----------------------------------------------------------------------------
@@ -134,6 +149,10 @@ public:
         Entity entity,
         LayerIndex entityLayerIndex) const override;
     bool CompareEntitiesTag(Entity entityA, Entity entityB) const override;
+    void SetEntityLayer(Entity entity, const std::string& entityLayer) override;
+    bool IsEntityLayer(
+        Entity entity,
+        const std::string& entityLayer) const override;
 private:
 	std::vector<TagIndex> entityTagArray_;
 	std::vector<LayerIndex> entityLayerArray_;

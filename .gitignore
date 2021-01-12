@@ -56,4 +56,6 @@ web_build/*
 # log files
 /data/logs/*
  
+# log files
+/tmp
   

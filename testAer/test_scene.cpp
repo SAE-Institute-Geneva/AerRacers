@@ -34,18 +34,64 @@
 #include <gl\gles3_window.h>
 #include <gl\graphics.h>
 
-class TestSceneImporteur : public neko::SystemInterface {
+class TestSceneInterface {
 public:
-    explicit TestSceneImporteur(neko::aer::AerEngine& engine) :
+    virtual void HasSucceed(neko::EntityManager& entityManager, neko::Transform3dManager& transform3dManager, neko::SceneManager sceneManager) = 0;
+    std::string sceneName;
+};
+
+class TestUnityScene : public TestSceneInterface {
+public:
+    explicit TestUnityScene() {
+        sceneName = "scenes/WillToolScene2021-01-11-14-05-34.aerscene";
+    }
+
+    virtual void HasSucceed(
+        neko::EntityManager& entityManager,
+        neko::Transform3dManager& transform3dManager, neko::SceneManager sceneManager) override
+    {
+        EXPECT_TRUE(sceneManager.GetCurrentScene().sceneName == "WillToolScene");
+        EXPECT_TRUE(entityManager.GetEntitiesNmb() == 7);
+        EXPECT_TRUE(entityManager.GetEntityParent(1) == 0);
+        EXPECT_TRUE(neko::TagLocator::get().CompareEntitiesTag(0, 1));
+        EXPECT_TRUE(neko::TagLocator::get().IsEntityLayer(0, "Ground"));
+        EXPECT_TRUE(neko::TagLocator::get().IsEntityTag(0, 0));
+        EXPECT_TRUE(entityManager.HasComponent(0, neko::EntityMask(neko::ComponentType::TRANSFORM3D)));
+        EXPECT_TRUE(entityManager.GetEntityParent(1) == 0);
+        EXPECT_TRUE(transform3dManager.GetPosition(0) == neko::Vec3f(1.0, 3.0, 5.0));
+    }
+};
+
+class TestExampleScene : public TestSceneInterface {
+public:
+    explicit TestExampleScene() {
+        sceneName = "scenes/scene_example.scene";
+    }
+
+    void HasSucceed(neko::EntityManager& entityManager, neko::Transform3dManager& transform3dManager, neko::SceneManager sceneManager) override
+    {
+        EXPECT_TRUE(neko::TagLocator::get().CompareEntitiesTag(1, 2));
+        EXPECT_TRUE(neko::TagLocator::get().IsEntityTag(0, "0"));
+        EXPECT_TRUE(neko::TagLocator::get().IsEntityLayer(1, "5"));
+        EXPECT_TRUE(entityManager.HasComponent(0, neko::EntityMask(neko::ComponentType::TRANSFORM3D)));
+        EXPECT_TRUE(entityManager.GetEntityParent(1) == 0);
+        EXPECT_TRUE(transform3dManager.GetPosition(0) == neko::Vec3f(960, 540, 0));
+    }
+
+};
+
+class SceneImporteurTester : public neko::SystemInterface {
+public:
+    explicit SceneImporteurTester(neko::aer::AerEngine& engine, TestSceneInterface& testScene) :
           engine_(engine),
           sceneManager_(engine_.GetEntityManager(), engine_.GetFilesystem(), transform3dManager_),
-          transform3dManager_(engine_.GetEntityManager())
+          transform3dManager_(engine_.GetEntityManager()), testScene_(testScene)
     { }
 
     void Init() override
     {
         const neko::Configuration config = neko::BasicEngine::GetInstance()->GetConfig();
-        sceneManager_.LoadScene(config.dataRootPath + "scenes/scene_example.scene");
+        sceneManager_.LoadScene(config.dataRootPath + testScene_.sceneName);
     }
 
     void Update(neko::seconds dt) override
@@ -60,12 +106,7 @@ public:
 
     void HasSucceed()
     {
-        EXPECT_TRUE(neko::TagLocator::get().CompareEntitiesTag(1,2));
-        EXPECT_TRUE(neko::TagLocator::get().IsEntityTag(0,"0"));
-        EXPECT_TRUE(neko::TagLocator::get().IsEntityLayer(1, 5));
-        EXPECT_TRUE(engine_.GetEntityManager().HasComponent(0, neko::EntityMask(neko::ComponentType::TRANSFORM3D)));
-        EXPECT_TRUE(engine_.GetEntityManager().GetEntityParent(1) == 0);
-        EXPECT_TRUE(transform3dManager_.GetPosition(0) == neko::Vec3f(960, 540, 0));
+        testScene_.HasSucceed(engine_.GetEntityManager(), transform3dManager_, sceneManager_);
     }
 
 
@@ -79,9 +120,10 @@ private:
 
     neko::SceneManager sceneManager_;
     neko::Transform3dManager transform3dManager_;
+    TestSceneInterface& testScene_;
 };
 
-TEST(Scene, TestSceneImporteur)
+TEST(Scene, TestExampleSceneImporteur)
 {
     //Travis Fix because Windows can't open a window
     char* env = getenv("TRAVIS_DEACTIVATE_GUI");
@@ -101,8 +143,39 @@ TEST(Scene, TestSceneImporteur)
     neko::aer::AerEngine engine(filesystem , &config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
+    TestExampleScene testExample;
+    SceneImporteurTester testSceneImporteur(engine, testExample);
+    engine.RegisterSystem(testSceneImporteur);
 
-    TestSceneImporteur testSceneImporteur(engine);
+    engine.Init();
+
+    engine.EngineLoop();
+
+    testSceneImporteur.HasSucceed();
+}
+
+TEST(Scene, TestUnitySceneImporteur)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr) {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    neko::Configuration config;
+    config.windowName = "AerEditor";
+    config.dataRootPath = "../../data/";
+    config.windowSize = neko::Vec2u(1400, 900);
+
+    neko::sdl::Gles3Window window;
+    neko::gl::Gles3Renderer renderer;
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::TEST);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+    TestUnityScene testUnity;
+    SceneImporteurTester testSceneImporteur(engine, testUnity);
     engine.RegisterSystem(testSceneImporteur);
 
     engine.Init();

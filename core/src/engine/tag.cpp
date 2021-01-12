@@ -109,7 +109,7 @@ bool TagManager::IsEntityTag(
 
 bool TagManager::IsEntityTag(Entity entity, TagIndex entityTagIndex) const
 {
-    if (entity == INVALID_ENTITY || entity > entityTagArray_.size()) {
+    if (entity == INVALID_ENTITY || entity >= entityTagArray_.size()) {
         logDebug("Entity invalid");
         return false;
     }
@@ -120,7 +120,7 @@ bool TagManager::IsEntityLayer(
     Entity entity,
     LayerIndex entityLayerIndex) const
 {
-    if (entity == INVALID_ENTITY || entity > entityLayerArray_.size()) {
+    if (entity == INVALID_ENTITY || entity >= entityLayerArray_.size()) {
         logDebug("Entity invalid");
         return false;
     }
@@ -129,10 +129,51 @@ bool TagManager::IsEntityLayer(
 
 bool TagManager::CompareEntitiesTag(Entity entityA, Entity entityB) const
 {
-    if (entityA == INVALID_ENTITY || entityA > entityTagArray_.size() || entityB == INVALID_ENTITY || entityB > entityTagArray_.size()) {
+    if (entityA == INVALID_ENTITY || entityA >= entityTagArray_.size() || entityB == INVALID_ENTITY || entityB >= entityTagArray_.size()) {
         logDebug("Entity invalid");
         return false;
     }
     return entityTagArray_[entityA] == entityTagArray_[entityB];
+}
+
+void TagManager::SetEntityLayer(
+    Entity entity,
+    const std::string& entityLayer) {
+    auto layers = sceneManager_.GetCurrentScene().layers;
+    const auto entityLayerIt = std::find_if(layers.begin(), layers.end(),
+        [entityLayer](std::string layerName)
+        {
+            return layerName == entityLayer;
+        });
+    if (entityLayerIt == layers.end())
+    {
+        SetEntityLayer(entity, 0);
+    }
+    else
+    {
+        const TagIndex entityTagIndex = entityLayerIt - layers.begin();
+        SetEntityLayer(entity, entityTagIndex);
+    }
+}
+
+bool TagManager::IsEntityLayer(
+    Entity entity,
+    const std::string& entityLayer) const {
+    auto layers = sceneManager_.GetCurrentScene().layers;
+    const auto entityLayerIt = std::find_if(layers.begin(), layers.end(),
+        [entityLayer](std::string layerName)
+        {
+            return layerName == entityLayer;
+        });
+    if (entityLayerIt == layers.end())
+    {
+        logDebug("Layer " + entityLayer + " not in scene");
+        return false;
+    }
+    else
+    {
+        const TagIndex entityTagIndex = entityLayerIt - layers.begin();
+        return IsEntityLayer(entity, entityTagIndex);
+    }
 }
 }
