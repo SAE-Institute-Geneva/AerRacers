@@ -11,8 +11,10 @@ int main(int argc, char** argv)
     Configuration config;
     config.windowSize = Vec2u(1280, 720);
     config.windowName = "Vulkan Creation Test";
+	config.dataRootPath = "data/";
 
-    vk::VkEngine engine(&config);
+	Filesystem filesystem;
+    vk::VkEngine engine(filesystem, &config);
     sdl::VulkanWindow window;
     engine.SetWindowAndRenderer(&window);
     engine.Init();

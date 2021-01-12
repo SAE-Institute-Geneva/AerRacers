@@ -3,6 +3,7 @@
 #include <utility>
 
 #include "assimp/postprocess.h"
+#include "utils/file_utility.h"
 #include "vk/graphics.h"
 
 namespace neko::vk
@@ -50,7 +51,7 @@ void ModelLoader::Update()
 
 void ModelLoader::LoadModel()
 {
-	const auto& config = BasicEngine::GetInstance()->config;
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	scene = importer_.get().ReadFile(config.dataRootPath + path_,
 	                                 aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
 	                                 aiProcess_CalcTangentSpace);
@@ -194,7 +195,7 @@ void ModelLoader::LoadMaterialTextures(
 			start_pos += 1;
 		}
 
-		const auto& config = BasicEngine::GetInstance()->config;
+		const auto& config = BasicEngine::GetInstance()->GetConfig();
 		const auto textureId = textureManager.AddTexture2d(
 				fmt::format("{}/{}.ktx", config.dataRootPath + directory.data(), textureNameStr));
 

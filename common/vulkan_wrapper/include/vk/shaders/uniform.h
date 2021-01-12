@@ -1,6 +1,6 @@
 #pragma once
 #include "engine/globals.h"
-#include "utilities/json_utility.h"
+#include "utils/json_utility.h"
 #include "vk/vulkan_include.h"
 
 namespace neko::vk

@@ -1,15 +1,15 @@
 #include "vk/models/model_manager.h"
 
-#include "io_system.h"
 #include "engine/engine.h"
 #include "vk/commands/model_command_buffer.h"
 #include "vk/graphics.h"
+#include "vk/models/io_system.h"
 
 namespace neko::vk
 {
 ModelManager::ModelManager()
 {
-	importer_.SetIOHandler(new NekoIOSystem());
+	importer_.SetIOHandler(new NekoIOSystem(BasicEngine::GetInstance()->GetFilesystem()));
 	ModelManagerLocator::provide(this);
 }
 
@@ -52,7 +52,7 @@ ModelId ModelManager::LoadModel(const std::string& path)
 	if (it != modelPathMap_.end())
 		return it->second;
 
-	const auto& config = BasicEngine::GetInstance()->config;
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	const std::string metaPath = fmt::format("{}{}.meta", config.dataRootPath, path);
 	auto metaJson = LoadJson(metaPath);
 	ModelId modelId = INVALID_MODEL_ID;
@@ -85,6 +85,16 @@ const Model* ModelManager::GetModel(ModelId modelId) const
 
 bool ModelManager::IsLoaded(ModelId modelId)
 {
-	return GetModel(modelId) != nullptr;
+	const auto* model = GetModel(modelId);
+	if (!model) return false;
+
+	auto& materialManager = MaterialManagerLocator::get();
+	for (const auto& mesh : model->GetMeshes())
+	{
+		if (!materialManager.IsMaterialLoaded(mesh.GetMaterialId()))
+			return false;
+	}
+
+	return true;
 }
 }

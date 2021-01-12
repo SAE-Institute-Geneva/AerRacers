@@ -3,7 +3,7 @@
 #include <memory>
 
 #include "mathematics/hash.h"
-#include "utilities/service_locator.h"
+#include "utils/service_locator.h"
 #include "vk/images/image2d.h"
 
 namespace neko::vk

@@ -3,7 +3,7 @@
 #include <utility>
 
 #include "engine/engine.h"
-#include "utilities/json_utility.h"
+#include "utils/json_utility.h"
 #include "vk/graphics.h"
 
 namespace neko::vk

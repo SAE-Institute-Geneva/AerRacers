@@ -111,7 +111,6 @@ VkImage Image::CreateImage(
         const std::uint32_t arrayLayers,
         const VkImageType type)
 {
-    const auto& gpu = VkPhysicalDevice(VkObjectsLocator::get().gpu);
     const auto& device = VkDevice(VkObjectsLocator::get().device);
 
     VkImageCreateInfo imageCreateInfo = {};
@@ -272,8 +271,8 @@ void Image::CreateMipmaps(
         VkImageBlit imageBlit{};
         imageBlit.srcOffsets[1] =
         {
-                int32_t(extent.width >> i - 1),
-                int32_t(extent.height >> i - 1),
+                int32_t(extent.width >> (i - 1)),
+                int32_t(extent.height >> (i - 1)),
                 1
         };
         imageBlit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;

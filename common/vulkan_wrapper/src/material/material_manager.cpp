@@ -144,4 +144,4 @@ ResourceHash MaterialManager::GetDefaultMaterialId()
 
 	return defaultMaterialId;
 }
-} 
+}  

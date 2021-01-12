@@ -11,6 +11,7 @@ void VkDrawSystem::Init()
 {
     camera_.Init();
     camera_.reverseDirection = Vec3f::back;
+    camera_.position = Vec3f::back * 10;
     CameraLocator::provide(&camera_);
 
 	BasicEngine::GetInstance()->RegisterSystem(modelManager_);
@@ -20,7 +21,7 @@ void VkDrawSystem::Update(seconds dt)
 {
     RendererLocator::get().Render(this);
     if (modelId_ == sole::uuid())
-	    modelId_ = modelManager_.LoadModel("aer_racers/models/rock/rock.obj");
+	    modelId_ = modelManager_.LoadModel("models/rock/rock.obj");
 
     camera_.Update(dt);
 
@@ -30,7 +31,7 @@ void VkDrawSystem::Update(seconds dt)
 void VkDrawSystem::Render()
 {
 	const Model* model = modelManager_.GetModel(modelId_);
-	if (model != nullptr)
+	if (modelManager_.IsLoaded(modelId_))
 	{
 		const auto& meshCount = model->GetMeshCount();
 		std::vector<Mat4f> matrices =

@@ -52,7 +52,7 @@ public:
 private:
 	void ResetPipeline();
 
-	std::string shaderPath_ = "aer_racers/shaders/quad_color_instancing.aershader";
+	std::string shaderPath_ = "shaders/quad_color_instancing.aershader";
 
 	Color4 color_;
 	std::neko::optional<const Image2d&> diffuse_;

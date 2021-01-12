@@ -208,7 +208,7 @@ std::vector<VkShaderModule> Shader::LoadFromJson(const json& shaderJson)
 	FromJson(shaderJson);
 
 	std::vector<VkShaderModule> shaderModules(stagePaths_.size());
-	const auto& config = BasicEngine::GetInstance()->config;
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	for (std::size_t i = 0; i < stagePaths_.size(); ++i)
 	{
 		const auto& file = LoadFile(config.dataRootPath + stagePaths_[i]);

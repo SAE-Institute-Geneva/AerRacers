@@ -376,4 +376,4 @@ RenderStage& VkRenderer::GetRenderStage(const uint32_t index) const
     return renderer->GetRenderStage(index);
 }
 }
- 
+  

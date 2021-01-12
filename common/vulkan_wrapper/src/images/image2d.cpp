@@ -1,7 +1,7 @@
 #include "vk/images/image2d.h"
 
 #include <utility>
-#include "utilities/file_utility.h"
+#include "utils/file_utility.h"
 
 namespace neko::vk
 {
@@ -56,7 +56,7 @@ void Image2d::Load()
 void Image2d::LoadKtx()
 {
 	const auto& vkObj = VkObjectsLocator::get();
-	const auto& config = BasicEngine::GetInstance()->config;
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	ktxVulkanDeviceInfo vdi;
 	ktxVulkanTexture texture;
 	ktxTexture* kTexture;

@@ -18,7 +18,7 @@ ResourceHash TextureManager::AddTexture2d(const std::string& texturePath)
 				VK_FILTER_LINEAR,
 				VK_SAMPLER_ADDRESS_MODE_REPEAT,
 				true,
-				true,
+				false,
 				false
 			));
 	textures2d_[resourceId]->Load();

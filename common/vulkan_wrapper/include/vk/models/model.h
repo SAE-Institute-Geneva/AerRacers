@@ -12,6 +12,7 @@ public:
 	[[nodiscard]] bool CmdRender(const CommandBuffer& commandBuffer, std::uint32_t instance = 1) const;
 
 	[[nodiscard]] const Mesh& GetMesh(std::size_t meshIndex) const { return meshes_[meshIndex]; }
+	[[nodiscard]] const std::vector<Mesh>& GetMeshes() const { return meshes_; }
 	[[nodiscard]] std::size_t GetMeshCount() const { return meshes_.size(); }
 
 private:
