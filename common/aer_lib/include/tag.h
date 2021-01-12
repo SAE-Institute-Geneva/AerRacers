@@ -29,7 +29,7 @@
 #include "utils/service_locator.h"
 
 
-namespace neko
+namespace neko::aer
 {
 using TagIndex = unsigned;
 using LayerIndex = unsigned;

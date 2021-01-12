@@ -24,13 +24,14 @@
  */
 
 #include <vector>
+#include <sole.hpp>
+
 #include <engine/globals.h>
 #include <utils/json_utility.h>
-#include "entity.h"
-#include <sole.hpp>
-#include "component.h"
+#include <engine/entity.h>
+#include <engine/component.h>
 
-namespace neko
+namespace neko::aer
 {
 
 class SceneManager;

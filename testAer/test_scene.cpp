@@ -27,7 +27,7 @@
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
 
-#include "engine/scene.h"
+#include "scene.h"
 #ifdef NEKO_GLES3
 #include <engine\system.h>
 #include <aer_engine.h>
@@ -36,7 +36,7 @@
 
 class TestSceneInterface {
 public:
-    virtual void HasSucceed(neko::EntityManager& entityManager, neko::Transform3dManager& transform3dManager, neko::SceneManager sceneManager) = 0;
+    virtual void HasSucceed(neko::EntityManager& entityManager, neko::Transform3dManager& transform3dManager, neko::aer::SceneManager sceneManager) = 0;
     std::string sceneName;
 };
 
@@ -48,14 +48,14 @@ public:
 
     virtual void HasSucceed(
         neko::EntityManager& entityManager,
-        neko::Transform3dManager& transform3dManager, neko::SceneManager sceneManager) override
+        neko::Transform3dManager& transform3dManager, neko::aer::SceneManager sceneManager) override
     {
         EXPECT_TRUE(sceneManager.GetCurrentScene().sceneName == "WillToolScene");
         EXPECT_TRUE(entityManager.GetEntitiesNmb() == 7);
         EXPECT_TRUE(entityManager.GetEntityParent(1) == 0);
-        EXPECT_TRUE(neko::TagLocator::get().CompareEntitiesTag(0, 1));
-        EXPECT_TRUE(neko::TagLocator::get().IsEntityLayer(0, "Ground"));
-        EXPECT_TRUE(neko::TagLocator::get().IsEntityTag(0, 0));
+        EXPECT_TRUE(neko::aer::TagLocator::get().CompareEntitiesTag(0, 1));
+        EXPECT_TRUE(neko::aer::TagLocator::get().IsEntityLayer(0, "Ground"));
+        EXPECT_TRUE(neko::aer::TagLocator::get().IsEntityTag(0, 0));
         EXPECT_TRUE(entityManager.HasComponent(0, neko::EntityMask(neko::ComponentType::TRANSFORM3D)));
         EXPECT_TRUE(entityManager.GetEntityParent(1) == 0);
         EXPECT_TRUE(transform3dManager.GetPosition(0) == neko::Vec3f(1.0, 3.0, 5.0));
@@ -68,11 +68,11 @@ public:
         sceneName = "scenes/scene_example.scene";
     }
 
-    void HasSucceed(neko::EntityManager& entityManager, neko::Transform3dManager& transform3dManager, neko::SceneManager sceneManager) override
+    void HasSucceed(neko::EntityManager& entityManager, neko::Transform3dManager& transform3dManager, neko::aer::SceneManager sceneManager) override
     {
-        EXPECT_TRUE(neko::TagLocator::get().CompareEntitiesTag(1, 2));
-        EXPECT_TRUE(neko::TagLocator::get().IsEntityTag(0, "0"));
-        EXPECT_TRUE(neko::TagLocator::get().IsEntityLayer(1, "5"));
+        EXPECT_TRUE(neko::aer::TagLocator::get().CompareEntitiesTag(1, 2));
+        EXPECT_TRUE(neko::aer::TagLocator::get().IsEntityTag(0, "0"));
+        EXPECT_TRUE(neko::aer::TagLocator::get().IsEntityLayer(1, "5"));
         EXPECT_TRUE(entityManager.HasComponent(0, neko::EntityMask(neko::ComponentType::TRANSFORM3D)));
         EXPECT_TRUE(entityManager.GetEntityParent(1) == 0);
         EXPECT_TRUE(transform3dManager.GetPosition(0) == neko::Vec3f(960, 540, 0));
@@ -118,7 +118,7 @@ private:
 
     neko::aer::AerEngine& engine_;
 
-    neko::SceneManager sceneManager_;
+    neko::aer::SceneManager sceneManager_;
     neko::Transform3dManager transform3dManager_;
     TestSceneInterface& testScene_;
 };
@@ -204,10 +204,10 @@ public:
         engine_.GetEntityManager().SetEntityParent(1, 0);
         sceneManager_.AddTag("TestTag");
         sceneManager_.AddLayer("TestLayer");
-        neko::TagLocator::get().SetEntityTag(0, "TestTag");
-        neko::TagLocator::get().SetEntityTag(1, "TestTag");
-        neko::TagLocator::get().SetEntityLayer(2, "TestLayer");
-        neko::TagLocator::get().SetEntityLayer(3, "TestLayer");
+        neko::aer::TagLocator::get().SetEntityTag(0, "TestTag");
+        neko::aer::TagLocator::get().SetEntityTag(1, "TestTag");
+        neko::aer::TagLocator::get().SetEntityLayer(2, "TestLayer");
+        neko::aer::TagLocator::get().SetEntityLayer(3, "TestLayer");
         transform3dManager_.AddComponent(0);
         transform3dManager_.SetPosition(0, neko::Vec3f(1.0, 3.0, 5.0));
     }
@@ -233,9 +233,9 @@ public:
         EXPECT_TRUE(sceneManager_.GetCurrentScene().sceneName == "writed_scene");
         EXPECT_TRUE(engine_.GetEntityManager().GetEntitiesNmb() == 5);
         EXPECT_TRUE(engine_.GetEntityManager().GetEntityParent(1) == 0);
-        EXPECT_TRUE(neko::TagLocator::get().CompareEntitiesTag(0, 1));
-        EXPECT_TRUE(neko::TagLocator::get().IsEntityLayer(3, "TestLayer"));
-        EXPECT_FALSE(neko::TagLocator::get().IsEntityTag(1, 0));
+        EXPECT_TRUE(neko::aer::TagLocator::get().CompareEntitiesTag(0, 1));
+        EXPECT_TRUE(neko::aer::TagLocator::get().IsEntityLayer(3, "TestLayer"));
+        EXPECT_FALSE(neko::aer::TagLocator::get().IsEntityTag(1, 0));
         EXPECT_TRUE(engine_.GetEntityManager().HasComponent(0, neko::EntityMask(neko::ComponentType::TRANSFORM3D)));
         EXPECT_TRUE(transform3dManager_.GetPosition(0) == neko::Vec3f(1.0, 3.0, 5.0));
     }
@@ -249,7 +249,7 @@ private:
 
     neko::aer::AerEngine& engine_;
 
-    neko::SceneManager sceneManager_;
+    neko::aer::SceneManager sceneManager_;
     neko::Transform3dManager transform3dManager_;
 };
 
