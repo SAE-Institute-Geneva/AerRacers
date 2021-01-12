@@ -35,7 +35,7 @@ void NetworkDebugApp::Init()
 {
     Job initJob = Job([this]()
         {
-            const auto& config = BasicEngine::GetInstance()->GetConfig();
+            const auto& config = BasicEngine::GetInstance()->config;
             windowSize_ = config.windowSize;
             for (auto& framebuffer : clientsFramebuffer_)
             {
@@ -110,7 +110,7 @@ void NetworkDebugApp::DrawImGui()
 
 void NetworkDebugApp::Render()
 {
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
+    const auto& config = BasicEngine::GetInstance()->config;
     if (config.windowSize != windowSize_)
     {
         logDebug(fmt::format(

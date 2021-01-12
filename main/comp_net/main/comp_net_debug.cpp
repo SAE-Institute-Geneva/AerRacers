@@ -32,7 +32,7 @@ namespace neko::asteroid
 class DebugEngine : public sdl::SdlEngine
 {
 public:
-    explicit DebugEngine(FilesystemInterface& filesystem) : sdl::SdlEngine(filesystem)
+    explicit DebugEngine(Configuration* config = nullptr) : sdl::SdlEngine(config)
     {
         RegisterSystem(app_);
         RegisterOnDrawUi(app_);
@@ -52,8 +52,7 @@ private:
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
-    neko::Filesystem filesystem;
-    neko::asteroid::DebugEngine engine(filesystem);
+    neko::asteroid::DebugEngine engine;
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;

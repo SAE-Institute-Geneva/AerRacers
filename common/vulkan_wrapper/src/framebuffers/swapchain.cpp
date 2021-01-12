@@ -213,7 +213,7 @@ VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
 	if (capabilities.currentExtent.width != UINT32_MAX)
 		return capabilities.currentExtent;
 
-	auto& config = BasicEngine::GetInstance()->GetConfig();
+	auto& config = BasicEngine::GetInstance()->config;
 	std::cout << config.windowSize.x << config.windowSize.y << '\n';
 
 	VkExtent2D actualExtent = {config.windowSize.x, config.windowSize.y};

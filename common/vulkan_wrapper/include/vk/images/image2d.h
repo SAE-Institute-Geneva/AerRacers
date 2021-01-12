@@ -29,19 +29,15 @@ public:
 
     void Load();
 
-    void SetFilePath(const std::string& filePath) { filePath_ = filePath; }
-    [[nodiscard]] const std::string& GetFilePath() const { return filePath_; }
+    void SetFilename(const std::string& filename) { filename_ = filename; }
+    [[nodiscard]] const std::string& GetFilename() const { return filename_; }
 
 private:
-	void LoadKtx();
-
-	void SetFromKtxVkTexture(const ktxVulkanTexture& texture);
-
-    std::string filePath_ = {};
+    std::string filename_ = {};
 
     bool anisotropic_;
     bool mipmap_;
 
-    std::uint32_t components_ = 4;
+    std::uint32_t components_ = 0;
 };
 }

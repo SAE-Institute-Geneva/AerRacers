@@ -73,9 +73,7 @@ private:
 	gl::Shader ssaoBlurShader_;
 	gl::RenderQuad screenPlane_{ Vec3f::zero, Vec2f::one * 2.0f };
 	gl::RenderQuad plane_{Vec3f::zero, Vec2f::one};
-	gl::ModelManager modelManager_;
-	gl::ModelId modelId_ = gl::INVALID_MODEL_ID;
-
+	assimp::Model model_;
 
 	unsigned int gBuffer_ = 0;
 	unsigned int gPosition_ = 0;

@@ -288,10 +288,8 @@ struct Vec2
 // Vec2 Aliases
 //-----------------------------------------------------------------------------
 using Vec2f = Vec2<float>;
-using Vec2df = Vec2<double>;
 using Vec2i = Vec2<int>;
 using Vec2u = Vec2<unsigned>;
-
 
 template<typename T>
 inline Vec2<T> const Vec2<T>::zero = Vec2<T>(0, 0);
@@ -608,10 +606,8 @@ public:
 // Vec3 Aliases
 //-----------------------------------------------------------------------------
 using Vec3f = Vec3<float>;
-using Vec3df = Vec3<double>;
 using Vec3i = Vec3<int>;
 using Vec3u = Vec3<unsigned int>;
-using Vec3b = Vec3<std::uint8_t>;
 using EulerAngles = Vec3<degree_t>;
 using RadianAngles = Vec3<radian_t>;
 
@@ -888,7 +884,6 @@ public:
 // Vec4 Aliases
 //-----------------------------------------------------------------------------
 using Vec4f = Vec4<float>;
-using Vec4df = Vec4<float>;
 
 template<typename T>
 inline Vec4<T> const Vec4<T>::zero = Vec4<T>(0);

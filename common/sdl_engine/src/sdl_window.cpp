@@ -24,7 +24,7 @@
 
 #include <sstream>
 
-#include <utils/service_locator.h>
+#include <utilities/service_locator.h>
 #include <engine/log.h>
 #include "sdl_engine/sdl_window.h"
 #include "engine/engine.h"
@@ -41,13 +41,13 @@ void sdl::SdlWindow::Init()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("InitSdlWindow");
 #endif
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
+    auto& config = BasicEngine::GetInstance()->config;
 
-    flags_ = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
+    uint32_t flags = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
 #if defined (NEKO_GLES3) && !defined (NEKO_VULKAN)
-    flags_ |= SDL_WINDOW_OPENGL;
+    flags |= SDL_WINDOW_OPENGL;
 #elif defined (NEKO_VULKAN)
-    flags_ |= SDL_WINDOW_VULKAN;
+    flags |= SDL_WINDOW_VULKAN;
 #endif
 
 #if defined(__ANDROID__)
@@ -55,28 +55,31 @@ void sdl::SdlWindow::Init()
     config.windowSize = Vec2u(1280, 720);
     config.fullscreen = true;
 #endif
+
     auto windowSize = config.windowSize;
-    if (config.flags & Configuration::FULLSCREEN)
+    if (config.fullscreen)
     {
         windowSize = Vec2u::zero;
-        flags_ |= SDL_WINDOW_FULLSCREEN_DESKTOP;
+        flags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
     }
 
     window_ = SDL_CreateWindow(
-        config.windowName.c_str(),
-        SDL_WINDOWPOS_UNDEFINED,
-        SDL_WINDOWPOS_UNDEFINED,
-        windowSize.x,
-        windowSize.y,
-        flags_
+            config.windowName.c_str(),
+            SDL_WINDOWPOS_UNDEFINED,
+            SDL_WINDOWPOS_UNDEFINED,
+            windowSize.x,
+            windowSize.y,
+            flags
     );
-	if(config.flags & Configuration::FULLSCREEN)
+
+	if(config.fullscreen)
 	{
         int windowSizeW = 0;
         int windowSizeH = 0;
         SDL_GetWindowSize(window_, &windowSizeW, &windowSizeH);
         windowSize.x = windowSizeW;
         windowSize.y = windowSizeH;
+        config.windowSize = windowSize;
 	}
 
     // Check that everything worked out okay
@@ -93,7 +96,7 @@ void sdl::SdlWindow::InitImGui()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("InitSdlImGui");
 #endif
-    // Setup Dear ImGui context
+// Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void) io;

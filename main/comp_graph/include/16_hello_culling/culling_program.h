@@ -49,9 +49,8 @@ private:
 		CCW = 1u << 2u
 	};
 	
-    gl::ModelId modelId_ = gl::INVALID_MODEL_ID;
-    gl::ModelManager modelManager_;
 	sdl::MovableCamera3D camera_;
+	assimp::Model model_;
 	gl::RenderCuboid cube_{ Vec3f::zero, Vec3f::one };
 	gl::TextureManager textureManager_;
 	TextureName cubeTexture_ = INVALID_TEXTURE_NAME;

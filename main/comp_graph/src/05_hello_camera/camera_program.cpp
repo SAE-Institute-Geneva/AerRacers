@@ -32,11 +32,11 @@ namespace neko
 {
 void HelloCameraProgram::Init()
 {
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
+	const auto& config = BasicEngine::GetInstance()->config;
     shader_.LoadFromFile(
             config.dataRootPath + "shaders/04_hello_coords/coords.vert",
             config.dataRootPath + "shaders/04_hello_coords/coords.frag");
-	textureWall_ = gl::StbCreateTexture(config.dataRootPath + "sprites/wall.jpg", BasicEngine::GetInstance()->GetFilesystem());
+	textureWall_ = gl::stbCreateTexture(config.dataRootPath + "sprites/wall.jpg");
 
 	cube_.Init();
 	
@@ -49,7 +49,7 @@ void HelloCameraProgram::Update(seconds dt)
 {
 	std::lock_guard<std::mutex> lock(updateMutex_);
 	
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
+	const auto& config = BasicEngine::GetInstance()->config;
 	projection_ = Transform3d::Perspective(
 		degree_t(45.0f),
 		static_cast<float>(config.windowSize.x) / config.windowSize.y,
@@ -209,5 +209,4 @@ void HelloCameraProgram::OnEvent(const SDL_Event& event)
 		break;
 	}
 }
-
 }

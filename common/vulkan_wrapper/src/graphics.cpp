@@ -27,11 +27,11 @@
 ---------------------------------------------------------- */
 #include "vk/graphics.h"
 
-#include "ktxvulkan.h"
 #include "mathematics/hash.h"
 
 #include "vk/models/quad.h"
 #include "vk/renderers/renderer_editor.h"
+#include "vk/subrenderers/subrenderer_opaque.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -116,6 +116,9 @@ void VkRenderer::AfterRenderLoop()
     {
         ResetRenderStages();
         renderer->Start();
+
+	    const auto& config = BasicEngine::GetInstance()->config;
+	    materialManager_.AddMaterial(config.dataRootPath + "aer_racers/materials/test.aermat");
     }
 
     const auto acquireResult = swapchain->AcquireNextImage(
@@ -311,7 +314,7 @@ void VkRenderer::RecreatePass(RenderStage& renderStage)
 {
     const auto& graphicQueue = device.GetGraphicsQueue();
 
-    const Vec2u& size = BasicEngine::GetInstance()->GetConfig().windowSize;
+    const Vec2u& size = BasicEngine::GetInstance()->config.windowSize;
     const VkExtent2D displayExtent = {
             static_cast<uint32_t>(size.x),
             static_cast<uint32_t>(size.y)
@@ -365,10 +368,10 @@ void VkRenderer::SetWindow(sdl::VulkanWindow* window)
     vkWindow = window;
 }
 
-void VkRenderer::SetRenderer(std::unique_ptr<vk::RendererEditor>&& newRenderer)
+void VkRenderer::SetRenderer(std::unique_ptr<vk::Renderer>&& renderer)
 {
-    renderer = std::move(newRenderer);
-    renderer->Init();
+    this->renderer = std::move(renderer);
+    this->renderer->Init();
 }
 
 RenderStage& VkRenderer::GetRenderStage(const uint32_t index) const
@@ -376,4 +379,3 @@ RenderStage& VkRenderer::GetRenderStage(const uint32_t index) const
     return renderer->GetRenderStage(index);
 }
 }
- 

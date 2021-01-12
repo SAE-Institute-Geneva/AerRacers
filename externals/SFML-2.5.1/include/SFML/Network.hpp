@@ -47,7 +47,7 @@
 ////////////////////////////////////////////////////////////
 /// \defgroup network Network module
 ///
-/// Socket-based communication, utils and higher-level
+/// Socket-based communication, utilities and higher-level
 /// network protocols (HTTP, FTP).
 ///
 ////////////////////////////////////////////////////////////

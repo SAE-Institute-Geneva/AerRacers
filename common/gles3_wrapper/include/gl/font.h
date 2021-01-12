@@ -48,7 +48,6 @@ struct Font
 class FontManager : public neko::FontManager
 {
 public:
-    explicit FontManager(const FilesystemInterface&);
     void Init() override;
 
     FontId LoadFont(std::string_view fontName, int pixelHeight) override;
@@ -74,8 +73,6 @@ protected:
         Color4 color;
     };
     Vec2f CalculateTextPosition(Vec2f position, TextAnchor anchor);
-
-    const FilesystemInterface& filesystem_;
     std::vector<FontRenderingCommand> commands_;
     gl::Shader textShader_;
     gl::VertexArrayObject textureQuad_;

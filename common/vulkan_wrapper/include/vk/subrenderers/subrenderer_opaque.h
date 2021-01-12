@@ -4,7 +4,7 @@
 #include "vk/commands/model_command_buffer.h"
 #include "vk/buffers/uniform_handle.h"
 #include "vk/pipelines/render_pipeline.h"
-#include "vk/models/cube.h"
+#include "vk/models/quad.h"
 
 namespace neko::vk
 {
@@ -25,11 +25,7 @@ public:
     void SetUniformBlock(const UniformBlock& uniformBlock);
 
 private:
-    bool CmdRender(
-    		const CommandBuffer& commandBuffer,
-    		ForwardDrawCmd& modelDrawCommand,
-    		const Mesh& mesh,
-    		const Material& mat);
+    bool CmdRender(const CommandBuffer& commandBuffer, ForwardDrawCmd& modelDrawCommand);
     UniformHandle uniformScene_;
 
     ModelCommandBuffer& modelCmdBuffer_;
@@ -37,9 +33,9 @@ private:
     inline static const auto kUboSceneHash = HashString("UboScene");
     inline static const auto kProjectionHash = HashString("proj");
     inline static const auto kViewHash = HashString("view");
-	inline static const auto kViewPosHash = HashString("viewPos");
-
     inline static const auto kUboObjectHash = HashString("UboObject");
     inline static const auto kModelHash = HashString("model");
+
+    RenderQuad quad_{Vec3f::zero, Vec2f::one};
 };
 }

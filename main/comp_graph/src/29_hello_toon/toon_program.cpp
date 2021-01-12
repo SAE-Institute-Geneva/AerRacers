@@ -30,11 +30,10 @@ namespace neko
 void HelloToonShadingProgram::Init()
 {
 
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
+	const auto& config = BasicEngine::GetInstance()->config;
 	const std::string path = config.dataRootPath + "model/nanosuit2/nanosuit.obj";
 	glCheckError();
-	modelId_ = modelManager_.LoadModel(path);
-	camera_.Init();
+	model_.LoadModel(path);
 	toonShader_.LoadFromFile(
 		config.dataRootPath + "shaders/29_hello_toon/toon.vert",
 		config.dataRootPath + "shaders/29_hello_toon/toon.frag");
@@ -45,9 +44,7 @@ void HelloToonShadingProgram::Init()
 void HelloToonShadingProgram::Update(seconds dt)
 {
 	std::lock_guard<std::mutex> lock(updateMutex_);
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
-	textureManager_.Update(dt);
-	modelManager_.Update(dt);
+	const auto& config = BasicEngine::GetInstance()->config;
 	camera_.SetAspect(config.windowSize.x, config.windowSize.y);
 	camera_.Update(dt);
 	dt_ += dt.count();
@@ -56,8 +53,7 @@ void HelloToonShadingProgram::Update(seconds dt)
 
 void HelloToonShadingProgram::Destroy()
 {
-	textureManager_.Destroy();
-	modelManager_.Destroy();
+	model_.Destroy();
 	toonShader_.Destroy();
 }
 
@@ -73,7 +69,7 @@ void HelloToonShadingProgram::DrawImGui()
 
 void HelloToonShadingProgram::Render()
 {
-	if(!modelManager_.IsLoaded(modelId_))
+	if(!model_.IsLoaded())
 	{
 		return;
 	}
@@ -95,8 +91,7 @@ void HelloToonShadingProgram::Render()
 	shader.SetVec3("light.position", light_.position);
 	shader.SetFloat("material.ambient", light_.ambient);
 
-	auto* mod = modelManager_.GetModel(modelId_);
-	mod->Draw(shader);
+	model_.Draw(shader);
 }
 
 void HelloToonShadingProgram::OnEvent(const SDL_Event& event)

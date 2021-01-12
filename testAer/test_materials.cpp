@@ -1,17 +1,15 @@
 #include <gtest/gtest.h>
 
 #ifdef NEKO_VULKAN
-#include "utils/file_utility.h"
-#include "utils/json_utility.h"
+#include "utilities/file_utility.h"
+#include "utilities/json_utility.h"
 #include "vk/material/diffuse_material.h"
 
 namespace neko::vk
 {
 TEST(Materials, TestSaveMaterial)
 {
-	auto image2d = Image2d("aer_racers/textures/stone.png.ktx");
-	auto image = std::neko::optional<const Image2d&>(image2d);
-	DiffuseMaterial material("Test", Color::blue, image);
+	DiffuseMaterial material("Test", Color::blue);
 	material.SetShaderPath("aer_racers/shaders/quad_color.aershader");
 
 	ordered_json materialJson = material.ToJson();
@@ -27,8 +25,8 @@ TEST(Materials, TestLoadMaterial)
 
 	DiffuseMaterial material;
 	material.FromJson(materialJson);
-	EXPECT_EQ(material.GetColor(), Color4(Color::blue, 1.0f));
+	EXPECT_EQ(material.GetColor(), Color::blue);
 	EXPECT_EQ(material.GetType(), vk::MaterialType::DIFFUSE);
 }
 }
-#endif 
+#endif

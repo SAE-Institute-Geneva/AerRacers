@@ -34,7 +34,6 @@ namespace neko
 
 void HelloInstancingProgram::Init()
 {
-    textureManager_.Init();
     asteroidPositions_.resize(maxAsteroidNmb_);
     asteroidForces_.resize(maxAsteroidNmb_);
     asteroidVelocities_.resize(maxAsteroidNmb_);
@@ -54,8 +53,8 @@ void HelloInstancingProgram::Init()
 #ifdef EASY_PROFILE_USE
     EASY_END_BLOCK;
 #endif
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
-    modelId_ = modelManager_.LoadModel(config.dataRootPath + "model/rock/rock.obj");
+    const auto& config = BasicEngine::GetInstance()->config;
+    model_.LoadModel(config.dataRootPath + "model/rock/rock.obj");
 
     singleDrawShader_.LoadFromFile(config.dataRootPath + "shaders/10_hello_instancing/asteroid_single.vert",
                                    config.dataRootPath + "shaders/10_hello_instancing/asteroid.frag");
@@ -75,9 +74,7 @@ void HelloInstancingProgram::Init()
 
 void HelloInstancingProgram::Update(seconds dt)
 {
-    modelManager_.Update(dt);
-    textureManager_.Update(dt);
-    if (!modelManager_.IsLoaded(modelId_))
+    if (!model_.IsLoaded())
     {
         return;
     }
@@ -96,16 +93,14 @@ void HelloInstancingProgram::Update(seconds dt)
     EASY_END_BLOCK;
 #endif
 
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
+    const auto& config = BasicEngine::GetInstance()->config;
     camera_.SetAspect(config.windowSize.x, config.windowSize.y);
     camera_.Update(dt);
-
 }
 
 void HelloInstancingProgram::Destroy()
 {
-    textureManager_.Destroy();
-    modelManager_.Destroy();
+    model_.Destroy();
     singleDrawShader_.Destroy();
     vertexInstancingDrawShader_.Destroy();
     uniformInstancingShader_.Destroy();
@@ -137,7 +132,7 @@ void HelloInstancingProgram::DrawImGui()
 
 void HelloInstancingProgram::Render()
 {
-    if (!modelManager_.IsLoaded(modelId_))
+    if (!model_.IsLoaded())
     {
         return;
     }
@@ -145,10 +140,9 @@ void HelloInstancingProgram::Render()
     std::lock_guard<std::mutex> lock(updateMutex_);
     if (instanceVBO_ == 0)
     {
-        auto* asteroidModel = modelManager_.GetModel(modelId_);
-        const auto& asteroidMesh = asteroidModel->GetMesh(0);
+        const auto& asteroidMesh = model_.GetMesh(0);
 
-        glBindVertexArray(asteroidMesh.VAO);
+        glBindVertexArray(asteroidMesh.GetVao());
         glGenBuffers(1, &instanceVBO_);
 
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO_);
@@ -159,7 +153,7 @@ void HelloInstancingProgram::Render()
         glBindVertexArray(0);
 
     }
-    auto* asteroidModel = modelManager_.GetModel(modelId_);
+
     switch (instancingType_)
     {
         case InstancingType::NO_INSTANCING:
@@ -174,7 +168,7 @@ void HelloInstancingProgram::Render()
             for (size_t i = 0; i < asteroidNmb_; i++)
             {
                 singleDrawShader_.SetVec3("position", asteroidPositions_[i]);
-                asteroidModel->Draw(singleDrawShader_);
+                model_.Draw(singleDrawShader_);
             }
             break;
         }
@@ -184,8 +178,8 @@ void HelloInstancingProgram::Render()
             EASY_BLOCK("Draw Uniform Instaning");
 #endif
             uniformInstancingShader_.Bind();
-            const auto& asteroidMesh = asteroidModel->GetMesh(0);
-            asteroidModel->BindTextures(0, uniformInstancingShader_);
+            const auto& asteroidMesh = model_.GetMesh(0);
+            asteroidMesh.BindTextures(uniformInstancingShader_);
             uniformInstancingShader_.SetMat4("view", camera_.GenerateViewMatrix());
             uniformInstancingShader_.SetMat4("projection", camera_.GenerateProjectionMatrix());
 
@@ -208,8 +202,8 @@ void HelloInstancingProgram::Render()
 #endif
                 if (chunkEndIndex > chunkBeginIndex)
                 {
-                    glBindVertexArray(asteroidMesh.VAO);
-                    glDrawElementsInstanced(GL_TRIANGLES, asteroidMesh.indices.size(), GL_UNSIGNED_INT, 0,
+                    glBindVertexArray(asteroidMesh.GetVao());
+                    glDrawElementsInstanced(GL_TRIANGLES, asteroidMesh.GetElementsCount(), GL_UNSIGNED_INT, 0,
                                             chunkEndIndex - chunkBeginIndex);
                     glBindVertexArray(0);
                 }
@@ -222,8 +216,8 @@ void HelloInstancingProgram::Render()
             EASY_BLOCK("Draw Vertex Buffer Instaning");
 #endif
             vertexInstancingDrawShader_.Bind();
-            const auto& asteroidMesh = asteroidModel->GetMesh(0);
-            asteroidModel->BindTextures(0, vertexInstancingDrawShader_);
+            const auto& asteroidMesh = model_.GetMesh(0);
+            asteroidMesh.BindTextures(vertexInstancingDrawShader_);
             vertexInstancingDrawShader_.SetMat4("view", camera_.GenerateViewMatrix());
             vertexInstancingDrawShader_.SetMat4("projection", camera_.GenerateProjectionMatrix());
 
@@ -245,8 +239,8 @@ void HelloInstancingProgram::Render()
                     EASY_BLOCK("Draw Mesh");
 
 #endif
-                    glBindVertexArray(asteroidMesh.VAO);
-                    glDrawElementsInstanced(GL_TRIANGLES, asteroidMesh.indices.size(), GL_UNSIGNED_INT, 0,
+                    glBindVertexArray(asteroidMesh.GetVao());
+                    glDrawElementsInstanced(GL_TRIANGLES, asteroidMesh.GetElementsCount(), GL_UNSIGNED_INT, 0,
                                             chunkSize);
                     glBindVertexArray(0);
                 }

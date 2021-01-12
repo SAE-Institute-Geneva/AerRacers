@@ -24,15 +24,13 @@
  */
 #include <mutex>
 #include <string>
-#include <optional>
-
 #include <engine/system.h>
-#include <utils/action_utility.h>
+#include <utilities/action_utility.h>
 #include <graphics/color.h>
-#include <utils/time_utility.h>
-#include <engine/configuration.h>
-#include <engine/jobsystem.h>
-#include "engine/filesystem.h"
+#include <utilities/time_utility.h>
+#include <mathematics/vector.h>
+
+#include "jobsystem.h"
 
 
 namespace neko
@@ -40,6 +38,25 @@ namespace neko
 class Renderer;
 class Window;
 
+/**
+ * \brief store various Engine constant or global values
+ */
+struct Configuration
+{
+	std::string windowName = "NekoEngine 0.1";
+    Vec2u windowSize = Vec2u(1024, 1024);
+    Vec2u gameWindowSize{1280, 720};
+    bool fullscreen = false;
+    bool vSync = true;
+    unsigned int framerateLimit = 0u;
+#if defined(EMSCRIPTEN)
+    std::string dataRootPath = "./";
+#elif defined(__ANDROID__)
+    std::string dataRootPath = "data/";
+#else
+    std::string dataRootPath = "../../data/";
+#endif
+};
 
 
 /**
@@ -48,9 +65,9 @@ class Window;
 class BasicEngine : public SystemInterface
 {
 public:
-    explicit BasicEngine(const FilesystemInterface&,std::optional<Configuration> config = std::nullopt);
+    explicit BasicEngine(Configuration* config = nullptr);
 	BasicEngine() = delete;
-    ~BasicEngine() override;
+    ~BasicEngine();
     void Init() override;
     void Update(seconds dt) final;
     void Destroy() override;
@@ -64,8 +81,7 @@ public:
 
     virtual void SetWindowAndRenderer(Window* window, Renderer* renderer);
 
-    const Configuration& GetConfig();
-    const FilesystemInterface& GetFilesystem();
+    Configuration config;
 
     void RegisterSystem(SystemInterface& system);
     void RegisterOnDrawUi(DrawImGuiInterface& drawUi);
@@ -75,19 +91,14 @@ public:
     static BasicEngine* GetInstance(){return instance_;}
 
     void ScheduleJob(Job* job, JobThreadType threadType);
-
-    [[nodiscard]] std::uint8_t GetWorkersNumber() const { return jobSystem_.GetWorkersNumber(); }
-
     //template <typename T = BasicEngine>
     //static T* GetInstance(){ return dynamic_cast<T*>(instance_);};
 protected:
     static BasicEngine* instance_;
-    const FilesystemInterface& filesystem_;
-    Configuration config_;
     Renderer* renderer_ = nullptr;
     Window* window_ = nullptr;
     JobSystem jobSystem_;
-	bool isRunning_ = false;
+	bool isRunning_;
     float dt_ = 0.0f;
     Action<> initAction_;
     Action<seconds> updateAction_;

@@ -174,8 +174,7 @@ TEST(Editor, TestEditor)
 
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::Filesystem filesystem;
-    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::TEST);
+    neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::TEST);
 
     engine.SetWindowAndRenderer(&window, &renderer);
 

@@ -42,7 +42,7 @@ public:
 class SdlEngine : public BasicEngine
 {
 public:
-	using BasicEngine::BasicEngine;
+	explicit SdlEngine(Configuration* config = nullptr);
 	SdlEngine() = delete;
 	void Init() override;
 	void Destroy() override;
@@ -56,7 +56,6 @@ public:
 protected:
     Action<const SDL_Event&> onEventAction_;
 	InputManager inputManager_;
-
 };
 }
 

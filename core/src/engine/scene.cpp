@@ -23,7 +23,7 @@
  */
 
 #include <engine/scene.h>
-#include <utils/file_utility.h>
+#include <utilities/file_utility.h>
 #include <engine/log.h>
 
 #include <fmt/format.h>
@@ -33,9 +33,8 @@ namespace neko
 
 static const std::string_view sceneExtension = ".scene";
 
-neko::SceneManager::SceneManager(EntityManager& entityManager, FilesystemInterface& filesystem) :
-    filesystem_(filesystem),
-    entityManager_(entityManager)
+neko::SceneManager::SceneManager(EntityManager& entityManager) :
+entityManager_(entityManager)
 {
 
 }
@@ -53,7 +52,7 @@ void SceneManager::ParseSceneJson(const json& sceneJson)
     if(CheckJsonParameter(sceneJson, "scenePath", json::value_t::string))
     {
         std::string scenePath = sceneJson["scenePath"];
-        if(filesystem_.FileExists(scenePath))
+        if(FileExists(scenePath))
         {
             currentScene_.scenePath = scenePath;
         }

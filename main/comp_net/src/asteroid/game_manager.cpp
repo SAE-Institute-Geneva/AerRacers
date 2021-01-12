@@ -140,7 +140,6 @@ void GameManager::WinGame(net::PlayerNumber winner)
 
 ClientGameManager::ClientGameManager(PacketSenderInterface& packetSenderInterface) :
     GameManager(),
-    fontManager_(BasicEngine::GetInstance()->GetFilesystem()),
     spriteManager_(entityManager_, textureManager_, transformManager_),
     packetSenderInterface_(packetSenderInterface)
 {
@@ -157,7 +156,7 @@ void ClientGameManager::Init()
     spriteManager_.Init();
     fontManager_.Init();
 
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
+    const auto& config = BasicEngine::GetInstance()->config;
     fontId_ = fontManager_.LoadFont(config.dataRootPath + "font/8-bit-hud.ttf", 36);
 
     GameManager::Init();
@@ -278,8 +277,7 @@ void ClientGameManager::Destroy()
 void ClientGameManager::SetWindowSize(Vec2u windowsSize)
 {
     windowSize_ = windowsSize;
-    camera_.SetAspect(windowsSize.x / windowsSize.y);
-    camera_.size = PixelPerUnit * windowsSize.x;
+    camera_.SetExtends(Vec2f(windowsSize) / PixelPerUnit);
     fontManager_.SetWindowSize(Vec2f(windowsSize));
 }
 
@@ -300,10 +298,10 @@ void ClientGameManager::SpawnPlayer(net::PlayerNumber playerNumber, Vec2f positi
     logDebug("Spawn player: " + std::to_string(playerNumber));
     GameManager::SpawnPlayer(playerNumber, position, rotation);
     const auto entity = GetEntityFromPlayerNumber(playerNumber);
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
+    const auto& config = BasicEngine::GetInstance()->config;
     if (shipTextureId_ == INVALID_TEXTURE_ID)
     {
-        shipTextureId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/asteroid/ship.png", Texture::DEFAULT);
+        shipTextureId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/asteroid/ship.png");
     }
     spriteManager_.AddComponent(entity);
     spriteManager_.SetTexture(entity, shipTextureId_);
@@ -316,11 +314,10 @@ void ClientGameManager::SpawnPlayer(net::PlayerNumber playerNumber, Vec2f positi
 Entity ClientGameManager::SpawnBullet(net::PlayerNumber playerNumber, Vec2f position, Vec2f velocity)
 {
     const auto entity = GameManager::SpawnBullet(playerNumber, position, velocity);
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
+    const auto& config = BasicEngine::GetInstance()->config;
     if (bulletTextureId_ == INVALID_TEXTURE_ID)
     {
-        bulletTextureId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/asteroid/bullet.png",
-                                                       Texture::DEFAULT);
+        bulletTextureId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/asteroid/bullet.png");
     }
     spriteManager_.AddComponent(entity);
     spriteManager_.SetTexture(entity, bulletTextureId_);

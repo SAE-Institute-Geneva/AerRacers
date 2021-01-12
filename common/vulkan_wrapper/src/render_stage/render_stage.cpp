@@ -60,7 +60,7 @@ void RenderStage::Update()
     const auto lastSize = size_;
 
     if (viewport_.size != Vec2u::zero) size_ = viewport_.size;
-    else size_ = BasicEngine::GetInstance()->GetConfig().windowSize;
+    else size_ = BasicEngine::GetInstance()->config.windowSize;
 
     size_ = Vec2u(size_.x * viewport_.scale.x, size_.y * viewport_.scale.y);
     aspectRatio_ = static_cast<float>(size_.x) / static_cast<float>(size_.y);

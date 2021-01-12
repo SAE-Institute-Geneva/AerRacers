@@ -1,52 +1,48 @@
 #pragma once
-#include "vk/images/texture_manager.h"
+#include "mathematics/hash.h"
+#include "utilities/service_locator.h"
 #include "vk/material/diffuse_material.h"
 #include "vk/pipelines/material_pipeline.h"
 
 namespace neko::vk
 {
+using ResourceId = XXH64_hash_t;
+
 class IMaterialManager
 {
 public:
 	virtual ~IMaterialManager() = default;
 
-	virtual ResourceHash AddMaterial(const std::string&) = 0;
-	virtual ResourceHash AddNewMaterial(const std::string&, MaterialType) = 0;
+	virtual void Resize(size_t newSize) = 0;
 	virtual void Clear() = 0;
 
-	virtual Material& GetMaterial(const std::string&) = 0;
-	virtual Material& GetMaterial(ResourceHash) = 0;
-	virtual DiffuseMaterial& GetDiffuseMaterial(const std::string&) = 0;
-	virtual DiffuseMaterial& GetDiffuseMaterial(ResourceHash) = 0;
-	virtual bool IsMaterialLoaded(const std::string&) = 0;
-	virtual bool IsMaterialLoaded(ResourceHash) = 0;
-	virtual ResourceHash GetDefaultMaterialId() = 0;
+	virtual void AddMaterial(const std::string& materialPath) = 0;
+
+	virtual Material& GetMaterial(const std::string& materialName) = 0;
+	virtual Material& GetMaterial(ResourceId resourceId) = 0;
+	virtual ResourceId GetDefaultMaterialId() = 0;
 	//virtual ResourceId GetDefaultSkyboxMaterialId() = 0;
 };
 
 class NullMaterialManager : public IMaterialManager
 {
 public:
-	ResourceHash AddMaterial(const std::string&) override { return ResourceHash(); }
-	ResourceHash AddNewMaterial(const std::string&, MaterialType) override { return ResourceHash(); }
+	void AddMaterial([[maybe_unused]] const std::string& materialPath) override {}
+
+	void Resize([[maybe_unused]] size_t newSize) override {}
 	void Clear() override {}
 
-	Material& GetMaterial(const std::string&) override
-	{ neko_assert(false, "Material Manager is null!") }
+	Material& GetMaterial([[maybe_unused]] const std::string& materialName) override
+	{
+		neko_assert(false, "Material Manager is null!")
+	}
 
-	Material& GetMaterial(ResourceHash) override
-	{ neko_assert(false, "Material Manager is null!") }
+	Material& GetMaterial([[maybe_unused]] ResourceId resourceId) override
+	{
+		neko_assert(false, "Material Manager is null!")
+	}
 
-	DiffuseMaterial& GetDiffuseMaterial(const std::string&) override
-	{ neko_assert(false, "Material Manager is null!") }
-
-	DiffuseMaterial& GetDiffuseMaterial(ResourceHash) override
-	{ neko_assert(false, "Material Manager is null!") }
-
-	bool IsMaterialLoaded(const std::string&) override { return false; }
-	bool IsMaterialLoaded(ResourceHash) override { return false; }
-
-	ResourceHash GetDefaultMaterialId() override { return 0; }
+	ResourceId GetDefaultMaterialId() override { return 0; }
 	//ResourceId GetDefaultSkyboxMaterialId() override { return 0; }
 };
 
@@ -55,17 +51,14 @@ class MaterialManager : public IMaterialManager
 public:
 	MaterialManager();
 
-	ResourceHash AddMaterial(const std::string& materialPath) override;
-	ResourceHash AddNewMaterial(const std::string& name, MaterialType materialType) override;
+	void Resize(size_t newSize) override;
 	void Clear() override;
 
+	void AddMaterial(const std::string& materialPath) override;
+
 	Material& GetMaterial(const std::string& materialName) override;
-	Material& GetMaterial(ResourceHash resourceId) override;
-	DiffuseMaterial& GetDiffuseMaterial(const std::string& materialName) override;
-	DiffuseMaterial& GetDiffuseMaterial(ResourceHash resourceId) override;
-	bool IsMaterialLoaded(const std::string& materialName) override;
-	bool IsMaterialLoaded(ResourceHash resourceId) override;
-	ResourceHash GetDefaultMaterialId() override;
+	Material& GetMaterial(ResourceId resourceId) override;
+	ResourceId GetDefaultMaterialId() override;
 	//ResourceId GetDefaultSkyboxMaterialId() override;
 
 private:
@@ -77,7 +70,8 @@ private:
 	bool defaultMaterialIdLoaded_ = false;
 	bool defaultMaterialSkyboxIdLoaded_ = false;
 
-	std::map<ResourceHash, DiffuseMaterial> diffuseMaterials_;
+	std::vector<ResourceId> diffuseMaterialIds_;
+	std::vector<DiffuseMaterial> diffuseMaterials_;
 
 	//std::vector<ResourceId> skyboxMaterialIds_;
 	//std::vector<SkyboxMaterial> skyboxMaterials_;
@@ -93,4 +87,3 @@ private:
 
 using MaterialManagerLocator = Locator<IMaterialManager, NullMaterialManager>;
 }
- 

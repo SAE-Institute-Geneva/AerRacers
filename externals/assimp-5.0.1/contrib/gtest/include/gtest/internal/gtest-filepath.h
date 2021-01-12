@@ -29,7 +29,7 @@
 //
 // Author: keith.ray@gmail.com (Keith Ray)
 //
-// Google Test filepath utils
+// Google Test filepath utilities
 //
 // This header file declares classes and functions used internally by
 // Google Test.  They are subject to change without notice.

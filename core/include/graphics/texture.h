@@ -24,17 +24,12 @@
  */
 #include <queue>
 #include <map>
-
 #include "engine/assert.h"
 #include <engine/log.h>
+#include <engine/resource.h>
 #include <xxhash.h>
 #include <sole.hpp>
-
-#include <engine/assert.h>
-#include <engine/log.h>
-#include <utils/service_locator.h>
-#include <mathematics/vector.h>
-#include <engine/filesystem.h>
+#include <utilities/service_locator.h>
 
 namespace neko
 {
@@ -50,10 +45,6 @@ const TextureName INVALID_TEXTURE_NAME = 0;
 using TextureId = sole::uuid;
 const TextureId INVALID_TEXTURE_ID = sole::uuid();
 using TexturePathHash = XXH32_hash_t;
-/**
- * \brief Image stores the data from a image file.
- * Used for PNG JPG and other basic image format.
- */
 struct Image
 {
     Image() = default;
@@ -70,13 +61,7 @@ struct Image
     int nbChannels = 0;
     void Destroy();
 };
-/**
- * \brief Simple function decompressing an image for disk to an Image
- * @param imageFile
- * @param flipY
- * @param hdr
- * @return
- */
+
 Image StbImageConvert(const BufferFile& imageFile, bool flipY=false, bool hdr = false);
 
 /**
@@ -106,7 +91,7 @@ class TextureManagerInterface
 public:
 	virtual ~TextureManagerInterface() = default;
 	virtual TextureId LoadTexture(std::string_view path, Texture::TextureFlags flags = Texture::DEFAULT) = 0;
-    [[nodiscard]] virtual const Texture* GetTexture(TextureId index) const = 0;
+    [[nodiscard]] virtual Texture GetTexture(TextureId index) const = 0;
     [[nodiscard]] virtual bool IsTextureLoaded(TextureId textureId) const = 0;
 };
 
@@ -119,13 +104,95 @@ public:
         logDebug("[Warning] Using NullTextureManager to Init Texture");
 	    return INVALID_TEXTURE_ID;
     }
-    [[nodiscard]] const Texture* GetTexture([[maybe_unused]] TextureId index) const override
+    [[nodiscard]] Texture GetTexture([[maybe_unused]] TextureId index) const override
     {
         neko_assert(false, "[Warning] Using NullTextureManager to Get Texture Id");
         logDebug("[Warning] Using NullTextureManager to Get Texture Id");
 	    return {};
     }
     [[nodiscard]] bool IsTextureLoaded([[maybe_unused]] TextureId textureId) const override  { return false; }
+};
+
+class TextureManager;
+	
+class TextureLoader
+{
+public:
+    explicit TextureLoader(TextureManager& textureManager);
+
+    void SetTextureFlags(Texture::TextureFlags textureFlags) { flags_ = textureFlags; }
+    void SetTextureId(TextureId textureId);
+	/**
+	 * \brief This function schedules the resource load from disk and the image conversion.
+	 * Must be called after setting the texture id 
+	 */
+    void LoadFromDisk();
+
+    [[nodiscard]] bool IsLoaded() const
+    {
+        return diskLoadJob_.IsDone() && convertImageJob_.IsDone();
+    }
+    [[nodiscard]] bool HasStarted() const
+    {
+        return textureId_ != INVALID_TEXTURE_ID && diskLoadJob_.HasStarted();
+    }
+    void Reset();
+private:
+    TextureManager& textureManager_;
+    Texture::TextureFlags flags_ = Texture::DEFAULT;
+    Job convertImageJob_;
+    ResourceJob diskLoadJob_;
+    Image image_;
+    TextureId textureId_ = INVALID_TEXTURE_ID;
+};
+
+struct TextureInfo
+{
+	TextureInfo() = default;
+	~TextureInfo() = default;
+    TextureInfo(TextureInfo&& image) noexcept = default;
+    TextureInfo& operator=(TextureInfo&& image) noexcept = default;
+    TextureInfo(const TextureInfo&) = delete;
+    TextureInfo& operator= (const TextureInfo&) = delete;
+	
+    TextureId textureId = INVALID_TEXTURE_ID;
+    Image image;
+    Texture::TextureFlags flags = Texture::DEFAULT;
+};
+
+class TextureManager : public TextureManagerInterface, public SystemInterface
+{
+public:
+    TextureManager();
+    /**
+     * \brief Open the meta file of the texture file to get the Texture Id. If not already loaded
+     * it will put the loading texture into the texturesToLoad queue.
+     */
+    TextureId LoadTexture(std::string_view path, Texture::TextureFlags flags = Texture::DEFAULT) override;
+    std::string GetPath(TextureId textureId) const;
+    void Init() override;
+	void Update(seconds dt) override;
+	
+    void Destroy() override;
+    virtual void UploadToGpu(TextureInfo&& texture);
+    /**
+     * \brief When the loading texture with the TextureId is uploaded to the GPU, the returned Texture
+     * has a valid TextureName
+     */
+	Texture GetTexture(TextureId index) const override;
+	bool IsTextureLoaded(TextureId textureId) const override;
+protected:
+	/**
+	 * \brief Called on the renderer pre render
+	 */
+    virtual void CreateTexture() = 0;
+    std::map<TextureId, std::string> texturePathMap_;
+    std::map<TextureId, Texture> textureMap_;
+    std::queue<TextureInfo> texturesToLoad_;
+    std::queue<TextureInfo> texturesToUpload_;
+    TextureLoader textureLoader_;
+    TextureInfo currentUploadedTexture_;
+    Job uploadToGpuJob_;
 };
 using TextureManagerLocator = Locator<TextureManagerInterface, NullTextureManager>;
 

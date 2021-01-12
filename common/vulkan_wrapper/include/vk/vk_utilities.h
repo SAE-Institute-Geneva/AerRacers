@@ -6,7 +6,7 @@
 
 namespace neko::vk
 {
-static const VkFormat kFormat                   = VK_FORMAT_B8G8R8A8_UNORM; //TODO(@Simon) Change to sRGB latter
+static const VkFormat kFormat                   = VK_FORMAT_B8G8R8A8_SRGB;
 static const VkColorSpaceKHR kColorSpace        = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
 static const VkPresentModeKHR kPresentationMode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
 

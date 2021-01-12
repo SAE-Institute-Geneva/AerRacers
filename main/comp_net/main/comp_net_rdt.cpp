@@ -30,8 +30,7 @@ int main(int argc, char** argv)
 {
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::Filesystem filesystem;
-    neko::net::RdtEngine engine(filesystem);
+    neko::net::RdtEngine engine;
 
     engine.SetWindowAndRenderer(&window, &renderer);
 

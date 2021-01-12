@@ -67,9 +67,8 @@ private:
     gl::RenderQuad plane_{Vec3f::zero, Vec2f::one};
     gl::RenderCuboid cube_{ Vec3f::zero, Vec3f::one };
     gl::RenderSphere sphere_{ Vec3f::zero, 1.0f };
-    gl::ModelManager modelManager_;
-    gl::ModelId modelId_ = gl::INVALID_MODEL_ID;
-        
+    assimp::Model model_;
+    
 	sdl::MovableCamera3D camera_;
     Vec3f lightPos_ = Vec3f::one * 3.0f;
     float dt_ = 0.0f;

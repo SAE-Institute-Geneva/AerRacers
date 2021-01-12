@@ -23,8 +23,6 @@
  SOFTWARE.
  */
 
-#include <iso646.h>
-
 #include "basic.h"
 #include "engine/assert.h"
 #include "mathematics/vector.h"

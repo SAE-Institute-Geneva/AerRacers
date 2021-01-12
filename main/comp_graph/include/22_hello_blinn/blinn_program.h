@@ -45,9 +45,7 @@ private:
 	gl::Shader modelShader_;
 	gl::Shader blinnShader_;
 
-	gl::ModelManager modelManager_;
-	gl::ModelId modelId_ = gl::INVALID_MODEL_ID;
-
+	assimp::Model model_;
 	gl::RenderQuad floor_{Vec3f::zero, Vec2f::one*10.0f};
 	gl::TextureManager textureManager_;
 	TextureName floorTexture_ = INVALID_TEXTURE_NAME;

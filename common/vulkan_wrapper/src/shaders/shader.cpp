@@ -3,7 +3,7 @@
 #include <utility>
 
 #include "mathematics/hash.h"
-#include "utils/file_utility.h"
+#include "utilities/file_utility.h"
 #include "vk/graphics.h"
 
 namespace neko::vk
@@ -52,12 +52,6 @@ VkFormat Attribute::GetVkFormat() const
             return VK_FORMAT_R32G32B32_SINT;
         case Type::VEC4U:
             return VK_FORMAT_R32G32B32A32_SINT;
-        case Type::MAT2:
-            return VK_FORMAT_R32G32B32A32_SFLOAT;
-        case Type::MAT3:
-            return VK_FORMAT_R32G32B32A32_SFLOAT;
-        case Type::MAT4:
-            return VK_FORMAT_R32G32B32A32_SFLOAT;
         case Type::UNDEFINED:
         default:
             return VK_FORMAT_UNDEFINED;
@@ -208,10 +202,9 @@ std::vector<VkShaderModule> Shader::LoadFromJson(const json& shaderJson)
 	FromJson(shaderJson);
 
 	std::vector<VkShaderModule> shaderModules(stagePaths_.size());
-	const auto& config = BasicEngine::GetInstance()->config;
 	for (std::size_t i = 0; i < stagePaths_.size(); ++i)
 	{
-		const auto& file = LoadFile(config.dataRootPath + stagePaths_[i]);
+		const auto& file = LoadFile(stagePaths_[i]);
 
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -302,6 +295,9 @@ std::uint32_t Shader::GetDescriptorLocation(const std::string_view& name) const
 std::uint32_t Shader::GetDescriptorLocation(const XXH64_hash_t& descriptorHash) const
 {
     const auto it = descriptorLocations_.find(descriptorHash);
+
+    if(it == descriptorLocations_.end())
+        std::cout << "Shader::GetDescriptorLocation\n";
 
     //TODO This a fix made for forcing an update of a material when a descriptor(texture) is added
     // to a material that previously did not have this descriptor.

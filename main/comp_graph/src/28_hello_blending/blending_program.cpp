@@ -29,14 +29,13 @@ namespace neko
 {
 void HelloBlendingProgram::Init()
 {
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
+	const auto& config = BasicEngine::GetInstance()->config;
 	cutoffShader_.LoadFromFile(
 		config.dataRootPath + "shaders/28_hello_blending/blending.vert",
 		config.dataRootPath + "shaders/28_hello_blending/blending.frag");
-	camera_.Init();
-	windowTextureId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/blending_transparent_window.png", Texture::DEFAULT);
+	windowTextureId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/blending_transparent_window.png");
 	
-	cubeTextureId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/container.jpg", Texture::DEFAULT);
+	cubeTextureId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/container.jpg");
 	
 	plane_.Init();
 	cube_.Init();
@@ -56,7 +55,7 @@ void HelloBlendingProgram::Init()
 void HelloBlendingProgram::Update(seconds dt)
 {
 	std::lock_guard<std::mutex> lock(updateMutex_);
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
+	const auto& config = BasicEngine::GetInstance()->config;
 	camera_.SetAspect(config.windowSize.x, config.windowSize.y);
 	camera_.Update(dt);
 	textureManager_.Update(dt);
@@ -90,13 +89,13 @@ void HelloBlendingProgram::Render()
 {
 	if (windowTexture_ == INVALID_TEXTURE_NAME )
 	{
-		windowTexture_ = textureManager_.GetTextureName(windowTextureId_);
+		windowTexture_ = textureManager_.GetTexture(windowTextureId_).name;
 		if (windowTexture_ == INVALID_TEXTURE_NAME)
 			return;
 	}
 	if ( cubeTexture_ == INVALID_TEXTURE_NAME)
 	{
-		cubeTexture_ = textureManager_.GetTextureName(cubeTextureId_);
+		cubeTexture_ = textureManager_.GetTexture(cubeTextureId_).name;
 		if (cubeTexture_ == INVALID_TEXTURE_NAME)
 			return;
 	}

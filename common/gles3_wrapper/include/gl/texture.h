@@ -26,78 +26,24 @@
 #include <graphics/texture.h>
 #include "gl/gles3_include.h"
 
-struct ktxTexture;
 namespace neko::gl
 {
-class TextureLoader
+
+
+class TextureManager : public neko::TextureManager
 {
 public:
-    enum class TextureLoaderError : std::uint8_t
-    {
-        NONE = 0u,
-        ASSET_LOADING_ERROR = 1u,
-        DECOMPRESS_ERROR = 2u,
-        UPLOAD_TO_GPU_ERROR = 3u
-    };
-    explicit TextureLoader(std::string_view path,
-                           TextureId,
-                           Texture::TextureFlags flags = Texture::DEFAULT);
-    TextureLoader(const TextureLoader&) = delete;
-    TextureLoader& operator=(const TextureLoader&) = delete;
-    std::string_view GetPath() const;
-    TextureLoader(TextureLoader&&) noexcept ;
-    TextureLoader& operator=(TextureLoader&&) = default;
-    void Start();
-    [[nodiscard]] bool IsDone();
-    [[nodiscard]] TextureId GetTextureId() const;
-    [[nodiscard]] const Texture& GetTexture() const;
-    [[nodiscard]] bool HasErrors() const;
-    [[nodiscard]] TextureLoaderError GetErrors() const;
-private:
-    void LoadTexture();
-    void DecompressTexture();
-    void UploadToGL();
+	using neko::TextureManager::TextureManager;
+	void Destroy() override;
+protected:
+	void CreateTexture() override;
 
-    std::reference_wrapper<const FilesystemInterface> filesystem_;
-    TextureId textureId_;
-    std::string path_;
-    Texture::TextureFlags flags_ = Texture::DEFAULT;
-    ktxTexture* kTexture = nullptr;
-    Job loadingTextureJob_;
-    Job decompressTextureJob_;
-    Job uploadToGLJob_;
-    BufferFile bufferFile_;
-    Texture texture_;
-    TextureLoaderError error_ = TextureLoaderError::NONE;
 };
 
-class TextureManager : public neko::TextureManagerInterface, public SystemInterface
-{
-public:
-    explicit TextureManager();
-    TextureId LoadTexture(std::string_view path, Texture::TextureFlags flags) override;
-
-    const Texture* GetTexture(TextureId index) const override;
-    [[nodiscard]] TextureName GetTextureName(TextureId textureId) const;
-    bool IsTextureLoaded(TextureId textureId) const override;
-
-    void Init() override;
-
-    void Update(seconds dt) override;
-
-    void Destroy() override;
-
-private:
-    const FilesystemInterface& filesystem_;
-    std::map<std::string, TextureId> texturePathMap_;
-    std::map<TextureId, Texture> textureMap_;
-    std::queue<TextureLoader> textureLoaders_;
-};
-
-TextureName StbCreateTexture(const std::string_view filename, const FilesystemInterface& filesystem,
-                             Texture::TextureFlags flags = Texture::DEFAULT);
-TextureName CreateTextureFromKTX(const std::string_view filename, const FilesystemInterface& filesystem);
-TextureName LoadCubemap(std::vector<std::string> facesFilename, const FilesystemInterface& filesystem);
+TextureName stbCreateTexture(const std::string_view filename, Texture::TextureFlags flags = Texture::DEFAULT);
+TextureName CreateTextureFromDDS(const std::string_view filename);
+TextureName CreateTextureFromKTX(const std::string_view filename);
+TextureName LoadCubemap(std::vector<std::string> facesFilename);
 void DestroyTexture(TextureName);
 
 

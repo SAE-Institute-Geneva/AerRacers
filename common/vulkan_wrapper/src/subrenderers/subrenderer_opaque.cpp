@@ -8,12 +8,21 @@ namespace neko::vk
 SubrendererOpaque::SubrendererOpaque(Pipeline::Stage stage)
     : RenderPipeline(stage),
     uniformScene_(true),
-    modelCmdBuffer_(VkObjectsLocator::get().modelCommandBuffer) {}
+    modelCmdBuffer_(VkObjectsLocator::get().modelCommandBuffer)
+{
+    quad_.Init();
+    ForwardDrawCmd drawCmd;
+    drawCmd.worldMatrix = Transform3d::Rotate(Mat4f::Identity, degree_t(45.0f), Vec3f::left);
+    drawCmd.materialID = HashString("Test");
+    drawCmd.uniformHandle = uniformScene_;
+    modelCmdBuffer_.Draw(drawCmd);
+}
 
 void SubrendererOpaque::Destroy() const
 {
 	uniformScene_.Destroy();
 	modelCmdBuffer_.Destroy();
+	quad_.Destroy();
 }
 
 void SubrendererOpaque::OnRender(const CommandBuffer& commandBuffer)
@@ -26,42 +35,29 @@ void SubrendererOpaque::OnRender(const CommandBuffer& commandBuffer)
 
     uniformScene_.Push(kProjectionHash, proj);
     uniformScene_.Push(kViewHash, view);
-    uniformScene_.Push(kViewPosHash, camera.position);
 
     modelCmdBuffer_.PrepareData();
 
     //Single Draw
-    auto& modelManager = ModelManagerLocator::get();
-    auto& materialManager = MaterialManagerLocator::get();
     for (auto& modelDrawCommand : modelCmdBuffer_.GetForwardModels())
-    {
-    	const auto& model = modelManager.GetModel(modelDrawCommand.modelID);
-	    for (std::size_t i = 0; i < model->GetMeshCount(); ++i)
-	    {
-		    const auto& mesh = model->GetMesh(i);
-		    const ResourceHash matId = mesh.GetMaterialId();
-		    if (matId != 0 && matId != 1)
-		    {
-			    const auto& material = materialManager.GetMaterial(matId);
-			    if (material.GetRenderMode() == Material::RenderMode::OPAQUE)
-				    CmdRender(commandBuffer, modelDrawCommand, mesh, material);
-		    }
-	    }
-    }
+        if(modelDrawCommand.materialID != 0 && modelDrawCommand.materialID != 1)
+        {
+        	const auto& material = MaterialManagerLocator::get().GetMaterial(modelDrawCommand.materialID);
+	        if (material.GetRenderMode() == Material::RenderMode::OPAQUE)
+		        CmdRender(commandBuffer, modelDrawCommand);
+        }
 
     //GPU Instancing
-    for (auto& meshInstance : modelCmdBuffer_.GetMeshInstances())
-        if (meshInstance->GetMaterial().GetRenderMode() == Material::RenderMode::OPAQUE)
-            meshInstance->CmdRender(commandBuffer, uniformScene_);
+    /*for (auto& modelInstance : modelCmdBuffer_.GetModelInstances())
+        if (modelInstance->GetMaterial().GetRenderMode() == Material::RenderMode::OPAQUE)
+            modelInstance->CmdRender(commandBuffer, uniformScene_);*/
 }
 
-bool SubrendererOpaque::CmdRender(
-		const CommandBuffer& commandBuffer,
-		ForwardDrawCmd& modelDrawCommand,
-		const Mesh& mesh,
-		const Material& mat)
+bool SubrendererOpaque::CmdRender(const CommandBuffer& commandBuffer, ForwardDrawCmd& modelDrawCommand)
 {
     modelDrawCommand.uniformHandle.Push(kModelHash, modelDrawCommand.worldMatrix);
+
+    auto& mat = MaterialManagerLocator::get().GetMaterial(modelDrawCommand.materialID);
     modelDrawCommand.uniformHandle.PushUniformData(mat.ExportUniformData());
 
     // Check if we are in the correct pipeline stage.
@@ -78,6 +74,7 @@ bool SubrendererOpaque::CmdRender(
     // Updates descriptors.
     modelDrawCommand.descriptorHandle.Push(kUboSceneHash, uniformScene_);
     modelDrawCommand.descriptorHandle.Push(kUboObjectHash, modelDrawCommand.uniformHandle);
+
     modelDrawCommand.descriptorHandle.PushDescriptorData(mat.ExportDescriptorData());
 
     if (!modelDrawCommand.descriptorHandle.Update(pipeline))
@@ -86,11 +83,12 @@ bool SubrendererOpaque::CmdRender(
     // Draws the object.
     modelDrawCommand.descriptorHandle.BindDescriptor(commandBuffer, pipeline);
 
-	return mesh.CmdRender(commandBuffer);
+    //return MeshManagerLocator::Get().GetMesh(modelDrawCommand.meshID).CmdRender(commandBuffer);
+    return quad_.CmdRender(commandBuffer);
 }
 
 void SubrendererOpaque::SetUniformBlock(const UniformBlock& uniformBlock)
 {
     uniformScene_.Update(uniformBlock);
 }
-} 
+}

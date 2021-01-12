@@ -40,7 +40,6 @@
 
 #clion generation files
 */.vs/*
-**/venv/**
 .vs/*
 CMakeSettings.json
 Folder.DotSettings.user
@@ -50,7 +49,6 @@ cmake-build-release/*
 cmake-build-relwithdebinfo/*
 out/*
 web_build/*
-.clang-format
 
 # glsl validator temp files
 /scripts/validator/__pycache__/*
@@ -58,6 +56,4 @@ web_build/*
 # log files
 /data/logs/*
  
-# tmp files
-/tmp
   

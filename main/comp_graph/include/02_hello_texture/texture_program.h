@@ -57,6 +57,7 @@ private:
     enum class TextureType
 	{
 		STB_TEXTURE,
+		DDS_TEXTURE,
 		KTX_TEXTURE,
 		LENGTH
 	};

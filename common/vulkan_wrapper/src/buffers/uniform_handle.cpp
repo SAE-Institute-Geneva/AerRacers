@@ -14,11 +14,6 @@ UniformHandle::UniformHandle(const UniformBlock& uniformBlock, bool multiPipelin
                     static_cast<VkDeviceSize>(size_)))
 {}
 
-UniformHandle::~UniformHandle()
-{
-	Destroy();
-}
-
 void UniformHandle::Destroy() const
 {
 	if (uniformBuffer_) uniformBuffer_->Destroy();
@@ -81,22 +76,16 @@ void UniformHandle::PushUniformData(const Material::PushDataContainer& dataConta
 	    {
 	    	case MaterialExportData::Type::FLOAT:
 			    Push(data.first, data.second.GetFloat());
-			    break;
 		    case MaterialExportData::Type::INT:
 			    Push(data.first, data.second.GetInt());
-			    break;
 		    case MaterialExportData::Type::IMAGE_2D:
 			    Push(data.first, data.second.GetImage2d());
-			    break;
 			/*case MaterialExportData::Type::IMAGE_CUBE:
 			    Push(data.first, data.second.GetImageCube());*/
-			    break;
 		    case MaterialExportData::Type::COLOR:
 			    Push(data.first, data.second.GetColor());
-			    break;
 		    default:
 			    Push(data.first, nullptr);
-			    break;
 	    }
     }
 }

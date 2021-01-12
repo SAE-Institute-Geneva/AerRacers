@@ -31,16 +31,16 @@ namespace neko
 void HelloTextureProgram::Init()
 {
     textureManager_.Init();
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
-    const auto& filesystem = BasicEngine::GetInstance()->GetFilesystem();
+    const auto& config = BasicEngine::GetInstance()->config;
     shader_.LoadFromFile(
             config.dataRootPath + "shaders/02_hello_texture/texture.vert",
             config.dataRootPath + "shaders/02_hello_texture/texture.frag");
     quad_.Init();
 
     const auto texturePath = config.dataRootPath + "sprites/wall.jpg";
-    textureId_ = textureManager_.LoadTexture(texturePath, Texture::DEFAULT);
-    texture_ = gl::StbCreateTexture(texturePath, filesystem, Texture::DEFAULT);
+    textureId_ = textureManager_.LoadTexture(texturePath);
+    textureKtx_ = gl::CreateTextureFromKTX(
+        config.dataRootPath + "sprites/wall.jpg.ktx");
 	//textureId_ = neko::gl::stbCreateTexture(texturePath);
     glEnable(GL_DEPTH_TEST);
 }
@@ -55,8 +55,8 @@ void HelloTextureProgram::Destroy()
     quad_.Destroy();
     shader_.Destroy();
     textureManager_.Destroy();
-    if(texture_ != INVALID_TEXTURE_NAME)
-        gl::DestroyTexture(texture_);
+    if(textureKtx_ != INVALID_TEXTURE_NAME)
+        gl::DestroyTexture(textureKtx_);
 }
 
 void HelloTextureProgram::Render()
@@ -65,9 +65,9 @@ void HelloTextureProgram::Render()
     {
         return;
     }
-	if (textureKtx_ == INVALID_TEXTURE_NAME)
+	if (texture_ == INVALID_TEXTURE_NAME)
 	{
-        textureKtx_ = textureManager_.GetTextureName(textureId_);
+        texture_ = textureManager_.GetTexture(textureId_).name;
         return;
 	}
     shader_.Bind();
@@ -96,6 +96,7 @@ void HelloTextureProgram::DrawImGui()
     const char* textureTypeNames[(int)TextureType::LENGTH] =
     {
     	"Stb Texture (JPG)",
+    	"DDS Texture",
     	"Ktx Texture"
     };
     int textureType = static_cast<int>(textureType_);
@@ -110,4 +111,4 @@ void HelloTextureProgram::OnEvent(const SDL_Event& event)
 {
 
 }
-} 
+}

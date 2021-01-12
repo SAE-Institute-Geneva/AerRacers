@@ -28,13 +28,10 @@
 #include "imgui.h"
 
 #include "engine/entity.h"
-
-#include <iso646.h>
-
 #include "engine/component.h"
 #include "engine/log.h"
 #include "engine/globals.h"
-#include <utils/vector_utility.h>
+#include "utilities/vector_utility.h"
 
 namespace neko
 {

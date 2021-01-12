@@ -31,8 +31,6 @@
 
 #include <fmt/format.h>
 
-#include "utils/file_utility.h"
-
 #ifdef NEKO_GLES3
 #include "gl/gles3_window.h"
 #endif
@@ -43,19 +41,19 @@
 
 namespace neko::sdl
 {
+SdlEngine::SdlEngine(Configuration* config) : BasicEngine(config)
+{
+}
 
 void SdlEngine::Init()
 {
+    BasicEngine::Init();
 #ifdef EASY_PROFILE_USE
-    EASY_BLOCK("Init Sdl Engine");
+    EASY_BLOCK("InitSdl");
 #endif
-    logDebug("Current path: " + GetCurrentPath());
-    jobSystem_.Init();
-
     assert(window_ != nullptr);
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
     window_->Init();
-
     initAction_.Execute();
     inputManager_.Init();
 }
@@ -91,8 +89,8 @@ void SdlEngine::ManageEvent()
             {
                 logDebug(fmt::format("Windows resized with new size: ({},{})", 
                     event.window.data1, event.window.data2));
-                config_.windowSize = Vec2u(event.window.data1, event.window.data2);
-                window_->OnResize(config_.windowSize);
+                config.windowSize = Vec2u(event.window.data1, event.window.data2);
+                window_->OnResize(config.windowSize);
             }
         }
         inputManager_.OnEvent(event);

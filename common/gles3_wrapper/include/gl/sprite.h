@@ -34,10 +34,7 @@ namespace neko::gl
 class SpriteManager : public neko::SpriteManager
 {
 public:
-    explicit SpriteManager(
-            EntityManager& entityManager,
-            TextureManagerInterface& textureManager,
-            Transform2dManager& transformManager);
+    using neko::SpriteManager::SpriteManager;
     void Init() override;
     void Destroy() override;
 

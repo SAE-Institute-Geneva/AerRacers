@@ -34,7 +34,6 @@ namespace neko
 
 void HelloFrustumProgram::Init()
 {
-    textureManager_.Init();
     asteroidPositions_.resize(maxAsteroidNmb_);
     asteroidForces_.resize(maxAsteroidNmb_);
     asteroidVelocities_.resize(maxAsteroidNmb_);
@@ -55,8 +54,8 @@ void HelloFrustumProgram::Init()
 #ifdef EASY_PROFILE_USE
     EASY_END_BLOCK;
 #endif
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
-    modelId_ = modelManager_.LoadModel(config.dataRootPath + "model/rock/rock.obj");
+    const auto& config = BasicEngine::GetInstance()->config;
+    model_.LoadModel(config.dataRootPath + "model/rock/rock.obj");
 
 
     vertexInstancingDrawShader_.LoadFromFile(
@@ -105,21 +104,18 @@ void HelloFrustumProgram::Init()
 
 void HelloFrustumProgram::Update(seconds dt)
 {
-    textureManager_.Update(dt);
-    modelManager_.Update(dt);
-
+    if (!model_.IsLoaded())
+    {
+        return;
+    }
 
     std::lock_guard<std::mutex> lock(updateMutex_);
     dt_ = dt.count();
     auto* engine = BasicEngine::GetInstance();
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
+    const auto& config = BasicEngine::GetInstance()->config;
     camera_.SetAspect(config.windowSize.x, config.windowSize.y);
     camera_.Update(dt);
     //Kicking the velocity calculus for force and velocities
-    if (!modelManager_.IsLoaded(modelId_))
-    {
-        return;
-    }
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Calculate Positions");
 #endif
@@ -139,8 +135,7 @@ void HelloFrustumProgram::Update(seconds dt)
 
 void HelloFrustumProgram::Destroy()
 {
-    textureManager_.Destroy();
-    modelManager_.Destroy();
+    model_.Destroy();
     vertexInstancingDrawShader_.Destroy();
     screenShader_.Destroy();
     mainPlane_.Destroy();
@@ -168,7 +163,7 @@ void HelloFrustumProgram::DrawImGui()
 
 void HelloFrustumProgram::Render()
 {
-    if (!modelManager_.IsLoaded(modelId_))
+    if (!model_.IsLoaded())
     {
         return;
     }
@@ -176,10 +171,9 @@ void HelloFrustumProgram::Render()
     std::lock_guard<std::mutex> lock(updateMutex_);
     if (instanceVBO_ == 0)
     {
-        const auto* model = modelManager_.GetModel(modelId_);
-        const auto& asteroidMesh = model->GetMesh(0);
+        const auto& asteroidMesh = model_.GetMesh(0);
 
-        glBindVertexArray(asteroidMesh.VAO);
+        glBindVertexArray(asteroidMesh.GetVao());
         glGenBuffers(1, &instanceVBO_);
 
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO_);
@@ -196,10 +190,8 @@ void HelloFrustumProgram::Render()
     EASY_BLOCK("Draw Vertex Buffer Instaning");
 #endif
     vertexInstancingDrawShader_.Bind();
-    const auto* model = modelManager_.GetModel(modelId_);
-    const auto& asteroidMesh = model->GetMesh(0);
-    // TODO bind textures to asteroid
-    model->BindTextures(0, vertexInstancingDrawShader_);
+    const auto& asteroidMesh = model_.GetMesh(0);
+    asteroidMesh.BindTextures(vertexInstancingDrawShader_);
 
     const std::function<void()> drawAsteroids = [this, &asteroidMesh]() {
         const auto actualAsteroidNmb = asteroidCulledPositions_.size();
@@ -222,8 +214,8 @@ void HelloFrustumProgram::Render()
                     EASY_BLOCK("Draw Mesh");
 
 #endif
-                glBindVertexArray(asteroidMesh.VAO);
-                glDrawElementsInstanced(GL_TRIANGLES, asteroidMesh.indices.size(), GL_UNSIGNED_INT, 0,
+                glBindVertexArray(asteroidMesh.GetVao());
+                glDrawElementsInstanced(GL_TRIANGLES, asteroidMesh.GetElementsCount(), GL_UNSIGNED_INT, 0,
                     chunkSize);
                 glBindVertexArray(0);
             }
@@ -238,9 +230,8 @@ void HelloFrustumProgram::Render()
     drawAsteroids();
 	//Draw the true astroids view
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
+    const auto& config = BasicEngine::GetInstance()->config;
     glViewport(0, 0, config.windowSize.x, config.windowSize.y);
     vertexInstancingDrawShader_.SetMat4("view", camera_.GenerateViewMatrix());
     vertexInstancingDrawShader_.SetMat4("projection", camera_.GenerateProjectionMatrix());
@@ -312,9 +303,7 @@ void HelloFrustumProgram::Culling(size_t begin, size_t end)
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Culling");
 #endif
-    const auto* model = modelManager_.GetModel(modelId_);
-    const auto& asteroidMesh = model->GetMesh(0);
-	const auto asteroidRadius = (asteroidMesh.max-asteroidMesh.min).Magnitude()/2.0f;
+	const auto asteroidRadius = model_.GetMesh(0).GenerateBoundingSphere().radius_;
     const auto cameraDir = -camera_.reverseDirection;
     const auto cameraRight = camera_.GetRight();
     const auto cameraUp = camera_.GetUp();

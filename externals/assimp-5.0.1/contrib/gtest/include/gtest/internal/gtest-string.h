@@ -54,7 +54,7 @@
 namespace testing {
 namespace internal {
 
-// String - an abstract class holding static string utils.
+// String - an abstract class holding static string utilities.
 class GTEST_API_ String {
  public:
   // Static utility methods

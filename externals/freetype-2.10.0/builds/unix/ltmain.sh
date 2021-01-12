@@ -161,7 +161,7 @@ fi
 
 
 ## ------------------------- ##
-## Locate command utils. ##
+## Locate command utilities. ##
 ## ------------------------- ##
 
 

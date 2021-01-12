@@ -23,14 +23,11 @@
  SOFTWARE.
  */
 
-#include <sole.hpp>
-
-#include <utils/json_utility.h>
-#include "engine/entity.h"
+#include <utilities/json_utility.h>
+#include "entity.h"
 #include <engine/component.h>
 #include "graphics/color.h"
-#include "engine/filesystem.h"
-
+#include <sole.hpp>
 
 namespace neko
 {
@@ -47,7 +44,7 @@ struct Scene
 class SceneManager 
 {
 public:
-    explicit SceneManager(EntityManager&, FilesystemInterface&);
+    explicit SceneManager(EntityManager& entityManager);
 	virtual ~SceneManager() = default;
     virtual void ParseComponentJson(const json& componentJson, Entity entity) = 0;
     virtual void ParseEntityJson(const json& entityJson) = 0;
@@ -58,7 +55,6 @@ public:
 	static SceneId GenerateSceneId() { return sole::uuid0(); };
 	static std::string_view GetExtension();
 protected:
-    FilesystemInterface& filesystem_;
     std::map<ComponentType, std::function<void(Entity, const json&)>> componentParsingFuncMap_;
     Scene currentScene_;
     EntityManager& entityManager_;

@@ -30,8 +30,7 @@ namespace neko
 class CompGraphEngine : public sdl::SdlEngine
 {
 public:
-	explicit CompGraphEngine(const FilesystemInterface&,
-                          std::optional<Configuration> config = std::nullopt);
+	explicit CompGraphEngine(Configuration* config = nullptr);
 
     void Destroy() override;
 

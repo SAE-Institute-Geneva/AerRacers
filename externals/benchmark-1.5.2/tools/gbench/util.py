@@ -1,4 +1,4 @@
-"""util.py - General utils for running, loading, and processing benchmarks
+"""util.py - General utilities for running, loading, and processing benchmarks
 """
 import json
 import os

@@ -33,7 +33,7 @@
 #include <SDL.h>
 
 #include <mathematics/vector.h>
-#include <utils/service_locator.h>
+#include <utilities/service_locator.h>
 
 namespace neko::sdl {
 class SdlEngine;

@@ -1,17 +1,42 @@
 #include "vk/material/material_manager.h"
 
-#include "utils/json_utility.h"
+#include "utilities/json_utility.h"
 
 namespace neko::vk
 {
 MaterialManager::MaterialManager()
 {
+	diffuseMaterialIds_.reserve(kMaterialsDefaultNum);
+	diffuseMaterials_.reserve(kMaterialsDefaultNum);
+
+	//skyboxMaterialIds_.reserve(kMaterialsSkyboxDefaultNum);
+	//skyboxMaterials_.reserve(kMaterialsSkyboxDefaultNum);
+
+	//trailMaterialIds_.reserve(kMaterialsDefaultNum);
+	//trailMaterials_.reserve(kMaterialsDefaultNum);
+
+	//particleMaterialIds_.reserve(kMaterialsDefaultNum);
+	//particleMaterials_.reserve(kMaterialsDefaultNum);
+
 	MaterialManagerLocator::provide(this);
+}
+
+void MaterialManager::Resize(size_t newSize)
+{
+	diffuseMaterialIds_.resize(newSize);
+	diffuseMaterials_.resize(newSize);
+
+	//trailMaterialIds_.resize(newSize);
+	//trailMaterials_.resize(newSize);
+
+	//particleMaterialIds_.resize(newSize);
+	//particleMaterials_.resize(newSize);
 }
 
 void MaterialManager::Clear()
 {
 	diffuseMaterials_.clear();
+	diffuseMaterialIds_.clear();
 
 	//skyboxMaterialIds_.clear();
 	//skyboxMaterials_.clear();
@@ -26,60 +51,39 @@ void MaterialManager::Clear()
 	defaultMaterialSkyboxIdLoaded_ = false;
 }
 
-ResourceHash MaterialManager::AddMaterial(const std::string& materialPath)
+void MaterialManager::AddMaterial(const std::string& materialPath)
 {
 	auto materialJson = LoadJson(materialPath);
 	const MaterialType materialType = materialJson["type"];
 
-	const ResourceHash resourceId = HashString(materialJson["name"]);
 	switch (materialType)
 	{
 		case MaterialType::DIFFUSE:
 		{
-			diffuseMaterials_.emplace(resourceId, DiffuseMaterial());
-
-			auto& textureManager = TextureManagerLocator::get();
+			diffuseMaterials_.emplace_back(DiffuseMaterial());
+			diffuseMaterials_.back().FromJson(materialJson);
+			diffuseMaterialIds_.emplace_back(HashString(materialJson["name"]));
 
 			//Textures defined in the material's JSON use the relative path to the data folder defined in "BasicEngine::config->dataRootPath"
 			if (CheckJsonExists(materialJson, "diffusePath"))
 			{
-				textureManager.AddTexture2d(materialJson["diffusePath"]);
+				//TODO(@Simon) use the texture manager
 			}
 
 			if (CheckJsonExists(materialJson, "specularPath"))
 			{
-				textureManager.AddTexture2d(materialJson["specularPath"]);
+				//TODO(@Simon) use the texture manager
 			}
 
 			if (CheckJsonExists(materialJson, "normalPath"))
 			{
-				textureManager.AddTexture2d(materialJson["normalPath"]);
+				//TODO(@Simon) use the texture manager
 			}
 
-			diffuseMaterials_[resourceId].FromJson(materialJson);
-			diffuseMaterials_[resourceId].CreatePipeline(Vertex::GetVertexInput(0));
+			diffuseMaterials_.back().CreatePipeline(Vertex::GetVertexInput(0));
 			break;
 		}
 	}
-
-	return resourceId;
-}
-
-ResourceHash MaterialManager::AddNewMaterial(const std::string& name, MaterialType materialType)
-{
-	const ResourceHash resourceId = HashString(name);
-
-	switch (materialType)
-	{
-		case MaterialType::DIFFUSE:
-		{
-			if (diffuseMaterials_.find(resourceId) != diffuseMaterials_.cend())
-				return resourceId;
-			diffuseMaterials_.emplace(resourceId, DiffuseMaterial());
-			break;
-		}
-	}
-	return resourceId;
 }
 
 Material& MaterialManager::GetMaterial(const std::string& materialName)
@@ -87,11 +91,12 @@ Material& MaterialManager::GetMaterial(const std::string& materialName)
 	return GetMaterial(HashString(materialName));
 }
 
-Material& MaterialManager::GetMaterial(const ResourceHash resourceId)
+Material& MaterialManager::GetMaterial(const ResourceId resourceId)
 {
 	//Diffuse materials
-	if (diffuseMaterials_.find(resourceId) != diffuseMaterials_.cend())
-		return diffuseMaterials_[resourceId];
+	for (std::size_t i = 0; i < diffuseMaterialIds_.size(); i++)
+		if (diffuseMaterialIds_[i] == resourceId)
+			return diffuseMaterials_[i];
 
 	//Particles materials
 	//for (size_t i = 0; i < particleMaterialIDs_.size(); i++)
@@ -108,40 +113,17 @@ Material& MaterialManager::GetMaterial(const ResourceHash resourceId)
 	return diffuseMaterials_[0];
 }
 
-DiffuseMaterial& MaterialManager::GetDiffuseMaterial(const std::string& materialName)
+ResourceId MaterialManager::GetDefaultMaterialId()
 {
-	return GetDiffuseMaterial(HashString(materialName));
-}
-
-DiffuseMaterial& MaterialManager::GetDiffuseMaterial(ResourceHash resourceId)
-{
-	return diffuseMaterials_[resourceId];
-}
-
-bool MaterialManager::IsMaterialLoaded(const std::string& materialName)
-{
-	return IsMaterialLoaded(HashString(materialName));
-}
-
-bool MaterialManager::IsMaterialLoaded(ResourceHash resourceId)
-{
-	if (diffuseMaterials_.find(resourceId) != diffuseMaterials_.cend())
-		return true;
-
-	return false;
-}
-
-ResourceHash MaterialManager::GetDefaultMaterialId()
-{
-	const ResourceHash defaultMaterialId = HashString(kDefaultMaterialName);
 	if (!defaultMaterialIdLoaded_)
 	{
-		diffuseMaterials_.emplace(defaultMaterialId, DiffuseMaterial());
-		diffuseMaterials_[defaultMaterialId].CreatePipeline(Vertex::GetVertexInput(0));
+		diffuseMaterials_.emplace_back(DiffuseMaterial());
+		diffuseMaterials_.back().CreatePipeline(Vertex::GetVertexInput(0));
+		diffuseMaterialIds_.emplace_back(HashString(kDefaultMaterialName));
 
 		defaultMaterialIdLoaded_ = true;
 	}
 
-	return defaultMaterialId;
+	return HashString(kDefaultMaterialName);
 }
-} 
+}

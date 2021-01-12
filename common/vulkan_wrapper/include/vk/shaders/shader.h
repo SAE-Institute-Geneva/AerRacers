@@ -17,7 +17,6 @@ struct Attribute
         FLOAT, VEC2F, VEC3F, VEC4F,
         INT, VEC2I, VEC3I, VEC4I,
         UINT, VEC2U, VEC3U, VEC4U,
-        MAT2, MAT3, MAT4
     };
 
     explicit Attribute(

@@ -39,7 +39,7 @@ SimulationClient::SimulationClient(SimulationServer& server) :
 
 void SimulationClient::Init()
 {
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
+	const auto& config = BasicEngine::GetInstance()->config;
 
 	clientId_ = RandomRange(std::numeric_limits<ClientId>::lowest(),
 		std::numeric_limits<ClientId>::max());

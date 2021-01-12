@@ -26,17 +26,15 @@
 #include "gl/gles3_window.h"
 #include "comp_graph/comp_graph_engine.h"
 
-
-int main([[maybe_unused]]int argc, [[maybe_unused]]char** argv)
+int main(int argc, char** argv)
 {
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::Filesystem filesystem;
-    neko::CompGraphEngine engine{filesystem};
+    neko::CompGraphEngine engine;
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
     engine.Init();
     engine.EngineLoop();
-    return EXIT_SUCCESS;
+    return 0;
 }

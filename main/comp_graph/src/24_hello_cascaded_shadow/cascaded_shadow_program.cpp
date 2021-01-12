@@ -32,7 +32,7 @@ namespace neko
 void HelloCascadedShadowProgram::Init()
 {
     textureManager_.Init();
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
+    const auto& config = BasicEngine::GetInstance()->config;
     glCheckError();
     plane_.Init();
     // Create the FBO
@@ -73,10 +73,9 @@ void HelloCascadedShadowProgram::Init()
             config.dataRootPath + "shaders/24_hello_cascaded_shadow/shadow.vert",
             config.dataRootPath + "shaders/24_hello_cascaded_shadow/shadow.frag"
     );
-    brickWallId_ = textureManager_.LoadTexture
-            (config.dataRootPath + "sprites/brickwall/brickwall.jpg", Texture::DEFAULT);
+    brickWallId_ = textureManager_.LoadTexture(config.dataRootPath + "sprites/brickwall/brickwall.jpg");
 
-    dragonModelId_ = modelManager_.LoadModel(config.dataRootPath + "model/dragon/dragon.obj");
+    dragonModel_.LoadModel(config.dataRootPath + "model/dragon/dragon.obj");
     glGenTextures(1, &whiteTexture_);
     glBindTexture(GL_TEXTURE_2D, whiteTexture_);
     unsigned char white[] = {255, 255, 255};
@@ -95,10 +94,9 @@ void HelloCascadedShadowProgram::Init()
 void HelloCascadedShadowProgram::Update(seconds dt)
 {
     std::lock_guard<std::mutex> lock(updateMutex_);
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
+    const auto& config = BasicEngine::GetInstance()->config;
     camera_.SetAspect(config.windowSize.x, config.windowSize.y);
     camera_.Update(dt);	textureManager_.Update(dt);
-    modelManager_.Update(dt);
 }
 
 void HelloCascadedShadowProgram::Destroy()
@@ -107,7 +105,7 @@ void HelloCascadedShadowProgram::Destroy()
     shadowShader_.Destroy();
     glDeleteFramebuffers(1, &fbo_);
     glDeleteTextures(shadowMaps_.size(), &shadowMaps_[0]);
-    modelManager_.Destroy();
+    dragonModel_.Destroy();
     plane_.Destroy();
     textureManager_.Destroy();
 }
@@ -137,13 +135,13 @@ void HelloCascadedShadowProgram::DrawImGui()
 
 void HelloCascadedShadowProgram::Render()
 {
-    if (!modelManager_.IsLoaded(dragonModelId_))
+    if (!dragonModel_.IsLoaded())
     {
         return;
     }
     if (brickWall_ == INVALID_TEXTURE_NAME)
     {
-        brickWall_ = textureManager_.GetTextureName(brickWallId_);
+        brickWall_ = textureManager_.GetTexture(brickWallId_).name;
         return;
     }
     std::lock_guard<std::mutex> lock(updateMutex_);
@@ -157,7 +155,7 @@ void HelloCascadedShadowProgram::Render()
         ShadowPass(i);
     }
     //Render scene from camera
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
+    const auto& config = BasicEngine::GetInstance()->config;
     glViewport(0, 0, config.windowSize.x, config.windowSize.y);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     shadowShader_.Bind();
@@ -301,7 +299,6 @@ void HelloCascadedShadowProgram::ShadowPass(int cascadeIndex)
 
 void HelloCascadedShadowProgram::RenderScene(const gl::Shader& shader)
 {
-    auto* dragonModel = modelManager_.GetModel(dragonModelId_);
     for (int z = 0; z < 5; z++)
     {
         for (int x = -1; x < 2; x++)
@@ -312,7 +309,7 @@ void HelloCascadedShadowProgram::RenderScene(const gl::Shader& shader)
                                            Vec3f(-10.0f * float(x), 0.0f, 10.0f * float(z) + 5.0f));
             shader.SetMat4("model", model);
             shader.SetMat4("transposeInverseModel", model.Inverse().Transpose());
-            dragonModel->Draw(shader);
+            dragonModel_.Draw(shader);
         }
     }
     auto model = Mat4f::Identity;

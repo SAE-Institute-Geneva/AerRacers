@@ -4,22 +4,19 @@
 #include "mathematics/matrix.h"
 #include "vk/buffers/uniform_handle.h"
 #include "vk/descriptors/descriptor_handle.h"
-#include "vk/models/mesh_instance.h"
-#include "vk/models/model.h"
 
 namespace neko::vk
 {
 struct ForwardDrawCmd
 {
-	ForwardDrawCmd() = default;
-
     Mat4f worldMatrix = Mat4f::Identity;
 
-    sole::uuid modelID = sole::uuid();
+    XXH64_hash_t materialID;
+    XXH64_hash_t meshID;
 
     DescriptorHandle descriptorHandle;
     UniformHandle uniformHandle;
-} __attribute__((aligned(128))) __attribute__((packed));
+};
 
 using ModelInstanceIndex = size_t;
 using ModelForwardIndex = int;
@@ -27,24 +24,24 @@ using ModelForwardIndex = int;
 class ModelCommandBuffer
 {
 public:
-	explicit ModelCommandBuffer();
-
     //void InitData();
 	void Destroy();
 
-    std::vector<std::unique_ptr<MeshInstance>>& GetMeshInstances() { return meshInstances_; }
-	std::vector<ForwardDrawCmd>& GetForwardModels() { return forwardDrawingCmd_; }
+    std::vector<ForwardDrawCmd>& GetForwardModels() { return forwardDrawingCmd_; }
 
-    ModelInstanceIndex GetModelInstanceIndex(
-    		const Material& material,
-    		const Mesh& mesh,
-    		const std::vector<Mat4f>& matrices);
+    //std::vector<std::unique_ptr<ModelInstance>>& GetModelInstances();
+    //ModelInstanceIndex GetModelInstanceIndex(const Material& material, const Mesh& mesh);
+    //ModelInstanceIndex GetForwardIndex();
 
-    void FreeForwardIndex(ModelForwardIndex index);
+    //void FreeForwardIndex(ModelForwardIndex index);
 
-	void Draw(const ForwardDrawCmd& drawCommand);
-    void Draw(const Mat4f& worldMatrix, ModelInstanceIndex instanceIndex);
-    void Draw(const Mat4f& worldMatrix, sole::uuid model, ModelForwardIndex forwardIndex);
+    /*void Draw(Mat4f worldMatrix,
+            ModelInstanceIndex instanceIndex);*/
+    /*void Draw(Mat4f worldMatrix,
+            Model model,
+            ModelForwardIndex forwardIndex);*/
+
+    void Draw(const ForwardDrawCmd& drawCommand);
     void PrepareData();
 
     void Clear();
@@ -52,11 +49,14 @@ public:
 private:
     void OnUnloadScene();
 
-	//Data for forward rendering
-	std::vector<ForwardDrawCmd> forwardDrawingCmd_{};
+    static const int kSizePerType = 200;
 
-	//Data for gpu instancing
-	std::vector<std::vector<Mat4f>> instanceMatrices_{};
-	std::vector<std::unique_ptr<MeshInstance>> meshInstances_{};
+    //Data for gpu instancing
+    //std::vector<std::vector<InstancingDrawCmd>> instancesMatrix_;
+    //std::vector<std::unique_ptr<ModelInstance>> modelInstances_;
+
+    //Data for forward rendering
+    std::uint64_t nextFreeForwardIndex_ = 0;
+    std::vector<ForwardDrawCmd> forwardDrawingCmd_;
 };
 }
