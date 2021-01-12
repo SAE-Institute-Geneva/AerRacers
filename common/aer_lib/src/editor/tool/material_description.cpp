@@ -144,6 +144,7 @@ void MaterialDescription::LoadMaterialFiles()
 		}
 	}
 }
+
 ordered_json MaterialDescription::LoadOrderedJson(const std::string_view path)
 {
 	ordered_json orderedJson;

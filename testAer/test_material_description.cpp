@@ -36,106 +36,117 @@
 #include "aer_engine.h"
 #include "editor/tool/material_description.h"
 
-class SimulateMaterialDescription: public neko::SystemInterface
+namespace neko
+{
+enum class MaterialType : std::uint8_t
+{
+	DIFFUSE = 0,
+	//SKYBOX,
+	//TRAIL,
+	//PARTICLE
+};
+class DiffuseMaterial
 {
 public:
+	explicit DiffuseMaterial(
+		const std::string& name = "",
+		Color4 color = Color::white,
+		std::string_view textureAlbedo = "",
+		std::string_view textureSpecular = "",
+		std::string_view textureNormal = "") :
+		name_(name),
+		color_(color),
+		diffuse_(textureAlbedo),
+		specular_(textureSpecular),
+		normal_(textureNormal)
+		{}
 
-	SimulateMaterialDescription(neko::aer::AerEngine& engine) : engine_(engine)
+	void SetShaderPath(const std::string& shaderPath) { shaderPath_ = shaderPath; }
+	[[nodiscard]] std::string GetShaderPath() const { return shaderPath_; }
+	[[nodiscard]] MaterialType GetType() const { return MaterialType::DIFFUSE; }
+
+	void SetColor(const Color4& color)
 	{
-		toolManager_ = std::make_unique<neko::aer::EditorToolManager>(engine_);
-		engine_.RegisterSystem(*toolManager_);
-		engine_.RegisterOnDrawUi(*toolManager_);
-		engine_.RegisterOnEvent(*toolManager_);
-		toolManager_->AddEditorTool<neko::aer::MaterialDescription, neko::aer::EditorToolInterface::ToolType::MATERIAL_DESCRIPTION>();
+		color_ = color;
 	}
+	[[nodiscard]] Color4 GetColor() const { return color_; }
 
-	void Init() override
+	void SetDiffuse(std::string_view textureDiffuse)
 	{
+		diffuse_ = textureDiffuse;
 	}
+	[[nodiscard]] std::string_view GetDiffuse() const { return diffuse_; }
 
-	void Update(neko::seconds dt) override
+	void SetSpecular(std::string_view textureSpecular)
 	{
-		if(!testFinish_)
+		specular_ = textureSpecular;
+	}
+	[[nodiscard]] std::string_view GetSpecular() const { return specular_; }
+
+	void SetNormal(std::string_view textureNormal)
+	{
+		normal_ = textureNormal;
+	}
+	[[nodiscard]] std::string_view GetNormal() const { return normal_; }
+
+	[[nodiscard]] std::string_view GetName() const { return name_; }
+
+	void FromJson(const json& materialJson)
+	{
+		name_ = materialJson["name"];
+		shaderPath_ = materialJson["shaderPath"];
+
+		Color4 color;
+		color.r = materialJson["color"]["r"];
+		color.g = materialJson["color"]["g"];
+		color.b = materialJson["color"]["b"];
+		color.a = materialJson["color"]["a"];
+		SetColor(color);
+
+		if (CheckJsonExists(materialJson, "diffusePath"))
 		{
-			if (testNumber_ == 2)
-			{
-				testFinish_ = true;
-				engine_.Stop();
-				return;
-			}
+			diffuse_ = materialJson["diffusePath"];
+		}
 
-			switch (testNumber_)
-			{
-			case 0:
-				toolManager_;
-				break;
-			case 1:
+		if (CheckJsonExists(materialJson, "specularPath"))
+		{
+			specular_ = materialJson["specularPath"];
+		}
 
-				break;
-			}
+		if (CheckJsonExists(materialJson, "normalPath"))
+		{
+			normal_ = materialJson["normalPath"];
 		}
 	}
 
-	void Destroy() override
-	{
-	}
-
-	void HasSucceeded() const
-	{
-		
-	}
-	
-	
-
 private:
 
-	bool testFinish_ = false;
-	int testNumber_ = 0;
-	std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
-	neko::aer::AerEngine& engine_;
+	std::string shaderPath_;
+
+	Color4 color_;
+	std::string diffuse_;
+	std::string specular_;
+	std::string normal_;
+	std::string name_;
 };
 
-TEST(MaterialDescription, TestVariablesChanges)
+TEST(Materials, TestLoadMaterial)
 {
-	neko::Configuration configuration;
-	configuration.windowName = "AerEditor";
-	configuration.windowSize = neko::Vec2u(1400, 900);
-	
-	neko::sdl::Gles3Window window;
-	neko::gl::Gles3Renderer renderer;
-	neko::aer::AerEngine engine(&configuration, neko::aer::ModeEnum::TEST);
+	const auto& materialJson = LoadJson("../../data/aer_racers/materials/test.aermat");
 
-	engine.SetWindowAndRenderer(&window, &renderer);
-
-	SimulateMaterialDescription simulateMaterialDescription(engine);
-	engine.RegisterSystem(simulateMaterialDescription);
-
-	engine.Init();
-
-	engine.EngineLoop();
-
-	simulateMaterialDescription.HasSucceeded();
+	DiffuseMaterial material;
+	material.FromJson(materialJson);
+	EXPECT_EQ(material.GetColor(), Color::blue);
+	EXPECT_EQ(material.GetType(), MaterialType::DIFFUSE);
+	EXPECT_EQ(material.GetShaderPath(), "aer_racers/shaders/quad_color.aershader");
+	EXPECT_EQ(material.GetName(), "Test");
+	EXPECT_EQ(material.GetSpecular(), "");
+	EXPECT_EQ(material.GetDiffuse(), "");
+	EXPECT_EQ(material.GetNormal(), "");
+}
 }
 
-TEST(MaterialDescription, TestValidShaderPath)
-{
-	neko::Configuration configuration;
-	configuration.windowName = "AerEditor";
-	configuration.windowSize = neko::Vec2u(1400, 900);
 
-	neko::sdl::Gles3Window window;
-	neko::gl::Gles3Renderer renderer;
-	neko::aer::AerEngine engine(&configuration, neko::aer::ModeEnum::TEST);
 
-	engine.SetWindowAndRenderer(&window, &renderer);
 
-	SimulateMaterialDescription simulateMaterialDescription(engine);
-	engine.RegisterSystem(simulateMaterialDescription);
-
-	engine.Init();
-
-	engine.EngineLoop();
-
-	simulateMaterialDescription.HasSucceeded();
-}
 #endif
