@@ -69,7 +69,11 @@ stage_flags = {
     '.tese': 4,
     '.tesc': 2,
 }
-
+def removeprefix(extension, prefix) :
+    if extension.startswith(prefix):
+        return extension[len(prefix):]
+    else:
+        return extension[:]
 
 def validate_vkshader(data_src, data_out, meta_content):
     path = Path(data_src)
@@ -90,7 +94,7 @@ def validate_vkshader(data_src, data_out, meta_content):
     else:
         shader_type = ShaderType.MISC
 
-    command = [program, "-V", "-S", extension[0].removeprefix("."), data_src, "-o", data_out]
+    command = [program, "-V", "-S", removeprefix(extension[0],"."), data_src, "-o", data_out]
     status = subprocess.run(command)
     if status.returncode != 0:
         exit(1)

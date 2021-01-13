@@ -175,7 +175,7 @@ private:
     //neko::Mat4f view_{ neko::Mat4f::Identity };
     //neko::Mat4f projection_{ neko::Mat4f::Identity };
     neko::EulerAngles cameraAngles_{ neko::degree_t(0.0f),  neko::degree_t(0.0f),  neko::degree_t(0.0f) };
-    const neko::Vec3f kCameraOriginPos_ = neko::Vec3f(0.0f, 0.0f, -3.0f);
+    const neko::Vec3f kCameraOriginPos_ = neko::Vec3f(0.0f, 0.0f, 3.0f);
     const neko::EulerAngles kCameraOriginAngles_ = neko::EulerAngles(
         neko::degree_t(0.0f), neko::degree_t(0.0f), neko::degree_t(0.0f));
 
