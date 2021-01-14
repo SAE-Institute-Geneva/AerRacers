@@ -619,28 +619,24 @@ void RenderWireFrameSphere::Init()
 	glGenBuffers(1, &VBO[0]);
 	glGenBuffers(1, &EBO);
 
-	Vec3f vertices[resolution*2+1];
+	Vec3f vertices[resolution*2+2];
 
-	for (size_t i = 0; i < resolution; i++)
+	for (size_t i = 0; i <= resolution; i++)
 	{
 		Vec2f vertex = Vec2f::up * radius_;
 		auto angle = degree_t(360.0f / resolution * static_cast<float>(i));
 		vertex = vertex.Rotate(angle);
 		vertices[i] = Vec3f( vertex.y, vertex.x, 0.0f);
-		i++;
-		vertices[i] = Vec3f( vertex.y, vertex.x, 0.0f);
 	}
 
-	for (size_t i = resolution; i < resolution*2; i++)
+	for (size_t i = resolution+1; i <= resolution*2; i++)
 	{
 		Vec2f vertex = Vec2f::up * radius_;
 		auto angle = degree_t(360.0f / resolution * static_cast<float>(i - 1));
 		vertex = vertex.Rotate(angle);
 		vertices[i] = Vec3f(vertex.y, 0.0f, vertex.x);
-		i++;
-		vertices[i] = Vec3f(vertex.y, 0.0f, vertex.x);
 	}
-	vertices[resolution*2] = vertices[1];
+	vertices[resolution*2+1] = vertices[0];
 
 	//Initialize the EBO program
 	glGenBuffers(1, &VBO[0]);
@@ -661,7 +657,7 @@ void RenderWireFrameSphere::Draw() const
 {
 	//glLineWidth(lineWidth_);
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_LINE_STRIP, 0, resolution*2 + 1);
+	glDrawArrays(GL_LINE_STRIP, 0, resolution*2 + 2);
 }
 
 void RenderWireFrameSphere::Destroy()
