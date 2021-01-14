@@ -389,16 +389,16 @@ public:
     {
 	    
     }
+
+    explicit Vec3(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]), z(ptr[2])
+    {
+
+    }
     /**
      * \brief Adding explicit constructor for vector-like type
      */
 	template<class U>
 	explicit Vec3(U u) noexcept : x(u.x), y(u.y), z(u.z)
-    {
-	    
-    }
-
-	explicit Vec3(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]), z(ptr[2])
     {
 	    
     }
@@ -650,6 +650,42 @@ Vec3<T> operator*(T lhs, const Vec3<T>& rhs)
     return Vec3<T>(rhs.x * lhs, rhs.y * lhs, rhs.z * lhs);
 }
 
+inline EulerAngles ConvertVec3fToEulerAngles(const Vec3f& vector)
+{
+    EulerAngles euler;
+    euler.x = degree_t(vector.x);
+    euler.y = degree_t(vector.y);
+    euler.z = degree_t(vector.z);
+    return euler;
+}
+
+inline RadianAngles ConvertVec3fToRadianAngles(const Vec3f& vector)
+{
+    RadianAngles radianAngles;
+    radianAngles.x = radian_t(vector.x);
+    radianAngles.y = radian_t(vector.y);
+    radianAngles.z = radian_t(vector.z);
+    return radianAngles;
+}
+
+inline Vec3f ConvertEulerAnglesToVec3f(const EulerAngles& euler)
+{
+    Vec3f vector;
+    vector.x = euler.x.value();
+    vector.y = euler.y.value();
+    vector.z = euler.z.value();
+    return vector;
+}
+
+inline Vec3f ConvertRadianAnglesToVec3f(const RadianAngles& radian)
+{
+    Vec3f vector;
+    vector.x = radian.x.value();
+    vector.y = radian.y.value();
+    vector.z = radian.z.value();
+    return vector;
+}
+
 //-----------------------------------------------------------------------------
 // Vec4
 //-----------------------------------------------------------------------------
@@ -697,6 +733,11 @@ public:
 
     Vec4(T X, T Y, T Z, T W)  noexcept
             : x(X), y(Y), z(Z), w(W)
+    {
+
+    }
+
+    explicit Vec4(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]), z(ptr[2]), w(ptr[3])
     {
 
     }
@@ -891,9 +932,9 @@ using Vec4f = Vec4<float>;
 using Vec4df = Vec4<float>;
 
 template<typename T>
-inline Vec4<T> const Vec4<T>::zero = Vec4<T>(0);
+inline Vec4<T> const Vec4<T>::zero = Vec4<T>(0, 0, 0, 0);
 template<typename T>
-inline Vec4<T> const Vec4<T>::one = Vec4<T>(1);
+inline Vec4<T> const Vec4<T>::one = Vec4<T>(1, 1, 1, 1);
 
 //-----------------------------------------------------------------------------
 // Vec4 Implementations

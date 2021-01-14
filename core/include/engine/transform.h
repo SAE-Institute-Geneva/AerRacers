@@ -129,9 +129,14 @@ public:
     void UpdateDirtyComponent(Entity entity) override;
     void Update() override;
     void AddComponent(Entity entity) override;
+    json GetJsonFromComponent(Entity entity) const override;
+    void SetComponentFromJson(
+        Entity entity,
+        const json& jsonComponent) override;
 protected:
 
     void UpdateTransform(Entity entity) override;
+protected:
     Position3dManager position3DManager_;
     Scale3dManager scale3DManager_;
     Rotation3dManager rotation3DManager_;

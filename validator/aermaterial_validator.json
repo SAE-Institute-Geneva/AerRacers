@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "title": "Material",
+  "type": "object",
+  "required": [
+    "name",
+    "shaderPath",
+    "type",
+    "color"
+  ],
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "shaderPath": {
+      "type": "string"
+    },
+    "type": {
+      "type": "integer"
+    },
+    "color": {
+      "type": "object",
+      "required": [
+        "r",
+        "g",
+        "b",
+        "a"
+      ],
+      "properties": {
+        "r": {
+          "type": "number"
+        },
+        "g": {
+          "type": "number"
+        },
+        "b": {
+          "type": "number"
+        },
+        "a": {
+          "type": "number"
+        }
+      }
+    },
+    "diffusePath": {
+      "type": "string"
+    },
+    "specularPath": {
+      "type": "string"
+    },
+    "normalPath": {
+      "type": "string"
+    },
+    "emissionPath": {
+      "type": "string"
+    },
+    "parameters": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {},
+          "value": {}
+        }
+      }
+    }
+  }
+}
+
