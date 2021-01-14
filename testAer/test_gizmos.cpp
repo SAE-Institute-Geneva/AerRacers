@@ -61,11 +61,11 @@ public:
             transform3dManager_.SetPosition(planeEntity_, planePosition_);
             transform3dManager_.SetScale(planeEntity_, neko::Vec3f(5, 1, 5));
         }
-        //Cube
+        //Sphere
         {
-            cubeEntity_ = entityManager_.CreateEntity();
-            transform3dManager_.AddComponent(cubeEntity_);
-            transform3dManager_.SetPosition(cubeEntity_, cubePosition_);
+            sphereEntity_ = entityManager_.CreateEntity();
+            transform3dManager_.AddComponent(sphereEntity_);
+            transform3dManager_.SetPosition(sphereEntity_, cubePosition_);
         }
     }
 
@@ -115,7 +115,7 @@ public:
         neko::RendererLocator::get().Render(this);
         neko::RendererLocator::get().Render(&gizmosRenderer_);
         updateCount_++;
-        //if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
         gizmosRenderer_.Update(dt);
     }
 
@@ -129,7 +129,6 @@ public:
         }
         shader_.Bind();
         glBindTexture(GL_TEXTURE_2D, textureWall_);
-        //shader_.SetMat4("view", view_);
         shader_.SetMat4("view", camera_.GenerateViewMatrix());
         shader_.SetMat4("projection", camera_.GenerateProjectionMatrix());
         for (neko::Entity entity = 0.0f;
@@ -140,7 +139,7 @@ public:
                 neko::EntityMask(neko::ComponentType::TRANSFORM3D))) {
                 model = neko::Transform3d::Scale(
                     model,
-                    transform3dManager_.GetScale(entity)/2.0f);
+                    transform3dManager_.GetScale(entity));
                 model = neko::Transform3d::Rotate(
                     model,
                     transform3dManager_.GetAngles(entity));
@@ -148,9 +147,17 @@ public:
                     model,
                     transform3dManager_.GetPosition(entity));
                 shader_.SetMat4("model", model);
-                sphere_.Draw();
-                gizmosRenderer_.DrawCube(transform3dManager_.GetPosition(entity), transform3dManager_.GetScale(entity), neko::Color4(neko::Color::blue, 1.0f),10.0f);
-                gizmosRenderer_.DrawSphere(transform3dManager_.GetPosition(entity), 1.0f, neko::Color4(neko::Color::green, 1.0f), 10.0f);
+                if (entity == planeEntity_)
+                {
+                    cube_.Draw();
+                    gizmosRenderer_.DrawCube(transform3dManager_.GetPosition(entity), transform3dManager_.GetScale(entity), neko::Color4(neko::Color::blue, 1.0f), 10.0f);
+                }
+
+                if (entity == sphereEntity_)
+                {
+                    sphere_.Draw();
+                    gizmosRenderer_.DrawSphere(transform3dManager_.GetPosition(entity), 1.0f, neko::Color4(neko::Color::green, 1.0f), 10.0f);
+                }
             }
         }
         circle_.Draw();
@@ -216,7 +223,7 @@ private:
     neko::TextureId textureWallId_;
     neko::seconds timeSinceInit_{ 0 };
 
-    neko::Entity cubeEntity_;
+    neko::Entity sphereEntity_;
     neko::Entity planeEntity_;
 
 };

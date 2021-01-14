@@ -82,7 +82,7 @@ void Gles3GizmosRenderer::Render()
 				shaderSphere_.SetMat4("projection", camera_->GenerateProjectionMatrix());
 				shaderSphere_.SetVec4("color", gizmo.color);
 				Mat4f model = Mat4f::Identity;
-				model = Transform3d::Scale(model, Vec3f(gizmo.radius/2.0f));
+				model = Transform3d::Scale(model, Vec3f(gizmo.radius+0.01f));
 				model = Transform3d::Translate(model, gizmo.pos);
 				shaderSphere_.SetMat4("model", model);
 				sphere_.SetLineWidth(gizmo.lineThickness);

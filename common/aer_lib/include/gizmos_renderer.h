@@ -47,7 +47,7 @@ class IGizmosRenderer
 public:
 	
 	/**
-	 * \brief Generate a wire cube.
+	 * \brief Generate a wire cube
 	 */
 	virtual void DrawCube(
 		const Vec3f& pos,
@@ -56,7 +56,7 @@ public:
 		float lineThickness = 1.0f) = 0;
 
 	/**
-	 * \brief Generate a line.
+	 * \brief Generate a line
 	 */
 	virtual void DrawLine(
 		const Vec3f& startPos,
@@ -65,7 +65,7 @@ public:
 		float lineThickness = 1.0f) = 0;
 
 	/**
-	 * \brief Generate a sphere.
+	 * \brief Generate a wire sphere
 	 */
 	virtual void DrawSphere(
 		const Vec3f& pos,
@@ -73,6 +73,9 @@ public:
 		const Color4& color = Color4(Color::red, 1.0f),
 		float lineThickness = 1.0f) = 0;
 
+	/**
+	 * \brief Set the camera
+	 */
 	virtual void SetCamera(Camera3D* camera) = 0;
 	virtual Camera3D* GetCamera() const = 0;
 	virtual Vec3f GetCameraPos() const = 0;

@@ -77,11 +77,16 @@ private:
     DrawSystem drawSystem_;
     EntityManager entityManager_;
     SceneManager sceneManager_;
+
+    EditorToolManager toolManager_;
+
+    //Components Manager
     Transform3dManager transform3dManager_;
+
+    //Service Locator
     std::unique_ptr<LogManager> logManager_;
     std::unique_ptr<TagManager> tagManager_;
     std::unique_ptr<InputBindingManager>  bindedInputManager_;
 
-    EditorToolManager toolManager_;
 };
 }
