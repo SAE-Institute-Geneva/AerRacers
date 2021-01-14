@@ -18,6 +18,7 @@ enum class GizmoShape : std::uint8_t
 {
 	CUBE = 0u,
 	LINE,
+	SPHERE,
 };
 
 struct Gizmos
@@ -28,6 +29,7 @@ struct Gizmos
 	Color4 color = Color4(Color::red, 1.0f);
 	GizmoShape shape = GizmoShape::CUBE;
 	float lineThickness = 1.0f;
+	float radius = 1.0f;
 
 	union
 	{
@@ -61,7 +63,16 @@ public:
 		const Vec3f& endPos,
 		const Color4& color = Color4(Color::red, 1.0f),
 		float lineThickness = 1.0f) = 0;
-	
+
+	/**
+	 * \brief Generate a sphere.
+	 */
+	virtual void DrawSphere(
+		const Vec3f& pos,
+		const float& radius = 1.0f,
+		const Color4& color = Color4(Color::red, 1.0f),
+		float lineThickness = 1.0f) = 0;
+
 	virtual void SetCamera(Camera3D* camera) = 0;
 	virtual Camera3D* GetCamera() const = 0;
 	virtual Vec3f GetCameraPos() const = 0;
@@ -73,6 +84,7 @@ public:
 /// \brief Used for the service locator
 class NullGizmosRenderer final : public IGizmosRenderer
 {
+public:
 	void DrawCube(
 		[[maybe_unused]] const Vec3f& pos,
 		[[maybe_unused]] const Vec3f& size = Vec3f::one,
@@ -88,7 +100,14 @@ class NullGizmosRenderer final : public IGizmosRenderer
 		[[maybe_unused]] float lineThickness = 1.0f) override
 	{
 	}
-	
+
+	void DrawSphere(
+		[[maybe_unused]] const Vec3f& pos,
+		[[maybe_unused]] const float& radius = 1.0f,
+		[[maybe_unused]] const Color4& color = Color4(Color::red, 1.0f),
+		[[maybe_unused]] float lineThickness = 1.0f) override
+	{
+	}
 	void SetCamera([[maybe_unused]] Camera3D* camera) override {}
 	Camera3D* GetCamera() const override { return nullptr; }
 
@@ -133,18 +152,27 @@ public:
 		const Color4& color = Color4(Color::red, 1.0f),
 		float lineThickness = 1.0f) override;
 
+	void DrawSphere(
+		const Vec3f& pos,
+		const float& radius = 1.0f,
+		const Color4& color = Color4(Color::red, 1.0f),
+		float lineThickness = 1.0f) override;
+
 	void SetCamera(Camera3D* camera) override;
 	Camera3D* GetCamera() const override { return camera_; }
 	Vec3f GetCameraPos() const override { return camera_->position; }
-		
+
+    
 private:
 	std::mutex renderMutex_;
 
 	Camera3D* camera_;
 	gl::RenderWireFrameCuboid cube_{Vec3f::zero, Vec3f::one};
+	gl::RenderWireFrameSphere sphere_{ Vec3f::zero, 1.0f };
 	gl::RenderLine3d line_{Vec3f::zero, Vec3f::one};
 
 	gl::Shader shaderCube_;
+	gl::Shader shaderSphere_;
 	gl::Shader shaderLine_;
 
 	std::vector<Gizmos> gizmosQueue_;

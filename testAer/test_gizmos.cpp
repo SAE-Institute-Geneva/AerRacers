@@ -81,6 +81,10 @@ public:
 
         cube_.Init();
         quad_.Init();
+        sphere_.Init();
+        circle_.Init();
+        wireFrameSphere_.Init();
+        wireFrameSphere_.SetLineWidth(1.0f);
         gizmosRenderer_.Init();
         glEnable(GL_DEPTH_TEST);
     }
@@ -111,7 +115,7 @@ public:
         neko::RendererLocator::get().Render(this);
         neko::RendererLocator::get().Render(&gizmosRenderer_);
         updateCount_++;
-        if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
+        //if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
         gizmosRenderer_.Update(dt);
     }
 
@@ -136,7 +140,7 @@ public:
                 neko::EntityMask(neko::ComponentType::TRANSFORM3D))) {
                 model = neko::Transform3d::Scale(
                     model,
-                    transform3dManager_.GetScale(entity));
+                    transform3dManager_.GetScale(entity)/2.0f);
                 model = neko::Transform3d::Rotate(
                     model,
                     transform3dManager_.GetAngles(entity));
@@ -144,10 +148,12 @@ public:
                     model,
                     transform3dManager_.GetPosition(entity));
                 shader_.SetMat4("model", model);
-                cube_.Draw();
+                sphere_.Draw();
                 gizmosRenderer_.DrawCube(transform3dManager_.GetPosition(entity), transform3dManager_.GetScale(entity), neko::Color4(neko::Color::blue, 1.0f),10.0f);
+                gizmosRenderer_.DrawSphere(transform3dManager_.GetPosition(entity), 1.0f, neko::Color4(neko::Color::green, 1.0f), 10.0f);
             }
         }
+        circle_.Draw();
     }
 
     void Destroy() override
@@ -155,6 +161,8 @@ public:
         shader_.Destroy();
         cube_.Destroy();
         quad_.Destroy();
+        sphere_.Destroy();
+        wireFrameSphere_.Destroy();
         textureManager_.Destroy();
         gizmosRenderer_.Destroy();
     }
@@ -181,6 +189,11 @@ private:
 
     neko::gl::RenderCuboid cube_{ neko::Vec3f::zero, neko::Vec3f::one };
     neko::gl::RenderQuad quad_{ neko::Vec3f::zero, neko::Vec2f::one };
+
+    neko::gl::RenderCircle circle_{ neko::Vec3f::zero, 1.0f };
+    neko::gl::RenderSphere sphere_{ neko::Vec3f::zero, 1.0f };
+    neko::gl::RenderWireFrameSphere wireFrameSphere_{ neko::Vec3f::zero, 1.0f };
+
     const static size_t kCubeNumbers = 10;
     neko::Vec3f cubePosition_ = neko::Vec3f(0.0f, 2.0f, -5.0f);
     neko::Vec3f planePosition_ = neko::Vec3f(0.0f, -3.0f, -5.0f);

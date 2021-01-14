@@ -103,4 +103,16 @@ protected:
     size_t segment_ = 0;
 	size_t indexCount_ = 0;
 };
+
+class RenderWireFrameSphere : public neko::RenderWireFrameSphere, public VertexArrayObject
+{
+public:
+    explicit RenderWireFrameSphere(Vec3f offset, float radius);
+
+    void Init() override;
+
+    void Draw() const override;
+
+    void Destroy() override;
+};
 }

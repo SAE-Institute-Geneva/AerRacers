@@ -604,4 +604,70 @@ void RenderLine3d::Destroy()
 	glDeleteBuffers(2, &VBO[0]);
 }
 
+RenderWireFrameSphere::RenderWireFrameSphere(
+    Vec3f offset,
+    float radius) : neko::RenderWireFrameSphere(offset, radius)
+{
+    
 }
+
+void RenderWireFrameSphere::Init()
+{
+	glCheckError();
+	glGenVertexArrays(1, &VAO);
+
+	glGenBuffers(1, &VBO[0]);
+	glGenBuffers(1, &EBO);
+
+	Vec3f vertices[resolution*2+1];
+
+	for (size_t i = 0; i < resolution; i++)
+	{
+		Vec2f vertex = Vec2f::up * radius_;
+		auto angle = degree_t(360.0f / resolution * static_cast<float>(i));
+		vertex = vertex.Rotate(angle);
+		vertices[i] = Vec3f( vertex.y, vertex.x, 0.0f);
+		i++;
+		vertices[i] = Vec3f( vertex.y, vertex.x, 0.0f);
+	}
+
+	for (size_t i = resolution; i < resolution*2; i++)
+	{
+		Vec2f vertex = Vec2f::up * radius_;
+		auto angle = degree_t(360.0f / resolution * static_cast<float>(i - 1));
+		vertex = vertex.Rotate(angle);
+		vertices[i] = Vec3f(vertex.y, 0.0f, vertex.x);
+		i++;
+		vertices[i] = Vec3f(vertex.y, 0.0f, vertex.x);
+	}
+	vertices[resolution*2] = vertices[1];
+
+	//Initialize the EBO program
+	glGenBuffers(1, &VBO[0]);
+	glGenBuffers(1, &EBO);
+	glGenVertexArrays(1, &VAO);
+	// 1. bind Vertex Array Object
+	glBindVertexArray(VAO);
+	// 2. copy our vertices array in a buffer for OpenGL to use
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), (void*) nullptr);
+	glEnableVertexAttribArray(0);
+	glBindVertexArray(0);
+	glCheckError();
+}
+
+void RenderWireFrameSphere::Draw() const
+{
+	//glLineWidth(lineWidth_);
+	glBindVertexArray(VAO);
+	glDrawArrays(GL_LINE_STRIP, 0, resolution*2 + 1);
+}
+
+void RenderWireFrameSphere::Destroy()
+{
+	glDeleteVertexArrays(1, &VAO);
+	glDeleteBuffers(1, &VBO[0]);
+}
+}
+

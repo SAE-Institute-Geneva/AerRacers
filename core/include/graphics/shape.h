@@ -121,4 +121,20 @@ public:
 protected:
     float radius_ = 0.0f;
 };
+
+class RenderWireFrameSphere : public RenderShape
+{
+public:
+    RenderWireFrameSphere() = delete;
+    explicit RenderWireFrameSphere(Vec3f offset, float radius) : RenderShape(offset), radius_(radius) {}
+
+    void SetLineWidth(float lineWidth)
+    {
+        lineWidth_ = lineWidth;
+    }
+protected:
+    float radius_ = 0.0f;
+    float lineWidth_ = 1.0f;
+    static const size_t resolution = 50;
+};
 }
