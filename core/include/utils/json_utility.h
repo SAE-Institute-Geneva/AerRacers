@@ -36,14 +36,25 @@ namespace neko
 {
 bool IsJsonValueNumeric(const json::value_type& jsonValue);
 
-bool CheckJsonExists(const json& jsonObject, std::string parameterName);
+bool CheckJsonExists(const json& jsonObject, const std::string& parameterName);
 
-bool CheckJsonParameter(const json& jsonObject, std::string parameterName, json::value_t expectedType);
+bool CheckJsonParameter(const json& jsonObject, const std::string& parameterName, json::value_t expectedType);
 
-bool CheckJsonNumber(const json& jsonObject, std::string parameterName);
-Vec2f GetVectorFromJson(const json& jsonObject, std::string parameterName);
+bool CheckJsonNumber(const json& jsonObject, const std::string& parameterName);
 
+Vec2f GetVector2FromJson(const json& jsonObject, const std::string& parameterName);
+
+Vec3f GetVector3FromJson(const json& jsonObject, const std::string& parameterName);
+
+Vec4f GetVector4FromJson(const json& jsonObject, const std::string& parameterName);
+
+json GetJsonFromVector2(const Vec2f& vector);
+
+json GetJsonFromVector3(const Vec3f& vector);
+
+json GetJsonFromVector4(const Vec4f& vector);
 
 Rect2f GetRectFromJson(const json& jsonObject, std::string parameterName);
+
 json LoadJson(const std::string_view jsonPath);
 }

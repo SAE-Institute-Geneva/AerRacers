@@ -27,32 +27,3 @@ function(add_data_folder binary)
 endfunction()
 
 
-set(SUPPORTED_STAGES "vert" "frag" "geom" "comp" "tesc" "tese")
-foreach(SHADER ${VK_SHADER_FILES})
-    get_filename_component(FILE_NAME ${SHADER} NAME)
-    get_filename_component(PATH_NAME ${SHADER} DIRECTORY)
-    get_filename_component(EXTENSION ${SHADER} EXT)
-    string(REPLACE ".vk" "" FILE_NAME ${FILE_NAME})
-
-    file(RELATIVE_PATH PATH_NAME "${PROJECT_SOURCE_DIR}" ${PATH_NAME})
-    set(SHADER_OUTPUT "${PROJECT_BINARY_DIR}/${PATH_NAME}/${FILE_NAME}.spv")
-    
-	foreach(SUPPORTED_STAGE ${SUPPORTED_STAGES})
-		string(COMPARE EQUAL "${EXTENSION}" ".${SUPPORTED_STAGE}.vk" _cmp)
-		if(_cmp)
-			set(STAGE ${SUPPORTED_STAGE})
-			break()
-		endif()
-	endforeach(SUPPORTED_STAGE)
-
-    add_custom_command(
-            OUTPUT ${SHADER_OUTPUT}
-            DEPENDS ${SHADER}
-            DEPENDS
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/${PATH_NAME}"
-            COMMAND ${GLSL_VALIDATOR} -V -S "${STAGE}" "${SHADER}" -o ${SHADER_OUTPUT}
-    )
-    list(APPEND SHADER_BINARY_FILES ${SHADER_OUTPUT})
-endforeach(SHADER)
-
-add_custom_target(ShaderTarget DEPENDS ${SHADER_BINARY_FILES} ${shader_files})   

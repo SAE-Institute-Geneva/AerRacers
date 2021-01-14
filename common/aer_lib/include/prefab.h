@@ -23,45 +23,38 @@
  SOFTWARE.
  */
 
+#include <vector>
 #include <sole.hpp>
 
+#include <engine/globals.h>
 #include <utils/json_utility.h>
-#include "engine/entity.h"
+#include <engine/entity.h>
 #include <engine/component.h>
-#include "graphics/color.h"
-#include "engine/filesystem.h"
 
-
-namespace neko
+namespace neko::aer
 {
 
-using SceneId = sole::uuid;
-const SceneId INVALID_SCENE_ID = sole::uuid{};
-struct Scene
+class SceneManager;
+using PrefabId = sole::uuid;
+const PrefabId INVALID_PREFAB_ID = sole::uuid{};
+struct Prefab
 {
-    std::string sceneName = "New Scene";
-    std::string scenePath = "";
-	SceneId sceneId = INVALID_SCENE_ID;
+    Prefab();
+    PrefabId id = INVALID_PREFAB_ID;
+	std::string prefabPath = "";
+    json prefabJson{};
 };
 
-class SceneManager 
+class PrefabManager : public ComponentManager<PrefabId, EntityMask(ComponentType::PREFAB)>
 {
 public:
-    explicit SceneManager(EntityManager&, FilesystemInterface&);
-	virtual ~SceneManager() = default;
-    virtual void ParseComponentJson(const json& componentJson, Entity entity) = 0;
-    virtual void ParseEntityJson(const json& entityJson) = 0;
-    virtual void ParseSceneJson(const json& sceneJson);
-
-    const Scene& GetCurrentScene() const { return currentScene_;}
-    void SetCurrentScene(const Scene& currentScene);
-	static SceneId GenerateSceneId() { return sole::uuid0(); };
+    explicit PrefabManager(EntityManager& entityManager, SceneManager& sceneManager);
+    void InstantiatePrefab(PrefabId prefabIndex, EntityManager& entityManager);
+    PrefabId LoadPrefab(std::string_view prefabPath, bool forceReload=false);
+    const Prefab& GetPrefab(PrefabId prefabId);
 	static std::string_view GetExtension();
 protected:
-    FilesystemInterface& filesystem_;
-    std::map<ComponentType, std::function<void(Entity, const json&)>> componentParsingFuncMap_;
-    Scene currentScene_;
-    EntityManager& entityManager_;
+    SceneManager& sceneManager_;
+	std::unordered_map<PrefabId, Prefab> prefabMap_;
 };
-
 }

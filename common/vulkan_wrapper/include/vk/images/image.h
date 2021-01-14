@@ -1,6 +1,10 @@
 #pragma once
 #include <array>
 
+#include "vulkan/vulkan.h"
+#include "ktxvulkan.h"
+
+#include "graphics/texture.h"
 #include "vk/descriptors/descriptor_interface.h"
 
 namespace neko::vk
@@ -17,6 +21,7 @@ public:
           std::uint32_t mipLevels,
           std::uint32_t arrayLayers,
           const VkExtent3D &extent);
+    explicit Image(const ktxVulkanTexture& texture);
     void Destroy() const override;
 
 	static VkDescriptorSetLayoutBinding GetDescriptorSetLayout(
@@ -90,11 +95,18 @@ public:
             VkImageTiling tiling,
             VkFormatFeatureFlags features);
 
+	static void CopyBufferToImage(
+			const VkBuffer& buffer,
+			const VkImage& image,
+			VkExtent3D extent,
+			uint32_t layerCount,
+			uint32_t baseArrayLayer);
+
 protected:
     VkExtent3D extent_;
     VkFormat format_;
     VkSampleCountFlagBits sample_;
-    VkImageUsageFlags usage_;
+    VkImageUsageFlags usage_{};
     std::uint32_t mipLevels_;
     std::uint32_t arrayLayers_;
 

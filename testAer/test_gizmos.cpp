@@ -61,11 +61,11 @@ public:
             transform3dManager_.SetPosition(planeEntity_, planePosition_);
             transform3dManager_.SetScale(planeEntity_, neko::Vec3f(5, 1, 5));
         }
-        //Cube
+        //Sphere
         {
-            cubeEntity_ = entityManager_.CreateEntity();
-            transform3dManager_.AddComponent(cubeEntity_);
-            transform3dManager_.SetPosition(cubeEntity_, cubePosition_);
+            sphereEntity_ = entityManager_.CreateEntity();
+            transform3dManager_.AddComponent(sphereEntity_);
+            transform3dManager_.SetPosition(sphereEntity_, cubePosition_);
         }
     }
 
@@ -81,6 +81,10 @@ public:
 
         cube_.Init();
         quad_.Init();
+        sphere_.Init();
+        circle_.Init();
+        wireFrameSphere_.Init();
+        wireFrameSphere_.SetLineWidth(1.0f);
         gizmosRenderer_.Init();
         glEnable(GL_DEPTH_TEST);
     }
@@ -110,6 +114,7 @@ public:
         textureManager_.Update(dt);
         neko::RendererLocator::get().Render(this);
         neko::RendererLocator::get().Render(&gizmosRenderer_);
+        transform3dManager_.SetRotation(sphereEntity_, transform3dManager_.GetAngles(sphereEntity_) + neko::EulerAngles(neko::degree_t(0), neko::degree_t(1), neko::degree_t(0)));
         updateCount_++;
         if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
         gizmosRenderer_.Update(dt);
@@ -125,7 +130,6 @@ public:
         }
         shader_.Bind();
         glBindTexture(GL_TEXTURE_2D, textureWall_);
-        //shader_.SetMat4("view", view_);
         shader_.SetMat4("view", camera_.GenerateViewMatrix());
         shader_.SetMat4("projection", camera_.GenerateProjectionMatrix());
         for (neko::Entity entity = 0.0f;
@@ -144,8 +148,17 @@ public:
                     model,
                     transform3dManager_.GetPosition(entity));
                 shader_.SetMat4("model", model);
-                cube_.Draw();
-                gizmosRenderer_.DrawCube(transform3dManager_.GetPosition(entity), transform3dManager_.GetScale(entity),transform3dManager_.GetAngles(entity), neko::Color4(neko::Color::blue, 1.0f),10.0f);
+                if (entity == planeEntity_)
+                {
+                    cube_.Draw();
+                    gizmosRenderer_.DrawCube(transform3dManager_.GetPosition(entity), transform3dManager_.GetScale(entity), transform3dManager_.GetAngles(entity), neko::Color4(neko::Color::blue, 1.0f), 10.0f);
+                }
+
+                if (entity == sphereEntity_)
+                {
+                    sphere_.Draw();
+                    gizmosRenderer_.DrawSphere(transform3dManager_.GetPosition(entity), 1.0f, transform3dManager_.GetAngles(entity), neko::Color4(neko::Color::green, 1.0f), 3.0f);
+                }
             }
         }
     }
@@ -155,6 +168,8 @@ public:
         shader_.Destroy();
         cube_.Destroy();
         quad_.Destroy();
+        sphere_.Destroy();
+        wireFrameSphere_.Destroy();
         textureManager_.Destroy();
         gizmosRenderer_.Destroy();
     }
@@ -169,18 +184,23 @@ private:
     neko::aer::AerEngine& engine_;
     neko::EntityManager& entityManager_;
     neko::Transform3dManager& transform3dManager_;
-    neko::GizmosRenderer gizmosRenderer_;
+    neko::Gles3GizmosRenderer gizmosRenderer_;
 
     neko::Camera3D camera_;
     //neko::Mat4f view_{ neko::Mat4f::Identity };
     //neko::Mat4f projection_{ neko::Mat4f::Identity };
     neko::EulerAngles cameraAngles_{ neko::degree_t(0.0f),  neko::degree_t(0.0f),  neko::degree_t(0.0f) };
-    const neko::Vec3f kCameraOriginPos_ = neko::Vec3f(0.0f, 0.0f, -3.0f);
+    const neko::Vec3f kCameraOriginPos_ = neko::Vec3f(0.0f, 0.0f, 3.0f);
     const neko::EulerAngles kCameraOriginAngles_ = neko::EulerAngles(
         neko::degree_t(0.0f), neko::degree_t(0.0f), neko::degree_t(0.0f));
 
     neko::gl::RenderCuboid cube_{ neko::Vec3f::zero, neko::Vec3f::one };
     neko::gl::RenderQuad quad_{ neko::Vec3f::zero, neko::Vec2f::one };
+
+    neko::gl::RenderCircle circle_{ neko::Vec3f::zero, 1.0f };
+    neko::gl::RenderSphere sphere_{ neko::Vec3f::zero, 1.0f };
+    neko::gl::RenderWireFrameSphere wireFrameSphere_{ neko::Vec3f::zero, 1.0f };
+
     const static size_t kCubeNumbers = 10;
     neko::Vec3f cubePosition_ = neko::Vec3f(0.0f, 2.0f, -5.0f);
     neko::Vec3f planePosition_ = neko::Vec3f(0.0f, -3.0f, -5.0f);
@@ -203,7 +223,7 @@ private:
     neko::TextureId textureWallId_;
     neko::seconds timeSinceInit_{ 0 };
 
-    neko::Entity cubeEntity_;
+    neko::Entity sphereEntity_;
     neko::Entity planeEntity_;
 
 };

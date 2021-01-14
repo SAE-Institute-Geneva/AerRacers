@@ -847,7 +847,7 @@ private :
     neko::physics::PhysicsEngine physicsEngine_;
     neko::physics::RigidDynamicViewer rigidDynamicViewer_;
     neko::Transform3dViewer transform3dViewer_;
-    neko::GizmosRenderer gizmosRenderer_;
+    neko::Gles3GizmosRenderer gizmosRenderer_;
 
     neko::Camera3D camera_;
     neko::EulerAngles cameraAngles_{
@@ -855,7 +855,7 @@ private :
         neko::degree_t(0.0f),
         neko::degree_t(0.0f)
     };
-    const neko::Vec3f kCameraOriginPos_ = neko::Vec3f(0.0f, 0.0f, -5.0f);
+    const neko::Vec3f kCameraOriginPos_ = neko::Vec3f(0.0f, 0.0f, 5.0f);
     const neko::EulerAngles kCameraOriginAngles_ = neko::EulerAngles(
         neko::degree_t(0.0f),
         neko::degree_t(0.0f),
