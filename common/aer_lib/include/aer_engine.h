@@ -33,7 +33,10 @@ Last Modif: 13.10.2020
 #include "draw_system.h"
 #include "inputs_binding_manager.h"
 #include "log.h"
+#include "scene.h"
+#include "tag.h"
 #include "editor/editor_tool_manager.h"
+#include "engine/transform.h"
 
 namespace neko::aer {
 
@@ -65,12 +68,18 @@ public:
 
     EntityManager& GetEntityManager() { return entityManager_; }
 
+    SceneManager& GetSceneManager() { return sceneManager_; }
+
+    Transform3dManager& GetTransform3dManager() { return transform3dManager_; }
 private:
     ModeEnum mode_;
 
     DrawSystem drawSystem_;
     EntityManager entityManager_;
+    SceneManager sceneManager_;
+    Transform3dManager transform3dManager_;
     std::unique_ptr<LogManager> logManager_;
+    std::unique_ptr<TagManager> tagManager_;
     std::unique_ptr<InputBindingManager>  bindedInputManager_;
 
     EditorToolManager toolManager_;
