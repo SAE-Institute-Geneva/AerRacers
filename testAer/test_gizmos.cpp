@@ -114,7 +114,7 @@ public:
         textureManager_.Update(dt);
         neko::RendererLocator::get().Render(this);
         neko::RendererLocator::get().Render(&gizmosRenderer_);
-        updateCount_++;
+        //updateCount_++;
         if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
         gizmosRenderer_.Update(dt);
     }
@@ -156,11 +156,10 @@ public:
                 if (entity == sphereEntity_)
                 {
                     sphere_.Draw();
-                    gizmosRenderer_.DrawSphere(transform3dManager_.GetPosition(entity), 1.0f, neko::Color4(neko::Color::green, 1.0f), 10.0f);
+                    gizmosRenderer_.DrawSphere(transform3dManager_.GetPosition(entity), 1.0f, neko::Color4(neko::Color::green, 1.0f), 3.0f);
                 }
             }
         }
-        circle_.Draw();
     }
 
     void Destroy() override
