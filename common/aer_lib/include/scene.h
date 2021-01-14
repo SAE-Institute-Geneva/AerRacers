@@ -27,9 +27,6 @@
  Date : 12.01.2021
 ---------------------------------------------------------- */
 
-
-#include <sole.hpp>
-
 #include <engine/entity.h>
 #include <engine/filesystem.h>
 #include <engine/transform.h>

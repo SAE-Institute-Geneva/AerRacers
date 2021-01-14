@@ -1,5 +1,5 @@
 #pragma once
-/*
+/* ----------------------------------------------------
  MIT License
 
  Copyright (c) 2020 SAE Institute Switzerland AG
@@ -21,9 +21,11 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
- */
 
-#include <sole.hpp>
+ Author : Floreau Luca
+ Co-Author :
+ Date : 13.01.2021
+---------------------------------------------------------- */
 
 #include "engine/entity.h"
 #include "utils/service_locator.h"
@@ -48,30 +50,80 @@ class TagManagerInterface
 protected:
 	~TagManagerInterface() = default;
 public:
+    /**
+	 * \brief Set the tag of an entity
+	 * \param entityTag entity tag name
+	 */
 	virtual void SetEntityTag(Entity entity, const std::string& entityTag) = 0;
 
+    /**
+     * \brief Set the tag of an entity
+     * \param entityTagIndex entity tag index
+     */
 	virtual void SetEntityTag(Entity entity, TagIndex entityTagIndex) = 0;
 
+    /**
+     * \brief Set the layer of an entity
+     * \param entityLayer entity layer
+     */
     virtual void SetEntityLayer(Entity entity, const std::string& entityLayer) = 0;
 
+    /**
+     * \brief Set the layer of an entity
+     * \param entityLayerIndex entity layer index
+     */
 	virtual void SetEntityLayer(Entity entity, LayerIndex entityLayerIndex) = 0;
 
+    /**
+	 * \brief Return if an entity has the tag
+	 * \param entityTag entity tag name
+	 */
 	virtual bool IsEntityTag(Entity entity, const std::string& entityTag) const = 0;
 
+    /**
+     * \brief Return if an entity has the tag
+     * \param entityTagIndex entity tag index
+     */
 	virtual bool IsEntityTag(Entity entity, TagIndex entityTagIndex) const = 0;
 
+    /**
+     * \brief Return if an entity has the layer
+     * \param entityLayer entity layer name
+     */
     virtual bool IsEntityLayer(Entity entity, const std::string& entityLayer) const = 0;
 
+    /**
+     * \brief Return if an entity has the layer
+     * \param entityLayerIndex entity layer index
+     */
 	virtual bool IsEntityLayer(Entity entity, LayerIndex entityLayerIndex) const = 0;
 
+    /**
+     * \brief Compare to entities tag
+     * \param entityA first entity index
+     * \param entityB second entity index
+     * \return true if two entity has the same tag
+     */
     virtual bool CompareEntitiesTag(Entity entityA, Entity entityB) const = 0;
 
+    /**
+     * \brief Return the tag name of an entity
+     */
     virtual std::string GetEntityTag(Entity entity) const = 0;
 
+    /**
+     * \brief Get the entity tag index
+     */
     virtual TagIndex GetEntityTagIndex(Entity entity) const = 0;
 
+    /**
+     * \brief Return the layer name of an entity
+     */
     virtual std::string GetEntityLayer(Entity entity) const = 0;
 
+    /**
+     * \brief Get the entity layer index
+     */
     virtual LayerIndex GetEntityLayerIndex(Entity entity) const = 0;
 };
 
