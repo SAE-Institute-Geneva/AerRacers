@@ -8,10 +8,13 @@ from pathlib import Path
 from enum import Enum
 
 from shader_validator import validate_shader
+from aer_validator import validate_vkshader
 from texture_validator import validate_texture
 from material_validator import validate_material
 from skybox_validator import validate_skybox
 from pkg_validator import validate_pkg
+from aer_validator import validate_aer_material
+from aer_validator import validate_aer_shader
 
 
 class AssetType(Enum):
@@ -22,9 +25,12 @@ class AssetType(Enum):
     SCENE = 3
     VERT_SHADER = 4
     FRAG_SHADER = 5
-    FONT = 6
-    SKYBOX = 7
-    PKG = 8
+    VK_SHADER = 6
+    FONT = 7
+    SKYBOX = 8
+    PKG = 9
+    AER_MAT = 10
+    AER_SHADER = 11
 
 
 img_extension = [
@@ -49,18 +55,24 @@ def define_asset_type(filename) -> AssetType:
         return AssetType.TEXTURE
     if extension == '.mtl' or extension == '.mat':
         return AssetType.MTL
-    if extension == '.obj':
+    if extension == '.obj' or extension == '.fbx':
         return AssetType.OBJ
     if extension == '.vert':
         return AssetType.VERT_SHADER
     if extension == '.frag':
         return AssetType.FRAG_SHADER
+    if extension == '.vk':
+        return AssetType.VK_SHADER
     if extension == '.ttf':
         return AssetType.FONT
     if extension == '.skybox':
         return AssetType.SKYBOX
     if extension == '.pkg_json':
         return AssetType.PKG
+    if extension == '.aermat':
+        return AssetType.AER_MAT
+    if extension == '.aershader':
+        return AssetType.AER_SHADER
     return AssetType.UNKNOWN
 
 
@@ -94,12 +106,18 @@ def validate_asset(src="", out=""):
         validate_texture(data_src, data_out, meta_content)
     if asset_type == AssetType.VERT_SHADER or asset_type == AssetType.FRAG_SHADER:
         validate_shader(data_src, data_out, meta_content)
+    if asset_type == AssetType.VK_SHADER:
+        validate_vkshader(data_src, data_out, meta_content)
     if asset_type == AssetType.MTL:
         validate_material(data_src, data_out, meta_content)
     if asset_type == AssetType.SKYBOX:
         validate_skybox(data_src, data_out, meta_content)
     if asset_type == AssetType.PKG:
         validate_pkg(data_src, data_out, meta_content)
+    if asset_type == AssetType.AER_MAT:
+        validate_aer_material(data_src, data_out, meta_content)
+    if asset_type == AssetType.AER_SHADER:
+        validate_aer_shader(data_src, data_out, meta_content)
     # write new meta content to meta file
     if asset_type != AssetType.UNKNOWN:
         if not os.path.isfile(data_out + ".meta"):

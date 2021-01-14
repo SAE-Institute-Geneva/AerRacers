@@ -47,6 +47,10 @@ public:
 protected:
     Camera3D camera_;
     AerEngine& engine_;
-    std::unique_ptr<GizmosRenderer> gizmosRenderer_;
+#ifdef NEKO_GLES3
+    std::unique_ptr<Gles3GizmosRenderer> gizmosRenderer_;
+#elif NEKO_VULKAN
+    std::unique_ptr<NekoGizmosRenderer> gizmosRenderer_;
+#endif
 };
 }

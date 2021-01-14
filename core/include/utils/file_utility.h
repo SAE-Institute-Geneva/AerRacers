@@ -44,7 +44,7 @@ Java_swiss_sae_gpr5300_MainActivity_load(JNIEnv *env, [[maybe_unused]] jclass cl
 namespace neko
 {
 
-
+bool FileExists(std::string_view filename);
 
 void IterateDirectory(const std::string_view dirname, std::function<void(const std::string_view)> func, bool recursive=false);
 

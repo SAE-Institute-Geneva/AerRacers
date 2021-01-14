@@ -227,12 +227,21 @@ struct Quaternion
 			w * rhs.w - x * rhs.x - y * rhs.y - z * rhs.z);
 	}
 
-	Quaternion operator*(const float rhs) const {
+	Quaternion operator*(const float rhs) const
+	{
 		return Quaternion(
 			x * rhs,
 			y * rhs,
 			z * rhs,
 			w * rhs);
+	}
+
+	Vec3f operator*(const Vec3f& rhs) const
+	{
+		const Vec3f u(x, y, z);
+		return 2.0f * Vec3f::Dot(u, rhs) * u
+		       + (w * w - Vec3f::Dot(u, u)) * rhs
+		       + 2.0f * w * Vec3f::Cross(u, rhs);
 	}
 	
 	Quaternion& operator*=(const Quaternion& rhs)
