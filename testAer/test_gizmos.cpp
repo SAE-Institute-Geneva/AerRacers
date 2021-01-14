@@ -114,7 +114,7 @@ public:
         textureManager_.Update(dt);
         neko::RendererLocator::get().Render(this);
         neko::RendererLocator::get().Render(&gizmosRenderer_);
-        //updateCount_++;
+        updateCount_++;
         if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
         gizmosRenderer_.Update(dt);
     }
