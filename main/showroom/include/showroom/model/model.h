@@ -24,9 +24,9 @@
  */
 
 #ifdef NEKO_GLES3
-#include "showroom/model/mesh.h"
-#include "gl/shader.h"
-#include <assimp/scene.h>
+	#include <assimp/scene.h>
+	#include "gl/shader.h"
+	#include "showroom/model/mesh.h"
 
 namespace neko::sr
 {
@@ -39,9 +39,11 @@ public:
     void Draw(const gl::Shader& shader);
     void Destroy();
 
+	[[nodiscard]] std::string_view GetName() const { return name_; };
     [[nodiscard]] size_t GetMeshCount() const { return meshes_.size(); };
-    [[nodiscard]] std::vector<Mesh>& GetMeshes() { return meshes_; };
-    [[nodiscard]] const Mesh& GetMesh(size_t index) const { return meshes_[index]; };
+    std::vector<Mesh>& GetMeshes() { return meshes_; };
+    Mesh& GetMesh(size_t index) { return meshes_[index]; };
+    [[nodiscard]] size_t GetMeshId(const Mesh& mesh) const;
     [[nodiscard]] std::string_view GetPath() const { return path_; };
 
 private:

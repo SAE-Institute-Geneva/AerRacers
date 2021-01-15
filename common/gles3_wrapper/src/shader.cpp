@@ -66,6 +66,7 @@ void Shader::LoadFromFile(const std::string_view vertexShaderPath, const std::st
 void Shader::Bind() const
 {
     glUseProgram(shaderProgram_);
+	glCheckError();
 }
 
 GLuint Shader::GetProgram() const
@@ -84,6 +85,12 @@ void Shader::SetInt(const std::string_view attributeName, int value) const
 {
     glUniform1i(glGetUniformLocation(shaderProgram_, attributeName.data()), value);
     glCheckError();
+}
+
+void Shader::SetUInt(std::string_view attributeName, uint32_t value) const
+{
+	glUniform1ui(glGetUniformLocation(shaderProgram_, attributeName.data()), value);
+	glCheckError();
 }
 
 void Shader::SetFloat(const std::string_view attributeName, float value) const
@@ -131,7 +138,7 @@ void Shader::SetVec4(const std::string_view name, const Vec4f& value) const
     glCheckError();
 }
 
-void Shader::SetVec4(const std::string_view name, float x, float y, float z, float w)
+void Shader::SetVec4(const std::string_view name, float x, float y, float z, float w) const
 {
     glUniform4f(glGetUniformLocation(shaderProgram_, name.data()), x, y, z, w);
     glCheckError();
@@ -151,15 +158,13 @@ void Shader::Destroy()
 void Shader::SetMat2(const std::string& name, const glm::mat2& mat) const
 {
     glUniformMatrix2fv(glGetUniformLocation(shaderProgram_, name.data()), 1, GL_FALSE, &mat[0][0]);
-}
+}*/
 
-// ------------------------------------------------------------------------
-void Shader::SetMat3(const std::string& name, const glm::mat3& mat) const
+void Shader::SetMat3(const std::string_view name, const Mat3f& mat) const
 {
     glUniformMatrix3fv(glGetUniformLocation(shaderProgram_, name.data()), 1, GL_FALSE, &mat[0][0]);
 }
-*/
-// ------------------------------------------------------------------------
+
 void Shader::SetMat4(const std::string_view name, const Mat4f& mat) const
 {
     glUniformMatrix4fv(glGetUniformLocation(shaderProgram_, name.data()), 1, GL_FALSE, &mat[0][0]);
@@ -187,11 +192,11 @@ Shader::~Shader()
     Destroy();
 }
 
-GLuint LoadShader(const BufferFile& shaderfile, GLenum shaderType)
+GLuint LoadShader(const BufferFile& shaderFile, GLenum shaderType)
 {
-    if(shaderfile.dataBuffer == nullptr)
+    if(shaderFile.dataBuffer == nullptr)
         return INVALID_SHADER;
-    return LoadShader(reinterpret_cast<char*>(shaderfile.dataBuffer), shaderType);
+    return LoadShader(reinterpret_cast<char*>(shaderFile.dataBuffer), shaderType);
 }
 
 GLuint CreateShaderProgram(GLuint vertexShader, GLuint fragmentShader, GLuint computeShader, GLuint geometryShader,

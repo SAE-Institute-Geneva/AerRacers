@@ -10,7 +10,7 @@ file(GLOB_RECURSE shaders_src ${CMAKE_SOURCE_DIR}/data/shaders/*.vert ${CMAKE_SO
 source_group("Shaders"	FILES ${shaders_src})
 
 add_executable(showroom ${showroom_src} ${shaders_src})
-target_link_libraries(showroom PUBLIC Neko_Core sdl_engine gles3_wrapper assimp_wrapper ktx)
+target_link_libraries(showroom PUBLIC Neko_Core sdl_engine gles3_wrapper assimp_wrapper ktx ImGuizmo)
 neko_bin_config(showroom)
 
 if(EMSCRIPTEN)

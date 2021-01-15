@@ -54,235 +54,173 @@ template<typename T>
 struct Vec2
 {
     union
-    {
-        struct
-        {
-            T x; ///< X coordinate of the vector
-            T y; ///< Y coordinate of the vector
+	{
+		struct
+		{
+			T x, y;
+		};
+		struct
+		{
+			T u, v;
+		};
+		T coord[2] {};
+	};
 
-        };
-        struct
-        {
-            T u; ///< X coordinate of the vector
-            T v; ///< Y coordinate of the vector
+	const static Vec2 zero;
+	const static Vec2 one;
+	const static Vec2 up;
+	const static Vec2 down;
+	const static Vec2 left;
+	const static Vec2 right;
 
-        };
-        T coord[2];
-    };
-
-    const static Vec2 zero;
-    const static Vec2 one;
-    const static Vec2 up;
-    const static Vec2 down;
-    const static Vec2 left;
-    const static Vec2 right;
-
-    //-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
     // Constructors
     //-----------------------------------------------------------------------------
-    Vec2() noexcept
-            : x(0), y(0)
-    {
-    }
+    Vec2() noexcept = default;
+	explicit Vec2(T same) noexcept : x(same), y(same) {}
+	Vec2(T X, T Y) noexcept : x(X), y(Y) {}
+	explicit Vec2(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]) {}
 
-    explicit Vec2(T same) noexcept
-            : x(same), y(same)
-    {
-    }
+	template<class U>
+	explicit Vec2(U u) noexcept : x(T(u.x)), y(T(u.y))  {}
 
-    Vec2(T X, T Y) noexcept
-            : x(X), y(Y)
-    {
-    }
+	template<class U>
+	Vec2(U X, U Y) noexcept : x(T(X)), y(T(Y)) {}
 
-    template<typename U>
-    explicit Vec2(const Vec2<U>& vector)  noexcept
-            : x(static_cast<T>(vector.x)),
-              y(static_cast<T>(vector.y))
-    {
-    }
+	explicit Vec2(std::array<T, 2> v) noexcept
+	{
+		for (int i = 0; i < 2; i++) coord[i] = v[i];
+	}
 
-    template<typename U>
-    explicit Vec2(const Vec3<U>& vec3)  noexcept
-            : x(static_cast<T>(vec3.x)),
-              y(static_cast<T>(vec3.y))
-    {
-    }
-
-    template<typename U>
-    explicit Vec2(const Vec4<U>& vec4)  noexcept
-            : x(static_cast<T>(vec4.x)),
-              y(static_cast<T>(vec4.y))
-    {
-    }
+	const T& operator[](size_t p_axis) const { return coord[p_axis]; }
+	T& operator[](size_t p_axis) { return coord[p_axis]; }
 
     //-----------------------------------------------------------------------------
     // Operators
     //-----------------------------------------------------------------------------
     Vec2<T> operator+(const Vec2<T>& rhs) const
-    {
-        return Vec2<T>(x + rhs.x, y + rhs.y);
-    }
+    { return Vec2<T>(x + rhs.x, y + rhs.y); }
 
-    Vec2<T>& operator+=(const Vec2<T>& rhs)
+	Vec2<T>& operator+=(const Vec2<T>& rhs)
     {
-        this->x += rhs.x;
-        this->y += rhs.y;
-        return *this;
-    }
+		this->x += rhs.x;
+		this->y += rhs.y;
+		return *this;
+	}
 
-    Vec2<T> operator-(const Vec2<T>& rhs) const
-    {
-        return Vec2<T>(x - rhs.x, y - rhs.y);
-    }
+	Vec2<T> operator-(const Vec2<T>& rhs) const
+	{ return Vec2<T>(x - rhs.x, y - rhs.y); }
 
-    Vec2<T>& operator-=(const Vec2<T>& rhs)
-    {
-        this->x -= rhs.x;
-        this->y -= rhs.y;
-        return *this;
-    }
+	Vec2<T> operator-() const
+	{ return Vec2<T>(-x, -y); }
 
-    Vec2<T> operator*(T rhs) const
+	Vec2<T>& operator-=(const Vec2<T>& rhs)
     {
-        return Vec2<T>(x * rhs, y * rhs);
-    }
+		this->x -= rhs.x;
+		this->y -= rhs.y;
+		return *this;
+	}
 
-    Vec2<T> operator*(const Vec2<T>& rhs) const
-    {
-        return Vec2<T>(x * rhs.x, y * rhs.y);
-    }
+	Vec2<T> operator*(T rhs) const
+    { return Vec2<T>(x * rhs, y * rhs); }
 
-    Vec2<T> operator/(const Vec2<T>& rhs) const
-    {
-        return Vec2<T>(x / rhs.x, y / rhs.y);
-    }
+	Vec2<T> operator*(const Vec2<T>& rhs) const
+    { return Vec2<T>(x * rhs.x, y * rhs.y); }
 
-    Vec2<T>& operator*=(T rhs)
+	friend Vec2<T> operator*(T lhs, const Vec2<T>& rhs)
+	{ return Vec2<T>(rhs.x * lhs, rhs.y * lhs); }
+
+	Vec2<T>& operator*=(T rhs)
     {
-        this->x *= rhs;
-        this->y *= rhs;
-        return *this;
-    }
+		this->x *= rhs;
+		this->y *= rhs;
+		return *this;
+	}
 
     Vec2<T> operator/(T rhs) const
-    {
-        return (*this) * (1.0f / rhs);
-    }
+    { return (*this) * (1.0f / rhs); }
 
     Vec2<T>& operator/=(T rhs)
     {
-        this->x /= rhs;
-        this->y /= rhs;
-        return *this;
-    }
+		this->x /= rhs;
+		this->y /= rhs;
+		return *this;
+	}
 
     bool operator==(const Vec2<T>& other) const
-    {
-        return x == other.x && y == other.y;
-    }
+    { return x == other.x && y == other.y; }
 
     bool operator!=(const Vec2<T>& other) const
-    {
-        return !(*this == other);
-    }
+    { return !(*this == other); }
 
-    const T& operator[](size_t p_axis) const
-    {
+	friend std::ostream& operator<<(std::ostream& os, const Vec2<T>& dt)
+	{
+		os << "Vec2(" << dt.x << "," << dt.y << ")";
+		return os;
+	}
 
-        return coord[p_axis];
-    }
+	[[nodiscard]] std::string ToString() const
+	{ return fmt::format("Vec2({},{})", x, y); }
 
-    T& operator[](size_t p_axis)
-    {
-
-        return coord[p_axis];
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const Vec2<T>& dt)
-    {
-        os << "Vec2(" << dt.x << "," << dt.y << ")";
-        return os;
-    }
-
-    std::string ToString() const
-    {
-        return fmt::format("Vec2({},{})", x, y);
-    }
-
-    //Used to specialize in case of other kind of vector
-    template<typename U>
-    explicit operator U() const;
-
-    //-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
     // Formulas
     //-----------------------------------------------------------------------------
     /// \brief Calculates the dot product from two vectors.
-    static T Dot(const Vec2<T>& v1, const Vec2<T>& v2)
-    {
-        return v1.x * v2.x + v1.y * v2.y;
-    }
+	static T Dot(const Vec2<T>& v1, const Vec2<T>& v2)
+	{ return v1.x * v2.x + v1.y * v2.y; }
 
-    /// \brief Calculates the square magnitude.
-    T SquareMagnitude() const
-    {
-        return Dot(*this, *this);
-    }
+	/// \brief Calculates the square magnitude.
+	T SquareMagnitude() const
+	{ return Dot(*this, *this); }
 
-    /// \brief Calculates the magnitude.
-    T Magnitude() const
-    {
-        return std::sqrt(SquareMagnitude());
-    }
+	/// \brief Calculates the magnitude.
+	T Magnitude() const
+	{ return std::sqrt(SquareMagnitude()); }
 
-    /// \brief Calculates the normalized vector.
+	/// \brief Calculates the normalized vector.
     Vec2<T> Normalized() const
-    {
-        return (*this) / (*this).Magnitude();
-    }
+	{ return (*this) / (*this).Magnitude(); }
 
-    /// \brief Interpolate between two vectors.
+	/// \brief Interpolate between two vectors.
     /// \param t The interpolation amount.
     static Vec2<T> Lerp(const Vec2<T>& v1, const Vec2<T>& v2, T t)
-    {
-        return v1 + (v2 - v1) * t;
-    }
+	{ return v1 + (v2 - v1) * t; }
 
-    /// \brief Reflect the inVec using the normal given (doesn't need to be normalized).
+	/// \brief Reflect the inVec using the normal given (doesn't need to be normalized).
     /// \param inVec The vector to reflect.
     /// \param normal The normal vector of the line to reflect off.
-    static Vec2<T> Reflect(const Vec2<T>& inVec, const Vec2<T>& normal)
-    {
-        return inVec - normal * 2 * Dot(inVec, normal);
-    }
+	static Vec2<T> Reflect(const Vec2<T>& inVec, const Vec2<T>& normal)
+	{ return inVec - normal * 2 * Dot(inVec, normal); }
 
-    /// \brief Project v1 on v2 (doesn't need to be normalized).
+	/// \brief Project v1 on v2 (doesn't need to be normalized).
     /// \param v1 The vector to project.
     /// \param v2 The vector to project on.
-    static Vec2<T> Project(const Vec2<T>& v1, const Vec2<T>& v2)
-    {
-        const auto dot = Dot(v1, v2);
-        const auto mag = v2.SquareMagnitude();
-        return {(dot / mag) * v2.x,
-                (dot / mag) * v2.y};
-    }
+	static Vec2<T> Project(const Vec2<T>& v1, const Vec2<T>& v2)
+	{
+		const auto dot = Dot(v1, v2);
+		const auto mag = v2.SquareMagnitude();
+		return {(dot / mag) * v2.x, (dot / mag) * v2.y};
+	}
 
-    /// \brief Calculates the angle between two vectors.
-    static neko::radian_t AngleBetween(const Vec2& v1, const Vec2& v2);
+	/// \brief Calculates the angle between two vectors.
+	static neko::radian_t AngleBetween(const Vec2& v1, const Vec2& v2)
+	{
+		const float mag1 = v1.Magnitude();
+		const float mag2 = v2.Magnitude();
+		if (mag1 == 0 || mag2 == 0) return neko::radian_t(0.0f);
 
-    /// \brief Rotates the Vec2 from the given angle (in degrees).
+		const float dot      = Vec2<T>::Dot(v1, v2) / mag1 / mag2;
+		const float det      = v1.x * v2.y - v1.y * v2.x;
+		const radian_t angle = Atan2(det, dot);
+		return angle;
+	}
+
+	/// \brief Rotates the Vec2 from the given angle (in degrees).
     Vec2<T> Rotate(neko::radian_t angle) const
     {
         return {x * Cos(angle) - y * Sin(angle),
                 x * Sin(angle) + y * Cos(angle)};
     }
-
-    //-----------------------------------------------------------------------------
-    // Other
-    //-----------------------------------------------------------------------------
-    //Used to specialize in case of other kind of vector
-    template<typename U>
-    explicit Vec2(const U& v);
 };
 //-----------------------------------------------------------------------------
 // Vec2 Aliases
@@ -292,35 +230,17 @@ using Vec2i = Vec2<int>;
 using Vec2u = Vec2<unsigned>;
 
 template<typename T>
-inline Vec2<T> const Vec2<T>::zero = Vec2<T>(0, 0);
+inline const Vec2<T> Vec2<T>::zero = Vec2<T>(T(0));
 template<typename T>
-inline Vec2<T> const Vec2<T>::one = Vec2<T>(1, 1);
+inline const Vec2<T> Vec2<T>::one = Vec2<T>(T(1));
 template<typename T>
-inline Vec2<T> const Vec2<T>::up = Vec2<T>(0, 1);
+inline const Vec2<T> Vec2<T>::right = Vec2<T>(T(1), T(0));
 template<typename T>
-inline Vec2<T> const Vec2<T>::down = Vec2<T>(0, -1);
+inline const Vec2<T> Vec2<T>::left = Vec2<T>(T(-1), T(0));
 template<typename T>
-inline Vec2<T> const Vec2<T>::left = Vec2<T>(-1, 0);
+inline const Vec2<T> Vec2<T>::up = Vec2<T>(T(0), T(1));
 template<typename T>
-inline Vec2<T> const Vec2<T>::right = Vec2<T>(1, 0);
-
-//-----------------------------------------------------------------------------
-// Vec2 Implementations
-//-----------------------------------------------------------------------------
-template<typename T>
-neko::radian_t Vec2<T>::AngleBetween(const Vec2& v1, const Vec2& v2)
-{
-    const float dot = Vec2<T>::Dot(v1, v2) / v1.Magnitude() / v2.Magnitude();
-    const float det = v1.x * v2.y - v1.y * v2.x;
-    const neko::radian_t angle = Atan2(det, dot);
-    return angle;
-}
-
-template<typename T>
-Vec2<T> operator*(T lhs, const Vec2<T>& rhs)
-{
-    return Vec2<T>(rhs.x * lhs, rhs.y * lhs);
-}
+inline const Vec2<T> Vec2<T>::down = Vec2<T>(T(0), T(-1));
 
 //-----------------------------------------------------------------------------
 // Vec3
@@ -333,18 +253,18 @@ public:
     {
         struct
         {
-            T x; ///< X coordinate of the vector
-            T y; ///< Y coordinate of the vector
+            T x;
+            T y;
             T z;
         };
-        //For color
         struct
         {
-            T r; ///< X coordinate of the vector
-            T g; ///< Y coordinate of the vector
+	        //For color
+            T r;
+            T g;
             T b;
         };
-        T coord[3];
+        T coord[3]{};
     };
 
     const static Vec3 zero;
@@ -359,179 +279,109 @@ public:
     //-----------------------------------------------------------------------------
     // Constructors
     //-----------------------------------------------------------------------------
-    Vec3()  noexcept : x(0), y(0), z(0)
-    {
-    }
+	Vec3() noexcept = default;
+	explicit Vec3(T same) noexcept : x(same), y(same), z(same) {}
+	Vec3(T X, T Y, T Z) noexcept : x(X), y(Y), z(Z) {}
+	explicit Vec3(Vec2<T> v, T z = 0) noexcept : x(v.x), y(v.y), z(z) {}
+	explicit Vec3(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]), z(ptr[2]) {}
 
-    explicit Vec3(T same)  noexcept
-            : x(same), y(same), z(same)
-    {
-
-    }
-
-    Vec3(T X, T Y, T Z)  noexcept
-            : x(X), y(Y), z(Z)
-    {
-
-    }
-
-	explicit Vec3(Vec2<T> v)  noexcept : x(v.x), y(v.y),z(0)
-    {
-	    
-    }
-    explicit Vec3(Vec2<T> v, T z)  noexcept : x(v.x), y(v.y), z(z)
-    {
-
-    }
-	explicit Vec3(Vec4<T> v)  noexcept : x(v.x), y(v.y), z(v.z)
-    {
-	    
-    }
-    /**
-     * \brief Adding explicit constructor for vector-like type
-     */
 	template<class U>
-	explicit Vec3(U u) noexcept : x(u.x), y(u.y), z(u.z)
-    {
-	    
-    }
+	explicit Vec3(U u) noexcept : x(T(u.x)), y(T(u.y)), z(T(u.z))  {}
 
-	explicit Vec3(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]), z(ptr[2])
-    {
-	    
-    }
+	template<class U>
+	Vec3(U X, U Y, U Z) noexcept : x(T(X)), y(T(Y)), z(T(Z)) {}
 
-    template<typename U>
-    explicit Vec3(const Vec2<U>& vec2)  noexcept
-            : x(static_cast<T>(vec2.x)),
-              y(static_cast<T>(vec2.y)),
-              z(static_cast<T>(0))
-    {
+	explicit Vec3(std::array<T, 3> v) noexcept
+	{
+		for (int i = 0; i < 3; i++) coord[i] = v[i];
+	}
 
-    }
-
-    template<typename U>
-    explicit
-    Vec3(const Vec3<U>& vector)  noexcept
-            : x(static_cast<T>(vector.x)),
-              y(static_cast<T>(vector.y)),
-              z(static_cast<T>(vector.z))
-    {
-    }
-
-    const T& operator[](size_t p_axis) const
-    {
-        return coord[p_axis];
-    }
-
-    T& operator[](size_t p_axis)
-    {
-
-        return coord[p_axis];
-    }
-
-
-    template<typename U>
-    explicit Vec3(const Vec4<U>& vec4)
-            : x(static_cast<T>(vec4.x)),
-              y(static_cast<T>(vec4.y)),
-              z(static_cast<T>(vec4.z))
-    {
-    }
+	const T& operator[](size_t p_axis) const { return coord[p_axis]; }
+	T& operator[](size_t p_axis) { return coord[p_axis]; }
 
     //-----------------------------------------------------------------------------
     // Operators
     //-----------------------------------------------------------------------------
     Vec3<T> operator+(const Vec3<T>& rhs) const
-    {
-        return Vec3<T>(x + rhs.x, y + rhs.y, z + rhs.z);
-    }
+	{ return Vec3<T>(x + rhs.x, y + rhs.y, z + rhs.z); }
 
-    Vec3<T>& operator+=(const Vec3<T>& rhs)
-    {
-        this->x += rhs.x;
-        this->y += rhs.y;
-        this->z += rhs.z;
-        return *this;
-    }
+	Vec3<T>& operator+=(const Vec3<T>& rhs)
+	{
+		this->x += rhs.x;
+		this->y += rhs.y;
+		this->z += rhs.z;
+		return *this;
+	}
 
-    Vec3<T> operator-(const Vec3<T>& rhs) const
-    {
-        return Vec3<T>(x - rhs.x, y - rhs.y, z - rhs.z);
-    }
+	Vec3<T> operator-(const Vec3<T>& rhs) const
+    { return Vec3<T>(x - rhs.x, y - rhs.y, z - rhs.z); }
 
 	Vec3<T> operator-() const
-    {
-	    return Vec3<T>(-x, -y , -z );
-    }
+    { return Vec3<T>(-x, -y, -z); }
 
     Vec3<T>& operator-=(const Vec3<T>& rhs)
-    {
-        this->x -= rhs.x;
-        this->y -= rhs.y;
-        this->z -= rhs.z;
-        return *this;
-    }
+	{
+		this->x -= rhs.x;
+		this->y -= rhs.y;
+		this->z -= rhs.z;
+		return *this;
+	}
 
-    Vec3<T> operator*(T rhs) const
-    {
-        return Vec3<T>(x * rhs, y * rhs, z * rhs);
-    }
+	Vec3<T> operator*(T rhs) const
+    { return Vec3<T>(x * rhs, y * rhs, z * rhs); }
 
     Vec3<T> operator*(const Vec3<T>& rhs) const
-    {
-        return Vec3<T>(x * rhs.x, y * rhs.y, z * rhs.z);
-    }
+    { return Vec3<T>(x * rhs.x, y * rhs.y, z * rhs.z); }
 
-    Vec3<T>& operator*=(T rhs)
-    {
-        this->x *= rhs;
-        this->y *= rhs;
-        this->z *= rhs;
-        return *this;
-    }
+	friend Vec3<T> operator*(T lhs, const Vec3<T>& rhs)
+	{
+		return Vec3<T>(rhs.x * lhs,
+			           rhs.y * lhs,
+					   rhs.z * lhs);
+	}
 
-    Vec3<T> operator/(T rhs) const
-    {
-        return (*this) * (1.0f / rhs);
-    }
+	Vec3<T>& operator*=(T rhs)
+	{
+		this->x *= rhs;
+		this->y *= rhs;
+		this->z *= rhs;
+		return *this;
+	}
+
+	Vec3<T> operator/(T rhs) const
+    { return (*this) * (1.0f / rhs); }
 
     Vec3<T>& operator/=(T rhs)
     {
-        *this = *this / rhs;
-        return *this;
-    }
+		*this = *this / rhs;
+		return *this;
+	}
 
     bool operator==(const Vec3<T>& rh) const
-    {
-        return x == rh.x && y == rh.y && z == rh.z;
-    }
+    { return x == rh.x && y == rh.y && z == rh.z; }
 
     bool operator!=(const Vec3<T>& rh) const
-    {
-        return !(*this == rh);
-    }
+    { return !(*this == rh); }
 
     friend std::ostream& operator<<(std::ostream& os, const Vec3<T>& dt)
     {
-        os << "Vec3(" << dt.x << "," << dt.y << "," << dt.z << ")";
-        return os;
-    }
+		os << "Vec3(" << dt.x << ", " << dt.y << ", " << dt.z << ")";
+		return os;
+	}
+
     std::string ToString()
-    {
-        return fmt::format("Vec3({},{},{})", x, y, z);
-    }
+    { return fmt::format("Vec3({}, {}, {})", x, y, z); }
 
     //-----------------------------------------------------------------------------
     // Formulas
     //-----------------------------------------------------------------------------
     /// \brief Calculates the dot product from two vectors.
-    static T Dot(const Vec3<T> v1, const Vec3<T> v2)
-    {
-        return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-    }
+	static T Dot(const Vec3<T> v1, const Vec3<T> v2)
+	{
+		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+	}
 
-    /// \brief Calculates the cross product from two Vec3.
+	/// \brief Calculates the cross product from two Vec3.
     static Vec3<T> Cross(const Vec3<T> v1, const Vec3<T> v2)
     {
         return Vec3<T>(v1.y * v2.z - v1.z * v2.y,
@@ -540,53 +390,39 @@ public:
     }
 
     /// \brief Calculates the square magnitude.
-    T SquareMagnitude() const
-    {
-        return Dot(*this, *this);
-    }
+	T SquareMagnitude() const { return Dot(*this, *this); }
 
-    /// \brief Calculates the magnitude.
+	/// \brief Calculates the magnitude.
     template<typename ReturnT = float>
-    ReturnT Magnitude() const
-    {
-        return std::sqrt(SquareMagnitude());
-    }
+	ReturnT Magnitude() const
+	{ return std::sqrt(SquareMagnitude()); }
 
-    /// \brief Calculates the normalized vector.
+	/// \brief Calculates the normalized vector.
     Vec3<T> Normalized() const
-    {
-        return (*this) / (*this).Magnitude();
-    }
+    { return (*this) / (*this).Magnitude(); }
 
     /// \brief Interpolate between two vectors.
     /// \param t the interpolation amount.
     static Vec3<T> Lerp(const Vec3<T>& v1, const Vec3<T>& v2, T t)
-    {
-        return v1 + (v2 - v1) * t;
-    }
+    { return v1 + (v2 - v1) * t; }
 
     /// \brief Reflect the inVec using the normal given (doesn't need to be normalized).
     /// \param inVec the vector to reflect.
     /// \param normal the normal vector of the line to reflect off.
     static Vec3<T> Reflect(const Vec3<T>& inVec, const Vec3<T>& normal)
-    {
-        Vec3<T> normalized = normal.Normalized();
-        return inVec - normalized * 2 * Dot(inVec, normalized);
-    }
+	{
+		Vec3<T> normalized = normal.Normalized();
+		return inVec - normalized * 2 * Dot(inVec, normalized);
+	}
 
 	static Vec3<T> Refract(const Vec3<T>& inVec, const Vec3<T>& normal, const T eta)
     {
         Vec3<T> N = normal.Normalized();
     	const T k = 1 - eta * eta * (1.0 - Dot(N, inVec) * Dot(N, inVec));
-    	if(k < 0)
-    	{
-            return Vec3<T>::zero;
-    	}
-        else
-        {
-	        return eta * inVec - (eta * Dot(N, inVec) + std::sqrt(k)) * N;
-        }
-    }
+		return k < 0 ?
+                   Vec3<T>::zero :
+                   eta * inVec - (eta * Dot(N, inVec) + std::sqrt(k)) * N;
+	}
 
     /// \brief Project v1 on v2 (doesn't need to be normalized).
     /// \param v1 the vector to project.
@@ -600,7 +436,17 @@ public:
                 (dot / mag) * v2.z};
     }
 
-    static neko::radian_t AngleBetween(const Vec3& v1, const Vec3& v2);
+    static neko::radian_t AngleBetween(const Vec3& v1, const Vec3& v2)
+    {
+		const float mag1 = v1.Magnitude();
+		const float mag2 = v2.Magnitude();
+		if (mag1 == 0.0f || mag2 == 0.0f) return neko::radian_t(0.0f);
+
+		const float dot      = Vec3<T>::Dot(v1, v2) / mag1 / mag2;
+		const float det      = v1.x * v2.y - v1.y * v2.x;
+		const radian_t angle = Atan2(det, dot);
+		return angle;
+	}
 };
 //-----------------------------------------------------------------------------
 // Vec3 Aliases
@@ -612,39 +458,21 @@ using EulerAngles = Vec3<degree_t>;
 using RadianAngles = Vec3<radian_t>;
 
 template<typename T>
-inline Vec3<T> const Vec3<T>::zero = Vec3<T>(0, 0, 0);
+inline const Vec3<T> Vec3<T>::zero = Vec3<T>(T(0));
 template<typename T>
-inline Vec3<T> const Vec3<T>::one = Vec3<T>(1, 1, 1);
+inline const Vec3<T> Vec3<T>::one = Vec3<T>(T(1));
 template<typename T>
-inline Vec3<T> const Vec3<T>::up = Vec3<T>(0, 1, 0);
+inline const Vec3<T> Vec3<T>::right = Vec3<T>(T(1), T(0), T(0));
 template<typename T>
-inline Vec3<T> const Vec3<T>::down = Vec3<T>(0, -1, 0);
+inline const Vec3<T> Vec3<T>::left = Vec3<T>(T(-1), T(0), T(0));
 template<typename T>
-inline Vec3<T> const Vec3<T>::left = Vec3<T>(-1, 0, 0);
+inline const Vec3<T> Vec3<T>::up = Vec3<T>(T(0), T(1), T(0));
 template<typename T>
-inline Vec3<T> const Vec3<T>::right = Vec3<T>(1, 0, 0);
+inline const Vec3<T> Vec3<T>::down = Vec3<T>(T(0), T(-1), T(0));
 template<typename T>
-inline Vec3<T> const Vec3<T>::forward = Vec3<T>(0, 0, 1);
+inline const Vec3<T> Vec3<T>::forward = Vec3<T>(T(0), T(0), T(1));
 template<typename T>
-inline Vec3<T> const Vec3<T>::back = Vec3<T>(0, 0, -1);
-
-//-----------------------------------------------------------------------------
-// Vec3 Implementations
-//-----------------------------------------------------------------------------
-template<typename T>
-neko::radian_t Vec3<T>::AngleBetween(const Vec3& v1, const Vec3& v2)
-{
-    const float dot = Vec3<T>::Dot(v1, v2) / v1.Magnitude() / v2.Magnitude();
-    const float det = v1.x * v2.y - v1.y * v2.x;
-    const neko::radian_t angle = Atan2(det, dot);
-    return angle;
-}
-
-template<typename T>
-Vec3<T> operator*(T lhs, const Vec3<T>& rhs)
-{
-    return Vec3<T>(rhs.x * lhs, rhs.y * lhs, rhs.z * lhs);
-}
+inline const Vec3<T> Vec3<T>::back = Vec3<T>(T(0), T(0), T(-1));
 
 //-----------------------------------------------------------------------------
 // Vec4
@@ -663,7 +491,7 @@ public:
         {
             T r, g, b, a;
         };
-        T coord[4];
+        T coord[4]{};
     };
 
     const static Vec4 zero;
@@ -672,76 +500,37 @@ public:
     //-----------------------------------------------------------------------------
     // Constructors
     //-----------------------------------------------------------------------------
-    Vec4() noexcept
-            : x(0), y(0), z(0), w(0)
-    {
-    }
+    Vec4() noexcept = default;
 
-    explicit Vec4(T same)  noexcept
-            : x(same), y(same), z(same), w(same)
-    {
+	explicit Vec4(T same) noexcept : x(same), y(same), z(same), w(same) {}
+	Vec4(T X, T Y, T Z, T W) noexcept : x(X), y(Y), z(Z), w(W) {}
+	explicit Vec4(Vec2<T> v, T z = 0, T w = 0) noexcept : x(v.x), y(v.y), z(z), w(w) {}
+	explicit Vec4(Vec3<T> v, T w = 0) noexcept : x(v.x), y(v.y), z(v.z), w(w) {}
+	explicit Vec4(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]), z(ptr[2]), w(ptr[3]) {}
 
-    }
+	template<class U>
+	explicit Vec4(U u) noexcept : x(T(u.x)), y(T(u.y)), z(T(u.z)), w(T(u.w))  {}
 
-    explicit Vec4(std::array<T, 4> v)  noexcept
-    {
-        for (int i = 0; i < 4; i++)
-        {
-            coord[i] = v[i];
-        }
-    }
+	template<class U>
+	Vec4(U X, U Y, U Z, U W) noexcept : x(T(X)), y(T(Y)), z(T(Z)), w(T(W)) {}
 
-    Vec4(T X, T Y, T Z, T W)  noexcept
-            : x(X), y(Y), z(Z), w(W)
-    {
+	explicit Vec4(std::array<T, 4> v) noexcept
+	{
+		for (int i = 0; i < 4; i++) coord[i] = v[i];
+	}
 
-    }
+	const T& operator[](size_t p_axis) const { return coord[p_axis]; }
+	T& operator[](size_t p_axis) { return coord[p_axis]; }
 
-    template<typename U>
-    explicit Vec4(const Vec2<U>& vec2)  noexcept
-            : x(static_cast<T>(vec2.x)),
-              y(static_cast<T>(vec2.y)),
-              z(static_cast<T>(0)),
-              w(static_cast<T>(0))
-    {
-    }
-
-    template<typename U>
-    explicit Vec4(const Vec3<U>& vec3)  noexcept
-            : x(static_cast<T>(vec3.x)),
-              y(static_cast<T>(vec3.y)),
-              z(static_cast<T>(vec3.z)),
-              w(static_cast<T>(0))
-    {
-    }
-
-    template<typename U>
-    explicit Vec4(const Vec3<U>& vec3, U w)  noexcept
-            : x(static_cast<T>(vec3.x)),
-              y(static_cast<T>(vec3.y)),
-              z(static_cast<T>(vec3.z)),
-              w(static_cast<T>(w))
-    {
-    }
-
-    template<typename U>
-    explicit Vec4(const Vec4<U>& vector)  noexcept
-            : x(static_cast<T>(vector.x)),
-              y(static_cast<T>(vector.y)),
-              z(static_cast<T>(vector.z)),
-              w(static_cast<T>(vector.w))
-    {
-    }
-
-    //-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
     // Operators
     //-----------------------------------------------------------------------------
-    Vec4<T> operator+(const Vec4<T>& rhs) const
-    {
-        return Vec4<T>(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
-    }
+	Vec4<T> operator+(const Vec4<T>& rhs) const
+	{
+		return Vec4<T>(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
+	}
 
-    Vec4<T>& operator+=(const Vec4<T>& rhs)
+	Vec4<T>& operator+=(const Vec4<T>& rhs)
     {
         this->x += rhs.x;
         this->y += rhs.y;
@@ -752,8 +541,11 @@ public:
 
     Vec4<T> operator-(const Vec4<T>& rhs) const
     {
-        return Vec4<T>(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
-    }
+		return Vec4<T>(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
+	}
+
+	Vec4<T> operator-() const
+	{ return Vec4<T>(-x, -y, -z, -w); }
 
     Vec4<T>& operator-=(const Vec4<T>& rhs)
     {
@@ -765,16 +557,17 @@ public:
     }
 
     Vec4<T> operator*(T rhs) const
-    {
-        return Vec4<T>(x * rhs, y * rhs, z * rhs, w * rhs);
-    }
+    { return Vec4<T>(x * rhs, y * rhs, z * rhs, w * rhs); }
 
-    Vec4<T> operator*(const Vec4<T>& rhs) const
-    {
-        return Vec4<T>(x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w);
-    }
+	Vec4<T> operator*(const Vec4<T>& rhs) const
+    { return Vec4<T>(x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w); }
 
-    Vec4<T>& operator*=(T rhs)
+	friend Vec4<T> operator*(T lhs, const Vec4<T>& rhs)
+	{
+		return Vec4<T>(rhs.x * lhs, rhs.y * lhs, rhs.z * lhs, rhs.w * lhs);
+	}
+
+	Vec4<T>& operator*=(T rhs)
     {
         this->x *= rhs;
         this->y *= rhs;
@@ -794,80 +587,57 @@ public:
         return *this;
     }
 
-    bool operator==(const Vec4<T>& other) const
-    {
-        return x == other.x && y == other.y && z == other.z && w == other.w;
-    }
+	bool operator==(const Vec4<T>& other) const
+	{
+		return x == other.x && y == other.y && z == other.z && w == other.w;
+	}
 
-    bool operator!=(const Vec4<T>& other) const
-    {
-        return !(*this == other);
-    }
+	bool operator!=(const Vec4<T>& other) const
+	{ return !(*this == other); }
 
-    const T& operator[](size_t p_axis) const
-    {
+	friend std::ostream& operator<<(std::ostream& os, const Vec4<T>& dt)
+	{
+		os << "Vec4(" << dt.x << "," << dt.y << "," << dt.z << "," << dt.w << ")";
+		return os;
+	}
 
-        return coord[p_axis];
-    }
-
-    T& operator[](size_t p_axis)
-    {
-        return coord[p_axis];
-    }
-
-    friend std::ostream& operator<<(std::ostream& os, const Vec4<T>& dt)
-    {
-        os << "Vec4(" << dt.x << "," << dt.y << "," << dt.z << "," << dt.w << ")";
-        return os;
-    }
-
-    std::string ToString()
-    {
-        return fmt::format("Vec4({},{},{},{})", x, y, z, w);
-    }
+	[[nodiscard]] std::string ToString() const
+	{ return fmt::format("Vec4({},{},{},{})", x, y, z, w); }
 
     //-----------------------------------------------------------------------------
     // Formulas
     //-----------------------------------------------------------------------------
     /// \brief Calculates the dot product from two vectors.
-    static inline T Dot(const Vec4<T> v1, const Vec4<T> v2)
-    {
-        return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
-    }
+	static inline T Dot(const Vec4<T> v1, const Vec4<T> v2)
+	{
+		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
+	}
 
-    /// \brief Calculates the 3D dot product from two vectors.
+	/// \brief Calculates the 3D dot product from two vectors.
     static T Dot3(const Vec4<T> v1, const Vec4<T> v2)
-    {
-        return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
-    }
+	{
+		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
+	}
 
-    /// \brief Calculates the square magnitude.
+	/// \brief Calculates the square magnitude.
     T SquareMagnitude() const
-    {
-        return Dot(*this, *this);
-    }
+    { return Dot(*this, *this); }
 
-    /// \brief Calculates the magnitude.
+	/// \brief Calculates the magnitude.
     template<typename ReturnT = float>
     ReturnT Magnitude() const
-    {
-        return std::sqrt(SquareMagnitude());
-    }
+    { return std::sqrt(SquareMagnitude()); }
 
-    /// \brief Calculates the normalized vector.
+	/// \brief Calculates the normalized vector.
     Vec4<T> Normalized() const
-    {
-        return (*this) / (*this).Magnitude();
-    }
+    { return (*this) / (*this).Magnitude(); }
 
-    /// \brief Interpolate between two vectors.
+	/// \brief Interpolate between two vectors.
     /// \param t the interpolation amount.
     static Vec4<T> Lerp(const Vec4<T>& v1, const Vec4<T>& v2, T t)
-    {
-        return v1 + (v2 - v1) * t;
-    }
+    { return v1 + (v2 - v1) * t; }
 
-    /// \brief Project v1 on v2 (doesn't need to be normalized).
+	/// \brief Project v1 on v2 (doesn't need to be normalized).
     /// \param v1 the vector to project.
     /// \param v2 the vector to project on.
     static Vec4<T> Project(const Vec4<T>& v1, const Vec4<T>& v2)
@@ -884,15 +654,11 @@ public:
 // Vec4 Aliases
 //-----------------------------------------------------------------------------
 using Vec4f = Vec4<float>;
+using Vec4i = Vec4<int>;
+using Vec4u = Vec4<unsigned>;
 
 template<typename T>
-inline Vec4<T> const Vec4<T>::zero = Vec4<T>(0);
+inline const Vec4<T> Vec4<T>::zero = Vec4<T>(T(0));
 template<typename T>
-inline Vec4<T> const Vec4<T>::one = Vec4<T>(1);
-
-//-----------------------------------------------------------------------------
-// Vec4 Implementations
-//-----------------------------------------------------------------------------
-
+inline const Vec4<T> Vec4<T>::one = Vec4<T>(T(1));
 }
- 

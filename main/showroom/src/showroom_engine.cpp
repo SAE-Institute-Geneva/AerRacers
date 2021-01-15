@@ -26,7 +26,7 @@
 
 namespace neko
 {
-ShowRoomEngine::ShowRoomEngine(Configuration* config) : SdlEngine(config)
+ShowRoomEngine::ShowRoomEngine(Configuration* config) : SdlEngine(config), showRoomRenderer_(*this)
 {
 	RegisterSystem(showRoomRenderer_);
 	RegisterOnDrawUi(showRoomRenderer_);

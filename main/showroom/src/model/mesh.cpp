@@ -64,6 +64,8 @@ void Mesh::Init()
 void Mesh::Draw(const gl::Shader& shader) const
 {
     BindTextures(shader);
+	//shader.SetMat4("model", modelMat_);
+
     // draw mesh
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
@@ -88,6 +90,24 @@ void Mesh::Destroy()
     loadMeshToGpu.Reset();
 }
 
+void Mesh::UpdateTextures()
+{
+	const auto& textureManager = TextureManagerLocator::get();
+	for (auto it = textures_.cbegin(); it != textures_.cend();)
+	{
+		const size_t index = it - textures_.cbegin();
+		if (textures_[index].type == Texture::TextureType::NONE)
+		{
+		    it = textures_.erase(textures_.cbegin() + index);
+            continue;
+		}
+
+        if (textures_[index].textureName == INVALID_TEXTURE_NAME)
+            textures_[index].textureName = textureManager.GetTexture(textures_[index].textureId).name;
+
+        ++it;
+	}
+}
 
 void Mesh::ProcessMesh(
     const aiMesh* mesh, 
@@ -95,18 +115,16 @@ void Mesh::ProcessMesh(
     const std::string_view directory,
     std::string_view path)
 {
-    min_ = Vec3f(mesh->mAABB.mMin);
-    max_ = Vec3f(mesh->mAABB.mMax);
-	
-    for (unsigned int i = 0; i < mesh->mNumVertices; i++)
+	aabb_.lowerLeftBound  = Vec3f(mesh->mAABB.mMin);
+	aabb_.upperRightBound = Vec3f(mesh->mAABB.mMax);
+
+	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {
         Vertex vertex;
         // process vertex positions, normals and texture coordinates
 	    vertex.position = Vec3f(mesh->mVertices[i]);
 	    if (GetFilenameExtension(path) == ".fbx")
-	    {
 		    vertex.position = Quaternion::AngleAxis(degree_t(90.0f), Vec3f::left) * vertex.position;
-	    }
 
 	    vertex.normal = Vec3f(mesh->mNormals[i]);
     	//TODO: why is tangent sometimes null even with CalcTangent
@@ -157,16 +175,16 @@ bool Mesh::IsLoaded() const
 {
     if (!loadMeshToGpu.IsDone()) return false;
 
-    const auto& textureManager = TextureManagerLocator::get();
-	for (const auto& texture : textures_)
-	{
-        if (!textureManager.IsTextureLoaded(texture.textureId))
-        {
-            return false;
-        }
-	}
+    auto lambda = [](const Texture& texture)
+    {
+	    const auto& textureManager = TextureManagerLocator::get();
+    	return textureManager.IsTextureLoaded(texture.textureId);
+    };
 
-    return true;
+	if (std::all_of(textures_.cbegin(), textures_.cend(), lambda))
+		return true;
+
+	return false;
 }
 
 void Mesh::SetupMesh()
@@ -181,22 +199,35 @@ void Mesh::SetupMesh()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * sizeof(unsigned int), &indices_[0], GL_STATIC_DRAW); glCheckError();
 
-    // vertex positions
+    //Position
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)nullptr); glCheckError();
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position)); glCheckError();
 
-    // vertex texture coords
+    //TexCoords
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords)); glCheckError();
 
-    // vertex normals
+    //Normal
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal)); glCheckError();
 
-    // vertex tangent
+    //Tangent
     glEnableVertexAttribArray(3);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent)); glCheckError();
+
+    //Bitangent
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent)); glCheckError();
     glBindVertexArray(0); glCheckError();
+}
+
+size_t Mesh::GetTexture(sr::Texture::TextureType type)
+{
+	for (size_t i = 0; i < textures_.size(); ++i)
+		if (textures_[i].type == type)
+			return i;
+
+	return INVALID_INDEX;
 }
 
 void Mesh::LoadMaterialTextures(
@@ -214,6 +245,7 @@ void Mesh::LoadMaterialTextures(
         textures_.emplace_back();
         auto& assTexture = textures_.back();
         assTexture.type = texture;
+		assTexture.name = str.C_Str();
         std::string path = directory.data();
         path += '/';
     	path += str.C_Str();
@@ -225,44 +257,52 @@ void Mesh::LoadMaterialTextures(
 void Mesh::BindTextures(const gl::Shader& shader) const
 {
     glCheckError();
-    unsigned int diffuseNr = 1;
-    unsigned int specularNr = 1;
-    unsigned int normalNr = 1;
-    unsigned int emissiveNr = 1;
-    for (size_t i = 0; i < textures_.size(); i++)
+
+	for (int i = 0; i < 4; ++i)
+	{
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, INVALID_TEXTURE_NAME);
+	}
+
+	uint8_t usedMaps = 0;
+    for (const auto & texture : textures_)
     {
-        // activate proper texture unit before binding
-        glActiveTexture(GL_TEXTURE0 + i);
-        // retrieve texture number (the N in diffuse_textureN)
-        std::string number;
+        uint8_t number = 0;
         std::string name;
-        switch(textures_[i].type)
+        switch(texture.type)
         {
             case Texture::TextureType::DIFFUSE:
-                name = "texture_diffuse";
-                number = std::to_string(diffuseNr++);
+                name = "diffuse";
+                number = 0;
                 break;
             case Texture::TextureType::SPECULAR:
-                name = "texture_specular";
-                number = std::to_string(specularNr++);
+                name = "specular";
+                number = 1;
                 break;
             case Texture::TextureType::NORMAL:
-                name = "texture_normal";
-                number = std::to_string(normalNr++);
+                name = "normal";
+                number = 2;
                 break;
             case Texture::TextureType::EMISSIVE:
-                name = "texture_emissive";
-                number = std::to_string(emissiveNr++);
+                name = "emissive";
+                number = 3;
                 break;
             default: ;
         }
-        shader.SetInt(std::string("material.").append(name).append(number), i);
-        glBindTexture(GL_TEXTURE_2D, textures_[i].textureName);
+	    glActiveTexture(GL_TEXTURE0 + number);
+		usedMaps |= 1u << number;
+        shader.SetInt(std::string("material.").append(name), number);
+        glBindTexture(GL_TEXTURE_2D, texture.textureName);
     }
     shader.SetFloat("material.shininess", specularExponent_);
-    shader.SetBool("enableNormalMap", normalNr > 1);
+	shader.SetUInt("usedMaps", usedMaps);
     glActiveTexture(GL_TEXTURE0);
     glCheckError();
+}
+
+bool Mesh::operator==(const Mesh& other) const
+{
+	return name_ == other.name_;
 }
 }
 #endif

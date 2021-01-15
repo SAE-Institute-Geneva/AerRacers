@@ -1,2 +1,0 @@
-F:\Git\imgui\examples\example_glfw_opengl3\Debug\example_glfw_opengl3.exe
-F:\Git\imgui\examples\example_glfw_opengl3\Debug\example_glfw_opengl3.pdb

@@ -26,13 +26,15 @@
 #include "gl/gles3_window.h"
 
 #include <sstream>
-#include <engine/engine.h>
-#include "engine/log.h"
 
+#include "ImGuizmo.h"
 #include "imgui.h"
-#include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl3.h"
+#include "imgui_impl_sdl.h"
 #include <fmt/format.h>
+
+#include "engine/log.h"
+#include <engine/engine.h>
 
 #ifdef EASY_PROFILE_USE
 #include <easy/profiler.h>
@@ -131,6 +133,7 @@ void Gles3Window::GenerateUiFrame()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(window_);
 	ImGui::NewFrame();
+    ImGuizmo::BeginFrame();
 }
 
 

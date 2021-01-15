@@ -41,6 +41,7 @@
 #clion generation files
 */.vs/*
 .vs/*
+.clang-format
 CMakeSettings.json
 Folder.DotSettings.user
 [Bb]uild/*

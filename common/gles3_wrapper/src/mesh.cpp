@@ -54,7 +54,7 @@ void RenderQuad::Init()
 	};
 
 	std::array<Vec3f, 4> tangent{};
-
+	std::array<Vec3f, 4> bitangent{};
 	{
 		const Vec3f edge1 = Vec3f(vertices[1] - vertices[0]);
 		const Vec3f edge2 = Vec3f(vertices[2] - vertices[0]);
@@ -65,8 +65,12 @@ void RenderQuad::Init()
 		tangent[0].x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
 		tangent[0].y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
 		tangent[0].z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+		bitangent[0].x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent[0].y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent[0].z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 	}
 	std::fill(tangent.begin() + 1, tangent.end(), tangent[0]);
+	std::fill(bitangent.begin() + 1, bitangent.end(), bitangent[0]);
 
 	unsigned int indices[6] = {
 		// note that we start from 0!
@@ -75,7 +79,7 @@ void RenderQuad::Init()
 	};
 
 	//Initialize the EBO program
-	glGenBuffers(4, &VBO[0]);
+	glGenBuffers(5, &VBO[0]);
 	glGenBuffers(1, &EBO);
 	glGenVertexArrays(1, &VAO);
 	// 1. bind Vertex Array Object
@@ -100,6 +104,11 @@ void RenderQuad::Init()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(tangent), &tangent[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), (void*)0);
 	glEnableVertexAttribArray(3);
+	// bind bitangent data
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(bitangent), &bitangent[0], GL_STATIC_DRAW);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), (void*)0);
+	glEnableVertexAttribArray(4);
 	//bind EBO
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -258,6 +267,7 @@ void RenderCuboid::Init()
 	};
 
 	Vec3f tangent[36]{};
+	Vec3f bitangent[36]{};
 	for(int i = 0; i < 36; i+=3)
 	{
 		const Vec3f edge1 = position[i+1] - position[i];
@@ -269,12 +279,17 @@ void RenderCuboid::Init()
 		tangent[i].x = f * (deltaUV2.v * edge1.x - deltaUV1.v * edge2.x);
 		tangent[i].y = f * (deltaUV2.v * edge1.y - deltaUV1.v * edge2.y);
 		tangent[i].z = f * (deltaUV2.v * edge1.z - deltaUV1.v * edge2.z);
+		bitangent[i].x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+		bitangent[i].y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+		bitangent[i].z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
 		tangent[i + 1] = tangent[i];
 		tangent[i + 2] = tangent[i];
+		bitangent[i + 1] = bitangent[i];
+		bitangent[i + 2] = bitangent[i];
 	}
 	
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(4, &VBO[0]);
+	glGenBuffers(5, &VBO[0]);
 
 	glBindVertexArray(VAO);
 	// position attribute
@@ -282,21 +297,30 @@ void RenderCuboid::Init()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(0);
+
 	// texture coord attribute
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(1);
+
 	// normal attribute
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(2);
+
 	//tangent attribute
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(tangent), tangent, GL_STATIC_DRAW);
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(3);
+
+	//bitangent attribute
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(bitangent), bitangent, GL_STATIC_DRAW);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+	glEnableVertexAttribArray(4);
 
 	glBindVertexArray(0);
 	glCheckError();

@@ -61,14 +61,14 @@ static void BM_MatrixMultTranspose(benchmark::State& state)
     {
         for (size_t i = 0; i < n; i++)
         {
-            benchmark::DoNotOptimize(v1[i].MultiplyTranpose(v2[i]));
+            benchmark::DoNotOptimize(v1[i].MultiplyTranspose(v2[i]));
         }
         iterations++;
     }
     float result = 0.0f;
     for (size_t i = 0; i < n; i++)
     {
-        result += neko::Mat4f::MatrixDifference(v1[i].MultiplyNaive(v2[i]), v1[i].MultiplyTranpose(v2[i]));
+        result += neko::Mat4f::MatrixDifference(v1[i].MultiplyNaive(v2[i]), v1[i].MultiplyTranspose(v2[i]));
     }
     std::cout << "Matrix difference for Transpose: " << result / static_cast<float>(n) << " Range: "
               << n << "\n";
@@ -119,14 +119,14 @@ static void BM_MatrixMultIntrinsics(benchmark::State& state)
     {
         for (size_t i = 0; i < n; i++)
         {
-            benchmark::DoNotOptimize(v1[i].MultiplyIntrinsincs(v2[i]));
+            benchmark::DoNotOptimize(v1[i].MultiplyIntrinsics(v2[i]));
         }
         iterations++;
     }
     float result = 0.0f;
     for (size_t i = 0; i < n; i++)
     {
-        result += neko::Mat4f::MatrixDifference(v1[i].MultiplyNaive(v2[i]), v1[i].MultiplyIntrinsincs(v2[i]));
+        result += neko::Mat4f::MatrixDifference(v1[i].MultiplyNaive(v2[i]), v1[i].MultiplyIntrinsics(v2[i]));
     }
     std::cout << "Matrix difference for Intrinsincs: " << result / static_cast<float>(n) << " Range: " << n << "\n";
 }

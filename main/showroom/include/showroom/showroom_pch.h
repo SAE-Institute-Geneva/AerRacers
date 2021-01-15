@@ -24,18 +24,16 @@
  */
 
 #ifdef NEKO_GLES3
-#include "gl/gles3_include.h"
-#include "SDL.h"
-#include "imgui.h"
-#include "mathematics/matrix.h"
-#include "mathematics/transform.h"
-#include "engine/entity.h"
-#include "engine/transform.h"
-#include "gl/model.h"
-#include "gl/shape.h"
-#include "gl/shader.h"
-#include "gl/texture.h"
-#include "sdl_engine/sdl_camera.h"
+	#include "SDL.h"
+	#include "imgui.h"
+	#include "ImGuizmo.h"
+
+	#include "gl/gles3_include.h"
+	#include "gl/shader.h"
+	#include "gl/shape.h"
+	#include "mathematics/matrix.h"
+	#include "sdl_engine/sdl_camera.h"
+	#include "showroom/model/model.h"
 #endif
 
 #ifdef EASY_PROFILE_USE

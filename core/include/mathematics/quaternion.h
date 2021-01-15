@@ -23,9 +23,10 @@
  SOFTWARE.
  */
 #include <engine/component.h>
-#include <mathematics/vector.h>
-#include "mathematics/trigo.h"
 
+#include "mathematics/matrix.h"
+#include "mathematics/trigo.h"
+#include "mathematics/vector.h"
 
 namespace neko
 {
@@ -40,13 +41,10 @@ struct Quaternion
 			float z;
 			float w;
 		};
-		float coord[4];
+		float coord[4]{};
 	};
 
-	Quaternion()
-	{
-		x = y = z = w = 0;
-	}
+	Quaternion() = default;
 
 	explicit Quaternion(float same)
 		: x(same), y(same), z(same), w(same)
@@ -58,6 +56,12 @@ struct Quaternion
 	{
 	}
 
+	/**
+	 * \brief Adding explicit constructor for quaternion-like type
+	 */
+	template<class U>
+	explicit Quaternion(U u) noexcept : x(u.x), y(u.y), z(u.z), w(u.w)
+	{}
 
 	const float& operator[](size_t p_axis) const
 	{
@@ -118,13 +122,13 @@ struct Quaternion
 		return 2.0f * Acos(std::abs(Dot(a, b)));
 	}
 
-	Quaternion Conjugate() const
+	[[nodiscard]] Quaternion Conjugate() const
 	{
 		return Quaternion(-x, -y, -z, w);
 	}
 
 	//Returns the Inverse of rotation.
-	Quaternion Inverse() const
+	[[nodiscard]] Quaternion Inverse() const
 	{
 		const Quaternion conj = Conjugate();
 		const float mag = Magnitude(*this);
@@ -152,6 +156,51 @@ struct Quaternion
 			sy * cp * sr + cy * sp * cr,
 			sy * cp * cr - cy * sp * sr
 		);
+	}
+
+	static Quaternion FromRotationMatrix(const Mat4f& mat)
+	{
+		const float T = 1 + mat[0][0] + mat[1][1] + mat[2][2];
+		if (T <= 0)
+		{
+			if (mat[0][0] > mat[1][1] && mat[0][0] > mat[2][2])
+			{
+				const float S = sqrtf(1 + mat[0][0] - mat[1][1] - mat[2][2]) * 2.0f;
+				const float w = (mat[2][1] - mat[1][2]) / S;
+				const float x = 0.25f * S;
+				const float y = (mat[0][1] + mat[1][0]) / S;
+				const float z = (mat[0][2] + mat[2][0]) / S;
+
+				return Quaternion(x, y, z, w);
+			}
+			else if (mat[1][1] > mat[2][2])
+			{
+				const float S = sqrtf(1 + mat[1][1] - mat[0][0] - mat[2][2]) * 2.0f;
+				const float w = (mat[0][2] - mat[2][0]) / S;
+				const float x = (mat[0][1] + mat[1][0]) / S;
+				const float y = 0.25f * S;
+				const float z = (mat[1][2] + mat[2][1]) / S;
+
+				return Quaternion(x, y, z, w);
+			}
+			else
+			{
+				const float S = sqrtf(1 + mat[2][2] - mat[0][0] - mat[1][1]) * 2.0f;
+				const float w = (mat[1][0] - mat[0][1]) / S;
+				const float x = (mat[0][2] + mat[2][0]) / S;
+				const float y = (mat[1][2] + mat[2][1]) / S;
+				const float z = 0.25f * S;
+
+				return Quaternion(x, y, z, w);
+			}
+		}
+
+		const float w = sqrtf(T) / 2.0f;
+		const float x = (mat[2][1] - mat[1][2]) / (w * 4.0f);
+		const float y = (mat[0][2] - mat[2][0]) / (w * 4.0f);
+		const float z = (mat[1][0] - mat[0][1]) / (w * 4.0f);
+
+		return Quaternion(x, y, z, w);
 	}
 
 	static Quaternion Identity()

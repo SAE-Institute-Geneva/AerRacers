@@ -24,14 +24,15 @@
  */
 
 #ifdef NEKO_GLES3
-#include <vector>
+	#include <vector>
 
-#include "assimp/material.h"
-#include "gl/shader.h"
-#include "showroom/texture.h"
-#include "mathematics/circle.h"
-#include "mathematics/hash.h"
-#include "mathematics/vector.h"
+	#include "assimp/material.h"
+	#include "gl/shader.h"
+	#include "mathematics/aabb.h"
+	#include "mathematics/circle.h"
+	#include "mathematics/hash.h"
+	#include "mathematics/vector.h"
+	#include "showroom/texture.h"
 
 struct aiMesh;
 struct aiScene;
@@ -45,42 +46,57 @@ struct Vertex
 	Vec2f texCoords;
     Vec3f tangent;
     Vec3f bitangent;
-} __attribute__((aligned(64)));
+};
 
 struct Texture
 {
-	Texture() = default;
-	TextureId textureId = INVALID_TEXTURE_ID;
-	TextureName textureName = INVALID_TEXTURE_NAME;
 	enum class TextureType : std::uint8_t
 	{
+		NONE,
 		DIFFUSE,
 		SPECULAR,
 		NORMAL,
 		EMISSIVE
 	};
-	TextureType type = TextureType::DIFFUSE;
-} __attribute__((aligned(32))) __attribute__((packed));
+
+	Texture() = default;
+	TextureId textureId = INVALID_TEXTURE_ID;
+	TextureName textureName = INVALID_TEXTURE_NAME;
+	std::string name;
+	TextureType type = TextureType::NONE;
+};
 
 class Mesh
 {
 public:
 	Mesh();
+	bool operator==(const Mesh& other) const;
+
 	void Init();
 	void Draw(const gl::Shader& shader) const;
     void BindTextures(const gl::Shader& shader) const;
 	void Destroy();
 
+	void UpdateTextures();
+
 	void ProcessMesh(const aiMesh* mesh, const aiScene* scene, std::string_view directory, std::string_view path);
 	bool IsLoaded() const;
 
-	void SetParentName(std::string_view parentName) { parentName_ = HashString(parentName); }
 	[[nodiscard]] XXH64_hash_t GetParentName() const { return parentName_; }
-	void SetName(std::string_view name) { name_ = name; }
 	[[nodiscard]] std::string_view GetName() const { return name_; }
+	[[nodiscard]] const Mat4f& GetModelMatrix() const { return modelMat_; }
 	[[nodiscard]] size_t GetIndicesCount() const { return indices_.size(); }
 	[[nodiscard]] size_t GetVerticesCount() const { return vertices_.size(); }
-	[[nodiscard]] const std::vector<Texture>& GetTextures() const { return textures_; }
+	std::vector<Texture>& GetTextures() { return textures_; }
+	Texture& GetTexture(size_t index) { return textures_[index]; }
+	size_t GetTexture(sr::Texture::TextureType type);
+	float GetShininess() const { return specularExponent_; }
+	[[nodiscard]] const Aabb3d& GetAabb() const { return aabb_; }
+
+	void SetParentName(std::string_view parentName) { parentName_ = HashString(parentName); }
+	void SetName(std::string_view name) { name_ = name; }
+	void SetModelMatrix(const Mat4f& mat) { modelMat_ = mat; }
+	void SetShininess(const float shininess) { specularExponent_ = shininess; }
 
 	[[nodiscard]] uint32_t GetVAO() const { return VAO; }
 
@@ -91,11 +107,12 @@ protected:
 	friend class Model;
 	std::string name_;
 	XXH64_hash_t parentName_ = 0;
+	Mat4f modelMat_;
 	std::vector<Vertex> vertices_;
 	std::vector<unsigned int> indices_;
 	std::vector<Texture> textures_;
-	float specularExponent_ = 0.0f;
-	Vec3f min_, max_;
+	float specularExponent_ = 64.0f;
+	Aabb3d aabb_;
 
 	uint32_t VAO = 0, VBO = 0, EBO = 0;
 

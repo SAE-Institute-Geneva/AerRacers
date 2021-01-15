@@ -112,7 +112,6 @@ TextureManager::TextureManager() : textureLoader_(*this), uploadToGpuJob_([this]
 
 TextureId TextureManager::LoadTexture(std::string_view path, Texture::TextureFlags flags)
 {
-	
 	const std::string metaPath = std::string(path) + ".meta";
     auto metaJson = LoadJson(metaPath);
     TextureId textureId = INVALID_TEXTURE_ID;

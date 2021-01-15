@@ -23,39 +23,29 @@
  SOFTWARE.
  */
 #include "mathematics/matrix.h"
+#include "mathematics/quaternion.h"
 
 
 namespace neko::Transform3d
 {
-Mat4f const TranslationMatrixFrom(const Vec3f translation);
-Mat4f const ScalingMatrixFrom(const Vec3f& scale);
+Mat4f Translate(const Mat4f& transform, const Vec3f& translation);
+Mat4f TranslationMatrixFrom(const Vec3f& translation);
 
-Mat4f const RotationMatrixFrom(const degree_t angle, const Vec3f axis);
+Mat4f Scale(const Mat4f& transform, const Vec3f& scale);
+Mat4f ScalingMatrixFrom(const Vec3f& scale);
 
-Mat4f const RotationMatrixFrom(const radian_t angle, const Vec3f axis);
-
-
-Mat4<float> const RotationMatrixFrom(const EulerAngles cardinalRotation);
-
-Mat4f const RotationMatrixFrom(const Quaternion& quaternion);
-
-
-
-Mat4f Translate(const Mat4f& transform, const Vec3f translation);
-
-Mat4f Scale(const Mat4f& transform, const Vec3f scale);
-
-Mat4f Rotate(const Mat4f& transform, const degree_t angle, const Vec3f axis);
-
-Mat4f Rotate(const Mat4f& transform, const radian_t angle, const Vec3f axis);
-
-
+Mat4f Rotate(const Mat4f& transform, degree_t angle, const Vec3f& axis);
+Mat4f Rotate(const Mat4f& transform, radian_t angle, const Vec3f& axis);
 Mat4f Rotate(const Mat4f& transform, const Quaternion& quaternion);
+Mat4f Rotate(const Mat4f& transform, const EulerAngles& eulerAngles);
+Mat4f RotationMatrixFrom(degree_t angle, const Vec3f& axis);
+Mat4f RotationMatrixFrom(radian_t angle, const Vec3f& axis);
+Mat4f RotationMatrixFrom(const EulerAngles& eulerAngles);
+Mat4f RotationMatrixFrom(const Quaternion& quaternion);
 
-Mat4f Rotate(const Mat4f& transform, const EulerAngles eulerAngles);
+Mat4f Transform(const Vec3f& pos, const Quaternion& rot, const Vec3f& scale);
+Mat4f Transform(const Vec3f& pos, const EulerAngles& rot, const Vec3f& scale);
 
-
-Mat4f Perspective(radian_t fovy, float aspect, float near, float far);
+Mat4f Perspective(radian_t fovY, float aspect, float near, float far);
 Mat4f Orthographic(float left, float right, float bottom, float top, float nearPlane = 0.0f, float farPlane = 100.0f);
-
 }

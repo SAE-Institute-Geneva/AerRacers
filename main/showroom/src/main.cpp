@@ -26,7 +26,7 @@
 #include "gl/gles3_window.h"
 #include "showroom/showroom_engine.h"
 
-int main(int argc, char** argv)
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
 	using namespace neko;
 	Configuration config;

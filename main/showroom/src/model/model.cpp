@@ -60,7 +60,11 @@ void Model::Destroy()
 void Model::LoadModel(std::string_view path)
 {
 	path_ = std::string(path);
+#ifdef _WIN32
+	directory_ = path.substr(0, path.find_last_of("\\"));
+#elif linux
 	directory_ = path.substr(0, path.find_last_of('/'));
+#endif
 	logDebug(fmt::format("ASSIMP: Loading model: {}", path_));
 #ifdef NEKO_SAMETHREAD
 	processModelJob_.Execute();
@@ -76,13 +80,10 @@ bool Model::IsLoaded() const
 		return false;
 	}
 
-	for (const auto& mesh : meshes_)
-	{
-		if (!mesh.IsLoaded())
-			return false;
-	}
+	if (std::all_of(meshes_.cbegin(), meshes_.cend(), [](const Mesh& mesh) { return mesh.IsLoaded(); }))
+		return true;
 
-	return true;
+	return false;
 }
 
 void Model::ProcessModel()
@@ -106,7 +107,7 @@ void Model::ProcessModel()
 
 		scene = import.ReadFile(path_.data(),
 		                        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
-		                        aiProcess_CalcTangentSpace);
+		                        aiProcess_CalcTangentSpace | aiProcess_GenBoundingBoxes);
 	});
 	BasicEngine::GetInstance()->ScheduleJob(&loadingModelJob, JobThreadType::RESOURCE_THREAD);
 	loadingModelJob.Join();
@@ -134,6 +135,15 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 		meshes_.emplace_back();
 		auto& mesh = meshes_.back();
 
+		aiVector3D pos, scale;
+		aiQuaternion rot;
+		node->mTransformation.Decompose(scale, rot, pos);
+
+		Quaternion newRot = Quaternion::AngleAxis(degree_t(90.0f), Vec3f::right) * Quaternion(rot);
+		mesh.modelMat_ = Transform3d::ScalingMatrixFrom(Vec3f(scale) / 100.0f);
+		mesh.modelMat_ = Transform3d::Rotate(mesh.modelMat_, newRot);
+		mesh.modelMat_ = Transform3d::Translate(mesh.modelMat_, Vec3f(pos));
+
 		aiMesh* assMesh = scene->mMeshes[node->mMeshes[i]];
 		mesh.name_ = node->mName.C_Str();
 		if (node->mParent->mNumMeshes != 0)
@@ -145,6 +155,18 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 	{
 		ProcessNode(node->mChildren[i], scene);
 	}
+}
+
+size_t Model::GetMeshId(const Mesh& mesh) const
+{
+	auto it = std::find(meshes_.cbegin(), meshes_.cend(), mesh);
+	if (it != meshes_.end())
+	{
+		//Font is already loaded
+		return it - meshes_.cbegin();
+	}
+
+	return INVALID_INDEX;
 }
 }
 #endif

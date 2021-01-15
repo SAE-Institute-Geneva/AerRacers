@@ -100,12 +100,19 @@ add_subdirectory(${NEKO_CORE_DIR})
 if(NOT Emscripten)
 target_precompile_headers(Neko_Core PRIVATE "${NEKO_CORE_DIR}/include/core_pch.h")
 endif()
+
 #imgui
-set(IMGUI_VERSION "1.79WIP" CACHE INTERNAL "")
+set(IMGUI_VERSION "1.80WIP" CACHE INTERNAL "")
 set(IMGUI_ROOT "${EXTERNAL_DIR}/imgui-${IMGUI_VERSION}" CACHE STRING "")
 include_directories("${IMGUI_ROOT}")
 add_subdirectory("${IMGUI_ROOT}")
 set_target_properties(imgui PROPERTIES UNITY_BUILD ON)
+
+#ImGuizmo
+set(IMGUIZMO_ROOT "${EXTERNAL_DIR}/ImGuizmo" CACHE STRING "")
+include_directories("${IMGUIZMO_ROOT}")
+add_subdirectory("${IMGUIZMO_ROOT}")
+set_target_properties(ImGuizmo PROPERTIES UNITY_BUILD ON)
 
 if(Neko_GLES3 AND NOT Neko_VULKAN)
     message(STATUS "heyyo")
