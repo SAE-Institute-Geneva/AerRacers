@@ -1316,4 +1316,3 @@ const char* StringFromGTestEnv(const char* flag, const char* default_value) {
 
 }  // namespace internal
 }  // namespace testing
- 

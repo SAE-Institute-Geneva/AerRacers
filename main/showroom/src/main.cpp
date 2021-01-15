@@ -32,11 +32,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	Configuration config;
 	config.windowSize = Vec2u(1280, 720);
 	config.windowName = "Showroom";
-	config.vSync = false;
 
 	sdl::Gles3Window window;
 	gl::Gles3Renderer renderer;
-	ShowRoomEngine engine(&config);
+	Filesystem filesystem;
+	ShowRoomEngine engine(filesystem, &config);
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 

@@ -141,7 +141,7 @@ private:
 	};
 
 	Job preRender_;
-	sr::TextureManager textureManager_;
+	gl::TextureManager textureManager_;
 	sr::ShowRoomCamera3D camera_;
 
     Mat4f modelMat_;

@@ -33,20 +33,19 @@ namespace neko
 {
 void ShowRoomRenderer::Init()
 {
-	TextureManagerLocator::provide(&textureManager_);
 	BasicEngine::GetInstance()->RegisterSystem(textureManager_);
 
 	ImGuiIO &io = ImGui::GetIO();
 	float fontSizeInPixels = 16;
 
-	const auto& config = BasicEngine::GetInstance()->config;
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	io.Fonts->AddFontFromFileTTF((config.dataRootPath + "showroom/droid_sans.ttf").c_str(), fontSizeInPixels);
 
 	preRender_ = Job([this, config]
 	{
-		searchIcon_ = gl::stbCreateTexture(config.dataRootPath + "showroom/icons/search.png");
-		folderIcon_ = gl::stbCreateTexture(config.dataRootPath + "showroom/icons/folder.png");
-		deleteIcon_ = gl::stbCreateTexture(config.dataRootPath + "showroom/icons/delete.png");
+		searchIcon_ = sr::stbCreateTexture(config.dataRootPath + "showroom/icons/search.png");
+		folderIcon_ = sr::stbCreateTexture(config.dataRootPath + "showroom/icons/folder.png");
+		deleteIcon_ = sr::stbCreateTexture(config.dataRootPath + "showroom/icons/delete.png");
 	    shader_.LoadFromFile(
 			config.dataRootPath + "showroom/shaders/light.vert",
 			config.dataRootPath + "showroom/shaders/light.frag");
@@ -361,7 +360,7 @@ void ShowRoomRenderer::DrawSceneHierarchy()
 	auto& meshes= model_.GetMeshes();
 	if (IsMouseClicked(0))
 	{
-		const auto& winSize = BasicEngine::GetInstance()->config.windowSize;
+		const auto& winSize = BasicEngine::GetInstance()->GetConfig().windowSize;
 		const Vec3f dir     = -camera_.reverseDirection.Normalized();
 
 		degree_t fovX        = camera_.GetFovX();

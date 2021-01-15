@@ -1,6 +1,3 @@
-if (NOT Neko_GLES3 OR NOT Neko_SDL2 OR NOT Neko_Assimp OR NOT Neko_KTX OR NOT Neko_Freetype)
-    return()
-endif()
 include_directories("include/")
 
 file(GLOB_RECURSE showroom_src include/*.h src/*.cpp)

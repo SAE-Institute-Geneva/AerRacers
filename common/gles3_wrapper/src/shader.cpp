@@ -22,45 +22,49 @@
  SOFTWARE.
  */
 #include "gl/shader.h"
-#include <utilities/file_utility.h>
-#include <sstream>
 #include <engine/log.h>
 #include <fmt/format.h>
+#include <utils/file_utility.h>
+
 namespace neko::gl
 {
+Shader::Shader() : filesystem_(BasicEngine::GetInstance()->GetFilesystem())
+{}
+
+Shader::~Shader()
+{
+	Destroy();
+}
 
 void Shader::LoadFromFile(const std::string_view vertexShaderPath, const std::string_view fragmentShaderPath)
 {
-    BufferFile vertexFile;
-    vertexFile.Load(vertexShaderPath);
+	BufferFile vertexFile = filesystem_.LoadFile(vertexShaderPath);
+	GLuint vertexShader = LoadShader(vertexFile, GL_VERTEX_SHADER);
+	vertexFile.Destroy();
+	if (vertexShader == INVALID_SHADER)
+	{
+		logDebug(fmt::format("[Error] Loading vertex shader: {} unsuccessful", vertexShaderPath));
+		return;
+	}
 
-    GLuint vertexShader = LoadShader(vertexFile, GL_VERTEX_SHADER);
-    vertexFile.Destroy();
-    if (vertexShader == INVALID_SHADER)
-    {
-        logDebug(fmt::format("[Error] Loading vertex shader: {} unsuccessful", vertexShaderPath));
-        return;
-    }
-    BufferFile fragmentFile;
-    fragmentFile.Load(fragmentShaderPath);
+	BufferFile fragmentFile = filesystem_.LoadFile(fragmentShaderPath);
+	GLuint fragmentShader = LoadShader(fragmentFile, GL_FRAGMENT_SHADER);
+	fragmentFile.Destroy();
+	if (fragmentShader == INVALID_SHADER)
+	{
+		DeleteShader(vertexShader);
+		logDebug(fmt::format("[Error] Loading fragment shader: {} unsuccessful", vertexShaderPath));
+		return;
+	}
 
-    GLuint fragmentShader = LoadShader(fragmentFile, GL_FRAGMENT_SHADER);
-    fragmentFile.Destroy();
-    if (fragmentShader == INVALID_SHADER)
-    {
-        DeleteShader(vertexShader);
-        logDebug(fmt::format("[Error] Loading fragment shader: {} unsuccessful", vertexShaderPath));
-        return;
-    }
-
-    shaderProgram_ = CreateShaderProgram(vertexShader, fragmentShader);
-    if(shaderProgram_ == 0)
-    {
-        logDebug(fmt::format("[Error] Loading shader program with vertex: {} and fragment {}",
-                             vertexShaderPath, fragmentShaderPath));
-    }
-    DeleteShader(vertexShader);
-    DeleteShader(fragmentShader);
+	shaderProgram_ = CreateShaderProgram(vertexShader, fragmentShader);
+	if(shaderProgram_ == 0)
+	{
+		logDebug(fmt::format("[Error] Loading shader program with vertex: {} and fragment {}",
+		                     vertexShaderPath, fragmentShaderPath));
+	}
+	DeleteShader(vertexShader);
+	DeleteShader(fragmentShader);
 }
 
 void Shader::Bind() const
@@ -73,7 +77,6 @@ GLuint Shader::GetProgram() const
 {
     return shaderProgram_;
 }
-
 
 void Shader::SetBool(const std::string_view attributeName, bool value) const
 {
@@ -187,11 +190,6 @@ void Shader::SetCubemap(const std::string_view name, TextureName texture, unsign
     glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 }
 
-Shader::~Shader()
-{
-    Destroy();
-}
-
 GLuint LoadShader(const BufferFile& shaderFile, GLenum shaderType)
 {
     if(shaderFile.dataBuffer == nullptr)
@@ -238,7 +236,7 @@ GLuint CreateShaderProgram(GLuint vertexShader, GLuint fragmentShader, GLuint co
     return program;
 }
 
-GLuint gl::LoadShader(char* shaderContent, GLenum shaderType)
+GLuint LoadShader(char* shaderContent, GLenum shaderType)
 {
     glCheckError();
     const GLuint shader = glCreateShader(shaderType);

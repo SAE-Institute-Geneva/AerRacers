@@ -27,10 +27,8 @@
 
 #include <engine/log.h>
 
-#include "gl/gles3_include.h"
-#include "graphics/texture.h"
 #include "showroom/texture.h"
-#include "utilities/file_utility.h"
+#include "utils/file_utility.h"
 
 
 namespace neko::sr

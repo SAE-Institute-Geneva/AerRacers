@@ -89,8 +89,8 @@ void SdlEngine::ManageEvent()
         {
             if (event.window.event == SDL_WINDOWEVENT_RESIZED)
             {
-                config.windowSize = Vec2u(event.window.data1, event.window.data2);
-                window_->OnResize(config.windowSize);
+                config_.windowSize = Vec2u(event.window.data1, event.window.data2);
+                window_->OnResize(config_.windowSize);
             }
         }
         inputManager_.OnEvent(event);

@@ -23,21 +23,21 @@
  SOFTWARE.
  */
 #include <string_view>
-#include <graphics/texture.h>
+
 #include "gl/gles3_include.h"
+#include "gl/texture.h"
 
 namespace neko::sr
 {
-class TextureManager : public neko::TextureManager
+class TextureManager : public neko::gl::TextureManager
 {
 public:
-	using neko::TextureManager::TextureManager;
 	void Destroy() override;
 
 	TextureId LoadTexture(std::string_view path, neko::Texture::TextureFlags flags) override;
 
 protected:
-	void CreateTexture() override;
+	void CreateTexture();
 };
 
 TextureName stbCreateTexture(std::string_view filename, neko::Texture::TextureFlags flags = neko::Texture::DEFAULT);

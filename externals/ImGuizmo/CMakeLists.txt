@@ -1,4 +1,3 @@
-
 add_library(ImGuizmo STATIC ImCurveEdit.cpp ImGradient.cpp ImGuizmo.cpp ImSequencer.cpp)
 set_target_properties (ImGuizmo PROPERTIES FOLDER Externals)
 target_include_directories(ImGuizmo PUBLIC "./")

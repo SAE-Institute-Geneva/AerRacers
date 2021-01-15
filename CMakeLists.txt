@@ -135,6 +135,12 @@ include_directories("${IMGUI_ROOT}")
 add_subdirectory("${IMGUI_ROOT}")
 set_target_properties(imgui PROPERTIES UNITY_BUILD ON)
 
+#ImGuizmo
+set(IMGUIZMO_ROOT "${EXTERNAL_DIR}/ImGuizmo" CACHE STRING "")
+include_directories("${IMGUIZMO_ROOT}")
+add_subdirectory("${IMGUIZMO_ROOT}")
+set_target_properties(ImGuizmo PROPERTIES UNITY_BUILD ON)
+
 
 if(Neko_VULKAN)
 	set(ASSIMP_VERSION 5.0.1)

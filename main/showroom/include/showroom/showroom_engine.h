@@ -30,7 +30,9 @@ namespace neko
 class ShowRoomEngine : public sdl::SdlEngine
 {
 public:
-	explicit ShowRoomEngine(Configuration* config = nullptr);
+	explicit ShowRoomEngine(
+		const FilesystemInterface& filesystem,
+		Configuration* config = nullptr);
 
 	void GenerateUiFrame() override;
     void Destroy() override;

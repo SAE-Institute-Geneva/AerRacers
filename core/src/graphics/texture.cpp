@@ -26,8 +26,9 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #include "engine/engine.h"
-#include "utilities/file_utility.h"
+#include "utils/file_utility.h"
 #include <fmt/format.h>
+#include <utils/json_utility.h>
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -57,9 +58,10 @@ Image StbImageConvert(const BufferFile& imageFile, bool flipY, bool hdr)
     }
 	return image;
 }
-
+/*
 TextureLoader::TextureLoader(TextureManager& textureManager) :
-	textureManager_(textureManager),
+	filesystem_(textureManager.filesystem_),
+    textureManager_(textureManager),
 	convertImageJob_([this]
     {
 	    logDebug("[Texture Manager] Convert buffer file to image");
@@ -67,7 +69,8 @@ TextureLoader::TextureLoader(TextureManager& textureManager) :
         TextureInfo textureInfo{ textureId_, std::move(image_), flags_ };
         textureManager_.UploadToGpu(std::move(textureInfo));
         logDebug("[Texture Manager] Finish converting buffer file to image");
-    })
+    }),
+    diskLoadJob_(filesystem_)
 {
 }
 
@@ -82,14 +85,9 @@ void TextureLoader::LoadFromDisk()
 {
     if (textureId_ != INVALID_TEXTURE_ID)
     {
-#ifndef NEKO_SAMETHREAD
         BasicEngine::GetInstance()->ScheduleJob(&diskLoadJob_, JobThreadType::RESOURCE_THREAD);
         convertImageJob_.AddDependency(&diskLoadJob_);
         BasicEngine::GetInstance()->ScheduleJob(&convertImageJob_, JobThreadType::OTHER_THREAD);
-#else
-        diskLoadJob_.Execute();
-        convertImageJob_.Execute();
-#endif
     }
 }
 
@@ -101,17 +99,19 @@ void TextureLoader::Reset()
 
 
 
-TextureManager::TextureManager() : textureLoader_(*this), uploadToGpuJob_([this]()
+TextureManager::TextureManager(FilesystemInterface& filesystem) :
+    uploadToGpuJob_([this]()
 {
 	CreateTexture();
-	currentUploadedTexture_.textureId = INVALID_TEXTURE_ID;
-})
+}),
+    filesystem_(filesystem)
 {
 
 }
 
 TextureId TextureManager::LoadTexture(std::string_view path, Texture::TextureFlags flags)
 {
+	
 	const std::string metaPath = std::string(path) + ".meta";
     auto metaJson = LoadJson(metaPath);
     TextureId textureId = INVALID_TEXTURE_ID;
@@ -140,25 +140,12 @@ TextureId TextureManager::LoadTexture(std::string_view path, Texture::TextureFla
 	logDebug(fmt::format("[Texture Manager] Loading texture path: {}", path));
 
     texturePathMap_[textureId] = std::string(path.data());
-#ifndef NEKO_SAMETHREAD
+
 	//Put texture in queue
     TextureInfo textureInfo;
     textureInfo.textureId = textureId;
     textureInfo.flags = flags;
     texturesToLoad_.push(std::move(textureInfo));
-#else
-    textureLoader_.Reset();
-
-    textureLoader_.SetTextureId(textureId);
-    textureLoader_.SetTextureFlags(flags);
-    textureLoader_.LoadFromDisk();
-
-    auto& textureInfo = texturesToUpload_.front();
-    currentUploadedTexture_ = std::move(textureInfo);
-    texturesToUpload_.pop();
-    uploadToGpuJob_.Reset();
-    uploadToGpuJob_.Execute();
-#endif
     return textureId;
 }
 
@@ -179,7 +166,6 @@ void TextureManager::Init()
 
 void TextureManager::Update([[maybe_unused]]seconds dt)
 {
-#ifndef NEKO_SAMETHREAD
     if (!texturesToLoad_.empty())
     {
         if (textureLoader_.IsLoaded() || !textureLoader_.HasStarted())
@@ -203,7 +189,6 @@ void TextureManager::Update([[maybe_unused]]seconds dt)
         uploadToGpuJob_.Reset();
 	    RendererLocator::get().AddPreRenderJob(&uploadToGpuJob_);
 	}
-#endif
 }
 
 void TextureManager::Destroy()
@@ -231,7 +216,7 @@ bool TextureManager::IsTextureLoaded(TextureId textureId) const
 {
     return textureMap_.find(textureId) != textureMap_.end();
 }
-
+*/
 
 Image::Image(Image&& image) noexcept
 {

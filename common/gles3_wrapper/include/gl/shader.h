@@ -55,6 +55,7 @@ void DeleteShader(GLuint shader);
 class Shader : public neko::Shader
 {
 public:
+	explicit Shader();
     ~Shader() override;
 
     void LoadFromFile(std::string_view vertexShaderPath, std::string_view fragmentShaderPath) override;
@@ -84,6 +85,7 @@ public:
 	void SetCubemap(std::string_view name, TextureName texture, unsigned int slot = 0) const;
 
 private:
+	const FilesystemInterface& filesystem_;
     GLuint shaderProgram_ = 0;
 };
 }

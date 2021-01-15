@@ -22,7 +22,7 @@ ShowRoomCamera3D& neko::sr::ShowRoomCamera3D::operator=(const ShowRoomCamera3D& 
 
 void ShowRoomCamera3D::Init()
 {
-	const auto& config = BasicEngine::GetInstance()->config;
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	SetAspect(config.windowSize.x, config.windowSize.y);
 	moveSpeed = 100.0f;
 	mouseSpeed = 1'500.0f;
@@ -57,7 +57,7 @@ void ShowRoomCamera3D::Update([[maybe_unused]] seconds dt)
 			mouseMotion_ = Vec2f::zero;
 		}
 
-		const auto& windowSize = BasicEngine::GetInstance()->config.windowSize;
+		const auto& windowSize = BasicEngine::GetInstance()->GetConfig().windowSize;
 		const auto window = SDL_GL_GetCurrentWindow();
 		const int margin = 2;
 		if (mouseX < margin)
