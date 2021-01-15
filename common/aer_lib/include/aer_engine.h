@@ -33,7 +33,10 @@ Last Modif: 13.10.2020
 #include "draw_system.h"
 #include "inputs_binding_manager.h"
 #include "log.h"
+#include "scene.h"
+#include "tag.h"
 #include "editor/editor_tool_manager.h"
+#include "engine/transform.h"
 
 namespace neko::aer {
 
@@ -46,6 +49,7 @@ enum class ModeEnum : std::uint8_t {
 class AerEngine final : public sdl::SdlEngine {
 public:
     explicit AerEngine(
+        const FilesystemInterface& filesystem,
         Configuration* config = nullptr,
         ModeEnum mode = ModeEnum::EDITOR);
 
@@ -62,13 +66,27 @@ public:
         return mode_;
     }
 
+    EntityManager& GetEntityManager() { return entityManager_; }
+
+    SceneManager& GetSceneManager() { return sceneManager_; }
+
+    Transform3dManager& GetTransform3dManager() { return transform3dManager_; }
 private:
     ModeEnum mode_;
 
     DrawSystem drawSystem_;
-    std::unique_ptr<LogManager> logManager_;
-    std::unique_ptr<InputBindingManager>  bindedInputManager_;
+    EntityManager entityManager_;
+    SceneManager sceneManager_;
 
     EditorToolManager toolManager_;
+
+    //Components Manager
+    Transform3dManager transform3dManager_;
+
+    //Service Locator
+    std::unique_ptr<LogManager> logManager_;
+    std::unique_ptr<TagManager> tagManager_;
+    std::unique_ptr<InputBindingManager>  bindedInputManager_;
+
 };
 }

@@ -26,15 +26,14 @@
 #include "gl/gles3_window.h"
 
 #include <sstream>
-
-#include "ImGuizmo.h"
-#include "imgui.h"
-#include "imgui_impl_opengl3.h"
-#include "imgui_impl_sdl.h"
-#include <fmt/format.h>
-
-#include "engine/log.h"
 #include <engine/engine.h>
+#include "engine/log.h"
+
+#include "imgui.h"
+#include "imgui_impl_sdl.h"
+#include "imgui_impl_opengl3.h"
+#include "ImGuizmo.h"
+#include <fmt/format.h>
 
 #ifdef EASY_PROFILE_USE
 #include <easy/profiler.h>
@@ -44,6 +43,7 @@ namespace neko::sdl
 {
 void OnResizeRenderCommand::Render()
 {
+	logDebug(fmt::format("Resize window with new size: {}", newWindowSize_.ToString()));
 	glViewport(0, 0, newWindowSize_.x, newWindowSize_.y);
 }
 
@@ -52,16 +52,16 @@ void Gles3Window::Init()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("GLES3WindowInit");
 #endif
-	const auto& config = BasicEngine::GetInstance()->config;
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	// Set our OpenGL version.
 #ifdef WIN32
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
 #else
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 #endif
 
 
@@ -87,7 +87,7 @@ void Gles3Window::Init()
 	glRenderContext_ = SDL_GL_CreateContext(window_);
 	MakeCurrentContext();
 #ifndef __EMSCRIPTEN__
-	SDL_GL_SetSwapInterval(config.vSync);
+	SDL_GL_SetSwapInterval(config.flags & Configuration::VSYNC ? 1 : 0);
 
 	if (!gladLoadGLES2Loader(static_cast<GLADloadproc>(SDL_GL_GetProcAddress)))
 	{
@@ -97,18 +97,16 @@ void Gles3Window::Init()
 #else
 	SDL_GL_SetSwapInterval(false);
 #endif
-    glCheckError();
-	InitImGui();
-    glCheckError();
-#ifndef NEKO_SAMETHREAD
-    LeaveCurrentContext();
+        glCheckError();
+        InitImGui();
+        glCheckError();
+        LeaveCurrentContext();
 	
 	Job initRenderJob([this] { MakeCurrentContext(); });
 	auto* engine = BasicEngine::GetInstance();
 	engine->ScheduleJob(&initRenderJob, JobThreadType::RENDER_THREAD);
 
 	initRenderJob.Join();
-#endif
 	
 }
 
@@ -151,14 +149,12 @@ void Gles3Window::Destroy()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("DestroyWindow");
 #endif
-#ifndef NEKO_SAMETHREAD
 	Job leaveContext([this]
 	{
 	    LeaveCurrentContext();
 	});
 	BasicEngine::GetInstance()->ScheduleJob(&leaveContext, JobThreadType::RENDER_THREAD);
 	leaveContext.Join();
-#endif
 	MakeCurrentContext();
 	ImGui_ImplOpenGL3_Shutdown();
 	// Delete our OpengL context
@@ -169,12 +165,13 @@ void Gles3Window::Destroy()
 
 void Gles3Window::RenderUi()
 {
+
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("ImGuiRender");
 #endif
-
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 }
 
 void Gles3Window::OnResize(Vec2u newWindowSize)
@@ -198,7 +195,6 @@ void Gles3Window::AfterRenderLoop()
 void Gles3Window::MakeCurrentContext()
 {
 	SDL_GL_MakeCurrent(window_, glRenderContext_);
-#ifndef EMSCRIPTEN
 	const auto currentContext = SDL_GL_GetCurrentContext();
 	std::ostringstream oss;
 	oss << "Current Context: " << currentContext << " Render Context: " << glRenderContext_ << " from Thread: " << std::this_thread::get_id();
@@ -207,13 +203,12 @@ void Gles3Window::MakeCurrentContext()
 		oss << "\nSDL Error: " << SDL_GetError();
 	}
 	logDebug(oss.str());
-#endif
+
 }
 
 void Gles3Window::LeaveCurrentContext()
 {
 	SDL_GL_MakeCurrent(window_, nullptr);
-#ifndef EMSCRIPTEN
 	const auto currentContext = SDL_GL_GetCurrentContext();
 
 	std::ostringstream oss;
@@ -223,7 +218,7 @@ void Gles3Window::LeaveCurrentContext()
 		oss << "[Error] After Leave Current Context, context: " << currentContext;
 	}
 	logDebug(oss.str());
-#endif
+
 }
 }
 

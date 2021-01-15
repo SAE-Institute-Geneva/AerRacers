@@ -1,0 +1,234 @@
+{
+  "$schema": "http://json-schema.org/schema#",
+  "type": "object",
+  "definitions": {
+    "vector2": {
+      "type": "object",
+      "required": [
+        "x",
+        "y"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      }
+    },
+    "vector3": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "z"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        }
+      }
+    },
+    "vector4": {
+      "type": "object",
+      "required": [
+        "x",
+        "y",
+        "z",
+        "w"
+      ],
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "z": {
+          "type": "number"
+        },
+        "w": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "properties": {
+    "elements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "ID",
+          "active",
+          "rectTransform"
+        ],
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "active": {
+            "title": "Active",
+            "type": "boolean"
+          },
+          "instanceId": {
+            "title": "instanceId",
+            "type": "integer"
+          },
+          "rectTransform": {
+            "title": "RectTransform",
+            "type": "object",
+            "required": [
+              "align",
+              "position",
+              "posZ",
+              "anchorsMin",
+              "anchorsMax",
+              "pivot",
+              "rotation",
+              "localScale"
+            ],
+            "properties": {
+              "align": {
+                "title": "Align",
+                "type": "array",
+                "items": {
+                  "type": "integer"
+                },
+                "minItems": 4,
+                "maxItems": 4
+              },
+              "position": {
+                "title": "Position",
+                "$ref": "#/definitions/vector3"
+              },
+              "anchorsMin": {
+                "title": "Anchorsmin",
+                "$ref": "#/definitions/vector2"
+              },
+              "anchorsMax": {
+                "title": "Anchorsmax",
+                "$ref": "#/definitions/vector2"
+              },
+              "pivot": {
+                "title": "Pivot",
+                "$ref": "#/definitions/vector2"
+              },
+              "rotation": {
+                "title": "Rotation",
+                "$ref": "#/definitions/vector3"
+              },
+              "localScale": {
+                "title": "Localscale",
+                "$ref": "#/definitions/vector3"
+              }
+
+            }
+          },
+          "imageComponent": {
+            "title": "Imagecomponent",
+            "type": "object",
+            "required": [
+              "enabled",
+              "imageName",
+              "imageColor"
+            ],
+            "properties": {
+              "enabled": {
+                "title": "enabled",
+                "type": "boolean"
+              },
+              "imageName": {
+                "title": "imageName",
+                "type": "string"
+              },
+              "imageColor": {
+                "title": "Imagecolor",
+                "type": "object",
+                "$ref": "#/definitions/vector4"
+              }
+
+            }
+          },
+          "buttonComponent": {
+            "title": "buttonComponent",
+            "type": "object",
+            "required": [
+              "enabled"
+            ],
+            "properties": {
+              "enabled": {
+                "title": "enabled",
+                "type": "boolean"
+              }
+            }
+          },
+          "sliderComponent": {
+            "title": "sliderComponent",
+            "type": "object",
+            "required": [
+              "enabled"
+            ],
+            "properties": {
+              "enabled": {
+                "title": "enabled",
+                "type": "boolean"
+              }
+            }
+          },
+          "textMeshProComponent": {
+            "title": "textMeshProComponent",
+            "type": "object",
+            "required": [
+              "enabled",
+              "text",
+              "fontStyle",
+              "fontSize",
+              "color",
+              "alignement"
+            ],
+            "properties": {
+              "enabled": {
+                "title": "enabled",
+                "type": "boolean"
+              },
+              "text": {
+                "title": "text",
+                "type": "string"
+              },
+              "fontStyle": {
+                "title": "fontStyle",
+                "type": "string"
+              },
+              "fontSize": {
+                "title": "fontSize",
+                "type": "number"
+              },
+              "color": {
+                "title": "color",
+                "$ref": "#/definitions/vector4"
+              },
+              "alignement": {
+                "title": "alignement",
+                "type": "string"
+              }
+            }
+          },
+          "parentId": {
+            "title": "Parentid",
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

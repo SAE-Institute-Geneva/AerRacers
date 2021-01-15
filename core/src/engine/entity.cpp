@@ -28,10 +28,13 @@
 #include "imgui.h"
 
 #include "engine/entity.h"
+
+#include <iso646.h>
+
 #include "engine/component.h"
 #include "engine/log.h"
 #include "engine/globals.h"
-#include "utilities/vector_utility.h"
+#include <utils/vector_utility.h>
 
 namespace neko
 {
@@ -132,7 +135,8 @@ Entity EntityManager::FindEntityByName(const std::string& entityName)
 EntityHash EntityManager::HashEntityName(const std::string& entityName)
 {
 	XXH64_state_t* hashStream = XXH64_createState();
-	XXH64_update(hashStream, &entityName, entityName.size());
+    XXH64_reset(hashStream, 0);
+	XXH64_update(hashStream, entityName.data(), entityName.size());
 	const EntityHash entityHash = XXH64_digest(hashStream);
 	return entityHash;
 }

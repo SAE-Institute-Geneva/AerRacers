@@ -63,7 +63,6 @@ private:
 
     PointLight lights_[32];
 
-	Job preRender_;
 
     void CreateFramebuffer();
     void RenderScene(const gl::Shader& shader);
@@ -76,7 +75,9 @@ private:
     gl::RenderQuad floor_{Vec3f::zero, Vec2f::one*10.0f};
     gl::RenderQuad screenQuad_{Vec3f::zero, Vec2f::one*2.0f};
     gl::RenderCuboid cube_{Vec3f(0.0f,0.5f,0.0f), Vec3f::one};
-    assimp::Model model_;
+    gl::ModelManager modelManager_;
+    gl::ModelId modelId_ = gl::INVALID_MODEL_ID;
+
     gl::TextureManager textureManager_;
     TextureName container_ = INVALID_TEXTURE_NAME;
     TextureId containerId_;

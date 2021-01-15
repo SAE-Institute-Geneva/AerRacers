@@ -25,8 +25,8 @@
 
 #include <engine/entity.h>
 #include <engine/globals.h>
-#include <utilities/vector_utility.h>
-#include <utilities/json_utility.h>
+#include <utils/vector_utility.h>
+#include <utils/json_utility.h>
 
 
 namespace neko
@@ -102,6 +102,9 @@ public:
     { return components_; }
 
     virtual void UpdateDirtyComponent([[maybe_unused]]Entity entity){};
+
+    virtual json GetJsonFromComponent([[maybe_unused]] Entity entity) const { return json::object();}
+    virtual void SetComponentFromJson([[maybe_unused]] Entity entity, [[maybe_unused]] const json& jsonComponent) {  }
 protected:
     std::vector<T> components_;
     std::reference_wrapper<EntityManager> entityManager_;

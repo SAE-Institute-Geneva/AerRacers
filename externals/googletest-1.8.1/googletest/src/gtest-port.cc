@@ -1006,7 +1006,7 @@ class CapturedStream {
     const int captured_fd = creat(temp_file_path, _S_IREAD | _S_IWRITE);
     GTEST_CHECK_(captured_fd != -1) << "Unable to open temporary file "
                                     << temp_file_path;
-    filename_ = temp_file_path;
+    //filePath_ = temp_file_path;
 # else
     // There's no guarantee that a test has write access to the current
     // directory, so we create the temporary file in the /tmp directory
@@ -1316,3 +1316,4 @@ const char* StringFromGTestEnv(const char* flag, const char* default_value) {
 
 }  // namespace internal
 }  // namespace testing
+ 

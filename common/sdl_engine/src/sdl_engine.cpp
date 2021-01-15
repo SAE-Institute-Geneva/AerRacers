@@ -31,6 +31,8 @@
 
 #include <fmt/format.h>
 
+#include "utils/file_utility.h"
+
 #ifdef NEKO_GLES3
 #include "gl/gles3_window.h"
 #endif
@@ -41,19 +43,19 @@
 
 namespace neko::sdl
 {
-SdlEngine::SdlEngine(Configuration* config) : BasicEngine(config)
-{
-}
 
 void SdlEngine::Init()
 {
-    BasicEngine::Init();
 #ifdef EASY_PROFILE_USE
-    EASY_BLOCK("InitSdl");
+    EASY_BLOCK("Init Sdl Engine");
 #endif
+    logDebug("Current path: " + GetCurrentPath());
+    jobSystem_.Init();
+
     assert(window_ != nullptr);
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
     window_->Init();
+
     initAction_.Execute();
     inputManager_.Init();
 }

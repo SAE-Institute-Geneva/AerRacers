@@ -35,12 +35,12 @@ namespace neko
 void HelloTransformProgram::Init()
 {
 
-    const auto& config = BasicEngine::GetInstance()->config;
+    const auto& config = BasicEngine::GetInstance()->GetConfig();
     shaderProgram_.LoadFromFile(
             config.dataRootPath + "shaders/03_hello_transform/transform.vert",
             config.dataRootPath + "shaders/03_hello_transform/transform.frag");
     const auto texturePath = config.dataRootPath + "sprites/wall.jpg";
-    textureWall_ = gl::stbCreateTexture(texturePath.c_str());
+    textureWall_ = gl::StbCreateTexture(texturePath.c_str(), BasicEngine::GetInstance()->GetFilesystem());
     quad_.Init();
     cube_.Init();
 }
@@ -135,5 +135,6 @@ void HelloTransformProgram::OnEvent(const SDL_Event& event)
 {
 
 }
+
 
 }

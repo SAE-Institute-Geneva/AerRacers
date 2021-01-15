@@ -26,20 +26,17 @@
 #include "gl/gles3_window.h"
 #include "comp_graph/comp_graph_engine.h"
 
-int main(int argc, char** argv)
-{
-	neko::Configuration config;
-	config.windowSize = neko::Vec2u(1280, 720);
-	config.windowName = "Comp Graph";
-	config.vSync = false;
 
+int main([[maybe_unused]]int argc, [[maybe_unused]]char** argv)
+{
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::CompGraphEngine engine(&config);
+    neko::Filesystem filesystem;
+    neko::CompGraphEngine engine{filesystem};
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
     engine.Init();
     engine.EngineLoop();
-    return 0;
+    return EXIT_SUCCESS;
 }

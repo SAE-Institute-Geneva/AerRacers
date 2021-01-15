@@ -1,12 +1,13 @@
-#include <utilities/file_utility.h>
+#include <utils/file_utility.h>
 
+#include "aer_engine.h"
 #include "log.h"
 #include "editor/tool/logger.h"
 
 namespace neko::aer
 {
-Logger::Logger(ToolType type, int id, std::string name)
-	: EditorToolInterface(type, id, name)
+Logger::Logger(AerEngine& engine, ToolType type, int id, std::string name)
+	: EditorToolInterface(engine, type, id, name)
 {
 }
 

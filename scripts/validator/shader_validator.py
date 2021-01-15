@@ -74,12 +74,8 @@ def validate_shader(data_src, data_out, meta_content):
                 if index > comment_index:
                     continue
                 in_variable = {}
-                if len(split_line) == 2:
-                    in_variable["type"] = "interface block"
-                    in_variable["name"] = split_line[index+1]
-                else:
-                    in_variable["type"] = split_line[index+1]
-                    in_variable["name"] = split_line[index+2]
+                in_variable["type"] = split_line[index+1]
+                in_variable["name"] = split_line[index+2]
                 in_attributes.append(in_variable)
             if "out" in split_line:
                 comment_index = len(split_line)
@@ -90,12 +86,8 @@ def validate_shader(data_src, data_out, meta_content):
                     continue
                 index = split_line.index('out')
                 out_variable = {}
-                if len(split_line) == 2:
-                    out_variable["type"] = "interface block"
-                    out_variable["name"] = split_line[index+1]
-                else:
-                    out_variable["type"] = split_line[index+1]
-                    out_variable["name"] = split_line[index+2]
+                out_variable["type"] = split_line[index+1]
+                out_variable["name"] = split_line[index+2]
                 out_attributes.append(out_variable)
     meta_content["uniforms"] = uniforms
     meta_content["in_attributes"] = in_attributes

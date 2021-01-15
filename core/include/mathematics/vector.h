@@ -474,6 +474,42 @@ inline const Vec3<T> Vec3<T>::forward = Vec3<T>(T(0), T(0), T(1));
 template<typename T>
 inline const Vec3<T> Vec3<T>::back = Vec3<T>(T(0), T(0), T(-1));
 
+inline EulerAngles ConvertVec3fToEulerAngles(const Vec3f& vector)
+{
+    EulerAngles euler;
+    euler.x = degree_t(vector.x);
+    euler.y = degree_t(vector.y);
+    euler.z = degree_t(vector.z);
+    return euler;
+}
+
+inline RadianAngles ConvertVec3fToRadianAngles(const Vec3f& vector)
+{
+    RadianAngles radianAngles;
+    radianAngles.x = radian_t(vector.x);
+    radianAngles.y = radian_t(vector.y);
+    radianAngles.z = radian_t(vector.z);
+    return radianAngles;
+}
+
+inline Vec3f ConvertEulerAnglesToVec3f(const EulerAngles& euler)
+{
+    Vec3f vector;
+    vector.x = euler.x.value();
+    vector.y = euler.y.value();
+    vector.z = euler.z.value();
+    return vector;
+}
+
+inline Vec3f ConvertRadianAnglesToVec3f(const RadianAngles& radian)
+{
+    Vec3f vector;
+    vector.x = radian.x.value();
+    vector.y = radian.y.value();
+    vector.z = radian.z.value();
+    return vector;
+}
+
 //-----------------------------------------------------------------------------
 // Vec4
 //-----------------------------------------------------------------------------
@@ -662,3 +698,4 @@ inline const Vec4<T> Vec4<T>::zero = Vec4<T>(T(0));
 template<typename T>
 inline const Vec4<T> Vec4<T>::one = Vec4<T>(T(1));
 }
+ 

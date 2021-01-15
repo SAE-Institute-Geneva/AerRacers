@@ -31,7 +31,7 @@ struct VertexArrayObject
 {
     unsigned int VAO = 0;
     unsigned int EBO = 0;
-    unsigned int VBO[5]{};
+    unsigned int VBO[4]{};
 };
 
 class RenderCircle : public neko::RenderCircle, public VertexArrayObject
@@ -67,6 +67,28 @@ public:
     void Destroy() override;
 };
 
+class RenderWireFrameCuboid final : public neko::RenderWireFrameCuboid, public VertexArrayObject
+{
+public:
+    using neko::RenderWireFrameCuboid::RenderWireFrameCuboid;
+    void Init() override;
+
+    void Draw() const override;
+
+    void Destroy() override;
+};
+
+class RenderLine3d final : public neko::RenderLine3d, public VertexArrayObject
+{
+public:
+    using neko::RenderLine3d::RenderLine3d;
+    void Init() override;
+
+    void Draw() const override;
+
+    void Destroy() override;
+};
+
 class RenderSphere : public neko::RenderSphere, public VertexArrayObject
 {
 public:
@@ -80,5 +102,17 @@ public:
 protected:
     size_t segment_ = 0;
 	size_t indexCount_ = 0;
+};
+
+class RenderWireFrameSphere : public neko::RenderWireFrameSphere, public VertexArrayObject
+{
+public:
+    explicit RenderWireFrameSphere(Vec3f offset, float radius);
+
+    void Init() override;
+
+    void Draw() const override;
+
+    void Destroy() override;
 };
 }

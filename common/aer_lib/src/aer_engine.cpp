@@ -1,15 +1,18 @@
 #include "aer_engine.h"
 
 namespace neko::aer {
-AerEngine::AerEngine(Configuration* config, ModeEnum mode)
-    : SdlEngine(config),
+AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* config, ModeEnum mode)
+    : SdlEngine(filesystem, *config),
       drawSystem_(*this),
-      toolManager_(*this)
+      toolManager_(*this),
+      transform3dManager_(entityManager_),
+      sceneManager_(entityManager_, filesystem, transform3dManager_)
 {
     logManager_ = std::make_unique<LogManager>();
     if (mode_ != ModeEnum::TEST)
     {
         bindedInputManager_ = std::make_unique<InputBindingManager>();
+        tagManager_ = std::make_unique<TagManager>(sceneManager_);
     }
     mode_ = mode;
     RegisterSystem(drawSystem_);
