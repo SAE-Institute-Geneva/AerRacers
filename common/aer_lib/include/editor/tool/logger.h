@@ -27,40 +27,33 @@
  Date : 13.10.2020
 ---------------------------------------------------------- */
 #include <mutex>
+
 #include <SDL_events.h>
 
 #include "editor/editor_tool_interface.h"
 
-namespace neko::aer {
-
-class Logger final : public EditorToolInterface {
+namespace neko::aer
+{
+class Logger final : public EditorToolInterface
+{
 public:
-    explicit Logger(AerEngine& engine, ToolType type, int id, std::string name);
+	explicit Logger(AerEngine& engine, ToolType type, int id, std::string name);
 
-    void Init() override;
+	void Init() override;
+	void Update(seconds dt) override;
+	void Destroy() override;
 
-    void Update(seconds dt) override;
+	void DrawImGui() override;
+	void OnEvent(const SDL_Event& event) override;
 
-    void DrawImGui() override;
-
-    void Destroy() override;
-
-    void OnEvent(const SDL_Event& event) override;
-
-    /**
+	/**
     * \brief Deletes all logs 
     */
-    static void ClearLogs();
+	static void ClearLogs();
 
 private:
-    int posY_ = 0;
-    bool autoScroll_ = true;
-
-    //COLOR
-    const ImVec4 kBlue_ = {0.5f, 0.5f, 1, 1};
-    const ImVec4 kYellow_ = {1, 1, 0, 1};
-    const ImVec4 kOrange_ = {1, 0.5f, 0, 1};
-    const ImVec4 kRed_{1, 0, 0, 1};
+	int posY_        = 0;
+	bool autoScroll_ = true;
 };
 
-}
+}    // namespace neko::aer

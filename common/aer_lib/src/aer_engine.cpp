@@ -11,7 +11,7 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
     logManager_ = std::make_unique<LogManager>();
     if (mode_ != ModeEnum::TEST)
     {
-        bindedInputManager_ = std::make_unique<InputBindingManager>();
+		boundInputManager_ = std::make_unique<InputBindingManager>();
         tagManager_ = std::make_unique<TagManager>(sceneManager_);
     }
     mode_ = mode;

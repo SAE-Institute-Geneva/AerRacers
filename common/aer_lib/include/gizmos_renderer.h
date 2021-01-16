@@ -88,75 +88,46 @@ public:
 class NullGizmosRenderer final : public IGizmosRenderer
 {
 public:
-	void DrawCube(
-		[[maybe_unused]] const Vec3f& pos,
-		[[maybe_unused]] const Vec3f& size = Vec3f::one,
-		[[maybe_unused]] const Color4& color = Color4(Color::red, 1.0f),
-		[[maybe_unused]] float lineThickness = 1.0f) override
-	{
-	}
+	void DrawCube(const Vec3f&, const Vec3f&, const Color4&, float) override {}
+	void DrawLine(const Vec3f&, const Vec3f&, const Color4&, float) override {}
+	void DrawSphere(const Vec3f&, const float&, const Color4&, float) override {}
 
-	void DrawLine(
-		[[maybe_unused]] const Vec3f& startPos,
-		[[maybe_unused]] const Vec3f& endPos,
-		[[maybe_unused]] const Color4& color = Color4(Color::red, 1.0f),
-		[[maybe_unused]] float lineThickness = 1.0f) override
-	{
-	}
-
-	void DrawSphere(
-		[[maybe_unused]] const Vec3f& pos,
-		[[maybe_unused]] const float& radius = 1.0f,
-		[[maybe_unused]] const Color4& color = Color4(Color::red, 1.0f),
-		[[maybe_unused]] float lineThickness = 1.0f) override
-	{
-	}
-	void SetCamera([[maybe_unused]] Camera3D* camera) override {}
 	Camera3D* GetCamera() const override { return nullptr; }
-
 	Vec3f GetCameraPos() const override { return {}; }
+	void SetCamera(Camera3D*) override {}
 };
 
-
 #ifdef NEKO_GLES3
-
 //-----------------------------------------------------------------------------
 // Gles3GizmosRenderer
 //-----------------------------------------------------------------------------
 /// \brief Draw gizmos
 class Gles3GizmosRenderer final : public RenderCommandInterface,
-                             public SystemInterface,
-                             public IGizmosRenderer
+								  public SystemInterface,
+								  public IGizmosRenderer
 {
 public:
 	explicit Gles3GizmosRenderer(Camera3D* camera);
 
 	void Init() override;
-
 	void Update(seconds dt) override;
-
 	void Render() override;
-
 	void Destroy() override;
 
 	void Start();
 	void Stop();
-	
 
-	void DrawCube(
-		const Vec3f& pos,
-		const Vec3f& size = Vec3f::one,
+	void DrawCube(const Vec3f& pos,
+		const Vec3f& size   = Vec3f::one,
 		const Color4& color = Color4(Color::red, 1.0f),
 		float lineThickness = 1.0f) override;
 
-	void DrawLine(
-		const Vec3f& startPos,
+	void DrawLine(const Vec3f& startPos,
 		const Vec3f& endPos,
 		const Color4& color = Color4(Color::red, 1.0f),
 		float lineThickness = 1.0f) override;
 
-	void DrawSphere(
-		const Vec3f& pos,
+	void DrawSphere(const Vec3f& pos,
 		const float& radius = 1.0f,
 		const Color4& color = Color4(Color::red, 1.0f),
 		float lineThickness = 1.0f) override;
@@ -165,14 +136,13 @@ public:
 	Camera3D* GetCamera() const override { return camera_; }
 	Vec3f GetCameraPos() const override { return camera_->position; }
 
-    
 private:
 	std::mutex renderMutex_;
 
 	Camera3D* camera_;
-	gl::RenderWireFrameCuboid cube_{Vec3f::zero, Vec3f::one};
-	gl::RenderWireFrameSphere sphere_{ Vec3f::zero, 1.0f };
-	gl::RenderLine3d line_{Vec3f::zero, Vec3f::one};
+	gl::RenderWireFrameCuboid cube_ {Vec3f::zero, Vec3f::one};
+	gl::RenderWireFrameSphere sphere_ {Vec3f::zero, 1.0f};
+	gl::RenderLine3d line_ {Vec3f::zero, Vec3f::one};
 
 	gl::Shader shaderCube_;
 	gl::Shader shaderSphere_;
@@ -184,7 +154,6 @@ private:
 #endif
 
 #ifdef NEKO_VULKAN
-
 //-----------------------------------------------------------------------------
 // NekoGizmosRenderer
 //-----------------------------------------------------------------------------
@@ -233,5 +202,6 @@ private:
 	bool isRunning_ = true;
 };
 #endif
+
 using GizmosLocator = Locator<IGizmosRenderer, NullGizmosRenderer>;
 }

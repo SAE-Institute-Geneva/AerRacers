@@ -139,12 +139,12 @@ struct Quaternion
 	*/
 	static Quaternion FromEuler(const EulerAngles& angle)
 	{
-		const auto cy = Cos(angle.x * 0.5f);
-		const auto sy = Sin(angle.x * 0.5f);
-		const auto cp = Cos(angle.y * 0.5f);
-		const auto sp = Sin(angle.y * 0.5f);
-		const auto cr = Cos(angle.z * 0.5f);
-		const auto sr = Sin(angle.z * 0.5f);
+		const float cy = Cos(angle.x * 0.5f);
+		const float sy = Sin(angle.x * 0.5f);
+		const float cp = Cos(angle.y * 0.5f);
+		const float sp = Sin(angle.y * 0.5f);
+		const float cr = Cos(angle.z * 0.5f);
+		const float sr = Sin(angle.z * 0.5f);
 
 		return Quaternion(
 			cy * cp * cr + sy * sp * sr,

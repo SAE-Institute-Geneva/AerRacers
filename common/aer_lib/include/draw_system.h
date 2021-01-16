@@ -30,27 +30,31 @@
 #include "gizmos_renderer.h"
 #include "sdl_engine/sdl_camera.h"
 
-namespace neko::aer {
+namespace neko::aer
+{
 class AerEngine;
 
 class DrawSystem final : public SystemInterface,
-                         public sdl::SdlEventSystemInterface,
-                         public DrawImGuiInterface{
+						 public sdl::SdlEventSystemInterface,
+						 public DrawImGuiInterface
+{
 public:
-    explicit DrawSystem(AerEngine& engine);
-    void Init() override;
-    void DrawImGui() override;
+	explicit DrawSystem(AerEngine& engine);
+	void Init() override;
+	void DrawImGui() override;
 
-    void Update(seconds dt) override;
-    void Destroy() override;
-    void OnEvent(const SDL_Event& event) override;
+	void Update(seconds dt) override;
+	void Destroy() override;
+	void OnEvent(const SDL_Event& event) override;
+
 protected:
-    Camera3D camera_;
-    AerEngine& engine_;
+	Camera3D camera_;
+	AerEngine& engine_;
+
 #ifdef NEKO_GLES3
-    std::unique_ptr<Gles3GizmosRenderer> gizmosRenderer_;
+	std::unique_ptr<Gles3GizmosRenderer> gizmosRenderer_;
 #elif NEKO_VULKAN
-    std::unique_ptr<NekoGizmosRenderer> gizmosRenderer_;
+	std::unique_ptr<NekoGizmosRenderer> gizmosRenderer_;
 #endif
 };
-}
+}    // namespace neko::aer

@@ -33,21 +33,20 @@
 
 namespace neko::aer
 {
-
 using PlayerId = unsigned;
 /**
 * \brief Enum of the action button
 */
 enum class ActionButtonType : std::uint8_t
 {
-    FORWARD = 0,
-    BACKWARD = 1,
-    LEFT = 2,
-    RIGHT = 3,
-    MAIN_SHOOT = 4,
-    CAMERA = 5,
-    MENU = 6,
-    LENGTH = 7
+	FORWARD    = 0,
+	BACKWARD   = 1,
+	LEFT       = 2,
+	RIGHT      = 3,
+	MAIN_SHOOT = 4,
+	CAMERA     = 5,
+	MENU       = 6,
+	LENGTH     = 7
 };
 
 /**
@@ -55,11 +54,11 @@ enum class ActionButtonType : std::uint8_t
 */
 enum class ActionAxisType : std::uint8_t
 {
-    HORIZONTAL = 0,
-    VERTICAL = 1,
-    CAMERA_HORIZONTAL = 2,
-    CAMERA_VERTICAL = 3,
-    LENGTH = 4
+	HORIZONTAL        = 0,
+	VERTICAL          = 1,
+	CAMERA_HORIZONTAL = 2,
+	CAMERA_VERTICAL   = 3,
+	LENGTH            = 4
 };
 
 /**
@@ -67,19 +66,18 @@ enum class ActionAxisType : std::uint8_t
  */
 struct BindingInputs
 {
-    std::array<sdl::KeyCodeType, static_cast<size_t>(ActionButtonType::LENGTH)> pcBindingButtons =
-        std::array<sdl::KeyCodeType, static_cast<size_t>(ActionButtonType::LENGTH)>();
-    std::array<sdl::ControllerButtonType, static_cast<size_t>(ActionButtonType::LENGTH)> controllerBindingButtons =
-        std::array<sdl::ControllerButtonType, static_cast<size_t>(ActionButtonType::LENGTH)>();
-    std::array<sdl::SwitchButtonType, static_cast<size_t>(ActionButtonType::LENGTH)> switchBindingButtons =
-        std::array<sdl::SwitchButtonType, static_cast<size_t>(ActionButtonType::LENGTH)>();
-    std::array<sdl::ControllerAxisType, static_cast<size_t>(ActionAxisType::LENGTH)> controllerBindingAxis =
-        std::array<sdl::ControllerAxisType, static_cast<size_t>(ActionAxisType::LENGTH)>();
-    std::array<sdl::SwitchAxisType, static_cast<size_t>(ActionAxisType::LENGTH)> switchBindingAxis =
-        std::array<sdl::SwitchAxisType, static_cast<size_t>(ActionAxisType::LENGTH)>();
-    PlayerId playerId = 0;
-    sdl::ControllerId bindedControllerId = 0;
-    sdl::SwitchJoyId bindedSwitchJoyId = 0;
+	std::array<sdl::KeyCodeType, static_cast<size_t>(ActionButtonType::LENGTH)> pcBindingButtons {};
+	std::array<sdl::ControllerButtonType, static_cast<size_t>(ActionButtonType::LENGTH)>
+		controllerBindingButtons {};
+	std::array<sdl::SwitchButtonType, static_cast<size_t>(ActionButtonType::LENGTH)>
+		switchBindingButtons {};
+	std::array<sdl::ControllerAxisType, static_cast<size_t>(ActionAxisType::LENGTH)>
+		controllerBindingAxis {};
+	std::array<sdl::SwitchAxisType, static_cast<size_t>(ActionAxisType::LENGTH)>
+		switchBindingAxis {};
+	PlayerId playerId                    = 0;
+	sdl::ControllerId bindedControllerId = 0;
+	sdl::SwitchJoyId bindedSwitchJoyId   = 0;
 };
 
 /**
@@ -88,112 +86,86 @@ struct BindingInputs
 class IInputBindingManager
 {
 public:
-    virtual ~IInputBindingManager() = default;
+	virtual ~IInputBindingManager() = default;
 
-    /**
+	/**
      * \brief Get Player action inputs binding
      */
-    virtual BindingInputs GetPlayerActions(PlayerId playerId) = 0;
+	virtual BindingInputs GetPlayerActions(PlayerId playerId) = 0;
 
-    /**
+	/**
      * \brief  Set Player action inputs binding
      * \param bindingInputs BindingInputs to save
      */
-    virtual void SetPlayerActions(BindingInputs bindingInputs) = 0;
+	virtual void SetPlayerActions(BindingInputs bindingInputs) = 0;
 
-    /**
+	/**
      * \brief  Get action button state
      * \param playerId Id of the player to get
      * \return 
      */
-    [[nodiscard]] virtual sdl::ButtonState GetActionButtonState(
-        unsigned playerId,
-        ActionButtonType actionButton) const = 0;
+	[[nodiscard]] virtual sdl::ButtonState GetActionButtonState(
+		unsigned playerId, ActionButtonType actionButton) const = 0;
 
-    /**
+	/**
      * \brief  Get action axis value
      * \param playerId Id of the player to get
      * \return
      */
-    [[nodiscard]] virtual float GetActionAxis(
-        unsigned playerId,
-        ActionAxisType actionAxis) const = 0;
+	[[nodiscard]] virtual float GetActionAxis(
+		unsigned playerId, ActionAxisType actionAxis) const = 0;
 
-    /**
+	/**
     * \brief Translate Action enum to string
     */
-    virtual std::string ActionEnumToString(ActionButtonType actionInputs) = 0;
+	virtual std::string ActionEnumToString(ActionButtonType actionInputs) = 0;
 
-    /**
+	/**
     * \brief Translate Action enum to string
     */
-    virtual std::string ActionEnumToString(ActionAxisType actionAxis) = 0;
+	virtual std::string ActionEnumToString(ActionAxisType actionAxis) = 0;
 };
 
 class InputBindingManager final : public IInputBindingManager
 {
 public:
-   InputBindingManager();
+	InputBindingManager();
 
-    BindingInputs GetPlayerActions(PlayerId playerId) override;
+	BindingInputs GetPlayerActions(PlayerId playerId) override;
+	void SetPlayerActions(BindingInputs actionInputs) override;
 
-    void SetPlayerActions(BindingInputs actionInputs) override;
+	[[nodiscard]] sdl::ButtonState GetActionButtonState(
+		unsigned playerId, ActionButtonType actionButton) const override;
 
-    [[nodiscard]] sdl::ButtonState GetActionButtonState(
-        unsigned playerId,
-        ActionButtonType actionButton) const override;
+	[[nodiscard]] float GetActionAxis(unsigned playerId, ActionAxisType actionAxis) const override;
 
-    [[nodiscard]] float GetActionAxis(
-        unsigned playerId,
-        ActionAxisType actionAxis) const override;
+	std::string ActionEnumToString(ActionButtonType actionInputs) override;
+	std::string ActionEnumToString(ActionAxisType actionAxis) override;
 
-    std::string ActionEnumToString(ActionButtonType actionInputs) override;
+private:
+	[[nodiscard]] unsigned FindActionIndexFromId(PlayerId playerId) const;
 
-    std::string ActionEnumToString(ActionAxisType actionAxis) override;
-
-private :
-    [[nodiscard]] unsigned FindActionIndexFromId(PlayerId playerId) const;
-
-    std::vector<BindingInputs> actionBindingInputs_;
-
-    sdl::IInputManager* inputLocator_;
+	std::vector<BindingInputs> actionBindingInputs_;
+	sdl::IInputManager* inputLocator_;
 };
 
 class NullInputBindingManager final : public IInputBindingManager
 {
 public:
-    ~NullInputBindingManager() override = default;
+	~NullInputBindingManager() override = default;
 
-    BindingInputs GetPlayerActions([[maybe_unused]] PlayerId playerId) override
-    {
-        return BindingInputs();
-    }
+	BindingInputs GetPlayerActions(PlayerId) override { return BindingInputs(); }
+	void SetPlayerActions(BindingInputs) override {}
 
-    void SetPlayerActions([[maybe_unused]] BindingInputs actionInputs) override {}
+	[[nodiscard]] sdl::ButtonState GetActionButtonState(unsigned, ActionButtonType) const override
+	{
+		return sdl::ButtonState::NONE;
+	}
 
-    [[nodiscard]] sdl::ButtonState GetActionButtonState(
-        [[maybe_unused]] unsigned playerId,
-        [[maybe_unused]] ActionButtonType actionButton) const override
-    {
-        return sdl::ButtonState::NONE;
-    }
+	[[nodiscard]] float GetActionAxis(unsigned, ActionAxisType) const override { return 0.0f; }
 
-    [[nodiscard]] float GetActionAxis(
-        [[maybe_unused]] unsigned playerId,
-        [[maybe_unused]] ActionAxisType actionAxis) const override
-    {
-        return 0.0f;
-    }
-
-    std::string ActionEnumToString([[maybe_unused]] ActionButtonType actionInputs) override
-    {
-        return "";
-    }
-
-    std::string ActionEnumToString([[maybe_unused]] ActionAxisType actionAxis) override
-    {
-        return "";
-    }
+	std::string ActionEnumToString(ActionButtonType) override { return ""; }
+	std::string ActionEnumToString(ActionAxisType) override { return ""; }
 };
 
 using BindedInputLocator = Locator<IInputBindingManager, NullInputBindingManager>;
