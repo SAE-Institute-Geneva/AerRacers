@@ -23,9 +23,10 @@
  SOFTWARE.
  */
 #include <engine/component.h>
-#include <mathematics/vector.h>
-#include "mathematics/trigo.h"
 
+#include "mathematics/matrix.h"
+#include "mathematics/trigo.h"
+#include "mathematics/vector.h"
 
 namespace neko
 {
@@ -34,19 +35,16 @@ struct Quaternion
 	union
 	{
 		struct
-	    {
+		{
 			float x;
 			float y;
 			float z;
 			float w;
 		};
-		float coord[4];
+		float coord[4]{};
 	};
 
-	Quaternion()
-	{
-		x = y = z = w = 0;
-	}
+	Quaternion() = default;
 
 	explicit Quaternion(float same)
 		: x(same), y(same), z(same), w(same)
@@ -58,6 +56,12 @@ struct Quaternion
 	{
 	}
 
+	/**
+	 * \brief Adding explicit constructor for quaternion-like type
+	 */
+	template<class U>
+	explicit Quaternion(U u) noexcept : x(u.x), y(u.y), z(u.z), w(u.w)
+	{}
 
 	const float& operator[](size_t p_axis) const
 	{
@@ -74,9 +78,9 @@ struct Quaternion
 	static float Dot(Quaternion a, Quaternion b)
 	{
 		return	a.x * b.x +
-				a.y * b.y +
-				a.z * b.z + 
-				a.w * b.w;
+		          a.y * b.y +
+		          a.z * b.z +
+		          a.w * b.w;
 	}
 
 	//Converts this quaternion to one with the same orientation but with a magnitude of 1.
@@ -88,9 +92,9 @@ struct Quaternion
 	static float Magnitude(Quaternion quaternion)
 	{
 		return std::sqrt(quaternion.x * quaternion.x +
-					quaternion.y * quaternion.y +
-					quaternion.z * quaternion.z +
-					quaternion.w * quaternion.w);
+		                 quaternion.y * quaternion.y +
+		                 quaternion.z * quaternion.z +
+		                 quaternion.w * quaternion.w);
 	}
 
 	//Rotates the Quaternion of angle degrees around axis.
@@ -114,17 +118,17 @@ struct Quaternion
 	//Returns the angle in degrees between two rotations a and b.
 	static degree_t Angle(Quaternion a, Quaternion b)
 	{
-		
+
 		return 2.0f * Acos(std::abs(Dot(a, b)));
 	}
 
-	Quaternion Conjugate() const
+	[[nodiscard]] Quaternion Conjugate() const
 	{
 		return Quaternion(-x, -y, -z, w);
 	}
 
 	//Returns the Inverse of rotation.
-	Quaternion Inverse() const
+	[[nodiscard]] Quaternion Inverse() const
 	{
 		const Quaternion conj = Conjugate();
 		const float mag = Magnitude(*this);
@@ -134,17 +138,17 @@ struct Quaternion
 
 	/*
 	Returns a rotation that rotates z degrees around the z axis,
-	x degrees around the x axis, and y degrees around the y axis; 
+	x degrees around the x axis, and y degrees around the y axis;
 	applied in that order
 	*/
 	static Quaternion FromEuler(const EulerAngles& angle)
 	{
-		const float cy = Cos(angle.x * 0.5f);
-		const float sy = Sin(angle.x * 0.5f);
-		const float cp = Cos(angle.y * 0.5f);
-		const float sp = Sin(angle.y * 0.5f);
-		const float cr = Cos(angle.z * 0.5f);
-		const float sr = Sin(angle.z * 0.5f);
+		const auto cy = Cos(angle.x * 0.5f);
+		const auto sy = Sin(angle.x * 0.5f);
+		const auto cp = Cos(angle.y * 0.5f);
+		const auto sp = Sin(angle.y * 0.5f);
+		const auto cr = Cos(angle.z * 0.5f);
+		const auto sr = Sin(angle.z * 0.5f);
 
 		return Quaternion(
 			cy * cp * cr + sy * sp * sr,
@@ -154,11 +158,56 @@ struct Quaternion
 		);
 	}
 
+	static Quaternion FromRotationMatrix(const Mat4f& mat)
+	{
+		const float T = 1 + mat[0][0] + mat[1][1] + mat[2][2];
+		if (T <= 0)
+		{
+			if (mat[0][0] > mat[1][1] && mat[0][0] > mat[2][2])
+			{
+				const float S = sqrtf(1 + mat[0][0] - mat[1][1] - mat[2][2]) * 2.0f;
+				const float w = (mat[2][1] - mat[1][2]) / S;
+				const float x = 0.25f * S;
+				const float y = (mat[0][1] + mat[1][0]) / S;
+				const float z = (mat[0][2] + mat[2][0]) / S;
+
+				return Quaternion(x, y, z, w);
+			}
+			else if (mat[1][1] > mat[2][2])
+			{
+				const float S = sqrtf(1 + mat[1][1] - mat[0][0] - mat[2][2]) * 2.0f;
+				const float w = (mat[0][2] - mat[2][0]) / S;
+				const float x = (mat[0][1] + mat[1][0]) / S;
+				const float y = 0.25f * S;
+				const float z = (mat[1][2] + mat[2][1]) / S;
+
+				return Quaternion(x, y, z, w);
+			}
+			else
+			{
+				const float S = sqrtf(1 + mat[2][2] - mat[0][0] - mat[1][1]) * 2.0f;
+				const float w = (mat[1][0] - mat[0][1]) / S;
+				const float x = (mat[0][2] + mat[2][0]) / S;
+				const float y = (mat[1][2] + mat[2][1]) / S;
+				const float z = 0.25f * S;
+
+				return Quaternion(x, y, z, w);
+			}
+		}
+
+		const float w = sqrtf(T) / 2.0f;
+		const float x = (mat[2][1] - mat[1][2]) / (w * 4.0f);
+		const float y = (mat[0][2] - mat[2][0]) / (w * 4.0f);
+		const float z = (mat[1][0] - mat[0][1]) / (w * 4.0f);
+
+		return Quaternion(x, y, z, w);
+	}
+
 	static Quaternion Identity()
 	{
 		return Quaternion(0, 0, 0, 1);
 	}
-	
+
 	//Operators
 	Quaternion operator/(Quaternion rhs) const
 	{
@@ -186,8 +235,8 @@ struct Quaternion
 	{
 		return Quaternion(
 			x - rhs.x,
-			y - rhs.y, 
-			z - rhs.z, 
+			y - rhs.y,
+			z - rhs.z,
 			w - rhs.w);
 	}
 	Quaternion& operator-=(const Quaternion& rhs)
@@ -216,7 +265,7 @@ struct Quaternion
 		w += rhs.w;
 		return *this;
 	}
-	
+
 
 	Quaternion operator*(const Quaternion& rhs) const
 	{
@@ -227,15 +276,6 @@ struct Quaternion
 			w * rhs.w - x * rhs.x - y * rhs.y - z * rhs.z);
 	}
 
-	Quaternion operator*(const float rhs) const
-	{
-		return Quaternion(
-			x * rhs,
-			y * rhs,
-			z * rhs,
-			w * rhs);
-	}
-
 	Vec3f operator*(const Vec3f& rhs) const
 	{
 		const Vec3f u(x, y, z);
@@ -243,7 +283,15 @@ struct Quaternion
 		       + (w * w - Vec3f::Dot(u, u)) * rhs
 		       + 2.0f * w * Vec3f::Cross(u, rhs);
 	}
-	
+
+	Quaternion operator*(const float rhs) const {
+		return Quaternion(
+			x * rhs,
+			y * rhs,
+			z * rhs,
+			w * rhs);
+	}
+
 	Quaternion& operator*=(const Quaternion& rhs)
 	{
 		x *= rhs.x;
@@ -252,21 +300,21 @@ struct Quaternion
 		w *= rhs.w;
 		return *this;
 	}
-	
+
 	bool operator==(const Quaternion& right) const
 	{
 		return x == right.x && y == right.y && z == right.z && w == right.w;
 	}
-	
+
 	bool operator!=(const Quaternion& right) const
 	{
 		return !(*this == right);
 	}
 
-    friend std::ostream& operator<<(std::ostream& os, const Quaternion& quat)
-    {
-        os << "Quaternion(" << quat.x << "," << quat.y << "," << quat.z << "," << quat.w << ")";
-        return os;
-    }
+	friend std::ostream& operator<<(std::ostream& os, const Quaternion& quat)
+	{
+		os << "Quaternion(" << quat.x << "," << quat.y << "," << quat.z << "," << quat.w << ")";
+		return os;
+	}
 };
 }

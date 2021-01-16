@@ -26,7 +26,7 @@ struct Gizmos
 	Gizmos() {}
 	
 	Vec3f pos = Vec3f::zero;
-	Color4 color = Color4(Color::red, 1.0f);
+	Color4 color = Color::red;
 	GizmoShape shape = GizmoShape::CUBE;
 	float lineThickness = 1.0f;
 	float radius = 1.0f;
@@ -52,7 +52,7 @@ public:
 	virtual void DrawCube(
 		const Vec3f& pos,
 		const Vec3f& size = Vec3f::one,
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) = 0;
 
 	/**
@@ -61,7 +61,7 @@ public:
 	virtual void DrawLine(
 		const Vec3f& startPos,
 		const Vec3f& endPos,
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) = 0;
 
 	/**
@@ -70,7 +70,7 @@ public:
 	virtual void DrawSphere(
 		const Vec3f& pos,
 		const float& radius = 1.0f,
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) = 0;
 
 	/**
@@ -119,17 +119,17 @@ public:
 
 	void DrawCube(const Vec3f& pos,
 		const Vec3f& size   = Vec3f::one,
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) override;
 
 	void DrawLine(const Vec3f& startPos,
 		const Vec3f& endPos,
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) override;
 
 	void DrawSphere(const Vec3f& pos,
 		const float& radius = 1.0f,
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) override;
 
 	void SetCamera(Camera3D* camera) override;
