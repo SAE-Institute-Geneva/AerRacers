@@ -233,7 +233,7 @@ void LogManager::WriteToFile()
 			fileContent += line.log;
 		}
 
-		CreateDirectory(filePath);
+		//CreateDirectory(filePath);
 
 		if (FileExists(filePath + dateTime + ".log"))
 			dateTime += "-1";
