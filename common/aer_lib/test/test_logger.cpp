@@ -28,37 +28,36 @@
 #include <gtest/gtest.h>
 
 #ifdef NEKO_GLES3
-#include <sdl_engine/sdl_engine.h>
-#include <sdl_engine/sdl_input.h>
-#include <gl/gles3_window.h>
-#include <gl/graphics.h>
+	#include <gl/gles3_window.h>
+	#include <gl/graphics.h>
+	#include <sdl_engine/sdl_engine.h>
+	#include <sdl_engine/sdl_input.h>
 
-#include "aer_engine.h"
-#include "editor/tool/logger.h"
-#include "log.h"
+	#include "aer/aer_engine.h"
+	#include "aer/editor/tool/logger.h"
+	#include "aer/log.h"
 
-class SimulateLogger : public neko::SystemInterface
+namespace neko::aer
+{
+class SimulateLogger : public SystemInterface
 {
 public:
-
-	SimulateLogger(neko::aer::AerEngine& engine)
-		: engine_(engine)
+	SimulateLogger(AerEngine& engine) : engine_(engine)
 	{
-		if (engine.GetMode() != neko::aer::ModeEnum::GAME)
+		if (engine.GetMode() != ModeEnum::GAME)
 		{
-			toolManager_ = std::make_unique<neko::aer::EditorToolManager>(engine_);
+			toolManager_ = std::make_unique<EditorToolManager>(engine_);
 			engine_.RegisterSystem(*toolManager_);
 			engine_.RegisterOnDrawUi(*toolManager_);
 			engine_.RegisterOnEvent(*toolManager_);
-			toolManager_->AddEditorTool<neko::aer::Logger, neko::aer::EditorToolInterface::ToolType::LOGGER>();
+			toolManager_->AddEditorTool<Logger,
+				EditorToolInterface::ToolType::LOGGER>();
 		}
 	}
 
-	void Init() override
-	{
-	}
+	void Init() override {}
 
-	void Update(neko::seconds dt) override
+	void Update(seconds dt) override
 	{
 		if (!testSuccess_)
 		{
@@ -69,76 +68,59 @@ public:
 				{
 					//TEST SUCCESS
 					testSuccess_ = true;
-					neko::LogDebug("[TEST] All tests were validated");
+					LogDebug("[TEST] All tests were validated");
 					engine_.Stop();
 					return;
 				}
-				neko::LogDebug(msgTest_[numberTest_]);
+				LogDebug(msgTest_[numberTest_]);
 				nextTest_ = false;
 			}
 			switch (numberTest_)
 			{
-				case 0: //TEST 1
+				case 0:    //TEST 1
+				{
+					int nbr = Log::get().GetLogs().size();
+					if (nbr <= std::pow(2, 10))
 					{
-						int nbr = neko::Log::get().GetLogs().size();
-						if (nbr <= std::pow(2, 10))
+						for (size_t i = 0; i < 100; i++)
 						{
-							for (size_t i = 0; i < 100; i++)
+							int rdm = rand() % 5;
+							switch (rdm)
 							{
-								int rdm = rand() % 5;
-								switch (rdm)
-								{
-									case 0:
-										neko::LogDebug(
-											msgTest_[numberTest_]);
-										break;
-									case 1:
-										neko::LogInfo(
-											msgTest_[numberTest_]);
-										break;
-									case 2:
-										neko::LogWarning(
-											msgTest_[numberTest_]);
-										break;
-									case 3:
-										neko::LogError(
-											msgTest_[numberTest_]);
-										break;
-									case 4:
-										neko::LogCritical(
-											msgTest_[numberTest_]);
-										break;
-								}
+								case 0: LogDebug(msgTest_[numberTest_]); break;
+								case 1: LogInfo(msgTest_[numberTest_]); break;
+								case 2: LogWarning(msgTest_[numberTest_]); break;
+								case 3: LogError(msgTest_[numberTest_]); break;
+								case 4: LogCritical(msgTest_[numberTest_]); break;
 							}
 						}
-						else
-						{
-							neko::LogDebug("Maximum of logs: Success");
-							capacityMax_ = true;
-							nextTest_ = true;
-						}
 					}
-					break;
-
-				case 1: //TEST 2
+					else
 					{
-						neko::Log::get().ClearLogs();
-						int nbr = neko::Log::get().GetLogs().size();
-						if (nbr <= 0)
-						{
-							neko::LogDebug("Erasing logs: Success");
-							capacityClear_ = true;
-							nextTest_ = true;
-						}
+						LogDebug("Maximum of logs: Success");
+						capacityMax_ = true;
+						nextTest_    = true;
 					}
-					break;
+				}
+				break;
+
+				case 1:    //TEST 2
+				{
+					Log::get().ClearLogs();
+					int nbr = Log::get().GetLogs().size();
+					if (nbr <= 0)
+					{
+						LogDebug("Erasing logs: Success");
+						capacityClear_ = true;
+						nextTest_      = true;
+					}
+				}
+				break;
 			}
 		}
 	}
 
-	void Destroy() override
-	{
-	}
+	void Destroy() override {}
 
 	void HasSucceed() const
 	{
@@ -148,20 +130,17 @@ public:
 	}
 
 private:
-	std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
-	bool capacityMax_ = false;
+	std::unique_ptr<EditorToolManager> toolManager_;
+	bool capacityMax_   = false;
 	bool capacityClear_ = false;
-	bool testSuccess_ = false;
+	bool testSuccess_   = false;
 
-	bool nextTest_ = true;
+	bool nextTest_  = true;
 	int numberTest_ = -1;
 
-	std::string msgTest_[2] = {
-		"[Action] Please Wait",
-		"[Action] Please clear the logs"
-	};
+	std::string msgTest_[2] = {"[Action] Please Wait", "[Action] Please clear the logs"};
 
-	neko::aer::AerEngine& engine_;
+	AerEngine& engine_;
 };
 
 TEST(Tool, TestLoggerGame)
@@ -174,14 +153,14 @@ TEST(Tool, TestLoggerGame)
 		return;
 	}
 
-	neko::Configuration config;
+	Configuration config;
 	config.windowName = "AerEditor";
-	config.windowSize = neko::Vec2u(1400, 900);
+	config.windowSize = Vec2u(1400, 900);
 
-	neko::sdl::Gles3Window window;
-	neko::gl::Gles3Renderer renderer;
-	neko::Filesystem filesystem;
-	neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::GAME);
+	sdl::Gles3Window window;
+	gl::Gles3Renderer renderer;
+	Filesystem filesystem;
+	AerEngine engine(filesystem, &config, ModeEnum::GAME);
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 
@@ -194,7 +173,6 @@ TEST(Tool, TestLoggerGame)
 
 	simulateLogger.HasSucceed();
 }
-
 
 TEST(Tool, TestLoggerEditor)
 {
@@ -206,14 +184,14 @@ TEST(Tool, TestLoggerEditor)
 		return;
 	}
 
-	neko::Configuration config;
+	Configuration config;
 	config.windowName = "AerEditor";
-	config.windowSize = neko::Vec2u(1400, 900);
+	config.windowSize = Vec2u(1400, 900);
 
-	neko::sdl::Gles3Window window;
-	neko::gl::Gles3Renderer renderer;
-	neko::Filesystem filesystem;
-	neko::aer::AerEngine engine(filesystem , &config, neko::aer::ModeEnum::TEST);
+	sdl::Gles3Window window;
+	gl::Gles3Renderer renderer;
+	Filesystem filesystem;
+	AerEngine engine(filesystem, &config, ModeEnum::TEST);
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 
@@ -226,4 +204,5 @@ TEST(Tool, TestLoggerEditor)
 
 	simulateLogger.HasSucceed();
 }
+}    // namespace neko::aer
 #endif

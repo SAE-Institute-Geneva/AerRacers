@@ -57,10 +57,7 @@ void DrawSystem::Update(seconds)
 	}
 }
 
-void DrawSystem::Destroy()
-{
-	logManager_->Destroy();
-}
+void DrawSystem::Destroy() {}
 
 void DrawSystem::DrawImGui() {}
 

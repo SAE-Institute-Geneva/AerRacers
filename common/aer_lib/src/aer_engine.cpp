@@ -9,16 +9,7 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 	 cContainer_(rContainer_),
 	 toolManager_(*this)
 {
-	RegisterSystem(drawSystem_);
-	RegisterOnEvent(drawSystem_);
-	RegisterOnDrawUi(drawSystem_);
-
 	logManager_ = std::make_unique<LogManager>();
-	if (mode_ != ModeEnum::TEST)
-	{
-		boundInputManager_ = std::make_unique<InputBindingManager>();
-		tagManager_        = std::make_unique<TagManager>(cContainer_.sceneManager);
-	}
 
 	if (mode_ == ModeEnum::EDITOR)
 	{
@@ -27,9 +18,18 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 		RegisterOnDrawUi(toolManager_);
 	}
 
-	RegisterSystem(rContainer_.textureManager);
-	RegisterSystem(rContainer_.modelManager);
-	RegisterSystem(cContainer_.renderManager);
+	if (mode_ != ModeEnum::TEST)
+	{
+		RegisterSystem(drawSystem_);
+		RegisterOnEvent(drawSystem_);
+		RegisterOnDrawUi(drawSystem_);
+
+		boundInputManager_ = std::make_unique<InputBindingManager>();
+		tagManager_        = std::make_unique<TagManager>(cContainer_.sceneManager);
+
+		RegisterSystem(rContainer_);
+		RegisterSystem(cContainer_);
+	}
 }
 
 void AerEngine::Init()

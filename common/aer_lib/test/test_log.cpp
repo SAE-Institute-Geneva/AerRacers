@@ -28,40 +28,41 @@
 
 #include <gtest/gtest.h>
 
-#include "log.h"
-
+#include "aer/log.h"
 
 namespace neko
 {
 TEST(Logs, TestLogsBasic)
 {
-    LogManager logger;
+	LogManager logger;
 
-    LogDebug(LogCategory::ENGINE, "Engine is running");
-    LogWarning("That feature isn't fully supported yet");
-    LogError("Could not retrieve value!");
+	LogDebug(LogCategory::ENGINE, "Engine is running");
+	LogWarning("That feature isn't fully supported yet");
+	LogError("Could not retrieve value!");
 
-    logger.Wait();
+	logger.Wait();
 }
 
 TEST(Logs, TestLogsFromNewThread)
 {
-    LogManager logger;
+	LogManager logger;
 
-    auto task([]
-    {
-        LogDebug("Task Begin");
-        LogDebug("This is a task");
-    });
-	
-    auto newThread = std::thread([task]
-    {
-        LogDebug(LogCategory::ENGINE, "Creating logs from another thread");
-        task();
-    });
+	auto task(
+		[]()
+		{
+			LogDebug("Task Begin");
+			LogDebug("This is a task");
+		});
 
-    newThread.join();
+	auto newThread = std::thread(
+		[task]()
+		{
+			LogDebug(LogCategory::ENGINE, "Creating logs from another thread");
+			task();
+		});
 
-    logger.Wait();
+	newThread.join();
+
+	logger.Wait();
 }
-}
+}    // namespace neko
