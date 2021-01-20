@@ -12,10 +12,8 @@ namespace neko::aer
 {
 static const std::string_view SCENE_EXTENSION = ".scene";
 
-SceneManager::SceneManager(EntityManager& entityManager,
-	const FilesystemInterface& filesystem,
-	Transform3dManager& transform3dManager)
-   : filesystem_(filesystem),
+SceneManager::SceneManager(EntityManager& entityManager, Transform3dManager& transform3dManager)
+   : filesystem_(BasicEngine::GetInstance()->GetFilesystem()),
 	 entityManager_(entityManager),
 	 transformManager_(transform3dManager),
 	 tagManager_(*this)

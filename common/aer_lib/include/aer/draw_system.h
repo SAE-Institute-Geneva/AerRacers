@@ -29,23 +29,20 @@
 
 #include "sdl_engine/sdl_camera.h"
 
-#include "aer/draw_system.h"
+#include "aer/aer_engine.h"
 #include "aer/editor/editor_tool_manager.h"
 #include "aer/gizmos_renderer.h"
 #include "aer/inputs_binding_manager.h"
 #include "aer/log.h"
-#include "aer/managers/render_manager.h"
 #include "aer/scene.h"
 #include "aer/tag.h"
-#include "engine/transform.h"
-
-#ifdef NEKO_GLES3
-	#include "gl/model.h"
-#endif
+#include "aer_engine.h"
 
 namespace neko::aer
 {
 class AerEngine;
+struct ResourceManagerContainer;
+struct ComponentManagerContainer;
 
 class DrawSystem final : public SystemInterface,
 						 public sdl::SdlEventSystemInterface,
@@ -64,19 +61,8 @@ protected:
 	sdl::MovableCamera3D camera_;
 	AerEngine& engine_;
 
-	EntityManager entityManager_;
-	SceneManager sceneManager_;
-
-#ifdef NEKO_GLES3
-	gl::TextureManager textureManager_;
-	gl::ModelManager modelManager_;
-#endif
-
-	EditorToolManager toolManager_;
-
-	//Components Manager
-	Transform3dManager transform3dManager_;
-	RenderManager renderManager_;
+	ResourceManagerContainer& rContainer_;
+	ComponentManagerContainer& cContainer_;
 
 	//Service Locator
 	std::unique_ptr<LogManager> logManager_;
@@ -84,9 +70,7 @@ protected:
 	std::unique_ptr<InputBindingManager> boundInputManager_;
 
 #ifdef NEKO_GLES3
-	std::unique_ptr<GizmosRenderer> gizmosRenderer_;
-#elif NEKO_VULKAN
-	std::unique_ptr<NekoGizmosRenderer> gizmosRenderer_;
+	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
 #endif
 
 	Entity testEntity_;

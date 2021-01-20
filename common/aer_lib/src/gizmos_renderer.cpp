@@ -6,13 +6,13 @@
 
 namespace neko
 {
-GizmosRenderer::GizmosRenderer(Camera3D* camera) : camera_(camera)
+GizmoRenderer::GizmoRenderer(Camera3D* camera) : camera_(camera)
 {
 	GizmosLocator::provide(this);
 	isRunning_ = true;
 }
 
-void GizmosRenderer::Init()
+void GizmoRenderer::Init()
 {
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	preRender_ = Job {[this, config]()
@@ -32,12 +32,12 @@ void GizmosRenderer::Init()
 	RendererLocator::get().AddPreRenderJob(&preRender_);
 }
 
-void GizmosRenderer::Update(seconds)
+void GizmoRenderer::Update(seconds)
 {
 	RendererLocator::get().Render(this);
 }
 
-void GizmosRenderer::Render()
+void GizmoRenderer::Render()
 {
 	if (isRunning_)
 	{
@@ -98,7 +98,7 @@ void GizmosRenderer::Render()
 	}
 }
 
-void GizmosRenderer::Destroy()
+void GizmoRenderer::Destroy()
 {
 	cube_.Destroy();
 	sphere_.Destroy();
@@ -106,11 +106,11 @@ void GizmosRenderer::Destroy()
 	shaderCube_.Destroy();
 }
 
-void GizmosRenderer::Start() { isRunning_ = true; }
+void GizmoRenderer::Start() { isRunning_ = true; }
 
-void GizmosRenderer::Stop() { isRunning_ = false; }
+void GizmoRenderer::Stop() { isRunning_ = false; }
 
-void GizmosRenderer::DrawCube(
+void GizmoRenderer::DrawCube(
 	const Vec3f& pos,
 	const Vec3f& size,
 	const Color4& color,
@@ -119,7 +119,7 @@ void GizmosRenderer::DrawCube(
 	if (isRunning_)
 	{
 		std::lock_guard<std::mutex> lock(renderMutex_);
-		Gizmos gizmo;
+		Gizmo gizmo;
 		gizmo.pos           = pos;
 		gizmo.cubeSize      = size;
 		gizmo.color         = color;
@@ -129,7 +129,7 @@ void GizmosRenderer::DrawCube(
 	}
 }
 
-void GizmosRenderer::DrawLine(
+void GizmoRenderer::DrawLine(
 	const Vec3f& startPos,
 	const Vec3f& endPos,
 	const Color4& color,
@@ -138,7 +138,7 @@ void GizmosRenderer::DrawLine(
 	if (isRunning_)
 	{
 		std::lock_guard<std::mutex> lock(renderMutex_);
-		Gizmos gizmo;
+		Gizmo gizmo;
 		gizmo.pos           = startPos;
 		gizmo.lineEndPos    = endPos;
 		gizmo.color         = color;
@@ -148,7 +148,7 @@ void GizmosRenderer::DrawLine(
 	}
 }
 
-void GizmosRenderer::DrawSphere(
+void GizmoRenderer::DrawSphere(
     const Vec3f& pos,
     const float& radius,
     const Color4& color,
@@ -157,7 +157,7 @@ void GizmosRenderer::DrawSphere(
 	if (isRunning_)
 	{
 		std::lock_guard<std::mutex> lock(renderMutex_);
-		Gizmos gizmo;
+		Gizmo gizmo;
 		gizmo.pos           = pos;
 		gizmo.radius        = radius;
 		gizmo.color         = color;
@@ -167,7 +167,7 @@ void GizmosRenderer::DrawSphere(
 	}
 }
 
-void GizmosRenderer::SetCamera(Camera3D* camera) { camera_ = camera; }
+void GizmoRenderer::SetCamera(Camera3D* camera) { camera_ = camera; }
 }    // namespace neko
 #endif
 

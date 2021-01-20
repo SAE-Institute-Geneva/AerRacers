@@ -382,9 +382,8 @@ void ModelLoader::ProcessNode(aiNode* node)
 
 void ModelLoader::ProcessMesh(assimp::Mesh& mesh, const aiMesh* aMesh)
 {
-	mesh.min = Vec3f(aMesh->mAABB.mMin);
-	mesh.max = Vec3f(aMesh->mAABB.mMax);
-
+	mesh.aabb.lowerLeftBound  = Vec3f(aMesh->mAABB.mMin);
+	mesh.aabb.upperRightBound = Vec3f(aMesh->mAABB.mMax);
 	for (unsigned int i = 0; i < aMesh->mNumVertices; i++)
 	{
 		assimp::Vertex vertex;

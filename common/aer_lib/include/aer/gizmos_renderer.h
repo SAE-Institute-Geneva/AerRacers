@@ -20,8 +20,10 @@ enum class GizmoShape : std::uint8_t
 	SPHERE,
 };
 
-struct Gizmos
+struct Gizmo
 {
+	Gizmo() {}
+
 	Vec3f pos = Vec3f::zero;
 	Color4 color = Color::red;
 	GizmoShape shape = GizmoShape::CUBE;
@@ -36,10 +38,10 @@ struct Gizmos
 };
 
 //-----------------------------------------------------------------------------
-// GizmosManagerInterface
+// IGizmoRenderer
 //-----------------------------------------------------------------------------
 /// \brief Used for the service locator
-class IGizmosRenderer
+class IGizmoRenderer
 {
 public:
 	
@@ -82,7 +84,7 @@ public:
 // NullGizmoManager
 //-----------------------------------------------------------------------------
 /// \brief Used for the service locator
-class NullGizmosRenderer final : public IGizmosRenderer
+class NullGizmoRenderer final : public IGizmoRenderer
 {
 public:
 	void DrawCube(const Vec3f&, const Vec3f&, const Color4&, float) override {}
@@ -96,15 +98,15 @@ public:
 
 #ifdef NEKO_GLES3
 //-----------------------------------------------------------------------------
-// GizmosRenderer
+// GizmoRenderer
 //-----------------------------------------------------------------------------
 /// \brief Draw gizmos
-class GizmosRenderer final : public RenderCommandInterface,
+class GizmoRenderer final : public RenderCommandInterface,
 							 public SystemInterface,
-							 public IGizmosRenderer
+							 public IGizmoRenderer
 {
 public:
-	explicit GizmosRenderer(Camera3D* camera);
+	explicit GizmoRenderer(Camera3D* camera);
 
 	void Init() override;
 	void Update(seconds dt) override;
@@ -145,12 +147,12 @@ private:
 	gl::Shader shaderSphere_;
 	gl::Shader shaderLine_;
 
-	std::vector<Gizmos> gizmosQueue_;
+	std::vector<Gizmo> gizmosQueue_;
 	bool isRunning_ = true;
 
 	Job preRender_;
 };
 #endif
 
-using GizmosLocator = Locator<IGizmosRenderer, NullGizmosRenderer>;
+using GizmosLocator = Locator<IGizmoRenderer, NullGizmoRenderer>;
 }

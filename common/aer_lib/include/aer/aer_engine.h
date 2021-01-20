@@ -31,9 +31,13 @@ Last Modif: 13.10.2020
 #include "sdl_engine/sdl_engine.h"
 
 #include "aer/draw_system.h"
+#include "aer/managers/manager_container.h"
 
 namespace neko::aer
 {
+struct ResourceManagerContainer;
+struct ComponentManagerContainer;
+
 enum class ModeEnum : std::uint8_t
 {
 	EDITOR = 0,
@@ -57,9 +61,26 @@ public:
 
 	ModeEnum GetMode() const { return mode_; }
 
+	ResourceManagerContainer& GetResourceManagerContainer() { return rContainer_; }
+	ComponentManagerContainer& GetComponentManagerContainer() { return cContainer_; }
+
+	std::unique_ptr<LogManager>& GetLogManager() { return logManager_; }
+	std::unique_ptr<TagManager>& GetTagManager() { return tagManager_; }
+	std::unique_ptr<InputBindingManager>& GetInputBindingManager() { return boundInputManager_; }
+
 private:
 	ModeEnum mode_;
 
 	DrawSystem drawSystem_;
+
+	ResourceManagerContainer rContainer_;
+	ComponentManagerContainer cContainer_;
+
+	EditorToolManager toolManager_;
+
+	//Service Locator
+	std::unique_ptr<LogManager> logManager_;
+	std::unique_ptr<TagManager> tagManager_;
+	std::unique_ptr<InputBindingManager> boundInputManager_;
 };
 }

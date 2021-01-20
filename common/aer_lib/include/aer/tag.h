@@ -45,10 +45,10 @@ class SceneManager;
 // TagManagerInterface
 //-----------------------------------------------------------------------------
 /// \brief Used for the service locator
-class TagManagerInterface
+class ITagManager
 {
 protected:
-	~TagManagerInterface() = default;
+	~ITagManager() = default;
 
 public:
 	/**
@@ -132,7 +132,7 @@ public:
 // NullTagManager
 //-----------------------------------------------------------------------------
 /// \brief Used for the service locator
-class NullTagManager final : public TagManagerInterface
+class NullTagManager final : public ITagManager
 {
 public:
 	std::string GetEntityTag(Entity) const override { return "Untagged"; }
@@ -155,7 +155,7 @@ public:
 // TagManager
 //-----------------------------------------------------------------------------
 /// \brief Stores entity tags
-class TagManager final : public TagManagerInterface
+class TagManager final : public ITagManager
 {
 public:
 	TagManager(SceneManager& sceneManager);
@@ -186,5 +186,5 @@ private:
 //-----------------------------------------------------------------------------
 // Service Locator definition
 //-----------------------------------------------------------------------------
-using TagLocator = Locator<TagManagerInterface, NullTagManager>;
+using TagLocator = Locator<ITagManager, NullTagManager>;
 }    // namespace neko::aer

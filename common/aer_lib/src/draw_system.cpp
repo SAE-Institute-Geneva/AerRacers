@@ -10,36 +10,17 @@ namespace neko::aer
 {
 DrawSystem::DrawSystem(AerEngine& engine)
    : engine_(engine),
-	 sceneManager_(entityManager_, engine.GetFilesystem(), transform3dManager_),
-	 toolManager_(engine),
-	 transform3dManager_(entityManager_),
-	 renderManager_(entityManager_, modelManager_, transform3dManager_)
+	 rContainer_(engine.GetResourceManagerContainer()),
+	 cContainer_(engine.GetComponentManagerContainer()),
+	 logManager_(engine.GetLogManager().get()),
+	 tagManager_(engine.GetTagManager().get()),
+	 boundInputManager_(engine.GetInputBindingManager().get())
 {
 	engine.RegisterSystem(camera_);
 	engine.RegisterOnEvent(camera_);
 
-	logManager_ = std::make_unique<LogManager>();
-	if (engine.GetMode() != ModeEnum::TEST)
-	{
-		boundInputManager_ = std::make_unique<InputBindingManager>();
-		tagManager_        = std::make_unique<TagManager>(sceneManager_);
-	}
-
-	if (engine.GetMode() == ModeEnum::EDITOR)
-	{
-		engine.RegisterSystem(toolManager_);
-		engine.RegisterOnEvent(toolManager_);
-		engine.RegisterOnDrawUi(toolManager_);
-	}
-
-	engine.RegisterSystem(textureManager_);
-	engine.RegisterSystem(modelManager_);
-	engine.RegisterSystem(renderManager_);
-
 #ifdef NEKO_GLES3
-	gizmosRenderer_ = std::make_unique<GizmosRenderer>(&camera_);
-#elif NEKO_VULKAN
-	gizmosRenderer_ = std::make_unique<NekoGizmosRenderer>(&camera_);
+	gizmosRenderer_ = std::make_unique<GizmoRenderer>(&camera_);
 #endif
 
 	engine.RegisterSystem(*gizmosRenderer_);
@@ -47,9 +28,8 @@ DrawSystem::DrawSystem(AerEngine& engine)
 
 void DrawSystem::Init()
 {
-	//gizmosRenderer_->Init();
-	camera_.position         = Vec3f::zero;
-	camera_.reverseDirection = Vec3f::back;
+	camera_.position         = Vec3f::forward * 2.0f;
+	camera_.reverseDirection = Vec3f::forward;
 	camera_.fovY             = degree_t(45.0f);
 	camera_.nearPlane        = 0.1f;
 	camera_.farPlane         = 100.0f;
@@ -57,15 +37,24 @@ void DrawSystem::Init()
 	gizmosRenderer_->SetCamera(&camera_);
 
 	const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-	testEntity_ = entityManager_.CreateEntity();
-	transform3dManager_.AddComponent(testEntity_);
-	renderManager_.AddComponent(testEntity_);
-	renderManager_.SetModel(testEntity_, config.dataRootPath + "models/nanosuit2/nanosuit.obj");
+	testEntity_        = cContainer_.entityManager.CreateEntity();
+	cContainer_.transform3dManager.AddComponent(testEntity_);
+	cContainer_.renderManager.AddComponent(testEntity_);
+	cContainer_.renderManager.SetModel(
+		testEntity_, config.dataRootPath + "models/nanosuit2/nanosuit.obj");
 }
 
 void DrawSystem::Update(seconds)
 {
-	gizmosRenderer_->DrawCube(Vec3f::zero);
+	const auto modelId = cContainer_.renderManager.GetComponent(testEntity_).modelId;
+	if (!rContainer_.modelManager.IsLoaded(modelId)) return;
+
+	const auto& model = rContainer_.modelManager.GetModel(modelId);
+	for (size_t i = 0; i < model->GetMeshCount(); ++i)
+	{
+		const auto& meshAabb = model->GetMesh(i).aabb;
+		gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
+	}
 }
 
 void DrawSystem::Destroy()

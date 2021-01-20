@@ -28,43 +28,42 @@
 #include "assimp/material.h"
 #include "mathematics/vector.h"
 #ifdef NEKO_GLES3
-#include "gl/mesh.h"
-#include "gl/shader.h"
-#include "gl/texture.h"
-#include "mathematics/circle.h"
+	#include "gl/mesh.h"
+	#include "gl/shader.h"
+	#include "gl/texture.h"
+	#include "mathematics/aabb.h"
+	#include "mathematics/circle.h"
 
 struct aiMesh;
 struct aiScene;
 
 namespace neko::assimp
 {
+struct Vertex
+{
+	Vec3f position;
+	Vec3f normal;
+	Vec2f texCoords;
+	Vec3f tangent;
+	Vec3f bitangent;
+};
 
-	struct Vertex
-	{
-		Vec3f position;
-		Vec3f normal;
-		Vec2f texCoords;
-        Vec3f tangent;
-        Vec3f bitangent;
-    };
+struct Texture
+{
+	TextureId textureId     = INVALID_TEXTURE_ID;
+	TextureName textureName = INVALID_TEXTURE_NAME;
 
-	struct Texture
-	{
-		TextureId textureId = INVALID_TEXTURE_ID;
-		TextureName textureName = INVALID_TEXTURE_NAME;
+	aiTextureType type = aiTextureType_NONE;
+};
 
-		aiTextureType type = aiTextureType_NONE;
-	};
-
-
-	struct Mesh
-    {
-        std::vector<Vertex> vertices;
-        std::vector<unsigned int> indices;
-        std::vector<Texture> textures;
-        float specularExponent = 0.0f;
-        unsigned int VAO = 0, VBO = 0, EBO = 0;
-        Vec3f min, max;
-    };
-}
+struct Mesh
+{
+	std::vector<Vertex> vertices;
+	std::vector<unsigned int> indices;
+	std::vector<Texture> textures;
+	float specularExponent = 0.0f;
+	unsigned int VAO = 0, VBO = 0, EBO = 0;
+	Aabb3d aabb;
+};
+}    // namespace neko::assimp
 #endif

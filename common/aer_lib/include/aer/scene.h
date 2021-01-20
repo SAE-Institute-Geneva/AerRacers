@@ -59,9 +59,7 @@ struct Scene
 class SceneManager
 {
 public:
-	explicit SceneManager(EntityManager& entityManager,
-		const FilesystemInterface& fileSystem,
-		Transform3dManager& transform3dManager);
+	explicit SceneManager(EntityManager& entityManager, Transform3dManager& transform3dManager);
 	~SceneManager() = default;
 
 	/**

@@ -47,8 +47,6 @@ void RenderManager::Update(seconds)
 
 void RenderManager::Render()
 {
-	const bool hasDepth = glIsEnabled(GL_CULL_FACE);
-	const bool hasCulling = glIsEnabled(GL_CULL_FACE);
 	const auto& entities =
 		entityManager_.get().FilterEntities(static_cast<EntityMask>(ComponentType::MODEL));
 
@@ -95,9 +93,6 @@ void RenderManager::Render()
 			model->Draw(shader_);
 		}
 	}
-
-	if (!hasDepth) glDisable(GL_DEPTH_TEST);
-	if (!hasCulling) glDisable(GL_CULL_FACE);
 #endif
 }
 
