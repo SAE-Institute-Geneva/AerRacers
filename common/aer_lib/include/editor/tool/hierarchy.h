@@ -13,16 +13,21 @@ namespace neko::aer
 		void Init() override;
 		void Update(seconds dt) override;
 		void DrawImGui() override;
-		void DisplayEntity(Entity entityParent);
 		void Destroy() override;
 		void OnEvent(const SDL_Event& event) override;
+
+        /**
+         * \brief Display an entity and their children
+         * \param entityIndex entity to display
+         */
+		void DisplayEntity(Entity entityParent);
 
 	private:
         EditorToolManager& editorToolManager_;
         EntityManager& entityManager_;
 
-		const ImGuiTreeNodeFlags nodeTreeNotSelectedFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
-		const ImGuiTreeNodeFlags nodeTreeSelectedFlags = nodeTreeNotSelectedFlags | ImGuiTreeNodeFlags_Selected;  // Add flag to node flags to show it's selected
+		const ImGuiTreeNodeFlags kNodeTreeNotSelectedFlags_ = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+		const ImGuiTreeNodeFlags kNodeTreeSelectedFlags_ = kNodeTreeNotSelectedFlags_ | ImGuiTreeNodeFlags_Selected;  // Add flag to node flags to show it's selected
 
 	};
 }

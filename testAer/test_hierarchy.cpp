@@ -24,7 +24,9 @@ public:
 			engine_.RegisterSystem(*toolManager_); // Register in system
 			engine_.RegisterOnDrawUi(*toolManager_); // Register in DrawUI
 			engine_.RegisterOnEvent(*toolManager_); // Register in Event
-			toolManager_->AddEditorTool<neko::aer::Hierarchy, neko::aer::EditorToolInterface::ToolType::HIERARCHY>(); // Create tool like it is in editor
+            toolManager_->AddEditorTool<neko::aer::Hierarchy,
+                neko::aer::EditorToolInterface::ToolType::
+                    HIERARCHY>();    // Create tool like it is in editor
 			toolManager_->AddEditorTool<neko::aer::Inspector, neko::aer::EditorToolInterface::ToolType::INSPECTOR>(); // Create tool like it is in editor
 		}
 	}
@@ -36,20 +38,27 @@ public:
 		engine_.GetEntityManager().CreateEntity();
 		engine_.GetEntityManager().CreateEntity();
 		engine_.GetEntityManager().CreateEntity();
+		engine_.GetEntityManager().CreateEntity();
+		engine_.GetEntityManager().CreateEntity();
+		engine_.GetEntityManager().CreateEntity();
 		engine_.GetEntityManager().SetEntityParent(0, 1);
 		engine_.GetEntityManager().SetEntityParent(1, 2);
 		engine_.GetEntityManager().SetEntityParent(2, 3);
 		engine_.GetEntityManager().SetEntityParent(4, 3);
+		engine_.GetEntityManager().SetEntityParent(5, 6);
 		engine_.GetTransform3dManager().AddComponent(1);
+        engine_.GetTransform3dManager().SetPosition(1,neko::Vec3f(1.0f, 2.0f, 3.0f));
+        engine_.GetTransform3dManager().AddComponent(2);
+        engine_.GetTransform3dManager().SetScale(2, neko::Vec3f(1.0f, 2.0f, 3.0f));
+        engine_.GetTransform3dManager().AddComponent(0);
+        engine_.GetTransform3dManager().SetRotation(0, neko::EulerAngles(1.0f, 2.0f, 3.0f));
+		engine_.GetTransform3dManager().AddComponent(4);
 	}
 
 	void Update(neko::seconds dt) override // Where we simulate tests
 	{
-
-		if (!testSuccess_)
-		{
-			
-		}
+        updateCount_++;
+        if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
 	}
 
 	void Destroy() override
@@ -58,22 +67,16 @@ public:
 
 	void HasSucceed() const
 	{
-
+	    EXPECT_TRUE(testSuccess_);
 	}
 
 private:
 	std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
-	bool capacityMax_ = false;
-	bool capacityClear_ = false;
-	bool testSuccess_ = false;
 
-	bool nextTest_ = true;
-	int numberTest_ = -1;
+    int updateCount_           = 0;
+    const int kEngineDuration_ = 200;
 
-	std::string msgTest_[2] = {
-		"[Action] Please Wait",
-		"[Action] Please clear the logs"
-	};
+	bool testSuccess_ = true;
 
 	neko::aer::AerEngine& engine_;
 };

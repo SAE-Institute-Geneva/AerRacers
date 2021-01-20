@@ -22,17 +22,14 @@ void Hierarchy::Destroy() {}
 
 void Hierarchy::DrawImGui()
 {
-    bool showDemoWindow = true;
-    ImGui::ShowDemoWindow(&showDemoWindow);
-
-    int nodeClicked = -1;
-
     if (isVisible) {
+        //Open window
         if (ImGui::Begin((GetName() + "##" +
                           std::to_string(GetId())).c_str(),
             &isVisible)) {
             for (auto entityIndex = 0; entityIndex < entityManager_.GetEntitiesSize();
                  entityIndex++) {
+                //Display each entity without parent
                 if (entityManager_.GetEntityParent(entityIndex) == INVALID_ENTITY && entityManager_.
                     EntityExists(entityIndex)) { DisplayEntity(entityIndex); }
             }
@@ -43,25 +40,30 @@ void Hierarchy::DrawImGui()
 
 void Hierarchy::DisplayEntity(Entity entityIndex)
 {
-    ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow |
-                                   ImGuiTreeNodeFlags_OpenOnDoubleClick |
-                                   ImGuiTreeNodeFlags_SpanAvailWidth;
+    ImGuiTreeNodeFlags nodeFlags;
 
     std::string text = "Entity " + std::to_string(entityIndex);
     if (editorToolManager_.GetSelectedEntity() == entityIndex) {
-        nodeFlags = nodeTreeSelectedFlags;
-    } else { nodeFlags = nodeTreeNotSelectedFlags; }
+        nodeFlags = kNodeTreeSelectedFlags_;
+    } else { nodeFlags = kNodeTreeNotSelectedFlags_; }
+    //Display entity
     const bool nodeOpen = ImGui::TreeNodeEx(text.c_str(), nodeFlags);
+    //Select entity on click
     if (ImGui::IsItemClicked()) { editorToolManager_.SetSelectedEntity(entityIndex); }
+    //Display context menu on right click on entity
     if (ImGui::BeginPopupContextItem()) {
         if (ImGui::MenuItem("Add Entity")) { entityManager_.CreateEntity(); }
 
-        if (ImGui::MenuItem("Delete Entity")) { entityManager_.DestroyEntity(entityIndex); }
+        if (ImGui::MenuItem("Delete Entity")) {
+            entityManager_.DestroyEntity(entityIndex);
+        }
         ImGui::EndPopup();
     }
+    //If node open display their children
     if (nodeOpen) {
-        for (Entity entityChild = 0; entityChild < entityManager_.GetEntitiesNmb();
+        for (Entity entityChild = 0; entityChild < entityManager_.GetEntitiesSize();
              entityChild++) {
+            //Display entity if it's a child of this entity
             if (entityManager_.GetEntityParent(entityChild) == entityIndex &&
                 entityManager_.EntityExists(entityChild)) { DisplayEntity(entityChild); }
         }

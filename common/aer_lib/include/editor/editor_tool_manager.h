@@ -47,7 +47,7 @@ public:
 
 	// Adds a tool in the EditorToolManager and instantiates it
 	template<typename T, EditorToolInterface::ToolType Type>
-	void AddEditorTool();
+    void AddEditorTool();
 
 	// Get the number of tool
 	int GetNumberTools() const;
