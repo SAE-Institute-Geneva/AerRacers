@@ -13,7 +13,7 @@ namespace neko::aer
 		void Init() override;
 		void Update(seconds dt) override;
 		void DrawImGui() override;
-		void DisplayChildren(Entity entityParent);
+		void DisplayEntity(Entity entityParent);
 		void Destroy() override;
 		void OnEvent(const SDL_Event& event) override;
 

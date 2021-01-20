@@ -19,8 +19,7 @@ void Inspector::DrawImGui()
         if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(),
             &isVisible)) { } else {
             Entity selectedEntity = editorToolManager_.GetSelectedEntity();
-            if (selectedEntity == INVALID_ENTITY)
-            {
+            if (selectedEntity == INVALID_ENTITY) {
                 ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "No Entity selected");
                 ImGui::End();
                 return;
@@ -28,18 +27,15 @@ void Inspector::DrawImGui()
             std::string name = "Entity " + std::to_string(selectedEntity);
             ImGui::Text(name.c_str());
             ImGui::SetNextTreeNodeOpen(true);
-            if (entityManager_.HasComponent(selectedEntity, EntityMask(ComponentType::TRANSFORM3D)))
-            {
-                if (ImGui::TreeNode("Transform"))
-                {
+            if (entityManager_.HasComponent(selectedEntity, EntityMask(ComponentType::TRANSFORM3D))
+            ) {
+                if (ImGui::TreeNode("Transform")) {
                     transform3dManager_.DrawImGui(selectedEntity);
                     ImGui::TreePop();
                 }
             }
-            
-            if (ImGui::Button("Add Component")) {
-                
-            }
+
+            if (ImGui::Button("Add Component")) { }
             ImGui::End();
         }
     }
