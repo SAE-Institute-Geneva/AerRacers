@@ -1,30 +1,34 @@
-#include "aer_engine.h"
+#include "aer/aer_engine.h"
 
 namespace neko::aer
 {
 AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* config, ModeEnum mode)
    : SdlEngine(filesystem, *config),
+	 mode_(mode),
 	 drawSystem_(*this),
-	 sceneManager_(entityManager_, filesystem, transform3dManager_),
-	 toolManager_(*this),
-	 transform3dManager_(entityManager_)
+	 cContainer_(rContainer_),
+	 toolManager_(*this)
 {
 	logManager_ = std::make_unique<LogManager>();
-	if (mode_ != ModeEnum::TEST)
-	{
-		boundInputManager_ = std::make_unique<InputBindingManager>();
-		tagManager_        = std::make_unique<TagManager>(sceneManager_);
-	}
 
-	mode_ = mode;
-	RegisterSystem(drawSystem_);
-	RegisterOnEvent(drawSystem_);
-	RegisterOnDrawUi(drawSystem_);
 	if (mode_ == ModeEnum::EDITOR)
 	{
 		RegisterSystem(toolManager_);
 		RegisterOnEvent(toolManager_);
 		RegisterOnDrawUi(toolManager_);
+	}
+
+	if (mode_ != ModeEnum::TEST)
+	{
+		RegisterSystem(drawSystem_);
+		RegisterOnEvent(drawSystem_);
+		RegisterOnDrawUi(drawSystem_);
+
+		boundInputManager_ = std::make_unique<InputBindingManager>();
+		tagManager_        = std::make_unique<TagManager>(cContainer_.sceneManager);
+
+		RegisterSystem(rContainer_);
+		RegisterSystem(cContainer_);
 	}
 }
 
@@ -38,12 +42,14 @@ void AerEngine::Init()
 void AerEngine::Destroy()
 {
 	drawSystem_.Destroy();
-	toolManager_.Destroy();
 	SdlEngine::Destroy();
 }
 
 void AerEngine::ManageEvent() { SdlEngine::ManageEvent(); }
 
-void AerEngine::GenerateUiFrame() { SdlEngine::GenerateUiFrame(); }
-
+void AerEngine::GenerateUiFrame()
+{
+	window_->GenerateUiFrame();
+	drawImGuiAction_.Execute();
+}
 }    // namespace neko::aer

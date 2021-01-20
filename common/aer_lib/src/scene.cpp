@@ -1,25 +1,22 @@
-#include "scene.h"
+#include "aer/scene.h"
 
 #include <fmt/format.h>
 
+#include "aer/log.h"
+#include "aer/tag.h"
 #include "engine/configuration.h"
 #include "engine/engine.h"
-#include "engine/log.h"
-#include "tag.h"
 #include "utils/file_utility.h"
 
 namespace neko::aer
 {
-
 static const std::string_view SCENE_EXTENSION = ".scene";
 
-SceneManager::SceneManager(EntityManager& entityManager,
-	const FilesystemInterface& filesystem,
-	Transform3dManager& transform3dManager)
-   : filesystem_(filesystem),
+SceneManager::SceneManager(EntityManager& entityManager, Transform3dManager& transform3dManager)
+   : filesystem_(BasicEngine::GetInstance()->GetFilesystem()),
 	 entityManager_(entityManager),
-	 tagManager_(*this),
-	 transformManager_(transform3dManager)
+	 transformManager_(transform3dManager),
+	 tagManager_(*this)
 {
 	TagLocator::provide(&tagManager_);
 }
@@ -190,7 +187,7 @@ bool SceneManager::LoadScene(const std::string_view& jsonPath)
 	}
 	else
 	{
-		logDebug(fmt::format("Scene not found", currentScene_.sceneName));
+		LogDebug(fmt::format("Scene not found", currentScene_.sceneName));
 		return false;
 	}
 }
@@ -243,7 +240,7 @@ json SceneManager::WriteSceneJson()
 	scene["tags"]    = currentScene_.tags;
 	scene["layers"]  = currentScene_.layers;
 	scene["objects"] = json::array_t();
-	for (int i = 0; i < entityManager_.GetEntitiesNmb(); ++i)
+	for (size_t i = 0; i < entityManager_.GetEntitiesNmb(); ++i)
 	{
 		scene["objects"][i] = WriteEntityJson(i);
 	}
@@ -259,7 +256,7 @@ void SceneManager::AddTag(const std::string& newTagName)
 	if (entityTagIt == currentScene_.tags.end()) { currentScene_.tags.push_back(newTagName); }
 	else
 	{
-		logDebug("Tag already set");
+		LogDebug("Tag already set");
 	}
 }
 
@@ -274,7 +271,7 @@ void SceneManager::AddLayer(const std::string& newLayerName)
 	}
 	else
 	{
-		logDebug("Layer already set");
+		LogDebug("Layer already set");
 	}
 }
 

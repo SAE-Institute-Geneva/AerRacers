@@ -108,8 +108,8 @@ function(data_generate binary)
             ${data_generate_name}
             DEPENDS ${DATA_BINARY_FILES} ${DATA_FILES})
     add_dependencies(${binary} ${data_generate_name})
-	
-	
+
+
 
 endfunction()
 

@@ -1,7 +1,7 @@
-#include <editor/tool/hierarchy.h>
+#include <aer/editor/tool/hierarchy.h>
 #include "vector"
 #include <string>
-#include "aer_engine.h"
+#include "aer/aer_engine.h"
 #include "imgui_internal.h"
 #include "imgui.h"
 #include "engine/entity.h"
@@ -14,7 +14,7 @@ Hierarchy::Hierarchy(
     std::string name)
     : EditorToolInterface(engine, type, id, name),
       editorToolManager_(engine.GetEditorToolManager()),
-      entityManager_(engine.GetEntityManager()) { }
+      entityManager_(engine.GetComponentManagerContainer().entityManager) { }
 
 void Hierarchy::Init() { }
 void Hierarchy::Update(seconds dt) {}

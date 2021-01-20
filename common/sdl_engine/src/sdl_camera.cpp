@@ -116,12 +116,6 @@ MovableCamera3D& MovableCamera3D::operator=(const MovableCamera3D& other)
     return *this;
 }
 
-void MovableCamera3D::Init()
-{
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
-    SetAspect(config.windowSize.x, config.windowSize.y);
-}
-
 void MovableCamera3D::Update(const seconds dt)
 {
     //Checking if keys are down

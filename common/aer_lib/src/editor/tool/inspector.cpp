@@ -1,12 +1,12 @@
-#include "editor/tool/inspector.h"
-#include "aer_engine.h"
+#include "aer/editor/tool/inspector.h"
+#include "aer/aer_engine.h"
 
 namespace neko::aer {
 Inspector::Inspector(AerEngine& engine, ToolType type, int id, std::string name)
     : EditorToolInterface(engine, type, id, name),
       editorToolManager_(engine.GetEditorToolManager()),
-      entityManager_(engine.GetEntityManager()),
-      transform3dManager_(engine.GetTransform3dManager()) { }
+      entityManager_(engine.GetComponentManagerContainer().entityManager),
+      transform3dManager_(engine.GetComponentManagerContainer().transform3dManager) { }
 
 void Inspector::Init() {}
 void Inspector::Update(seconds dt) {}

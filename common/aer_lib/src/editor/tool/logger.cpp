@@ -1,7 +1,7 @@
-#include "editor/tool/logger.h"
+#include "aer/editor/tool/logger.h"
 
-#include "aer_engine.h"
-#include "log.h"
+#include "aer/aer_engine.h"
+#include "aer/log.h"
 #include "utils/file_utility.h"
 
 namespace neko::aer
