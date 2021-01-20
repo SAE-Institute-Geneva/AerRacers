@@ -1,7 +1,7 @@
-#include "editor/editor_tool_manager.h"
+#include "aer/editor/editor_tool_manager.h"
 
-#include "aer_engine.h"
-#include "editor/tool/logger.h"
+#include "aer/aer_engine.h"
+#include "aer/editor/tool/logger.h"
 
 namespace neko::aer
 {
@@ -30,24 +30,52 @@ void EditorToolManager::Destroy()
 
 void EditorToolManager::DrawImGui()
 {
-	ImGuiIO io = ImGui::GetIO();
+	using namespace ImGui;
+	ImGuiIO io = GetIO();
 
-	//Editor Menu
-	if (ImGui::BeginMainMenuBar())
+	ImGuiWindowFlags windowFlags =
+		ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBackground;
+
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	SetNextWindowPos(viewport->GetWorkPos());
+	SetNextWindowSize(viewport->GetWorkSize());
+	SetNextWindowViewport(viewport->ID);
+	PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
+	               ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+	Begin("Showroom", reinterpret_cast<bool*>(true), windowFlags);
 	{
-		if (ImGui::BeginMenu("Settings"))
+		PopStyleVar();
+		PopStyleVar(2);
+
+		ImGuiID dockspaceId = GetID("ShowroomDockSpace");
+		DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), dockspaceFlags_);
+
+		//Editor Menu
+		BeginMenuBar();
 		{
-			DrawList();
-			ImGui::EndMenu();
+			if (BeginMenu("Settings"))
+			{
+				DrawList();
+				EndMenu();
+			}
+
+			if (BeginMenu("Tools"))
+			{
+				DrawList();
+				EndMenu();
+			}
+
+			EndMenuBar();
 		}
 
-		if (ImGui::BeginMenu("Tools"))
-		{
-			DrawList();
-			ImGui::EndMenu();
-		}
+		//ImGuizmo::SetDrawlist();
 
-		ImGui::EndMainMenuBar();
+		End();
 	}
 
 	for (auto& tool : tools_) tool->DrawImGui();

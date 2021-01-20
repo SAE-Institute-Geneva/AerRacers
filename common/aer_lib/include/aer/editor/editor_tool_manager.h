@@ -26,7 +26,7 @@
  Co-Author : 
  Date : 03.11.2020
 ---------------------------------------------------------- */
-#include "editor/editor_tool_interface.h"
+#include "aer/editor/editor_tool_interface.h"
 
 namespace neko::aer
 {
@@ -57,6 +57,11 @@ private:
 
 	AerEngine& engine_;
 	std::vector<std::unique_ptr<EditorToolInterface>> tools_;
+
+	static const ImGuiDockNodeFlags dockspaceFlags_ =
+		ImGuiDockNodeFlags_NoDockingInCentralNode |
+		ImGuiDockNodeFlags_AutoHideTabBar |
+		ImGuiDockNodeFlags_PassthruCentralNode;
 
 	std::string toolNames_[2] {
 		"Tool",

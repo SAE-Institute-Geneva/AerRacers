@@ -16,6 +16,8 @@ struct Camera
     float nearPlane = 0.1f;
     float farPlane = 10'000.0f;
 
+	virtual void Init();
+
     void WorldLookAt(const Vec3f& target);
 
     [[nodiscard]] Vec3f GetRight() const;

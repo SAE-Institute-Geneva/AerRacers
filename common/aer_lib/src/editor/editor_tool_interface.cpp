@@ -1,6 +1,6 @@
-#include "editor/editor_tool_interface.h"
+#include "aer/editor/editor_tool_interface.h"
 
-#include "aer_engine.h"
+#include "aer/aer_engine.h"
 
 namespace neko::aer
 {

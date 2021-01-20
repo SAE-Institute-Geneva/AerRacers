@@ -30,6 +30,14 @@ namespace neko
 //-----------------------------------------------------------------------------
 // Camera
 //-----------------------------------------------------------------------------
+void Camera::Init()
+{
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
+	SetAspect(config.windowSize.x, config.windowSize.y);
+
+	CameraLocator::provide(this);
+}
+
 void Camera::WorldLookAt(const Vec3f& target)
 {
     const Vec3f direction = position - target;

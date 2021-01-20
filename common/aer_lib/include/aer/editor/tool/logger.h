@@ -1,5 +1,5 @@
 #pragma once
-/* ----------------------------------------------------
+/*
  MIT License
 
  Copyright (c) 2020 SAE Institute Switzerland AG
@@ -21,40 +21,39 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
-
- Author : Floreau Luca
- Co-Author :
- Date : 29.09.2020
+ 
+ Author : Dylan von Arx
+ Co-Author : 
+ Date : 13.10.2020
 ---------------------------------------------------------- */
+#include <mutex>
 
-#include "gizmos_renderer.h"
-#include "sdl_engine/sdl_camera.h"
+#include <SDL_events.h>
+
+#include "aer/editor/editor_tool_interface.h"
 
 namespace neko::aer
 {
-class AerEngine;
-
-class DrawSystem final : public SystemInterface,
-						 public sdl::SdlEventSystemInterface,
-						 public DrawImGuiInterface
+class Logger final : public EditorToolInterface
 {
 public:
-	explicit DrawSystem(AerEngine& engine);
-	void Init() override;
-	void DrawImGui() override;
+	explicit Logger(AerEngine& engine, ToolType type, int id, std::string name);
 
+	void Init() override;
 	void Update(seconds dt) override;
 	void Destroy() override;
+
+	void DrawImGui() override;
 	void OnEvent(const SDL_Event& event) override;
 
-protected:
-	Camera3D camera_;
-	AerEngine& engine_;
+	/**
+    * \brief Deletes all logs 
+    */
+	static void ClearLogs();
 
-#ifdef NEKO_GLES3
-	std::unique_ptr<Gles3GizmosRenderer> gizmosRenderer_;
-#elif NEKO_VULKAN
-	std::unique_ptr<NekoGizmosRenderer> gizmosRenderer_;
-#endif
+private:
+	int posY_        = 0;
+	bool autoScroll_ = true;
 };
+
 }    // namespace neko::aer

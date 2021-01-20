@@ -55,45 +55,38 @@ void DeleteShader(GLuint shader);
 class Shader : public neko::Shader
 {
 public:
-    explicit Shader();
-    ~Shader() override;
+	explicit Shader();
+	~Shader() override;
 
-    void LoadFromFile(std::string_view vertexShaderPath, std::string_view fragmentShaderPath) override;
+	void LoadFromFile(
+		std::string_view vertexShaderPath, std::string_view fragmentShaderPath) override;
 
+	void Bind() const;
+	void Destroy() override;
 
-    void Bind() const;
+	[[nodiscard]] GLuint GetProgram() const;
 
-    void Destroy() override;
+	void SetBool(std::string_view attributeName, bool value) const;
+	void SetInt(std::string_view attributeName, int value) const;
+	void SetUInt(std::string_view attributeName, uint32_t value) const;
+	void SetFloat(std::string_view attributeName, float value) const;
 
-    GLuint GetProgram() const;
+	void SetVec2(std::string_view name, float x, float y) const;
+	void SetVec2(std::string_view name, const Vec2f& value) const;
+	void SetVec3(std::string_view name, float x, float y, float z) const;
+	void SetVec3(std::string_view name, const Vec3f& value) const;
+	void SetVec3(std::string_view name, const float* value) const;
+	void SetVec4(std::string_view name, float x, float y, float z, float w) const;
+	void SetVec4(std::string_view name, const Vec4f& value) const;
 
-    void SetBool(const std::string_view attributeName, bool value) const;
+	void SetMat3(std::string_view name, const Mat3f& mat) const;
+	void SetMat4(std::string_view name, const Mat4f& mat) const;
 
-    void SetInt(const std::string_view attributeName, int value) const;
+	void SetTexture(std::string_view name, TextureName texture, unsigned int slot = 0) const;
+	void SetCubemap(std::string_view name, TextureName texture, unsigned int slot = 0) const;
 
-    void SetFloat(const std::string_view attributeName, float value) const;
-
-    void SetVec2(const std::string_view name, float x, float y) const;
-
-    void SetVec2(const std::string_view name, const Vec2f& value) const;
-
-    void SetVec3(const std::string_view name, float x, float y, float z) const;
-
-    void SetVec3(const std::string_view name, const Vec3f& value) const;
-
-    void SetVec3(const std::string_view name, const float* value) const;
-
-    void SetVec4(const std::string_view name, float x, float y, float z, float w);
-
-    
-    void SetVec4(const std::string_view name, const Vec4f& value) const;
-
-    void SetMat4(const std::string_view name, const Mat4f& mat) const;
-
-	void SetTexture(const std::string_view name, TextureName texture, unsigned int slot = 0) const;
-	void SetCubemap(const std::string_view name, TextureName texture, unsigned int slot = 0) const;
 private:
-    const FilesystemInterface& filesystem_;
-    GLuint shaderProgram_ = 0;
+	const FilesystemInterface& filesystem_;
+	GLuint shaderProgram_ = 0;
 };
 }

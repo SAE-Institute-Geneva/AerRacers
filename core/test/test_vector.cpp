@@ -11,7 +11,7 @@ namespace neko
 {
 TEST(Engine, TestVector)
 {
-    std::array<Vec4f, 4> array;
+	std::array<Vec4f, 4> array;
     array.fill(Vec4f(5, 1, 3, 9));
     FourVec4f test(array);
 

@@ -1,7 +1,7 @@
-#include <tag.h>
+#include "aer/tag.h"
 
-#include <engine/log.h>
-#include <scene.h>
+#include "aer/log.h"
+#include "aer/scene.h"
 
 namespace neko::aer
 {
@@ -13,7 +13,7 @@ std::string TagManager::GetEntityTag(Entity entity) const
 {
 	if (entityTagArray_.empty())
 	{
-		logDebug("No Tags");
+		LogDebug("No Tags");
 		return INVALID_TAG;
 	}
 
@@ -21,7 +21,7 @@ std::string TagManager::GetEntityTag(Entity entity) const
 	TagIndex tagIndex = GetEntityTagIndex(entity);
 	if (tagIndex >= entityTagArray_.size())
 	{
-		logDebug("Tag invalid");
+		LogDebug("Tag invalid");
 		return INVALID_TAG;
 	}
 
@@ -32,13 +32,13 @@ TagIndex TagManager::GetEntityTagIndex(Entity entity) const
 {
 	if (entityTagArray_.empty())
 	{
-		logDebug("No Tags");
+		LogDebug("No Tags");
 		return 0;
 	}
 
 	if (entity == INVALID_ENTITY || entity >= entityTagArray_.size())
 	{
-		logDebug("Entity invalid");
+		LogDebug("Entity invalid");
 		return 0;
 	}
 
@@ -68,7 +68,7 @@ void TagManager::SetEntityTag(Entity entity, TagIndex entityTagIndex)
 	}
 	else
 	{
-		logDebug("Entity invalid");
+		LogDebug("Entity invalid");
 	}
 }
 
@@ -80,7 +80,7 @@ bool TagManager::IsEntityTag(Entity entity, const std::string& entityTag) const
 		[entityTag](std::string tagName) { return tagName == entityTag; });
 	if (entityTagIt == tags.end())
 	{
-		logDebug("Tag " + entityTag + " not in scene");
+		LogDebug("Tag " + entityTag + " not in scene");
 		return false;
 	}
 	else
@@ -94,7 +94,7 @@ bool TagManager::IsEntityTag(Entity entity, TagIndex entityTagIndex) const
 {
 	if (entity == INVALID_ENTITY || entity >= entityTagArray_.size())
 	{
-		logDebug("Entity invalid");
+		LogDebug("Entity invalid");
 		return false;
 	}
 	return entityTagArray_[entity] == entityTagIndex;
@@ -105,7 +105,7 @@ bool TagManager::CompareEntitiesTag(Entity entityA, Entity entityB) const
 	if (entityA == INVALID_ENTITY || entityA >= entityTagArray_.size() ||
 		entityB == INVALID_ENTITY || entityB >= entityTagArray_.size())
 	{
-		logDebug("Entity invalid");
+		LogDebug("Entity invalid");
 		return false;
 	}
 	return entityTagArray_[entityA] == entityTagArray_[entityB];
@@ -115,7 +115,7 @@ std::string TagManager::GetEntityLayer(Entity entity) const
 {
 	if (entityLayerArray_.empty())
 	{
-		logDebug("No Layers");
+		LogDebug("No Layers");
 		return INVALID_LAYER;
 	}
 
@@ -123,7 +123,7 @@ std::string TagManager::GetEntityLayer(Entity entity) const
 	LayerIndex layerIndex = GetEntityLayerIndex(entity);
 	if (layerIndex >= entityLayerArray_.size())
 	{
-		logDebug("Layer invalid");
+		LogDebug("Layer invalid");
 		return INVALID_LAYER;
 	}
 
@@ -134,13 +134,13 @@ LayerIndex TagManager::GetEntityLayerIndex(Entity entity) const
 {
 	if (entityLayerArray_.empty())
 	{
-		logDebug("No Layers");
+		LogDebug("No Layers");
 		return 0;
 	}
 
 	if (entity == INVALID_ENTITY || entity >= entityLayerArray_.size())
 	{
-		logDebug("Entity invalid");
+		LogDebug("Entity invalid");
 		return 0;
 	}
 
@@ -170,7 +170,7 @@ void TagManager::SetEntityLayer(Entity entity, LayerIndex entityLayerIndex)
 	}
 	else
 	{
-		logDebug("Entity invalid");
+		LogDebug("Entity invalid");
 	}
 }
 
@@ -182,7 +182,7 @@ bool TagManager::IsEntityLayer(Entity entity, const std::string& entityLayer) co
 		[entityLayer](std::string layerName) { return layerName == entityLayer; });
 	if (entityLayerIt == layers.end())
 	{
-		logDebug("Layer " + entityLayer + " not in scene");
+		LogDebug("Layer " + entityLayer + " not in scene");
 		return false;
 	}
 	else
@@ -196,7 +196,7 @@ bool TagManager::IsEntityLayer(Entity entity, LayerIndex entityLayerIndex) const
 {
 	if (entity == INVALID_ENTITY || entity >= entityLayerArray_.size())
 	{
-		logDebug("Entity invalid");
+		LogDebug("Entity invalid");
 		return false;
 	}
 	return entityLayerArray_[entity] == entityLayerIndex;
