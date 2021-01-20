@@ -22,47 +22,22 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 
- Author : Dylan von Arx
- Co-Author : 
- Date : 03.11.2020
+ Author : Guillaume Jeannin
+ Co-Author :
+ Date : 13.10.2020
 ---------------------------------------------------------- */
 #include "editor/editor_tool_interface.h"
 
 namespace neko::aer
 {
-class AerEngine;
-class EditorToolManager : public SystemInterface,
-						  public DrawImGuiInterface,
-						  public sdl::SdlEventSystemInterface
-{
-public:
-	explicit EditorToolManager(AerEngine& engine);
-	void Init() override;
-	void Update(seconds dt) override;
-	void Destroy() override;
-
-	void DrawImGui() override;
-	void OnEvent(const SDL_Event& event) override;
-
-	// Adds a tool in the EditorToolManager and instantiates it
-	template<typename T, EditorToolInterface::ToolType Type>
-	void AddEditorTool();
-
-	// Get the number of tool
-	int GetNumberTools() const;
-
-private:
-	// Displays the list of tools in the main menu
-	void DrawList();
-
-	AerEngine& engine_;
-	std::vector<std::unique_ptr<EditorToolInterface>> tools_;
-
-	std::string toolNames_[4] {
-		"Tool",
-		"Logger",
-        "Hierarchy",
-    	"Inspector"
+	class Inspector final : public EditorToolInterface
+	{
+	public:
+		explicit Inspector(AerEngine& engine, ToolType type, int id, std::string name);
+		void Init() override;
+		void Update(seconds dt) override;
+		void DrawImGui() override;
+		void Destroy() override;
+		void OnEvent(const SDL_Event& event) override;
 	};
-};
 }

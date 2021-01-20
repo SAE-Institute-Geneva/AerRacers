@@ -150,13 +150,13 @@ public:
                 if (entity == planeEntity_)
                 {
                     cube_.Draw();
-                    gizmosRenderer_.DrawCube(transform3dManager_.GetPosition(entity), transform3dManager_.GetScale(entity), neko::Color4(neko::Color::blue, 1.0f), 10.0f);
+                    gizmosRenderer_.DrawCube(transform3dManager_.GetPosition(entity), transform3dManager_.GetScale(entity), neko::Color::blue, 10.0f);
                 }
 
                 if (entity == sphereEntity_)
                 {
                     sphere_.Draw();
-                    gizmosRenderer_.DrawSphere(transform3dManager_.GetPosition(entity), 1.0f, neko::Color4(neko::Color::green, 1.0f), 3.0f);
+                    gizmosRenderer_.DrawSphere(transform3dManager_.GetPosition(entity), 1.0f, neko::Color::green, 3.0f);
                 }
             }
         }

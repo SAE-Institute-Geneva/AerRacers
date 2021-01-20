@@ -2,6 +2,8 @@
 
 #include "aer_engine.h"
 #include "editor/tool/logger.h"
+#include "editor/tool/hierarchy.h"
+#include "editor/tool/inspector.h"
 
 namespace neko::aer
 {
@@ -13,6 +15,8 @@ void EditorToolManager::Init()
 	if (mode == ModeEnum::EDITOR)
 	{
 		AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
+		AddEditorTool<Hierarchy, EditorToolInterface::ToolType::HIERARCHY>();
+		AddEditorTool<Inspector, EditorToolInterface::ToolType::INSPECTOR>();
 	}
 }
 
