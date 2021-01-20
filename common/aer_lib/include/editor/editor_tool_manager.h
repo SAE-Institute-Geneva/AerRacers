@@ -27,6 +27,7 @@
  Date : 03.11.2020
 ---------------------------------------------------------- */
 #include "editor/editor_tool_interface.h"
+#include "engine/entity.h"
 
 namespace neko::aer
 {
@@ -51,9 +52,13 @@ public:
 	// Get the number of tool
 	int GetNumberTools() const;
 
+	Entity GetSelectedEntity() const;
+    void SetSelectedEntity(const Entity selectedEntity);
+
 private:
 	// Displays the list of tools in the main menu
-	void DrawList();
+    void DrawList();
+    Entity selectedEntity_ = INVALID_ENTITY;
 
 	AerEngine& engine_;
 	std::vector<std::unique_ptr<EditorToolInterface>> tools_;

@@ -9,6 +9,7 @@
 #include "log.h"
 #include "engine/entity.h"
 #include "editor/tool/hierarchy.h"
+#include "editor/tool/inspector.h"
 
 class SimulateHierarchy : public neko::SystemInterface
 {
@@ -24,6 +25,7 @@ public:
 			engine_.RegisterOnDrawUi(*toolManager_); // Register in DrawUI
 			engine_.RegisterOnEvent(*toolManager_); // Register in Event
 			toolManager_->AddEditorTool<neko::aer::Hierarchy, neko::aer::EditorToolInterface::ToolType::HIERARCHY>(); // Create tool like it is in editor
+			toolManager_->AddEditorTool<neko::aer::Inspector, neko::aer::EditorToolInterface::ToolType::INSPECTOR>(); // Create tool like it is in editor
 		}
 	}
 
@@ -38,6 +40,7 @@ public:
 		engine_.GetEntityManager().SetEntityParent(1, 2);
 		engine_.GetEntityManager().SetEntityParent(2, 3);
 		engine_.GetEntityManager().SetEntityParent(4, 3);
+		engine_.GetTransform3dManager().AddComponent(1);
 	}
 
 	void Update(neko::seconds dt) override // Where we simulate tests
@@ -55,9 +58,7 @@ public:
 
 	void HasSucceed() const
 	{
-		EXPECT_TRUE(capacityMax_);
-		EXPECT_TRUE(capacityClear_);
-		EXPECT_TRUE(testSuccess_);
+
 	}
 
 private:
@@ -76,36 +77,6 @@ private:
 
 	neko::aer::AerEngine& engine_;
 };
-
-//TEST(Tool, TestLoggerGame)
-//{
-//	//Travis Fix because Windows can't open a window
-//	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
-//	if (env != nullptr)
-//	{
-//		std::cout << "Test skip for travis windows" << std::endl;
-//		return;
-//	}
-//
-//	neko::Configuration config;
-//	config.windowName = "AerEditor";
-//	config.windowSize = neko::Vec2u(1400, 900);
-//
-//	neko::sdl::Gles3Window window;
-//	neko::gl::Gles3Renderer renderer;
-//	neko::aer::AerEngine engine(&config, neko::aer::ModeEnum::GAME);
-//
-//	engine.SetWindowAndRenderer(&window, &renderer);
-//
-//	SimulateHierarchy simulateLogger(engine);
-//	engine.RegisterSystem(simulateLogger);
-//
-//	engine.Init();
-//
-//	engine.EngineLoop();
-//
-//	simulateLogger.HasSucceed();
-//}
 
 
 TEST(Tool, TestHierarchy)

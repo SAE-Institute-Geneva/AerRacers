@@ -57,6 +57,7 @@ void EditorToolManager::DrawImGui()
 	for (auto& tool : tools_) tool->DrawImGui();
 }
 
+
 void EditorToolManager::DrawList()
 {
 	for (auto& tool : tools_)
@@ -81,4 +82,12 @@ void EditorToolManager::AddEditorTool()
 }
 
 int EditorToolManager::GetNumberTools() const { return tools_.size(); }
+
+Entity EditorToolManager::GetSelectedEntity() const
+{ return selectedEntity_; }
+
+void EditorToolManager::SetSelectedEntity(const Entity selectedEntity)
+{
+    selectedEntity_ = selectedEntity;
+}
 }    // namespace neko::aer

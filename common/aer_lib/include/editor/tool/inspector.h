@@ -39,5 +39,10 @@ namespace neko::aer
 		void DrawImGui() override;
 		void Destroy() override;
 		void OnEvent(const SDL_Event& event) override;
+
+    private:
+        EditorToolManager& editorToolManager_;
+        EntityManager& entityManager_;
+        Transform3dManager& transform3dManager_;
 	};
 }

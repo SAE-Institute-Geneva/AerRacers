@@ -13,17 +13,21 @@ namespace neko::aer
 		ToolType type,
 		int id, 
 		std::string name) : 
-		EditorToolInterface(engine, type, id, name)
+		EditorToolInterface(engine, type, id, name),
+		editorToolManager_(engine.GetEditorToolManager()),
+		entityManager_(engine.GetEntityManager())
 	{
 
 	}
-	void Hierarchy::Init(){}
+	void Hierarchy::Init()
+	{
+	    
+	}
 	void Hierarchy::Update(seconds dt){}
 	void Hierarchy::Destroy(){}
 
 	void Hierarchy::DrawImGui()
 	{
-		auto& entityManager = engine_.GetEntityManager();
 		bool showDemoWindow = true;
 		ImGui::ShowDemoWindow(&showDemoWindow);
 
@@ -35,25 +39,25 @@ namespace neko::aer
 				std::to_string(GetId())).c_str(),
 				&isVisible))
 			{
-				for (auto entityIndex = 0; entityIndex < entityManager.GetEntitiesNmb(); entityIndex++)
+                for (auto entityIndex = 0; entityIndex < entityManager_.GetEntitiesNmb();
+                     entityIndex++)
 				{
 					ImGuiTreeNodeFlags currentFlag;
-					if (selectedEntity == entityIndex) {
+					if (editorToolManager_.GetSelectedEntity() == entityIndex) {
 						currentFlag = nodeTreeSelectedFlags;
 					}
 					else {
 						currentFlag = nodeTreeNotSelectedFlags;
 					}
 
-					if (entityManager.GetEntityParent(entityIndex) == INVALID_ENTITY)
+					if (entityManager_.GetEntityParent(entityIndex) == INVALID_ENTITY)
 					{
 						std::string text = "Entity " + std::to_string(entityIndex);
 
 						if (ImGui::TreeNodeEx(text.c_str(), currentFlag))
 						{
 							if (ImGui::IsItemClicked())
-							{
-								selectedEntity = entityIndex;
+							{ editorToolManager_.SetSelectedEntity(entityIndex);
 							}
 
 							DisplayChildren(entityIndex);
@@ -65,21 +69,16 @@ namespace neko::aer
 
 					
 				}
-			}
-			if (ImGui::BeginPopupContextWindow())
-			{
-				if (ImGui::MenuItem("Add Entity"))
-				{
-					entityManager.CreateEntity();
-				}
-				
-				if (ImGui::MenuItem("Delete Entity"))
-				{
-						entityManager.DestroyEntity(selectedEntity);
-				}
-				ImGui::EndPopup();
-			}
-			ImGui::End();
+            }
+            if (ImGui::BeginPopupContextWindow())
+            {
+                if (ImGui::MenuItem("Add Entity")) { entityManager_.CreateEntity(); }
+
+                if (ImGui::MenuItem("Delete Entity"))
+                { entityManager_.DestroyEntity(editorToolManager_.GetSelectedEntity()); }
+                ImGui::EndPopup();
+            }
+            ImGui::End();
 			
 		}
 	}
@@ -90,7 +89,8 @@ namespace neko::aer
 		for (auto entityChildren = 0; entityChildren < entityManager.GetEntitiesNmb(); entityChildren++)
 		{
 			ImGuiTreeNodeFlags currentFlag;
-			if (selectedEntity == entityChildren) {
+            if (editorToolManager_.GetSelectedEntity() == entityChildren)
+            {
 				currentFlag = nodeTreeSelectedFlags;
 			}
 			else {
@@ -103,8 +103,7 @@ namespace neko::aer
 				if (ImGui::TreeNodeEx(textChild.c_str(), currentFlag))
 				{
 					if (ImGui::IsItemClicked())
-					{
-						selectedEntity = entityChildren;
+                    { editorToolManager_.SetSelectedEntity(entityChildren);
 					}
 					DisplayChildren(entityChildren);
 					ImGui::TreePop();

@@ -131,8 +131,9 @@ public:
     void AddComponent(Entity entity) override;
     json GetJsonFromComponent(Entity entity) const override;
     void SetComponentFromJson(
-        Entity entity,
-        const json& jsonComponent) override;
+        Entity entity, const json& jsonComponent) override;
+    virtual void DrawImGui(Entity) override;
+
 protected:
 
     void UpdateTransform(Entity entity) override;

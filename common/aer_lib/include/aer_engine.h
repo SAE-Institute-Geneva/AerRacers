@@ -65,7 +65,8 @@ public:
 
 	EntityManager& GetEntityManager() { return entityManager_; }
 	SceneManager& GetSceneManager() { return sceneManager_; }
-	Transform3dManager& GetTransform3dManager() { return transform3dManager_; }
+    Transform3dManager& GetTransform3dManager() { return transform3dManager_; }
+    EditorToolManager& GetEditorToolManager() { return toolManager_; }
 
 private:
 	ModeEnum mode_;

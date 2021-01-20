@@ -107,7 +107,8 @@ public:
 	virtual void UpdateDirtyComponent(Entity) {};
 
 	virtual json GetJsonFromComponent(Entity) const { return json::object(); }
-	virtual void SetComponentFromJson(Entity, const json&) {}
+    virtual void SetComponentFromJson(Entity, const json&) {}
+    virtual void DrawImGui(Entity) {}
 
 protected:
 	std::vector<T> components_;

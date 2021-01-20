@@ -18,7 +18,8 @@ namespace neko::aer
 		void OnEvent(const SDL_Event& event) override;
 
 	private:
-		size_t selectedEntity = -1;
+        EditorToolManager& editorToolManager_;
+        EntityManager& entityManager_;
 
 		const ImGuiTreeNodeFlags nodeTreeNotSelectedFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
 		const ImGuiTreeNodeFlags nodeTreeSelectedFlags = nodeTreeNotSelectedFlags | ImGuiTreeNodeFlags_Selected;  // Add flag to node flags to show it's selected
