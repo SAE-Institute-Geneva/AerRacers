@@ -31,62 +31,57 @@ Last Modif: 13.10.2020
 #include "sdl_engine/sdl_engine.h"
 
 #include "draw_system.h"
+#include "editor/editor_tool_manager.h"
+#include "engine/transform.h"
 #include "inputs_binding_manager.h"
 #include "log.h"
 #include "scene.h"
 #include "tag.h"
-#include "editor/editor_tool_manager.h"
-#include "engine/transform.h"
 
-namespace neko::aer {
-
-enum class ModeEnum : std::uint8_t {
-    EDITOR = 0,
-    GAME = 1,
-    TEST = 2
+namespace neko::aer
+{
+enum class ModeEnum : std::uint8_t
+{
+	EDITOR = 0,
+	GAME   = 1,
+	TEST   = 2
 };
 
-class AerEngine final : public sdl::SdlEngine {
+class AerEngine final : public sdl::SdlEngine
+{
 public:
-    explicit AerEngine(
-        const FilesystemInterface& filesystem,
-        Configuration* config = nullptr,
-        ModeEnum mode = ModeEnum::EDITOR);
+	explicit AerEngine(const FilesystemInterface& filesystem,
+		Configuration* config = nullptr,
+		ModeEnum mode         = ModeEnum::EDITOR);
 
-    void Init() override;
+	void Init() override;
+	void Destroy() override;
 
-    void Destroy() override;
+	void ManageEvent() override;
 
-    void ManageEvent() override;
+	void GenerateUiFrame() override;
 
-    void GenerateUiFrame() override;
+	ModeEnum GetMode() const { return mode_; }
 
-    ModeEnum GetMode() const
-    {
-        return mode_;
-    }
+	EntityManager& GetEntityManager() { return entityManager_; }
+	SceneManager& GetSceneManager() { return sceneManager_; }
+	Transform3dManager& GetTransform3dManager() { return transform3dManager_; }
 
-    EntityManager& GetEntityManager() { return entityManager_; }
-
-    SceneManager& GetSceneManager() { return sceneManager_; }
-
-    Transform3dManager& GetTransform3dManager() { return transform3dManager_; }
 private:
-    ModeEnum mode_;
+	ModeEnum mode_;
 
-    DrawSystem drawSystem_;
-    EntityManager entityManager_;
-    SceneManager sceneManager_;
+	DrawSystem drawSystem_;
+	EntityManager entityManager_;
+	SceneManager sceneManager_;
 
-    EditorToolManager toolManager_;
+	EditorToolManager toolManager_;
 
-    //Components Manager
-    Transform3dManager transform3dManager_;
+	//Components Manager
+	Transform3dManager transform3dManager_;
 
-    //Service Locator
-    std::unique_ptr<LogManager> logManager_;
-    std::unique_ptr<TagManager> tagManager_;
-    std::unique_ptr<InputBindingManager>  bindedInputManager_;
-
+	//Service Locator
+	std::unique_ptr<LogManager> logManager_;
+	std::unique_ptr<TagManager> tagManager_;
+	std::unique_ptr<InputBindingManager> boundInputManager_;
 };
 }

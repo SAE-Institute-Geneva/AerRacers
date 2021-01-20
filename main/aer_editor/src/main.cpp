@@ -32,23 +32,21 @@
 #include "aer_engine.h"
 
 
-int main(int argc, char** argv)
+int main(int, char**)
 {
-    neko::Configuration config;
-    config.windowName = "AerEditor Version 0.01";
-    config.windowSize = neko::Vec2u(1400, 900);
-    config.dataRootPath = "/data/";
+	neko::Configuration config;
+	config.windowName   = "AerEditor Version 0.01";
+	config.windowSize   = neko::Vec2u(1280, 720);
+	config.dataRootPath = "data/";
 
-    neko::sdl::Gles3Window window;
-    neko::gl::Gles3Renderer renderer;
-    neko::Filesystem filesystem;
-    neko::aer::AerEngine engine(filesystem,
-        &config,
-        neko::aer::ModeEnum::EDITOR);
+	neko::sdl::Gles3Window window;
+	neko::gl::Gles3Renderer renderer;
+	neko::Filesystem filesystem;
+	neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
 
-    engine.SetWindowAndRenderer(&window, &renderer);
+	engine.SetWindowAndRenderer(&window, &renderer);
 
-    engine.Init();
-    engine.EngineLoop();
-    return 0;
+	engine.Init();
+	engine.EngineLoop();
+	return 0;
 }

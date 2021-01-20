@@ -28,32 +28,32 @@
 ---------------------------------------------------------- */
 #include <sdl_engine/sdl_engine.h>
 
-namespace neko::aer {
-
+namespace neko::aer
+{
 class AerEngine;
-
-class EditorToolInterface
-    : public SystemInterface,
-      public DrawImGuiInterface,
-      public sdl::SdlEventSystemInterface {
+class EditorToolInterface : public SystemInterface,
+							public DrawImGuiInterface,
+							public sdl::SdlEventSystemInterface
+{
 public:
-    enum class ToolType {
-        NONE = 0,
-        LOGGER
-    };
+	enum class ToolType
+	{
+		NONE = 0,
+		LOGGER
+	};
 
-    explicit EditorToolInterface(AerEngine& engine, ToolType type, int id, std::string name);
+	explicit EditorToolInterface(AerEngine& engine, ToolType type, int id, std::string name);
 
-    int GetId() const;
-    ToolType GetType() const;
-    std::string GetName() const;
+	int GetId() const;
+	ToolType GetType() const;
+	std::string GetName() const;
 
-    bool isVisible = true;
+	bool isVisible = true;
 
 protected:
-    const int kId_;
-    std::string name_ = "";
-    ToolType type_ = ToolType::NONE;
-    AerEngine& engine_;
+	const int kId_;
+	std::string name_ = "";
+	ToolType type_    = ToolType::NONE;
+	AerEngine& engine_;
 };
 }

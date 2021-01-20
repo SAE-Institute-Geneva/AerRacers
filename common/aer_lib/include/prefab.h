@@ -23,38 +23,38 @@
  SOFTWARE.
  */
 
-#include <vector>
 #include <sole.hpp>
+#include <vector>
 
+#include <engine/component.h>
+#include <engine/entity.h>
 #include <engine/globals.h>
 #include <utils/json_utility.h>
-#include <engine/entity.h>
-#include <engine/component.h>
 
 namespace neko::aer
 {
-
 class SceneManager;
-using PrefabId = sole::uuid;
-const PrefabId INVALID_PREFAB_ID = sole::uuid{};
+using PrefabId                   = sole::uuid;
+const PrefabId INVALID_PREFAB_ID = sole::uuid {};
 struct Prefab
 {
-    Prefab();
-    PrefabId id = INVALID_PREFAB_ID;
+	Prefab();
+	PrefabId id            = INVALID_PREFAB_ID;
 	std::string prefabPath = "";
-    json prefabJson{};
+	json prefabJson {};
 };
 
 class PrefabManager : public ComponentManager<PrefabId, EntityMask(ComponentType::PREFAB)>
 {
 public:
-    explicit PrefabManager(EntityManager& entityManager, SceneManager& sceneManager);
-    void InstantiatePrefab(PrefabId prefabIndex, EntityManager& entityManager);
-    PrefabId LoadPrefab(std::string_view prefabPath, bool forceReload=false);
-    const Prefab& GetPrefab(PrefabId prefabId);
+	explicit PrefabManager(EntityManager& entityManager, SceneManager& sceneManager);
+	void InstantiatePrefab(PrefabId prefabIndex, EntityManager& entityManager);
+	PrefabId LoadPrefab(std::string_view prefabPath, bool forceReload = false);
+	const Prefab& GetPrefab(PrefabId prefabId);
 	static std::string_view GetExtension();
+
 protected:
-    SceneManager& sceneManager_;
+	SceneManager& sceneManager_;
 	std::unordered_map<PrefabId, Prefab> prefabMap_;
 };
-}
+}    // namespace neko::aer

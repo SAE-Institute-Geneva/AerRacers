@@ -189,8 +189,8 @@ public :
                     boxColliderData.size,
                     transform3dManager_->GetAngles(entity),
                     boxColliderData.isTrigger ?
-                        neko::Color4(neko::Color::yellow, 1.0f) :
-                    neko::Color4(neko::Color::green, 1.0f),
+                        neko::Color::yellow :
+                    neko::Color::green,
                     2.0f);
             }
             break;
@@ -333,8 +333,8 @@ public:
                     boxColliderData.size,
                     transform3dManager_->GetAngles(entity),
                     boxColliderData.isTrigger ?
-                    neko::Color4(neko::Color::yellow, 1.0f) :
-                    neko::Color4(neko::Color::green, 1.0f),
+                    neko::Color::yellow :
+                    neko::Color::green,
                     2.0f);
             }
             }
@@ -410,9 +410,8 @@ public:
                 rayOrigin_,
                 rayOrigin_ + rayDirection_* 50.0f,
                 raycastInfo.touch ?
-                neko::Color4(neko::Color::green, 1.0f) :
-                neko::Color4(neko::Color::red, 1.0f),
-                2.0f);
+                neko::Color::green :
+                neko::Color::red,2.0f);
         }
         {
             //Raycast
@@ -431,8 +430,8 @@ public:
                 rayOrigin_ + neko::Vec3f::right * 2,
                 rayOrigin_ + neko::Vec3f::right * 2 + rayDirection_ * 2.0f,
                 raycastInfo.touch ?
-                neko::Color4(neko::Color::green, 1.0f) :
-                neko::Color4(neko::Color::red, 1.0f),
+                neko::Color::green :
+                neko::Color::red,
                 2.0f);
         }
         {
@@ -452,8 +451,8 @@ public:
                 rayOrigin_ + neko::Vec3f::left * 4,
                 rayOrigin_ + neko::Vec3f::left * 4 + rayDirection_ * 50.0f,
                 raycastInfo.touch ?
-                neko::Color4(neko::Color::green, 1.0f) :
-                neko::Color4(neko::Color::red, 1.0f),
+                neko::Color::green :
+                neko::Color::red,
                 2.0f);
         }
         {
@@ -473,8 +472,8 @@ public:
                 rayOrigin_ + neko::Vec3f::left * 2,
                 rayOrigin_ + neko::Vec3f::left * 2 + neko::Vec3f::up * 50.0f,
                 raycastInfo.touch ?
-                neko::Color4(neko::Color::green, 1.0f) :
-                neko::Color4(neko::Color::red, 1.0f),
+                neko::Color::green :
+                neko::Color::red,
                 2.0f);
         }
         //std::cout << std::endl;
@@ -610,8 +609,8 @@ public:
                     boxColliderData.size,
                     transform3dManager_->GetAngles(entity),
                     boxColliderData.isTrigger ?
-                    neko::Color4(neko::Color::yellow, 1.0f) :
-                    neko::Color4(neko::Color::green, 1.0f),
+                    neko::Color::yellow :
+                    neko::Color::green,
                     2.0f);
             }
             break;

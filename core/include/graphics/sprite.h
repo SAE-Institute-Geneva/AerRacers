@@ -36,7 +36,7 @@ struct Sprite
 {
     Sprite() = default;
     ~Sprite() = default;
-    Color4 color = Color4(Color::white, 1.0f);
+    Color4 color = Color4(Color::white);
     TextureId textureId = INVALID_TEXTURE_ID;
     Texture texture{};
 };

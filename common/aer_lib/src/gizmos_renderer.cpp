@@ -1,13 +1,12 @@
 #include <gizmos_renderer.h>
 
-#ifdef NEKO_GLES3
-
 #include <engine/engine.h>
+
+#ifdef NEKO_GLES3
 
 namespace neko
 {
-Gles3GizmosRenderer::Gles3GizmosRenderer(Camera3D* camera)
-	: camera_(camera)
+Gles3GizmosRenderer::Gles3GizmosRenderer(Camera3D* camera) : camera_(camera)
 {
 	GizmosLocator::provide(this);
 	isRunning_ = true;
@@ -31,9 +30,7 @@ void Gles3GizmosRenderer::Init()
 	gizmosQueue_.reserve(kGizmoReserveSize);
 }
 
-void Gles3GizmosRenderer::Update(seconds dt)
-{
-}
+void Gles3GizmosRenderer::Update(seconds) {}
 
 void Gles3GizmosRenderer::Render()
 {
@@ -41,7 +38,6 @@ void Gles3GizmosRenderer::Render()
 	{
 		for (auto gizmo : gizmosQueue_)
 		{
-
 			std::lock_guard<std::mutex> lock(renderMutex_);
 			switch (gizmo.shape)
 			{
@@ -108,15 +104,9 @@ void Gles3GizmosRenderer::Destroy()
 	shaderCube_.Destroy();
 }
 
-void Gles3GizmosRenderer::Start()
-{
-	isRunning_ = true;
-}
+void Gles3GizmosRenderer::Start() { isRunning_ = true; }
 
-void Gles3GizmosRenderer::Stop()
-{
-	isRunning_ = false;
-}
+void Gles3GizmosRenderer::Stop() { isRunning_ = false; }
 
 void Gles3GizmosRenderer::DrawCube(
 	const Vec3f& pos,
@@ -149,10 +139,10 @@ void Gles3GizmosRenderer::DrawLine(
 	{
 		std::lock_guard<std::mutex> lock(renderMutex_);
 		Gizmos gizmo;
-		gizmo.pos = startPos;
-		gizmo.lineEndPos = endPos;
-		gizmo.color = color;
-		gizmo.shape = GizmoShape::LINE;
+		gizmo.pos           = startPos;
+		gizmo.lineEndPos    = endPos;
+		gizmo.color         = color;
+		gizmo.shape         = GizmoShape::LINE;
 		gizmo.lineThickness = lineThickness;
 		gizmosQueue_.push_back(gizmo);
 	}
@@ -179,18 +169,11 @@ void Gles3GizmosRenderer::DrawSphere(
 	}
 }
 
-void Gles3GizmosRenderer::SetCamera(Camera3D* camera)
-{
-	camera_ = camera;
-}
-}
+void Gles3GizmosRenderer::SetCamera(Camera3D* camera) { camera_ = camera; }
+}    // namespace neko
 #endif
 
-
 #ifdef NEKO_VULKAN
-
-#include <engine/engine.h>
-
 namespace neko
 {
 	NekoGizmosRenderer::NekoGizmosRenderer(Camera3D* camera)

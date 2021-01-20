@@ -78,34 +78,26 @@ enum class LogCategory : std::uint8_t
 /// \brief Struct representing a log message with its type
 struct LogMessage
 {
-    LogCategory category = LogCategory::NONE;
-	LogType type = LogType::INFO;
+	LogCategory category = LogCategory::NONE;
+	LogType type         = LogType::INFO;
 	std::string log;
 
-	explicit LogMessage(std::string log)
-		: log(std::move(log))
-	{
-		Generate();
-	}
+	explicit LogMessage(std::string log) : log(std::move(log)) { Generate(); }
 
 	explicit LogMessage(const LogType& logType, std::string log)
-		: type(logType), log(std::move(log))
+	   : type(logType), log(std::move(log))
 	{
 		Generate();
 	}
 
-	explicit LogMessage(const LogCategory& category, const LogType& logType,
-	                    std::string log)
-		: type(logType), category(category), log(std::move(log))
+	explicit LogMessage(const LogCategory& category, const LogType& logType, std::string log)
+	   : category(category), type(logType), log(std::move(log))
 	{
 		Generate();
 	}
 
 	void Generate();
-	void Display() const
-	{
-		(type != LogType::CRITICAL ? std::cout : std::cerr) << log;
-	}
+	void Display() const { (type != LogType::CRITICAL ? std::cout : std::cerr) << log; }
 };
 
 //-----------------------------------------------------------------------------

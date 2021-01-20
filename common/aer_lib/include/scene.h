@@ -36,11 +36,10 @@
 
 namespace neko::aer
 {
-
 /**
  * \brief Temporary InstanceId use to determined parents
  */
-using InstanceId = int;
+using InstanceId                     = int;
 const InstanceId INVALID_INSTANCE_ID = -1;
 
 /**
@@ -48,86 +47,104 @@ const InstanceId INVALID_INSTANCE_ID = -1;
  */
 struct Scene
 {
-    std::string sceneName = "New Scene";
-    std::string scenePath = "";
-    std::vector<std::string> layers = {INVALID_LAYER};
-    std::vector<std::string> tags = { INVALID_TAG };
+	std::string sceneName           = "New Scene";
+	std::string scenePath           = "";
+	std::vector<std::string> layers = {INVALID_LAYER};
+	std::vector<std::string> tags   = {INVALID_TAG};
 };
+
 /**
  * \brief Manager of the current scene
  */
-class SceneManager 
+class SceneManager
 {
 public:
-    explicit SceneManager(EntityManager& entityManager, const FilesystemInterface& fileSystem, Transform3dManager& transform3dManager);
+	explicit SceneManager(EntityManager& entityManager,
+		const FilesystemInterface& fileSystem,
+		Transform3dManager& transform3dManager);
 	~SceneManager() = default;
-    /**
+
+	/**
      * \brief Parse the components of an entity from the json of an entity
      * \param componentJson json object of an entity
      */
-    void ParseComponentJson(const json& componentJson, Entity entity);
-    /**
+	void ParseComponentJson(const json& componentJson, Entity entity);
+
+	/**
      * \brief Parse the entity infos from the json of an entity
      * \param entityJson json object of an entity
      */
-    void ParseEntityJson(const json& entityJson);
-    /**
+	void ParseEntityJson(const json& entityJson);
+
+	/**
      * \brief Parse the scene infos from the json of an scene
      * \param sceneJson json object of the scene
      */
-    void ParseSceneJson(const json& sceneJson);
-    /**
+	void ParseSceneJson(const json& sceneJson);
+
+	/**
      * \brief Load scene as current scene
      * \return true if loading succeed
      */
-    bool LoadScene(const std::string_view& jsonPath);
-    /**
+	bool LoadScene(const std::string_view& jsonPath);
+
+	/**
      * \brief Get the current scene infos
      */
-    const Scene& GetCurrentScene() const { return currentScene_;}
-    /**
+	const Scene& GetCurrentScene() const { return currentScene_; }
+
+	/**
      * \brief Set the name of of current scene
      */
-    void SetSceneName(const std::string& sceneName) { currentScene_.sceneName = sceneName; }
-    /**
+	void SetSceneName(const std::string& sceneName) { currentScene_.sceneName = sceneName; }
+
+	/**
      * \brief Save the current scene on a file
      */
-    void SaveCurrentScene();
-    /**
+	void SaveCurrentScene();
+
+	/**
      * \brief Write the infos and components of an entity on json object
      */
-    json WriteEntityJson(Entity entity) const;
-    /**
+	json WriteEntityJson(Entity entity) const;
+
+	/**
      * \brief Write the current scene infos on json object
      */
-    json WriteSceneJson();
-    /**
+	json WriteSceneJson();
+
+	/**
      * \brief Add new tag to the current scene
      */
-    void AddTag(const std::string& newTagName);
-    /**
+	void AddTag(const std::string& newTagName);
+
+	/**
      * \brief Add new layer to the current scene
      */
-    void AddLayer(const std::string& newLayerName);
-    /**
+	void AddLayer(const std::string& newLayerName);
+
+	/**
      * \brief Get tag list of the current scene
      */
-    const std::vector<std::string>& GetTags() const;
-    /**
+	const std::vector<std::string>& GetTags() const;
+
+	/**
      * \brief Get layer list of the current scene
      */
-    const std::vector<std::string>& GetLayers() const;
+	const std::vector<std::string>& GetLayers() const;
+
 protected:
-    const FilesystemInterface& filesystem_;
+	const FilesystemInterface& filesystem_;
 
-    EntityManager& entityManager_;
-    Transform3dManager& transformManager_;
-    TagManager tagManager_;
+	EntityManager& entityManager_;
+	Transform3dManager& transformManager_;
+	TagManager tagManager_;
 
-    Scene currentScene_;
-    /**
+	Scene currentScene_;
+
+	/**
      * \brief Temporary vector of entities InstanceId 
      */
-    std::vector<InstanceId> entityInstanceIdArray_;
+	std::vector<InstanceId> entityInstanceIdArray_;
 };
-}
+}    // namespace neko::aer

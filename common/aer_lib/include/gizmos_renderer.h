@@ -27,7 +27,7 @@ struct Gizmos
 	
 	Vec3f pos = Vec3f::zero;
 	EulerAngles rot = EulerAngles(degree_t(0));
-	Color4 color = Color4(Color::red, 1.0f);
+	Color4 color = Color::red;
 	GizmoShape shape = GizmoShape::CUBE;
 	float lineThickness = 1.0f;
 	float radius = 1.0f;
@@ -54,7 +54,7 @@ public:
 		const Vec3f& pos,
 		const Vec3f& size = Vec3f::one,
 		const EulerAngles& rot = EulerAngles(degree_t(0)),
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) = 0;
 
 	/**
@@ -63,7 +63,7 @@ public:
 	virtual void DrawLine(
 		const Vec3f& startPos,
 		const Vec3f& endPos,
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) = 0;
 
 	/**
@@ -73,7 +73,7 @@ public:
 		const Vec3f& pos,
 		const float& radius = 1.0f,
 		const EulerAngles& rot = EulerAngles(degree_t(0)),
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) = 0;
 
 	/**
@@ -95,7 +95,7 @@ public:
 		[[maybe_unused]] const Vec3f& pos,
 		[[maybe_unused]] const Vec3f& size = Vec3f::one,
 		[[maybe_unused]] const EulerAngles& rot = EulerAngles(degree_t(0)),
-		[[maybe_unused]] const Color4& color = Color4(Color::red, 1.0f),
+		[[maybe_unused]] const Color4& color = Color::red,
 		[[maybe_unused]] float lineThickness = 1.0f) override
 	{
 	}
@@ -103,7 +103,7 @@ public:
 	void DrawLine(
 		[[maybe_unused]] const Vec3f& startPos,
 		[[maybe_unused]] const Vec3f& endPos,
-		[[maybe_unused]] const Color4& color = Color4(Color::red, 1.0f),
+		[[maybe_unused]] const Color4& color = Color::red,
 		[[maybe_unused]] float lineThickness = 1.0f) override
 	{
 	}
@@ -112,74 +112,65 @@ public:
 		[[maybe_unused]] const Vec3f& pos,
 		[[maybe_unused]] const float& radius = 1.0f,
 		[[maybe_unused]] const EulerAngles& rot = EulerAngles(degree_t(0)),
-		[[maybe_unused]] const Color4& color = Color4(Color::red, 1.0f),
+		[[maybe_unused]] const Color4& color = Color::red,
 		[[maybe_unused]] float lineThickness = 1.0f) override
 	{
 	}
 	void SetCamera([[maybe_unused]] Camera3D* camera) override {}
-	Camera3D* GetCamera() const override { return nullptr; }
 
+	Camera3D* GetCamera() const override { return nullptr; }
 	Vec3f GetCameraPos() const override { return {}; }
 };
 
-
 #ifdef NEKO_GLES3
-
 //-----------------------------------------------------------------------------
 // Gles3GizmosRenderer
 //-----------------------------------------------------------------------------
 /// \brief Draw gizmos
 class Gles3GizmosRenderer final : public RenderCommandInterface,
-                             public SystemInterface,
-                             public IGizmosRenderer
+								  public SystemInterface,
+								  public IGizmosRenderer
 {
 public:
 	explicit Gles3GizmosRenderer(Camera3D* camera);
 
 	void Init() override;
-
 	void Update(seconds dt) override;
-
 	void Render() override;
-
 	void Destroy() override;
 
 	void Start();
 	void Stop();
-	
 
 	void DrawCube(
 		const Vec3f& pos,
 		const Vec3f& size = Vec3f::one,
 		const EulerAngles& rot = EulerAngles(degree_t(0)),
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) override;
 
-	void DrawLine(
-		const Vec3f& startPos,
+	void DrawLine(const Vec3f& startPos,
 		const Vec3f& endPos,
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) override;
 
-	void DrawSphere(
-		const Vec3f& pos,
+	void DrawSphere(const Vec3f& pos,
 		const float& radius = 1.0f,
 		const EulerAngles& rot = EulerAngles(degree_t(0)),
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) override;
 
 	void SetCamera(Camera3D* camera) override;
 	Camera3D* GetCamera() const override { return camera_; }
 	Vec3f GetCameraPos() const override { return camera_->position; }
 
-    
 private:
 	std::mutex renderMutex_;
 
 	Camera3D* camera_;
-	gl::RenderWireFrameCuboid cube_{Vec3f::zero, Vec3f::one};
-	gl::RenderWireFrameSphere sphere_{ Vec3f::zero, 1.0f };
-	gl::RenderLine3d line_{Vec3f::zero, Vec3f::one};
+	gl::RenderWireFrameCuboid cube_ {Vec3f::zero, Vec3f::one};
+	gl::RenderWireFrameSphere sphere_ {Vec3f::zero, 1.0f};
+	gl::RenderLine3d line_ {Vec3f::zero, Vec3f::one};
 
 	gl::Shader shaderCube_;
 	gl::Shader shaderSphere_;
@@ -191,7 +182,6 @@ private:
 #endif
 
 #ifdef NEKO_VULKAN
-
 //-----------------------------------------------------------------------------
 // NekoGizmosRenderer
 //-----------------------------------------------------------------------------
@@ -219,7 +209,7 @@ public:
 		const Vec3f& pos,
 		const Vec3f& size = Vec3f::one,
 		const EulerAngles& rot = EulerAngles(degree_t(0)),
-		const Color4& color = Color4(Color::red, 1.0f),
+		const Color4& color = Color::red,
 		float lineThickness = 1.0f) override;
 
 	void DrawLine(
@@ -248,5 +238,6 @@ private:
 	bool isRunning_ = true;
 };
 #endif
+
 using GizmosLocator = Locator<IGizmosRenderer, NullGizmosRenderer>;
 }

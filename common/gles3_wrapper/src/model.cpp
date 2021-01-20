@@ -25,16 +25,16 @@
 #include "gl/model.h"
 #include "gl/texture.h"
 
-#include <sstream>
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <engine/log.h>
-
-#include "io_system.h"
-#include "engine/engine.h"
-
+#include <assimp/scene.h>
 #include <fmt/format.h>
+#include <assimp/Importer.hpp>
+#include <sstream>
+
+#include "engine/engine.h"
+#include "engine/log.h"
+#include "io_system.h"
+#include "utils/json_utility.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"

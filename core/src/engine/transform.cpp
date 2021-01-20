@@ -267,7 +267,7 @@ json Transform3dManager::GetJsonFromComponent(Entity entity) const
 {
 	json transformComponent = json::object();
 	transformComponent["position"] = GetJsonFromVector3(GetPosition(entity));
-	transformComponent["rotation"] = GetJsonFromVector4(Vec4f(Quaternion::FromEuler(GetAngles(entity)).coord));
+	transformComponent["rotation"] = GetJsonFromVector4(Vec4f(Quaternion::FromEuler(GetAngles(entity))));
 	transformComponent["scale"] = GetJsonFromVector3(GetScale(entity));
 	return transformComponent;
 }
