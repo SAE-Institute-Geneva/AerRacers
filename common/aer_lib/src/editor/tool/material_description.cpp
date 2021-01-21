@@ -117,25 +117,25 @@ void MaterialDescription::OnEvent(const SDL_Event& event)
 
 void MaterialDescription::LoadMaterialFiles()
 {
-	if(!materialsPaths_.empty() && !materialsJson_.empty())
+	if (!materialsPaths_.empty() && !materialsJson_.empty())
 	{
 		materialsPaths_.clear();
 
 		materialsJson_.clear();
 	}
-	
-	for (const auto& entry : std::filesystem::directory_iterator(filepath_))
-	{
-		auto it = std::find(materialsPaths_.begin(), materialsPaths_.end(), entry);
-		if (it == materialsPaths_.end())
+
+	IterateDirectory(filepath_, [this](const std::string_view path) {
+		const auto extension = GetFilenameExtension(path);
+		if (extension == ".aermat")
 		{
-			materialsPaths_.push_back(entry.path().string());
+			materialsPaths_.push_back(path.data());
 		}
-	}
+	});
+
 	for (const auto& materialPath : materialsPaths_)
 	{
 		ordered_json materialJson = LoadOrderedJson(materialPath);
-		
+
 		auto it = std::find(materialsJson_.begin(), materialsJson_.end(), materialJson);
 
 		if (it == materialsJson_.end())

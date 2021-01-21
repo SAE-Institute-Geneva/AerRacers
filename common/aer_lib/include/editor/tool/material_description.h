@@ -46,7 +46,7 @@ public:
 
 private:
 
-	const std::string filepath_ = "../../data/aer_racers/materials/";
+	const std::string filepath_ = "data/aer_racers/materials/";
 	std::vector<std::string> materialsPaths_;
 	std::vector<ordered_json> materialsJson_;
 	ordered_json selectedMaterial_;
