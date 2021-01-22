@@ -153,7 +153,7 @@ private:
 	bool controllerUp_   = false;
 
 	float updateCount_           = 0;
-	const float kEngineDuration_ = 5.0f;
+    const float kEngineDuration_ = 0.5f;
 
 	AerEngine& engine_;
 };
@@ -346,7 +346,7 @@ private:
 	bool keyboardForwardUp_      = false;
 
 	float updateCount_           = 0;
-	const float kEngineDuration_ = 5.0f;
+	const float kEngineDuration_ = 0.5f;
 
 	AerEngine& engine_;
 };
@@ -588,8 +588,8 @@ private:
 	bool actionUp_       = false;
 
 	float updateCount_           = 0;
-	const float kEngineDuration_ = 5.0f;
-	bool interactive_            = false;
+    const float kEngineDuration_ = 0.5f;
+    bool interactive_            = false;
 
 	AerEngine& engine_;
 };
@@ -769,7 +769,7 @@ private:
 	bool actionUp_   = false;
 
 	float updateCount_           = 0;
-	const float kEngineDuration_ = 5.0f;
+    const float kEngineDuration_ = 0.5f;
 	bool interactive_            = false;
 };
 

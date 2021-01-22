@@ -84,10 +84,13 @@ Entity EntityManager::CreateEntity(Entity entity)
 
 void EntityManager::DestroyEntity(Entity entity)
 {
-	entityMaskArray_[entity] = INVALID_ENTITY_MASK;
-	entityHashArray_[entity] = INVALID_ENTITY_HASH;
-
-	onDestroyEntity.Execute(entity);
+    entityMaskArray_[entity] = INVALID_ENTITY_MASK;
+    entityHashArray_[entity] = INVALID_ENTITY_HASH;
+    parentEntities_[entity]  = INVALID_ENTITY;
+    for (Entity childEntity = 0; childEntity < parentEntities_.size(); ++childEntity) {
+        if (parentEntities_[childEntity] == entity) { DestroyEntity(childEntity); }
+    }
+    onDestroyEntity.Execute(entity);
 }
 
 bool EntityManager::HasComponent(Entity entity, EntityMask componentType) const

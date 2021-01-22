@@ -73,6 +73,10 @@ public:
      */
 	Entity CreateEntity(Entity entity = INVALID_ENTITY);
 	Entity GetLastEntity();
+
+    /**
+	 * \brief Destroy an entity and all their children
+	 */
 	void DestroyEntity(Entity entity);
 
 	[[nodiscard]] bool HasComponent(Entity entity, EntityMask componentType) const;

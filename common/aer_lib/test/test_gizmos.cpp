@@ -173,8 +173,8 @@ public:
 	void DrawImGui() override {}
 
 private:
-	int updateCount_           = 0;
-	const float kEngineDuration_ = 5.0f;
+    float updateCount_           = 0;
+	const float kEngineDuration_ = 0.5f;
 
 	AerEngine& engine_;
 	EntityManager& entityManager_;

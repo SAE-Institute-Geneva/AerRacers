@@ -91,7 +91,7 @@ public:
 	{
 		const Configuration config = BasicEngine::GetInstance()->GetConfig();
 		engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-			config.dataRootPath + testScene_.sceneName);
+			config.dataRootPath + testScene_.sceneName); 
 	}
 
 	void Update(seconds) override
@@ -125,7 +125,6 @@ TEST(Scene, TestExampleSceneImporteur)
 
 	Configuration config;
 	config.windowName   = "AerEditor";
-	config.dataRootPath = "../../data/";
 	config.windowSize   = Vec2u(1400, 900);
 
 	sdl::Gles3Window window;
@@ -157,7 +156,6 @@ TEST(Scene, TestUnitySceneImporteur)
 
 	Configuration config;
 	config.windowName   = "AerEditor";
-	config.dataRootPath = "../../data/";
 	config.windowSize   = Vec2u(1400, 900);
 
 	sdl::Gles3Window window;
@@ -251,7 +249,6 @@ TEST(Scene, TestSceneExporteur)
 
 	Configuration config;
 	config.windowName   = "AerEditor";
-	config.dataRootPath = "../../data/";
 	config.windowSize   = Vec2u(1400, 900);
 
 	sdl::Gles3Window window;

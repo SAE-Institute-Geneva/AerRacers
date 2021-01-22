@@ -4,12 +4,12 @@
 #include <gl/gles3_window.h>
 #include <gl/graphics.h>
 
-#include "aer_engine.h"
-#include "editor/tool/logger.h"
-#include "log.h"
+#include "aer/aer_engine.h"
+#include "aer/editor/tool/logger.h"
+#include "aer/log.h"
 #include "engine/entity.h"
-#include "editor/tool/hierarchy.h"
-#include "editor/tool/inspector.h"
+#include "aer/editor/tool/hierarchy.h"
+#include "aer/editor/tool/inspector.h"
 
 class SimulateHierarchy : public neko::SystemInterface
 {
@@ -33,31 +33,33 @@ public:
 
 	void Init() override // Where we create entities
 	{
-		engine_.GetEntityManager().CreateEntity();
-		engine_.GetEntityManager().CreateEntity();
-		engine_.GetEntityManager().CreateEntity();
-		engine_.GetEntityManager().CreateEntity();
-		engine_.GetEntityManager().CreateEntity();
-		engine_.GetEntityManager().CreateEntity();
-		engine_.GetEntityManager().CreateEntity();
-		engine_.GetEntityManager().CreateEntity();
-		engine_.GetEntityManager().SetEntityParent(0, 1);
-		engine_.GetEntityManager().SetEntityParent(1, 2);
-		engine_.GetEntityManager().SetEntityParent(2, 3);
-		engine_.GetEntityManager().SetEntityParent(4, 3);
-		engine_.GetEntityManager().SetEntityParent(5, 6);
-		engine_.GetTransform3dManager().AddComponent(1);
-        engine_.GetTransform3dManager().SetPosition(1,neko::Vec3f(1.0f, 2.0f, 3.0f));
-        engine_.GetTransform3dManager().AddComponent(2);
-        engine_.GetTransform3dManager().SetScale(2, neko::Vec3f(1.0f, 2.0f, 3.0f));
-        engine_.GetTransform3dManager().AddComponent(0);
-        engine_.GetTransform3dManager().SetRotation(0, neko::EulerAngles(1.0f, 2.0f, 3.0f));
-		engine_.GetTransform3dManager().AddComponent(4);
+        auto& entityManager = engine_.GetComponentManagerContainer().entityManager;
+		entityManager.CreateEntity();
+		entityManager.CreateEntity();
+		entityManager.CreateEntity();
+		entityManager.CreateEntity();
+		entityManager.CreateEntity();
+		entityManager.CreateEntity();
+		entityManager.CreateEntity();
+		entityManager.CreateEntity();
+		entityManager.SetEntityParent(0, 1);
+		entityManager.SetEntityParent(1, 2);
+		entityManager.SetEntityParent(2, 3);
+		entityManager.SetEntityParent(4, 3);
+        entityManager.SetEntityParent(5, 6);
+        auto& transform3dManager = engine_.GetComponentManagerContainer().transform3dManager;
+		transform3dManager.AddComponent(1);
+        transform3dManager.SetPosition(1,neko::Vec3f(1.0f, 2.0f, 3.0f));
+        transform3dManager.AddComponent(2);
+        transform3dManager.SetScale(2, neko::Vec3f(1.0f, 2.0f, 3.0f));
+        transform3dManager.AddComponent(0);
+        transform3dManager.SetRotation(0, neko::EulerAngles(1.0f, 2.0f, 3.0f));
+		transform3dManager.AddComponent(4);
 	}
 
 	void Update(neko::seconds dt) override // Where we simulate tests
 	{
-        updateCount_++;
+        //updateCount_++;
         if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
 	}
 
