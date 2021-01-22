@@ -49,3 +49,4 @@ Mat4f Transform(const Vec3f& pos, const EulerAngles& rot, const Vec3f& scale);
 Mat4f Perspective(radian_t fovY, float aspect, float near, float far);
 Mat4f Orthographic(float left, float right, float bottom, float top, float nearPlane = 0.0f, float farPlane = 100.0f);
 }
+ 

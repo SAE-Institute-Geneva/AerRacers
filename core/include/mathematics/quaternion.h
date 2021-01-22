@@ -35,7 +35,7 @@ struct Quaternion
 	union
 	{
 		struct
-	    {
+		{
 			float x;
 			float y;
 			float z;
@@ -78,9 +78,9 @@ struct Quaternion
 	static float Dot(Quaternion a, Quaternion b)
 	{
 		return	a.x * b.x +
-				a.y * b.y +
-				a.z * b.z + 
-				a.w * b.w;
+		          a.y * b.y +
+		          a.z * b.z +
+		          a.w * b.w;
 	}
 
 	//Converts this quaternion to one with the same orientation but with a magnitude of 1.
@@ -92,9 +92,9 @@ struct Quaternion
 	static float Magnitude(Quaternion quaternion)
 	{
 		return std::sqrt(quaternion.x * quaternion.x +
-					quaternion.y * quaternion.y +
-					quaternion.z * quaternion.z +
-					quaternion.w * quaternion.w);
+		                 quaternion.y * quaternion.y +
+		                 quaternion.z * quaternion.z +
+		                 quaternion.w * quaternion.w);
 	}
 
 	//Rotates the Quaternion of angle degrees around axis.
@@ -118,7 +118,7 @@ struct Quaternion
 	//Returns the angle in degrees between two rotations a and b.
 	static degree_t Angle(Quaternion a, Quaternion b)
 	{
-		
+
 		return 2.0f * Acos(std::abs(Dot(a, b)));
 	}
 
@@ -138,7 +138,7 @@ struct Quaternion
 
 	/*
 	Returns a rotation that rotates z degrees around the z axis,
-	x degrees around the x axis, and y degrees around the y axis; 
+	x degrees around the x axis, and y degrees around the y axis;
 	applied in that order
 	*/
 	static Quaternion FromEuler(const EulerAngles& angle)
@@ -207,7 +207,7 @@ struct Quaternion
 	{
 		return Quaternion(0, 0, 0, 1);
 	}
-	
+
 	//Operators
 	Quaternion operator/(Quaternion rhs) const
 	{
@@ -235,8 +235,8 @@ struct Quaternion
 	{
 		return Quaternion(
 			x - rhs.x,
-			y - rhs.y, 
-			z - rhs.z, 
+			y - rhs.y,
+			z - rhs.z,
 			w - rhs.w);
 	}
 	Quaternion& operator-=(const Quaternion& rhs)
@@ -265,7 +265,7 @@ struct Quaternion
 		w += rhs.w;
 		return *this;
 	}
-	
+
 
 	Quaternion operator*(const Quaternion& rhs) const
 	{
@@ -300,21 +300,21 @@ struct Quaternion
 		w *= rhs.w;
 		return *this;
 	}
-	
+
 	bool operator==(const Quaternion& right) const
 	{
 		return x == right.x && y == right.y && z == right.z && w == right.w;
 	}
-	
+
 	bool operator!=(const Quaternion& right) const
 	{
 		return !(*this == right);
 	}
 
-    friend std::ostream& operator<<(std::ostream& os, const Quaternion& quat)
-    {
-        os << "Quaternion(" << quat.x << "," << quat.y << "," << quat.z << "," << quat.w << ")";
-        return os;
-    }
+	friend std::ostream& operator<<(std::ostream& os, const Quaternion& quat)
+	{
+		os << "Quaternion(" << quat.x << "," << quat.y << "," << quat.z << "," << quat.w << ")";
+		return os;
+	}
 };
-}
+} 

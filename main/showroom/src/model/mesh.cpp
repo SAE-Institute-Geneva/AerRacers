@@ -23,13 +23,14 @@
  */
 
 #ifdef NEKO_GLES3
-#include "showroom/model/mesh.h"
-#include "assimp/scene.h"
-#include "assimp/material.h"
+	#include "showroom/model/mesh.h"
 
-#include "gl/gles3_include.h"
-#include "graphics/graphics.h"
-#include "graphics/texture.h"
+	#include "assimp/material.h"
+	#include "assimp/scene.h"
+
+	#include "graphics/graphics.h"
+	#include "graphics/texture.h"
+	#include "io_system.h"
 
 namespace neko::sr
 {
@@ -41,23 +42,14 @@ Mesh::Mesh() : loadMeshToGpu([this]
 
 void Mesh::Init()
 {
-#ifdef NEKO_SAMETHREAD
-    loadMeshToGpu.Execute();
-    const TextureManagerInterface& textureManager = TextureManagerLocator::get();
-    for (auto& texture : textures_)
-    {
-        texture.textureName = textureManager.GetTexture(texture.textureId).name;
-    }
-#else
-    RendererLocator::get().AddPreRenderJob(&loadMeshToGpu);
-    auto& textureManager = TextureManagerLocator::get();
-    for (auto& texture : textures_)
-    {
-    	//Waiting for texture to be loaded
-    	while(!textureManager.IsTextureLoaded(texture.textureId)) {}
-        texture.textureName = textureManager.GetTexture(texture.textureId).name;
-    }
-#endif
+	RendererLocator::get().AddPreRenderJob(&loadMeshToGpu);
+	auto& textureManager = TextureManagerLocator::get();
+	for (auto& texture : textures_)
+	{
+		//Waiting for texture to be loaded
+		while (!textureManager.IsTextureLoaded(texture.textureId)) {}
+		texture.name = textureManager.GetTexture(texture.textureId)->name;
+	}
 }
 
 
@@ -80,7 +72,7 @@ void Mesh::Destroy()
 
 	for(auto& texture : textures_)
 	{
-        gl::DestroyTexture(texture.textureName);
+        gl::DestroyTexture(texture.name);
 	}
 
     textures_.clear();
@@ -102,10 +94,13 @@ void Mesh::UpdateTextures()
             continue;
 		}
 
-        if (textures_[index].textureName == INVALID_TEXTURE_NAME)
-            textures_[index].textureName = textureManager.GetTexture(textures_[index].textureId).name;
+        if (textures_[index].name == INVALID_TEXTURE_NAME)
+		{
+			const neko::Texture* texture = textureManager.GetTexture(textures_[index].textureId);
+			if (texture) textures_[index].name = texture->name;
+		}
 
-        ++it;
+		++it;
 	}
 }
 
@@ -153,19 +148,18 @@ void Mesh::ProcessMesh(
     {
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-        textures_.reserve(
-        material->GetTextureCount(aiTextureType_SPECULAR) +
-	        material->GetTextureCount(aiTextureType_DIFFUSE) + 
-            material->GetTextureCount(aiTextureType_HEIGHT) +
-            material->GetTextureCount(aiTextureType_EMISSIVE));
-    	
-        material->Get(AI_MATKEY_SHININESS, specularExponent_);
+		textures_.reserve(material->GetTextureCount(aiTextureType_SPECULAR) +
+						  material->GetTextureCount(aiTextureType_DIFFUSE) +
+						  material->GetTextureCount(aiTextureType_HEIGHT) +
+						  material->GetTextureCount(aiTextureType_EMISSIVE));
+
+		material->Get(AI_MATKEY_SHININESS, specularExponent_);
         LoadMaterialTextures(material,
             aiTextureType_DIFFUSE, Texture::TextureType::DIFFUSE, directory);
         LoadMaterialTextures(material,
             aiTextureType_SPECULAR, Texture::TextureType::SPECULAR, directory);
         LoadMaterialTextures(material,
-            aiTextureType_HEIGHT, Texture::TextureType::NORMAL, directory);
+            aiTextureType_NORMALS, Texture::TextureType::NORMAL, directory);
         LoadMaterialTextures(material,
             aiTextureType_EMISSIVE, Texture::TextureType::EMISSIVE, directory);
     }
@@ -189,36 +183,55 @@ bool Mesh::IsLoaded() const
 
 void Mesh::SetupMesh()
 {
-    glCheckError();
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO); glCheckError();
-    glGenBuffers(1, &EBO); glCheckError();
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO); glCheckError();
-    glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(Vertex), &vertices_[0], GL_STATIC_DRAW); glCheckError();
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_.size() * sizeof(unsigned int), &indices_[0], GL_STATIC_DRAW); glCheckError();
+	glCheckError();
+	glGenVertexArrays(1, &VAO);
+	glGenBuffers(1, &VBO);
+	glCheckError();
+	glGenBuffers(1, &EBO);
+	glCheckError();
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glCheckError();
+	glBufferData(GL_ARRAY_BUFFER, vertices_.size() * sizeof(Vertex), &vertices_[0], GL_STATIC_DRAW);
+	glCheckError();
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+		indices_.size() * sizeof(unsigned int),
+		&indices_[0],
+		GL_STATIC_DRAW);
+	glCheckError();
 
-    //Position
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position)); glCheckError();
+	//Position
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(
+		0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, position));
+	glCheckError();
 
-    //TexCoords
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, texCoords)); glCheckError();
+	//TexCoords
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(
+		1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, texCoords));
+	glCheckError();
 
-    //Normal
-    glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal)); glCheckError();
+	//Normal
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(
+		2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, normal));
+	glCheckError();
 
-    //Tangent
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tangent)); glCheckError();
+	//Tangent
+	glEnableVertexAttribArray(3);
+	glVertexAttribPointer(
+		3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, tangent));
+	glCheckError();
 
-    //Bitangent
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, bitangent)); glCheckError();
-    glBindVertexArray(0); glCheckError();
+	//Bitangent
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(
+		4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*) offsetof(Vertex, bitangent));
+	glCheckError();
+	glBindVertexArray(0);
+	glCheckError();
 }
 
 size_t Mesh::GetTexture(sr::Texture::TextureType type)
@@ -241,17 +254,17 @@ void Mesh::LoadMaterialTextures(
     {
         aiString str;
         material->GetTexture(aiTexture, i, &str);
-        
+
         textures_.emplace_back();
         auto& assTexture = textures_.back();
         assTexture.type = texture;
-		assTexture.name = str.C_Str();
+		assTexture.sName = str.C_Str();
         std::string path = directory.data();
         path += '/';
     	path += str.C_Str();
-    	
-        assTexture.textureId = textureManager.LoadTexture(path);
-    }
+
+		assTexture.textureId = textureManager.LoadTexture(path);
+	}
 }
 
 void Mesh::BindTextures(const gl::Shader& shader) const
@@ -292,7 +305,7 @@ void Mesh::BindTextures(const gl::Shader& shader) const
 	    glActiveTexture(GL_TEXTURE0 + number);
 		usedMaps |= 1u << number;
         shader.SetInt(std::string("material.").append(name), number);
-        glBindTexture(GL_TEXTURE_2D, texture.textureName);
+        glBindTexture(GL_TEXTURE_2D, texture.name);
     }
     shader.SetFloat("material.shininess", specularExponent_);
 	shader.SetUInt("usedMaps", usedMaps);

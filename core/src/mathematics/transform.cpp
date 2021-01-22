@@ -33,7 +33,7 @@ namespace neko::Transform3d
 {
 Mat4f Translate(const Mat4f& transform, const Vec3f& translation)
 {
-    return TranslationMatrixFrom(translation) * transform;
+	return TranslationMatrixFrom(translation) * transform;
 }
 
 Mat4f TranslationMatrixFrom(const Vec3f& translation)
@@ -45,7 +45,7 @@ Mat4f TranslationMatrixFrom(const Vec3f& translation)
 
 Mat4f Scale(const Mat4f& transform, const Vec3f& scale)
 {
-    return ScalingMatrixFrom(scale) * transform;
+	return ScalingMatrixFrom(scale) * transform;
 }
 
 Mat4f ScalingMatrixFrom(const Vec3f& scale)
@@ -59,23 +59,23 @@ Mat4f ScalingMatrixFrom(const Vec3f& scale)
 
 Mat4f Rotate(const Mat4f& transform, const degree_t angle, const Vec3f& axis)
 {
-    return RotationMatrixFrom(angle, axis) * transform;
+	return RotationMatrixFrom(angle, axis) * transform;
 }
 
 Mat4f Rotate(const Mat4f& transform, const radian_t angle, const Vec3f& axis)
 {
-    return RotationMatrixFrom(angle, axis) * transform;
+	return RotationMatrixFrom(angle, axis) * transform;
 }
 
 Mat4f Rotate(const Mat4f& transform, const Quaternion& quaternion)
 {
-    return RotationMatrixFrom(quaternion) * transform;
+	return RotationMatrixFrom(quaternion) * transform;
 }
 
 Mat4f Rotate(const Mat4f& transform, const EulerAngles& eulerAngles)
 {
-    const Quaternion quaternion = Quaternion::FromEuler(eulerAngles);
-    return RotationMatrixFrom(quaternion) * transform;
+	const Quaternion quaternion = Quaternion::FromEuler(eulerAngles);
+	return RotationMatrixFrom(quaternion) * transform;
 }
 
 Mat4f RotationMatrixFrom(const degree_t angle, const Vec3f& axis)
@@ -193,17 +193,17 @@ Mat4f Transform(const Vec3f& pos, const EulerAngles& rot, const Vec3f& scale)
 
 Mat4f Perspective(radian_t fovY, float aspect, float nearPlane, float farPlane)
 {
-    neko_assert(fabsf(aspect - std::numeric_limits<float>::epsilon()) > 0.0f, "Aspect should not be zero")
+	neko_assert(fabsf(aspect - std::numeric_limits<float>::epsilon()) > 0.0f, "Aspect should not be zero")
 
-    const float tanHalfFovY = Tan(fovY / 2.0f);
+	const float tanHalfFovY = Tan(fovY / 2.0f);
 
-    Mat4f perspective{Mat4f::Zero};
-    perspective[0][0] = 1.0f/ (aspect * tanHalfFovY);
-    perspective[1][1] = 1.0f / (tanHalfFovY);
-    perspective[2][2] = - (farPlane + nearPlane) / (farPlane - nearPlane);
-    perspective[2][3] = - 1.0f;
-    perspective[3][2] = - (2.0f * farPlane * nearPlane) / (farPlane - nearPlane);
-    return perspective;
+	Mat4f perspective{Mat4f::Zero};
+	perspective[0][0] = 1.0f/ (aspect * tanHalfFovY);
+	perspective[1][1] = 1.0f / (tanHalfFovY);
+	perspective[2][2] = - (farPlane + nearPlane) / (farPlane - nearPlane);
+	perspective[2][3] = - 1.0f;
+	perspective[3][2] = - (2.0f * farPlane * nearPlane) / (farPlane - nearPlane);
+	return perspective;
 }
 
 Mat4f Orthographic(float left, float right, float bottom, float top, float nearPlane, float farPlane)
@@ -217,4 +217,4 @@ Mat4f Orthographic(float left, float right, float bottom, float top, float nearP
 	                 -(farPlane + nearPlane) / (farPlane - nearPlane), 1.0f);
 	return ortho;
 }
-}
+} 

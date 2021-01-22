@@ -1,7 +1,7 @@
-#include "log.h"
+#include "aer/log.h"
 
-#include <memory>
 #include <iomanip>
+#include <memory>
 #include <sstream>
 
 #include <utils/file_utility.h>
@@ -13,64 +13,40 @@ namespace neko
 //-----------------------------------------------------------------------------
 void LogMessage::Generate()
 {
-    time_t curTime = time(nullptr);
+	time_t curTime = time(nullptr);
 
 #ifdef _MSC_VER
-	struct tm localTime {};
+	struct tm localTime
+	{};
 	localtime_s(&localTime, &curTime);
 #else
-    tm localTime = *localtime(&curTime);
+	tm localTime = *localtime(&curTime);
 #endif
 
 	std::ostringstream message;
-	message << '[' << std::setw(2) << std::setfill('0') << localTime.tm_hour << ":"
-		<< std::setw(2) << std::setfill('0') << localTime.tm_min << ":"
-		<< std::setw(2) << std::setfill('0') << localTime.tm_sec << "] ";
+	message << '[' << std::setw(2) << std::setfill('0') << localTime.tm_hour << ":" << std::setw(2)
+			<< std::setfill('0') << localTime.tm_min << ":" << std::setw(2) << std::setfill('0')
+			<< localTime.tm_sec << "] ";
 
 	switch (type)
 	{
-	case LogType::DEBUG_:
-		message << "[DEBUG] ";
-		break;
-	case LogType::INFO:
-		message << "[INFO] ";
-		break;
-	case LogType::WARNING:
-		message << "[WARNING] ";
-		break;
-	case LogType::ERROR_:
-		message << "[ERROR] ";
-		break;
-	case LogType::CRITICAL:
-		message << "[CRITICAL] ";
-		break;
-	default:
-		break;
+		case LogType::DEBUG_: message << "[DEBUG] "; break;
+		case LogType::INFO: message << "[INFO] "; break;
+		case LogType::WARNING: message << "[WARNING] "; break;
+		case LogType::ERROR_: message << "[ERROR] "; break;
+		case LogType::CRITICAL: message << "[CRITICAL] "; break;
+		default: break;
 	}
-	
+
 	switch (category)
 	{
-	case LogCategory::ENGINE:
-		message << "[ENGINE] ";
-		break;
-	
-	case LogCategory::MATH:
-		message << "[MATH] ";
-		break;
-	case LogCategory::GRAPHICS:
-		message << "[GRAPHICS] ";
-		break;
-	case LogCategory::IO:
-		message << "[IO] ";
-		break;
-	case LogCategory::SOUND:
-		message << "[SOUND] ";
-		break;
-	case LogCategory::TOOL:
-		message << "[TOOL] ";
-		break;
-	default:
-		break;
+		case LogCategory::ENGINE: message << "[ENGINE] "; break;
+		case LogCategory::MATH: message << "[MATH] "; break;
+		case LogCategory::GRAPHICS: message << "[GRAPHICS] "; break;
+		case LogCategory::IO: message << "[IO] "; break;
+		case LogCategory::SOUND: message << "[SOUND] "; break;
+		case LogCategory::TOOL: message << "[TOOL] "; break;
+		default: break;
 	}
 
 	message << log << '\n';
@@ -84,10 +60,7 @@ LogManager::LogManager() : status_(0)
 {
 	Log::provide(this);
 	status_ |= IS_RUNNING | IS_EMPTY;
-	logThread_ = std::make_unique<std::thread>([this]
-	{
-		LogLoop();
-	});
+	logThread_ = std::make_unique<std::thread>([this] { LogLoop(); });
 }
 
 LogManager::~LogManager()
@@ -102,7 +75,7 @@ void LogManager::LogLoop()
 		if (status_ & IS_EMPTY)
 		{
 			std::unique_lock<std::mutex> lock(logMutex_);
-			
+
 			status_ |= IS_LOG_WAITING;
 			conditionVariable_.wait(lock);
 			status_ &= ~IS_LOG_WAITING;
@@ -146,10 +119,10 @@ void LogManager::Destroy()
 		conditionVariable_.wait(lock);
 		status_ &= ~IS_LOG_WAITING;
 	}
-	
+
 	{
 		conditionVariable_.notify_one();
-		
+
 		status_ &= ~IS_RUNNING;
 	}
 	lock.unlock();
@@ -171,7 +144,7 @@ void LogManager::Log(LogCategory category, LogType logType, const std::string& l
 	{
 		LogMessage message(category, logType, log);
 		message.Display();
-		
+
 		logHistory_.emplace_back(message);
 	});
 
@@ -179,16 +152,12 @@ void LogManager::Log(LogCategory category, LogType logType, const std::string& l
 	conditionVariable_.notify_one();
 }
 
-void LogManager::ClearLogs()
-{
-	logHistory_.clear();
-}
-
+void LogManager::ClearLogs() { logHistory_.clear(); }
 
 void LogManager::WriteToFile()
 {
 	std::lock_guard<std::mutex> lock(logMutex_);
-	
+
 	status_ |= IS_WRITING;
 	status_ &= ~IS_EMPTY;
 
@@ -227,7 +196,7 @@ void LogManager::WriteToFile()
 		LogMessage message(LogCategory::IO, LogType::INFO, "Successfully saved log output");
 		logHistory_.emplace_back(message);
 		message.Display();
-		
+
 		for (auto& line : logHistory_)
 		{
 			fileContent += line.log;
@@ -250,58 +219,40 @@ void LogManager::WriteToFile()
 //-----------------------------------------------------------------------------
 // Shorthands definitions
 //-----------------------------------------------------------------------------
-void LogDebug(const std::string& msg)
-{
-	Log::get().Log(LogType::INFO, msg);
-}
+void LogDebug(const std::string& msg) { Log::get().Log(LogType::INFO, msg); }
 
 void LogDebug(const LogCategory category, const std::string& msg)
 {
 	Log::get().Log(category, LogType::INFO, msg);
 }
 
-void LogInfo(const std::string& msg)
-{
-	Log::get().Log(LogType::INFO, msg);
-}
+void LogInfo(const std::string& msg) { Log::get().Log(LogType::INFO, msg); }
 
 void LogInfo(const LogCategory category, const std::string& msg)
 {
 	Log::get().Log(category, LogType::INFO, msg);
 }
 
-void LogWarning(const std::string& msg)
-{
-	Log::get().Log(LogType::WARNING, msg);
-}
+void LogWarning(const std::string& msg) { Log::get().Log(LogType::WARNING, msg); }
 
 void LogWarning(const LogCategory category, const std::string& msg)
 {
 	Log::get().Log(category, LogType::WARNING, msg);
 }
 
-void LogError(const std::string& msg)
-{
-	Log::get().Log(LogType::ERROR_, msg);
-}
+void LogError(const std::string& msg) { Log::get().Log(LogType::ERROR_, msg); }
 
 void LogError(const LogCategory category, const std::string& msg)
 {
 	Log::get().Log(category, LogType::ERROR_, msg);
 }
 
-void LogCritical(const std::string& msg)
-{
-	Log::get().Log(LogType::CRITICAL, msg);
-}
+void LogCritical(const std::string& msg) { Log::get().Log(LogType::CRITICAL, msg); }
 
 void LogCritical(const LogCategory category, const std::string& msg)
 {
 	Log::get().Log(category, LogType::CRITICAL, msg);
 }
 
-const std::vector<LogMessage>& GetLogs()
-{
-	return Log::get().GetLogs();
-}
+const std::vector<LogMessage>& GetLogs() { return Log::get().GetLogs(); }
 }

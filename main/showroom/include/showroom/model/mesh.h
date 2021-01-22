@@ -48,24 +48,6 @@ struct Vertex
     Vec3f bitangent;
 };
 
-struct Texture
-{
-	enum class TextureType : std::uint8_t
-	{
-		NONE,
-		DIFFUSE,
-		SPECULAR,
-		NORMAL,
-		EMISSIVE
-	};
-
-	Texture() = default;
-	TextureId textureId = INVALID_TEXTURE_ID;
-	TextureName textureName = INVALID_TEXTURE_NAME;
-	std::string name;
-	TextureType type = TextureType::NONE;
-};
-
 class Mesh
 {
 public:

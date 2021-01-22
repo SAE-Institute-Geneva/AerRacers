@@ -371,9 +371,13 @@ struct Aabb2d
     [[nodiscard]] Vec2f CalculateCenter() const
 	{ return 0.5f * (lowerLeftBound + upperRightBound); }
 
-    ///\brief Get the extends of the AABB (half-widths).
+    ///\brief Get the extends of the AABB.
     [[nodiscard]] Vec2f CalculateExtends() const
-	{ return 0.5f * (upperRightBound - lowerLeftBound); }
+	{ return upperRightBound - lowerLeftBound; }
+
+    ///\brief Get the half-extends of the AABB.
+    [[nodiscard]] Vec2f CalculateHalfExtends() const
+	{ return (upperRightBound - lowerLeftBound) * 0.5f; }
 
     ///\brief Set the AABB from the center, extends.
 	void FromCenterExtends(const Vec2f& center, const Vec2f& extends)
@@ -432,9 +436,9 @@ struct Aabb2d
 	[[nodiscard]] bool DoIntersectAabb(const Aabb2d& aabb) const
 	{
 		bool x = Abs(aabb.CalculateCenter().x - CalculateCenter().x) <=
-		         (aabb.CalculateExtends().x + CalculateExtends().x);
+		         (aabb.CalculateHalfExtends().x + CalculateHalfExtends().x);
 		bool y = Abs(aabb.CalculateCenter().y - CalculateCenter().y) <=
-		         (aabb.CalculateExtends().y + CalculateExtends().y);
+		         (aabb.CalculateHalfExtends().y + CalculateHalfExtends().y);
 
 		return x && y;
 	}
@@ -473,8 +477,12 @@ struct Aabb3d
     [[nodiscard]] Vec3f CalculateCenter() const
 	{ return (lowerLeftBound + upperRightBound) * 0.5f; }
 
-    ///\brief Get the extends of the AABB (half-widths).
+    ///\brief Get the extends of the AABB.
     [[nodiscard]] Vec3f CalculateExtends() const
+	{ return upperRightBound - lowerLeftBound; }
+
+    ///\brief Get the half-extends of the AABB.
+    [[nodiscard]] Vec3f CalculateHalfExtends() const
 	{ return (upperRightBound - lowerLeftBound) * 0.5f; }
 
     ///\brief Set the AABB from the center, extends.
@@ -543,11 +551,11 @@ struct Aabb3d
 	[[nodiscard]] bool DoIntersectAabb(const Aabb3d& aabb) const
 	{
 		bool x = abs(aabb.CalculateCenter().x - CalculateCenter().x) <=
-		         (aabb.CalculateExtends().x + CalculateExtends().x);
+		         (aabb.CalculateHalfExtends().x + CalculateHalfExtends().x);
 		bool y = abs(aabb.CalculateCenter().y - CalculateCenter().y) <=
-		         (aabb.CalculateExtends().y + CalculateExtends().y);
+		         (aabb.CalculateHalfExtends().y + CalculateHalfExtends().y);
 		bool z = abs(aabb.CalculateCenter().z - CalculateCenter().z) <=
-		         (aabb.CalculateExtends().z + CalculateExtends().z);
+		         (aabb.CalculateHalfExtends().z + CalculateHalfExtends().z);
 
 		return x && y && z;
 	}
@@ -590,7 +598,7 @@ struct Aabb3d
 	[[nodiscard]] bool IntersectPlane(const Vec3f& normal, const Vec3f& point) const
 	{
 		if (DoContainPoint(point)) return true;
-		Vec3f extends = CalculateExtends();
+		Vec3f extends = CalculateHalfExtends();
 		Vec3f center  = CalculateCenter();
 
 		float r = extends.x * std::abs(normal.x) + extends.y * std::abs(normal.y) +
@@ -622,3 +630,4 @@ struct Aabb3d
 };
 
 }
+

@@ -102,8 +102,7 @@ void Model::ProcessModel()
 	Job loadingModelJob = Job([this, &import, &scene]
 	{
 		//assimp delete automatically the IO System
-		auto* ioSystem = new NekoIOSystem();
-		import.SetIOHandler(ioSystem);
+		import.SetIOHandler(new NekoIOSystem(BasicEngine::GetInstance()->GetFilesystem()));
 
 		scene = import.ReadFile(path_.data(),
 		                        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
@@ -140,12 +139,22 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 		node->mTransformation.Decompose(scale, rot, pos);
 
 		Quaternion newRot = Quaternion::AngleAxis(degree_t(90.0f), Vec3f::right) * Quaternion(rot);
-		mesh.modelMat_ = Transform3d::ScalingMatrixFrom(Vec3f(scale) / 100.0f);
-		mesh.modelMat_ = Transform3d::Rotate(mesh.modelMat_, newRot);
-		mesh.modelMat_ = Transform3d::Translate(mesh.modelMat_, Vec3f(pos));
+		mesh.modelMat_    = Transform3d::ScalingMatrixFrom(Vec3f(scale) / 100.0f);
+		mesh.modelMat_    = Transform3d::Rotate(mesh.modelMat_, newRot);
+		mesh.modelMat_    = Transform3d::Translate(mesh.modelMat_, Vec3f(pos));
 
-		aiMesh* assMesh = scene->mMeshes[node->mMeshes[i]];
-		mesh.name_ = node->mName.C_Str();
+		aiMesh* assMesh      = scene->mMeshes[node->mMeshes[i]];
+		const std::string meshName = node->mName.C_Str();
+
+		const auto it = std::find_if(meshes_.cbegin(),
+			meshes_.cend(),
+			[meshName](const Mesh& mesh) { return mesh.name_ == meshName; });
+		if (it != meshes_.end())
+			mesh.name_ = it->name_ + "_0";
+		else
+			mesh.name_ = meshName;
+
+		node->mName = mesh.name_;
 		if (node->mParent->mNumMeshes != 0)
 			mesh.parentName_ = HashString(node->mParent->mName.C_Str());
 		mesh.ProcessMesh(assMesh, scene, directory_, path_);

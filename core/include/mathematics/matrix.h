@@ -705,3 +705,4 @@ inline Mat4f Mat4f::MultiplyIntrinsincs(const Mat4f& rhs) const noexcept
 }
 #endif
 } // namespace neko
+

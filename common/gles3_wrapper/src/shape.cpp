@@ -488,6 +488,7 @@ void RenderCircle::Draw() const
 {
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, resolution + 2);
+	glBindVertexArray(0);
 }
 
 void RenderCircle::Destroy()
@@ -500,59 +501,59 @@ void RenderWireFrameCuboid::Init()
 {
 	Vec3f position[36] =
 	{
-		//Right face 
-		Vec3f(0.5f, 0.5f, 0.5f) * size_ + offset_, //Top Right
-		Vec3f(0.5f, -0.5f, 0.5f) * size_ + offset_, //Bottom Right
+		//Right face
+		Vec3f(0.5f, 0.5f, 0.5f) * size_ + offset_,      //Top Right
+		Vec3f(0.5f, -0.5f, 0.5f) * size_ + offset_,     //Bottom Right
+		Vec3f(0.5f, 0.5f, -0.5f) * size_ + offset_,     //Top Left
+		Vec3f(0.5f, -0.5f, -0.5f) * size_ + offset_,    //Bottom Left
 
-		Vec3f(0.5f, 0.5f, -0.5f) * size_ + offset_, //Top Left
-		Vec3f(0.5f, -0.5f, -0.5f) * size_ + offset_, //Bottom Left
+		Vec3f(0.5f, -0.5f, 0.5f) * size_ + offset_,     //Bottom Right
+		Vec3f(0.5f, -0.5f, -0.5f) * size_ + offset_,    //Bottom Left
+		Vec3f(0.5f, 0.5f, -0.5f) * size_ + offset_,     //Top Left
+		Vec3f(0.5f, 0.5f, 0.5f) * size_ + offset_,      //Top Right
 
-		Vec3f(0.5f, -0.5f, 0.5f) * size_ + offset_, //Bottom Right
-		Vec3f(0.5f, -0.5f, -0.5f) * size_ + offset_, //Bottom Left
+		//Left face
+		Vec3f(-0.5f, 0.5f, 0.5f) * size_ + offset_,      //Top Right
+		Vec3f(-0.5f, 0.5f, -0.5f) * size_ + offset_,     //Top Left
+		Vec3f(-0.5f, -0.5f, 0.5f) * size_ + offset_,     //Bottom Right
+		Vec3f(-0.5f, -0.5f, -0.5f) * size_ + offset_,    //Bottom Left
 
-		Vec3f(0.5f, 0.5f, -0.5f) * size_ + offset_, //Top Left
-		Vec3f(0.5f, 0.5f, 0.5f) * size_ + offset_, //Top Right
+		Vec3f(-0.5f, -0.5f, 0.5f) * size_ + offset_,     //Bottom Right
+		Vec3f(-0.5f, 0.5f, 0.5f) * size_ + offset_,      //Top Right
+		Vec3f(-0.5f, 0.5f, -0.5f) * size_ + offset_,     //Top Left
+		Vec3f(-0.5f, -0.5f, -0.5f) * size_ + offset_,    //Bottom Left
 
-		//Left face                 
-		Vec3f(-0.5f, 0.5f, 0.5f) * size_ + offset_, //Top Right
-		Vec3f(-0.5f, 0.5f, -0.5f) * size_ + offset_, //Top Left
-
-		Vec3f(-0.5f, -0.5f, 0.5f) * size_ + offset_, //Bottom Right
-		Vec3f(-0.5f, -0.5f, -0.5f) * size_ + offset_, //Bottom Left
-
-		Vec3f(-0.5f, -0.5f, 0.5f) * size_ + offset_, //Bottom Right
-		Vec3f(-0.5f, 0.5f, 0.5f) * size_ + offset_, //Top Right
-
-		Vec3f(-0.5f, 0.5f, -0.5f) * size_ + offset_, //Top Left
-		Vec3f(-0.5f, -0.5f, -0.5f) * size_ + offset_, //Bottom Left
-
-		//Top face                  
-		Vec3f(0.5f, 0.5f, 0.5f) * size_ + offset_, //Top Right
-		Vec3f(-0.5f, 0.5f, 0.5f) * size_ + offset_, //Top Left
-		Vec3f(0.5f, 0.5f, -0.5f) * size_ + offset_, //Bottom Right
-		Vec3f(-0.5f, 0.5f, -0.5f) * size_ + offset_, //Bottom Left
-		//Bottom face               
-		Vec3f(0.5f, -0.5f, 0.5f) * size_ + offset_, //Top Right
-		Vec3f(-0.5f, -0.5f, 0.5f) * size_ + offset_, //Top Left
-		Vec3f(0.5f, -0.5f, -0.5f) * size_ + offset_, //Bottom Right
-		Vec3f(-0.5f, -0.5f, -0.5f) * size_ + offset_, //Bottom Left
+		//Top face
+		Vec3f(0.5f, 0.5f, 0.5f) * size_ + offset_,      //Top Right
+		Vec3f(-0.5f, 0.5f, 0.5f) * size_ + offset_,     //Top Left
+		Vec3f(0.5f, 0.5f, -0.5f) * size_ + offset_,     //Bottom Right
+		Vec3f(-0.5f, 0.5f, -0.5f) * size_ + offset_,    //Bottom Left
+		//Bottom face
+		Vec3f(0.5f, -0.5f, 0.5f) * size_ + offset_,      //Top Right
+		Vec3f(-0.5f, -0.5f, 0.5f) * size_ + offset_,     //Top Left
+		Vec3f(0.5f, -0.5f, -0.5f) * size_ + offset_,     //Bottom Right
+		Vec3f(-0.5f, -0.5f, -0.5f) * size_ + offset_,    //Bottom Left
 	};
+
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(4, &VBO[0]);
 
+	//Vertex positions
 	glBindVertexArray(VAO);
-	// position attribute
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
 	glEnableVertexAttribArray(0);
+	glBindVertexArray(0);
 }
 
 void RenderWireFrameCuboid::Draw() const
 {
 	glLineWidth(lineWidth_);
+
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_LINES, 0, 24);
+	glBindVertexArray(0);
 }
 
 void RenderWireFrameCuboid::Destroy()
@@ -563,39 +564,30 @@ void RenderWireFrameCuboid::Destroy()
 
 void RenderLine3d::Init()
 {
-	Vec3f position[2] =
-	{
-		Vec3f(0.0f, 0.0f, 0.0f) * offset_, //Left
-		Vec3f(1.0f, 1.0f, 1.0f) * relativeEndPos_ + offset_, //Right
+	Vec3f position[2] = {
+		Vec3f(0.0f, 0.0f, 0.0f) * offset_,                      //Start
+		Vec3f(1.0f, 1.0f, 1.0f) * relativeEndPos_ + offset_,    //End
 	};
 
-	float linePos[2] =
-	{
-		0,
-		1
-	};
 	glGenVertexArrays(1, &VAO);
-	glGenBuffers(2, &VBO[0]);
-	// 1. bind Vertex Array Object
+	glGenBuffers(1, &VBO[0]);
+
+	//Vertex positions
 	glBindVertexArray(VAO);
-	// 2. copy our vertices array in a buffer for OpenGL to use
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(position), position, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), (void*)nullptr);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), (void*) nullptr);
 	glEnableVertexAttribArray(0);
-	//bind texture coords data
-	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(linePos), linePos, GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(float), (void*)nullptr);
-
-	glEnableVertexAttribArray(1);
+	glBindVertexArray(0);
 }
 
 void RenderLine3d::Draw() const
 {
 	glLineWidth(lineWidth_);
+
 	glBindVertexArray(VAO);
 	glDrawArrays(GL_LINES, 0, 2);
+	glBindVertexArray(0);
 }
 
 void RenderLine3d::Destroy()
@@ -604,51 +596,44 @@ void RenderLine3d::Destroy()
 	glDeleteBuffers(2, &VBO[0]);
 }
 
-RenderWireFrameSphere::RenderWireFrameSphere(
-    Vec3f offset,
-    float radius) : neko::RenderWireFrameSphere(offset, radius)
-{
-    
-}
+RenderWireFrameSphere::RenderWireFrameSphere(Vec3f offset, float radius)
+   : neko::RenderWireFrameSphere(offset, radius)
+{}
 
 void RenderWireFrameSphere::Init()
 {
 	glCheckError();
 	glGenVertexArrays(1, &VAO);
-
 	glGenBuffers(1, &VBO[0]);
 	glGenBuffers(1, &EBO);
 
-	Vec3f vertices[resolution*2+1];
-
+	Vec3f vertices[resolution * 2 + 1];
 	for (size_t i = 0; i < resolution; i++)
 	{
 		Vec2f vertex = Vec2f::up * radius_;
-		auto angle = degree_t(360.0f / resolution * static_cast<float>(i));
-		vertex = vertex.Rotate(angle);
-		vertices[i] = Vec3f( vertex.y, vertex.x, 0.0f);
+		auto angle   = degree_t(360.0f / resolution * static_cast<float>(i));
+		vertex       = vertex.Rotate(angle);
+		vertices[i]  = Vec3f(vertex.y, vertex.x, 0.0f);
 		i++;
-		vertices[i] = Vec3f( vertex.y, vertex.x, 0.0f);
+		vertices[i] = Vec3f(vertex.y, vertex.x, 0.0f);
 	}
 
-	for (size_t i = resolution; i < resolution*2; i++)
+	for (size_t i = resolution; i < resolution * 2; i++)
 	{
 		Vec2f vertex = Vec2f::up * radius_;
-		auto angle = degree_t(360.0f / resolution * static_cast<float>(i - 1));
-		vertex = vertex.Rotate(angle);
-		vertices[i] = Vec3f(vertex.y, 0.0f, vertex.x);
+		auto angle   = degree_t(360.0f / resolution * static_cast<float>(i - 1));
+		vertex       = vertex.Rotate(angle);
+		vertices[i]  = Vec3f(vertex.y, 0.0f, vertex.x);
 		i++;
 		vertices[i] = Vec3f(vertex.y, 0.0f, vertex.x);
 	}
-	vertices[resolution*2] = vertices[1];
+	vertices[resolution * 2] = vertices[1];
 
-	//Initialize the EBO program
 	glGenBuffers(1, &VBO[0]);
 	glGenBuffers(1, &EBO);
 	glGenVertexArrays(1, &VAO);
-	// 1. bind Vertex Array Object
+
 	glBindVertexArray(VAO);
-	// 2. copy our vertices array in a buffer for OpenGL to use
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), (void*) nullptr);
@@ -659,9 +644,11 @@ void RenderWireFrameSphere::Init()
 
 void RenderWireFrameSphere::Draw() const
 {
-	//glLineWidth(lineWidth_);
+	glLineWidth(lineWidth_);
+
 	glBindVertexArray(VAO);
-	glDrawArrays(GL_LINE_STRIP, 0, resolution*2 + 1);
+	glDrawArrays(GL_LINE_STRIP, 0, resolution * 2 + 1);
+	glBindVertexArray(0);
 }
 
 void RenderWireFrameSphere::Destroy()

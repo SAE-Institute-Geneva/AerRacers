@@ -33,6 +33,7 @@
 #include "gl/shape.h"
 #include "graphics/lights.h"
 #include "showroom/camera.h"
+#include "showroom/gizmos_renderer.h"
 #include "showroom/model/model.h"
 #include "showroom/showroom_engine.h"
 
@@ -80,7 +81,7 @@ class ShowRoomRenderer
 		public RenderCommandInterface
 {
 public:
-	explicit ShowRoomRenderer(ShowRoomEngine& engine) : engine_(engine) {}
+	explicit ShowRoomRenderer(ShowRoomEngine& engine);
 
     void Init() override;
     void Update(seconds dt) override;
@@ -93,6 +94,7 @@ public:
 private:
     //Render
     void UpdateShader(const gl::Shader& shader);
+	void DrawGrid();
 
 	//Main
 	void CreateDockableWindow();
@@ -141,7 +143,8 @@ private:
 	};
 
 	Job preRender_;
-	gl::TextureManager textureManager_;
+	sr::TextureManager textureManager_;
+	sr::GizmoRenderer gizmoRenderer_;
 	sr::ShowRoomCamera3D camera_;
 
     Mat4f modelMat_;
@@ -151,7 +154,7 @@ private:
 	//Lights
 	LightType lightType_ = LightType::SUN;
 	PointLight pointLight_;
-	DirectionalLight directionalLight_;
+	DirectionalLight dirLight_;
 	SpotLight spotLight_;
 	EulerAngles lightOrientation_;
 

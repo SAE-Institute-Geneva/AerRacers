@@ -15,3 +15,7 @@ target_include_directories(aer_lib PUBLIC "include/")
 neko_lib_config(aer_lib)
 set_target_properties (aer_lib PROPERTIES FOLDER Neko/Common)
 
+if(Neko_Test)
+    add_neko_test(aer_lib)
+endif()
+

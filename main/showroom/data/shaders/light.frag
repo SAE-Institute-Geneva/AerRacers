@@ -61,11 +61,45 @@ const uint Point   = 1u;
 const uint Sun	   = 2u;
 const uint Spot    = 3u;
 
+vec3 GetDiffuse()
+{
+	vec3 diffuse;
+ 	if (bool(usedMaps & Diffuse)) diffuse = texture(material.diffuse, fs1_in.TexCoords).rgb;
+ 	else diffuse = vec3(0.8);
+ 	
+    const float gamma = 2.2;
+    vec3 mapped = vec3(1.0) - exp(-diffuse * 1.0);
+    mapped = pow(mapped, vec3(1.0 / gamma));
+    return mapped;
+}
+
+vec3 GetSpecular()
+{
+ 	if (bool(usedMaps & Specular)) return vec3(texture(material.specular, fs1_in.TexCoords).r);
+ 	
+    return vec3(1.0);
+}
+
+vec3 GetEmissive()
+{
+    if (bool(usedMaps & Emissive)) 
+    {
+    	vec3 emissive = texture(material.emissive, fs1_in.TexCoords).rgb;
+    	
+    	const float gamma = 2.2;
+    	vec3 mapped = vec3(1.0) - exp(-emissive * 1.0);
+    	mapped = pow(mapped, vec3(1.0 / gamma));
+    	return mapped;
+    }
+    
+    return vec3(0.0);
+}
+
 vec3 CalcNoLight()
 {
 	vec3 result;
-    result = texture(material.diffuse, fs1_in.TexCoords).rgb;
-    if (bool(usedMaps & Emissive)) result += texture(material.emissive, fs1_in.TexCoords).rgb;
+ 	result = GetDiffuse();
+    result += GetEmissive();
     
     return result;
 }
@@ -73,7 +107,7 @@ vec3 CalcNoLight()
 vec3 CalcDirLight()
 {
 	vec3 normal, lightDir, viewDir;
- 	vec3 ambient = light.ambient * texture(material.diffuse, fs1_in.TexCoords).rgb;
+ 	vec3 ambient = light.ambient * GetDiffuse();
  	
 	if (bool(usedMaps & Normal))
 	{
@@ -90,21 +124,16 @@ vec3 CalcDirLight()
 	}
 	
 	float diff = max(dot(normal, lightDir), 0.0);
- 	vec3 diffuse = light.diffuse * diff * texture(material.diffuse, fs1_in.TexCoords).rgb;
+ 	vec3 diffuse = light.diffuse * diff * GetDiffuse();
     	
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
-	vec3 specular = vec3(light.specular) * spec;
- 	if (bool(usedMaps & Specular)) specular *= vec3(texture(material.specular, fs1_in.TexCoords).r);
+	vec3 specular = vec3(light.specular) * spec * GetSpecular();
  
     diffuse *= light.intensity;
     specular *= light.intensity;
     
-    vec3 result = ambient + diffuse + specular;
-    if (bool(usedMaps & Emissive)) 
-    {
-    	result += texture(material.emissive, fs1_in.TexCoords).rgb;
-    }
+    vec3 result = ambient + diffuse + specular + GetEmissive();
 	
 	return result;
 }
@@ -113,7 +142,7 @@ vec3 CalcPointLight()
 {
 	vec3 normal, lightDir, viewDir;
 	float distance;
- 	vec3 ambient = light.ambient * texture(material.diffuse, fs1_in.TexCoords).rgb;
+ 	vec3 ambient = light.ambient * GetDiffuse();
 	
 	if (bool(usedMaps & Normal))
 	{
@@ -132,22 +161,17 @@ vec3 CalcPointLight()
 	}
 	
 	float diff = max(dot(lightDir, normal), 0.0);
- 	vec3 diffuse = light.diffuse * diff * texture(material.diffuse, fs1_in.TexCoords).rgb;
+ 	vec3 diffuse = light.diffuse * diff * GetDiffuse();
     	
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
-	vec3 specular = vec3(light.specular) * spec;
- 	if (bool(usedMaps & Specular)) specular *= vec3(texture(material.specular, fs1_in.TexCoords).r);
+	vec3 specular = vec3(light.specular) * spec * GetSpecular();
  
     float attenuation = clamp(sLight.radius / distance, 0.0, 1.0) * light.intensity;
     diffuse *= attenuation;
     specular *= attenuation;
     
-    vec3 result = ambient + diffuse + specular;
-    if (bool(usedMaps & Emissive)) 
-    {
-    	result += texture(material.emissive, fs1_in.TexCoords).rgb;
-    }
+    vec3 result = ambient + diffuse + specular + GetEmissive();
 	
 	return result;
 }
@@ -156,7 +180,7 @@ vec3 CalcSpotLight()
 {
 	vec3 normal, lightDir, viewDir;
 	float distance, theta;
- 	vec3 ambient = light.ambient * texture(material.diffuse, fs1_in.TexCoords).rgb;
+ 	vec3 ambient = light.ambient * GetDiffuse();
 	
 	if (bool(usedMaps & Normal))
 	{
@@ -193,12 +217,11 @@ vec3 CalcSpotLight()
 	}
 	
 	float diff = max(dot(lightDir, normal), 0.0);
- 	vec3 diffuse = light.diffuse * diff * texture(material.diffuse, fs1_in.TexCoords).rgb;
+ 	vec3 diffuse = light.diffuse * diff * GetDiffuse();
     	
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
-	vec3 specular = vec3(light.specular) * spec;
- 	if (bool(usedMaps & Specular)) specular *= vec3(texture(material.specular, fs1_in.TexCoords).r);
+	vec3 specular = vec3(light.specular) * spec * GetSpecular();
  
     float attenuation = clamp(sLight.radius / distance, 0.0, 1.0) * light.intensity;
     	
@@ -207,11 +230,7 @@ vec3 CalcSpotLight()
     diffuse  *= intensity;
     specular *= intensity;
     
-    vec3 result = ambient + diffuse + specular;
-    if (bool(usedMaps & Emissive)) 
-    {
-    	result += texture(material.emissive, fs1_in.TexCoords).rgb;
-    }
+    vec3 result = ambient + diffuse + specular + GetEmissive();
 	
 	return result;
 }

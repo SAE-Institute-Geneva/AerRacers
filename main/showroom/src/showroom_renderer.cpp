@@ -31,28 +31,37 @@
 
 namespace neko
 {
+ShowRoomRenderer::ShowRoomRenderer(ShowRoomEngine& engine)
+   : engine_(engine), gizmoRenderer_(&camera_)
+{
+	engine.RegisterSystem(textureManager_);
+	engine.RegisterSystem(gizmoRenderer_);
+}
+
 void ShowRoomRenderer::Init()
 {
-	BasicEngine::GetInstance()->RegisterSystem(textureManager_);
-
 	ImGuiIO &io = ImGui::GetIO();
 	float fontSizeInPixels = 16;
 
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
-	io.Fonts->AddFontFromFileTTF((config.dataRootPath + "showroom/droid_sans.ttf").c_str(), fontSizeInPixels);
+	io.Fonts->AddFontFromFileTTF((config.dataRootPath + "droid_sans.ttf").c_str(), fontSizeInPixels);
 
-	preRender_ = Job([this, config]
-	{
-		searchIcon_ = sr::stbCreateTexture(config.dataRootPath + "showroom/icons/search.png");
-		folderIcon_ = sr::stbCreateTexture(config.dataRootPath + "showroom/icons/folder.png");
-		deleteIcon_ = sr::stbCreateTexture(config.dataRootPath + "showroom/icons/delete.png");
-	    shader_.LoadFromFile(
-			config.dataRootPath + "showroom/shaders/light.vert",
-			config.dataRootPath + "showroom/shaders/light.frag");
+	preRender_ = Job(
+		[this, config]
+		{
+			const auto& filesystem = BasicEngine::GetInstance()->GetFilesystem();
+			searchIcon_ =
+				sr::StbCreateTexture(config.dataRootPath + "icons/search.png", filesystem);
+			folderIcon_ =
+				sr::StbCreateTexture(config.dataRootPath + "icons/folder.png", filesystem);
+			deleteIcon_ =
+				sr::StbCreateTexture(config.dataRootPath + "icons/delete.png", filesystem);
+			shader_.LoadFromFile(config.dataRootPath + "shaders/light.vert",
+				config.dataRootPath + "shaders/light.frag");
 
-		glEnable(GL_CULL_FACE);
-		glEnable(GL_DEPTH_TEST);
-	});
+			glEnable(GL_CULL_FACE);
+			glEnable(GL_DEPTH_TEST);
+		});
 
 	camera_.Init();
 	camera_.position = Vec3f(13.0f, 12.0f, 6.0f);
@@ -74,6 +83,23 @@ void ShowRoomRenderer::Update(seconds dt)
 		for (auto& mesh : meshes) mesh.UpdateTextures();
 	}
 
+	DrawGrid();
+
+	const Color4 color = selectedNode_ == LIGHT ? Color::orange : Color::grey;
+	gizmoRenderer_.DrawSphere(pointLight_.position, 0.25f, color);
+	switch (lightType_)
+	{
+		case NO_LIGHT: break;
+		case POINT:
+			gizmoRenderer_.DrawSphere(pointLight_.position, pointLight_.radius, color);
+			break;
+		case SPOT: gizmoRenderer_.DrawSphere(pointLight_.position, pointLight_.radius, color);
+		case SUN:
+			gizmoRenderer_.DrawLine(
+				pointLight_.position, pointLight_.position + dirLight_.direction * 5.0f, color);
+			break;
+	}
+
 	ImGui::GetIO().WantCaptureKeyboard = true;
 	RendererLocator::get().Render(this);
 }
@@ -83,12 +109,8 @@ void ShowRoomRenderer::Render()
 	if (searchIcon_ == INVALID_TEXTURE_NAME) return;
 	if (!model_.IsLoaded()) return;
 
-	auto& meshes = model_.GetMeshes();
 	UpdateShader(shader_);
-	for (auto& mesh : meshes)
-	{
-		mesh.Draw(shader_);
-	}
+	model_.Draw(shader_);
 }
 
 void ShowRoomRenderer::UpdateShader(const gl::Shader& shader)
@@ -107,7 +129,7 @@ void ShowRoomRenderer::UpdateShader(const gl::Shader& shader)
 	shader.SetUInt("lightType", lightType_);
 
 	shader.SetVec3("light.position", pointLight_.position);
-	shader.SetVec3("light.direction", directionalLight_.direction.Normalized());
+	shader.SetVec3("light.direction", dirLight_.direction.Normalized());
 	shader.SetVec3("light.ambient", pointLight_.ambient);
 	shader.SetVec3("light.diffuse", pointLight_.diffuse);
 	shader.SetFloat("light.specular", pointLight_.specular);
@@ -116,6 +138,41 @@ void ShowRoomRenderer::UpdateShader(const gl::Shader& shader)
 	shader.SetFloat("sLight.blend", Cos(spotLight_.angle * spotLight_.blend));
 	shader.SetFloat("sLight.angle", Cos(spotLight_.angle));
 	shader.SetFloat("sLight.radius", spotLight_.radius);
+}
+
+void ShowRoomRenderer::DrawGrid()
+{
+	//Draw the coordinate axes
+	const Vec3i posI      = Vec3i(camera_.position);
+	const Vec3f startPosX = Vec3f::right * (posI.x - 100.0f);
+	const Vec3f endPosX   = Vec3f::right * (posI.x + 100.0f);
+	const Vec3f startPosZ = Vec3f::forward * (posI.z - 100.0f);
+	const Vec3f endPosZ   = Vec3f::forward * (posI.z + 100.0f);
+
+	if (startPosZ.z <= 0.0f) gizmoRenderer_.DrawLine(startPosX, endPosX, Color::red * 0.75f);
+	if (startPosX.x <= 0.0f) gizmoRenderer_.DrawLine(startPosZ, endPosZ, Color::blue * 0.75f);
+
+	Color4 color = Color4(Vec3f(0.1f), 1.0f);
+
+	//Draw lines along the X axis
+	for (int x = -100; x < 100; ++x)
+	{
+		const Vec3f startPos = Vec3f(posI.x, 0, posI.z) + Vec3f::back * 100.0f + Vec3f::right * x;
+		if (startPos.x == 0.0f) continue;
+
+		const Vec3f endPos = Vec3f(posI.x, 0, posI.z) + Vec3f::forward * 100.0f + Vec3f::right * x;
+		gizmoRenderer_.DrawLine(startPos, endPos, int(endPos.x) % 10 ? color : color * 2.0f);
+	}
+
+	//Draw lines along the Z axis
+	for (int z = -100; z < 100; ++z)
+	{
+		const Vec3f startPos = Vec3f(posI.x, 0, posI.z) + Vec3f::left * 100.0f + Vec3f::forward * z;
+		if (startPos.z == 0.0f) continue;
+
+		const Vec3f endPos = Vec3f(posI.x, 0, posI.z) + Vec3f::right * 100.0f + Vec3f::forward * z;
+		gizmoRenderer_.DrawLine(startPos, endPos, int(endPos.z) % 10 ? color : color * 2.0f);
+	}
 }
 
 void ShowRoomRenderer::Destroy()
@@ -204,8 +261,8 @@ void ShowRoomRenderer::DrawImGuizmo()
 				spotLight_.position = pointLight_.position;
 
 				lightOrientation_ = rot;
-				directionalLight_.direction = Quaternion::FromEuler(-rot) * Vec3f::up;
-				spotLight_.direction = directionalLight_.direction;
+				dirLight_.direction = Quaternion::FromEuler(-rot) * Vec3f::up;
+				spotLight_.direction = dirLight_.direction;
 			}
 			break;
 		}
@@ -255,7 +312,7 @@ void ShowRoomRenderer::DrawMenuBar()
 				ZeroMemory(&ofn, sizeof(ofn));
 				ofn.lStructSize = sizeof(ofn);
 				ofn.hwndOwner   = nullptr;
-				ofn.lpstrFilter = "Model files (*.fbx;*.obj;*.blend)\0*.fbx;*.obj;*.blend\0";
+				ofn.lpstrFilter = "Model files (*.fbx;*.obj)\0*.fbx;*.obj\0";
 				ofn.lpstrFile   = filename;
 				ofn.nMaxFile    = IM_ARRAYSIZE(filename);
 				ofn.Flags       = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
@@ -264,8 +321,26 @@ void ShowRoomRenderer::DrawMenuBar()
 				{
                     const std::string path = filename;
 #elif linux
-				FILE* f = popen("zenity --file-selection --file-filter='Model files "
-								"(fbx, obj, blend) | *.fbx *.obj *.blend' --title='Open...'", "r");
+				std::string data;
+				const int maxBuffer = 256;
+				char buffer[maxBuffer];
+				FILE* stream = popen("echo $XDG_CURRENT_DESKTOP", "r");
+				if (stream)
+				{
+					while (!feof(stream))
+						if (fgets(buffer, maxBuffer, stream) != NULL) data.append(buffer);
+					pclose(stream);
+				}
+
+				FILE* f;
+				if (data == "KDE\n")
+					f = popen("kdialog --title='Load Model' --getopenfilename . 'Model files "
+					          "(*.fbx *.obj)'",
+						"r");
+				else
+					f = popen("zenity --file-selection --file-filter='Model files "
+							  "(fbx, obj) | *.fbx *.obj' --title='Open...'",
+						"r");
 				fgets(filename, 1024, f);
 
 				std::string path = filename;
@@ -358,7 +433,7 @@ void ShowRoomRenderer::DrawSceneHierarchy()
 	using namespace ImGui;
 
 	auto& meshes= model_.GetMeshes();
-	if (IsMouseClicked(0))
+	/*if (IsMouseClicked(0))
 	{
 		const auto& winSize = BasicEngine::GetInstance()->GetConfig().windowSize;
 		const Vec3f dir     = -camera_.reverseDirection.Normalized();
@@ -413,7 +488,7 @@ void ShowRoomRenderer::DrawSceneHierarchy()
 
 			selectedNode_ = currentCandidate + selectionOffset_;
 		}
-	}
+	}*/
 
 	if (Begin("Scene"))
 	{
@@ -541,9 +616,9 @@ void ShowRoomRenderer::DrawToolWindow()
 					camera_.fovY = 2 * Atan(0.5f * sensorSize_ / focalLength_);
 
 				PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
-				DragFloat("Clip Start", &camera_.nearPlane, 1.0f, 0.001f, 5000.0f, "%.3f", ImGuiSliderFlags_Logarithmic);
+				DragFloat("Clip Start", &camera_.nearPlane);
 				PopStyleVar();
-				DragFloat("Clip End", &camera_.farPlane, 1.0f, 0.001f, std::numeric_limits<float>::max(), "%.3f", ImGuiSliderFlags_Logarithmic);
+				DragFloat("Clip End", &camera_.farPlane);
 
 				EndTabItem();
 			}
@@ -720,28 +795,28 @@ void ShowRoomRenderer::DrawLightProperties()
 	Text("Intensity"); SameLine();
 	if (DragFloat("##pointLight_.intensity", &pointLight_.intensity, 1.0f, 0.0f, 1'000.0f, "%.3f", ImGuiSliderFlags_Logarithmic))
 	{
-		directionalLight_.intensity = pointLight_.intensity;
+		dirLight_.intensity = pointLight_.intensity;
 		spotLight_.intensity = pointLight_.intensity;
 	}
 
 	Text("Ambient Color"); SameLine();
 	if (ColorEdit4("##pointLight_.ambient", &pointLight_.ambient[0], ImGuiColorEditFlags_NoInputs))
 	{
-		directionalLight_.ambient = pointLight_.ambient;
+		dirLight_.ambient = pointLight_.ambient;
 		spotLight_.ambient = pointLight_.ambient;
 	}
 
 	Text("Diffuse Color"); SameLine();
 	if (ColorEdit4("##pointLight_.diffuse", &pointLight_.diffuse[0], ImGuiColorEditFlags_NoInputs))
 	{
-		directionalLight_.diffuse = pointLight_.diffuse;
+		dirLight_.diffuse = pointLight_.diffuse;
 		spotLight_.diffuse = pointLight_.diffuse;
 	}
 
 	Text("Specular"); SameLine();
 	if (DragFloat("##spotLight_.specular", &pointLight_.specular, 0.01f, 0.0f, 1.0f))
 	{
-		directionalLight_.specular = pointLight_.specular;
+		dirLight_.specular = pointLight_.specular;
 		spotLight_.specular = pointLight_.specular;
 	}
 	PopItemWidth();
@@ -833,6 +908,8 @@ void ShowRoomRenderer::DrawMeshProperties()
 	Text("Emission");
 	DrawTextureInput(emissiveId, sr::Texture::TextureType::EMISSIVE, textures);
 
+	mesh.UpdateTextures();
+
 	if (TreeNodeEx("Material Options", ImGuiTreeNodeFlags_SpanAvailWidth))
 	{
 		float shininess = mesh.GetShininess();
@@ -858,12 +935,12 @@ void ShowRoomRenderer::DrawTextureInput(
 	if (index != INVALID_INDEX)
 	{
 		PushStyleVar(ImGuiStyleVar_ItemSpacing, Vec2f::zero);
-		ImGui::Image(reinterpret_cast<ImTextureID>(textures[index].textureName),
+		ImGui::Image(reinterpret_cast<ImTextureID>(textures[index].name),
 		             Vec2f(itemHeight)); SameLine();
 		PushItemWidth(GetWindowSize().x - buttonOffset);
 
 		const std::string nameId = "##texName" + std::to_string(static_cast<int>(type));
-		InputText(nameId.c_str(), &textures[index].name, ImGuiTextFlags_None); SameLine();
+		InputText(nameId.c_str(), &textures[index].sName, ImGuiTextFlags_None); SameLine();
 
 		const std::string folderId = "##folderId" + std::to_string(static_cast<int>(type));
 		if (ImageButton(folderId, folderIcon_, Vec2f(textLineHeight)))
@@ -927,7 +1004,7 @@ void ShowRoomRenderer::OpenTexture(size_t index, std::vector<sr::Texture>& textu
 		path = path.substr(0, path.size() - 1);
 #endif
 		textures[index].textureId = textureManager_.LoadTexture(path, Texture::TextureFlags::DEFAULT);
-		textures[index].name = path.substr(path.find_last_of('/') + 1, path.size());
+		textures[index].sName = path.substr(path.find_last_of('/') + 1, path.size());
 	}
 }
 
@@ -965,9 +1042,9 @@ void ShowRoomRenderer::OpenTexture(
 		textures.back().textureId =
 			textureManager_.LoadTexture(path, Texture::TextureFlags::DEFAULT);
 #ifdef _WIN32
-		textures.back().name = path.substr(path.find_last_of("\\") + 1, path.size());
+		textures.back().sName = path.substr(path.find_last_of("\\") + 1, path.size());
 #elif linux
-		textures.back().name = path.substr(path.find_last_of('/') + 1, path.size());
+		textures.back().sName = path.substr(path.find_last_of('/') + 1, path.size());
 #endif
 	}
 }
@@ -1019,8 +1096,8 @@ void ShowRoomRenderer::DrawDirectionalLight()
 		if (DragFloat("##angleXf", &angleX))
 		{
 			lightOrientation_.x = degree_t(angleX);
-			directionalLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
-			spotLight_.direction = directionalLight_.direction;
+			dirLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
+			spotLight_.direction = dirLight_.direction;
 		}
 
 		SetCursorPosX(textPos - CalcTextSize("X ").x); Text("Y "); SameLine();
@@ -1028,8 +1105,8 @@ void ShowRoomRenderer::DrawDirectionalLight()
 		if (DragFloat("##angleYf", &angleY))
 		{
 			lightOrientation_.y = degree_t(angleY);
-			directionalLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
-			spotLight_.direction = directionalLight_.direction;
+			dirLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
+			spotLight_.direction = dirLight_.direction;
 		}
 		PopStyleVar();
 
@@ -1038,8 +1115,8 @@ void ShowRoomRenderer::DrawDirectionalLight()
 		if (DragFloat("##angleZf", &angleZ))
 		{
 			lightOrientation_.z = degree_t(angleZ);
-			directionalLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
-			spotLight_.direction = directionalLight_.direction;
+			dirLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
+			spotLight_.direction = dirLight_.direction;
 		}
 
 		TreePop();
@@ -1079,8 +1156,8 @@ void ShowRoomRenderer::DrawSpotLight()
 		if (DragFloat("##angleXf", &angleX))
 		{
 			lightOrientation_.x = degree_t(angleX);
-			directionalLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
-			spotLight_.direction = directionalLight_.direction;
+			dirLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
+			spotLight_.direction = dirLight_.direction;
 		}
 
 		SetCursorPosX(textPos2 - CalcTextSize("X ").x); Text("Y "); SameLine();
@@ -1088,8 +1165,8 @@ void ShowRoomRenderer::DrawSpotLight()
 		if (DragFloat("##angleYf", &angleY))
 		{
 			lightOrientation_.y = degree_t(angleY);
-			directionalLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
-			spotLight_.direction = directionalLight_.direction;
+			dirLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
+			spotLight_.direction = dirLight_.direction;
 		}
 		PopStyleVar();
 
@@ -1098,8 +1175,8 @@ void ShowRoomRenderer::DrawSpotLight()
 		if (DragFloat("##angleZf", &angleZ))
 		{
 			lightOrientation_.z = degree_t(angleZ);
-			directionalLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
-			spotLight_.direction = directionalLight_.direction;
+			dirLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
+			spotLight_.direction = dirLight_.direction;
 		}
 
 		TreePop();
