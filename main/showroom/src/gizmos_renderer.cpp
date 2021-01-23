@@ -38,7 +38,7 @@ void GizmoRenderer::Init()
 
 void GizmoRenderer::Update(seconds)
 {
-	RendererLocator::get().Render(this);
+	//RendererLocator::get().Render(this);
 }
 
 void GizmoRenderer::Render()

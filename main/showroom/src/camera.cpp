@@ -1,5 +1,7 @@
 #include "showroom/camera.h"
 
+#include "mathematics/plane.h"
+
 namespace neko::sr
 {
 ShowRoomCamera3D& neko::sr::ShowRoomCamera3D::operator=(const ShowRoomCamera3D& other)
@@ -24,8 +26,8 @@ void ShowRoomCamera3D::Init()
 {
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	SetAspect(config.windowSize.x, config.windowSize.y);
-	moveSpeed = 25.0f;
-	mouseSpeed = 500.0f;
+	moveSpeed = 15.0f;
+	mouseSpeed = 150.0f;
 }
 
 void ShowRoomCamera3D::Update(seconds dt)
@@ -46,9 +48,10 @@ void ShowRoomCamera3D::Update(seconds dt)
 		}
 		else    //Rotate
 		{
+			const Plane plane {Vec3f::zero, Vec3f::up};
 			const Vec3f up         = GetUp();
 			const Vec3f right      = GetRight();
-			const Vec3f focusPoint = position - reverseDirection.Normalized() * 15.0f;
+			const Vec3f focusPoint = plane.IntersectPoint(-reverseDirection, position);
 			Vec3f camFocusVector   = position - focusPoint;
 			camFocusVector =
 				Quaternion::AngleAxis(degree_t(mouseMotion_.x * mouseSpeed * dt.count()), up) *

@@ -100,12 +100,17 @@ void ShowRoomRenderer::Update(seconds dt)
 			break;
 	}
 
-	ImGui::GetIO().WantCaptureKeyboard = true;
 	RendererLocator::get().Render(this);
 }
 
 void ShowRoomRenderer::Render()
 {
+	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	gizmoRenderer_.Render();
+
 	if (searchIcon_ == INVALID_TEXTURE_NAME) return;
 	if (!model_.IsLoaded()) return;
 
@@ -149,10 +154,12 @@ void ShowRoomRenderer::DrawGrid()
 	const Vec3f startPosZ = Vec3f::forward * (posI.z - 100.0f);
 	const Vec3f endPosZ   = Vec3f::forward * (posI.z + 100.0f);
 
-	if (startPosZ.z <= 0.0f) gizmoRenderer_.DrawLine(startPosX, endPosX, Color::red * 0.75f);
-	if (startPosX.x <= 0.0f) gizmoRenderer_.DrawLine(startPosZ, endPosZ, Color::blue * 0.75f);
+	if (startPosZ.z <= 0.0f)
+		gizmoRenderer_.DrawLine(startPosX, endPosX, Color4(1.0f, 0.12f, 0.12f, 1.0f), 2.0f);
+	if (startPosX.x <= 0.0f)
+		gizmoRenderer_.DrawLine(startPosZ, endPosZ, Color4(0.08f, 0.21f, 0.76f, 1.0f), 2.0f);
 
-	Color4 color = Color4(Vec3f(0.1f), 1.0f);
+	Color4 color = Color4(Vec3f(0.2f), 1.0f);
 
 	//Draw lines along the X axis
 	for (int x = -100; x < 100; ++x)
@@ -244,8 +251,7 @@ void ShowRoomRenderer::DrawImGuizmo()
 		case NONE: break;
 		case LIGHT:
 		{
-			Mat4f lightModel = Transform3d::RotationMatrixFrom(lightOrientation_);
-			lightModel = Transform3d::Translate(lightModel, pointLight_.position);
+			Mat4f lightModel = Transform3d::Transform(pointLight_.position, lightAngles_, lightScale_);
 			if (ImGuizmo::Manipulate(
 				&camView[0][0],
 				&camProj[0][0],
@@ -258,10 +264,12 @@ void ShowRoomRenderer::DrawImGuizmo()
 				lightModel.Decompose(pos, rot, scale);
 
 				pointLight_.position = pos;
-				spotLight_.position = pointLight_.position;
+				spotLight_.position  = pointLight_.position;
 
-				lightOrientation_ = rot;
-				dirLight_.direction = Quaternion::FromEuler(-rot) * Vec3f::up;
+				lightScale_ = scale;
+
+				lightAngles_         = rot;
+				dirLight_.direction  = Quaternion::FromEuler(-rot) * Vec3f::up;
 				spotLight_.direction = dirLight_.direction;
 			}
 			break;
@@ -612,13 +620,47 @@ void ShowRoomRenderer::DrawToolWindow()
 		{
 			if (BeginTabItem("View"))
 			{
-				if (DragFloat("Focal Length", &focalLength_, 1.0f, 1.0f, 5000.0f, "%.4f", ImGuiSliderFlags_Logarithmic))
+				PushItemWidth(-1);
+				float width = CalcItemWidth();
+				PushItemWidth(width - CalcTextSize(" Focal Length").x);
+				if (DragFloat("Focal Length",
+						&focalLength_,
+						1.0f,
+						1.0f,
+						5000.0f,
+						"%.4f",
+						ImGuiSliderFlags_Logarithmic))
 					camera_.fovY = 2 * Atan(0.5f * sensorSize_ / focalLength_);
 
 				PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 				DragFloat("Clip Start", &camera_.nearPlane);
 				PopStyleVar();
 				DragFloat("Clip End", &camera_.farPlane);
+				PopItemWidth();
+
+				PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+				Text("Position:");
+				width = CalcItemWidth();
+				PushItemWidth(width - CalcTextSize(" X").x);
+				DragFloat("X", &camera_.position.x);
+				DragFloat("Y", &camera_.position.y);
+				PopStyleVar();
+				DragFloat("Z", &camera_.position.z);
+				PopItemWidth();
+				PopItemWidth();
+
+				EndTabItem();
+			}
+
+			if (BeginTabItem("Transform"))
+			{
+				switch (selectedNode_)
+				{
+					case NONE: break;
+					case LIGHT: DrawLightTransform(); break;
+					case MODEL: DrawModelTransform(); break;
+					default: break;
+				}
 
 				EndTabItem();
 			}
@@ -626,6 +668,107 @@ void ShowRoomRenderer::DrawToolWindow()
 		}
 		End();
 	}
+}
+
+void ShowRoomRenderer::DrawLightTransform()
+{
+	using namespace ImGui;
+	PushItemWidth(-1);
+	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+	Text("Position:");
+	float width = CalcItemWidth();
+	PushItemWidth(width - CalcTextSize(" X").x);
+	if (DragFloat("X##pointLight_.position", &pointLight_.position.x, 0.1f))
+		spotLight_.position = pointLight_.position;
+	if (DragFloat("Y##pointLight_.position", &pointLight_.position.y, 0.1f))
+		spotLight_.position = pointLight_.position;
+	PopStyleVar();
+	if (DragFloat("Z##pointLight_.position", &pointLight_.position.z, 0.1f))
+		spotLight_.position = pointLight_.position;
+	PopItemWidth();
+
+	Vec3f anglesF = Vec3f(lightAngles_);
+	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+	Text("Rotation:");
+	width = CalcItemWidth();
+	PushItemWidth(width - CalcTextSize(" X").x);
+	if (DragFloat("X##englesF", &anglesF.x, 0.1f))
+	{
+		lightAngles_.x = degree_t(anglesF.x);
+		dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
+		spotLight_.direction = dirLight_.direction;
+	}
+	if (DragFloat("Y##englesF", &anglesF.y, 0.1f))
+	{
+		lightAngles_.y = degree_t(anglesF.y);
+		dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
+		spotLight_.direction = dirLight_.direction;
+	}
+	PopStyleVar();
+	if (DragFloat("Z##englesF", &anglesF.z, 0.1f))
+	{
+		lightAngles_.z = degree_t(anglesF.z);
+		dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
+		spotLight_.direction = dirLight_.direction;
+	}
+	PopItemWidth();
+
+	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+	Text("Scale:");
+	width = CalcItemWidth();
+	PushItemWidth(width - CalcTextSize(" X").x);
+	DragFloat("X##lightScale_", &lightScale_.x, 0.1f, smallFloat);
+	DragFloat("Y##lightScale_", &lightScale_.y, 0.1f, smallFloat);
+	PopStyleVar();
+	DragFloat("Z##lightScale_", &lightScale_.z, 0.1f, smallFloat);
+	PopItemWidth();
+	PopItemWidth();
+}
+
+void ShowRoomRenderer::DrawModelTransform()
+{
+	using namespace ImGui;
+	Vec3f pos, scale;
+	EulerAngles angles;
+	modelMat_.Decompose(pos, angles, scale);
+
+	PushItemWidth(-1);
+	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+	Text("Position:");
+	float width = CalcItemWidth();
+	PushItemWidth(width - CalcTextSize(" X").x);
+	DragFloat("X##pos", &pos.x, 0.1f);
+	DragFloat("Y##pos", &pos.y, 0.1f);
+	PopStyleVar();
+	DragFloat("Z##pos", &pos.z, 0.1f);
+	PopItemWidth();
+
+	Vec3f anglesF = Vec3f(angles);
+	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+	Text("Rotation:");
+	width = CalcItemWidth();
+	PushItemWidth(width - CalcTextSize(" X").x);
+	if (DragFloat("X##anglesF", &anglesF.x, 0.1f))
+		angles.x = degree_t(anglesF.x);
+	if (DragFloat("Y##anglesF", &anglesF.y, 0.1f))
+		angles.y = degree_t(anglesF.y);
+	PopStyleVar();
+	if (DragFloat("Z##anglesF", &anglesF.z, 0.1f))
+		angles.z = degree_t(anglesF.z);
+	PopItemWidth();
+
+	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+	Text("Scale:");
+	width = CalcItemWidth();
+	PushItemWidth(width - CalcTextSize(" X").x);
+	DragFloat("X##scale", &scale.x, 0.1f, smallFloat);
+	DragFloat("Y##scale", &scale.y, 0.1f, smallFloat);
+	PopStyleVar();
+	DragFloat("Z##scale", &scale.z, 0.1f, smallFloat);
+	PopItemWidth();
+	PopItemWidth();
+
+	modelMat_ = Transform3d::Transform(pos, angles, scale);
 }
 
 void ShowRoomRenderer::DrawMeshImGui(sr::Mesh& mesh)
@@ -995,8 +1138,26 @@ void ShowRoomRenderer::OpenTexture(size_t index, std::vector<sr::Texture>& textu
 	{
         const std::string path = filename;
 #elif linux
-	FILE* f = popen("zenity --file-selection --file-filter='Image "
-	                "(png, jpg) | *.png *.jpg' --title='Open...'", "r");
+	std::string data;
+	const int maxBuffer = 256;
+	char buffer[maxBuffer];
+	FILE* stream = popen("echo $XDG_CURRENT_DESKTOP", "r");
+	if (stream)
+	{
+		while (!feof(stream))
+			if (fgets(buffer, maxBuffer, stream) != NULL) data.append(buffer);
+		pclose(stream);
+	}
+
+	FILE* f;
+	if (data == "KDE\n")
+		f = popen("kdialog --title='Load Texture' --getopenfilename . 'Texture "
+		          "(*.png *.jpg)'",
+		          "r");
+	else
+		f = popen("zenity --file-selection --file-filter='Texture "
+		          "(png, jpg) | *.png *.jpg' --title='Load Texture...'",
+		          "r");
 	fgets(filename, 1024, f);
 	std::string path = filename;
 	if (!path.empty())
@@ -1029,9 +1190,28 @@ void ShowRoomRenderer::OpenTexture(
 	{
         const std::string path = filename;
 #elif linux
-	FILE* f = popen("zenity --file-selection --file-filter='Image "
-	                "(png, jpg) | *.png *.jpg' --title='Open...'", "r");
+	std::string data;
+	const int maxBuffer = 256;
+	char buffer[maxBuffer];
+	FILE* stream = popen("echo $XDG_CURRENT_DESKTOP", "r");
+	if (stream)
+	{
+		while (!feof(stream))
+			if (fgets(buffer, maxBuffer, stream) != NULL) data.append(buffer);
+		pclose(stream);
+	}
+
+	FILE* f;
+	if (data == "KDE\n")
+		f = popen("kdialog --title='Load Texture' --getopenfilename . 'Texture "
+		          "(*.png *.jpg)'",
+		          "r");
+	else
+		f = popen("zenity --file-selection --file-filter='Texture "
+		          "(png, jpg) | *.png *.jpg' --title='Load Texture...'",
+		          "r");
 	fgets(filename, 1024, f);
+
 	std::string path = filename;
 	if (!path.empty())
 	{
@@ -1085,9 +1265,9 @@ void ShowRoomRenderer::DrawDirectionalLight()
 	using namespace ImGui;
 	if (TreeNodeEx("Transform", ImGuiTreeNodeFlags_SpanAvailWidth))
 	{
-		float angleX = lightOrientation_.x.value();
-		float angleY = lightOrientation_.y.value();
-		float angleZ = lightOrientation_.z.value();
+		float angleX = lightAngles_.x.value();
+		float angleY = lightAngles_.y.value();
+		float angleZ = lightAngles_.z.value();
 
 		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
@@ -1095,8 +1275,8 @@ void ShowRoomRenderer::DrawDirectionalLight()
 		float textPos = GetCursorPosX();
 		if (DragFloat("##angleXf", &angleX))
 		{
-			lightOrientation_.x = degree_t(angleX);
-			dirLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
+			lightAngles_.x = degree_t(angleX);
+			dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
 			spotLight_.direction = dirLight_.direction;
 		}
 
@@ -1104,8 +1284,8 @@ void ShowRoomRenderer::DrawDirectionalLight()
 		SetCursorPosX(textPos);
 		if (DragFloat("##angleYf", &angleY))
 		{
-			lightOrientation_.y = degree_t(angleY);
-			dirLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
+			lightAngles_.y = degree_t(angleY);
+			dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
 			spotLight_.direction = dirLight_.direction;
 		}
 		PopStyleVar();
@@ -1114,8 +1294,8 @@ void ShowRoomRenderer::DrawDirectionalLight()
 		SetCursorPosX(textPos);
 		if (DragFloat("##angleZf", &angleZ))
 		{
-			lightOrientation_.z = degree_t(angleZ);
-			dirLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
+			lightAngles_.z = degree_t(angleZ);
+			dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
 			spotLight_.direction = dirLight_.direction;
 		}
 
@@ -1128,9 +1308,9 @@ void ShowRoomRenderer::DrawSpotLight()
 	using namespace ImGui;
 	if (TreeNodeEx("Transform", ImGuiTreeNodeFlags_SpanAvailWidth))
 	{
-		float angleX = lightOrientation_.x.value();
-		float angleY = lightOrientation_.y.value();
-		float angleZ = lightOrientation_.z.value();
+		float angleX = lightAngles_.x.value();
+		float angleY = lightAngles_.y.value();
+		float angleZ = lightAngles_.z.value();
 
 		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 		Text("Position X "); SameLine();
@@ -1155,8 +1335,8 @@ void ShowRoomRenderer::DrawSpotLight()
 		float textPos2 = GetCursorPosX();
 		if (DragFloat("##angleXf", &angleX))
 		{
-			lightOrientation_.x = degree_t(angleX);
-			dirLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
+			lightAngles_.x = degree_t(angleX);
+			dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
 			spotLight_.direction = dirLight_.direction;
 		}
 
@@ -1164,8 +1344,8 @@ void ShowRoomRenderer::DrawSpotLight()
 		SetCursorPosX(textPos2);
 		if (DragFloat("##angleYf", &angleY))
 		{
-			lightOrientation_.y = degree_t(angleY);
-			dirLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
+			lightAngles_.y = degree_t(angleY);
+			dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
 			spotLight_.direction = dirLight_.direction;
 		}
 		PopStyleVar();
@@ -1174,8 +1354,8 @@ void ShowRoomRenderer::DrawSpotLight()
 		SetCursorPosX(textPos2);
 		if (DragFloat("##angleZf", &angleZ))
 		{
-			lightOrientation_.z = degree_t(angleZ);
-			dirLight_.direction = Quaternion::FromEuler(-lightOrientation_) * Vec3f::up;
+			lightAngles_.z = degree_t(angleZ);
+			dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
 			spotLight_.direction = dirLight_.direction;
 		}
 

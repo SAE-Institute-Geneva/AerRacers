@@ -32,6 +32,7 @@
 
 #include "gl/shape.h"
 #include "graphics/lights.h"
+#include "mathematics/plane.h"
 #include "showroom/camera.h"
 #include "showroom/gizmos_renderer.h"
 #include "showroom/model/model.h"
@@ -41,37 +42,7 @@ namespace neko
 {
 const static float maxFloat = std::numeric_limits<float>::max();
 const static float minFloat = std::numeric_limits<float>::lowest();
-const static float smallFloat = 0.0001f;
-
-struct Plane
-{
-	Plane() = default;
-	explicit Plane(const neko::Vec3f& point, const neko::Vec3f& normal)
-	   : point(point), normal(normal)
-	{}
-
-	explicit Plane(const Vec3f& pointA, const Vec3f& pointB, const Vec3f& pointC)
-	   : point(pointA), normal(CalculateNormalFrom(pointA, pointB, pointC))
-	{}
-
-	[[nodiscard]] static neko::Vec3f CalculateNormalFrom(
-		const Vec3f& pointA,
-		const Vec3f& pointB,
-		const Vec3f& pointC)
-	{
-		Vec3f vecA = pointA - pointB;
-		Vec3f vecB = pointC - pointB;
-		return Vec3f::Cross(vecA, vecB).Normalized();
-	}
-
-	[[nodiscard]] float Distance(const neko::Vec3f& pointA) const
-	{
-		return Vec3f::Dot(point - pointA, normal);
-	}
-
-	neko::Vec3f point   = Vec3f::zero;
-	neko::Vec3f normal  = Vec3f::up;
-};
+const static float smallFloat = 0.1f;
 
 class ShowRoomEngine;
 class ShowRoomRenderer
@@ -103,6 +74,10 @@ private:
 	void DrawSceneHierarchy();
 	void DrawPropertiesWindow();
 	void DrawToolWindow();
+
+	//Tool Window
+	void DrawLightTransform();
+	void DrawModelTransform();
 
 	//Scene Window
 	void DrawMeshImGui(sr::Mesh& mesh);
@@ -156,7 +131,8 @@ private:
 	PointLight pointLight_;
 	DirectionalLight dirLight_;
 	SpotLight spotLight_;
-	EulerAngles lightOrientation_;
+	EulerAngles lightAngles_;
+	Vec3f lightScale_ = Vec3f::one;
 
 	//Dock Window
 	static const ImGuiDockNodeFlags dockspaceFlags_ =

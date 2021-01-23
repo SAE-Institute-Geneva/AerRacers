@@ -19,11 +19,12 @@ const float fadeThreshold = 80.0;
 
 void main()
 {
-	vec3 vector = FragPos - viewPos;
+	vec3 vector = FragPos - vec3(viewPos.x, 0, viewPos.z);
 	float magnitude = length(vector);
 	
 	float factor = 1.0;
 	if (magnitude >= fadeThreshold) factor = 1.0 - ((magnitude - fadeThreshold) / (maxDist - fadeThreshold));
 	
-    FragColor = color * factor;
+    FragColor = color;
+    FragColor.a = factor;
 }
