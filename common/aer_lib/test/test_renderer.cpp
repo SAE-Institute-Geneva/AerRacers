@@ -67,22 +67,59 @@ public:
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         testEntity_        = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(testEntity_);
+        cContainer_.transform3dManager.SetPosition(testEntity_, Vec3f(-3.0f, -3.0f, -3.0f));
         cContainer_.renderManager.AddComponent(testEntity_);
         cContainer_.renderManager.SetModel(
-            testEntity_, config.dataRootPath + "models/nanosuit2/nanosuit.obj");
+            testEntity_, config.dataRootPath + "models/cube/cube.obj");
+        testEntity_ = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(testEntity_);
+        cContainer_.transform3dManager.SetPosition(testEntity_, Vec3f(3.0f, -3.0f, -5.0f));
+        cContainer_.transform3dManager.SetScale(testEntity_, Vec3f(1.0f, 3.0f, 1.0f));
+        cContainer_.renderManager.AddComponent(testEntity_);
+        cContainer_.renderManager.SetModel(
+            testEntity_, config.dataRootPath + "models/cube/cube.obj");
+        testEntity_ = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(testEntity_);
+        cContainer_.transform3dManager.SetPosition(testEntity_, Vec3f(1.0f, 3.0f, 1.0f));
+        cContainer_.transform3dManager.SetRotation(
+            testEntity_, EulerAngles(degree_t(180.0f), degree_t(45.0f), degree_t(265.0f)));
+        cContainer_.renderManager.AddComponent(testEntity_);
+        cContainer_.renderManager.SetModel(
+            testEntity_, config.dataRootPath + "models/cube/cube.obj");
+        testEntity_ = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(testEntity_);
+        cContainer_.transform3dManager.SetPosition(testEntity_, Vec3f(0.0f, 0.0f, -10.0f));
+        cContainer_.renderManager.AddComponent(testEntity_);
+        cContainer_.renderManager.SetModel(
+            testEntity_, config.dataRootPath + "models/sphere/sphere.obj");
+        testEntity_ = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(testEntity_);
+        cContainer_.transform3dManager.SetPosition(testEntity_, Vec3f(3.0f, 1.0f, 3.0f));
+        cContainer_.renderManager.AddComponent(testEntity_);
+        cContainer_.renderManager.SetModel(
+            testEntity_, config.dataRootPath + "models/sphere/sphere.obj");
+        testEntity_ = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(testEntity_);
+        cContainer_.transform3dManager.SetPosition(testEntity_, Vec3f(0.0f, 0.0f, 0.0f));
+        cContainer_.renderManager.AddComponent(testEntity_);
+        cContainer_.renderManager.SetModel(
+            testEntity_, config.dataRootPath + "models/cube/cube.obj");
+        cContainer_.entityManager.SetEntityParent(5, testEntity_);
     }
 
     void Update(seconds dt) override
     {
-        const auto modelId = cContainer_.renderManager.GetComponent(testEntity_).modelId;
-        if (!rContainer_.modelManager.IsLoaded(modelId)) return;
-
-        const auto& model = rContainer_.modelManager.GetModel(modelId);
-        for (size_t i = 0; i < model->GetMeshCount(); ++i)
-        {
-            const auto& meshAabb = model->GetMesh(i).aabb;
-            gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
-        }
+        cContainer_.transform3dManager.SetPosition(testEntity_,
+            Vec3f(Cos(radian_t(updateCount_)),
+                Sin(radian_t(updateCount_)),
+                Cos(radian_t(updateCount_))) * 2.0f);
+        cContainer_.transform3dManager.SetRotation(testEntity_,
+            EulerAngles(radian_t(updateCount_), radian_t(updateCount_), radian_t(updateCount_)));
+        cContainer_.transform3dManager.SetScale(testEntity_,
+            Vec3f(abs(Cos(radian_t(updateCount_))),
+                abs(Sin(radian_t(updateCount_))),
+                abs(Cos(radian_t(updateCount_)))));
+        updateCount_ += dt.count();
     }
 
     void Render() override

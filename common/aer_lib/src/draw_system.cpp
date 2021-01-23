@@ -34,11 +34,11 @@ void DrawSystem::Init()
 	gizmosRenderer_->SetCamera(&camera_);
 
 	const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-	testEntity_        = cContainer_.entityManager.CreateEntity();
-	cContainer_.transform3dManager.AddComponent(testEntity_);
-	cContainer_.renderManager.AddComponent(testEntity_);
-	cContainer_.renderManager.SetModel(
-		testEntity_, config.dataRootPath + "models/nanosuit2/nanosuit.obj");
+    testEntity_        = cContainer_.entityManager.CreateEntity();
+    cContainer_.transform3dManager.AddComponent(testEntity_);
+    cContainer_.renderManager.AddComponent(testEntity_);
+    cContainer_.renderManager.SetModel(
+        testEntity_, config.dataRootPath + "models/nanosuit2/nanosuit.obj");
 }
 
 void DrawSystem::Update(seconds)

@@ -208,7 +208,7 @@ void HelloCubemapsProgram::Render()
     //Draw skybox
     glDepthFunc(GL_LEQUAL);
     skyboxShader_.Bind();
-    skyboxShader_.SetMat4("view", Mat4f(view.ToMat3()));
+    //skyboxShader_.SetMat4("view", Mat4f(view.ToMat3()));
     skyboxShader_.SetMat4("projection", projection);
     skyboxShader_.SetInt("skybox", 0);
     glActiveTexture(GL_TEXTURE0);
