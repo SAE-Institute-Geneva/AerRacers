@@ -281,10 +281,10 @@ public:
             config.dataRootPath + testScene_.sceneName);
     }
 
-    void Update(seconds) override
+    void Update(seconds dt) override
     {
-        updateCount_++;
-        if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
+        updateCount_+=dt.count();
+        //if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
     }
 
     void Destroy() override {}
@@ -292,8 +292,8 @@ public:
     void HasSucceed() { testScene_.HasSucceed(engine_.GetComponentManagerContainer()); }
 
 private:
-    int updateCount_           = 0;
-    const int kEngineDuration_ = 10;
+    float updateCount_           = 0;
+    const float kEngineDuration_ = 10;
 
     AerEngine& engine_;
 
@@ -317,7 +317,7 @@ TEST(Scene, TestUnitySceneView)
     sdl::Gles3Window window;
     gl::Gles3Renderer renderer;
     Filesystem filesystem;
-    AerEngine engine(filesystem, &config, ModeEnum::TEST);
+    AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
 
     engine.SetWindowAndRenderer(&window, &renderer);
     TestUnityScene testExample;

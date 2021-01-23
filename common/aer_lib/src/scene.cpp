@@ -99,11 +99,11 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
                     const std::string meshName =
                         std::string(componentJson["modelRenderer"]["meshName"]);
                     const std::string path =
-                        config.dataRootPath + "models/" + meshName + "/" + meshName + ".blend";
+                        config.dataRootPath + "models/" + meshName + "/" + meshName + ".obj";
                     if (FileExists(path))
                     {
-                        //componentManagerContainer_.renderManager.AddComponent(entity);
-                        //componentManagerContainer_.renderManager.SetModel(entity, path);
+                        componentManagerContainer_.renderManager.AddComponent(entity);
+                        componentManagerContainer_.renderManager.SetModel(entity, path);
                     }
                     else
                     {
