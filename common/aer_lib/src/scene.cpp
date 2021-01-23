@@ -4,6 +4,7 @@
 
 #include "aer/log.h"
 #include "aer/tag.h"
+#include "aer/managers/manager_container.h"
 #include "engine/configuration.h"
 #include "engine/engine.h"
 #include "utils/file_utility.h"
@@ -12,10 +13,11 @@ namespace neko::aer
 {
 static const std::string_view SCENE_EXTENSION = ".scene";
 
-SceneManager::SceneManager(EntityManager& entityManager, Transform3dManager& transform3dManager)
+SceneManager::SceneManager(
+    EntityManager& entityManager, ComponentManagerContainer& componentManagerContainer)
    : filesystem_(BasicEngine::GetInstance()->GetFilesystem()),
 	 entityManager_(entityManager),
-	 transformManager_(transform3dManager),
+     componentManagerContainer_(componentManagerContainer),
 	 tagManager_(*this)
 {
 	TagLocator::provide(&tagManager_);
@@ -23,14 +25,16 @@ SceneManager::SceneManager(EntityManager& entityManager, Transform3dManager& tra
 
 void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 {
+    Configuration config = BasicEngine::GetInstance()->GetConfig();
 	if (CheckJsonParameter(componentJson, "transform", json::value_t::object))
 	{
 		if (CheckJsonParameter(componentJson["transform"], "exist", json::value_t::boolean))
 		{
 			if (componentJson["transform"]["exist"])
 			{
-				transformManager_.AddComponent(entity);
-				transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
+                componentManagerContainer_.transform3dManager.AddComponent(entity);
+                componentManagerContainer_.transform3dManager.SetComponentFromJson(
+                    entity, componentJson["transform"]);
 			}
 		}
 	}
@@ -82,6 +86,34 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 			}
 		}
 	}
+
+    if (CheckJsonParameter(componentJson, "modelRenderer", json::value_t::object))
+    {
+        if (CheckJsonParameter(componentJson["modelRenderer"], "exist", json::value_t::boolean))
+        {
+            if (componentJson["modelRenderer"]["exist"])
+            {
+                if (CheckJsonParameter(
+                        componentJson["modelRenderer"], "meshName", json::value_t::string))
+                {
+                    const std::string meshName =
+                        std::string(componentJson["modelRenderer"]["meshName"]);
+                    const std::string path =
+                        config.dataRootPath + "models/" + meshName + "/" + meshName + ".blend";
+                    if (FileExists(path))
+                    {
+                        //componentManagerContainer_.renderManager.AddComponent(entity);
+                        //componentManagerContainer_.renderManager.SetModel(entity, path);
+                    }
+                    else
+                    {
+                        LogDebug("File " + meshName + " not found");
+                    }
+                }
+            }
+        }
+    }
+   
 }
 
 void SceneManager::ParseEntityJson(const json& entityJson)
@@ -181,7 +213,8 @@ bool SceneManager::LoadScene(const std::string_view& jsonPath)
 	if (filesystem_.FileExists(jsonPath))
 	{
 		json scene              = neko::LoadJson(jsonPath);
-		currentScene_.scenePath = jsonPath;
+        currentScene_.scenePath = jsonPath;
+        entityManager_.CleanEntity();
 		ParseSceneJson(scene);
 		return true;
 	}
@@ -209,7 +242,7 @@ json SceneManager::WriteEntityJson(Entity entity) const
 	entityJson["layer"]      = TagLocator::get().GetEntityLayer(entity);
 	//entityJson["isActive"] = TagLocator::get().GetEntityTag(entity);  //TODO (@Luca) Set active
 	entityJson["transform"] = json::object();
-	entityJson["transform"] = transformManager_.GetJsonFromComponent(entity);
+	entityJson["transform"] = componentManagerContainer_.transform3dManager.GetJsonFromComponent(entity);
 	entityJson["transform"]["exist"] =
 		entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
 	//entityJson["rigidbody"] = json::object();

@@ -175,10 +175,10 @@ TEST(Scene, TestUnitySceneImporteur)
 	testSceneImporteur.HasSucceed();
 }
 
-class SceneExporterTester : public SystemInterface
+class RendererTester : public SystemInterface
 {
 public:
-	explicit SceneExporterTester(AerEngine& engine) : engine_(engine) {}
+	explicit RendererTester(AerEngine& engine) : engine_(engine) {}
 
 	void Init() override
 	{
@@ -257,7 +257,7 @@ TEST(Scene, TestSceneExporteur)
 	AerEngine engine(filesystem, &config, ModeEnum::TEST);
 
 	engine.SetWindowAndRenderer(&window, &renderer);
-	SceneExporterTester testSceneExporter(engine);
+	RendererTester testSceneExporter(engine);
 	engine.RegisterSystem(testSceneExporter);
 
 	engine.Init();
@@ -265,6 +265,70 @@ TEST(Scene, TestSceneExporteur)
 	engine.EngineLoop();
 
 	testSceneExporter.HasSucceed();
+}
+
+class SceneViewerTester : public SystemInterface
+{
+public:
+    explicit SceneViewerTester(AerEngine& engine, TestSceneInterface& testScene)
+       : engine_(engine), testScene_(testScene)
+    {}
+
+    void Init() override
+    {
+        const Configuration config = BasicEngine::GetInstance()->GetConfig();
+        engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+            config.dataRootPath + testScene_.sceneName);
+    }
+
+    void Update(seconds) override
+    {
+        updateCount_++;
+        if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
+    }
+
+    void Destroy() override {}
+
+    void HasSucceed() { testScene_.HasSucceed(engine_.GetComponentManagerContainer()); }
+
+private:
+    int updateCount_           = 0;
+    const int kEngineDuration_ = 10;
+
+    AerEngine& engine_;
+
+    TestSceneInterface& testScene_;
+};
+
+TEST(Scene, TestUnitySceneView)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr)
+    {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    Configuration config;
+    config.windowName = "AerEditor";
+    config.windowSize = Vec2u(1400, 900);
+
+    sdl::Gles3Window window;
+    gl::Gles3Renderer renderer;
+    Filesystem filesystem;
+    AerEngine engine(filesystem, &config, ModeEnum::TEST);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+    TestUnityScene testExample;
+    SceneViewerTester testSceneImporteur(engine, testExample);
+    engine.RegisterSystem(testSceneImporteur);
+
+    engine.Init();
+
+    engine.EngineLoop();
+
+    testSceneImporteur.HasSucceed();
 }
 }    // namespace neko::aer
 #endif

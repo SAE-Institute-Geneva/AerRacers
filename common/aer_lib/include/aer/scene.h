@@ -29,13 +29,13 @@
 
 #include <engine/entity.h>
 #include <engine/filesystem.h>
-#include <engine/transform.h>
 #include <utils/json_utility.h>
 
 #include "aer/tag.h"
 
 namespace neko::aer
 {
+struct ComponentManagerContainer;
 /**
  * \brief Temporary InstanceId use to determined parents
  */
@@ -59,7 +59,8 @@ struct Scene
 class SceneManager
 {
 public:
-	explicit SceneManager(EntityManager& entityManager, Transform3dManager& transform3dManager);
+    explicit SceneManager(
+        EntityManager& entityManager, ComponentManagerContainer& componentManagerContainer);
 	~SceneManager() = default;
 
 	/**
@@ -135,8 +136,8 @@ protected:
 	const FilesystemInterface& filesystem_;
 
 	EntityManager& entityManager_;
-	Transform3dManager& transformManager_;
 	TagManager tagManager_;
+	ComponentManagerContainer& componentManagerContainer_;
 
 	Scene currentScene_;
 

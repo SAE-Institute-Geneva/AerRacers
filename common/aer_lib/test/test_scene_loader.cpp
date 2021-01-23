@@ -8,14 +8,13 @@
 #include "aer/editor/tool/logger.h"
 #include "aer/log.h"
 #include "engine/entity.h"
-#include "aer/editor/tool/hierarchy.h"
-#include "aer/editor/tool/inspector.h"
+#include "aer/editor/tool/scene_loader.h"
 
-class SimulateHierarchy : public neko::SystemInterface
+class SimulateSceneLoader : public neko::SystemInterface
 {
 public:
 
-	SimulateHierarchy(neko::aer::AerEngine& engine)
+	SimulateSceneLoader(neko::aer::AerEngine& engine)
 		: engine_(engine)
 	{
 		if (engine.GetMode() != neko::aer::ModeEnum::GAME) // If engine mode is not game (to not have tools in game)
@@ -24,42 +23,19 @@ public:
 			engine_.RegisterSystem(*toolManager_); // Register in system
 			engine_.RegisterOnDrawUi(*toolManager_); // Register in DrawUI
 			engine_.RegisterOnEvent(*toolManager_); // Register in Event
-            toolManager_->AddEditorTool<neko::aer::Hierarchy,
+            toolManager_->AddEditorTool<neko::aer::SceneLoader,
                 neko::aer::EditorToolInterface::ToolType::
-                    HIERARCHY>();    // Create tool like it is in editor
-			toolManager_->AddEditorTool<neko::aer::Inspector, neko::aer::EditorToolInterface::ToolType::INSPECTOR>(); // Create tool like it is in editor
+                    SCENE_LOADER>();    // Create tool like it is in editor
 		}
 	}
 
 	void Init() override // Where we create entities
 	{
-        auto& entityManager = engine_.GetComponentManagerContainer().entityManager;
-		entityManager.CreateEntity();
-		entityManager.CreateEntity();
-		entityManager.CreateEntity();
-		entityManager.CreateEntity();
-		entityManager.CreateEntity();
-		entityManager.CreateEntity();
-		entityManager.CreateEntity();
-		entityManager.CreateEntity();
-		entityManager.SetEntityParent(0, 1);
-		entityManager.SetEntityParent(1, 2);
-		entityManager.SetEntityParent(2, 3);
-		entityManager.SetEntityParent(4, 3);
-        entityManager.SetEntityParent(5, 6);
-        auto& transform3dManager = engine_.GetComponentManagerContainer().transform3dManager;
-		transform3dManager.AddComponent(1);
-        transform3dManager.SetPosition(1,neko::Vec3f(1.0f, 2.0f, 3.0f));
-        transform3dManager.AddComponent(2);
-        transform3dManager.SetScale(2, neko::Vec3f(1.0f, 2.0f, 3.0f));
-        transform3dManager.AddComponent(0);
-        transform3dManager.SetRotation(0, neko::EulerAngles(1.0f, 2.0f, 3.0f));
-		transform3dManager.AddComponent(4);
 	}
 
 	void Update(neko::seconds dt) override // Where we simulate tests
 	{
-        updateCount_++;
+        //updateCount_+= dt.count();
         if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
 	}
 
@@ -75,8 +51,8 @@ public:
 private:
 	std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
 
-    int updateCount_           = 0;
-    const int kEngineDuration_ = 200;
+    float updateCount_           = 0;
+    const float kEngineDuration_ = 5.0f;
 
 	bool testSuccess_ = true;
 
@@ -84,7 +60,7 @@ private:
 };
 
 
-TEST(Tool, TestHierarchy)
+TEST(Tool, TestSceneLoader)
 {
 	//Travis Fix because Windows can't open a window
 	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
@@ -105,12 +81,12 @@ TEST(Tool, TestHierarchy)
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 
-	SimulateHierarchy simulateHierarchy(engine);
-	engine.RegisterSystem(simulateHierarchy);
+	SimulateSceneLoader simulateSceneLoader(engine);
+    engine.RegisterSystem(simulateSceneLoader);
 
 	engine.Init();
 
 	engine.EngineLoop();
 
-	simulateHierarchy.HasSucceed();
+	simulateSceneLoader.HasSucceed();
 }

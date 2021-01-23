@@ -82,15 +82,34 @@ Entity EntityManager::CreateEntity(Entity entity)
 	}
 }
 
-void EntityManager::DestroyEntity(Entity entity)
+void EntityManager::DestroyEntity(Entity entity, bool children)
 {
     entityMaskArray_[entity] = INVALID_ENTITY_MASK;
     entityHashArray_[entity] = INVALID_ENTITY_HASH;
-    parentEntities_[entity]  = INVALID_ENTITY;
-    for (Entity childEntity = 0; childEntity < parentEntities_.size(); ++childEntity) {
-        if (parentEntities_[childEntity] == entity) { DestroyEntity(childEntity); }
+    if (children)
+    {
+        for (Entity childEntity = 0; childEntity < parentEntities_.size(); ++childEntity)
+        {
+            if (parentEntities_[childEntity] == entity) { DestroyEntity(childEntity, true); }
+        }
     }
+    else
+    {
+        for (Entity childEntity = 0; childEntity < parentEntities_.size(); ++childEntity)
+        {
+            if (parentEntities_[childEntity] == entity)
+            { parentEntities_[childEntity] = parentEntities_[entity]; }
+        }
+    }
+    parentEntities_[entity] = INVALID_ENTITY;
     onDestroyEntity.Execute(entity);
+}
+
+void EntityManager::CleanEntity()
+{
+    for (Entity entity = 0; entity < GetEntitiesSize(); ++entity) {
+        DestroyEntity(entity, false);
+    }
 }
 
 bool EntityManager::HasComponent(Entity entity, EntityMask componentType) const
@@ -380,7 +399,7 @@ void EntityViewer::DrawEntityHierarchy(neko::Entity entity, bool draw, bool dest
 		entityManager_.SetEntityParent(newEntity, entity);
 	}
 
-	if (destroyEntity) { entityManager_.DestroyEntity(entity); }
+	if (destroyEntity) { entityManager_.DestroyEntity(entity, true); }
 	if (nodeOpen && !leaf) { ImGui::TreePop(); }
 }
 

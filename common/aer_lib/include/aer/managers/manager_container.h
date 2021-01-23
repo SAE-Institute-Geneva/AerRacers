@@ -39,7 +39,7 @@ struct ComponentManagerContainer : public SystemInterface
 	ComponentManagerContainer(ResourceManagerContainer& rContainer)
 	   : transform3dManager(entityManager),
 		 renderManager(entityManager, rContainer.modelManager, transform3dManager),
-		 sceneManager(entityManager, transform3dManager)
+		 sceneManager(entityManager, *this)
 	{}
 
 	void Init() override

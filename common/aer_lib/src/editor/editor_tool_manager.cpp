@@ -4,6 +4,7 @@
 #include "aer/editor/tool/logger.h"
 #include "aer/editor/tool/hierarchy.h"
 #include "aer/editor/tool/inspector.h"
+#include "aer/editor/tool/scene_loader.h"
 
 namespace neko::aer
 {
@@ -16,7 +17,8 @@ void EditorToolManager::Init()
 	{
 		AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
 		AddEditorTool<Hierarchy, EditorToolInterface::ToolType::HIERARCHY>();
-		AddEditorTool<Inspector, EditorToolInterface::ToolType::INSPECTOR>();
+        AddEditorTool<Inspector, EditorToolInterface::ToolType::INSPECTOR>();
+        AddEditorTool<SceneLoader, EditorToolInterface::ToolType::SCENE_LOADER>();
 	}
 }
 

@@ -22,41 +22,33 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 
- Author : Dylan von Arx
+ Author : Floreau Luca
  Co-Author :
- Date : 03.11.2020
+ Date : 22.01.2021
 ---------------------------------------------------------- */
-#include <sdl_engine/sdl_engine.h>
+#include "aer/editor/editor_tool_interface.h"
 
 namespace neko::aer
 {
-class AerEngine;
-class EditorToolInterface : public SystemInterface,
-							public DrawImGuiInterface,
-							public sdl::SdlEventSystemInterface
-{
-public:
-	enum class ToolType
+class SceneManager;
+
+class SceneLoader final : public EditorToolInterface
 	{
-		NONE = 0,
-		LOGGER,
-        HIERARCHY,
-    	INSPECTOR,
-		SCENE_LOADER
+	public:
+        explicit SceneLoader(AerEngine& engine, ToolType type, int id, std::string name);
+		void Init() override;
+		void Update(seconds dt) override;
+		void DrawImGui() override;
+        void LoadSceneFiles();
+        void Destroy() override;
+		void OnEvent(const SDL_Event& event) override;
+
+    private:
+        SceneManager& sceneManager_;
+
+        std::string filepath_ = "";
+
+        std::vector<std::string> scenesPaths_;
+        unsigned selectedSceneIndex_ = 0;
 	};
-
-	explicit EditorToolInterface(AerEngine& engine, ToolType type, int id, std::string name);
-
-	int GetId() const;
-	ToolType GetType() const;
-	std::string GetName() const;
-
-	bool isVisible = true;
-
-protected:
-	const int kId_;
-	std::string name_ = "";
-	ToolType type_    = ToolType::NONE;
-	AerEngine& engine_;
-};
 }

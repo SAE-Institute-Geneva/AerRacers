@@ -55,7 +55,7 @@ void Hierarchy::DisplayEntity(Entity entityIndex)
         if (ImGui::MenuItem("Add Entity")) { entityManager_.CreateEntity(); }
 
         if (ImGui::MenuItem("Delete Entity")) {
-            entityManager_.DestroyEntity(entityIndex);
+            entityManager_.DestroyEntity(entityIndex, true);
         }
         ImGui::EndPopup();
     }
