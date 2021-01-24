@@ -1,4 +1,7 @@
 #include "aer/managers/render_manager.h"
+#ifdef EASY_PROFILE_USE
+    #include "easy/profiler.h"
+#endif
 
 #include "engine/engine.h"
 #include "graphics/camera.h"
@@ -26,6 +29,9 @@ RenderManager::RenderManager(
 
 void RenderManager::Init()
 {
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("RenderManager::Init", profiler::colors::Brown);
+#endif
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
 
 	preRender_ = Job {[this, config]()
@@ -40,7 +46,7 @@ void RenderManager::Init()
 void RenderManager::Update(seconds)
 {
 #ifdef EASY_PROFILE_USE
-	EASY_BLOCK("Update Model");
+    EASY_BLOCK("RenderManager::Update", profiler::colors::Brown);
 #endif
 	dirtyManager_.UpdateDirtyEntities();
 
@@ -49,6 +55,9 @@ void RenderManager::Update(seconds)
 
 void RenderManager::Render()
 {
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("RenderManager::Render", profiler::colors::Brown);
+#endif
 	const auto& entities =
 		entityManager_.get().FilterEntities(static_cast<EntityMask>(ComponentType::MODEL));
 

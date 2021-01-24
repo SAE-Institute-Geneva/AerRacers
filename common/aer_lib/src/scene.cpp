@@ -1,6 +1,9 @@
 #include "aer/scene.h"
 
 #include <fmt/format.h>
+#ifdef EASY_PROFILE_USE
+    #include "easy/profiler.h"
+#endif
 
 #include "aer/log.h"
 #include "aer/tag.h"
@@ -201,6 +204,9 @@ void SceneManager::ParseSceneJson(const json& sceneJson)
 
 bool SceneManager::LoadScene(const std::string_view& jsonPath)
 {
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("LoadScene");
+#endif
 	if (filesystem_.FileExists(jsonPath))
 	{
 		json scene              = neko::LoadJson(jsonPath);
@@ -221,6 +227,7 @@ void SceneManager::SaveCurrentScene()
 	const neko::Configuration config = neko::BasicEngine::GetInstance()->GetConfig();
 	WriteStringToFile(config.dataRootPath + "scenes/" + currentScene_.sceneName + ".aerscene",
 		WriteSceneJson().dump(4));
+    currentScene_.saved = true;
 }
 
 json SceneManager::WriteEntityJson(Entity entity) const
@@ -268,7 +275,6 @@ json SceneManager::WriteSceneJson()
 	{
 		scene["objects"][i] = WriteEntityJson(i);
 	}
-
 	return scene;
 }
 

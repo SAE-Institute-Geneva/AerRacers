@@ -147,7 +147,7 @@ void Transform3dManager::Init() { RendererLocator::get().RegisterSyncBuffersFunc
 void Transform3dManager::Update()
 {
 #ifdef EASY_PROFILE_USE
-	EASY_BLOCK("Update Transform");
+	EASY_BLOCK("Transform3dManager::Update", profiler::colors::Cyan);
 #endif
 	dirtyManager_.UpdateDirtyEntities();
 }

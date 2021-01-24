@@ -18,9 +18,12 @@
  SOFTWARE.
  Author : Floreau Luca
  Co-Author :
- Date : 22.11.2020
+ Date : 22.01.2020
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
+#ifdef EASY_PROFILE_USE
+    #include "easy/profiler.h"
+#endif
 
 #include "aer/gizmos_renderer.h"
 #ifdef NEKO_GLES3
@@ -44,33 +47,20 @@ public:
           rContainer_(engine.GetResourceManagerContainer()),
           cContainer_(engine.GetComponentManagerContainer())
     {
-        engine.RegisterSystem(camera_);
-        engine.RegisterOnEvent(camera_);
-
-        #ifdef NEKO_GLES3
-        gizmosRenderer_ = std::make_unique<GizmoRenderer>(&camera_);
-        #endif
-
-        engine.RegisterSystem(*gizmosRenderer_);
     }
 
     void Init() override
     {
-        camera_.position         = Vec3f::forward * 2.0f;
-        camera_.reverseDirection = Vec3f::forward;
-        camera_.fovY             = degree_t(45.0f);
-        camera_.nearPlane        = 0.1f;
-        camera_.farPlane         = 100.0f;
-
-        gizmosRenderer_->SetCamera(&camera_);
-
+    #ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Init", profiler::colors::Green);
+    #endif
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         testEntity_        = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(testEntity_);
         cContainer_.transform3dManager.SetRelativePosition(testEntity_, Vec3f(-3.0f, -3.0f, -3.0f));
         cContainer_.renderManager.AddComponent(testEntity_);
         cContainer_.renderManager.SetModel(
-            testEntity_, config.dataRootPath + "models/cube/cube.obj");
+            testEntity_, config.dataRootPath + "models/cube/cube.fbx");
         testEntity_ = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(testEntity_);
         cContainer_.transform3dManager.SetRelativePosition(testEntity_, Vec3f(3.0f, -3.0f, -5.0f));
@@ -109,6 +99,9 @@ public:
 
     void Update(seconds dt) override
     {
+    #ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Update", profiler::colors::Green);
+    #endif
         cContainer_.transform3dManager.SetRelativePosition(testEntity_,
             Vec3f(Cos(radian_t(updateCount_)),
                 Sin(radian_t(updateCount_)),
@@ -120,6 +113,7 @@ public:
                 abs(Sin(radian_t(updateCount_))),
                 abs(Cos(radian_t(updateCount_)))));
         updateCount_ += dt.count();
+        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Render() override
@@ -139,19 +133,15 @@ private:
     const float kEngineDuration_ = 0.5f;
 
     AerEngine& engine_;
-    sdl::MovableCamera3D camera_;
 
     ResourceManagerContainer& rContainer_;
     ComponentManagerContainer& cContainer_;
 
-    #ifdef NEKO_GLES3
-    std::unique_ptr<GizmoRenderer> gizmosRenderer_;
-    #endif
 
     Entity testEntity_;
 };
 
-TEST(Engine, TestRenderer)
+TEST(Renderer, Cube_Sphere)
 {
     //Travis Fix because Windows can't open a window
     char* env = getenv("TRAVIS_DEACTIVATE_GUI");
@@ -179,6 +169,104 @@ TEST(Engine, TestRenderer)
     engine.RegisterOnDrawUi(testRenderer);
     engine.Init();
     engine.EngineLoop();
+    #ifdef EASY_PROFILE_USE
+    profiler::dumpBlocksToFile("Renderer_Neko_Profile.prof");
+    #endif
+}
+class TestNanosuitRenderer : public SystemInterface,
+                     public RenderCommandInterface,
+                     public DrawImGuiInterface
+{
+public:
+    TestNanosuitRenderer(AerEngine& engine)
+       : engine_(engine),
+         rContainer_(engine.GetResourceManagerContainer()),
+         cContainer_(engine.GetComponentManagerContainer())
+    {
+    }
+
+    void Init() override
+    {
+        gizmosRenderer_ = &GizmosLocator::get();
+    #ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Init", profiler::colors::Green);
+    #endif
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+        testEntity_ = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(testEntity_);
+        cContainer_.renderManager.AddComponent(testEntity_);
+        cContainer_.renderManager.SetModel(
+            testEntity_, config.dataRootPath + "models/nanosuit2/nanosuit.obj");
+    }
+
+    void Update(seconds dt) override
+    {
+    #ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Update", profiler::colors::Green);
+    #endif
+        const auto modelId = cContainer_.renderManager.GetComponent(testEntity_).modelId;
+        if (!rContainer_.modelManager.IsLoaded(modelId)) return;
+
+        const auto& model = rContainer_.modelManager.GetModel(modelId);
+        for (size_t i = 0; i < model->GetMeshCount(); ++i)
+        {
+        	const auto& meshAabb = model->GetMesh(i).aabb;
+        	gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
+        }
+        updateCount_ += dt.count();
+        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+    }
+
+    void Render() override {}
+
+    void Destroy() override {}
+
+    void DrawImGui() override {}
+
+private:
+    float updateCount_           = 0;
+    const float kEngineDuration_ = 0.5f;
+
+    AerEngine& engine_;
+    sdl::MovableCamera3D camera_;
+
+    ResourceManagerContainer& rContainer_;
+    ComponentManagerContainer& cContainer_;
+
+    IGizmoRenderer* gizmosRenderer_;
+
+    Entity testEntity_;
+};
+
+TEST(Renderer, NanosuitMesh)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr)
+    {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    Configuration config;
+    config.windowName = "AerEditor";
+    config.windowSize = Vec2u(1400, 900);
+
+    sdl::Gles3Window window;
+    gl::Gles3Renderer renderer;
+    Filesystem filesystem;
+    AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+
+    TestNanosuitRenderer testRenderer(engine);
+
+    engine.RegisterSystem(testRenderer);
+    engine.RegisterOnDrawUi(testRenderer);
+    engine.Init();
+    engine.EngineLoop();
+    logDebug("Test without check");
+
 }
 }    // namespace neko::aer
 #endif

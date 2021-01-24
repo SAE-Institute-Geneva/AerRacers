@@ -1,4 +1,7 @@
 #include "aer/gizmos_renderer.h"
+#ifdef EASY_PROFILE_USE
+    #include "easy/profiler.h"
+#endif
 
 #include <engine/engine.h>
 
@@ -14,6 +17,9 @@ GizmoRenderer::GizmoRenderer(Camera3D* camera) : camera_(camera)
 
 void GizmoRenderer::Init()
 {
+    #ifdef EASY_PROFILE_USE
+    EASY_BLOCK("GizmoRenderer::Init");
+    #endif
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	preRender_ = Job {[this, config]()
 		{
@@ -34,11 +40,17 @@ void GizmoRenderer::Init()
 
 void GizmoRenderer::Update(seconds)
 {
+    #ifdef EASY_PROFILE_USE
+    EASY_BLOCK("GizmoRenderer::Update");
+    #endif
 	RendererLocator::get().Render(this);
 }
 
 void GizmoRenderer::Render()
 {
+    #ifdef EASY_PROFILE_USE
+    EASY_BLOCK("GizmoRenderer::Render");
+    #endif
 	if (isRunning_)
 	{
 		for (auto gizmo : gizmosQueue_)

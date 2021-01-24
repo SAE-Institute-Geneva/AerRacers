@@ -148,7 +148,7 @@ private:
 	gl::Shader shaderLine_;
 
 	std::vector<Gizmo> gizmosQueue_;
-	bool isRunning_ = true;
+	std::atomic<bool> isRunning_ = true;
 
 	Job preRender_;
 };

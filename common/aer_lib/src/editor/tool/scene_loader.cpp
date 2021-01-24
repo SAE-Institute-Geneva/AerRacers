@@ -17,6 +17,7 @@ void SceneLoader::Destroy() {}
 
 void SceneLoader::DrawImGui()
 {
+    //if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(SDL_SCANCODE_S)) {    }
     //If is True Display Window
     if (isVisible)
     {
@@ -39,13 +40,18 @@ void SceneLoader::DrawImGui()
                     ImGui::EndCombo();
                 }
 
-                if (sceneManager_.GetCurrentScene().scenePath != scenesPaths_[selectedSceneIndex_])
+                if (ImGui::Button("LoadScene")) {
+                    sceneManager_.LoadScene(scenesPaths_[selectedSceneIndex_]); }
+                if (ImGui::Button("Save Current Scene"))
                 {
-                    if (ImGui::Button("LoadScene"))
-                    { sceneManager_.LoadScene(scenesPaths_[selectedSceneIndex_]); }
+                    sceneManager_.SaveCurrentScene();
                 }
             }
 
+            ImGui::End();
+        }
+        else
+        {
             ImGui::End();
         }
     }

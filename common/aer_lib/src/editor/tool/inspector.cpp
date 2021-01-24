@@ -19,8 +19,10 @@ void Inspector::DrawImGui()
     //If is True Display Window
     if (isVisible) {
         //Display window
-        if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(),
-            &isVisible)) { } else {
+        if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(), &isVisible))
+        { ImGui::End(); }
+        else
+        {
             //Get selected entity
             Entity selectedEntity = editorToolManager_.GetSelectedEntity();
             if (selectedEntity == INVALID_ENTITY) {

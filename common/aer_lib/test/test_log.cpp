@@ -64,5 +64,6 @@ TEST(Logs, TestLogsFromNewThread)
 	newThread.join();
 
 	logger.Wait();
+    logDebug("Test without check");
 }
 }    // namespace neko

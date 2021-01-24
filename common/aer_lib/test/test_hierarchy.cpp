@@ -68,7 +68,8 @@ public:
 	}
 
 	void HasSucceed() const
-	{
+    {
+        logDebug("Test without check");
 	    EXPECT_TRUE(testSuccess_);
 	}
 
@@ -76,7 +77,7 @@ private:
 	std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
 
     int updateCount_           = 0;
-    const int kEngineDuration_ = 200;
+    const int kEngineDuration_ = 50;
 
 	bool testSuccess_ = true;
 

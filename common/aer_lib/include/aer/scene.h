@@ -51,6 +51,7 @@ struct Scene
 	std::string scenePath           = "";
 	std::vector<std::string> layers = {INVALID_LAYER};
 	std::vector<std::string> tags   = {INVALID_TAG};
+    bool saved                      = true;
 };
 
 /**

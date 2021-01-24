@@ -35,8 +35,8 @@ public:
 
 	void Update(neko::seconds dt) override // Where we simulate tests
 	{
-        //updateCount_+= dt.count();
-        if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
+        updateCount_+= dt.count();
+        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
 	}
 
 	void Destroy() override
@@ -45,14 +45,15 @@ public:
 
 	void HasSucceed() const
 	{
-	    EXPECT_TRUE(testSuccess_);
+        EXPECT_TRUE(testSuccess_);
+        logDebug("Test without check");
 	}
 
 private:
 	std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
 
     float updateCount_           = 0;
-    const float kEngineDuration_ = 5.0f;
+    const float kEngineDuration_ = 0.5f;
 
 	bool testSuccess_ = true;
 

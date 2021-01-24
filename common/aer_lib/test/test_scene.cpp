@@ -26,6 +26,9 @@
  Date : 28.12.2020
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
+#ifdef EASY_PROFILE_USE
+    #include "easy/profiler.h"
+#endif
 
 #ifdef NEKO_GLES3
 	#include <engine/system.h>
@@ -88,14 +91,20 @@ public:
 	{}
 
 	void Init() override
-	{
+    {
+    #ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Init", profiler::colors::Green);
+    #endif
 		const Configuration config = BasicEngine::GetInstance()->GetConfig();
 		engine_.GetComponentManagerContainer().sceneManager.LoadScene(
 			config.dataRootPath + testScene_.sceneName); 
 	}
 
 	void Update(seconds) override
-	{
+    {
+    #ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Update", profiler::colors::Green);
+    #endif
 		updateCount_++;
 		if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
 	}
@@ -181,7 +190,10 @@ public:
 	explicit RendererTester(AerEngine& engine) : engine_(engine) {}
 
 	void Init() override
-	{
+    {
+    #ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Init", profiler::colors::Green);
+    #endif
 		auto& cContainer = engine_.GetComponentManagerContainer();
 		cContainer.entityManager.CreateEntity();
 		cContainer.entityManager.CreateEntity();
@@ -201,7 +213,10 @@ public:
 	}
 
 	void Update(seconds) override
-	{
+    {
+    #ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Update", profiler::colors::Green);
+    #endif
 		updateCount_++;
 		if (updateCount_ == kEngineDuration_)
 		{
@@ -289,6 +304,9 @@ public:
 
     void Init() override
     {
+    #ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Init", profiler::colors::Green);
+    #endif
         const Configuration config = BasicEngine::GetInstance()->GetConfig();
         engine_.GetComponentManagerContainer().sceneManager.LoadScene(
             config.dataRootPath + testScene_.sceneName);
@@ -299,8 +317,11 @@ public:
 
     void Update(seconds dt) override
     {
+    #ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Update", profiler::colors::Green);
+    #endif
         updateCount_+=dt.count();
-        if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Destroy() override {}
@@ -309,7 +330,7 @@ public:
 
 private:
     float updateCount_           = 0;
-    const float kEngineDuration_ = 2.0f;
+    const float kEngineDuration_ = 10.0f;
 
     AerEngine& engine_;
 
@@ -343,8 +364,12 @@ TEST(Scene, TestUnitySceneView)
     engine.Init();
 
     engine.EngineLoop();
+    #ifdef EASY_PROFILE_USE
+    profiler::dumpBlocksToFile("Scene_Neko_Profile.prof");
+    #endif
 
     //testSceneImporteur.HasSucceed();
+    logDebug("Test without check");
 }
 }    // namespace neko::aer
 #endif

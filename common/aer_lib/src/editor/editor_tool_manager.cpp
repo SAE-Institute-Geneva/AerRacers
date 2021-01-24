@@ -85,6 +85,11 @@ void EditorToolManager::DrawImGui()
                 ImGui::EndMenu();
 			}
 
+            SceneManager& sceneManager = engine_.GetComponentManagerContainer().sceneManager;
+            std::string sceneName      = sceneManager.GetCurrentScene().sceneName;
+            if (!sceneManager.GetCurrentScene().saved) { sceneName += "*"; }
+            ImGui::Text(sceneName.c_str());
+
 			EndMenuBar();
 		}
 

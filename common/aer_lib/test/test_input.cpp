@@ -807,6 +807,7 @@ TEST(Engine, TestInteractiveInput)
 	engine.Init();
 
 	engine.EngineLoop();
+    logDebug("Test without check");
 }
 }    // namespace neko::aer
 #endif

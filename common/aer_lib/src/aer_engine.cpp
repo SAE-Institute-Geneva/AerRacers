@@ -1,4 +1,7 @@
 #include "aer/aer_engine.h"
+#ifdef EASY_PROFILE_USE
+    #include <easy/profiler.h>
+#endif
 
 namespace neko::aer
 {
@@ -9,6 +12,9 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 	 cContainer_(rContainer_),
 	 toolManager_(*this)
 {
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("AerEngine::Constructor");
+#endif
 	logManager_ = std::make_unique<LogManager>();
 
 	if (mode_ == ModeEnum::EDITOR)
@@ -34,6 +40,9 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 
 void AerEngine::Init()
 {
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("AerEngine::Init");
+#endif
 	SdlEngine::Init();
 
 	if (mode_ == ModeEnum::GAME) {}
@@ -49,6 +58,9 @@ void AerEngine::ManageEvent() { SdlEngine::ManageEvent(); }
 
 void AerEngine::GenerateUiFrame()
 {
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("AerEngine::GenerateUiFrame");
+#endif
 	window_->GenerateUiFrame();
 	drawImGuiAction_.Execute();
 }

@@ -25,6 +25,9 @@ DrawSystem::DrawSystem(AerEngine& engine)
 
 void DrawSystem::Init()
 {
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("DrawSystem::Init");
+#endif
 	camera_.position         = Vec3f::forward * 2.0f;
 	camera_.reverseDirection = Vec3f::forward;
 	camera_.fovY             = degree_t(45.0f);
@@ -33,25 +36,13 @@ void DrawSystem::Init()
 
 	gizmosRenderer_->SetCamera(&camera_);
 
-	const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-    //testEntity_        = cContainer_.entityManager.CreateEntity();
-    //cContainer_.transform3dManager.AddComponent(testEntity_);
-    //cContainer_.renderManager.AddComponent(testEntity_);
-    //cContainer_.renderManager.SetModel(
-    //    testEntity_, config.dataRootPath + "models/nanosuit2/nanosuit.obj");
 }
 
 void DrawSystem::Update(seconds)
 {
-	//const auto modelId = cContainer_.renderManager.GetComponent(testEntity_).modelId;
-	//if (!rContainer_.modelManager.IsLoaded(modelId)) return;
-
-	//const auto& model = rContainer_.modelManager.GetModel(modelId);
-	//for (size_t i = 0; i < model->GetMeshCount(); ++i)
-	//{
-	//	const auto& meshAabb = model->GetMesh(i).aabb;
-	//	gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
-	//}
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("DrawSystem::Update");
+#endif
 }
 
 void DrawSystem::Destroy() {}
