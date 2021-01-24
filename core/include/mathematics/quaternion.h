@@ -136,27 +136,55 @@ struct Quaternion
 		return conj / (mag * mag);
 	}
 
-	/*
+    /*
 	Returns a rotation that rotates z degrees around the z axis,
-	x degrees around the x axis, and y degrees around the y axis;
+	x degrees around the x axis, and y degrees around the y axis; 
 	applied in that order
 	*/
-	static Quaternion FromEuler(const EulerAngles& angle)
-	{
-		const auto cy = Cos(angle.x * 0.5f);
-		const auto sy = Sin(angle.x * 0.5f);
-		const auto cp = Cos(angle.y * 0.5f);
-		const auto sp = Sin(angle.y * 0.5f);
-		const auto cr = Cos(angle.z * 0.5f);
-		const auto sr = Sin(angle.z * 0.5f);
+    static Quaternion FromEuler(const EulerAngles& angle)
+    {
+        const auto cy = Cos(angle.z * 0.5f);
+        const auto sy = Sin(angle.z * 0.5f);
+        const auto cp = Cos(angle.y * 0.5f);
+        const auto sp = Sin(angle.y * 0.5f);
+        const auto cr = Cos(angle.x * 0.5f);
+        const auto sr = Sin(angle.x * 0.5f);
+        Quaternion q;
+        q.w = cr * cp * cy + sr * sp * sy;
+        q.x = sr * cp * cy - cr * sp * sy;
+        q.y = cr * sp * cy + sr * cp * sy;
+        q.z = cr * cp * sy - sr * sp * cy;
+        return q;
+        //return Quaternion(
+        //    cy * cp * cr + sy * sp * sr,
+        //    cy * cp * sr - sy * sp * cr,
+        //    sy * cp * sr + cy * sp * cr,
+        //    sy * cp * cr - cy * sp * sr
+        //);
+    }
 
-		return Quaternion(
-			cy * cp * cr + sy * sp * sr,
-			cy * cp * sr - sy * sp * cr,
-			sy * cp * sr + cy * sp * cr,
-			sy * cp * cr - cy * sp * sr
-		);
-	}
+    static EulerAngles ToEulerAngles(Quaternion& q)
+    {
+        EulerAngles angles;
+        // roll (x-axis rotation)
+        double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+        double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+        angles.x         = Atan2(sinr_cosp, cosr_cosp);
+
+        // pitch (y-axis rotation)
+        double sinp = 2 * (q.w * q.y - q.z * q.x);
+        if (std::abs(sinp) >= 1)
+            angles.y = degree_t(std::copysign(M_PI / 2, sinp));    // use 90 degrees if out of range
+        else
+            angles.y = Asin(sinp);
+
+        // yaw (z-axis rotation)
+        double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+        double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+        angles.z         = Atan2(siny_cosp, cosy_cosp);
+
+        return angles;
+    }
 
 	static Quaternion FromRotationMatrix(const Mat4f& mat)
 	{

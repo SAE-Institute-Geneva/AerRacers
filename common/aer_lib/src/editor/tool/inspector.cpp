@@ -6,7 +6,9 @@ Inspector::Inspector(AerEngine& engine, ToolType type, int id, std::string name)
     : EditorToolInterface(engine, type, id, name),
       editorToolManager_(engine.GetEditorToolManager()),
       entityManager_(engine.GetComponentManagerContainer().entityManager),
-      transform3dManager_(engine.GetComponentManagerContainer().transform3dManager) { }
+      transform3dManager_(engine.GetComponentManagerContainer().transform3dManager),
+     renderManager_(engine.GetComponentManagerContainer().renderManager)
+{ }
 
 void Inspector::Init() {}
 void Inspector::Update(seconds dt) {}
@@ -37,6 +39,12 @@ void Inspector::DrawImGui()
                 if (ImGui::TreeNode("Transform")) {
                     //Ask component how to display their information
                     transform3dManager_.DrawImGui(selectedEntity);
+                    ImGui::TreePop();
+                }
+                if (ImGui::TreeNode("Renderer"))
+                {
+                    //Ask component how to display their information
+                    renderManager_.DrawImGui(selectedEntity);
                     ImGui::TreePop();
                 }
             }

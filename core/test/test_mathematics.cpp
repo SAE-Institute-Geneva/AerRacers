@@ -738,3 +738,22 @@ TEST(Engine, TestMatrix4)
 	EXPECT_LT(neko::Mat4f::MatrixDifference(mInvCalculus, mInv), 0.01f);
 	EXPECT_GT(neko::Mat4f::MatrixDifference(mInvCalculus, neko::Mat4f::Identity), 0.01f);
 }
+
+
+TEST(Transform, FromMatToMat4)
+{
+    neko::Vec3f position  = neko::Vec3f(1.0f, 2.0f, 3.0f);
+    neko::EulerAngles rotation = neko::EulerAngles(
+        units::angle::degree_t(-135), units::angle::degree_t(90), units::angle::degree_t(0));
+    neko::Vec3f scale  = neko::Vec3f(4.0f, 5.0f, 6.0f);
+    neko::Mat4f transform = neko::Transform3d::Transform(position, rotation, scale);
+    EXPECT_NEAR(position.x, neko::Transform3d::GetPosition(transform).x, 0.1f);
+    EXPECT_NEAR(position.y, neko::Transform3d::GetPosition(transform).y, 0.1f);
+    EXPECT_NEAR(position.z, neko::Transform3d::GetPosition(transform).z, 0.1f);
+    //EXPECT_NEAR(rotation.x.value(), neko::Transform3d::GetRotation(transform).x.value(), 0.1f);
+    //EXPECT_NEAR(rotation.y.value(), neko::Transform3d::GetRotation(transform).y.value(), 0.1f);
+    //EXPECT_NEAR(rotation.z.value(), neko::Transform3d::GetRotation(transform).z.value(), 0.1f);
+    EXPECT_NEAR(scale.x, neko::Transform3d::GetScale(transform).x, 0.1f);
+    EXPECT_NEAR(scale.y, neko::Transform3d::GetScale(transform).y, 0.1f);
+    EXPECT_NEAR(scale.z, neko::Transform3d::GetScale(transform).z, 0.1f);
+}

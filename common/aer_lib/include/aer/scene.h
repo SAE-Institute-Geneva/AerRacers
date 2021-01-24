@@ -145,5 +145,10 @@ protected:
      * \brief Temporary vector of entities InstanceId 
      */
 	std::vector<InstanceId> entityInstanceIdArray_;
+
+    /**
+     * \brief Temporary vector of entities parent InstanceId 
+     */
+    std::vector<InstanceId> entityParentInstanceIdArray_;
 };
 }    // namespace neko::aer

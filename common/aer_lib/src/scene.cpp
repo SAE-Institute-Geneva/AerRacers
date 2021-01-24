@@ -25,7 +25,6 @@ SceneManager::SceneManager(
 
 void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 {
-    Configuration config = BasicEngine::GetInstance()->GetConfig();
 	if (CheckJsonParameter(componentJson, "transform", json::value_t::object))
 	{
 		if (CheckJsonParameter(componentJson["transform"], "exist", json::value_t::boolean))
@@ -93,23 +92,9 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
         {
             if (componentJson["modelRenderer"]["exist"])
             {
-                if (CheckJsonParameter(
-                        componentJson["modelRenderer"], "meshName", json::value_t::string))
-                {
-                    const std::string meshName =
-                        std::string(componentJson["modelRenderer"]["meshName"]);
-                    const std::string path =
-                        config.dataRootPath + "models/" + meshName + "/" + meshName + ".obj";
-                    if (FileExists(path))
-                    {
-                        componentManagerContainer_.renderManager.AddComponent(entity);
-                        componentManagerContainer_.renderManager.SetModel(entity, path);
-                    }
-                    else
-                    {
-                        LogDebug("File " + meshName + " not found");
-                    }
-                }
+                componentManagerContainer_.renderManager.AddComponent(entity);
+                componentManagerContainer_.renderManager.SetComponentFromJson(
+                    entity, componentJson["modelRenderer"]);
             }
         }
     }
@@ -124,28 +109,19 @@ void SceneManager::ParseEntityJson(const json& entityJson)
 		//entityManager_.SetEntityName(entity, entityJson["name"]); TODO(@Luca) Set when name is done
 	}
 
-	if (CheckJsonParameter(entityJson, "instanceId", json::value_t::number_integer))
+	if (CheckJsonNumber(entityJson, "instanceId"))
 	{
 		InstanceId instanceId = entityJson["instanceId"];
 		ResizeIfNecessary(entityInstanceIdArray_, entity, INVALID_INSTANCE_ID);
 		entityInstanceIdArray_[entity] = instanceId;
 	}
 
-	if (CheckJsonParameter(entityJson, "parent", json::value_t::number_integer))
-	{
-		int parentInstanceId = entityJson["parent"];
-		if (parentInstanceId != INVALID_INSTANCE_ID)
-		{
-			const auto entityInstanceIdIt = std::find_if(entityInstanceIdArray_.begin(),
-				entityInstanceIdArray_.end(),
-				[parentInstanceId](InstanceId instanceId)
-				{ return instanceId == parentInstanceId; });
-			if (entityInstanceIdIt != entityInstanceIdArray_.end())
-			{
-				const Entity parentEntity = entityInstanceIdIt - entityInstanceIdArray_.begin();
-				entityManager_.SetEntityParent(entity, parentEntity);
-			}
-		}
+	if (CheckJsonNumber(entityJson, "parent"))
+    {
+        InstanceId instanceId = entityJson["parent"];
+        ResizeIfNecessary(entityParentInstanceIdArray_, entity, INVALID_INSTANCE_ID);
+        entityParentInstanceIdArray_[entity] = instanceId;
+		
 	}
 
 	if (CheckJsonParameter(entityJson, "layer", json::value_t::string))
@@ -204,6 +180,21 @@ void SceneManager::ParseSceneJson(const json& sceneJson)
         for (auto& entityJson : sceneJson["objects"])
         {
             ParseEntityJson(entityJson);
+        }
+        for (Entity entity = 0; entity < entityInstanceIdArray_.size(); ++entity) {
+            InstanceId parentInstanceId = entityParentInstanceIdArray_[entity];
+            if (parentInstanceId != INVALID_INSTANCE_ID)
+            {
+                const auto entityInstanceIdIt = std::find_if(entityInstanceIdArray_.begin(),
+                    entityInstanceIdArray_.end(),
+                    [parentInstanceId](
+                        InstanceId instanceId) { return instanceId == parentInstanceId; });
+                if (entityInstanceIdIt != entityInstanceIdArray_.end())
+                {
+                    const Entity parentEntity = entityInstanceIdIt - entityInstanceIdArray_.begin();
+                    entityManager_.SetEntityParent(entity, parentEntity);
+                }
+            }
         }
     }
 }

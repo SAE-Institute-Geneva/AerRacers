@@ -49,6 +49,9 @@ public:
 	void UpdateDirtyComponent(Entity entity) override;
 	void OnChangeParent(Entity entity, Entity newParent, Entity oldParent) override;
 
+    virtual json GetJsonFromComponent(Entity) const override;
+    virtual void SetComponentFromJson(Entity, const json&) override;
+    virtual void DrawImGui(Entity) override;
 protected:
 #ifdef NEKO_GLES3
 	gl::Shader shader_;

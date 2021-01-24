@@ -67,55 +67,55 @@ public:
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         testEntity_        = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(testEntity_);
-        cContainer_.transform3dManager.SetPosition(testEntity_, Vec3f(-3.0f, -3.0f, -3.0f));
+        cContainer_.transform3dManager.SetRelativePosition(testEntity_, Vec3f(-3.0f, -3.0f, -3.0f));
         cContainer_.renderManager.AddComponent(testEntity_);
         cContainer_.renderManager.SetModel(
             testEntity_, config.dataRootPath + "models/cube/cube.obj");
         testEntity_ = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(testEntity_);
-        cContainer_.transform3dManager.SetPosition(testEntity_, Vec3f(3.0f, -3.0f, -5.0f));
-        cContainer_.transform3dManager.SetScale(testEntity_, Vec3f(1.0f, 3.0f, 1.0f));
+        cContainer_.transform3dManager.SetRelativePosition(testEntity_, Vec3f(3.0f, -3.0f, -5.0f));
+        cContainer_.transform3dManager.SetRelativeScale(testEntity_, Vec3f(1.0f, 3.0f, 1.0f));
         cContainer_.renderManager.AddComponent(testEntity_);
         cContainer_.renderManager.SetModel(
             testEntity_, config.dataRootPath + "models/cube/cube.obj");
         testEntity_ = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(testEntity_);
-        cContainer_.transform3dManager.SetPosition(testEntity_, Vec3f(1.0f, 3.0f, 1.0f));
-        cContainer_.transform3dManager.SetRotation(
+        cContainer_.transform3dManager.SetRelativePosition(testEntity_, Vec3f(1.0f, 3.0f, 1.0f));
+        cContainer_.transform3dManager.SetRelativeRotation(
             testEntity_, EulerAngles(degree_t(180.0f), degree_t(45.0f), degree_t(265.0f)));
         cContainer_.renderManager.AddComponent(testEntity_);
         cContainer_.renderManager.SetModel(
             testEntity_, config.dataRootPath + "models/cube/cube.obj");
         testEntity_ = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(testEntity_);
-        cContainer_.transform3dManager.SetPosition(testEntity_, Vec3f(0.0f, 0.0f, -10.0f));
+        cContainer_.transform3dManager.SetRelativePosition(testEntity_, Vec3f(0.0f, 0.0f, -10.0f));
         cContainer_.renderManager.AddComponent(testEntity_);
         cContainer_.renderManager.SetModel(
             testEntity_, config.dataRootPath + "models/sphere/sphere.obj");
         testEntity_ = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(testEntity_);
-        cContainer_.transform3dManager.SetPosition(testEntity_, Vec3f(3.0f, 1.0f, 3.0f));
+        cContainer_.transform3dManager.SetRelativePosition(testEntity_, Vec3f(3.0f, 1.0f, 3.0f));
         cContainer_.renderManager.AddComponent(testEntity_);
         cContainer_.renderManager.SetModel(
             testEntity_, config.dataRootPath + "models/sphere/sphere.obj");
         testEntity_ = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(testEntity_);
-        cContainer_.transform3dManager.SetPosition(testEntity_, Vec3f(0.0f, 0.0f, 0.0f));
+        cContainer_.transform3dManager.SetRelativePosition(testEntity_, Vec3f(0.0f, 0.0f, 0.0f));
         cContainer_.renderManager.AddComponent(testEntity_);
         cContainer_.renderManager.SetModel(
             testEntity_, config.dataRootPath + "models/cube/cube.obj");
-        cContainer_.entityManager.SetEntityParent(5, testEntity_);
+        cContainer_.entityManager.SetEntityParent(3, testEntity_);
     }
 
     void Update(seconds dt) override
     {
-        cContainer_.transform3dManager.SetPosition(testEntity_,
+        cContainer_.transform3dManager.SetRelativePosition(testEntity_,
             Vec3f(Cos(radian_t(updateCount_)),
                 Sin(radian_t(updateCount_)),
                 Cos(radian_t(updateCount_))) * 2.0f);
-        cContainer_.transform3dManager.SetRotation(testEntity_,
+        cContainer_.transform3dManager.SetRelativeRotation(testEntity_,
             EulerAngles(radian_t(updateCount_), radian_t(updateCount_), radian_t(updateCount_)));
-        cContainer_.transform3dManager.SetScale(testEntity_,
+        cContainer_.transform3dManager.SetRelativeScale(testEntity_,
             Vec3f(abs(Cos(radian_t(updateCount_))),
                 abs(Sin(radian_t(updateCount_))),
                 abs(Cos(radian_t(updateCount_)))));

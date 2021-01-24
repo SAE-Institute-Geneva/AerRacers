@@ -2,6 +2,8 @@
 
 #include "engine/engine.h"
 #include "graphics/camera.h"
+#include <aer\log.h>
+#include <utils/file_utility.h>
 
 namespace neko::aer
 {
@@ -129,4 +131,34 @@ void RenderManager::UpdateDirtyComponent(Entity entity)
 }
 
 void RenderManager::OnChangeParent(Entity, Entity, Entity) {}
+json RenderManager::GetJsonFromComponent(Entity entity) const
+{
+	//TODO(@Luca) RenderViewer
+    return json();
+}
+
+void RenderManager::SetComponentFromJson(Entity entity, const json& componentJson)
+{
+    if (CheckJsonParameter(componentJson, "meshName", json::value_t::string))
+    {
+        Configuration config       = BasicEngine::GetInstance()->GetConfig();
+        const std::string meshName = std::string(componentJson["meshName"]);
+        const std::string path =
+            config.dataRootPath + "models/" + meshName + "/" + meshName + ".obj";
+        if (FileExists(path))
+        {
+            AddComponent(entity);
+            SetModel(entity, path);
+        }
+        else
+        {
+            LogDebug("File " + meshName + " not found");
+        }
+    }
+}
+
+void RenderManager::DrawImGui(Entity)
+{
+    
+}
 }    // namespace neko::aer

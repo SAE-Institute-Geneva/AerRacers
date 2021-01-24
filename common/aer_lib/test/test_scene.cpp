@@ -59,7 +59,7 @@ public:
 		EXPECT_TRUE(
 			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
 		EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
-		EXPECT_TRUE(cContainer.transform3dManager.GetPosition(0) == Vec3f(1.0, 3.0, 5.0));
+		EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(1.0, 3.0, 5.0));
 	}
 };
 
@@ -76,7 +76,7 @@ public:
 		EXPECT_TRUE(
 			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
 		EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
-		EXPECT_TRUE(cContainer.transform3dManager.GetPosition(0) == Vec3f(960, 540, 0));
+		EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(960, 540, 0));
 	}
 };
 
@@ -130,7 +130,7 @@ TEST(Scene, TestExampleSceneImporteur)
 	sdl::Gles3Window window;
 	gl::Gles3Renderer renderer;
 	Filesystem filesystem;
-	AerEngine engine(filesystem, &config, ModeEnum::TEST);
+	AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 	TestExampleScene testExample;
@@ -161,7 +161,7 @@ TEST(Scene, TestUnitySceneImporteur)
 	sdl::Gles3Window window;
 	gl::Gles3Renderer renderer;
 	Filesystem filesystem;
-	AerEngine engine(filesystem, &config, ModeEnum::TEST);
+	AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 	TestUnityScene testUnity;
@@ -197,7 +197,7 @@ public:
 		TagLocator::get().SetEntityLayer(2, "TestLayer");
 		TagLocator::get().SetEntityLayer(3, "TestLayer");
 		cContainer.transform3dManager.AddComponent(0);
-		cContainer.transform3dManager.SetPosition(0, Vec3f(1.0, 3.0, 5.0));
+		cContainer.transform3dManager.SetRelativePosition(0, Vec3f(1.0, 3.0, 5.0));
 	}
 
 	void Update(seconds) override
@@ -227,7 +227,7 @@ public:
 		EXPECT_FALSE(TagLocator::get().IsEntityTag(1, 0));
 		EXPECT_TRUE(
 			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
-		EXPECT_TRUE(cContainer.transform3dManager.GetPosition(0) == Vec3f(1.0, 3.0, 5.0));
+		EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(1.0, 3.0, 5.0));
 	}
 
 private:
@@ -267,6 +267,19 @@ TEST(Scene, TestSceneExporteur)
 	testSceneExporter.HasSucceed();
 }
 
+class TestUnitySceneViewer : public TestSceneInterface
+{
+public:
+    explicit TestUnitySceneViewer()
+    {
+        sceneName = "scenes/PlaygroundTest2021-01-23-21-51-59.aerscene";
+    }
+
+    virtual void HasSucceed(ComponentManagerContainer& cContainer) override
+    {
+    }
+};
+
 class SceneViewerTester : public SystemInterface
 {
 public:
@@ -279,12 +292,15 @@ public:
         const Configuration config = BasicEngine::GetInstance()->GetConfig();
         engine_.GetComponentManagerContainer().sceneManager.LoadScene(
             config.dataRootPath + testScene_.sceneName);
+        Camera3D* camera = GizmosLocator::get().GetCamera();
+        camera->position = Vec3f(10.0f, 5.0f, 0.0f);
+        camera->Rotate(EulerAngles(degree_t(0.0f), degree_t(90.0f), degree_t(0.0f)));
     }
 
     void Update(seconds dt) override
     {
         updateCount_+=dt.count();
-        //if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
     }
 
     void Destroy() override {}
@@ -293,7 +309,7 @@ public:
 
 private:
     float updateCount_           = 0;
-    const float kEngineDuration_ = 10;
+    const float kEngineDuration_ = 2.0f;
 
     AerEngine& engine_;
 
@@ -320,7 +336,7 @@ TEST(Scene, TestUnitySceneView)
     AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
 
     engine.SetWindowAndRenderer(&window, &renderer);
-    TestUnityScene testExample;
+    TestUnitySceneViewer testExample;
     SceneViewerTester testSceneImporteur(engine, testExample);
     engine.RegisterSystem(testSceneImporteur);
 
@@ -328,7 +344,7 @@ TEST(Scene, TestUnitySceneView)
 
     engine.EngineLoop();
 
-    testSceneImporteur.HasSucceed();
+    //testSceneImporteur.HasSucceed();
 }
 }    // namespace neko::aer
 #endif

@@ -117,12 +117,19 @@ public:
 	void Update() override;
 	void UpdateDirtyComponent(Entity entity) override;
 
-	[[nodiscard]] Vec3f GetPosition(Entity entity) const;
-	[[nodiscard]] EulerAngles GetAngles(Entity entity) const;
-	[[nodiscard]] Vec3f GetScale(Entity entity) const;
-	void SetPosition(Entity entity, const Vec3f& position);
-	void SetRotation(Entity entity, const EulerAngles& angles);
-	void SetScale(Entity entity, const Vec3f& scale);
+	[[nodiscard]] Vec3f GetRelativePosition(Entity entity) const;
+	[[nodiscard]] EulerAngles GetRelativeRotation(Entity entity) const;
+	[[nodiscard]] Vec3f GetRelativeScale(Entity entity) const;
+	void SetRelativePosition(Entity entity, const Vec3f& position);
+	void SetRelativeRotation(Entity entity, const EulerAngles& angles);
+	void SetRelativeScale(Entity entity, const Vec3f& scale);
+
+    [[nodiscard]] Vec3f GetGlobalPosition(Entity entity) const;
+    [[nodiscard]] EulerAngles GetGlobalRotation(Entity entity) const;
+    [[nodiscard]] Vec3f GetGlobalScale(Entity entity) const;
+    void SetGlobalPosition(Entity entity, const Vec3f& position);
+    void SetGlobalRotation(Entity entity, const EulerAngles& angles);
+    void SetGlobalScale(Entity entity, const Vec3f& scale);
 
 	void AddComponent(Entity entity) override;
 	void OnChangeParent(Entity entity, Entity newParent, Entity oldParent) override;
