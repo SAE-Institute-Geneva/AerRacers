@@ -178,7 +178,7 @@ class TestNanosuitRenderer : public SystemInterface,
                      public DrawImGuiInterface
 {
 public:
-    TestNanosuitRenderer(AerEngine& engine)
+    explicit TestNanosuitRenderer(AerEngine& engine)
        : engine_(engine),
          rContainer_(engine.GetResourceManagerContainer()),
          cContainer_(engine.GetComponentManagerContainer())

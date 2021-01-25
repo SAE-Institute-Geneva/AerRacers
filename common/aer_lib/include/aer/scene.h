@@ -126,12 +126,12 @@ public:
 	/**
      * \brief Get tag list of the current scene
      */
-	const std::vector<std::string>& GetTags() const;
+	const std::vector<std::string> GetTags() const;
 
 	/**
      * \brief Get layer list of the current scene
      */
-	const std::vector<std::string>& GetLayers() const;
+	const std::vector<std::string> GetLayers() const;
 
 protected:
 	const FilesystemInterface& filesystem_;

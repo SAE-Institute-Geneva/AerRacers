@@ -125,9 +125,7 @@ void RenderManager::SetModel(Entity entity, const std::string& modelPath)
 
 	SetModel(entity, modelId);
 #endif
-    std::string meshName = modelPath;
-    meshName = meshName.substr(0, meshName.find_last_of('/'));
-    rendererViewer_.SetMeshName(entity, meshName);
+    rendererViewer_.SetMeshName(entity, modelPath);
 	dirtyManager_.SetDirty(entity);
 }
 
@@ -153,7 +151,19 @@ RendererViewer::RendererViewer(EntityManager& entityManager, RenderManager& rend
     ResizeIfNecessary(meshNames_, INIT_ENTITY_NMB - 1, std::string());
 }
 
-json RendererViewer::GetJsonFromComponent(Entity entity) const { return json(); }
+json RendererViewer::GetJsonFromComponent(Entity entity) const
+{
+    json rendererComponent = json::object();
+    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL)))
+    {
+        if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
+        {
+            Configuration config          = BasicEngine::GetInstance()->GetConfig();
+            rendererComponent["meshName"] = meshNames_[entity];
+        }
+    }
+    return rendererComponent;
+}
 
 void RendererViewer::SetComponentFromJson(Entity entity, const json& componentJson)
 {
@@ -177,14 +187,31 @@ void RendererViewer::SetComponentFromJson(Entity entity, const json& componentJs
 
 void RendererViewer::DrawImGui(Entity entity)
 {
-    ResizeIfNecessary(meshNames_, entity, std::string());
-    std::string meshName = "MeshName : " + meshNames_[entity];
-    ImGui::Text(meshName.c_str());
+    if (entity == INVALID_ENTITY) return;
+    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL))) {
+        if (ImGui::TreeNode("Renderer")) {
+            ResizeIfNecessary(meshNames_, entity, std::string());
+            std::string meshName = "MeshName : " + meshNames_[entity];
+            ImGui::Text(meshName.c_str());
+            ImGui::TreePop();
+        }
+    }
 }
 
-void neko::aer::RendererViewer::SetMeshName(Entity entity, std::string meshName)
+void neko::aer::RendererViewer::SetMeshName(Entity entity, const std::string& meshPath)
 {
+    if (entity == INVALID_ENTITY) return;
     ResizeIfNecessary(meshNames_, entity, std::string());
+    auto startName       = meshPath.find_last_of('/')+1;
+    auto endName         = meshPath.find_first_of('.');
+    auto size            = endName - startName;
+    std::string meshName = meshPath.substr(startName, size);
     meshNames_[entity] = meshName;
+}
+
+std::string RendererViewer::GetMeshName(Entity entity) const
+{
+    if (entity == INVALID_ENTITY && entity >= meshNames_.size()) return "";
+    return meshNames_[entity];
 }
 }    // namespace neko::aer

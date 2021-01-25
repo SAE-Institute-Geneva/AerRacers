@@ -40,17 +40,9 @@ void Inspector::DrawImGui()
             {
                 //Display Component
                 ImGui::SetNextTreeNodeOpen(true);
-                if (ImGui::TreeNode("Transform")) {
-                    //Ask component how to display their information
-                    transform3dViewer_.DrawImGui(selectedEntity);
-                    ImGui::TreePop();
-                }
-                if (ImGui::TreeNode("Renderer"))
-                {
-                    //Ask component how to display their information
-                    rendererViewer_.DrawImGui(selectedEntity);
-                    ImGui::TreePop();
-                }
+                //Ask component how to display their information
+                transform3dViewer_.DrawImGui(selectedEntity);
+                rendererViewer_.DrawImGui(selectedEntity);
             }
 
             if (ImGui::Button("Add Component")) {

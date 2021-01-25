@@ -187,6 +187,9 @@ protected:
 	std::vector<T> currentComponents_;
 };
 
+/**
+ * \brief The Component Manager use to serialize to json and imgui components
+ */
 class ComponentViewer
 {
 public:
@@ -196,15 +199,23 @@ public:
 
     virtual ~ComponentViewer() = default;
 
-    void SetSelectedEntity(Entity selectedEntity) { selectedEntity_ = selectedEntity; };
-
+    /**
+     * \brief Get a json object of the component of an entity
+     * \return json object with component parameter
+     */
     virtual json GetJsonFromComponent(Entity) const = 0;
 
+    /**
+     * \brief Set a component of an entity from a json of the component
+     * \json json object with component parameter
+     */
     virtual void SetComponentFromJson(Entity, const json&) = 0;
 
+    /**
+     * \brief Draw the Imgui with the component parameter of an entity
+     */
     virtual void DrawImGui(Entity) = 0;
 protected :
     EntityManager& entityManager_;
-    Entity selectedEntity_ = INVALID_ENTITY;
 };
 }    // namespace neko

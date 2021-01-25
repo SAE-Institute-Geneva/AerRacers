@@ -162,7 +162,7 @@ void SceneManager::ParseSceneJson(const json& sceneJson)
         {
             if (tag != INVALID_TAG)
             {
-                currentScene_.tags.push_back(tag);
+                AddTag(tag);
             }
         }
     }
@@ -171,9 +171,8 @@ void SceneManager::ParseSceneJson(const json& sceneJson)
     {
         for (auto& layer : sceneJson["layers"])
         {
-            if (layer != INVALID_LAYER)
-            {
-                currentScene_.layers.push_back(layer);
+            if (layer != INVALID_LAYER) {
+                AddLayer(layer);
             }
         }
     }
@@ -260,7 +259,7 @@ json SceneManager::WriteEntityJson(Entity entity) const
 	//entityJson["shipRotation"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
 	entityJson["modelRenderer"] = json::object();
 	entityJson["modelRenderer"] = componentManagerContainer_.rendererViewer.GetJsonFromComponent(entity);
-	entityJson["modelRenderer"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
+	entityJson["modelRenderer"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL));
 	return entityJson;
 }
 
@@ -305,7 +304,7 @@ void SceneManager::AddLayer(const std::string& newLayerName)
 	}
 }
 
-const std::vector<std::string>& SceneManager::GetTags() const { return currentScene_.tags; }
+const std::vector<std::string> SceneManager::GetTags() const { return currentScene_.tags; }
 
-const std::vector<std::string>& SceneManager::GetLayers() const { return currentScene_.layers; }
+const std::vector<std::string> SceneManager::GetLayers() const { return currentScene_.layers; }
 }    // namespace neko::aer

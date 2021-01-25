@@ -26,6 +26,8 @@
  Date : 28.12.2020
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
+
+#include "utils/file_utility.h"
 #ifdef EASY_PROFILE_USE
     #include "easy/profiler.h"
 #endif
@@ -184,22 +186,24 @@ TEST(Scene, TestUnitySceneImporteur)
 	testSceneImporteur.HasSucceed();
 }
 
-class RendererTester : public SystemInterface
+class TestSceneExporter : public SystemInterface
 {
 public:
-	explicit RendererTester(AerEngine& engine) : engine_(engine) {}
+    explicit TestSceneExporter(AerEngine& engine) : engine_(engine) {}
 
-	void Init() override
+    void Init() override
     {
-    #ifdef EASY_PROFILE_USE
+        #ifdef EASY_PROFILE_USE
         EASY_BLOCK("Test Init", profiler::colors::Green);
-    #endif
-		auto& cContainer = engine_.GetComponentManagerContainer();
-		cContainer.entityManager.CreateEntity();
-		cContainer.entityManager.CreateEntity();
-		cContainer.entityManager.CreateEntity();
-		cContainer.entityManager.CreateEntity();
-		cContainer.entityManager.CreateEntity();
+        #endif
+        auto& cContainer           = engine_.GetComponentManagerContainer();
+        const Configuration config = BasicEngine::GetInstance()->GetConfig();
+        WriteStringToFile(config.dataRootPath + "scenes/writed_scene.aerscene", "");
+        cContainer.entityManager.CreateEntity();
+        cContainer.entityManager.CreateEntity();
+        cContainer.entityManager.CreateEntity();
+        cContainer.entityManager.CreateEntity();
+        cContainer.entityManager.CreateEntity();
 		cContainer.sceneManager.SetSceneName("writed_scene");
 		cContainer.entityManager.SetEntityParent(1, 0);
 		cContainer.sceneManager.AddTag("TestTag");
@@ -209,24 +213,31 @@ public:
 		TagLocator::get().SetEntityLayer(2, "TestLayer");
 		TagLocator::get().SetEntityLayer(3, "TestLayer");
 		cContainer.transform3dManager.AddComponent(0);
-		cContainer.transform3dManager.SetRelativePosition(0, Vec3f(1.0, 3.0, 5.0));
+        cContainer.transform3dManager.SetRelativePosition(0, Vec3f(1.0, 3.0, 5.0));
+        cContainer.renderManager.AddComponent(3);
+        cContainer.renderManager.SetModel(3, config.dataRootPath + "models/cube/cube.obj");
+        cContainer.renderManager.AddComponent(2);
+        cContainer.renderManager.SetModel(2, config.dataRootPath + "models/sphere/sphere.obj");
 	}
 
-	void Update(seconds) override
+	void Update(seconds dt) override
     {
     #ifdef EASY_PROFILE_USE
         EASY_BLOCK("Test Update", profiler::colors::Green);
     #endif
-		updateCount_++;
-		if (updateCount_ == kEngineDuration_)
+		updateCount_+= dt.count();
+        if (updateCount_ >= kFirstSceneDuration_ && !loaded_)
 		{
 			auto& sceneManager = engine_.GetComponentManagerContainer().sceneManager;
 			sceneManager.SaveCurrentScene();
+            engine_.GetComponentManagerContainer().entityManager.CleanEntity();
 			const Configuration config = BasicEngine::GetInstance()->GetConfig();
 			sceneManager.LoadScene(
-				config.dataRootPath + sceneManager.GetCurrentScene().sceneName + ".aerscene");
-			engine_.Stop();
+				config.dataRootPath + "scenes/" + sceneManager.GetCurrentScene().sceneName + ".aerscene");
+            loaded_ = true;
 		}
+
+        if (updateCount_ >= kEngineDuration_) { engine_.Stop(); }
 	}
 
 	void Destroy() override {}
@@ -242,12 +253,23 @@ public:
 		EXPECT_FALSE(TagLocator::get().IsEntityTag(1, 0));
 		EXPECT_TRUE(
 			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
-		EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(1.0, 3.0, 5.0));
+        EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(1.0, 3.0, 5.0));
+        EXPECT_FALSE(
+            cContainer.entityManager.HasComponent(1, EntityMask(ComponentType::TRANSFORM3D)));
+        EXPECT_TRUE(
+            cContainer.entityManager.HasComponent(2, EntityMask(ComponentType::MODEL)));
+        EXPECT_TRUE(cContainer.rendererViewer.GetMeshName(2) == "sphere");
+        EXPECT_TRUE(cContainer.entityManager.HasComponent(3, EntityMask(ComponentType::MODEL)));
+        EXPECT_TRUE(cContainer.rendererViewer.GetMeshName(3) == "cube");
+        EXPECT_FALSE(cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::MODEL)));
 	}
 
 private:
-	int updateCount_           = 0;
-	const int kEngineDuration_ = 10;
+	float updateCount_           = 0;
+    const float kFirstSceneDuration_ = 2.0f;
+    const float kEngineDuration_ = 5.0f;
+
+	bool loaded_ = false;
 
 	AerEngine& engine_;
 };
@@ -269,10 +291,10 @@ TEST(Scene, TestSceneExporteur)
 	sdl::Gles3Window window;
 	gl::Gles3Renderer renderer;
 	Filesystem filesystem;
-	AerEngine engine(filesystem, &config, ModeEnum::TEST);
+	AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
 
 	engine.SetWindowAndRenderer(&window, &renderer);
-	RendererTester testSceneExporter(engine);
+    TestSceneExporter testSceneExporter(engine);
 	engine.RegisterSystem(testSceneExporter);
 
 	engine.Init();

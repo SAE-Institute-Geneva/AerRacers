@@ -160,6 +160,10 @@ protected:
 //	Transform3dManager& transform3dManager_;
 //};
 
+
+/**
+ * \brief The Component Manager use to serialize to json and imgui components
+ */
 class Transform3dViewer : public ComponentViewer
 {
 public:
@@ -168,8 +172,21 @@ public:
 
     virtual ~Transform3dViewer() = default;
 
+    /**
+     * \brief Get a json object of the component of an entity
+     * \return json object with component parameter
+     */
     json GetJsonFromComponent(Entity entity) const override;
+
+    /**
+     * \brief Set a component of an entity from a json of the component
+     * \componentJson json object with component parameter
+     */
     void SetComponentFromJson(Entity entity, const json& jsonComponent) override;
+
+    /**
+     * \brief Draw the Imgui with the component parameter of an entity
+     */
     void DrawImGui(Entity entity) override;
 private :
     Transform3dManager& transform3dManager_;

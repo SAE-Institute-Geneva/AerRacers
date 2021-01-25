@@ -6,24 +6,8 @@
 
 namespace neko::aer
 {
-class RenderManager;
+class RendererViewer;
 
-class RendererViewer : public ComponentViewer
-{
-public:
-    explicit RendererViewer(EntityManager& entityManager, RenderManager& renderManager);
-
-    virtual ~RendererViewer() = default;
-
-    json GetJsonFromComponent(Entity entity) const override;
-    void SetComponentFromJson(Entity entity, const json& componentJson) override;
-    void DrawImGui(Entity entity) override;
-    void SetMeshName(Entity entity, std::string meshName);
-
-private:
-    RenderManager& rendererManager_;
-    std::vector<std::string> meshNames_;
-};
 #ifdef NEKO_GLES3
 struct DrawCmd
 {
@@ -83,4 +67,49 @@ protected:
 	Job preRender_;
 };
 
+/**
+ * \brief The Component Manager use to serialize to json and imgui components
+ */
+class RendererViewer : public ComponentViewer
+{
+public:
+    explicit RendererViewer(EntityManager& entityManager, RenderManager& renderManager);
+
+    virtual ~RendererViewer() = default;
+
+    /**
+     * \brief Get a json object of the component of an entity
+     * \return json object with component parameter
+     */
+    json GetJsonFromComponent(Entity entity) const override;
+
+    /**
+     * \brief Set a component of an entity from a json of the component
+     * \componentJson json object with component parameter
+     */
+    void SetComponentFromJson(Entity entity, const json& componentJson) override;
+
+    /**
+     * \brief Draw the Imgui with the component parameter of an entity
+     */
+    void DrawImGui(Entity entity) override;
+
+    /**
+     * \brief Use to store the meshName 
+     * \param meshName meshName of the model
+     */
+    void SetMeshName(Entity entity, const std::string& meshName);
+    /**
+     * \brief Return the mesh name of a model
+     */
+    std::string GetMeshName(Entity entity) const;
+
+private:
+    RenderManager& rendererManager_;
+
+    /**
+     * \brief Vector of meshName only use for serialization
+     */
+    std::vector<std::string> meshNames_;
+};
 }
