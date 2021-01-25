@@ -46,6 +46,22 @@ void Hierarchy::DisplayEntity(Entity entityIndex)
     if (editorToolManager_.GetSelectedEntity() == entityIndex) {
         nodeFlags = kNodeTreeSelectedFlags_;
     } else { nodeFlags = kNodeTreeNotSelectedFlags_; }
+
+    //Hide arrow if no child
+    bool hasChild = false;
+    for (auto oneEntityIndex = 0; oneEntityIndex < entityManager_.GetEntitiesSize();
+         oneEntityIndex++)
+    {
+        if (entityIndex == entityManager_.GetEntityParent(oneEntityIndex))
+        {
+            hasChild = true;
+            break;
+        }
+    }
+    if (hasChild == false) { 
+        nodeFlags = ImGuiTreeNodeFlags_Leaf; 
+    }
+
     //Display entity
     const bool nodeOpen = ImGui::TreeNodeEx(text.c_str(), nodeFlags);
     //Select entity on click
