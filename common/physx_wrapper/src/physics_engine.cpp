@@ -156,9 +156,9 @@ physx::PxScene* PhysicsEngine::GetScene()
 void PhysicsEngine::AddRigidStatic(Entity entity, physics::RigidStaticData& rigidStaticData)
 {
     rigidStaticManager_.AddComponent(entity);
-    Vec3f position = transform3d_.GetPosition(entity);
-    EulerAngles euler = transform3d_.GetAngles(entity);
-    Vec3f scale = transform3d_.GetScale(entity);
+    Vec3f position = transform3d_.GetRelativePosition(entity);
+    EulerAngles euler = transform3d_.GetRelativeRotation(entity);
+    Vec3f scale = transform3d_.GetRelativeScale(entity);
     rigidStaticData.boxColliderData.size = Vec3f(rigidStaticData.boxColliderData.size.x * scale.x, rigidStaticData.boxColliderData.size.y * scale.y, rigidStaticData.boxColliderData.size.z * scale.z);
     RigidStatic rigidStatic = rigidStaticManager_.GetComponent(entity);
     rigidStatic.Init(physics_, rigidStaticData, position, euler);
@@ -178,9 +178,9 @@ void PhysicsEngine::SetRigidStatic(Entity entity, const RigidStatic& body)
 void PhysicsEngine::AddRigidDynamic(Entity entity, RigidDynamicData& rigidDynamicData)
 {
     rigidDynamicManager_.AddComponent(entity);
-    Vec3f position = transform3d_.GetPosition(entity);
-    EulerAngles euler = transform3d_.GetAngles(entity);
-    Vec3f scale = transform3d_.GetScale(entity);
+    Vec3f position = transform3d_.GetRelativePosition(entity);
+    EulerAngles euler = transform3d_.GetRelativeRotation(entity);
+    Vec3f scale = transform3d_.GetRelativeScale(entity);
     rigidDynamicData.boxColliderData.size = Vec3f(rigidDynamicData.boxColliderData.size.x * scale.x, rigidDynamicData.boxColliderData.size.y * scale.y, rigidDynamicData.boxColliderData.size.z * scale.z);
     RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(entity);
     rigidDynamic.Init(physics_, rigidDynamicData, position, euler);

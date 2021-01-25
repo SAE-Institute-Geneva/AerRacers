@@ -56,7 +56,8 @@ function(data_generate binary)
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.pkg_json")
 	file(GLOB_RECURSE AER_FILES
 			"${CMAKE_CURRENT_SOURCE_DIR}/data/*.aermat"
-			"${CMAKE_CURRENT_SOURCE_DIR}/data/*.aershader")
+			"${CMAKE_CURRENT_SOURCE_DIR}/data/*.aershader"
+            "${CMAKE_CURRENT_SOURCE_DIR}/data/*.aerscene")
 			
     set(data_generate_name "${binary}_Generate_Data")
 
@@ -108,8 +109,8 @@ function(data_generate binary)
             ${data_generate_name}
             DEPENDS ${DATA_BINARY_FILES} ${DATA_FILES})
     add_dependencies(${binary} ${data_generate_name})
-	
-	
+
+
 
 endfunction()
 

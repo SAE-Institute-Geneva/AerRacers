@@ -1,4 +1,4 @@
-#include "draw_system.h"
+#include "aer/draw_system.h"
 
 #include "imgui.h"
 
@@ -8,39 +8,46 @@
 
 namespace neko::aer
 {
-DrawSystem::DrawSystem(AerEngine& engine) : engine_(engine)
+DrawSystem::DrawSystem(AerEngine& engine)
+   : engine_(engine),
+	 rContainer_(engine.GetResourceManagerContainer()),
+	 cContainer_(engine.GetComponentManagerContainer())
 {
+	engine.RegisterSystem(camera_);
+	engine.RegisterOnEvent(camera_);
+
 #ifdef NEKO_GLES3
-	gizmosRenderer_ = std::make_unique<Gles3GizmosRenderer>(&camera_);
-#elif NEKO_VULKAN
-	gizmosRenderer_ = std::make_unique<NekoGizmosRenderer>(&camera_);
+	gizmosRenderer_ = std::make_unique<GizmoRenderer>(&camera_);
 #endif
+
+	engine.RegisterSystem(*gizmosRenderer_);
 }
 
 void DrawSystem::Init()
 {
-	//gizmosRenderer_->Init();
-	camera_.position         = Vec3f::zero;
-	camera_.reverseDirection = neko::Vec3f::forward;
-	camera_.fovY             = neko::degree_t(45.0f);
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("DrawSystem::Init");
+#endif
+	camera_.position         = Vec3f::forward * 2.0f;
+	camera_.reverseDirection = Vec3f::forward;
+	camera_.fovY             = degree_t(45.0f);
 	camera_.nearPlane        = 0.1f;
 	camera_.farPlane         = 100.0f;
+
 	gizmosRenderer_->SetCamera(&camera_);
+
 }
 
-void DrawSystem::Update(seconds dt)
+void DrawSystem::Update(seconds)
 {
-	const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-	camera_.SetAspect(static_cast<float>(config.windowSize.x) / config.windowSize.y);
-
-	gizmosRenderer_->Update(dt);
-	gizmosRenderer_->DrawCube(Vec3f::zero);
-	neko::RendererLocator::get().Render(gizmosRenderer_.get());
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("DrawSystem::Update");
+#endif
 }
 
-void DrawSystem::Destroy() { gizmosRenderer_->Destroy(); }
+void DrawSystem::Destroy() {}
 
 void DrawSystem::DrawImGui() {}
 
-void DrawSystem::OnEvent(const SDL_Event& event) {}
+void DrawSystem::OnEvent(const SDL_Event&) {}
 }    // namespace neko::aer

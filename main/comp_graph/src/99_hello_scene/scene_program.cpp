@@ -42,13 +42,13 @@ void HelloSceneProgram::Init()
 	{
 		const auto entity = entityManager_.CreateEntity();
 		transform3dManager_.AddComponent(entity);
-		transform3dManager_.SetPosition(entity, Vec3f(
+		transform3dManager_.SetRelativePosition(entity, Vec3f(
 			RandomRange(-10.0f, 10.0f),
 			RandomRange(-10.0f, 10.0f),
 			RandomRange(0.0f, 10.0f)
 		));
-		transform3dManager_.SetScale(entity, Vec3f::one * RandomRange(0.5f, 3.0f));
-		transform3dManager_.SetRotation(entity, EulerAngles(
+		transform3dManager_.SetRelativeScale(entity, Vec3f::one * RandomRange(0.5f, 3.0f));
+		transform3dManager_.SetRelativeRotation(entity, EulerAngles(
 			degree_t(RandomRange(0.0f,90.0f)),
 			degree_t(RandomRange(0.0f, 90.0f)),
 			degree_t(RandomRange(0.0f, 90.0f))

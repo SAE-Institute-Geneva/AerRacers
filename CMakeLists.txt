@@ -240,8 +240,7 @@ endif()
 
 
 if(Aer_Test)
-    include_directories(${GOOGLE_TEST_DIR}/include)
-    add_subdirectory("testAer/")
+    include(cmake/test.cmake)
     set_target_properties (gtest PROPERTIES FOLDER Externals/GTest)
     set_target_properties(gtest_main PROPERTIES FOLDER Externals/GTest)
 endif()

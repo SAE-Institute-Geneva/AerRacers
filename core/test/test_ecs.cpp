@@ -54,7 +54,7 @@ TEST(Entity, EntityManager)
 
     for (neko::Index i = 0; i < entityNmb / 2; i++)
     {
-        entityManager.DestroyEntity(i * 2);
+        entityManager.DestroyEntity(i * 2, false);
     }
     EXPECT_EQ(entityManager.GetEntitiesNmb(), entityNmb / 2);
 
@@ -63,7 +63,7 @@ TEST(Entity, EntityManager)
     {
         auto entity = entityManager.CreateEntity(entityNmb+1);
         EXPECT_EQ(entityManager.GetLastEntity(), entityNmb+1);
-        entityManager.DestroyEntity(entity);
+        entityManager.DestroyEntity(entity, false);
     }
     EXPECT_EQ(entityManager.GetLastEntity(), entityNmb-1);
 }

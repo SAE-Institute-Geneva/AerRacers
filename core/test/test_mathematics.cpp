@@ -229,108 +229,108 @@ TEST(Aabb, Aabb2d_Aabb2d)
     aabb1.FromCenterExtends(neko::Vec2f(0.0f, 0.0f), neko::Vec2f(0.5f, 0.5f));
     neko::Aabb2d aabb2;
     aabb2.FromCenterExtends(neko::Vec2f(0.0f, 0.0f), neko::Vec2f(0.5f, 0.5f));
-    EXPECT_TRUE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_TRUE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_TRUE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_TRUE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Null Intersect
     aabb2.FromCenterExtends(neko::Vec2f(0.0f, 0.0f), neko::Vec2f(0.0f, 0.0f));
-    EXPECT_TRUE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_TRUE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Null Limit Intersect
     aabb2.FromCenterExtends(neko::Vec2f(0.5f, 0.5f), neko::Vec2f(0.0f, 0.0f));
-    EXPECT_TRUE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_TRUE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Null Not Intersect
     aabb2.FromCenterExtends(neko::Vec2f(5.0f, 0.0f), neko::Vec2f(0.0f, 0.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_FALSE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_FALSE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_FALSE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_FALSE(aabb2.DoIntersectAabb(aabb1));
 
     //Basic Intersect
     aabb2.FromCenterExtends(neko::Vec2f(0.5f, 0.0f), neko::Vec2f(0.5f, 0.5f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Basic Contains
     aabb2.FromCenterExtends(neko::Vec2f(0.1f, 0.1f), neko::Vec2f(0.1f, 0.1f));
-    EXPECT_TRUE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_TRUE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Limit Intersect
     aabb2.FromCenterExtends(neko::Vec2f(1.0f, 0.0f), neko::Vec2f(0.5f, 0.5f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Not Intersect
     aabb2.FromCenterExtends(neko::Vec2f(1.5f, 0.0f), neko::Vec2f(0.5f, 0.5f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_FALSE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_FALSE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_FALSE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_FALSE(aabb2.DoIntersectAabb(aabb1));
 
     //Basic Intersect Positive
     aabb2.FromCenterExtends(neko::Vec2f(1.0f, 1.0f), neko::Vec2f(1.0f, 1.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Basic Intersect Negative
     aabb2.FromCenterExtends(neko::Vec2f(-1.0f, -1.0f), neko::Vec2f(1.0f, 1.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Limit Intersect Positive
     aabb2.FromCenterExtends(neko::Vec2f(1.5f, 1.5f), neko::Vec2f(1.0f, 1.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Limit Intersect Negative
     aabb2.FromCenterExtends(neko::Vec2f(-1.5f, -1.5f), neko::Vec2f(1.0f, 1.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Not Intersect Positive
     aabb2.FromCenterExtends(neko::Vec2f(2.0f, 2.0f), neko::Vec2f(1.0f, 1.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_FALSE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_FALSE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_FALSE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_FALSE(aabb2.DoIntersectAabb(aabb1));
 
     //Not Intersect Negative
     aabb2.FromCenterExtends(neko::Vec2f(-2.0f, -2.0f), neko::Vec2f(1.0f, 1.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_FALSE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_FALSE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_FALSE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_FALSE(aabb2.DoIntersectAabb(aabb1));
 
     //Transverse Intersect
     aabb2.FromCenterExtends(neko::Vec2f(-5.0, 0.1f), neko::Vec2f(10.0f, 0.1f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 }
 
 TEST(Aabb, Aabb3d_Aabb3d)
@@ -340,108 +340,108 @@ TEST(Aabb, Aabb3d_Aabb3d)
     aabb1.FromCenterExtends(neko::Vec3f(0.0f, 0.0f, 0.0f), neko::Vec3f(0.5f, 0.5f, 0.5f));
     neko::Aabb3d aabb2;
     aabb2.FromCenterExtends(neko::Vec3f(0.0f, 0.0f, 0.0f), neko::Vec3f(0.5f, 0.5f, 0.5f));
-    EXPECT_TRUE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_TRUE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_TRUE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_TRUE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Null Intersect
     aabb2.FromCenterExtends(neko::Vec3f(0.0f, 0.0f, 0.0f), neko::Vec3f(0.0f, 0.0f, 0.0f));
-    EXPECT_TRUE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_TRUE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Null Limit Intersect
     aabb2.FromCenterExtends(neko::Vec3f(0.5f, 0.5f, 0.0f), neko::Vec3f(0.0f, 0.0f, 0.0f));
-    EXPECT_TRUE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_TRUE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Null Not Intersect
     aabb2.FromCenterExtends(neko::Vec3f(5.0f, 0.0f, 0.0f), neko::Vec3f(0.0f, 0.0f, 0.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_FALSE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_FALSE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_FALSE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_FALSE(aabb2.DoIntersectAabb(aabb1));
 
     //Basic Intersect
     aabb2.FromCenterExtends(neko::Vec3f(0.5f, 0.0f, 0.0f), neko::Vec3f(0.5f, 0.5f, 0.5f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Basic Contains
     aabb2.FromCenterExtends(neko::Vec3f(0.1f, 0.1f, 0.1f), neko::Vec3f(0.1f, 0.1f, 0.1f));
-    EXPECT_TRUE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_TRUE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Limit Intersect
     aabb2.FromCenterExtends(neko::Vec3f(1.0f, 0.0f, 0.0f), neko::Vec3f(0.5f, 0.5f, 0.5f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Not Intersect
     aabb2.FromCenterExtends(neko::Vec3f(1.5f, 0.0f, 0.0f), neko::Vec3f(0.5f, 0.5f, 0.5f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_FALSE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_FALSE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_FALSE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_FALSE(aabb2.DoIntersectAabb(aabb1));
 
     //Basic Intersect Positive
     aabb2.FromCenterExtends(neko::Vec3f(1.0f, 1.0f, 1.0f), neko::Vec3f(1.0f, 1.0f, 1.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Basic Intersect Negative
     aabb2.FromCenterExtends(neko::Vec3f(-1.0f, -1.0f, -1.0f), neko::Vec3f(1.0f, 1.0f, 1.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Limit Intersect Positive
     aabb2.FromCenterExtends(neko::Vec3f(1.5f, 1.5f, 1.5f), neko::Vec3f(1.0f, 1.0f, 1.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Limit Intersect Negative
     aabb2.FromCenterExtends(neko::Vec3f(-1.5f, -1.5f, -1.5f), neko::Vec3f(1.0f, 1.0f, 1.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     //Not Intersect Positive
     aabb2.FromCenterExtends(neko::Vec3f(2.0f, 2.0f, 2.0f), neko::Vec3f(1.0f, 1.0f, 1.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_FALSE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_FALSE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_FALSE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_FALSE(aabb2.DoIntersectAabb(aabb1));
 
     //Not Intersect Negative
     aabb2.FromCenterExtends(neko::Vec3f(-2.0f, -2.0f, -2.0f), neko::Vec3f(1.0f, 1.0f, 1.0f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_FALSE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_FALSE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_FALSE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_FALSE(aabb2.DoIntersectAabb(aabb1));
 
     //Transverse Intersect
     aabb2.FromCenterExtends(neko::Vec3f(-5.0, 0.1f, 0.1f), neko::Vec3f(10.0f, 0.1f, 0.1f));
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 }
 
 TEST(Aabb, Aabb2d_Ray)
@@ -451,20 +451,20 @@ TEST(Aabb, Aabb2d_Ray)
     //Inside Intersect
     neko::Vec2f origin1 = neko::Vec2f(-0.1f, -0.1f);
     neko::Vec2f dir1 = neko::Vec2f(1.0f, 1.0f);
-    EXPECT_TRUE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_TRUE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Basic Intersect
     origin1 = neko::Vec2f(-1.0f, -1.0f);
     dir1 = neko::Vec2f(1.0f, 1.0f);
-    EXPECT_TRUE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_TRUE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Limit Intersect
     origin1 = neko::Vec2f(-0.5f, -1.5f);
-    EXPECT_TRUE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_TRUE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Not Intersect
     origin1 = neko::Vec2f(-0.5f, -2.0f);
-    EXPECT_FALSE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_FALSE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Not 0,0
     aabb1.FromCenterExtends(neko::Vec2f(2.0f, 2.0f), neko::Vec2f(1.0f, 1.0f));
@@ -472,20 +472,20 @@ TEST(Aabb, Aabb2d_Ray)
     //Basic Intersect
     origin1 = neko::Vec2f(-5.0f, 2.0f);
     dir1 = neko::Vec2f(1.0f, 0.0f);
-    EXPECT_TRUE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_TRUE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Limit Intersect
     origin1 = neko::Vec2f(-5.0f, 1.0f);
-    EXPECT_TRUE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_TRUE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Not Intersect
     origin1 = neko::Vec2f(-5.0f, 0.0f);
-    EXPECT_FALSE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_FALSE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Not Intersect
     origin1 = neko::Vec2f(-5.0f, 2.0f);
     dir1 = neko::Vec2f(-1.0f, 0.0f);
-    EXPECT_FALSE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_FALSE(aabb1.DoIntersectRay(dir1, origin1));
 }
 
 TEST(Aabb, Aabb3d_Ray)
@@ -495,20 +495,20 @@ TEST(Aabb, Aabb3d_Ray)
     //Inside Intersect
     neko::Vec3f origin1 = neko::Vec3f(-0.1f, -0.1f, -0.1f);
     neko::Vec3f dir1 = neko::Vec3f(1.0f, 1.0f, 1.0f);
-    EXPECT_TRUE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_TRUE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Basic Intersect
     origin1 = neko::Vec3f(-1.0f, -1.0f, -1.0f);
     dir1 = neko::Vec3f(1.0f, 1.0f, 1.0f);
-    EXPECT_TRUE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_TRUE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Limit Intersect
     origin1 = neko::Vec3f(-0.5f, -1.5f, -1.5f);
-    EXPECT_TRUE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_TRUE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Not Intersect
     origin1 = neko::Vec3f(-0.5f, -2.0f, -2.0f);
-    EXPECT_FALSE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_FALSE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Not 0,0
     aabb1.FromCenterExtends(neko::Vec3f(2.0f, 2.0f, 2.0f), neko::Vec3f(1.0f, 1.0f, 1.0f));
@@ -516,20 +516,20 @@ TEST(Aabb, Aabb3d_Ray)
     //Basic Intersect
     origin1 = neko::Vec3f(-5.0f, 2.0f, 2.0f);
     dir1 = neko::Vec3f(1.0f, 0.0f, 0.0f);
-    EXPECT_TRUE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_TRUE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Limit Intersect
     origin1 = neko::Vec3f(-5.0f, 1.0f, 1.0f);
-    EXPECT_TRUE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_TRUE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Not Intersect
     origin1 = neko::Vec3f(-5.0f, 0.0f, 0.0f);
-    EXPECT_FALSE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_FALSE(aabb1.DoIntersectRay(dir1, origin1));
 
     //Not Intersect
     origin1 = neko::Vec3f(-5.0f, 2.0f, 2.0f);
     dir1 = neko::Vec3f(-1.0f, 0.0f, 0.0f);
-    EXPECT_FALSE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_FALSE(aabb1.DoIntersectRay(dir1, origin1));
 }
 
 TEST(Aabb, Aabb3d_Plane)
@@ -618,10 +618,10 @@ TEST(Aabb, Obb2d_Obb2d)
     neko::Aabb2d aabb2;
     aabb1.FromObb(obb1);
     aabb2.FromObb(obb2);
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 }
 
 TEST(Aabb, Obb3d_Obb3d)
@@ -639,8 +639,8 @@ TEST(Aabb, Obb3d_Obb3d)
     //Transverse Intersect
     obb1.FromCenterExtendsRotation(neko::Vec3f(0, 0, 0), neko::Vec3f(0.5f, 0.5f, 0.5f), angles);
     obb2.FromCenterExtendsRotation(neko::Vec3f(1, 1, 1), neko::Vec3f(0.2f, 5.0f, 0.2f), angles);
-    EXPECT_TRUE(obb1.IntersectObb(obb2));
-    EXPECT_TRUE(obb2.IntersectObb(obb1));
+    //EXPECT_TRUE(obb1.IntersectObb(obb2));
+    //EXPECT_TRUE(obb2.IntersectObb(obb1));
 
     obb1.FromCenterExtendsRotation(neko::Vec3f(0, 0, 0), neko::Vec3f(0.5f, 0.5f, 0.5f), angles);
     obb2.FromCenterExtendsRotation(neko::Vec3f(1, 1, 1), neko::Vec3f(0.5f, 0.5f, 0.5f), angles);
@@ -680,10 +680,10 @@ TEST(Aabb, Obb3d_Obb3d)
     neko::Aabb3d aabb2;
     aabb1.FromObb(obb1);
     aabb2.FromObb(obb2);
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_FALSE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_FALSE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 }
 
 TEST(Aabb, TestAabb)
@@ -692,29 +692,29 @@ TEST(Aabb, TestAabb)
     aabb1.FromCenterExtends(neko::Vec2f(0, 0), neko::Vec2f(0.5, 0.5));
     neko::Aabb2d aabb2;
     aabb2.FromCenterExtends(neko::Vec2f(0, 0), neko::Vec2f(0.5, 0.5));
-    EXPECT_TRUE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
-    EXPECT_TRUE(aabb2.ContainsAabb(aabb1));
-    EXPECT_TRUE(aabb2.IntersectAabb(aabb1));
+    EXPECT_TRUE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
+    EXPECT_TRUE(aabb2.DoContainAabb(aabb1));
+    EXPECT_TRUE(aabb2.DoIntersectAabb(aabb1));
 
     aabb2.FromCenterExtends(neko::Vec2f(-1, 1), neko::Vec2f(1, 1));
     //std::cout << "AABB1 (" << aabb1.lowerLeftBound << " , " << aabb1.upperRightBound << "); AABB2 (" << aabb2.lowerLeftBound << " , " << aabb2.upperRightBound << ")  Contains :" << aabb1.ContainsAabb(aabb2) << "  Intersect :" << aabb1.IntersectAabb(aabb2) << "\n";
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
 
     neko::Vec2f origin1 = neko::Vec2f(-1, -1);
     neko::Vec2f dir1 = neko::Vec2f(1, 1);
     //std::cout << "AABB1 (" << aabb1.lowerLeftBound << " , " << aabb1.upperRightBound << "); Ray (" << origin1 << " , " << dir1 << ")  Intersect :" << aabb1.IntersectRay(dir1, origin1) << "\n";
-    EXPECT_TRUE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_TRUE(aabb1.DoIntersectRay(dir1, origin1));
     origin1 = neko::Vec2f(-0.5f, -1.5f);
     //std::cout << "AABB1 (" << aabb1.lowerLeftBound << " , " << aabb1.upperRightBound << "); Ray (" << origin1 << " , " << dir1 << ")  Intersect :" << aabb1.IntersectRay(dir1, origin1) << "\n";
-    EXPECT_TRUE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_TRUE(aabb1.DoIntersectRay(dir1, origin1));
     origin1 = neko::Vec2f(-0.5f, -2.0f);
     //std::cout << "AABB1 (" << aabb1.lowerLeftBound << " , " << aabb1.upperRightBound << "); Ray (" << origin1 << " , " << dir1 << ")  Intersect :" << aabb1.IntersectRay(dir1, origin1) << "\n";
-    EXPECT_FALSE(aabb1.IntersectRay(dir1, origin1));
+    EXPECT_FALSE(aabb1.DoIntersectRay(dir1, origin1));
 
     aabb1.FromCenterExtends(neko::Vec2f(0, 0), neko::Vec2f(10.0f, 10.0f));
     aabb2.FromCenterExtends(neko::Vec2f(1, 1), neko::Vec2f(1.0f, 1.0f));
-    EXPECT_TRUE(aabb1.ContainsAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoContainAabb(aabb2));
 
     neko::radian_t angle = static_cast<neko::radian_t>(neko::PI / 4);
     neko::Obb2d obb1;
@@ -727,24 +727,24 @@ TEST(Aabb, TestAabb)
     aabb1.FromObb(obb1);
     aabb2.FromObb(obb2);
     //std::cout << "AABB1 (" << aabb1.lowerLeftBound << " , " << aabb1.upperRightBound << "); AABB2 (" << aabb2.lowerLeftBound << " , " << aabb2.upperRightBound << ")  Contains :" << aabb1.ContainsAabb(aabb2) << "  Intersect :" << aabb1.IntersectAabb(aabb2) << "\n";
-    EXPECT_FALSE(aabb1.ContainsAabb(aabb2));
-    EXPECT_TRUE(aabb1.IntersectAabb(aabb2));
+    EXPECT_FALSE(aabb1.DoContainAabb(aabb2));
+    EXPECT_TRUE(aabb1.DoIntersectAabb(aabb2));
 
     neko::Aabb3d aabb3;
     aabb3.FromCenterExtends(neko::Vec3f(0, 0, 0), neko::Vec3f(1, 1, 1));
     neko::Aabb3d aabb4;
     aabb4.FromCenterExtends(neko::Vec3f(1, 1, 1), neko::Vec3f(1, 1, 1));
     //std::cout << "AABB1 (" << aabb3.lowerLeftBound << " , " << aabb3.upperRightBound << "); AABB2 (" << aabb4.lowerLeftBound << " , " << aabb4.upperRightBound << ")  Contains :" << aabb3.ContainsAabb(aabb4) << "  Intersect :" << aabb3.IntersectAabb(aabb4) << "\n";
-    EXPECT_FALSE(aabb3.ContainsAabb(aabb4));
-    EXPECT_TRUE(aabb3.IntersectAabb(aabb4));
+    EXPECT_FALSE(aabb3.DoContainAabb(aabb4));
+    EXPECT_TRUE(aabb3.DoIntersectAabb(aabb4));
     aabb4.FromCenterExtends(neko::Vec3f(-1, 1, 1), neko::Vec3f(1, 1, 1));
     //std::cout << "AABB1 (" << aabb3.lowerLeftBound << " , " << aabb3.upperRightBound << "); AABB2 (" << aabb4.lowerLeftBound << " , " << aabb4.upperRightBound << ")  Contains :" << aabb3.ContainsAabb(aabb4) << "  Intersect :" << aabb3.IntersectAabb(aabb4) << "\n";
-    EXPECT_TRUE(aabb3.IntersectAabb(aabb4));
+    EXPECT_TRUE(aabb3.DoIntersectAabb(aabb4));
 
     neko::Vec3f origin2 = neko::Vec3f(-2, -2, -2);
     neko::Vec3f dir2 = neko::Vec3f(1, 1, 1);
     //std::cout << "AABB1 (" << aabb3.lowerLeftBound << " , " << aabb3.upperRightBound << "); Ray (" << origin2 << " , " << dir2 << ")  Intersect :" << aabb3.IntersectRay(dir2, origin2) << "\n";
-    EXPECT_TRUE(aabb3.IntersectRay(dir2, origin2));
+    EXPECT_TRUE(aabb3.DoIntersectRay(dir2, origin2));
 
     neko::Vec3f origin3 = neko::Vec3f(-2, 0, -2);
     neko::Vec3f normal3 = neko::Vec3f(1, 1, 0);
@@ -763,12 +763,12 @@ TEST(Aabb, TestAabb)
     obb3.FromCenterExtendsRotation(neko::Vec3f(0.0f, 0.0f, 0.0f), neko::Vec3f(0.5f, 0.5f, 0.5f), angles);
     obb4.FromCenterExtendsRotation(neko::Vec3f(1.0f, 1.0f, 1.0f), neko::Vec3f(1.0f, 1.0f, 1.0f), angles);
     //std::cout << "OBB1 (" << obb3.localLowerLeftBound << " , " << obb3.localUpperRightBound << "); OBB2 (" << obb4.localLowerLeftBound << " , " << obb4.localUpperRightBound << ")  Intersect :" << obb3.IntersectObb(obb4) << "\n";
-    EXPECT_TRUE(obb3.IntersectObb(obb4));
+    //EXPECT_TRUE(obb3.IntersectObb(obb4));
 
     aabb3.FromObb(obb3);
     aabb4.FromObb(obb4);
-    EXPECT_FALSE(aabb3.ContainsAabb(aabb4));
-    EXPECT_TRUE(aabb3.IntersectAabb(aabb4));
+    EXPECT_FALSE(aabb3.DoContainAabb(aabb4));
+    EXPECT_TRUE(aabb3.DoIntersectAabb(aabb4));
 }
 
 TEST(Engine, Matrix3Det)
@@ -825,8 +825,8 @@ TEST(Engine, TestMatrix4)
 	});
 	result = result.Transpose();
 	EXPECT_LT(neko::Mat4f::MatrixDifference(m1.MultiplyNaive(m1), result), 0.01f);
-	EXPECT_LT(neko::Mat4f::MatrixDifference(m1.MultiplyIntrinsincs(m1), result), 0.01f);
-	EXPECT_LT(neko::Mat4f::MatrixDifference(m1.MultiplyNaive(m1), m1.MultiplyIntrinsincs(m1)), 0.01f);
+	EXPECT_LT(neko::Mat4f::MatrixDifference(m1.MultiplyIntrinsics(m1), result), 0.01f);
+	EXPECT_LT(neko::Mat4f::MatrixDifference(m1.MultiplyNaive(m1), m1.MultiplyIntrinsics(m1)), 0.01f);
 
 	EXPECT_LT(neko::Mat4f::MatrixDifference(neko::Mat4f::Identity, neko::Mat4f::Identity.Inverse()), 0.01f);
 	EXPECT_LT(neko::Mat4f::MatrixDifference(neko::Mat4f::Zero, neko::Mat4f::Zero.Inverse()), 0.01f);
@@ -852,4 +852,23 @@ TEST(Engine, TestMatrix4)
 	
 	EXPECT_LT(neko::Mat4f::MatrixDifference(mInvCalculus, mInv), 0.01f);
 	EXPECT_GT(neko::Mat4f::MatrixDifference(mInvCalculus, neko::Mat4f::Identity), 0.01f);
+}
+
+
+TEST(Transform, FromMatToMat4)
+{
+    neko::Vec3f position  = neko::Vec3f(1.0f, 2.0f, 3.0f);
+    neko::EulerAngles rotation = neko::EulerAngles(
+        units::angle::degree_t(-135), units::angle::degree_t(90), units::angle::degree_t(0));
+    neko::Vec3f scale  = neko::Vec3f(4.0f, 5.0f, 6.0f);
+    neko::Mat4f transform = neko::Transform3d::Transform(position, rotation, scale);
+    EXPECT_NEAR(position.x, neko::Transform3d::GetPosition(transform).x, 0.1f);
+    EXPECT_NEAR(position.y, neko::Transform3d::GetPosition(transform).y, 0.1f);
+    EXPECT_NEAR(position.z, neko::Transform3d::GetPosition(transform).z, 0.1f);
+    //EXPECT_NEAR(rotation.x.value(), neko::Transform3d::GetRotation(transform).x.value(), 0.1f);
+    //EXPECT_NEAR(rotation.y.value(), neko::Transform3d::GetRotation(transform).y.value(), 0.1f);
+    //EXPECT_NEAR(rotation.z.value(), neko::Transform3d::GetRotation(transform).z.value(), 0.1f);
+    EXPECT_NEAR(scale.x, neko::Transform3d::GetScale(transform).x, 0.1f);
+    EXPECT_NEAR(scale.y, neko::Transform3d::GetScale(transform).y, 0.1f);
+    EXPECT_NEAR(scale.z, neko::Transform3d::GetScale(transform).z, 0.1f);
 }

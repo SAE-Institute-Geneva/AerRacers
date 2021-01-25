@@ -1,4 +1,7 @@
-#include <gizmos_renderer.h>
+#include "aer/gizmos_renderer.h"
+#ifdef EASY_PROFILE_USE
+    #include "easy/profiler.h"
+#endif
 
 #include <engine/engine.h>
 
@@ -6,34 +9,48 @@
 
 namespace neko
 {
-Gles3GizmosRenderer::Gles3GizmosRenderer(Camera3D* camera) : camera_(camera)
+GizmoRenderer::GizmoRenderer(Camera3D* camera) : camera_(camera)
 {
 	GizmosLocator::provide(this);
 	isRunning_ = true;
 }
 
-void Gles3GizmosRenderer::Init()
+void GizmoRenderer::Init()
 {
+    #ifdef EASY_PROFILE_USE
+    EASY_BLOCK("GizmoRenderer::Init");
+    #endif
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
-	shaderCube_.LoadFromFile(
-		config.dataRootPath + "shaders/opengl/gizmoCube.vert",
-		config.dataRootPath + "shaders/opengl/gizmoCube.frag");
-	shaderLine_.LoadFromFile(
-		config.dataRootPath + "shaders/opengl/gizmoLine.vert",
-		config.dataRootPath + "shaders/opengl/gizmoLine.frag");
-	shaderSphere_.LoadFromFile(
-		config.dataRootPath + "shaders/opengl/gizmoSphere.vert",
-		config.dataRootPath + "shaders/opengl/gizmoSphere.frag");
-	cube_.Init();
-	sphere_.Init();
-	line_.Init();
+	preRender_ = Job {[this, config]()
+		{
+			shaderCube_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoCube.vert",
+				config.dataRootPath + "shaders/opengl/gizmoCube.frag");
+			shaderLine_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoLine.vert",
+				config.dataRootPath + "shaders/opengl/gizmoLine.frag");
+			shaderSphere_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoSphere.vert",
+				config.dataRootPath + "shaders/opengl/gizmoSphere.frag");
+			cube_.Init();
+			sphere_.Init();
+			line_.Init();
+		}};
+
 	gizmosQueue_.reserve(kGizmoReserveSize);
+	RendererLocator::get().AddPreRenderJob(&preRender_);
 }
 
-void Gles3GizmosRenderer::Update(seconds) {}
-
-void Gles3GizmosRenderer::Render()
+void GizmoRenderer::Update(seconds)
 {
+    #ifdef EASY_PROFILE_USE
+    EASY_BLOCK("GizmoRenderer::Update");
+    #endif
+	RendererLocator::get().Render(this);
+}
+
+void GizmoRenderer::Render()
+{
+    #ifdef EASY_PROFILE_USE
+    EASY_BLOCK("GizmoRenderer::Render");
+    #endif
 	if (isRunning_)
 	{
 		for (auto gizmo : gizmosQueue_)
@@ -96,7 +113,7 @@ void Gles3GizmosRenderer::Render()
 	}
 }
 
-void Gles3GizmosRenderer::Destroy()
+void GizmoRenderer::Destroy()
 {
 	cube_.Destroy();
 	sphere_.Destroy();
@@ -104,11 +121,11 @@ void Gles3GizmosRenderer::Destroy()
 	shaderCube_.Destroy();
 }
 
-void Gles3GizmosRenderer::Start() { isRunning_ = true; }
+void GizmoRenderer::Start() { isRunning_ = true; }
 
-void Gles3GizmosRenderer::Stop() { isRunning_ = false; }
+void GizmoRenderer::Stop() { isRunning_ = false; }
 
-void Gles3GizmosRenderer::DrawCube(
+void GizmoRenderer::DrawCube(
 	const Vec3f& pos,
 	const Vec3f& size,
 	const EulerAngles& rot,
@@ -118,18 +135,18 @@ void Gles3GizmosRenderer::DrawCube(
 	if (isRunning_)
 	{
 		std::lock_guard<std::mutex> lock(renderMutex_);
-		Gizmos gizmo;
-		gizmo.pos = pos;
-		gizmo.cubeSize = size;
-		gizmo.rot = rot;
-		gizmo.color = color;
-		gizmo.shape = GizmoShape::CUBE;
+		Gizmo gizmo;
+		gizmo.pos           = pos;
+		gizmo.cubeSize      = size;
+		gizmo.rot           = rot;
+		gizmo.color         = color;
+		gizmo.shape         = GizmoShape::CUBE;
 		gizmo.lineThickness = lineThickness;
 		gizmosQueue_.push_back(gizmo);
 	}
 }
 
-void Gles3GizmosRenderer::DrawLine(
+void GizmoRenderer::DrawLine(
 	const Vec3f& startPos,
 	const Vec3f& endPos,
 	const Color4& color,
@@ -138,7 +155,7 @@ void Gles3GizmosRenderer::DrawLine(
 	if (isRunning_)
 	{
 		std::lock_guard<std::mutex> lock(renderMutex_);
-		Gizmos gizmo;
+		Gizmo gizmo;
 		gizmo.pos           = startPos;
 		gizmo.lineEndPos    = endPos;
 		gizmo.color         = color;
@@ -148,7 +165,7 @@ void Gles3GizmosRenderer::DrawLine(
 	}
 }
 
-void Gles3GizmosRenderer::DrawSphere(
+void GizmoRenderer::DrawSphere(
     const Vec3f& pos,
     const float& radius,
 	const EulerAngles& rot,
@@ -158,18 +175,18 @@ void Gles3GizmosRenderer::DrawSphere(
 	if (isRunning_)
 	{
 		std::lock_guard<std::mutex> lock(renderMutex_);
-		Gizmos gizmo;
-		gizmo.pos = pos;
-		gizmo.radius = radius;
-		gizmo.rot = rot;
-		gizmo.color = color;
-		gizmo.shape = GizmoShape::SPHERE;
+		Gizmo gizmo;
+		gizmo.pos           = pos;
+		gizmo.radius        = radius;
+        gizmo.color         = color;
+        gizmo.rot           = rot;
+		gizmo.shape         = GizmoShape::SPHERE;
 		gizmo.lineThickness = lineThickness;
 		gizmosQueue_.push_back(gizmo);
 	}
 }
 
-void Gles3GizmosRenderer::SetCamera(Camera3D* camera) { camera_ = camera; }
+void GizmoRenderer::SetCamera(Camera3D* camera) { camera_ = camera; }
 }    // namespace neko
 #endif
 

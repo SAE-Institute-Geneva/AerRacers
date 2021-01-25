@@ -412,11 +412,11 @@ void RigidDynamicManager::FixedUpdate(seconds dt)
         }
         physx::PxTransform transform;
         transform = GetComponent(entity).GetPxRigidDynamic()->getGlobalPose();
-        transform3dManager_.SetPosition(entity, ConvertFromPxVec(transform.p));
+        transform3dManager_.SetRelativePosition(entity, ConvertFromPxVec(transform.p));
         physx::PxVec3 x = transform.q.getBasisVector0();
         physx::PxVec3 y = transform.q.getBasisVector1();
         physx::PxVec3 z = transform.q.getBasisVector2();
-        transform3dManager_.SetRotation(entity, Quaternion::ToEulerAngles(ConvertFromPxQuat(transform.q)));
+        transform3dManager_.SetRelativeRotation(entity, Quaternion::ToEulerAngles(ConvertFromPxQuat(transform.q)));
         RigidDynamic rigidDynamic = GetComponent(entity);
         rigidDynamic.FixedUpdate(dt);
         SetComponent(entity, rigidDynamic);
