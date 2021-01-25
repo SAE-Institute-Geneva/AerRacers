@@ -134,9 +134,6 @@ public:
 	void AddComponent(Entity entity) override;
 	void OnChangeParent(Entity entity, Entity newParent, Entity oldParent) override;
 
-	json GetJsonFromComponent(Entity entity) const override;
-    void SetComponentFromJson(Entity entity, const json& jsonComponent) override;
-    virtual void DrawImGui(Entity) override;
 
 protected:
 	void UpdateTransform(Entity entity) override;
@@ -147,19 +144,34 @@ protected:
 	Rotation3dManager rotation3DManager_;
 	DirtyManager dirtyManager_;
 };
+//OldTransform3dViewer
+//class Transform3dViewer : public DrawImGuiInterface
+//{
+//public:
+//	explicit Transform3dViewer(
+//		EntityManager& entityManager,
+//		Transform3dManager& transform3dManager);
+//	void DrawImGui() override;
+//	void SetSelectedEntity(Entity selectedEntity) { selectedEntity_ = selectedEntity; };
+//
+//protected:
+//	Entity selectedEntity_ = INVALID_ENTITY;
+//	EntityManager& entityManager_;
+//	Transform3dManager& transform3dManager_;
+//};
 
-class Transform3dViewer : public DrawImGuiInterface
+class Transform3dViewer : public ComponentViewer
 {
 public:
-	explicit Transform3dViewer(
-		EntityManager& entityManager,
-		Transform3dManager& transform3dManager);
-	void DrawImGui() override;
-	void SetSelectedEntity(Entity selectedEntity) { selectedEntity_ = selectedEntity; };
+    explicit Transform3dViewer(
+        EntityManager& entityManager, Transform3dManager& transform3dManager);
 
-protected:
-	Entity selectedEntity_ = INVALID_ENTITY;
-	EntityManager& entityManager_;
-	Transform3dManager& transform3dManager_;
+    virtual ~Transform3dViewer() = default;
+
+    json GetJsonFromComponent(Entity entity) const override;
+    void SetComponentFromJson(Entity entity, const json& jsonComponent) override;
+    void DrawImGui(Entity entity) override;
+private :
+    Transform3dManager& transform3dManager_;
 };
 }    // namespace neko

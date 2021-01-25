@@ -3,11 +3,13 @@
 
 namespace neko::aer {
 Inspector::Inspector(AerEngine& engine, ToolType type, int id, std::string name)
-    : EditorToolInterface(engine, type, id, name),
-      editorToolManager_(engine.GetEditorToolManager()),
-      entityManager_(engine.GetComponentManagerContainer().entityManager),
-      transform3dManager_(engine.GetComponentManagerContainer().transform3dManager),
-     renderManager_(engine.GetComponentManagerContainer().renderManager)
+   : EditorToolInterface(engine, type, id, name),
+     editorToolManager_(engine.GetEditorToolManager()),
+     entityManager_(engine.GetComponentManagerContainer().entityManager),
+     transform3dManager_(engine.GetComponentManagerContainer().transform3dManager),
+     renderManager_(engine.GetComponentManagerContainer().renderManager),
+     rendererViewer_(engine.GetComponentManagerContainer().rendererViewer),
+     transform3dViewer_(engine.GetComponentManagerContainer().transform3dViewer)
 { }
 
 void Inspector::Init() {}
@@ -40,13 +42,13 @@ void Inspector::DrawImGui()
                 ImGui::SetNextTreeNodeOpen(true);
                 if (ImGui::TreeNode("Transform")) {
                     //Ask component how to display their information
-                    transform3dManager_.DrawImGui(selectedEntity);
+                    transform3dViewer_.DrawImGui(selectedEntity);
                     ImGui::TreePop();
                 }
                 if (ImGui::TreeNode("Renderer"))
                 {
                     //Ask component how to display their information
-                    renderManager_.DrawImGui(selectedEntity);
+                    rendererViewer_.DrawImGui(selectedEntity);
                     ImGui::TreePop();
                 }
             }

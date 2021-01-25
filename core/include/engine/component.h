@@ -106,13 +106,9 @@ public:
 
 	virtual void UpdateDirtyComponent(Entity) {};
 
-	virtual json GetJsonFromComponent(Entity) const { return json::object(); }
-    virtual void SetComponentFromJson(Entity, const json&) {}
-    virtual void DrawImGui(Entity) {}
-
 protected:
 	std::vector<T> components_;
-	std::reference_wrapper<EntityManager> entityManager_;
+    std::reference_wrapper<EntityManager> entityManager_;
 };
 
 template<typename T, EntityMask componentType>
@@ -189,5 +185,26 @@ public:
 
 protected:
 	std::vector<T> currentComponents_;
+};
+
+class ComponentViewer
+{
+public:
+    explicit ComponentViewer(
+        EntityManager& entityManager)
+        : entityManager_(entityManager) { }
+
+    virtual ~ComponentViewer() = default;
+
+    void SetSelectedEntity(Entity selectedEntity) { selectedEntity_ = selectedEntity; };
+
+    virtual json GetJsonFromComponent(Entity) const = 0;
+
+    virtual void SetComponentFromJson(Entity, const json&) = 0;
+
+    virtual void DrawImGui(Entity) = 0;
+protected :
+    EntityManager& entityManager_;
+    Entity selectedEntity_ = INVALID_ENTITY;
 };
 }    // namespace neko

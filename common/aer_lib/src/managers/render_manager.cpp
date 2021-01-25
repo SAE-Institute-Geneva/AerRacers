@@ -1,4 +1,7 @@
 #include "aer/managers/render_manager.h"
+
+#include <imgui.h>
+
 #ifdef EASY_PROFILE_USE
     #include "easy/profiler.h"
 #endif
@@ -15,13 +18,15 @@ RenderManager::RenderManager(
 #ifdef NEKO_GLES3
 	gl::ModelManager& modelManager,
 #endif
-	Transform3dManager& transform3DManager)
+	Transform3dManager& transform3DManager,
+    RendererViewer& rendererViewer)
 #ifdef NEKO_GLES3
    : ComponentManager<DrawCmd, EntityMask(ComponentType::MODEL)>(entityManager),
 #endif
 	 modelManager_(modelManager),
 	 transformManager_(transform3DManager),
-	 dirtyManager_(entityManager)
+	 dirtyManager_(entityManager),
+     rendererViewer_(rendererViewer)
 {
 	entityManager_.get().RegisterOnChangeParent(this);
 	dirtyManager_.RegisterComponentManager(this);
@@ -120,7 +125,9 @@ void RenderManager::SetModel(Entity entity, const std::string& modelPath)
 
 	SetModel(entity, modelId);
 #endif
-
+    std::string meshName = modelPath;
+    meshName = meshName.substr(0, meshName.find_last_of('/'));
+    rendererViewer_.SetMeshName(entity, meshName);
 	dirtyManager_.SetDirty(entity);
 }
 
@@ -139,16 +146,18 @@ void RenderManager::UpdateDirtyComponent(Entity entity)
 	ComponentManager::UpdateDirtyComponent(entity);
 }
 
-void RenderManager::OnChangeParent(Entity, Entity, Entity) {}
-json RenderManager::GetJsonFromComponent(Entity entity) const
+void RenderManager::OnChangeParent(Entity entity, Entity newParent, Entity oldParent) {}
+
+RendererViewer::RendererViewer(EntityManager& entityManager, RenderManager& renderManager) : ComponentViewer(entityManager), rendererManager_(renderManager)
 {
-	//TODO(@Luca) RenderViewer
-    return json();
+    ResizeIfNecessary(meshNames_, INIT_ENTITY_NMB - 1, std::string());
 }
 
-void RenderManager::SetComponentFromJson(Entity entity, const json& componentJson)
+json RendererViewer::GetJsonFromComponent(Entity entity) const { return json(); }
+
+void RendererViewer::SetComponentFromJson(Entity entity, const json& componentJson)
 {
-    if (CheckJsonParameter(componentJson, "meshName", json::value_t::string))
+    if(CheckJsonParameter(componentJson, "meshName", json::value_t::string))
     {
         Configuration config       = BasicEngine::GetInstance()->GetConfig();
         const std::string meshName = std::string(componentJson["meshName"]);
@@ -156,8 +165,8 @@ void RenderManager::SetComponentFromJson(Entity entity, const json& componentJso
             config.dataRootPath + "models/" + meshName + "/" + meshName + ".obj";
         if (FileExists(path))
         {
-            AddComponent(entity);
-            SetModel(entity, path);
+            rendererManager_.AddComponent(entity);
+            rendererManager_.SetModel(entity, path);
         }
         else
         {
@@ -166,8 +175,16 @@ void RenderManager::SetComponentFromJson(Entity entity, const json& componentJso
     }
 }
 
-void RenderManager::DrawImGui(Entity)
+void RendererViewer::DrawImGui(Entity entity)
 {
-    
+    ResizeIfNecessary(meshNames_, entity, std::string());
+    std::string meshName = "MeshName : " + meshNames_[entity];
+    ImGui::Text(meshName.c_str());
+}
+
+void neko::aer::RendererViewer::SetMeshName(Entity entity, std::string meshName)
+{
+    ResizeIfNecessary(meshNames_, entity, std::string());
+    meshNames_[entity] = meshName;
 }
 }    // namespace neko::aer

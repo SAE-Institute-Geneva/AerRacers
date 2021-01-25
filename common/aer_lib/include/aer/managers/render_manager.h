@@ -6,6 +6,24 @@
 
 namespace neko::aer
 {
+class RenderManager;
+
+class RendererViewer : public ComponentViewer
+{
+public:
+    explicit RendererViewer(EntityManager& entityManager, RenderManager& renderManager);
+
+    virtual ~RendererViewer() = default;
+
+    json GetJsonFromComponent(Entity entity) const override;
+    void SetComponentFromJson(Entity entity, const json& componentJson) override;
+    void DrawImGui(Entity entity) override;
+    void SetMeshName(Entity entity, std::string meshName);
+
+private:
+    RenderManager& rendererManager_;
+    std::vector<std::string> meshNames_;
+};
 #ifdef NEKO_GLES3
 struct DrawCmd
 {
@@ -34,7 +52,8 @@ public:
 #ifdef NEKO_GLES3
 		gl::ModelManager& modelManager,
 #endif
-		Transform3dManager& transform3DManager);
+		Transform3dManager& transform3DManager,
+        RendererViewer& rendererViewer);
 
 	void Init() override;
 	void Update(seconds) override;
@@ -49,9 +68,6 @@ public:
 	void UpdateDirtyComponent(Entity entity) override;
 	void OnChangeParent(Entity entity, Entity newParent, Entity oldParent) override;
 
-    virtual json GetJsonFromComponent(Entity) const override;
-    virtual void SetComponentFromJson(Entity, const json&) override;
-    virtual void DrawImGui(Entity) override;
 protected:
 #ifdef NEKO_GLES3
 	gl::Shader shader_;
@@ -62,6 +78,9 @@ protected:
 
 	DirtyManager dirtyManager_;
 
+	RendererViewer& rendererViewer_;
+
 	Job preRender_;
 };
+
 }

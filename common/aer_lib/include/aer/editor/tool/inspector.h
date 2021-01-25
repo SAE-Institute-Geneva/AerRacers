@@ -45,5 +45,7 @@ namespace neko::aer
         EntityManager& entityManager_;
         Transform3dManager& transform3dManager_;
         RenderManager& renderManager_;
+        Transform3dViewer& transform3dViewer_;
+        RendererViewer& rendererViewer_;
 	};
 }

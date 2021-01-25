@@ -35,7 +35,7 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 			if (componentJson["transform"]["exist"])
 			{
                 componentManagerContainer_.transform3dManager.AddComponent(entity);
-                componentManagerContainer_.transform3dManager.SetComponentFromJson(
+                componentManagerContainer_.transform3dViewer.SetComponentFromJson(
                     entity, componentJson["transform"]);
 			}
 		}
@@ -96,7 +96,7 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
             if (componentJson["modelRenderer"]["exist"])
             {
                 componentManagerContainer_.renderManager.AddComponent(entity);
-                componentManagerContainer_.renderManager.SetComponentFromJson(
+                componentManagerContainer_.rendererViewer.SetComponentFromJson(
                     entity, componentJson["modelRenderer"]);
             }
         }
@@ -240,7 +240,7 @@ json SceneManager::WriteEntityJson(Entity entity) const
 	entityJson["layer"]      = TagLocator::get().GetEntityLayer(entity);
 	//entityJson["isActive"] = TagLocator::get().GetEntityTag(entity);  //TODO (@Luca) Set active
 	entityJson["transform"] = json::object();
-	entityJson["transform"] = componentManagerContainer_.transform3dManager.GetJsonFromComponent(entity);
+	entityJson["transform"] = componentManagerContainer_.transform3dViewer.GetJsonFromComponent(entity);
 	entityJson["transform"]["exist"] =
 		entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
 	//entityJson["rigidbody"] = json::object();
@@ -258,9 +258,9 @@ json SceneManager::WriteEntityJson(Entity entity) const
 	//entityJson["shipRotation"] = json::object();
 	//entityJson["shipRotation"] = transformManager_.GetJsonFromComponent(entity);
 	//entityJson["shipRotation"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
-	//entityJson["modelRenderer"] = json::object();
-	//entityJson["modelRenderer"] = transformManager_.GetJsonFromComponent(entity);
-	//entityJson["modelRenderer"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
+	entityJson["modelRenderer"] = json::object();
+	entityJson["modelRenderer"] = componentManagerContainer_.rendererViewer.GetJsonFromComponent(entity);
+	entityJson["modelRenderer"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
 	return entityJson;
 }
 
