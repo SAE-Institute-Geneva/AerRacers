@@ -45,12 +45,14 @@ struct ComponentManagerContainer : public SystemInterface
           rigidStaticManager(entityManager, transform3dManager, physicsEngine),
           transform3dViewer(entityManager, transform3dManager),
           rendererViewer(entityManager, renderManager),
-          rigidDynamicViewer(entityManager, physicsEngine, rigidDynamicManager),
-          rigidStaticViewer(entityManager, physicsEngine, rigidStaticManager),
+          rigidDynamicViewer(transform3dManager, entityManager, physicsEngine, rigidDynamicManager),
+          rigidStaticViewer(transform3dManager, entityManager, physicsEngine, rigidStaticManager),
           sceneManager(entityManager, *this)
 	{
         physicsEngine.RegisterFixedUpdateListener(rigidDynamicManager);
         physicsEngine.RegisterFixedUpdateListener(rigidStaticManager);
+        physicsEngine.RegisterFixedUpdateListener(rigidStaticViewer);
+        physicsEngine.RegisterFixedUpdateListener(rigidDynamicViewer);
 	}
 
 	void Init() override

@@ -31,6 +31,7 @@
 
 namespace neko::aer
 {
+struct ComponentManagerContainer;
 class AerEngine;
 class EditorToolManager : public SystemInterface,
 						  public DrawImGuiInterface,
@@ -61,8 +62,8 @@ private:
     Entity selectedEntity_ = INVALID_ENTITY;
 
 	AerEngine& engine_;
-	std::vector<std::unique_ptr<EditorToolInterface>> tools_;
-
+    std::vector<std::unique_ptr<EditorToolInterface>> tools_;
+    ComponentManagerContainer& cContainer_;
 	static const ImGuiDockNodeFlags dockspaceFlags_ =
 		ImGuiDockNodeFlags_NoDockingInCentralNode |
 		ImGuiDockNodeFlags_AutoHideTabBar |

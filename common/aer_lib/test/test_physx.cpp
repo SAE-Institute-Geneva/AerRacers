@@ -100,7 +100,7 @@ public:
         sceneInterface_.Update();
 
         updateCount_+= dt.count();
-        if (updateCount_ >= sceneInterface_.engineDuration) { engine_.Stop(); }
+        //if (updateCount_ >= sceneInterface_.engineDuration) { engine_.Stop(); }
     }
 
     void Destroy() override {}
@@ -182,9 +182,6 @@ public :
                 cubePosition_ + neko::Vec3f(0, i, 0));
             transform3dManager_->SetRelativeScale(cubeEntity_, neko::Vec3f::one / 4.0f);
             neko::physics::RigidDynamicData rigidDynamic;
-            rigidDynamic.mass = 1.0f;
-            rigidDynamic.useGravity = true;
-            rigidDynamic.freezeRotation = neko::Vec3<bool>(false);
             rigidDynamic.colliderType = neko::physics::ColliderType::BOX;
             rigidDynamic.material = neko::physics::PhysicsMaterial{
                 0.5f,
@@ -196,6 +193,21 @@ public :
             renderManager_->AddComponent(cubeEntity_);
             renderManager_->SetModel(
                 cubeEntity_, aerEngine_.GetConfig().dataRootPath + "models/cube/cube.obj");
+        }
+        for (int i = 0; i < kSphereNumbers; ++i)
+        {
+            neko::Entity sphereEntity = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(sphereEntity);
+            transform3dManager_->SetRelativePosition(
+                sphereEntity, cubePosition_ + neko::Vec3f(0, i + kCubeNumbers, 0));
+            transform3dManager_->SetRelativeScale(sphereEntity, neko::Vec3f::one / 4.0f);
+            neko::physics::RigidDynamicData rigidDynamic;
+            rigidDynamic.colliderType   = neko::physics::ColliderType::SPHERE;
+            rigidDynamic.material       = neko::physics::PhysicsMaterial {0.5f, 0.5f, 0.1f};
+            rigidDynamicManager_->AddRigidDynamic(sphereEntity, rigidDynamic);
+            renderManager_->AddComponent(sphereEntity);
+            renderManager_->SetModel(
+                sphereEntity, aerEngine_.GetConfig().dataRootPath + "models/sphere/sphere.obj");
         }
         {
             plateformEntity_ = entityManager_->CreateEntity();
@@ -230,18 +242,30 @@ public :
     void Update() override
     {
         auto& inputLocator = neko::sdl::InputLocator::get();
-        if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::SPACE) ==
-            neko::sdl::ButtonState::DOWN) {
-            rigidDynamicManager_->AddForce(
-                cubeEntity_,
-                neko::Vec3f::up * 200.0f);
-        }
-        if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::KEY_LEFT_CTRL) ==
-            neko::sdl::ButtonState::DOWN) {
-            rigidDynamicManager_->AddForceAtPosition(
-                cubeEntity_,
-                neko::Vec3f::up * 200.0f,
-                neko::Vec3f::one);
+        neko::Entity selectedEntity = aerEngine_.GetEditorToolManager().GetSelectedEntity();
+        if (selectedEntity != neko::INVALID_ENTITY)
+        {
+            if (entityManager_->HasComponent(
+                    selectedEntity, neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)))
+            {
+                if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::KEY_LEFT_ALT) ==
+                    neko::sdl::ButtonState::DOWN)
+                { rigidDynamicManager_->AddForce(selectedEntity, neko::Vec3f::up * 200.0f); }
+                if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::KEY_LEFT_CTRL) ==
+                    neko::sdl::ButtonState::DOWN)
+                {
+                    rigidDynamicManager_->AddForceAtPosition(
+                        selectedEntity, neko::Vec3f::up * 200.0f, neko::Vec3f::one);
+                }
+                if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::KEY_0) ==
+                    neko::sdl::ButtonState::DOWN)
+                {
+                    rigidDynamicManager_->SetLinearVelocity(
+                        selectedEntity, neko::Vec3f::up); }
+                if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::KEY_1) ==
+                    neko::sdl::ButtonState::DOWN)
+                { rigidDynamicManager_->SetAngularVelocity(selectedEntity, neko::Vec3f::up); }
+            }
         }
 
     }
@@ -257,11 +281,15 @@ public :
         //logDebug(std::to_string(pairs->otherActor->getNbShapes()));
     }
 
-    void FixedUpdate(neko::seconds dt) override { }
+    void FixedUpdate(neko::seconds dt) override
+    {
+    
+    }
 
     void DrawImGui() override { }
 private:
-    const static size_t kCubeNumbers = 25;
+    const static size_t kCubeNumbers = 10;
+    const static size_t kSphereNumbers = 10;
     neko::Vec3f cubePosition_ = neko::Vec3f(0.0f, 5.0f, -5.0f);
     neko::Vec3f planePosition_ = neko::Vec3f(0.0f, -3.0f, -5.0f);
     neko::Vec3f cubePositions_[kCubeNumbers] =

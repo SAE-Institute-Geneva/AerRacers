@@ -8,7 +8,7 @@
 
 namespace neko::aer
 {
-EditorToolManager::EditorToolManager(AerEngine& engine) : engine_(engine) {}
+EditorToolManager::EditorToolManager(AerEngine& engine) : engine_(engine),cContainer_(engine.GetComponentManagerContainer()) {}
 
 void EditorToolManager::Init()
 {
@@ -25,21 +25,20 @@ void EditorToolManager::Init()
 void EditorToolManager::Update(seconds dt)
 {
 	for (auto& tool : tools_) tool->Update(dt);
-    Transform3dManager& transform3dManager =
-        engine_.GetComponentManagerContainer().transform3dManager;
-    EntityManager& entityManager = engine_.GetComponentManagerContainer().entityManager;
-    physics::RigidDynamicManager& rigidDynamicManager = engine_.GetComponentManagerContainer().rigidDynamicManager;
-    physics::RigidStaticManager& rigidStaticManager = engine_.GetComponentManagerContainer().rigidStaticManager;
+    Transform3dManager& transform3dManager = cContainer_.transform3dManager;
+    EntityManager& entityManager           = cContainer_.entityManager;
+    physics::RigidDynamicManager& rigidDynamicManager = cContainer_.rigidDynamicManager;
+    physics::RigidStaticManager& rigidStaticManager   = cContainer_.rigidStaticManager;
+    neko::IGizmoRenderer& gizmosLocator               = neko::GizmosLocator::get();
     if (selectedEntity_ != INVALID_ENTITY)
     {
-        GizmosLocator::get().DrawCube(transform3dManager.GetGlobalPosition(selectedEntity_),
+        gizmosLocator.DrawCube(transform3dManager.GetGlobalPosition(selectedEntity_),
             transform3dManager.GetGlobalScale(selectedEntity_),
             transform3dManager.GetRelativeRotation(selectedEntity_),
             Color::blue,
             5.0f);
     }
     //Display Gizmo
-    neko::IGizmoRenderer& gizmosLocator = neko::GizmosLocator::get();
     for (neko::Entity entity = 0.0f; entity < entityManager.GetEntitiesSize(); entity++)
     {
         const neko::physics::RigidActor* rigidActor = nullptr;

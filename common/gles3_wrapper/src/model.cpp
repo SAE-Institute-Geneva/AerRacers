@@ -300,7 +300,7 @@ void ModelLoader::Start()
 {
     importer_.SetIOHandler(new NekoIOSystem(BasicEngine::GetInstance()->GetFilesystem()));
 	directoryPath_ = path_.substr(0, path_.find_last_of('/'));
-    BasicEngine::GetInstance()->ScheduleJob(&loadModelJob_, JobThreadType::OTHER_THREAD);
+    BasicEngine::GetInstance()->ScheduleJob(&loadModelJob_, JobThreadType::RESOURCE_THREAD);
 }
 
 void ModelLoader::Update()

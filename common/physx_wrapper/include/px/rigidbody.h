@@ -29,11 +29,7 @@
 #include "collider.h"
 #include "physics_callbacks.h"
 #include "PxPhysicsAPI.h"
-#include "mathematics/transform.h"
-
-namespace neko {
-class Transform3dManager;
-}
+#include "engine/transform.h"
 
 namespace neko::physics {
 class PhysicsEngine;
@@ -43,7 +39,15 @@ struct DynamicData {
     Vec3f angularVelocity = Vec3f::zero;
 };
 
-struct RigidDynamicData
+struct RigidActorData
+{
+    PhysicsMaterial material;
+    ColliderType colliderType = ColliderType::INVALID;
+    BoxColliderData boxColliderData;
+    SphereColliderData sphereColliderData;
+};
+
+struct RigidDynamicData : public RigidActorData
 {
     RigidDynamicData() = default;
     ~RigidDynamicData() = default;
@@ -54,21 +58,13 @@ struct RigidDynamicData
     bool isKinematic = false;
     Vec3<bool> freezePosition = Vec3<bool>(false);
     Vec3<bool> freezeRotation = Vec3<bool>(false);
-    PhysicsMaterial material;
-    ColliderType colliderType = ColliderType::INVALID;
-    BoxColliderData boxColliderData;
-    SphereColliderData sphereColliderData;
 };
 
 
-struct RigidStaticData
+struct RigidStaticData : public RigidActorData
 {
     RigidStaticData() = default;
-    ~RigidStaticData() = default;
-    PhysicsMaterial material;
-    ColliderType colliderType = ColliderType::INVALID;
-    BoxColliderData boxColliderData;
-    SphereColliderData sphereColliderData;
+    ~RigidStaticData() = default;;
 };
 
 
@@ -89,6 +85,13 @@ protected:
     physx::PxShape* InitSphereShape(physx::PxPhysics* physics, physx::PxMaterial* material, const SphereColliderData& sphereCollider) const;
     physx::PxMaterial* material_ = nullptr;
     physx::PxShape* shape_ = nullptr;
+};
+
+class RigidActorViewer{
+public:
+    json GetJsonFromRigidActor( const RigidActorData& rigidActorData) const;
+    RigidActorData GetRigidActorFromJson( const json&);
+    RigidActorData DrawImGuiRigidActor(const RigidActorData& rigidActorData);
 };
 
 struct RigidStatic : RigidActor {
@@ -134,10 +137,10 @@ protected:
     PhysicsEngine& physicsEngine_;
 };
 
-class RigidStaticViewer : public ComponentViewer, public FixedUpdateInterface
+class RigidStaticViewer : public ComponentViewer, public FixedUpdateInterface, public RigidActorViewer
 {
 public:
-    explicit RigidStaticViewer(EntityManager& entityManager,
+    explicit RigidStaticViewer(Transform3dManager& transform3dManager, EntityManager& entityManager,
         PhysicsEngine& physicsEngine,
         RigidStaticManager& rigidStaticManager);
     void SetSelectedEntity(Entity selectedEntity);
@@ -148,6 +151,7 @@ public:
     void DrawImGui(Entity) override;
 protected:
     Entity selectedEntity_ = INVALID_ENTITY;
+    Transform3dManager& transform3dManager_;
     RigidStaticData rigidStaticData_;
     PhysicsEngine& physicsEngine_;
     RigidStaticManager& rigidStaticManager_;
@@ -169,6 +173,8 @@ public:
 
     void AddForceAtPosition(Entity entity, const Vec3f& force, const Vec3f& position) const;
     void AddForce(Entity entity, const Vec3f& force) const;
+    void SetLinearVelocity(Entity entity, const Vec3f& linearVelocity) const;
+    void SetAngularVelocity(Entity entity, const Vec3f& angularVelocity) const;
 
     [[nodiscard]] const RigidDynamicData& GetRigidDynamicData(Entity entity) const;
     void SetRigidDynamicData(Entity entity, const RigidDynamicData& rigidDynamicData) const;
@@ -190,10 +196,12 @@ protected:
 };
 
 
-class RigidDynamicViewer final : public ComponentViewer, public FixedUpdateInterface
+class RigidDynamicViewer final : public ComponentViewer, public FixedUpdateInterface, public RigidActorViewer
 {
 public:
-    explicit RigidDynamicViewer(EntityManager& entityManager, PhysicsEngine& physicsEngine, RigidDynamicManager& rigidDynamicManager);
+    explicit RigidDynamicViewer(Transform3dManager& transform3dManager, EntityManager & entityManager,
+                                PhysicsEngine& physicsEngine,
+                                RigidDynamicManager& rigidDynamicManager);
     void SetSelectedEntity(Entity selectedEntity);
     void FixedUpdate(seconds dt) override;
     json GetJsonFromComponent(Entity) const override;
@@ -202,9 +210,10 @@ public:
 protected:
     Entity selectedEntity_ = INVALID_ENTITY;
     Entity lastSelectedEntity_ = INVALID_ENTITY;
-    RigidDynamicData rigidDynamicData_;
-    DynamicData dynamicData_;
+    Transform3dManager& transform3dManager_;
     PhysicsEngine& physicsEngine_;
+    DynamicData dynamicData_;
+    RigidDynamicData rigidDynamicData_;
     RigidDynamicManager& rigidDynamicManager_;
 
 };

@@ -51,7 +51,7 @@ struct ColliderData {
 };
 
 struct SphereColliderData : public ColliderData {
-    float radius = 1.0f;
+    float radius = 0.5f;
 };
 
 struct BoxColliderData : public ColliderData {

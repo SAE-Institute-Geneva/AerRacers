@@ -113,6 +113,7 @@ void RigidActor::SetBoxColliderData(
         shape_->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, boxColliderData.isTrigger);
         shape_->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, true);
     }
+    
 }
 
 void RigidActor::SetMaterial(const PhysicsMaterial& physicsMaterial) const
@@ -147,6 +148,61 @@ physx::PxShape* RigidActor::InitSphereShape(
     const SphereColliderData& sphereCollider) const
 {
     return physics->createShape(physx::PxSphereGeometry(sphereCollider.radius), *material);
+}
+
+json RigidActorViewer::GetJsonFromRigidActor(const RigidActorData& rigidActorData) const
+{
+    return json();
+}
+
+RigidActorData RigidActorViewer::GetRigidActorFromJson(const json& rigidActorJson)
+{
+    return RigidActorData();
+}
+
+RigidActorData RigidActorViewer::DrawImGuiRigidActor(
+    const RigidActorData& rigidActorData)
+{
+    RigidActorData newRigidActorData = rigidActorData;
+    switch (newRigidActorData.colliderType)
+    {
+        case neko::physics::ColliderType::INVALID: break;
+        case neko::physics::ColliderType::BOX:
+        {
+            neko::physics::BoxColliderData boxColliderData = newRigidActorData.boxColliderData;
+            if (ImGui::CollapsingHeader("BoxCollider", true))
+            {
+                if (ImGui::DragFloat3("offset", boxColliderData.offset.coord)) {}
+                if (ImGui::DragFloat3("size", boxColliderData.size.coord, 0.1f, 0.0f)) {}
+                ImGui::Checkbox("isTrigger", &boxColliderData.isTrigger);
+                newRigidActorData.boxColliderData = boxColliderData;
+            }
+            break;
+        }
+        case neko::physics::ColliderType::SPHERE:
+        {
+            neko::physics::SphereColliderData sphereColliderData =
+                newRigidActorData.sphereColliderData;
+            if (ImGui::CollapsingHeader("SphereCollider", true))
+            {
+                ImGui::DragFloat3("offset", sphereColliderData.offset.coord, 0);
+                ImGui::DragFloat("radius", &sphereColliderData.radius);
+                ImGui::Checkbox("isTrigger", &sphereColliderData.isTrigger);
+                newRigidActorData.sphereColliderData = sphereColliderData;
+            }
+            break;
+        }
+        default:; break;
+    }
+    if (ImGui::CollapsingHeader("Material", true))
+    {
+        ImGui::DragFloat("bouciness", &newRigidActorData.material.bouciness, 0.1f, 0.0f, 1.0f);
+        ImGui::DragFloat(
+            "staticFriction", &newRigidActorData.material.staticFriction, 0.1f, 0.0f, 1.0f);
+        ImGui::DragFloat(
+            "dynamicFriction", &newRigidActorData.material.dynamicFriction, 0.1f, 0.0f, 1.0f);
+    }
+    return newRigidActorData;
 }
 
 void RigidStatic::Init(physx::PxPhysics* physics,
@@ -185,6 +241,7 @@ void RigidStatic::SetRigidStaticData(
         logDebug("No rigidActor");
         return;
     }
+    SetMaterial(rigidStaticData.material);
     switch (rigidStaticData.colliderType) {
         case ColliderType::INVALID: break;
         case ColliderType::BOX: rigidActor_->detachShape(*shape_);
@@ -206,6 +263,7 @@ RigidStaticData RigidStatic::GetRigidStaticData() const
         logDebug("No rigidActor");
         return rigidStaticData;
     }
+    rigidStaticData.material     = GetMaterial();
     rigidStaticData.colliderType = GetColliderType();
     switch (rigidStaticData.colliderType) {
         case ColliderType::INVALID: break;
@@ -284,6 +342,7 @@ void RigidDynamic::SetRigidDynamicData(
         rigidDynamicData.freezePosition.y);
     rigidActor_->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z,
         rigidDynamicData.freezePosition.z);
+    SetMaterial(rigidDynamicData.material);
     switch (rigidDynamicData.colliderType) {
         case ColliderType::INVALID: break;
         case ColliderType::BOX: rigidActor_->detachShape(*shape_);
@@ -294,7 +353,7 @@ void RigidDynamic::SetRigidDynamicData(
             SetSphereColliderData(rigidDynamicData.sphereColliderData);
             rigidActor_->attachShape(*shape_);
             break;
-        default: ;
+        default: break;
     }
 }
 
@@ -335,7 +394,8 @@ physics::RigidDynamicData RigidDynamic::GetRigidDynamicData() const
         physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y),
         (rigidActor_->getRigidDynamicLockFlags() &
          physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z)) ==
-        physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z)};
+            physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z)};
+    rigidDynamicData.material     = GetMaterial();
     rigidDynamicData.colliderType = GetColliderType();
     switch (rigidDynamicData.colliderType) {
         case ColliderType::INVALID: break;
@@ -410,12 +470,15 @@ void RigidStaticManager::AddRigidStatic(Entity entity, physics::RigidStaticData&
     SetComponent(entity, rigidStatic);
 }
 
-RigidStaticViewer::RigidStaticViewer(EntityManager& entityManager,
+RigidStaticViewer::RigidStaticViewer(
+    Transform3dManager& transform3dManager,EntityManager& entityManager,
     PhysicsEngine& physicsEngine,
     RigidStaticManager& rigidStaticManager)
     : ComponentViewer(entityManager),
       physicsEngine_(physicsEngine),
-      rigidStaticManager_(rigidStaticManager) {}
+     rigidStaticManager_(rigidStaticManager),
+     transform3dManager_(transform3dManager)
+{}
 
 void RigidStaticViewer::SetSelectedEntity(Entity selectedEntity)
 {
@@ -436,73 +499,11 @@ void RigidStaticViewer::DrawImGui(Entity entity)
     if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC))) {
         if (ImGui::TreeNode("Rigid Static")) {
             SetSelectedEntity(entity);
-            RigidStaticData rigidStaticData = rigidStaticData_;
-            switch (rigidStaticData.colliderType) {
-                case neko::physics::ColliderType::INVALID: break;
-                case neko::physics::ColliderType::BOX: {
-                    neko::physics::BoxColliderData boxColliderData =
-                        rigidStaticData.boxColliderData;
-                    if (ImGui::CollapsingHeader("BoxCollider", true)) {
-                        if (ImGui::DragFloat3("offset", boxColliderData.offset.coord)) {}
-                        if (ImGui::DragFloat3("size", boxColliderData.size.coord, 0.1f, 0.0f)) {}
-
-                        if (ImGui::TreeNode("Material")) {
-                            ImGui::DragFloat("bouciness",
-                                &rigidStaticData.material.bouciness,
-                                0.1f,
-                                0.0f,
-                                1.0f);
-                            ImGui::DragFloat("staticFriction",
-                                &rigidStaticData.material.staticFriction,
-                                0.1f,
-                                0.0f,
-                                1.0f);
-                            ImGui::DragFloat("dynamicFriction",
-                                &rigidStaticData.material.dynamicFriction,
-                                0.1f,
-                                0.0f,
-                                1.0f);
-                            ImGui::TreePop();
-                        }
-                        ImGui::Checkbox("isTrigger", &boxColliderData.isTrigger);
-                        rigidStaticData.boxColliderData = boxColliderData;
-                    }
-                    break;
-                }
-                case neko::physics::ColliderType::SPHERE: {
-                    neko::physics::SphereColliderData sphereColliderData =
-                        rigidStaticData.sphereColliderData;
-                    if (ImGui::CollapsingHeader("SphereCollider", true)) {
-                        ImGui::DragFloat3("offset", sphereColliderData.offset.coord, 0);
-                        ImGui::DragFloat("radius", &sphereColliderData.radius);
-
-                        if (ImGui::TreeNode("Material")) {
-                            ImGui::DragFloat("bouciness",
-                                &rigidStaticData.material.bouciness,
-                                0.1f,
-                                0.0f,
-                                1.0f);
-                            ImGui::DragFloat("staticFriction",
-                                &rigidStaticData.material.staticFriction,
-                                0.1f,
-                                0.0f,
-                                1.0f);
-                            ImGui::DragFloat("dynamicFriction",
-                                &rigidStaticData.material.dynamicFriction,
-                                0.1f,
-                                0.0f,
-                                1.0f);
-                            ImGui::TreePop();
-                        }
-                        ImGui::Checkbox("isTrigger", &sphereColliderData.isTrigger);
-                        rigidStaticData.sphereColliderData = sphereColliderData;
-                    }
-                    break;
-                }
-                default: ;
-                    break;
-            }
-
+            RigidStaticData rigidStaticData     = rigidStaticData_;
+            RigidActorData rigidActorData       = DrawImGuiRigidActor(rigidStaticData);
+            rigidStaticData.material            = rigidActorData.material;
+            rigidStaticData.boxColliderData     = rigidActorData.boxColliderData;
+            rigidStaticData.sphereColliderData  = rigidActorData.sphereColliderData;
             if (!physicsEngine_.IsPhysicRunning()) {
                 rigidStaticManager_.GetComponent(selectedEntity_)
                                    .SetRigidStaticData(rigidStaticData);
@@ -550,6 +551,8 @@ void RigidDynamicManager::AddRigidDynamic(Entity entity, RigidDynamicData& rigid
     rigidDynamicData.boxColliderData.size = Vec3f(rigidDynamicData.boxColliderData.size.x * scale.x,
         rigidDynamicData.boxColliderData.size.y * scale.y,
         rigidDynamicData.boxColliderData.size.z * scale.z);
+    rigidDynamicData.sphereColliderData.radius =
+        rigidDynamicData.sphereColliderData.radius * scale.x;
     RigidDynamic rigidDynamic = GetComponent(entity);
     rigidDynamic.Init(physicsEngine_.GetPhysx(), rigidDynamicData, position, euler);
     physicsEngine_.GetScene()->addActor(*rigidDynamic.GetPxRigidDynamic());
@@ -636,14 +639,24 @@ void RigidDynamicManager::AddForce(Entity entity, const Vec3f& force) const
     GetComponent(entity).AddForce(force);
 }
 
-RigidDynamicViewer::RigidDynamicViewer(
+void RigidDynamicManager::SetLinearVelocity(Entity entity, const Vec3f& linearVelocity) const
+{
+    GetComponent(entity).GetPxRigidDynamic()->setLinearVelocity(ConvertToPxVec(linearVelocity));
+}
+
+void RigidDynamicManager::SetAngularVelocity(Entity entity, const Vec3f& angularVelocity) const
+{
+    GetComponent(entity).GetPxRigidDynamic()->setAngularVelocity(ConvertToPxVec(angularVelocity));
+}
+
+RigidDynamicViewer::RigidDynamicViewer(Transform3dManager& transform3dManager,
     EntityManager& entityManager,
     PhysicsEngine& physicsEngine,
     RigidDynamicManager& rigidDynamicManager)
     : ComponentViewer(entityManager),
       physicsEngine_(physicsEngine),
-      rigidDynamicData_(),
-      rigidDynamicManager_(rigidDynamicManager) { }
+      rigidDynamicManager_(rigidDynamicManager),
+        transform3dManager_(transform3dManager){ }
 
 
 void RigidDynamicViewer::SetSelectedEntity(Entity selectedEntity)
@@ -656,18 +669,13 @@ void RigidDynamicViewer::FixedUpdate(seconds dt)
 {
     lastSelectedEntity_ = selectedEntity_;
     if (lastSelectedEntity_ == INVALID_ENTITY) return;
-    if (!physicsEngine_.IsPhysicRunning())
-    {
-        rigidDynamicManager_.GetComponent(lastSelectedEntity_)
-            .SetRigidDynamicData(rigidDynamicData_);
-        rigidDynamicData_ =
-            rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetRigidDynamicData();
-        dynamicData_ = rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetDynamicData();
-    }
     if (entityManager_.HasComponent(
         lastSelectedEntity_,
         static_cast<EntityMask>(ComponentType::RIGID_DYNAMIC))) {
         dynamicData_ = rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetDynamicData();
+        rigidDynamicData_ =
+            rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetRigidDynamicData();
+
     }
 }
 
@@ -685,10 +693,15 @@ void RigidDynamicViewer::DrawImGui(Entity entity)
             neko::Vec3f linearVelocity        = dynamicData_.linearVelocity;
             ImGui::DragFloat3("linearVelocity", linearVelocity.coord, 0);
             ImGui::DragFloat("linearDamping", &rigidDynamicData.linearDamping);
+            if (rigidDynamicData.linearDamping < 0) {
+                rigidDynamicData.linearDamping = 0;
+            }
             neko::Vec3f angularVelocity = dynamicData_.angularVelocity;
             ImGui::DragFloat3("angularVelocity", angularVelocity.coord, 0);
             ImGui::DragFloat("angularDamping", &rigidDynamicData.angularDamping);
-            ImGui::DragFloat("mass", &rigidDynamicData.mass, 0.5, 0.0f, 1000);
+            if (rigidDynamicData.angularDamping < 0) { rigidDynamicData.angularDamping = 0; }
+            ImGui::DragFloat("mass", &rigidDynamicData.mass, 0.5f);
+            if (rigidDynamicData.mass < 0) { rigidDynamicData.mass = 0; }
             ImGui::Checkbox("useGravity", &rigidDynamicData.useGravity);
             ImGui::Checkbox("isKinematic", &rigidDynamicData.isKinematic);
             ImGui::Text("freezePosition");
@@ -705,76 +718,22 @@ void RigidDynamicViewer::DrawImGui(Entity entity)
             ImGui::Checkbox("y#", &rigidDynamicData.freezeRotation.y);
             ImGui::SameLine();
             ImGui::Checkbox("z#", &rigidDynamicData.freezeRotation.z);
-
-            switch (rigidDynamicData.colliderType) {
-                case neko::physics::ColliderType::INVALID: break;
-                case neko::physics::ColliderType::BOX: {
-                    neko::physics::BoxColliderData boxColliderData = rigidDynamicData.
-                        boxColliderData;
-                    if (ImGui::CollapsingHeader("BoxCollider", true)) {
-                        if (ImGui::DragFloat3("offset", boxColliderData.offset.coord)) {}
-                        if (ImGui::DragFloat3("size", boxColliderData.size.coord, 0.1f, 0.0f)) {}
-
-                        if (ImGui::TreeNode("Material")) {
-                            ImGui::DragFloat(
-                                "bouciness",
-                                &rigidDynamicData.material.bouciness,
-                                0.1f,
-                                0.0f,
-                                1.0f);
-                            ImGui::DragFloat("staticFriction",
-                                &rigidDynamicData.material.staticFriction,
-                                0.1f,
-                                0.0f,
-                                1.0f);
-                            ImGui::DragFloat("dynamicFriction",
-                                &rigidDynamicData.material.dynamicFriction,
-                                0.1f,
-                                0.0f,
-                                1.0f);
-                            ImGui::TreePop();
-                        }
-                        ImGui::Checkbox("isTrigger", &boxColliderData.isTrigger);
-                        rigidDynamicData.boxColliderData = boxColliderData;
-                    }
-                    break;
-                }
-                case neko::physics::ColliderType::SPHERE: {
-                    neko::physics::SphereColliderData sphereColliderData =
-                        rigidDynamicData.sphereColliderData;
-                    if (ImGui::CollapsingHeader("SphereCollider", true)) {
-                        ImGui::DragFloat3("offset", sphereColliderData.offset.coord, 0);
-                        ImGui::DragFloat("radius", &sphereColliderData.radius);
-
-                        if (ImGui::TreeNode("Material")) {
-                            ImGui::DragFloat(
-                                "bouciness",
-                                &rigidDynamicData.material.bouciness,
-                                0.1f,
-                                0.0f,
-                                1.0f);
-                            ImGui::DragFloat("staticFriction",
-                                &rigidDynamicData.material.staticFriction,
-                                0.1f,
-                                0.0f,
-                                1.0f);
-                            ImGui::DragFloat("dynamicFriction",
-                                &rigidDynamicData.material.dynamicFriction,
-                                0.1f,
-                                0.0f,
-                                1.0f);
-                            ImGui::TreePop();
-                        }
-                        ImGui::Checkbox("isTrigger", &sphereColliderData.isTrigger);
-                        rigidDynamicData.sphereColliderData = sphereColliderData;
-                    }
-                    break;
-                }
-                default: ;
-                    break;
-            }
+            RigidActorData rigidActorData = DrawImGuiRigidActor(rigidDynamicData);
+            rigidDynamicData.material     = rigidActorData.material;
+            rigidDynamicData.boxColliderData    = rigidActorData.boxColliderData;
+            rigidDynamicData.sphereColliderData = rigidActorData.sphereColliderData;
             ImGui::TreePop();
+            if (!physicsEngine_.IsPhysicRunning())
+            {
+                rigidDynamicManager_.GetComponent(lastSelectedEntity_)
+                    .SetRigidDynamicData(rigidDynamicData);
+                rigidDynamicData_ =
+                    rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetRigidDynamicData();
+                dynamicData_ =
+                    rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetDynamicData();
+            }
         }
+
     }
 }
 }
