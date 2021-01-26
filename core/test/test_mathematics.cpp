@@ -872,3 +872,15 @@ TEST(Transform, FromMatToMat4)
     EXPECT_NEAR(scale.y, neko::Transform3d::GetScale(transform).y, 0.1f);
     EXPECT_NEAR(scale.z, neko::Transform3d::GetScale(transform).z, 0.1f);
 }
+
+TEST(Transform, RotationMatrixFromQuaternion)
+{
+    neko::Quaternion q = neko::Quaternion(-0.001f, -0.427f, 0.142f, -0.893f);
+    neko::Mat4f mat    = neko::Transform3d::RotationMatrixFrom(q);
+    neko::Quaternion q2 = neko::Quaternion::FromRotationMatrix(mat);
+    //EXPECT_NEAR(q.x, q2.x, 0.01f);
+    //EXPECT_NEAR(q.y, q2.y, 0.01f);
+    //EXPECT_NEAR(q.z, q2.z, 0.01f);
+    //EXPECT_NEAR(q.w, q2.w, 0.01f);
+
+}

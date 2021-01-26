@@ -9,8 +9,9 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
    : SdlEngine(filesystem, *config),
 	 mode_(mode),
 	 drawSystem_(*this),
-	 cContainer_(rContainer_),
-	 toolManager_(*this)
+	 cContainer_(rContainer_, physicsEngine_),
+	 toolManager_(*this),
+	 physicsEngine_(cContainer_.entityManager, cContainer_.transform3dManager)
 {
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("AerEngine::Constructor");
@@ -30,11 +31,12 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 		RegisterOnEvent(drawSystem_);
 		RegisterOnDrawUi(drawSystem_);
 
-		boundInputManager_ = std::make_unique<InputBindingManager>();
+		//boundInputManager_ = std::make_unique<InputBindingManager>();
 		tagManager_        = std::make_unique<TagManager>(cContainer_.sceneManager);
 
 		RegisterSystem(rContainer_);
-		RegisterSystem(cContainer_);
+        RegisterSystem(cContainer_);
+        RegisterSystem(physicsEngine_);
 	}
 }
 
@@ -50,6 +52,8 @@ void AerEngine::Init()
 
 void AerEngine::Destroy()
 {
+    //boundInputManager_->Destroy();
+    //boundInputManager_.release();
 	drawSystem_.Destroy();
 	SdlEngine::Destroy();
 }

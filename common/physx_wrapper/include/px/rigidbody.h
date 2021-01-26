@@ -76,7 +76,7 @@ struct RigidActor {
 public:
     physx::PxShape* GetPxShape() const { return shape_; }
     physx::PxMaterial* GetPxMaterial() const { return material_; }
-    ColliderType GetType() const;
+    ColliderType GetColliderType() const;
     SphereColliderData GetSphereColliderData() const;
     BoxColliderData GetBoxColliderData() const;
     PhysicsMaterial GetMaterial() const;
@@ -115,47 +115,97 @@ private:
 };
 
 class RigidStaticManager :
-    public ComponentManager<RigidStatic, EntityMask(ComponentType::RIGID_STATIC)>
+    public ComponentManager<RigidStatic, EntityMask(ComponentType::RIGID_STATIC)>,
+     public FixedUpdateInterface
 {
 public:
 
     explicit RigidStaticManager(
         EntityManager& entityManager,
-        Transform3dManager& transform3dManager);
+        Transform3dManager& transform3dManager,
+        PhysicsEngine& physicsEngine);
 
     void FixedUpdate(seconds dt);
+
+    void AddRigidStatic(Entity entity, RigidStaticData& body);
+
 protected:
     Transform3dManager& transform3dManager_;
+    PhysicsEngine& physicsEngine_;
+};
+
+class RigidStaticViewer : public ComponentViewer, public FixedUpdateInterface
+{
+public:
+    explicit RigidStaticViewer(EntityManager& entityManager,
+        PhysicsEngine& physicsEngine,
+        RigidStaticManager& rigidStaticManager);
+    void SetSelectedEntity(Entity selectedEntity);
+    void FixedUpdate(seconds dt) override;
+
+    json GetJsonFromComponent(Entity) const override;
+    void SetComponentFromJson(Entity, const json&) override;
+    void DrawImGui(Entity) override;
+protected:
+    Entity selectedEntity_ = INVALID_ENTITY;
+    RigidStaticData rigidStaticData_;
+    PhysicsEngine& physicsEngine_;
+    RigidStaticManager& rigidStaticManager_;
 };
 
 class RigidDynamicManager :
-    public ComponentManager<RigidDynamic, EntityMask(ComponentType::RIGID_DYNAMIC)>
+    public ComponentManager<RigidDynamic, EntityMask(ComponentType::RIGID_DYNAMIC)>,
+    public FixedUpdateInterface
 {
 public:
 
     explicit RigidDynamicManager(
         EntityManager& entityManager,
-        Transform3dManager& transform3dManager);
+        Transform3dManager& transform3dManager,
+        PhysicsEngine& physicsEngine);
 
     void FixedUpdate(seconds dt);
+    void AddRigidDynamic(Entity entity, RigidDynamicData& body);
+
+    void AddForceAtPosition(Entity entity, const Vec3f& force, const Vec3f& position) const;
+    void AddForce(Entity entity, const Vec3f& force) const;
+
+    [[nodiscard]] const RigidDynamicData& GetRigidDynamicData(Entity entity) const;
+    void SetRigidDynamicData(Entity entity, const RigidDynamicData& rigidDynamicData) const;
+
+    //[[nodiscard]] const ColliderType& GetColliderType(Entity entity) const;
+
+    //[[nodiscard]] const BoxColliderData& GetBoxColliderData(Entity entity) const;
+    //void SetBoxColliderData(Entity entity, const BoxColliderData& boxColliderData) const;
+
+    //[[nodiscard]] const SphereColliderData& GetSphereColliderData(Entity entity) const;
+    //void SetSphereColliderData(Entity entity, const SphereColliderData& body) const;
+
+    //[[nodiscard]] const RigidDynamic& GetRigidDynamic(Entity entity) const;
+    //void SetRigidDynamic(Entity entity, const RigidDynamic& body);
+
 protected:
     Transform3dManager& transform3dManager_;
+    PhysicsEngine& physicsEngine_;
 };
 
 
-class RigidDynamicViewer : public DrawImGuiInterface, public FixedUpdateInterface
+class RigidDynamicViewer final : public ComponentViewer, public FixedUpdateInterface
 {
 public:
-    explicit RigidDynamicViewer(EntityManager& entityManager, PhysicsEngine& physicsEngine);
-    void DrawImGui() override;
+    explicit RigidDynamicViewer(EntityManager& entityManager, PhysicsEngine& physicsEngine, RigidDynamicManager& rigidDynamicManager);
     void SetSelectedEntity(Entity selectedEntity);
     void FixedUpdate(seconds dt) override;
+    json GetJsonFromComponent(Entity) const override;
+    void SetComponentFromJson(Entity, const json&) override;
+    void DrawImGui(Entity) override;
 protected:
     Entity selectedEntity_ = INVALID_ENTITY;
-    EntityManager& entityManager_;
+    Entity lastSelectedEntity_ = INVALID_ENTITY;
     RigidDynamicData rigidDynamicData_;
     DynamicData dynamicData_;
     PhysicsEngine& physicsEngine_;
+    RigidDynamicManager& rigidDynamicManager_;
 
 };
 

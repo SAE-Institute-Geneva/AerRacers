@@ -169,8 +169,8 @@ Mat4f RotationMatrixFrom(const Quaternion& q)
 		Vec4f(-q.y, q.x, q.w, q.z),
 		Vec4f(-q.x, -q.y, -q.z, q.w)
 	});
-
-	return left * right;
+    
+	return left.Transpose() * right.Transpose();
 }
 
 Mat4f Transform(const Vec3f& pos, const Quaternion& rot, const Vec3f& scale)

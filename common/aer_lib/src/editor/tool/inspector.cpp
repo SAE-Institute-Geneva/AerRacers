@@ -3,14 +3,17 @@
 
 namespace neko::aer {
 Inspector::Inspector(AerEngine& engine, ToolType type, int id, std::string name)
-   : EditorToolInterface(engine, type, id, name),
-     editorToolManager_(engine.GetEditorToolManager()),
-     entityManager_(engine.GetComponentManagerContainer().entityManager),
-     transform3dManager_(engine.GetComponentManagerContainer().transform3dManager),
-     renderManager_(engine.GetComponentManagerContainer().renderManager),
-     rendererViewer_(engine.GetComponentManagerContainer().rendererViewer),
-     transform3dViewer_(engine.GetComponentManagerContainer().transform3dViewer)
-{ }
+    : EditorToolInterface(engine, type, id, name),
+      editorToolManager_(engine.GetEditorToolManager()),
+      entityManager_(engine.GetComponentManagerContainer().entityManager),
+      transform3dManager_(engine.GetComponentManagerContainer().transform3dManager),
+      renderManager_(engine.GetComponentManagerContainer().renderManager),
+      rigidDynamicManager_(engine.GetComponentManagerContainer().rigidDynamicManager),
+     rigidStaticManager_(engine.GetComponentManagerContainer().rigidStaticManager),
+      rendererViewer_(engine.GetComponentManagerContainer().rendererViewer),
+     rigidDynamicViewer_(engine.GetComponentManagerContainer().rigidDynamicViewer),
+     rigidStaticViewer_(engine.GetComponentManagerContainer().rigidStaticViewer),
+      transform3dViewer_(engine.GetComponentManagerContainer().transform3dViewer) { }
 
 void Inspector::Init() {}
 void Inspector::Update(seconds dt) {}
@@ -43,6 +46,8 @@ void Inspector::DrawImGui()
                 //Ask component how to display their information
                 transform3dViewer_.DrawImGui(selectedEntity);
                 rendererViewer_.DrawImGui(selectedEntity);
+                rigidStaticViewer_.DrawImGui(selectedEntity);
+                rigidDynamicViewer_.DrawImGui(selectedEntity);
             }
 
             if (ImGui::Button("Add Component")) {

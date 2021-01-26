@@ -23,11 +23,14 @@
  SOFTWARE.
 
  Author : Floreau Luca
- Co-Author :
+ Co-Author : Canas Simon
  Date : 29.09.2020 
-Last Modif: 13.10.2020
+Last Modif: 26.01.2021
 ---------------------------------------------------------- */
 
+#include "inputs_binding_manager.h"
+#include "log.h"
+#include "px/physics_engine.h"
 #include "sdl_engine/sdl_engine.h"
 
 #include "aer/draw_system.h"
@@ -65,11 +68,14 @@ public:
 	ComponentManagerContainer& GetComponentManagerContainer() { return cContainer_; }
 
 	EditorToolManager& GetEditorToolManager() { return toolManager_; }
+    physics::PhysicsEngine& GetPhysicsEngine() { return physicsEngine_; }
 
 private:
 	ModeEnum mode_;
 
 	DrawSystem drawSystem_;
+
+    physics::PhysicsEngine physicsEngine_;
 
 	ResourceManagerContainer rContainer_;
 	ComponentManagerContainer cContainer_;
@@ -79,6 +85,6 @@ private:
 	//Service Locator
 	std::unique_ptr<LogManager> logManager_;
 	std::unique_ptr<TagManager> tagManager_;
-	std::unique_ptr<InputBindingManager> boundInputManager_;
+	//std::unique_ptr<InputBindingManager> boundInputManager_;
 };
 }

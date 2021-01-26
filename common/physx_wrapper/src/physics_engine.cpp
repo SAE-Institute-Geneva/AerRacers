@@ -1,8 +1,8 @@
-#include <physics_engine.h>
+#include <px/physics_engine.h>
 #include <engine\log.h>
 
 
-#include "physx_utility.h"
+#include "px/physx_utility.h"
 #include "engine/engine.h"
 
 
@@ -13,14 +13,12 @@ PhysicsEngine::PhysicsEngine(
     EntityManager& entityManager,
     Transform3dManager& transform3d)
     : entityManager_(entityManager),
-      transform3d_(transform3d),
-      rigidDynamicManager_(
-          entityManager,
-          transform3d_),
-      rigidStaticManager_(
-          entityManager,
-          transform3d_)
+      transform3d_(transform3d)
 {}
+
+void PhysicsEngine::Init() {
+    Start();
+    StartPhysic(); }
 
 void PhysicsEngine::Start()
 {
@@ -65,6 +63,7 @@ void PhysicsEngine::Start()
     scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
     scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
     scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+
 }
 
 void PhysicsEngine::CreateScene()
@@ -96,20 +95,18 @@ bool PhysicsEngine::Advance(physx::PxReal dt)
     return true;
 }
 
-void PhysicsEngine::Update(float dt)
+void PhysicsEngine::Update(seconds dt)
 {
     physicRunning_ = physicsStopped_;
     if (physicRunning_)
     {
-        if (Advance(dt))
+        if (Advance(dt.count()))
         {
             //scene_->simulate(stepSize_.count());
             scene_->collide(stepSize_.count());
             scene_->fetchCollision(true);
-            scene_->advance(); // Can this be skipped
+            scene_->advance();    // Can this be skipped
             scene_->fetchResults(true);
-            rigidDynamicManager_.FixedUpdate(stepSize_);
-            rigidStaticManager_.FixedUpdate(stepSize_);
             fixedUpdateAction_.Execute(stepSize_);
         }
     }
@@ -151,134 +148,6 @@ physx::PxPhysics* PhysicsEngine::GetPhysx()
 physx::PxScene* PhysicsEngine::GetScene()
 {
     return scene_;
-}
-
-void PhysicsEngine::AddRigidStatic(Entity entity, physics::RigidStaticData& rigidStaticData)
-{
-    rigidStaticManager_.AddComponent(entity);
-    Vec3f position = transform3d_.GetRelativePosition(entity);
-    EulerAngles euler = transform3d_.GetRelativeRotation(entity);
-    Vec3f scale = transform3d_.GetRelativeScale(entity);
-    rigidStaticData.boxColliderData.size = Vec3f(rigidStaticData.boxColliderData.size.x * scale.x, rigidStaticData.boxColliderData.size.y * scale.y, rigidStaticData.boxColliderData.size.z * scale.z);
-    RigidStatic rigidStatic = rigidStaticManager_.GetComponent(entity);
-    rigidStatic.Init(physics_, rigidStaticData, position, euler);
-    scene_->addActor(*rigidStatic.GetPxRigidStatic());
-    rigidStaticManager_.SetComponent(entity, rigidStatic);
-}
-
-const RigidStatic& PhysicsEngine::GetRigidStatic(Entity entity) const {
-    return rigidStaticManager_.GetComponent(entity);
-}
-
-void PhysicsEngine::SetRigidStatic(Entity entity, const RigidStatic& body)
-{
-    rigidStaticManager_.SetComponent(entity, body);
-}
-
-void PhysicsEngine::AddRigidDynamic(Entity entity, RigidDynamicData& rigidDynamicData)
-{
-    rigidDynamicManager_.AddComponent(entity);
-    Vec3f position = transform3d_.GetRelativePosition(entity);
-    EulerAngles euler = transform3d_.GetRelativeRotation(entity);
-    Vec3f scale = transform3d_.GetRelativeScale(entity);
-    rigidDynamicData.boxColliderData.size = Vec3f(rigidDynamicData.boxColliderData.size.x * scale.x, rigidDynamicData.boxColliderData.size.y * scale.y, rigidDynamicData.boxColliderData.size.z * scale.z);
-    RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(entity);
-    rigidDynamic.Init(physics_, rigidDynamicData, position, euler);
-    scene_->addActor(*rigidDynamic.GetPxRigidDynamic());
-    rigidDynamicManager_.SetComponent(entity, rigidDynamic);
-}
-
-const RigidDynamic& PhysicsEngine::GetRigidDynamic(Entity entity) const {
-    return rigidDynamicManager_.GetComponent(entity);
-}
-
-void PhysicsEngine::SetRigidDynamic(Entity entity, const RigidDynamic& body)
-{
-    rigidDynamicManager_.SetComponent(entity, body);
-}
-
-const RigidDynamicData& PhysicsEngine::GetRigidDynamicData(Entity entity) const
-{
-    return GetRigidDynamic(entity).GetRigidDynamicData();
-}
-
-void PhysicsEngine::SetRigidDynamicData(
-    Entity entity,
-    const RigidDynamicData& rigidDynamicData) const
-{
-    if (!physicRunning_) {
-        GetRigidDynamic(entity).SetRigidDynamicData(rigidDynamicData);
-    }
-}
-
-const ColliderType& PhysicsEngine::GetColliderType(
-    Entity entity) const
-{
-    return GetRigidDynamic(entity).GetType();
-}
-
-const BoxColliderData& PhysicsEngine::GetBoxColliderData(Entity entity) const
-{
-    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC))) {
-        return GetRigidDynamic(entity).GetBoxColliderData();
-    }
-    else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC))) {
-        return GetRigidStatic(entity).GetBoxColliderData();
-    }
-    return {};
-}
-
-void PhysicsEngine::SetBoxColliderData(
-    Entity entity,
-    const BoxColliderData& boxColliderData) const
-{
-    if (!physicRunning_) {
-        if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC))) {
-            GetRigidDynamic(entity).SetBoxColliderData(boxColliderData);
-        }
-        else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC))) {
-            GetRigidStatic(entity).SetBoxColliderData(boxColliderData);
-        }
-    }
-}
-
-const SphereColliderData& PhysicsEngine::GetSphereColliderData(
-    Entity entity) const
-{
-    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC))) {
-        return GetRigidDynamic(entity).GetSphereColliderData();
-    }
-    else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC))) {
-        return GetRigidStatic(entity).GetSphereColliderData();
-    }
-    return {};
-}
-
-void PhysicsEngine::SetSphereColliderData(
-    Entity entity,
-    const SphereColliderData& sphereColliderData) const
-{
-    if (!physicRunning_) {
-        if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC))) {
-            GetRigidDynamic(entity).SetSphereColliderData(sphereColliderData);
-        }
-        else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC))) {
-            GetRigidStatic(entity).SetSphereColliderData(sphereColliderData);
-        }
-    }
-}
-
-void PhysicsEngine::AddForceAtPosition(
-    Entity entity,
-    const Vec3f& force,
-    const Vec3f& position) const
-{
-    GetRigidDynamic(entity).AddForceAtPosition(force, position);
-}
-
-void PhysicsEngine::AddForce(Entity entity, const Vec3f& force) const
-{
-    GetRigidDynamic(entity).AddForce(force);
 }
 
 const PxRaycastInfo PhysicsEngine::Raycast(

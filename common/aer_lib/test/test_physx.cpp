@@ -28,12 +28,14 @@
 #include <gtest/gtest.h>
 #include "PxPhysicsAPI.h"
 #include "PxConfig.h"
-#include <log.h>
 
 
-#include "aer_engine.h"
-#include "physics_engine.h"
-#include "physics_callbacks.h"
+#include "aer/aer_engine.h"
+#include "aer/log.h"
+#include "aer/gizmos_renderer.h"
+#include "aer/managers/render_manager.h"
+#include "px/physics_engine.h"
+#include "px/physics_callbacks.h"
 #include "engine/engine.h"
 #include "engine/system.h"
 #include "engine/transform.h"
@@ -47,45 +49,113 @@ class SceneInterface :
     public neko::physics::OnCollisionInterface,
     public neko::physics::OnTriggerInterface,
     public neko::physics::FixedUpdateInterface {
+public:
+    explicit SceneInterface(neko::aer::AerEngine& aerEngine)
+        : aerEngine_(aerEngine) {}
+
 protected:
     ~SceneInterface() = default;
 public:
     virtual void InitActors(
-        neko::EntityManager& entityManager,
-        neko::Transform3dManager& transform3dManager,
         neko::physics::PhysicsEngine& physicsEngine) = 0;
     virtual void HasSucceed() = 0;
     virtual void Update() {}
     virtual void DrawImGui() override {}
     virtual void FixedUpdate(neko::seconds dt) override {}
-    neko::Entity viewedEntity;
-    int engineDuration = 1000;
+    neko::Entity viewedEntity = neko::INVALID_ENTITY;
+    float engineDuration = 10.0f;
 protected:
+    neko::aer::AerEngine& aerEngine_;
+    neko::EntityManager* entityManager_                      = nullptr;
+    neko::Transform3dManager* transform3dManager_            = nullptr;
+    neko::physics::RigidDynamicManager* rigidDynamicManager_ = nullptr;
+    neko::physics::RigidStaticManager* rigidStaticManager_   = nullptr;
+    neko::aer::RenderManager* renderManager_                 = nullptr;
+    neko::physics::PhysicsEngine* physicsEngine_             = nullptr;
+};
 
-    neko::EntityManager* entityManager_;
-    neko::Transform3dManager* transform3dManager_;
-    neko::physics::PhysicsEngine* physicsEngine_;
-    neko::IGizmosRenderer* gizmosLocator_;
+class TestPhysX : public neko::SystemInterface, public neko::DrawImGuiInterface
+{
+public:
+    TestPhysX(neko::aer::AerEngine& engine, SceneInterface& sceneInterface)
+       : engine_(engine),
+         entityManager_(engine.GetComponentManagerContainer().entityManager),
+         transform3dManager_(engine.GetComponentManagerContainer().transform3dManager),
+         renderManager_(engine.GetComponentManagerContainer().renderManager),
+         physicsEngine_(engine.GetPhysicsEngine()),
+         sceneInterface_(sceneInterface)
+    {
+        physicsEngine_.RegisterTriggerListener(sceneInterface_);
+        physicsEngine_.RegisterCollisionListener(sceneInterface_);
+        physicsEngine_.RegisterFixedUpdateListener(sceneInterface_);
+        engine_.RegisterOnDrawUi(sceneInterface_);
+    }
+
+    void Init() override { sceneInterface_.InitActors(physicsEngine_); }
+
+    void Update(neko::seconds dt) override
+    {
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+        sceneInterface_.Update();
+
+        updateCount_+= dt.count();
+        if (updateCount_ >= sceneInterface_.engineDuration) { engine_.Stop(); }
+    }
+
+    void Destroy() override {}
+
+    void DrawImGui() override
+    {
+        ImGui::Begin("Physics");
+        ImGui::Text("RigidBody");
+        if (physicsEngine_.IsPhysicRunning())
+        {
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Physics is active");
+            if (ImGui::Button("Stop")) { physicsEngine_.StopPhysic(); }
+        }
+        else
+        {
+            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Physics is not active");
+            if (ImGui::Button("Play")) { physicsEngine_.StartPhysic(); }
+        }
+        ImGui::End();
+    }
+
+    void HasSucceed() { sceneInterface_.HasSucceed(); }
+
+private:
+    float updateCount_ = 0;
+
+    neko::aer::AerEngine& engine_;
+    neko::EntityManager& entityManager_;
+    neko::physics::PhysicsEngine& physicsEngine_;
+    neko::Transform3dManager& transform3dManager_;
+    neko::aer::RenderManager& renderManager_;
+
+    SceneInterface& sceneInterface_;
 };
 
 class SceneCubeFall final : public SceneInterface {
 public :
+    explicit SceneCubeFall(neko::aer::AerEngine& aerEngine)
+        : SceneInterface(aerEngine) {}
+
     void InitActors(
-        neko::EntityManager& entityManager,
-        neko::Transform3dManager& transform3dManager,
         neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration = 300;
-        entityManager_ = &entityManager;
-        transform3dManager_ = &transform3dManager;
-        physicsEngine_ = &physicsEngine;
-        gizmosLocator_ = &neko::GizmosLocator::get();
+        engineDuration      = 10.0f;
+        entityManager_      = &aerEngine_.GetComponentManagerContainer().entityManager;
+        transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
+        renderManager_      = &aerEngine_.GetComponentManagerContainer().renderManager;
+        rigidStaticManager_      = &aerEngine_.GetComponentManagerContainer().rigidStaticManager;
+        rigidDynamicManager_      = &aerEngine_.GetComponentManagerContainer().rigidDynamicManager;
+        physicsEngine_      = &physicsEngine;
         //Plane
         {
             planeEntity_ = entityManager_->CreateEntity();
             transform3dManager_->AddComponent(planeEntity_);
-            transform3dManager_->SetPosition(planeEntity_, planePosition_);
-            transform3dManager_->SetScale(planeEntity_, neko::Vec3f(5, 1, 5));
+            transform3dManager_->SetRelativePosition(planeEntity_, planePosition_);
+            transform3dManager_->SetRelativeScale(planeEntity_, neko::Vec3f(5, 1, 5));
             neko::physics::RigidStaticData rigidStatic;
             rigidStatic.colliderType = neko::physics::ColliderType::BOX;
             rigidStatic.material = neko::physics::PhysicsMaterial{
@@ -93,18 +163,21 @@ public :
                 0.5f,
                 0.1f
             };
-            physicsEngine_->AddRigidStatic(
+            rigidStaticManager_->AddRigidStatic(
                 planeEntity_,
                 rigidStatic);
+            renderManager_->AddComponent(planeEntity_);
+            renderManager_->SetModel(
+                planeEntity_, aerEngine_.GetConfig().dataRootPath + "models/cube/cube.obj");
         }
         //Cube
         for (int i = 0; i < kCubeNumbers; ++i) {
             cubeEntity_ = entityManager_->CreateEntity();
             transform3dManager_->AddComponent(cubeEntity_);
-            transform3dManager_->SetPosition(
+            transform3dManager_->SetRelativePosition(
                 cubeEntity_,
                 cubePosition_ + neko::Vec3f(0, i, 0));
-            transform3dManager_->SetScale(cubeEntity_, neko::Vec3f::one / 4.0f);
+            transform3dManager_->SetRelativeScale(cubeEntity_, neko::Vec3f::one / 4.0f);
             neko::physics::RigidDynamicData rigidDynamic;
             rigidDynamic.mass = 1.0f;
             rigidDynamic.useGravity = true;
@@ -115,11 +188,34 @@ public :
                 0.5f,
                 0.1f
             };
-            physicsEngine_->AddRigidDynamic(
-                cubeEntity_,
-                rigidDynamic);
+            rigidDynamicManager_->AddRigidDynamic(
+                cubeEntity_, rigidDynamic);
+            renderManager_->AddComponent(cubeEntity_);
+            renderManager_->SetModel(
+                cubeEntity_, aerEngine_.GetConfig().dataRootPath + "models/cube/cube.obj");
         }
-        viewedEntity = cubeEntity_;
+        {
+            plateformEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(plateformEntity_);
+            transform3dManager_->SetRelativePosition(plateformEntity_, neko::Vec3f(-10.0f, 0.0f, 0.0f));
+            neko::Quaternion quaternion = neko::Quaternion::FromEuler(
+                neko::EulerAngles(neko::degree_t(0), neko::degree_t(0), neko::degree_t(70)));
+            neko::LogDebug(neko::Vec4f(quaternion).ToString());
+            neko::EulerAngles euler = neko::Quaternion::ToEulerAngles(quaternion);
+            neko::LogDebug(
+                neko::Vec3f(euler.x.value(), euler.y.value(), euler.z.value()).ToString());
+            transform3dManager_->SetRelativeRotation(
+                plateformEntity_, neko::Quaternion::ToEulerAngles(quaternion));
+            transform3dManager_->SetRelativeScale(plateformEntity_, neko::Vec3f(1.0f, 20.0f, 50.0f));
+            neko::physics::RigidStaticData rigidStatic;
+            rigidStatic.colliderType = neko::physics::ColliderType::BOX;
+            rigidStatic.material     = neko::physics::PhysicsMaterial {0.5f, 0.5f, 0.1f};
+            rigidStaticManager_->AddRigidStatic(plateformEntity_, rigidStatic);
+            renderManager_->AddComponent(plateformEntity_);
+            renderManager_->SetModel(
+                plateformEntity_, aerEngine_.GetConfig().dataRootPath + "models/cube/cube.obj");
+        }
+        viewedEntity = plateformEntity_;
     }
 
     void HasSucceed() override
@@ -133,81 +229,18 @@ public :
         auto& inputLocator = neko::sdl::InputLocator::get();
         if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::SPACE) ==
             neko::sdl::ButtonState::DOWN) {
-            physicsEngine_->AddForce(
+            rigidDynamicManager_->AddForce(
                 cubeEntity_,
                 neko::Vec3f::up * 200.0f);
         }
         if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::KEY_LEFT_CTRL) ==
             neko::sdl::ButtonState::DOWN) {
-            physicsEngine_->AddForceAtPosition(
+            rigidDynamicManager_->AddForceAtPosition(
                 cubeEntity_,
                 neko::Vec3f::up * 200.0f,
                 neko::Vec3f::one);
         }
-        //logDebug(
-        //    neko::Vec3f(
-        //        transform3dManager_->GetAngles(cubeEntity_).x.value(),
-        //        transform3dManager_->GetAngles(cubeEntity_).y.value(),
-        //        transform3dManager_->GetAngles(cubeEntity_).z.value()).
-        //    ToString());
 
-
-        //Raycast
-        neko::physics::PxRaycastInfo raycastInfo = physicsEngine_->Raycast(
-            transform3dManager_->GetPosition(cubeEntity_),
-            neko::Vec3f::down,
-            50.0f);
-        //std::cout << "Raycast " << (raycastInfo.touch ? "hit" : "not hit") <<
-        //    " Distance : " << raycastInfo.GetDistance() <<
-        //    " Position : " << raycastInfo.GetPoint() <<
-        //    " Normal : " << raycastInfo.GetNormal() << std::endl;
-
-        //Display Gizmo
-        for (neko::Entity entity = 0.0f;
-             entity < entityManager_->GetEntitiesSize(); entity++) {
-            if (!entityManager_->HasComponent(
-                    entity,
-                    neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)) &&
-                !entityManager_->HasComponent(
-                    entity,
-                    neko::EntityMask(neko::ComponentType::RIGID_STATIC))) {
-                continue;
-            }
-
-            neko::physics::ColliderType colliderType = physicsEngine_->
-                GetColliderType(entity);
-            switch (colliderType) {
-            case neko::physics::ColliderType::INVALID:
-                break;
-            case neko::physics::ColliderType::BOX: {
-                neko::physics::BoxColliderData boxColliderData = physicsEngine_
-                    ->
-                    GetBoxColliderData(entity);
-                gizmosLocator_->DrawCube(
-                    transform3dManager_->GetPosition(entity) + boxColliderData.
-                    offset,
-                    boxColliderData.size,
-                    transform3dManager_->GetAngles(entity),
-                    boxColliderData.isTrigger ?
-                        neko::Color::yellow :
-                    neko::Color::green,
-                    2.0f);
-            }
-            break;
-            case neko::physics::ColliderType::SPHERE: {
-                neko::physics::SphereColliderData sphereColliderData =
-                    physicsEngine_->GetSphereColliderData(entity);
-                //gizmosRenderer_.DrawSphere(
-                //    transform3dManager_.GetPosition(entity) + sphereColliderData.offset,
-                //    sphereColliderData.radius,
-                //    transform3dManager_.GetAngles(entity),
-                //    sphereColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
-                //    2.0f);
-            }
-            break;
-            default: ;
-            }
-        }
     }
 
 
@@ -244,29 +277,63 @@ private:
 
     neko::Entity cubeEntity_;
     neko::Entity planeEntity_;
+    neko::Entity plateformEntity_;
 
 };
 
+TEST(PhysX, TestCubeFall)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr)
+    {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    neko::Configuration config;
+    //config.dataRootPath = "../data/";
+    config.windowName = "AerEditor";
+    config.windowSize = neko::Vec2u(1400, 900);
+
+    neko::sdl::Gles3Window window;
+    neko::gl::Gles3Renderer renderer;
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+
+    SceneCubeFall sceneCubeFall = SceneCubeFall(engine);
+    TestPhysX testPhysX(engine, sceneCubeFall);
+
+    engine.RegisterOnDrawUi(testPhysX);
+    engine.Init();
+    testPhysX.Init();
+    engine.RegisterSystem(testPhysX);
+    engine.EngineLoop();
+}
+
 class SceneRotation final : public SceneInterface {
 public:
+    explicit SceneRotation(neko::aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
     void InitActors(
-        neko::EntityManager& entityManager,
-        neko::Transform3dManager& transform3dManager,
         neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration = 400;
-        entityManager_ = &entityManager;
-        transform3dManager_ = &transform3dManager;
-        physicsEngine_ = &physicsEngine;
-        gizmosLocator_ = &neko::GizmosLocator::get();
-        
+        engineDuration      = 10.0f;
+        entityManager_      = &aerEngine_.GetComponentManagerContainer().entityManager;
+        transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
+        renderManager_      = &aerEngine_.GetComponentManagerContainer().renderManager;
+        rigidStaticManager_      = &aerEngine_.GetComponentManagerContainer().rigidStaticManager;
+        rigidDynamicManager_      = &aerEngine_.GetComponentManagerContainer().rigidDynamicManager;
+        physicsEngine_      = &physicsEngine;
+
         //Cube
         cubeEntity_ = entityManager_->CreateEntity();
         transform3dManager_->AddComponent(cubeEntity_);
-        transform3dManager_->SetPosition(
+        transform3dManager_->SetRelativePosition(
             cubeEntity_,
             cubePosition_);
-        transform3dManager_->SetScale(cubeEntity_, cubeSize_);
+        transform3dManager_->SetRelativeScale(cubeEntity_, cubeSize_);
         neko::physics::RigidDynamicData rigidDynamic;
         rigidDynamic.colliderType = neko::physics::ColliderType::BOX;
         rigidDynamic.material = neko::physics::PhysicsMaterial{
@@ -278,13 +345,15 @@ public:
         rigidDynamic.useGravity = false;
         rigidDynamic.freezeRotation = neko::Vec3<bool>(false);
         rigidDynamic.freezePosition = neko::Vec3<bool>(true);
-        physicsEngine_->AddRigidDynamic(
+        rigidDynamicManager_->AddRigidDynamic(
             cubeEntity_,
             rigidDynamic);
-        physicsEngine_->AddForceAtPosition(
+        rigidDynamicManager_->AddForceAtPosition(
             cubeEntity_,
-            neko::Vec3f::up * 200.0f,
-            neko::Vec3f::one);
+            neko::Vec3f::up * 200.0f, neko::Vec3f::one);
+        renderManager_->AddComponent(cubeEntity_);
+        renderManager_->SetModel(
+            cubeEntity_, aerEngine_.GetConfig().dataRootPath + "models/cube/cube.obj");
         viewedEntity = cubeEntity_;
     }
 
@@ -300,45 +369,6 @@ public:
         if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::SPACE) ==
             neko::sdl::ButtonState::DOWN) {
         }
-        //logDebug(
-        //    neko::Vec3f(
-        //        transform3dManager_->GetAngles(cubeEntity_).x.value(),
-        //        transform3dManager_->GetAngles(cubeEntity_).y.value(),
-        //        transform3dManager_->GetAngles(cubeEntity_).z.value()).
-        //    ToString());
-
-        //Display Gizmo
-        for (neko::Entity entity = 0.0f;
-            entity < entityManager_->GetEntitiesSize(); entity++) {
-            if (!entityManager_->HasComponent(
-                entity,
-                neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)) &&
-                !entityManager_->HasComponent(
-                    entity,
-                    neko::EntityMask(neko::ComponentType::RIGID_STATIC))) {
-                continue;
-            }
-
-            neko::physics::ColliderType colliderType = physicsEngine_->
-                GetColliderType(entity);
-            switch (colliderType) {
-            case neko::physics::ColliderType::INVALID:
-                break;
-            case neko::physics::ColliderType::BOX: {
-                neko::physics::BoxColliderData boxColliderData = physicsEngine_
-                    ->GetBoxColliderData(entity);
-                gizmosLocator_->DrawCube(
-                    transform3dManager_->GetPosition(entity) + boxColliderData.
-                    offset,
-                    boxColliderData.size,
-                    transform3dManager_->GetAngles(entity),
-                    boxColliderData.isTrigger ?
-                    neko::Color::yellow :
-                    neko::Color::green,
-                    2.0f);
-            }
-            }
-        }
     }
 
     void DrawImGui() override { }
@@ -350,7 +380,39 @@ private:
     neko::Entity planeEntity_;
 
 };
+TEST(PhysX, TestRotation)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr)
+    {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
 
+    neko::Configuration config;
+    //config.dataRootPath = "../data/";
+    config.windowName = "AerEditor";
+    config.windowSize = neko::Vec2u(1400, 900);
+
+    neko::sdl::Gles3Window window;
+    neko::gl::Gles3Renderer renderer;
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+
+    SceneRotation sceneRotation = SceneRotation(engine);
+    TestPhysX testPhysX(engine, sceneRotation);
+
+    engine.RegisterOnDrawUi(testPhysX);
+    engine.Init();
+    testPhysX.Init();
+    engine.RegisterSystem(testPhysX);
+    engine.EngineLoop();
+}
+
+/*
 class SceneRaycast final : public SceneInterface {
 public:
     void InitActors(
@@ -362,13 +424,12 @@ public:
         entityManager_ = &entityManager;
         transform3dManager_ = &transform3dManager;
         physicsEngine_ = &physicsEngine;
-        gizmosLocator_ = &neko::GizmosLocator::get();
         //Plane
         {
             planeEntity_ = entityManager_->CreateEntity();
             transform3dManager_->AddComponent(planeEntity_);
-            transform3dManager_->SetPosition(planeEntity_, planePosition_);
-            transform3dManager_->SetScale(planeEntity_, neko::Vec3f(4, 1, 4));
+            transform3dManager_->SetRelativePosition(planeEntity_, planePosition_);
+            transform3dManager_->SetRelativeScale(planeEntity_, neko::Vec3f(4, 1, 4));
             neko::physics::RigidStaticData rigidStatic;
             rigidStatic.colliderType = neko::physics::ColliderType::BOX;
             rigidStatic.material = neko::physics::PhysicsMaterial{
@@ -394,6 +455,7 @@ public:
 
     void Update() override
     {
+        neko::IGizmoRenderer& gizmosLocator = neko::GizmosLocator::get();
         {
             //Raycast
             neko::physics::PxRaycastInfo raycastInfo = physicsEngine_->Raycast(
@@ -406,7 +468,7 @@ public:
             //    " Normal : " << raycastInfo.GetNormal() << std::endl;
             rayOneTouch_ = raycastInfo.touch;
             //Display Gizmo
-            gizmosLocator_->DrawLine(
+            gizmosLocator.DrawLine(
                 rayOrigin_,
                 rayOrigin_ + rayDirection_* 50.0f,
                 raycastInfo.touch ?
@@ -426,7 +488,7 @@ public:
             rayTwoTouch_ = raycastInfo.touch;
 
             //Display Gizmo
-            gizmosLocator_->DrawLine(
+            gizmosLocator.DrawLine(
                 rayOrigin_ + neko::Vec3f::right * 2,
                 rayOrigin_ + neko::Vec3f::right * 2 + rayDirection_ * 2.0f,
                 raycastInfo.touch ?
@@ -447,7 +509,7 @@ public:
             rayThreeTouch_ = raycastInfo.touch;
 
             //Display Gizmo
-            gizmosLocator_->DrawLine(
+            gizmosLocator.DrawLine(
                 rayOrigin_ + neko::Vec3f::left * 4,
                 rayOrigin_ + neko::Vec3f::left * 4 + rayDirection_ * 50.0f,
                 raycastInfo.touch ?
@@ -468,7 +530,7 @@ public:
             rayFourTouch_ = raycastInfo.touch;
 
             //Display Gizmo
-            gizmosLocator_->DrawLine(
+            gizmosLocator.DrawLine(
                 rayOrigin_ + neko::Vec3f::left * 2,
                 rayOrigin_ + neko::Vec3f::left * 2 + neko::Vec3f::up * 50.0f,
                 raycastInfo.touch ?
@@ -504,13 +566,12 @@ public:
         entityManager_ = &entityManager;
         transform3dManager_ = &transform3dManager;
         physicsEngine_ = &physicsEngine;
-        gizmosLocator_ = &neko::GizmosLocator::get();
         //Plane
         {
             planeEntity_ = entityManager_->CreateEntity();
             transform3dManager_->AddComponent(planeEntity_);
-            transform3dManager_->SetPosition(planeEntity_, planePosition_);
-            transform3dManager_->SetScale(planeEntity_, neko::Vec3f(5, 0.5f, 5));
+            transform3dManager_->SetRelativePosition(planeEntity_, planePosition_);
+            transform3dManager_->SetRelativeScale(planeEntity_, neko::Vec3f(5, 0.5f, 5));
             neko::physics::RigidStaticData rigidStatic;
             rigidStatic.colliderType = neko::physics::ColliderType::BOX;
             physicsEngine_->AddRigidStatic(
@@ -521,7 +582,7 @@ public:
         {
             cubeTouchEntity_ = entityManager_->CreateEntity();
             transform3dManager_->AddComponent(cubeTouchEntity_);
-            transform3dManager_->SetPosition(
+            transform3dManager_->SetRelativePosition(
                 cubeTouchEntity_,
                 cubePosition_ + neko::Vec3f::left * 1.0f);
             neko::physics::RigidDynamicData rigidDynamic;
@@ -534,7 +595,7 @@ public:
         {
             cubeTriggerEntity_ = entityManager_->CreateEntity();
             transform3dManager_->AddComponent(cubeTriggerEntity_);
-            transform3dManager_->SetPosition(
+            transform3dManager_->SetRelativePosition(
                 cubeTriggerEntity_,
                 cubePosition_ + neko::Vec3f::right * 1.0f);
             neko::physics::RigidDynamicData rigidDynamic;
@@ -548,7 +609,7 @@ public:
         {
             cubeNotTouchEntity_ = entityManager_->CreateEntity();
             transform3dManager_->AddComponent(cubeNotTouchEntity_);
-            transform3dManager_->SetPosition(
+            transform3dManager_->SetRelativePosition(
                 cubeNotTouchEntity_,
                 cubePosition_ + neko::Vec3f::right * 5.0f);
             neko::physics::RigidDynamicData rigidDynamic;
@@ -561,7 +622,7 @@ public:
         {
             cubeNotTriggerEntity_ = entityManager_->CreateEntity();
             transform3dManager_->AddComponent(cubeNotTriggerEntity_);
-            transform3dManager_->SetPosition(
+            transform3dManager_->SetRelativePosition(
                 cubeNotTriggerEntity_,
                 cubePosition_ + neko::Vec3f::left * 5.0f);
             neko::physics::RigidDynamicData rigidDynamic;
@@ -586,6 +647,7 @@ public:
     void Update() override
     {
         //Display Gizmo
+        neko::IGizmoRenderer& gizmosLocator = neko::GizmosLocator::get();
         for (neko::Entity entity = 0.0f;
             entity < entityManager_->GetEntitiesSize(); entity++) {
             if (!entityManager_->HasComponent(
@@ -603,11 +665,11 @@ public:
                 neko::physics::BoxColliderData boxColliderData = physicsEngine_
                     ->
                     GetBoxColliderData(entity);
-                gizmosLocator_->DrawCube(
-                    transform3dManager_->GetPosition(entity) + boxColliderData.
+                gizmosLocator.DrawCube(
+                    transform3dManager_->GetRelativePosition(entity) + boxColliderData.
                     offset,
                     boxColliderData.size,
-                    transform3dManager_->GetAngles(entity),
+                    transform3dManager_->GetRelativeRotation(entity),
                     boxColliderData.isTrigger ?
                     neko::Color::yellow :
                     neko::Color::green,
@@ -670,283 +732,8 @@ private:
     bool cubeTriggerExit_ = false;
 
 };
-
-class TestPhysX
-    : public neko::SystemInterface,
-      public neko::RenderCommandInterface,
-      public neko::DrawImGuiInterface {
-public :
-    TestPhysX(
-        neko::aer::AerEngine& engine,
-        neko::EntityManager& entityManager,
-        neko::Transform3dManager& transform3dManager,
-        SceneInterface& sceneInterface)
-        : engine_(engine),
-          entityManager_(entityManager),
-          transform3dManager_(transform3dManager),
-          physicsEngine_(entityManager, transform3dManager),
-          gizmosRenderer_(nullptr),
-          rigidDynamicViewer_(entityManager, physicsEngine_),
-          transform3dViewer_(entityManager, transform3dManager),
-          sceneInterface_(sceneInterface)
-    {
-        physicsEngine_.RegisterTriggerListener(sceneInterface_);
-        physicsEngine_.RegisterCollisionListener(sceneInterface_);
-        physicsEngine_.RegisterFixedUpdateListener(sceneInterface_);
-        engine_.RegisterOnDrawUi(sceneInterface_);
-        physicsEngine_.RegisterFixedUpdateListener(rigidDynamicViewer_);
-    }
-
-    void InitRenderer()
-    {
-        textureManager_.Init();
-        gizmosRenderer_.Init();
-        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-        shader_.LoadFromFile(
-            config.dataRootPath + "shaders/opengl/coords.vert",
-            config.dataRootPath + "shaders/opengl/coords.frag");
-        textureWallId_ = textureManager_.LoadTexture(
-            config.dataRootPath + "sprites/wall.jpg", neko::Texture::DEFAULT);
-
-        cube_.Init();
-        quad_.Init();
-
-
-        glEnable(GL_DEPTH_TEST);
-    }
-
-    void Init() override
-    {
-        physicsEngine_.Start();
-
-        sceneInterface_.InitActors(
-            entityManager_,
-            transform3dManager_,
-            physicsEngine_);
-        rigidDynamicViewer_.SetSelectedEntity(sceneInterface_.viewedEntity);
-        transform3dViewer_.SetSelectedEntity(sceneInterface_.viewedEntity);
-
-        camera_.position = kCameraOriginPos_;
-        camera_.reverseDirection = neko::Vec3f::forward;
-        camera_.fovY = neko::degree_t(45.0f);
-        camera_.nearPlane = 0.1f;
-        camera_.farPlane = 100.0f;
-        gizmosRenderer_.SetCamera(&camera_);
-
-        physicsEngine_.StartPhysic();
-    }
-
-    void Update(neko::seconds dt) override
-    {
-        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-        camera_.SetAspect(
-            static_cast<float>(config.windowSize.x) / config.windowSize.y);
-
-        sceneInterface_.Update();
-
-        physicsEngine_.Update(dt.count());
-        textureManager_.Update(dt);
-        neko::RendererLocator::get().Render(this);
-        neko::RendererLocator::get().Render(&gizmosRenderer_);
-        gizmosRenderer_.Update(dt);
-        updateCount_++;
-        if (updateCount_ == sceneInterface_.engineDuration) {
-            engine_.Stop();
-        }
-    }
-
-    void Render() override
-    {
-        if (shader_.GetProgram() == 0)
-            return;
-        if (textureWall_ == neko::INVALID_TEXTURE_NAME) {
-            textureWall_ = textureManager_.GetTextureName(textureWallId_);
-            return;
-        }
-        shader_.Bind();
-        glBindTexture(GL_TEXTURE_2D, textureWall_);
-        shader_.SetMat4("view", camera_.GenerateViewMatrix());
-        shader_.SetMat4("projection", camera_.GenerateProjectionMatrix());
-        for (neko::Entity entity = 0.0f;
-             entity < entityManager_.GetEntitiesSize(); entity++) {
-            neko::Mat4f model = neko::Mat4f::Identity; //model transform matrix
-            if (entityManager_.HasComponent(
-                    entity,
-                    neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)) ||
-                entityManager_.HasComponent(
-                    entity,
-                    neko::EntityMask(neko::ComponentType::RIGID_STATIC))) {
-                model = neko::Transform3d::Scale(
-                    model,
-                    transform3dManager_.GetScale(entity));
-                model = neko::Transform3d::Rotate(
-                    model,
-                    transform3dManager_.GetAngles(entity));
-                model = neko::Transform3d::Translate(
-                    model,
-                    transform3dManager_.GetPosition(entity));
-                shader_.SetMat4("model", model);
-                cube_.Draw();
-            }
-        }
-    }
-
-    void Destroy() override
-    {
-        physicsEngine_.Destroy();
-        shader_.Destroy();
-        cube_.Destroy();
-        quad_.Destroy();
-        textureManager_.Destroy();
-        gizmosRenderer_.Destroy();
-    }
-
-    void DrawImGui()
-    {
-
-        for (neko::Entity entity = 0.0f;
-             entity < entityManager_.GetEntitiesSize(); entity++) {
-            if (!entityManager_.HasComponent(
-                entity,
-                neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)))
-                continue;
-            std::string title = "Entity ";
-            title += std::to_string(entity);
-            neko::physics::RigidDynamicData rigidDynamicData;
-            // = physicsEngine_.GetRigidDynamicData(entity);
-            ImGui::Begin(title.c_str());
-            ImGui::Text("RigidBody");
-            if (physicsEngine_.IsPhysicRunning()) {
-                ImGui::TextColored(
-                    ImVec4(0.0f, 1.0f, 0.0f, 1.0f),
-                    "Physics is active");
-                if (ImGui::Button("Stop")) { physicsEngine_.StopPhysic(); }
-            } else {
-                ImGui::TextColored(
-                    ImVec4(1.0f, 0.0f, 0.0f, 1.0f),
-                    "Physics is not active");
-                if (ImGui::Button("Play")) { physicsEngine_.StartPhysic(); }
-            }
-
-            rigidDynamicViewer_.DrawImGui();
-            ImGui::Text("Transform");
-            transform3dViewer_.DrawImGui();
-            ImGui::End();
-
-        }
-    }
-
-    void HasSucceed() { sceneInterface_.HasSucceed(); }
-private :
-    int updateCount_ = 0;
-
-    neko::aer::AerEngine& engine_;
-    neko::EntityManager& entityManager_;
-    neko::Transform3dManager& transform3dManager_;
-    neko::physics::PhysicsEngine physicsEngine_;
-    neko::physics::RigidDynamicViewer rigidDynamicViewer_;
-    neko::Transform3dViewer transform3dViewer_;
-    neko::Gles3GizmosRenderer gizmosRenderer_;
-
-    neko::Camera3D camera_;
-    neko::EulerAngles cameraAngles_{
-        neko::degree_t(0.0f),
-        neko::degree_t(0.0f),
-        neko::degree_t(0.0f)
-    };
-    const neko::Vec3f kCameraOriginPos_ = neko::Vec3f(0.0f, 0.0f, 5.0f);
-    const neko::EulerAngles kCameraOriginAngles_ = neko::EulerAngles(
-        neko::degree_t(0.0f),
-        neko::degree_t(0.0f),
-        neko::degree_t(0.0f));
-
-    neko::gl::RenderCuboid cube_{neko::Vec3f::zero, neko::Vec3f::one};
-    neko::gl::RenderQuad quad_{neko::Vec3f::zero, neko::Vec2f::one};
-
-    neko::gl::Shader shader_;
-    neko::gl::TextureManager textureManager_;
-    neko::TextureName textureWall_ = neko::INVALID_TEXTURE_NAME;
-    neko::TextureId textureWallId_ = neko::INVALID_TEXTURE_ID;
-    neko::seconds timeSinceInit_{0};
-
-    SceneInterface& sceneInterface_;
-
-};
-
-TEST(PhysX, TestCubeFall)
-{
-    //Travis Fix because Windows can't open a window
-    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
-    if (env != nullptr) {
-        std::cout << "Test skip for travis windows" << std::endl;
-        return;
-    }
-
-    neko::Configuration config;
-    //config.dataRootPath = "../data/";
-    config.windowName = "AerEditor";
-    config.windowSize = neko::Vec2u(1400, 900);
-
-    neko::sdl::Gles3Window window;
-    neko::gl::Gles3Renderer renderer;
-    neko::Filesystem filesystem;
-    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::TEST);
-
-    engine.SetWindowAndRenderer(&window, &renderer);
-
-    neko::EntityManager entityManager;
-    neko::Transform3dManager transform3dManager = neko::Transform3dManager(
-        entityManager);
-    SceneCubeFall sceneCubeFall;
-    TestPhysX testPhysX(engine, entityManager, transform3dManager, sceneCubeFall);
-
-    engine.RegisterSystem(testPhysX);
-    engine.RegisterOnDrawUi(testPhysX);
-    engine.Init();
-    neko::Job initJob{[&testPhysX]() { testPhysX.InitRenderer(); }};
-    neko::BasicEngine::GetInstance()->ScheduleJob(
-        &initJob,
-        neko::JobThreadType::RENDER_THREAD);
-    engine.EngineLoop();
-}
-
-TEST(PhysX, TestRotation)
-{
-    //Travis Fix because Windows can't open a window
-    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
-    if (env != nullptr) {
-        std::cout << "Test skip for travis windows" << std::endl;
-        return;
-    }
-
-    neko::Configuration config;
-    //config.dataRootPath = "../data/";
-    config.windowName = "AerEditor";
-    config.windowSize = neko::Vec2u(1400, 900);
-
-    neko::sdl::Gles3Window window;
-    neko::gl::Gles3Renderer renderer;
-    neko::Filesystem filesystem;
-    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::TEST);
-
-    engine.SetWindowAndRenderer(&window, &renderer);
-
-    neko::EntityManager entityManager;
-    neko::Transform3dManager transform3dManager = neko::Transform3dManager(
-        entityManager);
-    SceneRotation sceneRotation;
-    TestPhysX testPhysX(engine, entityManager, transform3dManager, sceneRotation);
-
-    engine.RegisterSystem(testPhysX);
-    engine.RegisterOnDrawUi(testPhysX);
-    engine.Init();
-    neko::Job initJob{ [&testPhysX]() { testPhysX.InitRenderer(); } };
-    neko::BasicEngine::GetInstance()->ScheduleJob(
-        &initJob,
-        neko::JobThreadType::RENDER_THREAD);
-    engine.EngineLoop();
-}
-
+*/
+/*
 TEST(PhysX, TestRaycast)
 {
     //Travis Fix because Windows can't open a window
@@ -1020,3 +807,4 @@ TEST(PhysX, TestTriggerCollision)
         neko::JobThreadType::RENDER_THREAD);
     engine.EngineLoop();
 }
+*/

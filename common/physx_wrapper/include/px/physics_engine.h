@@ -56,7 +56,7 @@ public:
     }
 };
 
-class PhysicsEngine
+class PhysicsEngine : public neko::SystemInterface
 {
 public:
 
@@ -64,39 +64,15 @@ public:
         EntityManager& entityManager,
         Transform3dManager& transform3d);
 
+    void Init() override;
+
     void Start();
 
-    void Update(float dt);
+    void Update(seconds dt) override;
 
-    void Destroy();
+    void Destroy() override;
     physx::PxPhysics* GetPhysx();
     physx::PxScene* GetScene();
-    RigidStaticManager& GetRididStaticManager() { return rigidStaticManager_; }
-    RigidDynamicManager& GetRigidDynamicManager() { return rigidDynamicManager_; }
-
-    void AddRigidStatic(Entity entity, RigidStaticData& body);
-
-    void AddRigidDynamic(Entity entity, RigidDynamicData& body);
-
-    void AddForceAtPosition(Entity entity, const Vec3f& force, const Vec3f& position) const;
-    void AddForce(Entity entity, const Vec3f& force) const;
-
-    [[nodiscard]] const RigidDynamicData& GetRigidDynamicData(Entity entity) const;
-    void SetRigidDynamicData(Entity entity, const RigidDynamicData& rigidDynamicData) const;
-
-    [[nodiscard]] const ColliderType& GetColliderType(Entity entity) const;
-
-    [[nodiscard]] const BoxColliderData& GetBoxColliderData(Entity entity) const;
-    void SetBoxColliderData(Entity entity, const BoxColliderData& boxColliderData) const;
-
-    [[nodiscard]] const SphereColliderData& GetSphereColliderData(Entity entity) const;
-    void SetSphereColliderData(Entity entity, const SphereColliderData& body) const;
-
-    [[nodiscard]] const RigidDynamic& GetRigidDynamic(Entity entity) const;
-    void SetRigidDynamic(Entity entity, const RigidDynamic& body);
-
-    [[nodiscard]] const RigidStatic& GetRigidStatic(Entity entity) const;
-    void SetRigidStatic(Entity entity, const RigidStatic& body);
 
     const PxRaycastInfo Raycast(
         const Vec3f& origin,
@@ -141,9 +117,6 @@ private:
 
     EntityManager& entityManager_;
     neko::Transform3dManager& transform3d_;
-
-    RigidDynamicManager rigidDynamicManager_;
-    RigidStaticManager rigidStaticManager_;
 
     Action<seconds> fixedUpdateAction_;
 };

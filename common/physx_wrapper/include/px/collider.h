@@ -29,37 +29,42 @@
 
 #include <engine/component.h>
 
-namespace neko::physics
-{
+namespace neko::physics {
 
-    enum class ColliderType {
-        INVALID,
-        BOX,
-        SPHERE
-    };
+enum class ColliderType {
+    INVALID,
+    BOX,
+    SPHERE
+};
 
-    struct PhysicsMaterial {
-        float dynamicFriction = 0.6f;
-        float staticFriction = 0.6f;
-        float bouciness = 0.0f;
-    };
+struct PhysicsMaterial {
+    float dynamicFriction = 0.6f;
+    float staticFriction  = 0.6f;
+    float bouciness       = 0.0f;
+};
 
-    struct ColliderData
-    {
-        ColliderData() = default;
-        ~ColliderData() = default;
-        bool isTrigger = false;
-        Vec3f offset = Vec3f::zero;
-    };
+struct ColliderData {
+    ColliderData()  = default;
+    ~ColliderData() = default;
+    bool isTrigger = false;
+    Vec3f offset   = Vec3f::zero;
+};
 
-    struct SphereColliderData : public ColliderData
-    {
-        float radius = 1.0f;
-    };
+struct SphereColliderData : public ColliderData {
+    float radius = 1.0f;
+};
 
-    struct BoxColliderData : public ColliderData
-    {
-    public:
-        Vec3f size = Vec3f::one;
-    };
-} 
+struct BoxColliderData : public ColliderData {
+public:
+    Vec3f size = Vec3f::one;
+};
+
+
+//class ColliderViewer {
+//public:
+//    json GetJsonFromCollider(Entity entity) const = 0;
+//    void SetColliderFromJson(Entity entity, const json& jsonComponent) = 0;
+//    void DrawImGuiCollider(Entity entity) = 0;
+//};
+
+}

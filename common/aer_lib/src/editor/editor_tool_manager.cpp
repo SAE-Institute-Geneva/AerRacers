@@ -27,13 +27,60 @@ void EditorToolManager::Update(seconds dt)
 	for (auto& tool : tools_) tool->Update(dt);
     Transform3dManager& transform3dManager =
         engine_.GetComponentManagerContainer().transform3dManager;
+    EntityManager& entityManager = engine_.GetComponentManagerContainer().entityManager;
+    physics::RigidDynamicManager& rigidDynamicManager = engine_.GetComponentManagerContainer().rigidDynamicManager;
+    physics::RigidStaticManager& rigidStaticManager = engine_.GetComponentManagerContainer().rigidStaticManager;
     if (selectedEntity_ != INVALID_ENTITY)
     {
         GizmosLocator::get().DrawCube(transform3dManager.GetGlobalPosition(selectedEntity_),
             transform3dManager.GetGlobalScale(selectedEntity_),
-            EulerAngles(degree_t(0)),
+            transform3dManager.GetRelativeRotation(selectedEntity_),
             Color::blue,
-            2.0f);
+            5.0f);
+    }
+    //Display Gizmo
+    neko::IGizmoRenderer& gizmosLocator = neko::GizmosLocator::get();
+    for (neko::Entity entity = 0.0f; entity < entityManager.GetEntitiesSize(); entity++)
+    {
+        const neko::physics::RigidActor* rigidActor = nullptr;
+        if (entityManager.HasComponent(
+            entity,
+            neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC))) { rigidActor = &rigidDynamicManager.GetComponent(entity);
+        } else if (entityManager.HasComponent(
+            entity,
+            neko::EntityMask(neko::ComponentType::RIGID_STATIC))) {
+            rigidActor = &rigidStaticManager.GetComponent(entity);
+        } else { continue; }
+
+        const neko::physics::ColliderType colliderType = rigidActor->GetColliderType();
+        switch (colliderType)
+        {
+            case neko::physics::ColliderType::INVALID: break;
+            case neko::physics::ColliderType::BOX:
+            {
+                neko::physics::BoxColliderData boxColliderData = rigidActor->GetBoxColliderData();
+                gizmosLocator.DrawCube(
+                    transform3dManager.GetRelativePosition(entity) + boxColliderData.offset,
+                    boxColliderData.size,
+                    transform3dManager.GetRelativeRotation(entity),
+                    boxColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
+                    2.0f);
+            }
+            break;
+            case neko::physics::ColliderType::SPHERE:
+            {
+                neko::physics::SphereColliderData sphereColliderData =
+                    rigidActor->GetSphereColliderData();
+                gizmosLocator.DrawSphere(
+                    transform3dManager.GetRelativePosition(entity) + sphereColliderData.offset,
+                    sphereColliderData.radius,
+                    transform3dManager.GetRelativeRotation(entity),
+                    sphereColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
+                    2.0f);
+            }
+            break;
+            default:;
+        }
     }
 }
 
