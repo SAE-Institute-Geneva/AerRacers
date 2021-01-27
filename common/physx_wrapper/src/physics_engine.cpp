@@ -14,11 +14,13 @@ PhysicsEngine::PhysicsEngine(
     Transform3dManager& transform3d)
     : entityManager_(entityManager),
       transform3d_(transform3d)
-{}
+{
+    Start();
+}
 
 void PhysicsEngine::Init() {
-    Start();
-    StartPhysic(); }
+    StartPhysic();
+}
 
 void PhysicsEngine::Start()
 {

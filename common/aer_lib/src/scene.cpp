@@ -46,33 +46,20 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 		if (CheckJsonParameter(componentJson["rigidbody"], "exist", json::value_t::boolean))
 		{
 			if (componentJson["rigidbody"]["exist"])
-			{
-				//transformManager_.AddComponent(entity);
-				//transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
-			}
-		}
-	}
-
-	if (CheckJsonParameter(componentJson, "boxCollider", json::value_t::object))
-	{
-		if (CheckJsonParameter(componentJson["boxCollider"], "exist", json::value_t::boolean))
-		{
-			if (componentJson["boxCollider"]["exist"])
-			{
-				//transformManager_.AddComponent(entity);
-				//transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
-			}
-		}
-	}
-
-	if (CheckJsonParameter(componentJson, "sphereCollider", json::value_t::object))
-	{
-		if (CheckJsonParameter(componentJson["sphereCollider"], "exist", json::value_t::boolean))
-		{
-			if (componentJson["sphereCollider"]["exist"])
-			{
-				//transformManager_.AddComponent(entity);
-				//transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
+            {
+                if (CheckJsonParameter(componentJson["rigidbody"], "isStatic", json::value_t::boolean))
+                {
+                    if (componentJson["rigidbody"]["isStatic"])
+                    {
+                        componentManagerContainer_.rigidStaticViewer.SetComponentFromJson(
+                            entity, componentJson["rigidbody"]);
+                    }
+                    else
+                    {
+                        componentManagerContainer_.rigidDynamicViewer.SetComponentFromJson(
+                            entity, componentJson["rigidbody"]);
+                    }
+                }
 			}
 		}
 	}
@@ -242,15 +229,14 @@ json SceneManager::WriteEntityJson(Entity entity) const
 	entityJson["transform"] = componentManagerContainer_.transform3dViewer.GetJsonFromComponent(entity);
 	entityJson["transform"]["exist"] =
 		entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
-	//entityJson["rigidbody"] = json::object();
-	//entityJson["rigidbody"] = transformManager_.GetJsonFromComponent(entity);
-	//entityJson["rigidbody"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
-	//entityJson["boxCollider"] = json::object();
-	//entityJson["boxCollider"] = transformManager_.GetJsonFromComponent(entity);
-	//entityJson["boxCollider"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
-	//entityJson["sphereCollider"] = json::object();
-	//entityJson["sphereCollider"] = transformManager_.GetJsonFromComponent(entity);
-	//entityJson["sphereCollider"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
+    entityJson["rigidbody"] = json::object();
+    entityJson["rigidbody"] = componentManagerContainer_
+                              .rigidStaticViewer.GetJsonFromComponent(entity);
+    entityJson["rigidbody"] = componentManagerContainer_
+                              .rigidDynamicViewer.GetJsonFromComponent(entity);
+    entityJson["rigidbody"]["exist"] = entityManager_.HasComponent(entity,
+                                           EntityMask(ComponentType::RIGID_DYNAMIC)) ||
+                                       entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC));
 	//entityJson["shipControl"] = json::object();
 	//entityJson["shipControl"] = transformManager_.GetJsonFromComponent(entity);
 	//entityJson["shipControl"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));

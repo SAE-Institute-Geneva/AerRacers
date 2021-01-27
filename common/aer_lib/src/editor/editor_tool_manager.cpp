@@ -59,7 +59,7 @@ void EditorToolManager::Update(seconds dt)
             {
                 neko::physics::BoxColliderData boxColliderData = rigidActor->GetBoxColliderData();
                 gizmosLocator.DrawCube(
-                    transform3dManager.GetRelativePosition(entity) + boxColliderData.offset,
+                    transform3dManager.GetGlobalPosition(entity) + boxColliderData.offset,
                     boxColliderData.size,
                     transform3dManager.GetRelativeRotation(entity),
                     boxColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
@@ -71,7 +71,7 @@ void EditorToolManager::Update(seconds dt)
                 neko::physics::SphereColliderData sphereColliderData =
                     rigidActor->GetSphereColliderData();
                 gizmosLocator.DrawSphere(
-                    transform3dManager.GetRelativePosition(entity) + sphereColliderData.offset,
+                    transform3dManager.GetGlobalPosition(entity) + sphereColliderData.offset,
                     sphereColliderData.radius,
                     transform3dManager.GetRelativeRotation(entity),
                     sphereColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,

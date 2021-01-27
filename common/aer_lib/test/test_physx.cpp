@@ -825,3 +825,223 @@ TEST(PhysX, TestTriggerCollision)
     engine.EngineLoop();
 }
 #pragma endregion
+#pragma region SceneTest
+namespace neko::aer
+{
+class TestSceneInterface
+{
+public:
+    virtual void Init(AerEngine&)
+    {
+        
+    }
+    virtual void HasSucceed(ComponentManagerContainer& cContainer) = 0;
+    std::string sceneName;
+};
+class TestPhysXExampleScene : public TestSceneInterface
+{
+public:
+    explicit TestPhysXExampleScene() { sceneName = "scenes/CamilleSceneWIthoutRotate.aerscene"; }
+
+    void HasSucceed(ComponentManagerContainer& cContainer) override
+    {
+    }
+
+    void Init(AerEngine& aerengine) override
+    {
+        Camera3D* camera = GizmosLocator::get().GetCamera();
+        camera->position = Vec3f(7.0f, 45.0f, 0.0f);
+        camera->Rotate(EulerAngles(degree_t(90.0f), degree_t(-90.0f), degree_t(0.0f)));
+        aerengine.GetPhysicsEngine().StopPhysic();
+    }
+};
+class TestPhysXTestBounceScene : public TestSceneInterface
+{
+public:
+    explicit TestPhysXTestBounceScene() { sceneName = "scenes/PhysicsScene01-27.aerscene"; }
+
+    void HasSucceed(ComponentManagerContainer& cContainer) override {}
+    void Init(AerEngine& aerengine) override
+    {
+        Camera3D* camera = GizmosLocator::get().GetCamera();
+        camera->position = Vec3f(3.0f, -10.0f, 0.0f);
+        aerengine.GetPhysicsEngine().StopPhysic();
+    }
+};
+class TestPhysXColliderScene : public TestSceneInterface
+{
+public:
+    explicit TestPhysXColliderScene() { sceneName = "scenes/PhysicsScene2-01-27.aerscene"; }
+
+    void HasSucceed(ComponentManagerContainer& cContainer) override {}
+    void Init(AerEngine& aerengine) override
+    {
+        Camera3D* camera = GizmosLocator::get().GetCamera();
+        camera->position = Vec3f(1.0f, -10.0f, 0.0f);
+        aerengine.GetPhysicsEngine().StopPhysic();
+    }
+};
+
+class PhysXSceneImporterTester : public SystemInterface, public DrawImGuiInterface
+{
+public:
+    explicit PhysXSceneImporterTester(AerEngine& engine, TestSceneInterface& testScene)
+       : engine_(engine), testScene_(testScene)
+    {}
+
+    void Init() override
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Init", profiler::colors::Green);
+#endif
+        const Configuration config = BasicEngine::GetInstance()->GetConfig();
+        engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+            config.dataRootPath + testScene_.sceneName);
+        testScene_.Init(engine_);
+    }
+
+    void Update(seconds dt) override
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Update", profiler::colors::Green);
+#endif
+        updateCount_ += dt.count();  
+        //if (updateCount_ >= kEngineDuration_) { engine_.Stop(); }
+    }
+
+    void Destroy() override {}
+
+    void HasSucceed() { testScene_.HasSucceed(engine_.GetComponentManagerContainer()); }
+
+    void DrawImGui() override
+    {
+        Camera3D* camera = GizmosLocator::get().GetCamera();
+        ImGui::Begin("Camera");
+        {
+            std::string position = camera->position.ToString();
+            ImGui::Text(position.c_str());
+            std::string rotation = camera->reverseDirection.ToString();
+            ImGui::Text(rotation.c_str());
+        }
+        ImGui::End();
+        ImGui::Begin("Physics");
+        ImGui::Text("RigidBody");
+        if (engine_.GetPhysicsEngine().IsPhysicRunning())
+        {
+            ImGui::TextColored(ImVec4(0.0f, 1.0f, 0.0f, 1.0f), "Physics is active");
+            if (ImGui::Button("Stop")) { engine_.GetPhysicsEngine().StopPhysic(); }
+        }
+        else
+        {
+            ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "Physics is not active");
+            if (ImGui::Button("Play")) { engine_.GetPhysicsEngine().StartPhysic(); }
+        }
+        ImGui::End();
+    }
+private:
+    float updateCount_           = 0;
+    const float kEngineDuration_ = 10;
+
+    AerEngine& engine_;
+
+    TestSceneInterface& testScene_;
+};
+
+TEST(PhysX, TestExampleSceneImporteur)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr)
+    {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    Configuration config;
+    config.windowName = "AerEditor";
+    config.windowSize = Vec2u(1400, 900);
+
+    sdl::Gles3Window window;
+    gl::Gles3Renderer renderer;
+    Filesystem filesystem;
+    AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+    TestPhysXExampleScene testExample;
+    PhysXSceneImporterTester testSceneImporteur(engine, testExample);
+    engine.RegisterSystem(testSceneImporteur);
+    engine.RegisterOnDrawUi(testSceneImporteur);
+
+    engine.Init();
+
+    engine.EngineLoop();
+
+    testSceneImporteur.HasSucceed();
+}
+
+TEST(PhysX, TestPhysXTestBounceScene)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr)
+    {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    Configuration config;
+    config.windowName = "AerEditor";
+    config.windowSize = Vec2u(1400, 900);
+
+    sdl::Gles3Window window;
+    gl::Gles3Renderer renderer;
+    Filesystem filesystem;
+    AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+    TestPhysXTestBounceScene testExample;
+    PhysXSceneImporterTester testSceneImporteur(engine, testExample);
+    engine.RegisterSystem(testSceneImporteur);
+    engine.RegisterOnDrawUi(testSceneImporteur);
+
+    engine.Init();
+
+    engine.EngineLoop();
+
+    testSceneImporteur.HasSucceed();
+}
+
+TEST(PhysX, TestPhysXColliderScene)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr)
+    {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    Configuration config;
+    config.windowName = "AerEditor";
+    config.windowSize = Vec2u(1400, 900);
+
+    sdl::Gles3Window window;
+    gl::Gles3Renderer renderer;
+    Filesystem filesystem;
+    AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+    TestPhysXColliderScene testExample;
+    PhysXSceneImporterTester testSceneImporteur(engine, testExample);
+    engine.RegisterSystem(testSceneImporteur);
+    engine.RegisterOnDrawUi(testSceneImporteur);
+
+    engine.Init();
+
+    engine.EngineLoop();
+
+    testSceneImporteur.HasSucceed();
+}
+}    // namespace neko::aer
+#pragma endregion
+

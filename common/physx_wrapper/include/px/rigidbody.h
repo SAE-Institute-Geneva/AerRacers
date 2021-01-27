@@ -88,8 +88,10 @@ protected:
 };
 
 class RigidActorViewer{
-public:
-    json GetJsonFromRigidActor( const RigidActorData& rigidActorData) const;
+protected:
+    json GetJsonFromBoxCollider(const RigidActorData& rigidActorData) const;
+    json GetJsonFromSphereCollider(const RigidActorData& rigidActorData) const;
+    json GetJsonFromMaterial(const RigidActorData& rigidActorData) const;
     RigidActorData GetRigidActorFromJson( const json&);
     RigidActorData DrawImGuiRigidActor(const RigidActorData& rigidActorData);
 };

@@ -218,19 +218,22 @@ Vec3f Transform3dManager::GetRelativeScale(Entity entity) const
 
 void Transform3dManager::SetRelativePosition(Entity entity, const Vec3f& position)
 {
-	position3DManager_.SetComponent(entity, position);
+    position3DManager_.SetComponent(entity, position);
+    UpdateTransform(entity);
 	dirtyManager_.SetDirty(entity);
 }
 
 void Transform3dManager::SetRelativeRotation(Entity entity, const EulerAngles& angles)
 {
-	rotation3DManager_.SetComponent(entity, angles);
+    rotation3DManager_.SetComponent(entity, angles);
+    UpdateTransform(entity);
 	dirtyManager_.SetDirty(entity);
 }
 
 void Transform3dManager::SetRelativeScale(Entity entity, const Vec3f& scale)
 {
-	scale3DManager_.SetComponent(entity, scale);
+    scale3DManager_.SetComponent(entity, scale);
+    UpdateTransform(entity);
 	dirtyManager_.SetDirty(entity);
 }
 
@@ -253,9 +256,11 @@ void Transform3dManager::SetGlobalPosition(Entity entity, const Vec3f& position)
 {
     Mat4f transform = Transform3d::Transform(
         position,
-        rotation3DManager_.GetComponent(entity),
-        scale3DManager_.GetComponent(entity));
+        rotation3DManager_.GetComponent(entity), scale3DManager_.GetComponent(entity));
     SetComponent(entity, transform);
+    const auto parent = entityManager_.get().GetEntityParent(entity);
+    if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
+
     position3DManager_.SetComponent(entity, Transform3d::GetPosition(transform));
     dirtyManager_.SetDirty(entity);
 }
@@ -264,6 +269,9 @@ void Transform3dManager::SetGlobalRotation(Entity entity, const EulerAngles& ang
 {
     Mat4f transform = Transform3d::Transform(
         position3DManager_.GetComponent(entity), angles, scale3DManager_.GetComponent(entity));
+    const auto parent = entityManager_.get().GetEntityParent(entity);
+    if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
+
     SetComponent(entity, transform);
     rotation3DManager_.SetComponent(entity, Transform3d::GetRotation(transform));
     dirtyManager_.SetDirty(entity);
@@ -272,10 +280,12 @@ void Transform3dManager::SetGlobalRotation(Entity entity, const EulerAngles& ang
 void Transform3dManager::SetGlobalScale(Entity entity, const Vec3f& scale)
 {
     Mat4f transform = Transform3d::Transform(position3DManager_.GetComponent(entity),
-        rotation3DManager_.GetComponent(entity),
-        scale);
+        rotation3DManager_.GetComponent(entity), scale);
+    const auto parent = entityManager_.get().GetEntityParent(entity);
+    if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
+
     SetComponent(entity, transform);
-    scale3DManager_.SetComponent(entity, Transform3d::GetPosition(transform));
+    scale3DManager_.SetComponent(entity, Transform3d::GetScale(transform));
     dirtyManager_.SetDirty(entity);
 }
 
@@ -288,8 +298,12 @@ void Transform3dManager::AddComponent(Entity entity)
     return DoubleBufferComponentManager::AddComponent(entity);
 }
 
-void Transform3dManager::OnChangeParent(Entity entity, Entity, Entity)
+void Transform3dManager::OnChangeParent(Entity entity, Entity newParent, Entity oldParent)
 {
+    Mat4f transform = GetComponent(entity);
+    SetGlobalPosition(entity, Transform3d::GetPosition(transform));
+    SetGlobalRotation(entity, Transform3d::GetRotation(transform));
+    SetGlobalScale(entity, Transform3d::GetScale(transform));
 	dirtyManager_.SetDirty(entity);
 }
 
@@ -318,16 +332,16 @@ json Transform3dViewer::GetJsonFromComponent(Entity entity) const
 void Transform3dViewer::SetComponentFromJson(Entity entity, const json& jsonComponent)
 {
     if (CheckJsonParameter(jsonComponent, "position", json::object())) {
-        transform3dManager_.SetRelativePosition(
+        transform3dManager_.SetGlobalPosition(
             entity,
             GetVector3FromJson(jsonComponent, "position"));
     }
     if (CheckJsonParameter(jsonComponent, "rotation", json::object())) {
-        transform3dManager_.SetRelativeRotation(entity,
+        transform3dManager_.SetGlobalRotation(entity,
             Quaternion::ToEulerAngles(Quaternion(GetVector4FromJson(jsonComponent, "rotation"))));
     }
     if (CheckJsonParameter(jsonComponent, "scale", json::object())) {
-        transform3dManager_.SetRelativeScale(entity, GetVector3FromJson(jsonComponent, "scale"));
+        transform3dManager_.SetGlobalScale(entity, GetVector3FromJson(jsonComponent, "scale"));
     }
 }
 
