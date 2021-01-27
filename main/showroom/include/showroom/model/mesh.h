@@ -93,8 +93,11 @@ protected:
 	std::vector<Vertex> vertices_;
 	std::vector<unsigned int> indices_;
 	std::vector<Texture> textures_;
-	float specularExponent_ = 64.0f;
 	Aabb3d aabb_;
+
+	float specularExponent_ = 64.0f;
+	Color3 diffuse_ = Color3(0.8f);
+	Color3 specular_ = Color3::one;
 
 	uint32_t VAO = 0, VBO = 0, EBO = 0;
 

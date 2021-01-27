@@ -23,7 +23,10 @@ struct Material
     sampler2D specular;
     sampler2D normal;
     sampler2D emissive;
+    
     float shininess;
+	vec3 diffuseColor;
+	vec3 specularColor;
 };
 uniform Material material;
 
@@ -65,7 +68,7 @@ vec3 GetDiffuse()
 {
 	vec3 diffuse;
  	if (bool(usedMaps & Diffuse)) diffuse = texture(material.diffuse, fs1_in.TexCoords).rgb;
- 	else diffuse = vec3(0.8);
+ 	else diffuse = material.diffuseColor;
  	
     const float gamma = 2.2;
     vec3 mapped = vec3(1.0) - exp(-diffuse * 1.0);
@@ -77,7 +80,7 @@ vec3 GetSpecular()
 {
  	if (bool(usedMaps & Specular)) return vec3(texture(material.specular, fs1_in.TexCoords).r);
  	
-    return vec3(1.0);
+    return material.specularColor;
 }
 
 vec3 GetEmissive()

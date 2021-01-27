@@ -128,7 +128,7 @@ private:
 	PointLight pointLight_;
 	DirectionalLight dirLight_;
 	SpotLight spotLight_;
-	EulerAngles lightAngles_;
+	EulerAngles lightAngles_ = EulerAngles(45.0f, 0.0f, 0.0f);
 	Vec3f lightScale_ = Vec3f::one;
 
 	//Dock Window

@@ -146,7 +146,7 @@ void Mesh::ProcessMesh(
     {
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-        const bool hasHeight = material->GetTextureCount(aiTextureType_HEIGHT) == 0 ? false : true;
+        const bool hasHeight = material->GetTextureCount(aiTextureType_HEIGHT) != 0;
         textures_.reserve(material->GetTextureCount(aiTextureType_SPECULAR) +
             material->GetTextureCount(aiTextureType_DIFFUSE) +
             material->GetTextureCount(aiTextureType_EMISSIVE) +
@@ -155,6 +155,15 @@ void Mesh::ProcessMesh(
                  material->GetTextureCount(aiTextureType_NORMALS)));
 
 		material->Get(AI_MATKEY_SHININESS, specularExponent_);
+
+		aiColor4D diffuse;
+	    aiGetMaterialColor(material, AI_MATKEY_COLOR_DIFFUSE, &diffuse);
+		diffuse_ = Color3(diffuse.r, diffuse.g, diffuse.b);
+
+		aiColor4D specular;
+	    aiGetMaterialColor(material, AI_MATKEY_COLOR_SPECULAR, &specular);
+	    specular_ = Color3(specular.r, specular.g, specular.b);
+
         LoadMaterialTextures(material,
             aiTextureType_DIFFUSE,
             Texture::TextureType::DIFFUSE,
@@ -325,6 +334,9 @@ void Mesh::BindTextures(const gl::Shader& shader) const
         glBindTexture(GL_TEXTURE_2D, texture.name);
     }
     shader.SetFloat("material.shininess", specularExponent_);
+	shader.SetVec3("material.diffuseColor", diffuse_);
+	shader.SetVec3("material.specularColor", specular_);
+
 	shader.SetUInt("usedMaps", usedMaps);
     glActiveTexture(GL_TEXTURE0);
     glCheckError();

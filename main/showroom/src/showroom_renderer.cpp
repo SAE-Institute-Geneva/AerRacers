@@ -70,6 +70,11 @@ void ShowRoomRenderer::Init()
 	camera_.farPlane = 1'000.0f;
 	camera_.WorldLookAt(Vec3f::zero);
 
+	pointLight_.position = Vec3f(5.0f, 3.0f, -3.0f);
+	spotLight_.position = pointLight_.position;
+	dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
+	spotLight_.direction = dirLight_.direction;
+
 	RendererLocator::get().AddPreRenderJob(&preRender_);
 }
 
@@ -208,7 +213,6 @@ void ShowRoomRenderer::DrawImGui()
 	DrawImGuizmo();
 
 	//ShowDemoWindow();
-	ShowMetricsWindow();
 }
 
 void ShowRoomRenderer::CreateDockableWindow()
