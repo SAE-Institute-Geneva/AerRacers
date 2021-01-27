@@ -41,7 +41,8 @@ public:
 		NONE = 0,
 		LOGGER,
         HIERARCHY,
-    	INSPECTOR
+    	INSPECTOR,
+		SCENE_LOADER
 	};
 
 	explicit EditorToolInterface(AerEngine& engine, ToolType type, int id, std::string name);

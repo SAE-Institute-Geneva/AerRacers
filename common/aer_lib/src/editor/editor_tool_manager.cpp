@@ -4,6 +4,7 @@
 #include "aer/editor/tool/logger.h"
 #include "aer/editor/tool/hierarchy.h"
 #include "aer/editor/tool/inspector.h"
+#include "aer/editor/tool/scene_loader.h"
 
 namespace neko::aer
 {
@@ -16,13 +17,23 @@ void EditorToolManager::Init()
 	{
 		AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
 		AddEditorTool<Hierarchy, EditorToolInterface::ToolType::HIERARCHY>();
-		AddEditorTool<Inspector, EditorToolInterface::ToolType::INSPECTOR>();
+        AddEditorTool<Inspector, EditorToolInterface::ToolType::INSPECTOR>();
+        AddEditorTool<SceneLoader, EditorToolInterface::ToolType::SCENE_LOADER>();
 	}
 }
 
 void EditorToolManager::Update(seconds dt)
 {
 	for (auto& tool : tools_) tool->Update(dt);
+    Transform3dManager& transform3dManager =
+        engine_.GetComponentManagerContainer().transform3dManager;
+    if (selectedEntity_ != INVALID_ENTITY)
+    {
+        GizmosLocator::get().DrawCube(transform3dManager.GetGlobalPosition(selectedEntity_),
+            transform3dManager.GetGlobalScale(selectedEntity_),
+            Color::blue,
+            2.0f);
+    }
 }
 
 void EditorToolManager::Destroy()
@@ -73,6 +84,11 @@ void EditorToolManager::DrawImGui()
 				DrawList();
                 ImGui::EndMenu();
 			}
+
+            SceneManager& sceneManager = engine_.GetComponentManagerContainer().sceneManager;
+            std::string sceneName      = sceneManager.GetCurrentScene().sceneName;
+            if (!sceneManager.GetCurrentScene().saved) { sceneName += "*"; }
+            ImGui::Text(sceneName.c_str());
 
 			EndMenuBar();
 		}

@@ -38,8 +38,10 @@ struct ComponentManagerContainer : public SystemInterface
 {
 	ComponentManagerContainer(ResourceManagerContainer& rContainer)
 	   : transform3dManager(entityManager),
-		 renderManager(entityManager, rContainer.modelManager, transform3dManager),
-		 sceneManager(entityManager, transform3dManager)
+		 renderManager(entityManager, rContainer.modelManager, transform3dManager, rendererViewer),
+		 sceneManager(entityManager, *this),
+		 rendererViewer(entityManager, renderManager),
+		 transform3dViewer(entityManager, transform3dManager)
 	{}
 
 	void Init() override
@@ -59,6 +61,9 @@ struct ComponentManagerContainer : public SystemInterface
 	EntityManager entityManager;
 	Transform3dManager transform3dManager;
 	RenderManager renderManager;
+
+	Transform3dViewer transform3dViewer;
+    RendererViewer rendererViewer;
 
 	SceneManager sceneManager;
 };

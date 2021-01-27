@@ -41,6 +41,7 @@ private:
 	sdl::MovableCamera3D camera_;
 	gl::TextureManager textureManager_;
     gl::ModelId modelId_ = gl::INVALID_MODEL_ID;
+    gl::ModelId modelId2_ = gl::INVALID_MODEL_ID;
     gl::ModelManager modelManager_;
 	gl::Shader shader_;
 	Mat4f projection_{ Mat4f::Identity };

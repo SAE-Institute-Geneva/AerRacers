@@ -49,17 +49,17 @@ public:
         entityManager.SetEntityParent(5, 6);
         auto& transform3dManager = engine_.GetComponentManagerContainer().transform3dManager;
 		transform3dManager.AddComponent(1);
-        transform3dManager.SetPosition(1,neko::Vec3f(1.0f, 2.0f, 3.0f));
+        transform3dManager.SetRelativePosition(1,neko::Vec3f(1.0f, 2.0f, 3.0f));
         transform3dManager.AddComponent(2);
-        transform3dManager.SetScale(2, neko::Vec3f(1.0f, 2.0f, 3.0f));
+        transform3dManager.SetRelativeScale(2, neko::Vec3f(1.0f, 2.0f, 3.0f));
         transform3dManager.AddComponent(0);
-        transform3dManager.SetRotation(0, neko::EulerAngles(1.0f, 2.0f, 3.0f));
+        transform3dManager.SetRelativeRotation(0, neko::EulerAngles(1.0f, 2.0f, 3.0f));
 		transform3dManager.AddComponent(4);
 	}
 
 	void Update(neko::seconds dt) override // Where we simulate tests
 	{
-        //updateCount_++;
+        updateCount_++;
         if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
 	}
 
@@ -68,7 +68,8 @@ public:
 	}
 
 	void HasSucceed() const
-	{
+    {
+        logDebug("Test without check");
 	    EXPECT_TRUE(testSuccess_);
 	}
 
@@ -76,7 +77,7 @@ private:
 	std::unique_ptr<neko::aer::EditorToolManager> toolManager_;
 
     int updateCount_           = 0;
-    const int kEngineDuration_ = 200;
+    const int kEngineDuration_ = 50;
 
 	bool testSuccess_ = true;
 

@@ -3,10 +3,14 @@
 
 namespace neko::aer {
 Inspector::Inspector(AerEngine& engine, ToolType type, int id, std::string name)
-    : EditorToolInterface(engine, type, id, name),
-      editorToolManager_(engine.GetEditorToolManager()),
-      entityManager_(engine.GetComponentManagerContainer().entityManager),
-      transform3dManager_(engine.GetComponentManagerContainer().transform3dManager) { }
+   : EditorToolInterface(engine, type, id, name),
+     editorToolManager_(engine.GetEditorToolManager()),
+     entityManager_(engine.GetComponentManagerContainer().entityManager),
+     transform3dManager_(engine.GetComponentManagerContainer().transform3dManager),
+     renderManager_(engine.GetComponentManagerContainer().renderManager),
+     rendererViewer_(engine.GetComponentManagerContainer().rendererViewer),
+     transform3dViewer_(engine.GetComponentManagerContainer().transform3dViewer)
+{ }
 
 void Inspector::Init() {}
 void Inspector::Update(seconds dt) {}
@@ -17,8 +21,10 @@ void Inspector::DrawImGui()
     //If is True Display Window
     if (isVisible) {
         //Display window
-        if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(),
-            &isVisible)) { } else {
+        if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(), &isVisible))
+        { ImGui::End(); }
+        else
+        {
             //Get selected entity
             Entity selectedEntity = editorToolManager_.GetSelectedEntity();
             if (selectedEntity == INVALID_ENTITY) {
@@ -34,11 +40,9 @@ void Inspector::DrawImGui()
             {
                 //Display Component
                 ImGui::SetNextTreeNodeOpen(true);
-                if (ImGui::TreeNode("Transform")) {
-                    //Ask component how to display their information
-                    transform3dManager_.DrawImGui(selectedEntity);
-                    ImGui::TreePop();
-                }
+                //Ask component how to display their information
+                transform3dViewer_.DrawImGui(selectedEntity);
+                rendererViewer_.DrawImGui(selectedEntity);
             }
 
             if (ImGui::Button("Add Component")) {

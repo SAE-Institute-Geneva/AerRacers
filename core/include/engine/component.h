@@ -106,13 +106,9 @@ public:
 
 	virtual void UpdateDirtyComponent(Entity) {};
 
-	virtual json GetJsonFromComponent(Entity) const { return json::object(); }
-    virtual void SetComponentFromJson(Entity, const json&) {}
-    virtual void DrawImGui(Entity) {}
-
 protected:
 	std::vector<T> components_;
-	std::reference_wrapper<EntityManager> entityManager_;
+    std::reference_wrapper<EntityManager> entityManager_;
 };
 
 template<typename T, EntityMask componentType>
@@ -189,5 +185,37 @@ public:
 
 protected:
 	std::vector<T> currentComponents_;
+};
+
+/**
+ * \brief The Component Manager use to serialize to json and imgui components
+ */
+class ComponentViewer
+{
+public:
+    explicit ComponentViewer(
+        EntityManager& entityManager)
+        : entityManager_(entityManager) { }
+
+    virtual ~ComponentViewer() = default;
+
+    /**
+     * \brief Get a json object of the component of an entity
+     * \return json object with component parameter
+     */
+    virtual json GetJsonFromComponent(Entity) const = 0;
+
+    /**
+     * \brief Set a component of an entity from a json of the component
+     * \json json object with component parameter
+     */
+    virtual void SetComponentFromJson(Entity, const json&) = 0;
+
+    /**
+     * \brief Draw the Imgui with the component parameter of an entity
+     */
+    virtual void DrawImGui(Entity) = 0;
+protected :
+    EntityManager& entityManager_;
 };
 }    // namespace neko

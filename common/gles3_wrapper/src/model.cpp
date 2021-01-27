@@ -275,15 +275,14 @@ ModelId ModelManager::LoadModel(std::string_view path)
 		return modelId;
 	}
 
-	modelLoaders_.push(ModelLoader(importer_, path, modelId));
+	modelLoaders_.push(ModelLoader(path, modelId));
 	modelLoaders_.back().Start();
 	return modelId;
 }
 
-ModelLoader::ModelLoader(Assimp::Importer& importer, std::string_view path, ModelId modelId)
+ModelLoader::ModelLoader(std::string_view path, ModelId modelId)
    : path_(path),
 	 modelId_(modelId),
-	 importer_(importer),
 	 loadModelJob_([this]() { LoadModel(); }),
 	 processModelJob_([this]() { ProcessModel(); }),
 	 uploadMeshesToGLJob_([this]() { UploadMeshesToGL(); })
@@ -292,7 +291,6 @@ ModelLoader::ModelLoader(Assimp::Importer& importer, std::string_view path, Mode
 ModelLoader::ModelLoader(ModelLoader&& modelLoader) noexcept
    : path_(modelLoader.path_),
 	 modelId_(modelLoader.modelId_),
-	 importer_(modelLoader.importer_),
 	 loadModelJob_([this]() { LoadModel(); }),
 	 processModelJob_([this]() { ProcessModel(); }),
 	 uploadMeshesToGLJob_([this]() { UploadMeshesToGL(); })
@@ -300,8 +298,9 @@ ModelLoader::ModelLoader(ModelLoader&& modelLoader) noexcept
 
 void ModelLoader::Start()
 {
+    importer_.SetIOHandler(new NekoIOSystem(BasicEngine::GetInstance()->GetFilesystem()));
 	directoryPath_ = path_.substr(0, path_.find_last_of('/'));
-	BasicEngine::GetInstance()->ScheduleJob(&loadModelJob_, JobThreadType::RESOURCE_THREAD);
+    BasicEngine::GetInstance()->ScheduleJob(&loadModelJob_, JobThreadType::OTHER_THREAD);
 }
 
 void ModelLoader::Update()
@@ -342,14 +341,14 @@ void ModelLoader::Update()
 
 void ModelLoader::LoadModel()
 {
-	scene = importer_.get().ReadFile(path_.data(),
+	scene = importer_.ReadFile(path_.data(),
 		aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
 			aiProcess_CalcTangentSpace | aiProcess_GenBoundingBoxes);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
 		flags_ = ERROR_LOADING;
-		logDebug(fmt::format("[ERROR] ASSIMP {}", importer_.get().GetErrorString()));
+		logDebug(fmt::format("[ERROR] ASSIMP {}", importer_.GetErrorString()));
 		return;
 	}
 

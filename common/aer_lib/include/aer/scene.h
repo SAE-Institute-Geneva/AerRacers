@@ -29,13 +29,13 @@
 
 #include <engine/entity.h>
 #include <engine/filesystem.h>
-#include <engine/transform.h>
 #include <utils/json_utility.h>
 
 #include "aer/tag.h"
 
 namespace neko::aer
 {
+struct ComponentManagerContainer;
 /**
  * \brief Temporary InstanceId use to determined parents
  */
@@ -51,6 +51,7 @@ struct Scene
 	std::string scenePath           = "";
 	std::vector<std::string> layers = {INVALID_LAYER};
 	std::vector<std::string> tags   = {INVALID_TAG};
+    bool saved                      = true;
 };
 
 /**
@@ -59,7 +60,8 @@ struct Scene
 class SceneManager
 {
 public:
-	explicit SceneManager(EntityManager& entityManager, Transform3dManager& transform3dManager);
+    explicit SceneManager(
+        EntityManager& entityManager, ComponentManagerContainer& componentManagerContainer);
 	~SceneManager() = default;
 
 	/**
@@ -124,19 +126,19 @@ public:
 	/**
      * \brief Get tag list of the current scene
      */
-	const std::vector<std::string>& GetTags() const;
+	const std::vector<std::string> GetTags() const;
 
 	/**
      * \brief Get layer list of the current scene
      */
-	const std::vector<std::string>& GetLayers() const;
+	const std::vector<std::string> GetLayers() const;
 
 protected:
 	const FilesystemInterface& filesystem_;
 
 	EntityManager& entityManager_;
-	Transform3dManager& transformManager_;
 	TagManager tagManager_;
+	ComponentManagerContainer& componentManagerContainer_;
 
 	Scene currentScene_;
 
@@ -144,5 +146,10 @@ protected:
      * \brief Temporary vector of entities InstanceId 
      */
 	std::vector<InstanceId> entityInstanceIdArray_;
+
+    /**
+     * \brief Temporary vector of entities parent InstanceId 
+     */
+    std::vector<InstanceId> entityParentInstanceIdArray_;
 };
 }    // namespace neko::aer

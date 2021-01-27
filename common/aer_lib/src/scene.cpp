@@ -1,9 +1,13 @@
 #include "aer/scene.h"
 
 #include <fmt/format.h>
+#ifdef EASY_PROFILE_USE
+    #include "easy/profiler.h"
+#endif
 
 #include "aer/log.h"
 #include "aer/tag.h"
+#include "aer/managers/manager_container.h"
 #include "engine/configuration.h"
 #include "engine/engine.h"
 #include "utils/file_utility.h"
@@ -12,10 +16,11 @@ namespace neko::aer
 {
 static const std::string_view SCENE_EXTENSION = ".scene";
 
-SceneManager::SceneManager(EntityManager& entityManager, Transform3dManager& transform3dManager)
+SceneManager::SceneManager(
+    EntityManager& entityManager, ComponentManagerContainer& componentManagerContainer)
    : filesystem_(BasicEngine::GetInstance()->GetFilesystem()),
 	 entityManager_(entityManager),
-	 transformManager_(transform3dManager),
+     componentManagerContainer_(componentManagerContainer),
 	 tagManager_(*this)
 {
 	TagLocator::provide(&tagManager_);
@@ -29,8 +34,9 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 		{
 			if (componentJson["transform"]["exist"])
 			{
-				transformManager_.AddComponent(entity);
-				transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
+                componentManagerContainer_.transform3dManager.AddComponent(entity);
+                componentManagerContainer_.transform3dViewer.SetComponentFromJson(
+                    entity, componentJson["transform"]);
 			}
 		}
 	}
@@ -82,6 +88,20 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 			}
 		}
 	}
+
+    if (CheckJsonParameter(componentJson, "modelRenderer", json::value_t::object))
+    {
+        if (CheckJsonParameter(componentJson["modelRenderer"], "exist", json::value_t::boolean))
+        {
+            if (componentJson["modelRenderer"]["exist"])
+            {
+                componentManagerContainer_.renderManager.AddComponent(entity);
+                componentManagerContainer_.rendererViewer.SetComponentFromJson(
+                    entity, componentJson["modelRenderer"]);
+            }
+        }
+    }
+   
 }
 
 void SceneManager::ParseEntityJson(const json& entityJson)
@@ -92,28 +112,19 @@ void SceneManager::ParseEntityJson(const json& entityJson)
 		//entityManager_.SetEntityName(entity, entityJson["name"]); TODO(@Luca) Set when name is done
 	}
 
-	if (CheckJsonParameter(entityJson, "instanceId", json::value_t::number_integer))
+	if (CheckJsonNumber(entityJson, "instanceId"))
 	{
 		InstanceId instanceId = entityJson["instanceId"];
 		ResizeIfNecessary(entityInstanceIdArray_, entity, INVALID_INSTANCE_ID);
 		entityInstanceIdArray_[entity] = instanceId;
 	}
 
-	if (CheckJsonParameter(entityJson, "parent", json::value_t::number_integer))
-	{
-		int parentInstanceId = entityJson["parent"];
-		if (parentInstanceId != INVALID_INSTANCE_ID)
-		{
-			const auto entityInstanceIdIt = std::find_if(entityInstanceIdArray_.begin(),
-				entityInstanceIdArray_.end(),
-				[parentInstanceId](InstanceId instanceId)
-				{ return instanceId == parentInstanceId; });
-			if (entityInstanceIdIt != entityInstanceIdArray_.end())
-			{
-				const Entity parentEntity = entityInstanceIdIt - entityInstanceIdArray_.begin();
-				entityManager_.SetEntityParent(entity, parentEntity);
-			}
-		}
+	if (CheckJsonNumber(entityJson, "parent"))
+    {
+        InstanceId instanceId = entityJson["parent"];
+        ResizeIfNecessary(entityParentInstanceIdArray_, entity, INVALID_INSTANCE_ID);
+        entityParentInstanceIdArray_[entity] = instanceId;
+		
 	}
 
 	if (CheckJsonParameter(entityJson, "layer", json::value_t::string))
@@ -151,7 +162,7 @@ void SceneManager::ParseSceneJson(const json& sceneJson)
         {
             if (tag != INVALID_TAG)
             {
-                currentScene_.tags.push_back(tag);
+                AddTag(tag);
             }
         }
     }
@@ -160,9 +171,8 @@ void SceneManager::ParseSceneJson(const json& sceneJson)
     {
         for (auto& layer : sceneJson["layers"])
         {
-            if (layer != INVALID_LAYER)
-            {
-                currentScene_.layers.push_back(layer);
+            if (layer != INVALID_LAYER) {
+                AddLayer(layer);
             }
         }
     }
@@ -173,15 +183,34 @@ void SceneManager::ParseSceneJson(const json& sceneJson)
         {
             ParseEntityJson(entityJson);
         }
+        for (Entity entity = 0; entity < entityInstanceIdArray_.size(); ++entity) {
+            InstanceId parentInstanceId = entityParentInstanceIdArray_[entity];
+            if (parentInstanceId != INVALID_INSTANCE_ID)
+            {
+                const auto entityInstanceIdIt = std::find_if(entityInstanceIdArray_.begin(),
+                    entityInstanceIdArray_.end(),
+                    [parentInstanceId](
+                        InstanceId instanceId) { return instanceId == parentInstanceId; });
+                if (entityInstanceIdIt != entityInstanceIdArray_.end())
+                {
+                    const Entity parentEntity = entityInstanceIdIt - entityInstanceIdArray_.begin();
+                    entityManager_.SetEntityParent(entity, parentEntity);
+                }
+            }
+        }
     }
 }
 
 bool SceneManager::LoadScene(const std::string_view& jsonPath)
 {
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("LoadScene");
+#endif
 	if (filesystem_.FileExists(jsonPath))
 	{
 		json scene              = neko::LoadJson(jsonPath);
-		currentScene_.scenePath = jsonPath;
+        currentScene_.scenePath = jsonPath;
+        entityManager_.CleanEntity();
 		ParseSceneJson(scene);
 		return true;
 	}
@@ -197,6 +226,7 @@ void SceneManager::SaveCurrentScene()
 	const neko::Configuration config = neko::BasicEngine::GetInstance()->GetConfig();
 	WriteStringToFile(config.dataRootPath + "scenes/" + currentScene_.sceneName + ".aerscene",
 		WriteSceneJson().dump(4));
+    currentScene_.saved = true;
 }
 
 json SceneManager::WriteEntityJson(Entity entity) const
@@ -209,7 +239,7 @@ json SceneManager::WriteEntityJson(Entity entity) const
 	entityJson["layer"]      = TagLocator::get().GetEntityLayer(entity);
 	//entityJson["isActive"] = TagLocator::get().GetEntityTag(entity);  //TODO (@Luca) Set active
 	entityJson["transform"] = json::object();
-	entityJson["transform"] = transformManager_.GetJsonFromComponent(entity);
+	entityJson["transform"] = componentManagerContainer_.transform3dViewer.GetJsonFromComponent(entity);
 	entityJson["transform"]["exist"] =
 		entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
 	//entityJson["rigidbody"] = json::object();
@@ -227,9 +257,9 @@ json SceneManager::WriteEntityJson(Entity entity) const
 	//entityJson["shipRotation"] = json::object();
 	//entityJson["shipRotation"] = transformManager_.GetJsonFromComponent(entity);
 	//entityJson["shipRotation"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
-	//entityJson["modelRenderer"] = json::object();
-	//entityJson["modelRenderer"] = transformManager_.GetJsonFromComponent(entity);
-	//entityJson["modelRenderer"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
+	entityJson["modelRenderer"] = json::object();
+	entityJson["modelRenderer"] = componentManagerContainer_.rendererViewer.GetJsonFromComponent(entity);
+	entityJson["modelRenderer"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL));
 	return entityJson;
 }
 
@@ -244,7 +274,6 @@ json SceneManager::WriteSceneJson()
 	{
 		scene["objects"][i] = WriteEntityJson(i);
 	}
-
 	return scene;
 }
 
@@ -275,7 +304,7 @@ void SceneManager::AddLayer(const std::string& newLayerName)
 	}
 }
 
-const std::vector<std::string>& SceneManager::GetTags() const { return currentScene_.tags; }
+const std::vector<std::string> SceneManager::GetTags() const { return currentScene_.tags; }
 
-const std::vector<std::string>& SceneManager::GetLayers() const { return currentScene_.layers; }
+const std::vector<std::string> SceneManager::GetLayers() const { return currentScene_.layers; }
 }    // namespace neko::aer

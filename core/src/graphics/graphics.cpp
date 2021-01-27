@@ -41,7 +41,7 @@ Renderer::Renderer() :
     renderAllJob_([this]
         {
 #ifdef EASY_PROFILE_USE
-            EASY_BLOCK("Renderer Update");
+         EASY_BLOCK("RenderAllJobs", profiler::colors::Red);
 #endif
             auto* engine = BasicEngine::GetInstance();
             PreRender();
@@ -65,7 +65,7 @@ void Renderer::Render(RenderCommandInterface* command)
 void Renderer::RenderAll()
 {
 #ifdef EASY_PROFILE_USE
-    EASY_BLOCK("Render Commands");
+    EASY_BLOCK("Render Commands", profiler::colors::Red);
 #endif
 	
 	for (auto* renderCommand : currentCommandBuffer_)
@@ -102,7 +102,7 @@ void Renderer::RegisterSyncBuffersFunction(SyncBuffersInterface* syncBuffersInte
 void Renderer::SyncBuffers()
 {
 #ifdef EASY_PROFILE_USE
-    EASY_BLOCK("Sync Renderer");
+    EASY_BLOCK("Sync Renderer", profiler::colors::Red);
 #endif
     std::swap(currentCommandBuffer_, nextCommandBuffer_);
     nextCommandBuffer_.clear();
@@ -113,7 +113,7 @@ void Renderer::SyncBuffers()
 void Renderer::PreRender()
 {
 #ifdef EASY_PROFILE_USE
-    EASY_BLOCK("Renderer Pre Render");
+    EASY_BLOCK("Renderer Pre Render", profiler::colors::Red);
 #endif
     using namespace std::chrono_literals;
     microseconds availableLoadingTime(8000);
@@ -163,7 +163,7 @@ void Renderer::PreRender()
 void Renderer::Destroy()
 {
 #ifdef EASY_PROFILE_USE
-    EASY_BLOCK("Closing Renderer");
+    EASY_BLOCK("Closing Renderer", profiler::colors::Red);
 #endif
 
     std::lock_guard<std::mutex> lock(statusMutex_);

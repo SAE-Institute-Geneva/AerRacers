@@ -68,11 +68,12 @@ private:
 		ImGuiDockNodeFlags_AutoHideTabBar |
 		ImGuiDockNodeFlags_PassthruCentralNode;
 
-	std::string toolNames_[4] {
+	std::string toolNames_[5] {
 		"Tool",
 		"Logger",
         "Hierarchy",
-    	"Inspector"
+    	"Inspector",
+	    "Scene Loader"
 	};
 };
 }
