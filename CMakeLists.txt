@@ -129,7 +129,7 @@ add_subdirectory(${NEKO_CORE_DIR})
 target_precompile_headers(Neko_Core PRIVATE "${NEKO_CORE_DIR}/include/core_pch.h")
 
 #imgui
-set(IMGUI_VERSION "1.80WIP" CACHE INTERNAL "")
+set(IMGUI_VERSION "1.79WIP" CACHE INTERNAL "")
 set(IMGUI_ROOT "${EXTERNAL_DIR}/imgui-${IMGUI_VERSION}" CACHE STRING "")
 include_directories("${IMGUI_ROOT}")
 add_subdirectory("${IMGUI_ROOT}")

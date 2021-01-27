@@ -565,8 +565,8 @@ void RenderWireFrameCuboid::Destroy()
 void RenderLine3d::Init()
 {
 	Vec3f position[2] = {
-		Vec3f(0.0f, 0.0f, 0.0f) * offset_,                      //Start
-		Vec3f(1.0f, 1.0f, 1.0f) * relativeEndPos_ + offset_,    //End
+		Vec3f(0.0f, 0.0f, 0.0f),    //Start
+		Vec3f(0.0f, 0.0f, 0.0f),    //End
 	};
 
 	glGenVertexArrays(1, &VAO);

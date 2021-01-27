@@ -74,6 +74,58 @@ void Shader::LoadFromFile(const std::string_view vertexShaderPath, const std::st
 	DeleteShader(fragmentShader);
 }
 
+void Shader::LoadFromFile(std::string_view vertexShaderPath,
+                          std::string_view fragmentShaderPath,
+                          std::string_view geometryShaderPath)
+{
+	BufferFile vertexFile = filesystem_.LoadFile(vertexShaderPath);
+	GLuint vertexShader   = LoadShader(vertexFile, GL_VERTEX_SHADER);
+	vertexFile.Destroy();
+	if (vertexShader == INVALID_SHADER)
+	{
+		logDebug(fmt::format("[Error] Loading vertex shader: {} unsuccessful", vertexShaderPath));
+		return;
+	}
+
+	BufferFile fragmentFile = filesystem_.LoadFile(fragmentShaderPath);
+	GLuint fragmentShader   = LoadShader(fragmentFile, GL_FRAGMENT_SHADER);
+	fragmentFile.Destroy();
+	if (fragmentShader == INVALID_SHADER)
+	{
+		DeleteShader(vertexShader);
+		logDebug(
+			fmt::format("[Error] Loading fragment shader: {} unsuccessful", fragmentShaderPath));
+		return;
+	}
+
+	BufferFile geometryFile = filesystem_.LoadFile(geometryShaderPath);
+	GLuint geometryShader   = LoadShader(geometryFile, GL_GEOMETRY_SHADER);
+	geometryFile.Destroy();
+	if (geometryShader == INVALID_SHADER)
+	{
+		DeleteShader(vertexShader);
+		DeleteShader(fragmentShader);
+		logDebug(
+			fmt::format("[Error] Loading geometry shader: {} unsuccessful", geometryShaderPath));
+		return;
+	}
+
+	shaderProgram_ =
+		CreateShaderProgram(vertexShader, fragmentShader, INVALID_SHADER, geometryShader);
+	if (shaderProgram_ == 0)
+	{
+		logDebug(fmt::format(
+			"[Error] Loading shader program with vertex: {}, fragment {} ans geometry {}",
+			vertexShaderPath,
+			fragmentShaderPath,
+			geometryShaderPath));
+	}
+
+	DeleteShader(vertexShader);
+	DeleteShader(fragmentShader);
+	DeleteShader(geometryShader);
+}
+
 void Shader::Bind() const
 {
 	glUseProgram(shaderProgram_);

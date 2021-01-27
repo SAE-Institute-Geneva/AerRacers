@@ -60,6 +60,9 @@ public:
 
 	void LoadFromFile(
 		std::string_view vertexShaderPath, std::string_view fragmentShaderPath) override;
+	void LoadFromFile(std::string_view vertexShaderPath,
+		std::string_view fragmentShaderPath,
+		std::string_view geometryShaderPath);
 
 	void Bind() const;
 	void BindUbo(const uint64_t& size);

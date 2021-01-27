@@ -18,14 +18,38 @@ void GizmoRenderer::Init()
 		{
 			shaderCube_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoCube.vert",
 				config.dataRootPath + "shaders/opengl/gizmoCube.frag");
-			shaderLine_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoLine.vert",
-				config.dataRootPath + "shaders/opengl/gizmoLine.frag");
+			shaderLine_.LoadFromFile(
+				config.dataRootPath + "shaders/opengl/instancing/gizmoLine.vert",
+				config.dataRootPath + "shaders/opengl/instancing/gizmoLine.frag");
 			shaderSphere_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoSphere.vert",
 				config.dataRootPath + "shaders/opengl/gizmoSphere.frag");
 
 			cube_.Init();
 			sphere_.Init();
-			line_.Init();
+
+            line_.Init();
+            glBindVertexArray(line_.VAO);
+            glGenBuffers(1, &line_.VBO[1]);
+            glBindBuffer(GL_ARRAY_BUFFER, line_.VBO[1]);
+            glBufferData(GL_ARRAY_BUFFER,
+                sizeof(GizmoLine) * lineGizmos_.size(),
+                lineGizmos_.data(),
+                GL_DYNAMIC_DRAW);
+			glVertexAttribPointer(
+				5, 3, GL_FLOAT, GL_FALSE, sizeof(GizmoLine), (void*) offsetof(GizmoLine, pos));
+			glVertexAttribDivisor(5, 1);
+			glEnableVertexAttribArray(5);
+
+			glVertexAttribPointer(
+				6, 3, GL_FLOAT, GL_FALSE, sizeof(GizmoLine), (void*) offsetof(GizmoLine, endPos));
+			glVertexAttribDivisor(6, 1);
+			glEnableVertexAttribArray(6);
+
+			glVertexAttribPointer(
+				7, 3, GL_FLOAT, GL_FALSE, sizeof(GizmoLine), (void*) offsetof(GizmoLine, color));
+			glVertexAttribDivisor(7, 1);
+			glEnableVertexAttribArray(7);
+		    glBindVertexArray(0);
 
 			shaderCube_.BindUbo(2 * sizeof(Mat4f) + sizeof(Vec3f));
 			shaderLine_.BindUbo(2 * sizeof(Mat4f) + sizeof(Vec3f));
@@ -33,6 +57,7 @@ void GizmoRenderer::Init()
 		}};
 
 	gizmosQueue_.reserve(kGizmoReserveSize);
+	lineGizmos_.reserve(kGizmoReserveSize);
 	RendererLocator::get().AddPreRenderJob(&preRender_);
 }
 
@@ -69,18 +94,6 @@ void GizmoRenderer::Render()
 					cube_.Draw();
 				}
 				break;
-				case GizmoShape::LINE:
-				{
-					if (shaderLine_.GetProgram() == 0) continue;
-					shaderLine_.Bind();
-					shaderLine_.SetVec4("color", gizmo.color);
-					Mat4f model = Transform3d::Translate(Mat4f::Identity, gizmo.pos);
-					shaderLine_.SetMat4("model", model);
-					shaderLine_.SetVec3("endPos", gizmo.lineEndPos - gizmo.pos);
-					line_.SetLineWidth(gizmo.lineThickness);
-					line_.Draw();
-				}
-				break;
 				case GizmoShape::SPHERE:
 				{
 					if (shaderSphere_.GetProgram() == 0) continue;
@@ -98,7 +111,7 @@ void GizmoRenderer::Render()
 			}
 		}
 
-		gizmosQueue_.clear();
+		RenderLines();
 	}
 }
 
@@ -142,13 +155,11 @@ void GizmoRenderer::DrawLine(
 	if (isRunning_)
 	{
 		std::lock_guard<std::mutex> lock(renderMutex_);
-		Gizmo gizmo;
-		gizmo.pos           = startPos;
-		gizmo.lineEndPos    = endPos;
-		gizmo.color         = color;
-		gizmo.shape         = GizmoShape::LINE;
-		gizmo.lineThickness = lineThickness;
-		gizmosQueue_.push_back(gizmo);
+		GizmoLine gizmoLine;
+		gizmoLine.pos = startPos;
+		gizmoLine.endPos = endPos;
+		gizmoLine.color = Color3(color);
+		lineGizmos_.push_back(gizmoLine);
 	}
 }
 
@@ -156,7 +167,7 @@ void GizmoRenderer::DrawSphere(
     const Vec3f& pos,
     const float& radius,
     const Color4& color,
-    float lineThickness)
+    const float lineThickness)
 {
 	if (isRunning_)
 	{
@@ -171,5 +182,38 @@ void GizmoRenderer::DrawSphere(
 	}
 }
 
-void GizmoRenderer::SetCamera(Camera3D* camera) { camera_ = camera; }
+void GizmoRenderer::Clear()
+{
+	gizmosQueue_.clear();
+	lineGizmos_.clear();
+}
+
+void GizmoRenderer::RenderLines()
+{
+	shaderLine_.Bind();
+	glBindVertexArray(line_.VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, line_.VBO[1]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GizmoLine) * lineGizmos_.size(), lineGizmos_.data());
+	glVertexAttribPointer(
+		5, 3, GL_FLOAT, GL_FALSE, sizeof(GizmoLine), (void*) offsetof(GizmoLine, pos));
+	glVertexAttribDivisor(5, 1);
+	glEnableVertexAttribArray(5);
+
+	glVertexAttribPointer(
+		6, 3, GL_FLOAT, GL_FALSE, sizeof(GizmoLine), (void*) offsetof(GizmoLine, endPos));
+	glVertexAttribDivisor(6, 1);
+	glEnableVertexAttribArray(6);
+
+	glVertexAttribPointer(
+		7, 3, GL_FLOAT, GL_FALSE, sizeof(GizmoLine), (void*) offsetof(GizmoLine, color));
+	glVertexAttribDivisor(7, 1);
+	glEnableVertexAttribArray(7);
+
+	glDrawArraysInstanced(GL_LINES, 0, 2, lineGizmos_.size());
+	glBindVertexArray(0);
+}
+
+void GizmoRenderer::RenderCubes() {}
+
+void GizmoRenderer::RenderSpheres() {}
 }    // namespace neko::sr

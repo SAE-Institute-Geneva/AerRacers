@@ -67,7 +67,7 @@ void Renderer::RenderAll()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Render Commands");
 #endif
-	
+
 	for (auto* renderCommand : currentCommandBuffer_)
 	{
 		renderCommand->Render();

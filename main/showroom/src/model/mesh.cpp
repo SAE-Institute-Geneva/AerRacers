@@ -118,12 +118,10 @@ void Mesh::ProcessMesh(
         Vertex vertex;
         // process vertex positions, normals and texture coordinates
 	    vertex.position = Vec3f(mesh->mVertices[i]);
-	    if (GetFilenameExtension(path) == ".fbx")
-		    vertex.position = Quaternion::AngleAxis(degree_t(90.0f), Vec3f::left) * vertex.position;
 
 	    vertex.normal = Vec3f(mesh->mNormals[i]);
     	//TODO: why is tangent sometimes null even with CalcTangent
-        if (mesh->mTangents != nullptr)
+        if (mesh->mTangents)
         {
 	        vertex.tangent = Vec3f(mesh->mTangents[i]);
 	        vertex.bitangent = Vec3f(mesh->mBitangents[i]);
@@ -148,20 +146,39 @@ void Mesh::ProcessMesh(
     {
         aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-		textures_.reserve(material->GetTextureCount(aiTextureType_SPECULAR) +
-						  material->GetTextureCount(aiTextureType_DIFFUSE) +
-						  material->GetTextureCount(aiTextureType_HEIGHT) +
-						  material->GetTextureCount(aiTextureType_EMISSIVE));
+        const bool hasHeight = material->GetTextureCount(aiTextureType_HEIGHT) == 0 ? false : true;
+        textures_.reserve(material->GetTextureCount(aiTextureType_SPECULAR) +
+            material->GetTextureCount(aiTextureType_DIFFUSE) +
+            material->GetTextureCount(aiTextureType_EMISSIVE) +
+            (hasHeight ?
+                 material->GetTextureCount(aiTextureType_HEIGHT) :
+                 material->GetTextureCount(aiTextureType_NORMALS)));
 
 		material->Get(AI_MATKEY_SHININESS, specularExponent_);
         LoadMaterialTextures(material,
-            aiTextureType_DIFFUSE, Texture::TextureType::DIFFUSE, directory);
+            aiTextureType_DIFFUSE,
+            Texture::TextureType::DIFFUSE,
+            directory);
         LoadMaterialTextures(material,
-            aiTextureType_SPECULAR, Texture::TextureType::SPECULAR, directory);
+            aiTextureType_SPECULAR,
+            Texture::TextureType::SPECULAR,
+            directory);
+
+        if (hasHeight)
+            LoadMaterialTextures(material,
+                aiTextureType_HEIGHT,
+                Texture::TextureType::NORMAL,
+                directory);
+        else
+            LoadMaterialTextures(material,
+                aiTextureType_NORMALS,
+                Texture::TextureType::NORMAL,
+                directory);
+
         LoadMaterialTextures(material,
-            aiTextureType_NORMALS, Texture::TextureType::NORMAL, directory);
-        LoadMaterialTextures(material,
-            aiTextureType_EMISSIVE, Texture::TextureType::EMISSIVE, directory);
+            aiTextureType_EMISSIVE,
+            Texture::TextureType::EMISSIVE,
+            directory);
     }
 }
 

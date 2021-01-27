@@ -22,21 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <array>
-#include <memory>
 #include <vector>
 
 #include <SDL_events.h>
 #include "ImGuizmo.h"
 #include "sdl_engine/sdl_engine.h"
 
-#include "gl/shape.h"
 #include "graphics/lights.h"
-#include "mathematics/plane.h"
 #include "showroom/camera.h"
 #include "showroom/gizmos_renderer.h"
 #include "showroom/model/model.h"
-#include "showroom/showroom_engine.h"
 
 namespace neko
 {
@@ -45,11 +40,11 @@ const static float minFloat = std::numeric_limits<float>::lowest();
 const static float smallFloat = 0.1f;
 
 class ShowRoomEngine;
-class ShowRoomRenderer
-		: public SystemInterface,
-		public DrawImGuiInterface,
-		public sdl::SdlEventSystemInterface,
-		public RenderCommandInterface
+class ShowRoomRenderer final
+    : public SystemInterface,
+      public DrawImGuiInterface,
+      public sdl::SdlEventSystemInterface,
+      public RenderCommandInterface
 {
 public:
 	explicit ShowRoomRenderer(ShowRoomEngine& engine);
@@ -64,13 +59,14 @@ public:
 
 private:
     //Render
-    void UpdateShader(const gl::Shader& shader);
+    void UpdateShader(const gl::Shader& shader) const;
 	void DrawGrid();
 
 	//Main
 	void CreateDockableWindow();
 	void DrawImGuizmo();
 	void DrawMenuBar();
+	void DrawInfoBar();
 	void DrawSceneHierarchy();
 	void DrawPropertiesWindow();
 	void DrawToolWindow();
@@ -124,10 +120,11 @@ private:
 
     Mat4f modelMat_;
 	sr::Model model_;
+	bool isModelLoading;
 	gl::Shader shader_;
 
 	//Lights
-	LightType lightType_ = LightType::SUN;
+	LightType lightType_ = SUN;
 	PointLight pointLight_;
 	DirectionalLight dirLight_;
 	SpotLight spotLight_;
@@ -135,7 +132,8 @@ private:
 	Vec3f lightScale_ = Vec3f::one;
 
 	//Dock Window
-	static const ImGuiDockNodeFlags dockspaceFlags_ =
+    ImGuiID dockspaceId_;
+	const ImGuiDockNodeFlags dockspaceFlags_ =
 			ImGuiDockNodeFlags_NoDockingInCentralNode |
 			ImGuiDockNodeFlags_AutoHideTabBar |
 			ImGuiDockNodeFlags_PassthruCentralNode;
@@ -172,15 +170,15 @@ void TextCentered(std::string_view text);
 static int InputTextCallback(ImGuiInputTextCallbackData* data);
 bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags);
 
-static bool Combo(const char* label, int* currentItem, const std::vector<std::string>& outText, int heightInItems = -1);
+static bool Combo(const char* label, int* currentItem, const std::vector<std::string>& items, int heightInItems = -1);
 
 bool ImageButton(
 	std::string_view itemId,
 	neko::TextureName userTextureId,
 	const ImVec2& size,
-	const ImVec2& uv0 = neko::Vec2f::zero,
-	const ImVec2& uv1 = neko::Vec2f::one,
+	const ImVec2& uv0 = ImVec2(neko::Vec2f::zero),
+	const ImVec2& uv1 = ImVec2(neko::Vec2f::one),
 	int framePadding = -1,
-	const ImVec4& bgCol = neko::Color::clear,
-	const ImVec4& tintCol = neko::Color::white);
+	const ImVec4& bgCol = ImVec4(neko::Color::clear),
+	const ImVec4& tintCol = ImVec4(neko::Color::white));
 }

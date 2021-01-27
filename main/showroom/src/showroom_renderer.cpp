@@ -41,7 +41,7 @@ ShowRoomRenderer::ShowRoomRenderer(ShowRoomEngine& engine)
 void ShowRoomRenderer::Init()
 {
 	ImGuiIO &io = ImGui::GetIO();
-	float fontSizeInPixels = 16;
+    const float fontSizeInPixels = 16;
 
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	io.Fonts->AddFontFromFileTTF((config.dataRootPath + "droid_sans.ttf").c_str(), fontSizeInPixels);
@@ -73,9 +73,10 @@ void ShowRoomRenderer::Init()
 	RendererLocator::get().AddPreRenderJob(&preRender_);
 }
 
-void ShowRoomRenderer::Update(seconds dt)
+void ShowRoomRenderer::Update(const seconds dt)
 {
 	camera_.Update(dt);
+	gizmoRenderer_.Clear();
 
 	if (model_.IsLoaded())
 	{
@@ -113,12 +114,13 @@ void ShowRoomRenderer::Render()
 
 	if (searchIcon_ == INVALID_TEXTURE_NAME) return;
 	if (!model_.IsLoaded()) return;
+	isModelLoading = false;
 
 	UpdateShader(shader_);
 	model_.Draw(shader_);
 }
 
-void ShowRoomRenderer::UpdateShader(const gl::Shader& shader)
+void ShowRoomRenderer::UpdateShader(const gl::Shader& shader) const
 {
 	shader.Bind();
 
@@ -198,6 +200,7 @@ void ShowRoomRenderer::DrawImGui()
 {
 	using namespace ImGui;
 	CreateDockableWindow();
+	DrawInfoBar();
 	DrawSceneHierarchy();
 	DrawPropertiesWindow();
 	DrawToolWindow();
@@ -205,6 +208,7 @@ void ShowRoomRenderer::DrawImGui()
 	DrawImGuizmo();
 
 	//ShowDemoWindow();
+	ShowMetricsWindow();
 }
 
 void ShowRoomRenderer::CreateDockableWindow()
@@ -212,7 +216,7 @@ void ShowRoomRenderer::CreateDockableWindow()
 	using namespace ImGui;
 	ImGuiWindowFlags windowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBackground;
 
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGuiViewport* viewport = GetMainViewport();
 	SetNextWindowPos(viewport->GetWorkPos());
 	SetNextWindowSize(viewport->GetWorkSize());
 	SetNextWindowViewport(viewport->ID);
@@ -227,8 +231,32 @@ void ShowRoomRenderer::CreateDockableWindow()
 		PopStyleVar();
 		PopStyleVar(2);
 
-		ImGuiID dockspaceId = GetID("ShowroomDockSpace");
-		DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), dockspaceFlags_);
+        dockspaceId_ = GetID("ShowroomDockSpace");
+        if (!DockBuilderGetNode(dockspaceId_))
+        {
+            DockBuilderRemoveNode(dockspaceId_);
+            DockBuilderAddNode(dockspaceId_, ImGuiDockNodeFlags_None);
+
+	        ImGuiID dockMain = dockspaceId_;
+	        ImGuiID dockUp = DockBuilderSplitNode(dockMain, ImGuiDir_Up, 0.98f, NULL, &dockMain);
+	        ImGuiID dockDown = DockBuilderSplitNode(dockMain, ImGuiDir_Down, 0.02f, NULL, &dockMain);
+	        DockBuilderGetNode(dockspaceId_)->ChildNodes[1]->LocalFlags |= ImGuiDockNodeFlags_NoResize;
+
+	        ImGuiID dockRight = DockBuilderSplitNode(dockUp, ImGuiDir_Right, 0.2f, NULL, &dockUp);
+	        ImGuiID dockLeft = DockBuilderSplitNode(dockUp, ImGuiDir_Left, 0.2f, NULL, &dockUp);
+	        ImGuiID dockDownRightId = DockBuilderSplitNode(dockRight, ImGuiDir_Down, 0.5f, nullptr, &dockRight);
+
+	        ImGuiID dockLeftLeft = DockBuilderSplitNode(dockLeft, ImGuiDir_Left, 0.2f, NULL, &dockLeft);
+	        ImGuiID dockLeftRight = DockBuilderSplitNode(dockLeft, ImGuiDir_Right, 0.8f, NULL, &dockLeft);
+	        DockBuilderGetNode(dockLeftRight)->LocalFlags = ImGuiDockNodeFlags_CentralNode;
+
+			DockBuilderDockWindow("Scene", dockRight);
+			DockBuilderDockWindow("InfoBar", dockDown);
+			DockBuilderDockWindow("Tools", dockLeftLeft);
+			DockBuilderDockWindow("Properties", dockDownRightId);
+        }
+		
+	    DockSpace(dockspaceId_, ImVec2(0.0f, 0.0f), dockspaceFlags_);
 
 		DrawMenuBar();
 		ImGuizmo::SetDrawlist();
@@ -252,11 +280,11 @@ void ShowRoomRenderer::DrawImGuizmo()
 		case LIGHT:
 		{
 			Mat4f lightModel = Transform3d::Transform(pointLight_.position, lightAngles_, lightScale_);
-			if (ImGuizmo::Manipulate(
+			if (Manipulate(
 				&camView[0][0],
 				&camProj[0][0],
 				manipulateOperation_,
-				ImGuizmo::MODE::LOCAL,
+				ImGuizmo::MODE::WORLD,
 				&lightModel[0][0]))
 			{
 				Vec3f pos, scale;
@@ -277,26 +305,26 @@ void ShowRoomRenderer::DrawImGuizmo()
 		case MODEL:
 		{
 			if (!model_.IsLoaded()) break;
-			ImGuizmo::Manipulate(
+			Manipulate(
 				&camView[0][0],
 				&camProj[0][0],
 				manipulateOperation_,
-				ImGuizmo::MODE::LOCAL,
+				ImGuizmo::MODE::WORLD,
 				&modelMat_[0][0]);
 			break;
 		}
 		default:
 		{
-			if (!model_.IsLoaded()) break;
+			/*if (!model_.IsLoaded()) break;
 			auto& mesh = model_.GetMesh(selectedNode_ - selectionOffset_);
 			Mat4f modelMat = mesh.GetModelMatrix();
-			if (ImGuizmo::Manipulate(
+			if (Manipulate(
 				&camView[0][0],
 				&camProj[0][0],
 				manipulateOperation_,
-				ImGuizmo::MODE::LOCAL,
+				ImGuizmo::MODE::WORLD,
 				&modelMat[0][0]))
-				mesh.SetModelMatrix(modelMat);
+				mesh.SetModelMatrix(modelMat);*/
 			break;
 		}
 	}
@@ -356,12 +384,14 @@ void ShowRoomRenderer::DrawMenuBar()
 				{
 					path = path.substr(0, path.size() - 1);
 #endif
+					selectedNode_ = NONE;
 					if (model_.IsLoaded())
 					{
 						model_.Destroy();
 						textureManager_.Destroy();
 					}
 					model_.LoadModel(path);
+					isModelLoading = true;
 
 					if (GetFilenameExtension(path) == ".obj")
 					{
@@ -436,6 +466,27 @@ void ShowRoomRenderer::DrawMenuBar()
 	}
 }
 
+void ShowRoomRenderer::DrawInfoBar()
+{
+	using namespace ImGui;
+
+	PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(5.0f, 5.0f));
+	if (Begin("InfoBar"))
+	{
+		auto* dockNode = GetWindowDockNode();
+		if (dockNode)
+			dockNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
+
+		if (isModelLoading)
+			Text("Loading Model...");
+
+		PopStyleVar(3);
+		End();
+	}
+}
+
 void ShowRoomRenderer::DrawSceneHierarchy()
 {
 	using namespace ImGui;
@@ -500,6 +551,8 @@ void ShowRoomRenderer::DrawSceneHierarchy()
 
 	if (Begin("Scene"))
 	{
+        if (GetWindowDockNode()) GetWindowDockNode()->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+
 		PushItemWidth(-1);
 		const float height = GetTextLineHeightWithSpacing();
 		ImGui::Image(reinterpret_cast<ImTextureID>(searchIcon_), ImVec2(height, height)); SameLine();
@@ -507,8 +560,8 @@ void ShowRoomRenderer::DrawSceneHierarchy()
 
 		PopItemWidth(); Separator();
 
-		SetCursorPosX(ImGui::GetCursorPosX() - 8.0f);
-		SetCursorPosY(ImGui::GetCursorPosY());
+		SetCursorPosX(GetCursorPosX() - 8.0f);
+		SetCursorPosY(GetCursorPosY());
 		BeginChild("Scene##Child");
 		{
 			//Light Node
@@ -516,16 +569,16 @@ void ShowRoomRenderer::DrawSceneHierarchy()
 				std::string lightName;
 				switch (lightType_)
 				{
-					case LightType::NO_LIGHT:
+					case NO_LIGHT:
 						lightName = "No Light";
 						break;
-					case LightType::POINT:
+					case POINT:
 						lightName = "Point Light";
 						break;
-					case LightType::SUN:
+					case SUN:
 						lightName = "Sun";
 						break;
-					case LightType::SPOT:
+					case SPOT:
 						lightName = "Spot Light";
 						break;
 				}
@@ -558,10 +611,10 @@ void ShowRoomRenderer::DrawSceneHierarchy()
 
 			SetNextItemOpen(true);
 			const bool isOpen = TreeNodeEx(rootName.c_str(), rootNodeFlags);
-			if (ImGui::IsItemClicked())
+			if (IsItemClicked())
 				selectedNode_ = MODEL;
 
-			if (isOpen)
+			if (isOpen && model_.IsLoaded())
 			{
 				for (auto& mesh : meshes)
 				{
@@ -578,7 +631,7 @@ void ShowRoomRenderer::DrawSceneHierarchy()
 					}
 				}
 
-				if (model_.IsLoaded()) TreePop();
+				TreePop();
 			}
 			EndChild();
 		}
@@ -591,6 +644,7 @@ void ShowRoomRenderer::DrawPropertiesWindow()
 	using namespace ImGui;
 	if (Begin("Properties"))
 	{
+		if (GetWindowDockNode()) GetWindowDockNode()->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
 		switch (selectedNode_)
 		{
 			case NONE:
@@ -616,6 +670,7 @@ void ShowRoomRenderer::DrawToolWindow()
 	using namespace ImGui;
 	if (Begin("Tools"))
 	{
+        if (GetWindowDockNode()) GetWindowDockNode()->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
 		if (BeginTabBar("##tabs", ImGuiTabBarFlags_None))
 		{
 			if (BeginTabItem("View"))
@@ -642,10 +697,10 @@ void ShowRoomRenderer::DrawToolWindow()
 				Text("Position:");
 				width = CalcItemWidth();
 				PushItemWidth(width - CalcTextSize(" X").x);
-				DragFloat("X", &camera_.position.x);
-				DragFloat("Y", &camera_.position.y);
+				DragFloat("X", &camera_.position.x, 0.1f);
+				DragFloat("Y", &camera_.position.y, 0.1f);
 				PopStyleVar();
-				DragFloat("Z", &camera_.position.z);
+				DragFloat("Z", &camera_.position.z, 0.1f);
 				PopItemWidth();
 				PopItemWidth();
 
@@ -687,25 +742,25 @@ void ShowRoomRenderer::DrawLightTransform()
 		spotLight_.position = pointLight_.position;
 	PopItemWidth();
 
-	Vec3f anglesF = Vec3f(lightAngles_);
+	auto anglesF = Vec3f(lightAngles_);
 	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 	Text("Rotation:");
 	width = CalcItemWidth();
 	PushItemWidth(width - CalcTextSize(" X").x);
-	if (DragFloat("X##englesF", &anglesF.x, 0.1f))
+	if (DragFloat("X##anglesF", &anglesF.x, 0.1f))
 	{
 		lightAngles_.x = degree_t(anglesF.x);
 		dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
 		spotLight_.direction = dirLight_.direction;
 	}
-	if (DragFloat("Y##englesF", &anglesF.y, 0.1f))
+	if (DragFloat("Y##anglesF", &anglesF.y, 0.1f))
 	{
 		lightAngles_.y = degree_t(anglesF.y);
 		dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
 		spotLight_.direction = dirLight_.direction;
 	}
 	PopStyleVar();
-	if (DragFloat("Z##englesF", &anglesF.z, 0.1f))
+	if (DragFloat("Z##anglesF", &anglesF.z, 0.1f))
 	{
 		lightAngles_.z = degree_t(anglesF.z);
 		dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
@@ -743,7 +798,7 @@ void ShowRoomRenderer::DrawModelTransform()
 	DragFloat("Z##pos", &pos.z, 0.1f);
 	PopItemWidth();
 
-	Vec3f anglesF = Vec3f(angles);
+	auto anglesF = Vec3f(angles);
 	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 	Text("Rotation:");
 	width = CalcItemWidth();
@@ -789,7 +844,7 @@ void ShowRoomRenderer::DrawMeshImGui(sr::Mesh& mesh)
 		nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
 	const bool nodeOpen = TreeNodeEx(mesh.GetName().data(), nodeFlags);
-	if (ImGui::IsItemClicked())
+	if (IsItemClicked())
 		selectedNode_ = nodeId;
 
 	if (ImGuiLastItemDataBackup().LastItemStatusFlags & ImGuiItemStatusFlags_HoveredRect && IsMouseDoubleClicked(0))
@@ -842,7 +897,7 @@ void ShowRoomRenderer::DrawMeshImGuiObj(sr::Mesh& mesh)
 		nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
 	TreeNodeEx(mesh.GetName().data(), nodeFlags);
-	if (ImGui::IsItemClicked())
+	if (IsItemClicked())
 		selectedNode_ = nodeId;
 
 	if (ImGuiLastItemDataBackup().LastItemStatusFlags & ImGuiItemStatusFlags_HoveredRect && IsMouseDoubleClicked(0))
@@ -916,7 +971,7 @@ void ShowRoomRenderer::DrawLightProperties()
 	Text("Light");
 	Separator();
 
-	Combo("Type", (int*) &lightType_, lightLabels_);
+	Combo("Type", reinterpret_cast<int*>(&lightType_), lightLabels_);
 
 	if (lightType_ == NO_LIGHT) return;
 	PushItemWidth(-1);
@@ -980,7 +1035,7 @@ void ShowRoomRenderer::DrawModelProperties()
 
 	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 	Text("Position X "); SameLine();
-	float textPos1 = GetCursorPosX();
+    const float textPos1 = GetCursorPosX();
 	DragFloat("##pos.x", &pos.x, 0.1f, minFloat, maxFloat);
 
 	SetCursorPosX(textPos1 - CalcTextSize("X ").x); Text("Y "); SameLine();
@@ -1119,7 +1174,7 @@ void ShowRoomRenderer::DrawTextureInput(
 	}
 }
 
-void ShowRoomRenderer::OpenTexture(size_t index, std::vector<sr::Texture>& textures)
+void ShowRoomRenderer::OpenTexture(const size_t index, std::vector<sr::Texture>& textures)
 {
 	char filename[1024];
 
@@ -1221,8 +1276,8 @@ void ShowRoomRenderer::OpenTexture(
 		textures.back().type = type;
 		textures.back().textureId =
 			textureManager_.LoadTexture(path, Texture::TextureFlags::DEFAULT);
-#ifdef _WIN32
-		textures.back().sName = path.substr(path.find_last_of("\\") + 1, path.size());
+#ifdef WIN32
+		textures.back().sName = path.substr(path.find_last_of('\\') + 1, path.size());
 #elif linux
 		textures.back().sName = path.substr(path.find_last_of('/') + 1, path.size());
 #endif
@@ -1237,7 +1292,7 @@ void ShowRoomRenderer::DrawPointLight()
 		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
 		Text("Position X "); SameLine();
-		float textPos = GetCursorPosX();
+        const float textPos = GetCursorPosX();
 		if (DragFloat("##pointLight_.position.x", &pointLight_.position.x))
 			spotLight_.position.x = pointLight_.position.x;
 
@@ -1272,7 +1327,7 @@ void ShowRoomRenderer::DrawDirectionalLight()
 		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
 		Text("Rotation X "); SameLine();
-		float textPos = GetCursorPosX();
+        const float textPos = GetCursorPosX();
 		if (DragFloat("##angleXf", &angleX))
 		{
 			lightAngles_.x = degree_t(angleX);
@@ -1314,7 +1369,7 @@ void ShowRoomRenderer::DrawSpotLight()
 
 		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 		Text("Position X "); SameLine();
-		float textPos1 = GetCursorPosX();
+        const float textPos1 = GetCursorPosX();
 		if (DragFloat("##pointLight_.position.x", &pointLight_.position.x))
 			spotLight_.position.x = pointLight_.position.x;
 
@@ -1332,7 +1387,7 @@ void ShowRoomRenderer::DrawSpotLight()
 		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 
 		Text("Rotation X "); SameLine();
-		float textPos2 = GetCursorPosX();
+        const float textPos2 = GetCursorPosX();
 		if (DragFloat("##angleXf", &angleX))
 		{
 			lightAngles_.x = degree_t(angleX);
@@ -1340,8 +1395,8 @@ void ShowRoomRenderer::DrawSpotLight()
 			spotLight_.direction = dirLight_.direction;
 		}
 
-		SetCursorPosX(textPos2 - CalcTextSize("X ").x); Text("Y "); SameLine();
-		SetCursorPosX(textPos2);
+		SetCursorPosX(textPos2 - CalcTextSize("X ").x); Text("Y ");
+	    SameLine(); SetCursorPosX(textPos2);
 		if (DragFloat("##angleYf", &angleY))
 		{
 			lightAngles_.y = degree_t(angleY);
@@ -1350,14 +1405,14 @@ void ShowRoomRenderer::DrawSpotLight()
 		}
 		PopStyleVar();
 
-		SetCursorPosX(textPos2 - CalcTextSize("X ").x); Text("Z"); SameLine();
-		SetCursorPosX(textPos2);
-		if (DragFloat("##angleZf", &angleZ))
-		{
-			lightAngles_.z = degree_t(angleZ);
-			dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
-			spotLight_.direction = dirLight_.direction;
-		}
+		SetCursorPosX(textPos2 - CalcTextSize("X ").x); Text("Z");
+	    SameLine(); SetCursorPosX(textPos2);
+        if (DragFloat("##angleZf", &angleZ))
+        {
+            lightAngles_.z       = degree_t(angleZ);
+            dirLight_.direction  = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
+            spotLight_.direction = dirLight_.direction;
+        }
 
 		TreePop();
 	}
@@ -1378,8 +1433,8 @@ void ShowRoomRenderer::DrawSpotLight()
 
 bool ImGui::ButtonCentered(std::string_view label, const ImVec2& size)
 {
-	float framePaddingX = GetStyle().FramePadding.x;
-	float textSize = CalcTextSize(label.data()).x;
+    const float framePaddingX = GetStyle().FramePadding.x;
+    const float textSize = CalcTextSize(label.data()).x;
 
 	NewLine();
 	if (size.x != 0) SameLine(GetWindowSize().x / 2 - size.x + (size.x / 2));
@@ -1389,64 +1444,70 @@ bool ImGui::ButtonCentered(std::string_view label, const ImVec2& size)
 
 void ImGui::TextCentered(std::string_view text)
 {
-	float textSize = CalcTextSize(text.data()).x;
+    const float textSize = CalcTextSize(text.data()).x;
 
-	NewLine();
-	SameLine(GetWindowSize().x / 2 - textSize + (textSize / 2));
-	Text("%s", text.data());
+    NewLine();
+    SameLine(GetWindowSize().x / 2 - textSize + (textSize / 2));
+    Text("%s", text.data());
 }
 
 int ImGui::InputTextCallback(ImGuiInputTextCallbackData* data)
 {
-	if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
-	{
-		// Resize string callback
-		auto* str = (std::string*)data->UserData;
-		IM_ASSERT(data->Buf == str->c_str());
-		str->resize(data->BufTextLen);
-		data->Buf = (char*)str->c_str();
-	}
+    if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
+    {
+        // Resize string callback
+        auto* str = static_cast<std::string*>(data->UserData);
+        IM_ASSERT(data->Buf == str->c_str());
+        str->resize(data->BufTextLen);
+        data->Buf = const_cast<char*>(str->c_str());
+    }
 
-	return 0;
+    return 0;
 }
 
 bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags)
 {
-	flags |= ImGuiInputTextFlags_CallbackResize;
-	return InputText(label, (char*)str->c_str(), str->capacity() + 1, flags, InputTextCallback, (void*)str);
+    flags |= ImGuiInputTextFlags_CallbackResize;
+    return InputText(label,
+        const_cast<char*>(str->c_str()),
+        str->capacity() + 1,
+        flags,
+        InputTextCallback,
+        static_cast<void*>(str));
 }
 
-bool ImGui::Combo(const char* label, int* currentItem, const std::vector<std::string>& items, int heightInItems)
+bool ImGui::Combo(const char* label,
+    int* currentItem,
+    const std::vector<std::string>& items,
+    const int heightInItems)
 {
-	const auto lambda = [](void* data, int idx, const char** outText)
-	{
-		*outText = static_cast<const std::vector<std::string>*>(data)->at(idx).c_str();
-		return true;
-	};
+    const auto lambda = [](void* data, const int idx, const char** outText)
+    {
+        *outText = static_cast<const std::vector<std::string>*>(data)->at(idx).c_str();
+        return true;
+    };
 
-	return Combo(label, currentItem, lambda, (void*)&items, items.size(), heightInItems);
+    return Combo(label, currentItem, lambda, (void*) &items, items.size(), heightInItems);
 }
 
 bool ImGui::ImageButton(
-	std::string_view itemId,
-	neko::TextureName userTextureId,
-	const ImVec2& size,
-	const ImVec2& uv0,
-	const ImVec2& uv1,
-	int framePadding,
-	const ImVec4& bgCol,
-	const ImVec4& tintCol)
+    const std::string_view itemId,
+    const neko::TextureName userTextureId,
+    const ImVec2& size,
+    const ImVec2& uv0,
+    const ImVec2& uv1,
+    const int framePadding,
+    const ImVec4& bgCol,
+    const ImVec4& tintCol)
 {
-	ImGuiContext& g = *GImGui;
-	ImGuiWindow* window = g.CurrentWindow;
-	if (window->SkipItems)
-		return false;
+    ImGuiContext& g     = *GImGui;
+    ImGuiWindow* window = g.CurrentWindow;
+    if (window->SkipItems) return false;
 
-	auto texId = reinterpret_cast<ImTextureID>(userTextureId);
-
-	const ImGuiID id = window->GetID(itemId.data());
-	const ImVec2 padding = (framePadding >= 0) ?
-                               ImVec2((float)framePadding, (float)framePadding) :
+    const auto texId     = reinterpret_cast<ImTextureID>(userTextureId);
+    const ImGuiID id     = window->GetID(itemId.data());
+    const ImVec2 padding = framePadding >= 0 ?
+                               ImVec2(float(framePadding), float(framePadding)) :
                                g.Style.FramePadding;
-	return ImageButtonEx(id, texId, size, uv0, uv1, padding, bgCol, tintCol);
+    return ImageButtonEx(id, texId, size, uv0, uv1, padding, bgCol, tintCol);
 }

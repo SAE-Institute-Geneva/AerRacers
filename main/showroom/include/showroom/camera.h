@@ -3,9 +3,9 @@
 
 namespace neko::sr
 {
-struct ShowRoomCamera3D : Camera3D, public sdl::MovableCamera
+struct ShowRoomCamera3D final : Camera3D, sdl::MovableCamera
 {
-	float wheelSpeed = 200.0f;
+	float wheelSpeed = 800.0f;
 
 	ShowRoomCamera3D& operator=(const ShowRoomCamera3D& other);
 

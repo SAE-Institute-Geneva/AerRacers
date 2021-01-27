@@ -25,13 +25,22 @@ struct Gizmo
 	Color4 color = Color::red;
 	GizmoShape shape = GizmoShape::CUBE;
 	float lineThickness = 1.0f;
-	float radius = 1.0f;
 
 	union
 	{
 		Vec3f cubeSize = Vec3f::zero;
 		Vec3f lineEndPos;
+		float radius;
 	};
+};
+
+struct GizmoLine
+{
+	GizmoLine() {}
+
+	Vec3f pos{};
+	Color3 color{};
+	Vec3f endPos;
 };
 
 //-----------------------------------------------------------------------------
@@ -127,11 +136,17 @@ public:
 		const Color4& color = Color::red,
 		float lineThickness = 1.0f) override;
 
-	void SetCamera(Camera3D* camera) override;
+	void Clear();
+
+	void SetCamera(Camera3D* camera) override { camera_ = camera; }
 	Camera3D* GetCamera() const override { return camera_; }
 	Vec3f GetCameraPos() const override { return camera_->position; }
 
 private:
+	void RenderCubes();
+	void RenderLines();
+	void RenderSpheres();
+
 	std::mutex renderMutex_;
 
 	Camera3D* camera_;
@@ -144,6 +159,7 @@ private:
 	gl::Shader shaderLine_;
 
 	std::vector<Gizmo> gizmosQueue_;
+	std::vector<GizmoLine> lineGizmos_;
 	bool isRunning_ = true;
 
 	Job preRender_;
