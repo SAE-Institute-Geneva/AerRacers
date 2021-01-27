@@ -244,6 +244,7 @@ Vec3f Transform3dManager::GetGlobalPosition(Entity entity) const
 
 EulerAngles Transform3dManager::GetGlobalRotation(Entity entity) const
 {
+    return GetRelativeRotation(entity);
     return Transform3d::GetRotation(GetComponent(entity));
 }
 
@@ -267,13 +268,14 @@ void Transform3dManager::SetGlobalPosition(Entity entity, const Vec3f& position)
 
 void Transform3dManager::SetGlobalRotation(Entity entity, const EulerAngles& angles)
 {
-    Mat4f transform = Transform3d::Transform(
-        position3DManager_.GetComponent(entity), angles, scale3DManager_.GetComponent(entity));
-    const auto parent = entityManager_.get().GetEntityParent(entity);
-    if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
+    SetRelativeRotation(entity, angles);
+    //Mat4f transform = Transform3d::Transform(
+    //    position3DManager_.GetComponent(entity), angles, scale3DManager_.GetComponent(entity));
+    //const auto parent = entityManager_.get().GetEntityParent(entity);
+    //if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
 
-    SetComponent(entity, transform);
-    rotation3DManager_.SetComponent(entity, Transform3d::GetRotation(transform));
+    //SetComponent(entity, transform);
+    //rotation3DManager_.SetComponent(entity, Transform3d::GetRotation(transform));
     dirtyManager_.SetDirty(entity);
 }
 

@@ -34,7 +34,7 @@ void EditorToolManager::Update(seconds dt)
     {
         gizmosLocator.DrawCube(transform3dManager.GetGlobalPosition(selectedEntity_),
             transform3dManager.GetGlobalScale(selectedEntity_),
-            transform3dManager.GetRelativeRotation(selectedEntity_),
+            transform3dManager.GetGlobalRotation(selectedEntity_),
             Color::blue,
             5.0f);
     }
@@ -61,7 +61,7 @@ void EditorToolManager::Update(seconds dt)
                 gizmosLocator.DrawCube(
                     transform3dManager.GetGlobalPosition(entity) + boxColliderData.offset,
                     boxColliderData.size,
-                    transform3dManager.GetRelativeRotation(entity),
+                    transform3dManager.GetGlobalRotation(entity),
                     boxColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
                     2.0f);
             }
@@ -73,7 +73,7 @@ void EditorToolManager::Update(seconds dt)
                 gizmosLocator.DrawSphere(
                     transform3dManager.GetGlobalPosition(entity) + sphereColliderData.offset,
                     sphereColliderData.radius,
-                    transform3dManager.GetRelativeRotation(entity),
+                    transform3dManager.GetGlobalRotation(entity),
                     sphereColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
                     2.0f);
             }
