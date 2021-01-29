@@ -64,6 +64,30 @@ void Hierarchy::DisplayEntity(Entity entityIndex)
 
     //Display entity
     const bool nodeOpen = ImGui::TreeNodeEx(text.c_str(), nodeFlags);
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) 
+    { 
+        ImGui::SetDragDropPayload("Entity", &entityIndex, sizeof(Entity)); // Registers entity index in payload 
+        ImGui::Text(text.c_str());
+        ImGui::EndDragDropSource();
+    }
+    if (ImGui::BeginDragDropTarget()) 
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity")) // Get payload
+        {
+            IM_ASSERT(payload->DataSize == sizeof(Entity));
+            const Entity childIndex = *static_cast<const Entity*>(payload->Data); // Get entityIndex in payload
+            //entityManager_.SetEntityParent(childIndex, entityIndex);
+            if (entityManager_.GetEntityParent(childIndex) == entityIndex) 
+            { 
+                entityManager_.SetEntityParent(childIndex, INVALID_ENTITY);
+            }
+            else
+            {
+                entityManager_.SetEntityParent(childIndex, entityIndex);
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
     //Select entity on click
     if (ImGui::IsItemClicked()) { editorToolManager_.SetSelectedEntity(entityIndex); }
     //Display context menu on right click on entity
@@ -85,6 +109,19 @@ void Hierarchy::DisplayEntity(Entity entityIndex)
         }
         ImGui::TreePop();
     }
+
+    //if (ImGui::BeginDragDropSource()) 
+    //{ 
+    //    /*ImGui::SetDragDropPayload("Entity", sizeof(const char*)*/
+    //    /*ImGui::TextUnformatted("Entity");
+    //    ImGui::EndDragDropSource();*/
+    //}
+    //if (ImGui::BeginDragDropTarget()) 
+    //{ 
+    //    //const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity"); // Accepted Data
+    //    //ImGui::EndDragDropTarget();
+    //}
+    //ImGui::End();
 }
 
 void Hierarchy::OnEvent(const SDL_Event& event) {}
