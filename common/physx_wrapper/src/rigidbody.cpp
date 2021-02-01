@@ -121,6 +121,7 @@ void RigidActor::SetMaterial(const PhysicsMaterial& physicsMaterial) const
     material_->setRestitution(physicsMaterial.bouciness);
     material_->setStaticFriction(physicsMaterial.staticFriction);
     material_->setDynamicFriction(physicsMaterial.dynamicFriction);
+    material_->setRestitutionCombineMode(physx::PxCombineMode::eMIN);
 }
 
 physx::PxMaterial* RigidActor::InitMaterial(
@@ -402,6 +403,10 @@ void RigidDynamic::Init(physx::PxPhysics* physics,
         return;
     }
     rigidActor_->attachShape(*shape_);
+    //rigidActor_->setRigidBodyFlag(physx::PxRigidBodyFlag::eENABLE_CCD, true);
+    physx::PxU32 posIt = physx::PxU32(10);
+    physx::PxU32 velIt = physx::PxU32(1);
+    rigidActor_->setSolverIterationCounts(posIt, velIt);
     SetRigidDynamicData(rigidDynamic);
 }
 
@@ -788,7 +793,14 @@ void RigidDynamicViewer::SetSelectedEntity(Entity selectedEntity)
 {
     selectedEntity_ = selectedEntity;
     if (selectedEntity_ == INVALID_ENTITY) return;
-    if (!physicsEngine_.IsPhysicRunning()) { lastSelectedEntity_ = selectedEntity_; }
+    if (!physicsEngine_.IsPhysicRunning())
+    {
+        lastSelectedEntity_ = selectedEntity_;
+        rigidDynamicData_ =
+            rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetRigidDynamicData();
+        dynamicData_ = rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetDynamicData();
+        lastSelectedEntity_ = selectedEntity_;
+    }
 }
 
 
@@ -934,6 +946,7 @@ void RigidDynamicViewer::DrawImGui(Entity entity)
                                             .GetRigidDynamicData();
                     dynamicData_ =
                         rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetDynamicData();
+                    lastSelectedEntity_ = selectedEntity_;
                 }
             }
         }

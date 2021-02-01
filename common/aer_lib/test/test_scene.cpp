@@ -309,7 +309,7 @@ class TestUnitySceneViewer : public TestSceneInterface
 public:
     explicit TestUnitySceneViewer()
     {
-        sceneName = "scenes/PlaygroundTest2021-01-23-21-51-59.aerscene";
+        sceneName = "scenes/PlaygroundTest2021-01-27-15-18-14.aerscene";
     }
 
     virtual void HasSucceed(ComponentManagerContainer& cContainer) override

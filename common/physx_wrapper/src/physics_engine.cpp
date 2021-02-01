@@ -81,6 +81,7 @@ void PhysicsEngine::CreateScene()
     sceneDesc.kineKineFilteringMode = physx::PxPairFilteringMode::eKEEP; // So kin-kin contacts with be reported
     sceneDesc.staticKineFilteringMode = physx::PxPairFilteringMode::eKEEP; // So static-kin constacts will be reported
     sceneDesc.simulationEventCallback = &eventCallback_;
+    //sceneDesc.flags |= physx::PxSceneFlag::eENABLE_CCD;
     scene_ = physics_->createScene(sceneDesc);
     if (!scene_)
         std::cerr << "createScene failed!";
@@ -137,8 +138,8 @@ physx::PxFilterFlags PhysicsEngine::ContactReportFilterShader(physx::PxFilterObj
     pairFlags = physx::PxPairFlag::eSOLVE_CONTACT | physx::PxPairFlag::eDETECT_DISCRETE_CONTACT
         | physx::PxPairFlag::eNOTIFY_TOUCH_FOUND
         | physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS
-        | physx::PxPairFlag::eNOTIFY_TOUCH_LOST
-        | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
+        | physx::PxPairFlag::eNOTIFY_TOUCH_LOST | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
+    //pairFlags |= physx::PxPairFlag::eDETECT_CCD_CONTACT;
     return physx::PxFilterFlag::eDEFAULT; //eNOTIFY //:eCALLBACK; //physx::PxFilterFlag::eDEFAULT;
 }
 

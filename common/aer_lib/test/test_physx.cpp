@@ -838,49 +838,6 @@ public:
     virtual void HasSucceed(ComponentManagerContainer& cContainer) = 0;
     std::string sceneName;
 };
-class TestPhysXExampleScene : public TestSceneInterface
-{
-public:
-    explicit TestPhysXExampleScene() { sceneName = "scenes/CamilleSceneWIthoutRotate.aerscene"; }
-
-    void HasSucceed(ComponentManagerContainer& cContainer) override
-    {
-    }
-
-    void Init(AerEngine& aerengine) override
-    {
-        Camera3D* camera = GizmosLocator::get().GetCamera();
-        camera->position = Vec3f(7.0f, 45.0f, 0.0f);
-        camera->Rotate(EulerAngles(degree_t(90.0f), degree_t(-90.0f), degree_t(0.0f)));
-        aerengine.GetPhysicsEngine().StopPhysic();
-    }
-};
-class TestPhysXTestBounceScene : public TestSceneInterface
-{
-public:
-    explicit TestPhysXTestBounceScene() { sceneName = "scenes/PhysicsScene01-27.aerscene"; }
-
-    void HasSucceed(ComponentManagerContainer& cContainer) override {}
-    void Init(AerEngine& aerengine) override
-    {
-        Camera3D* camera = GizmosLocator::get().GetCamera();
-        camera->position = Vec3f(3.0f, -10.0f, 0.0f);
-        aerengine.GetPhysicsEngine().StopPhysic();
-    }
-};
-class TestPhysXColliderScene : public TestSceneInterface
-{
-public:
-    explicit TestPhysXColliderScene() { sceneName = "scenes/PhysicsScene2-01-27.aerscene"; }
-
-    void HasSucceed(ComponentManagerContainer& cContainer) override {}
-    void Init(AerEngine& aerengine) override
-    {
-        Camera3D* camera = GizmosLocator::get().GetCamera();
-        camera->position = Vec3f(1.0f, -10.0f, 0.0f);
-        aerengine.GetPhysicsEngine().StopPhysic();
-    }
-};
 
 class PhysXSceneImporterTester : public SystemInterface, public DrawImGuiInterface
 {
@@ -947,6 +904,21 @@ private:
     TestSceneInterface& testScene_;
 };
 
+class TestPhysXExampleScene : public TestSceneInterface
+{
+public:
+    explicit TestPhysXExampleScene() { sceneName = "scenes/CamilleSceneWIthoutRotate.aerscene"; }
+
+    void HasSucceed(ComponentManagerContainer& cContainer) override {}
+
+    void Init(AerEngine& aerengine) override
+    {
+        Camera3D* camera = GizmosLocator::get().GetCamera();
+        camera->position = Vec3f(7.0f, 45.0f, 0.0f);
+        camera->Rotate(EulerAngles(degree_t(90.0f), degree_t(-90.0f), degree_t(0.0f)));
+        aerengine.GetPhysicsEngine().StopPhysic();
+    }
+};
 TEST(PhysX, TestExampleSceneImporteur)
 {
     //Travis Fix because Windows can't open a window
@@ -979,6 +951,21 @@ TEST(PhysX, TestExampleSceneImporteur)
     testSceneImporteur.HasSucceed();
 }
 
+class TestPhysXTestBounceScene : public TestSceneInterface
+{
+public:
+    explicit TestPhysXTestBounceScene() { sceneName = "scenes/PhysicsScene01-27.aerscene"; }
+
+    void HasSucceed(ComponentManagerContainer& cContainer) override {}
+    void Init(AerEngine& aerengine) override
+    {
+        Camera3D* camera = GizmosLocator::get().GetCamera();
+        camera->position = Vec3f(0.0f, 3.0f, -10.0f);
+        camera->Rotate(EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
+        camera->fovY = degree_t(60);
+        aerengine.GetPhysicsEngine().StopPhysic();
+    }
+};
 TEST(PhysX, TestPhysXTestBounceScene)
 {
     //Travis Fix because Windows can't open a window
@@ -1011,6 +998,19 @@ TEST(PhysX, TestPhysXTestBounceScene)
     testSceneImporteur.HasSucceed();
 }
 
+class TestPhysXColliderScene : public TestSceneInterface
+{
+public:
+    explicit TestPhysXColliderScene() { sceneName = "scenes/PhysicsScene2-01-27.aerscene"; }
+
+    void HasSucceed(ComponentManagerContainer& cContainer) override {}
+    void Init(AerEngine& aerengine) override
+    {
+        Camera3D* camera = GizmosLocator::get().GetCamera();
+        camera->position = Vec3f(1.0f, -10.0f, 0.0f);
+        aerengine.GetPhysicsEngine().StopPhysic();
+    }
+};
 TEST(PhysX, TestPhysXColliderScene)
 {
     //Travis Fix because Windows can't open a window
