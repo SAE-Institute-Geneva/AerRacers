@@ -37,15 +37,15 @@ void PhysicsSimulationEventCallback::onContact(
 
         if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
             //logDebug("onContactEnter");
-            onCollisionEnterAction.Execute(cp);
+            onCollisionEnterAction.Execute(pairHeader);
         }
         if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS) {
             //logDebug("onContactStay");
-            onCollisionStayAction.Execute(cp);
+            onCollisionStayAction.Execute(pairHeader);
         }
         if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_LOST) {
             //logDebug("onContactExit");
-            onCollisionExitAction.Execute(cp);
+            onCollisionExitAction.Execute(pairHeader);
         }
     }
 }

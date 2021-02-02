@@ -60,7 +60,7 @@ public:
     virtual void InitActors(
         neko::physics::PhysicsEngine& physicsEngine) = 0;
     virtual void HasSucceed() = 0;
-    virtual void Update() {}
+    virtual void Update(neko::seconds dt) {}
     virtual void DrawImGui() override {}
     virtual void FixedUpdate(neko::seconds dt) override {}
     neko::Entity viewedEntity = neko::INVALID_ENTITY;
@@ -97,13 +97,19 @@ public:
     void Update(neko::seconds dt) override
     {
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-        sceneInterface_.Update();
+        sceneInterface_.Update(dt);
 
-        updateCount_+= dt.count();
-        //if (updateCount_ >= sceneInterface_.engineDuration) { engine_.Stop(); }
+        updateCount_ += dt.count();
+        if (updateCount_ >= sceneInterface_.engineDuration)
+        {
+            HasSucceed();
+            engine_.Stop();
+        }
     }
 
-    void Destroy() override {}
+    void Destroy() override
+    {
+    }
 
     void DrawImGui() override
     {
@@ -122,7 +128,10 @@ public:
         ImGui::End();
     }
 
-    void HasSucceed() { sceneInterface_.HasSucceed(); }
+    void HasSucceed()
+    {
+        sceneInterface_.HasSucceed();
+    }
 
 private:
     float updateCount_ = 0;
@@ -146,7 +155,7 @@ public :
     void InitActors(
         neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration      = 10.0f;
+        engineDuration      = 1.0f;
         entityManager_      = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_      = &aerEngine_.GetComponentManagerContainer().renderManager;
@@ -239,7 +248,7 @@ public :
         EXPECT_TRUE(true);
     }
 
-    void Update() override
+    void Update(neko::seconds dt) override
     {
         auto& inputLocator = neko::sdl::InputLocator::get();
         neko::Entity selectedEntity = aerEngine_.GetEditorToolManager().GetSelectedEntity();
@@ -271,7 +280,7 @@ public :
     }
 
 
-    void OnCollisionEnter(const physx::PxContactPair& pairHeader) override
+    void OnCollisionEnter(const physx::PxContactPairHeader& pairHeader) override
     {
         //logDebug(std::to_string(pairHeader.actors[0]->getNbShapes()));
     }
@@ -345,14 +354,14 @@ TEST(PhysX, TestCubeFall)
 }
 
 #pragma endregion
-#pragma region CubeFaRotation
-class SceneRotation final : public SceneInterface {
+#pragma region ForceVelocity
+class SceneForceVelocity final : public SceneInterface {
 public:
-    explicit SceneRotation(neko::aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
+    explicit SceneForceVelocity(neko::aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
     void InitActors(
         neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration      = 10.0f;
+        engineDuration      = 3.0f;
         entityManager_      = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_      = &aerEngine_.GetComponentManagerContainer().renderManager;
@@ -360,57 +369,137 @@ public:
         rigidDynamicManager_      = &aerEngine_.GetComponentManagerContainer().rigidDynamicManager;
         physicsEngine_      = &physicsEngine;
 
-        //Cube
-        cubeEntity_ = entityManager_->CreateEntity();
-        transform3dManager_->AddComponent(cubeEntity_);
-        transform3dManager_->SetRelativePosition(
-            cubeEntity_,
-            cubePosition_);
-        transform3dManager_->SetRelativeScale(cubeEntity_, cubeSize_);
-        neko::physics::RigidDynamicData rigidDynamic;
-        rigidDynamic.colliderType = neko::physics::ColliderType::BOX;
-        rigidDynamic.material = neko::physics::PhysicsMaterial{
-            0.5f,
-            0.5f,
-            0.1f
-        };
-        rigidDynamic.mass = 1.0f;
-        rigidDynamic.useGravity = false;
-        rigidDynamic.freezeRotation = neko::Vec3<bool>(false);
-        rigidDynamic.freezePosition = neko::Vec3<bool>(true);
-        rigidDynamicManager_->AddRigidDynamic(
-            cubeEntity_,
-            rigidDynamic);
+        neko::Camera3D* camera = neko::GizmosLocator::get().GetCamera();
+        camera->position       = neko::Vec3f(1.5f, 2.5f, 20.0f);
+
+        //Sphere Velocity
+        {
+            sphereVelocityEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(sphereVelocityEntity_);
+            transform3dManager_->SetRelativePosition(
+                sphereVelocityEntity_, cubePosition_ + neko::Vec3f(0, 2.5f, 0));
+            transform3dManager_->SetRelativeScale(sphereVelocityEntity_, neko::Vec3f::one);
+            neko::physics::RigidDynamicData rigidDynamic;
+            rigidDynamic.colliderType = neko::physics::ColliderType::SPHERE;
+            rigidDynamic.useGravity   = false;
+            rigidDynamicManager_->AddRigidDynamic(sphereVelocityEntity_, rigidDynamic);
+            renderManager_->AddComponent(sphereVelocityEntity_);
+            renderManager_->SetModel(
+                sphereVelocityEntity_, aerEngine_.GetConfig().dataRootPath + "models/sphere/sphere.obj");
+        }
+        //Sphere Force
+        {
+            sphereForceEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(sphereForceEntity_);
+            transform3dManager_->SetRelativePosition(
+                sphereForceEntity_, cubePosition_ + neko::Vec3f(0, 5.0f, 0));
+            transform3dManager_->SetRelativeScale(sphereForceEntity_, neko::Vec3f::one);
+            neko::physics::RigidDynamicData rigidDynamic;
+            rigidDynamic.colliderType = neko::physics::ColliderType::SPHERE;
+            rigidDynamic.useGravity   = false;
+            rigidDynamicManager_->AddRigidDynamic(sphereForceEntity_, rigidDynamic);
+            renderManager_->AddComponent(sphereForceEntity_);
+            renderManager_->SetModel(
+                sphereForceEntity_, aerEngine_.GetConfig().dataRootPath + "models/sphere/sphere.obj");
+        }
+        //Cube Force At Position
+        {
+            cubeForceAtPositionEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(cubeForceAtPositionEntity_);
+            transform3dManager_->SetRelativePosition(
+                cubeForceAtPositionEntity_, cubePosition_ + neko::Vec3f(0, -2.5f, 0));
+            transform3dManager_->SetRelativeScale(cubeForceAtPositionEntity_, neko::Vec3f::one);
+            neko::physics::RigidDynamicData rigidDynamic;
+            rigidDynamic.colliderType = neko::physics::ColliderType::BOX;
+            rigidDynamic.useGravity   = false;
+            rigidDynamicManager_->AddRigidDynamic(cubeForceAtPositionEntity_, rigidDynamic);
+            renderManager_->AddComponent(cubeForceAtPositionEntity_);
+            renderManager_->SetModel(
+                cubeForceAtPositionEntity_, aerEngine_.GetConfig().dataRootPath + "models/cube/cube.obj");
+        }
+        //Cube AngularVelocity
+        {
+            cubeAngularVelocityEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(cubeAngularVelocityEntity_);
+            transform3dManager_->SetRelativePosition(
+                cubeAngularVelocityEntity_, cubePosition_ + neko::Vec3f(0, -5.0f, 0));
+            transform3dManager_->SetRelativeScale(cubeAngularVelocityEntity_, neko::Vec3f::one);
+            neko::physics::RigidDynamicData rigidDynamic;
+            rigidDynamic.colliderType = neko::physics::ColliderType::BOX;
+            rigidDynamic.useGravity   = false;
+            rigidDynamicManager_->AddRigidDynamic(cubeAngularVelocityEntity_, rigidDynamic);
+            renderManager_->AddComponent(cubeAngularVelocityEntity_);
+            renderManager_->SetModel(
+                cubeAngularVelocityEntity_, aerEngine_.GetConfig().dataRootPath + "models/cube/cube.obj");
+        }
+        rigidDynamicManager_->AddForce(sphereForceEntity_, sphereForce_);
         rigidDynamicManager_->AddForceAtPosition(
-            cubeEntity_,
-            neko::Vec3f::up * 200.0f, neko::Vec3f::one);
-        renderManager_->AddComponent(cubeEntity_);
-        renderManager_->SetModel(
-            cubeEntity_, aerEngine_.GetConfig().dataRootPath + "models/cube/cube.obj");
-        viewedEntity = cubeEntity_;
+            cubeForceAtPositionEntity_, cubeForce_, cubeForcePos_);
     }
 
     void HasSucceed() override
     {
-        EXPECT_TRUE(true);
-        EXPECT_TRUE(true);
+        float precision = 0.1f;
+        //Sphere Velocity
+        EXPECT_NEAR(transform3dManager_->GetRelativePosition(sphereVelocityEntity_).x,
+            sphereVelocity_.x * kPhysicsDuration_,
+            precision);
+        EXPECT_NEAR(rigidDynamicManager_->GetComponent(sphereVelocityEntity_).GetDynamicData().linearVelocity.x,
+            sphereVelocity_.x,
+            precision);
+        //Sphere Force
+        /*EXPECT_NEAR(transform3dManager_->GetRelativePosition(sphereForceEntity_).x,
+            sphereForce_.x * 1.0f/(kPhysicsDuration_*kPhysicsDuration_),
+            precision);
+        EXPECT_NEAR(rigidDynamicManager_->GetComponent(sphereForceEntity_)
+                        .GetDynamicData()
+                        .linearVelocity.x,
+            sphereForce_.x * 1.0f/kPhysicsDuration_,
+            precision);*/
+        //Cube Angular Velocity
+        EXPECT_NEAR(neko::radian_t(transform3dManager_->GetRelativeRotation(cubeAngularVelocityEntity_).z).value(),
+            cubeAngularVelocity_.z * kPhysicsDuration_,
+            precision);
+        EXPECT_NEAR(rigidDynamicManager_->GetComponent(sphereVelocityEntity_)
+                        .GetDynamicData()
+                        .angularVelocity.x,
+            cubeAngularVelocity_.x,
+            precision);
+        //Cube Force At Position
+        //EXPECT_NEAR(transform3dManager_->GetRelativeRotation(cubeAngularVelocityEntity_).z.value(),
+        //    cubeAngularVelocity_.z * kPhysicsDuration_,
+        //    0.1f);
     }
 
-    void Update() override
+    void FixedUpdate(neko::seconds dt) override
     {
-        auto& inputLocator = neko::sdl::InputLocator::get();
-        if (inputLocator.GetKeyState(neko::sdl::KeyCodeType::SPACE) ==
-            neko::sdl::ButtonState::DOWN) {
+        rigidDynamicManager_->SetAngularVelocity(cubeAngularVelocityEntity_, cubeAngularVelocity_);
+        rigidDynamicManager_->SetLinearVelocity(sphereVelocityEntity_, sphereVelocity_);
+        if (physicsTimer_ >= kPhysicsDuration_) {
+            physicsEngine_->StopPhysic();
+        }
+        else
+        {
+            physicsTimer_ += dt.count();
         }
     }
 
     void DrawImGui() override { }
 private:
-    neko::Vec3f cubePosition_ = neko::Vec3f(0.0f, 0.0f, 0.0f);
-    neko::Vec3f cubeSize_ = neko::Vec3f(1.0f, 1.0f, 1.0f);
+    neko::Vec3f cubePosition_        = neko::Vec3f(0.0f, 0.0f, 0.0f);
+    neko::Vec3f sphereVelocity_           = neko::Vec3f(2.0f, 0.0f, 0.0f);
+    neko::Vec3f sphereForce_        = neko::Vec3f(200.0f, 0.0f, 1.0f);
+    neko::Vec3f cubeForce_ = neko::Vec3f(100.0f, 0.0f, 0.0f);
+    neko::Vec3f cubeForcePos_ = neko::Vec3f(1.0f, 0.0f, 1.0f);
+    neko::Vec3f cubeAngularVelocity_ = neko::Vec3f(0.0f, 0.0f, 1.0f);
 
-    neko::Entity cubeEntity_;
-    neko::Entity planeEntity_;
+    neko::Entity sphereVelocityEntity_;
+    neko::Entity sphereForceEntity_;
+    neko::Entity cubeForceAtPositionEntity_;
+    neko::Entity cubeAngularVelocityEntity_;
+
+    const float kPhysicsDuration_ = 2.0f;
+    float physicsTimer_ = 0.0f;
 
 };
 TEST(PhysX, TestRotation)
@@ -435,7 +524,7 @@ TEST(PhysX, TestRotation)
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
-    SceneRotation sceneRotation = SceneRotation(engine);
+    SceneForceVelocity sceneRotation = SceneForceVelocity(engine);
     TestPhysX testPhysX(engine, sceneRotation);
 
     engine.RegisterOnDrawUi(testPhysX);
@@ -451,7 +540,7 @@ public:
     explicit SceneRaycast(neko::aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
     void InitActors(neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration       = 10.0f;
+        engineDuration       = 0.5f;
         entityManager_       = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_  = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_       = &aerEngine_.GetComponentManagerContainer().renderManager;
@@ -491,7 +580,7 @@ public:
         EXPECT_FALSE(rayFourTouch_);
     }
 
-    void Update() override
+    void Update(neko::seconds dt) override
     {
         neko::IGizmoRenderer& gizmosLocator = neko::GizmosLocator::get();
         {
@@ -631,7 +720,7 @@ public:
     explicit SceneCollision(neko::aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
     void InitActors(neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration       = 10.0f;
+        engineDuration       = 2.0f;
         entityManager_       = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_  = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_       = &aerEngine_.GetComponentManagerContainer().renderManager;
@@ -726,25 +815,25 @@ public:
         EXPECT_FALSE(cubeNotTrigger_);
     }
 
-    void Update() override
+    void Update(neko::seconds dt) override
     {
     }
 
 
-    void OnCollisionEnter(const physx::PxContactPair& pairHeader) override
+    void OnCollisionEnter(const physx::PxContactPairHeader& pairHeader) override
     {
-        if (pairHeader.shapes[0]->getActor() ==
+        if (pairHeader.actors[0] ==
                 rigidDynamicManager_->GetComponent(cubeTouchEntity_)
                     .GetPxRigidDynamic() ||
-            pairHeader.shapes[1]->getActor() ==
+            pairHeader.actors[1] ==
                 rigidDynamicManager_->GetComponent(cubeTouchEntity_).GetPxRigidDynamic())
         {
             cubeTouch_ = true;
         }
-        if (pairHeader.shapes[0]->getActor() ==
+        if (pairHeader.actors[0] ==
                 rigidDynamicManager_->GetComponent(cubeNotTouchEntity_)
                     .GetPxRigidDynamic() ||
-            pairHeader.shapes[1]->getActor() ==
+            pairHeader.actors[1] ==
                 rigidDynamicManager_->GetComponent(cubeNotTouchEntity_).GetPxRigidDynamic())
         {
             cubeNotTouchEntity_ = true;
@@ -826,6 +915,7 @@ TEST(PhysX, TestTriggerCollision)
 }
 #pragma endregion
 #pragma region SceneTest
+#pragma region InterfaceScene
 namespace neko::aer
 {
 class TestSceneInterface
@@ -863,7 +953,7 @@ public:
         EASY_BLOCK("Test Update", profiler::colors::Green);
 #endif
         updateCount_ += dt.count();  
-        //if (updateCount_ >= kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ >= kEngineDuration_) { engine_.Stop(); }
     }
 
     void Destroy() override {}
@@ -904,6 +994,8 @@ private:
     TestSceneInterface& testScene_;
 };
 
+#pragma endregion
+#pragma region ExampleScene
 class TestPhysXExampleScene : public TestSceneInterface
 {
 public:
@@ -916,7 +1008,7 @@ public:
         Camera3D* camera = GizmosLocator::get().GetCamera();
         camera->position = Vec3f(7.0f, 45.0f, 0.0f);
         camera->Rotate(EulerAngles(degree_t(90.0f), degree_t(-90.0f), degree_t(0.0f)));
-        aerengine.GetPhysicsEngine().StopPhysic();
+        //aerengine.GetPhysicsEngine().StopPhysic();
     }
 };
 TEST(PhysX, TestExampleSceneImporteur)
@@ -951,6 +1043,8 @@ TEST(PhysX, TestExampleSceneImporteur)
     testSceneImporteur.HasSucceed();
 }
 
+#pragma endregion
+#pragma region BounceScene
 class TestPhysXTestBounceScene : public TestSceneInterface
 {
 public:
@@ -963,7 +1057,7 @@ public:
         camera->position = Vec3f(0.0f, 3.0f, -10.0f);
         camera->Rotate(EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
         camera->fovY = degree_t(60);
-        aerengine.GetPhysicsEngine().StopPhysic();
+        //aerengine.GetPhysicsEngine().StopPhysic();
     }
 };
 TEST(PhysX, TestPhysXTestBounceScene)
@@ -998,6 +1092,8 @@ TEST(PhysX, TestPhysXTestBounceScene)
     testSceneImporteur.HasSucceed();
 }
 
+#pragma endregion
+#pragma region ColliderScene
 class TestPhysXColliderScene : public TestSceneInterface
 {
 public:
@@ -1009,7 +1105,7 @@ public:
         Camera3D* camera = GizmosLocator::get().GetCamera();
         camera->position = Vec3f(0.0f, 1.0f, -10.0f);
         camera->Rotate(EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
-        aerengine.GetPhysicsEngine().StopPhysic();
+        //aerengine.GetPhysicsEngine().StopPhysic();
     }
 };
 TEST(PhysX, TestPhysXColliderScene)
@@ -1044,5 +1140,6 @@ TEST(PhysX, TestPhysXColliderScene)
     testSceneImporteur.HasSucceed();
 }
 }    // namespace neko::aer
+#pragma endregion
 #pragma endregion
 

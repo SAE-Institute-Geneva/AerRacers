@@ -134,13 +134,33 @@ physx::PxFilterFlags PhysicsEngine::ContactReportFilterShader(physx::PxFilterObj
     const void* constantBlock,
     physx::PxU32 constantBlockSize)
 {
+    // let triggers through
+    if (physx::PxFilterObjectIsTrigger(attributes0) || physx::PxFilterObjectIsTrigger(attributes1))
+    {
+        pairFlags = physx::PxPairFlag::eTRIGGER_DEFAULT;
+        return physx::PxFilterFlag::eDEFAULT;
+    }
+    // generate contacts for all that were not filtered above
+    pairFlags =
+        physx::PxPairFlag::eCONTACT_DEFAULT |
+        physx::PxPairFlag::eNOTIFY_TOUCH_FOUND |
+        physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS |
+        physx::PxPairFlag::eNOTIFY_TOUCH_LOST |
+        physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
 
-    pairFlags = physx::PxPairFlag::eSOLVE_CONTACT | physx::PxPairFlag::eDETECT_DISCRETE_CONTACT
-        | physx::PxPairFlag::eNOTIFY_TOUCH_FOUND
-        | physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS
-        | physx::PxPairFlag::eNOTIFY_TOUCH_LOST | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
-    //pairFlags |= physx::PxPairFlag::eDETECT_CCD_CONTACT;
-    return physx::PxFilterFlag::eDEFAULT; //eNOTIFY //:eCALLBACK; //physx::PxFilterFlag::eDEFAULT;
+    //// trigger the contact callback for pairs (A,B) where
+    //// the filtermask of A contains the ID of B and vice versa.
+    //if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+    //    pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
+
+    return physx::PxFilterFlag::eDEFAULT;
+
+    //pairFlags = physx::PxPairFlag::eSOLVE_CONTACT | physx::PxPairFlag::eDETECT_DISCRETE_CONTACT |
+    //            physx::PxPairFlag::eNOTIFY_TOUCH_FOUND |
+    //    physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS
+    //    | physx::PxPairFlag::eNOTIFY_TOUCH_LOST | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
+    ////pairFlags |= physx::PxPairFlag::eDETECT_CCD_CONTACT;
+    //return physx::PxFilterFlag::eDEFAULT; //eNOTIFY //:eCALLBACK; //physx::PxFilterFlag::eDEFAULT;
 }
 
 physx::PxPhysics* PhysicsEngine::GetPhysx()
@@ -170,11 +190,17 @@ const PxRaycastInfo PhysicsEngine::Raycast(
 void PhysicsEngine::RegisterCollisionListener(OnCollisionInterface& collisionInterface)
 {
     eventCallback_.onCollisionEnterAction.RegisterCallback(
-        [&collisionInterface](const physx::PxContactPair& pairHeader) { collisionInterface.OnCollisionEnter(pairHeader); });
+        [&collisionInterface](const physx::PxContactPairHeader& pairHeader) {
+            collisionInterface.OnCollisionEnter(pairHeader);
+        });
     eventCallback_.onCollisionStayAction.RegisterCallback(
-        [&collisionInterface](const physx::PxContactPair& pairHeader) { collisionInterface.OnCollisionStay(pairHeader); });
+        [&collisionInterface](const physx::PxContactPairHeader& pairHeader) {
+            collisionInterface.OnCollisionStay(pairHeader);
+        });
     eventCallback_.onCollisionExitAction.RegisterCallback(
-        [&collisionInterface](const physx::PxContactPair& pairHeader) { collisionInterface.OnCollisionExit(pairHeader); });
+        [&collisionInterface](const physx::PxContactPairHeader& pairHeader) {
+            collisionInterface.OnCollisionExit(pairHeader);
+        });
 }
 
 void PhysicsEngine::RegisterTriggerListener(OnTriggerInterface& triggerInterface)
