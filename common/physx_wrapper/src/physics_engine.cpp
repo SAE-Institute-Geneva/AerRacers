@@ -18,10 +18,11 @@ PhysicsEngine::PhysicsEngine(
 }
 
 void PhysicsEngine::Init() {
+    //Automatically starts simulation
     StartPhysic();
 }
 
-void PhysicsEngine::Start()
+void PhysicsEngine::InitPhysics()
 {
     static physx::PxDefaultErrorCallback gDefaultErrorCallback;
     static physx::PxDefaultAllocator gDefaultAllocatorCallback;
@@ -32,7 +33,8 @@ void PhysicsEngine::Start()
         gDefaultErrorCallback);
     if (!foundation_)
         logDebug("PxCreateFoundation failed!");
-    
+
+    //Use to link with PhysX Visual Debugger
     bool recordMemoryAllocations = true;
     std::string PVD_HOST = "localhost";
     pvd_ = physx::PxCreatePvd(*foundation_);
@@ -61,9 +63,6 @@ void PhysicsEngine::Start()
     if (!PxInitExtensions(*physics_, pvd_))
         logDebug("PxInitExtensions failed!");
     CreateScene();
-    scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-    scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-    scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 
 }
 
@@ -80,10 +79,14 @@ void PhysicsEngine::CreateScene()
     sceneDesc.kineKineFilteringMode = physx::PxPairFilteringMode::eKEEP; // So kin-kin contacts with be reported
     sceneDesc.staticKineFilteringMode = physx::PxPairFilteringMode::eKEEP; // So static-kin constacts will be reported
     sceneDesc.simulationEventCallback = &eventCallback_;
-    //sceneDesc.flags |= physx::PxSceneFlag::eENABLE_CCD;
+    //sceneDesc.flags |= physx::PxSceneFlag::eENABLE_CCD; //Use when Continous Detection
     scene_ = physics_->createScene(sceneDesc);
-    if (!scene_)
-        std::cerr << "createScene failed!";
+    if (!scene_) std::cerr << "createScene failed!";
+    scene_->getScenePvdClient()->setScenePvdFlag(
+        physx::PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+    scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+    scene_->getScenePvdClient()->setScenePvdFlag(
+        physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 }
 
 bool PhysicsEngine::Advance(physx::PxReal dt)
@@ -102,16 +105,20 @@ void PhysicsEngine::Update(seconds dt)
     physicRunning_ = physicsStopped_;
     if (physicRunning_)
     {
-        if (Advance(dt.count()))
-        {
-            //scene_->simulate(stepSize_.count());
-            scene_->collide(stepSize_.count());
-            scene_->fetchCollision(true);
-            scene_->advance();    // Can this be skipped
-            scene_->fetchResults(true);
-            fixedUpdateAction_.Execute(stepSize_);
+        if (Advance(dt.count())) {
+            FixedUpdate(stepSize_);
         }
     }
+}
+
+void PhysicsEngine::FixedUpdate(seconds dt)
+{
+    //scene_->simulate(stepSize_.count());
+    scene_->collide(dt.count());
+    scene_->fetchCollision(true);
+    scene_->advance();    // Can this be skipped
+    scene_->fetchResults(true);
+    fixedUpdateAction_.Execute(dt);
 }
 
 void PhysicsEngine::Destroy()
@@ -153,13 +160,6 @@ physx::PxFilterFlags PhysicsEngine::ContactReportFilterShader(physx::PxFilterObj
     //    pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
 
     return physx::PxFilterFlag::eDEFAULT;
-
-    //pairFlags = physx::PxPairFlag::eSOLVE_CONTACT | physx::PxPairFlag::eDETECT_DISCRETE_CONTACT |
-    //            physx::PxPairFlag::eNOTIFY_TOUCH_FOUND |
-    //    physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS
-    //    | physx::PxPairFlag::eNOTIFY_TOUCH_LOST | physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
-    ////pairFlags |= physx::PxPairFlag::eDETECT_CCD_CONTACT;
-    //return physx::PxFilterFlag::eDEFAULT; //eNOTIFY //:eCALLBACK; //physx::PxFilterFlag::eDEFAULT;
 }
 
 physx::PxPhysics* PhysicsEngine::GetPhysx()
@@ -172,12 +172,12 @@ physx::PxScene* PhysicsEngine::GetScene()
     return scene_;
 }
 
-const PxRaycastInfo PhysicsEngine::Raycast(
+const RaycastInfo PhysicsEngine::Raycast(
     const Vec3f& origin,
     const Vec3f& direction,
     float maxDistance) const
 {
-    PxRaycastInfo raycastHit;
+    RaycastInfo raycastHit;
     physx::PxQueryFilterData fd;
     fd.flags |= physx::PxQueryFlag::eANY_HIT; // note the OR with the default value
     raycastHit.touch = scene_->raycast(ConvertToPxVec(origin), ConvertToPxVec(direction.Normalized()), maxDistance, raycastHit.pxRaycastBuffer,

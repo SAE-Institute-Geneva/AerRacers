@@ -64,7 +64,7 @@ BoxColliderData RigidActor::GetBoxColliderData() const
     return boxColliderData;
 }
 
-PhysicsMaterial RigidActor::GetMaterial() const
+PhysicsMaterial RigidActor::GetPhysicsMaterial() const
 {
     PhysicsMaterial physicsMaterial;
     if (!shape_) {
@@ -351,7 +351,7 @@ RigidStaticData RigidStatic::GetRigidStaticData() const
         logDebug("No rigidActor");
         return rigidStaticData;
     }
-    rigidStaticData.material     = GetMaterial();
+    rigidStaticData.material     = GetPhysicsMaterial();
     rigidStaticData.colliderType = GetColliderType();
     switch (rigidStaticData.colliderType) {
         case ColliderType::INVALID: break;
@@ -449,8 +449,6 @@ void RigidDynamic::SetRigidDynamicData(
     }
 }
 
-void RigidDynamic::FixedUpdate(seconds dt) {}
-
 physics::RigidDynamicData RigidDynamic::GetRigidDynamicData() const
 {
     RigidDynamicData rigidDynamicData;
@@ -487,7 +485,7 @@ physics::RigidDynamicData RigidDynamic::GetRigidDynamicData() const
         (rigidActor_->getRigidDynamicLockFlags() &
          physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z)) ==
             physx::PxRigidDynamicLockFlags(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z)};
-    rigidDynamicData.material     = GetMaterial();
+    rigidDynamicData.material     = GetPhysicsMaterial();
     rigidDynamicData.colliderType = GetColliderType();
     switch (rigidDynamicData.colliderType) {
         case ColliderType::INVALID: break;
@@ -666,9 +664,6 @@ void RigidDynamicManager::FixedUpdate(seconds dt)
         physx::PxVec3 z = transform.q.getBasisVector2();
         transform3dManager_.SetRelativeRotation(entity,
             Quaternion::ToEulerAngles(ConvertFromPxQuat(transform.q)));
-        RigidDynamic rigidDynamic = GetComponent(entity);
-        rigidDynamic.FixedUpdate(dt);
-        SetComponent(entity, rigidDynamic);
     }
 }
 

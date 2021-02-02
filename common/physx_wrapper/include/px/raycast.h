@@ -30,14 +30,35 @@
 #include "mathematics/vector.h"
 
 namespace neko::physics {
-struct PxRaycastInfo {
+struct RaycastInfo {
 public:
+    /**
+     * \return if the ray has touch
+     */
     bool touch = false;
+    /**
+     * \return Position of the ray hit
+     */
     Vec3f GetPoint() const;
+    /**
+     * \return Normal of the ray hit
+     */
     Vec3f GetNormal() const;
+    /**
+     * \return faceId of the ray hit
+     */
     unsigned GetFaceId() const;
+    /**
+     * \return distance of the ray hit
+     */
     float GetDistance() const;
+    /**
+     * \return uv of the ray hit
+     */
     Vec2f GetUv() const;
+    /**
+     * \brief PhysX object with info
+     */
     physx::PxRaycastBuffer pxRaycastBuffer;
 };
 }

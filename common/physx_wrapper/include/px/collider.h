@@ -31,6 +31,9 @@
 
 namespace neko::physics {
 
+/**
+ * \brief Types available
+ */
 enum class ColliderType {
     INVALID,
     BOX,
@@ -58,13 +61,4 @@ struct BoxColliderData : public ColliderData {
 public:
     Vec3f size = Vec3f::one;
 };
-
-
-//class ColliderViewer {
-//public:
-//    json GetJsonFromCollider(Entity entity) const = 0;
-//    void SetColliderFromJson(Entity entity, const json& jsonComponent) = 0;
-//    void DrawImGuiCollider(Entity entity) = 0;
-//};
-
 }

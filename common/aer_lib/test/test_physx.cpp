@@ -585,7 +585,7 @@ public:
         neko::IGizmoRenderer& gizmosLocator = neko::GizmosLocator::get();
         {
             //Raycast
-            neko::physics::PxRaycastInfo raycastInfo = physicsEngine_->Raycast(
+            neko::physics::RaycastInfo raycastInfo = physicsEngine_->Raycast(
                 rayOrigin_,
                 rayDirection_,
                 50.0f);
@@ -605,7 +605,7 @@ public:
         }
         {
             //Raycast
-            neko::physics::PxRaycastInfo raycastInfo = physicsEngine_->Raycast(
+            neko::physics::RaycastInfo raycastInfo = physicsEngine_->Raycast(
                 rayOrigin_ + neko::Vec3f::right * 2,
                 rayDirection_,
                 2.0f);
@@ -626,7 +626,7 @@ public:
         }
         {
             //Raycast
-            neko::physics::PxRaycastInfo raycastInfo = physicsEngine_->Raycast(
+            neko::physics::RaycastInfo raycastInfo = physicsEngine_->Raycast(
                 rayOrigin_ + neko::Vec3f::left * 4,
                 rayDirection_,
                 50.0f);
@@ -647,7 +647,7 @@ public:
         }
         {
             //Raycast
-            neko::physics::PxRaycastInfo raycastInfo = physicsEngine_->Raycast(
+            neko::physics::RaycastInfo raycastInfo = physicsEngine_->Raycast(
                 rayOrigin_ + neko::Vec3f::left * 2,
                 rayOrigin_ + neko::Vec3f::left * 2 + neko::Vec3f::up,
                 50.0f);

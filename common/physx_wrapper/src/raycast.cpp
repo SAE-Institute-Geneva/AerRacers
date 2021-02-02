@@ -5,27 +5,27 @@
 
 
 namespace neko::physics {
-Vec3f PxRaycastInfo::GetPoint() const
+Vec3f RaycastInfo::GetPoint() const
 {
     return ConvertFromPxVec(pxRaycastBuffer.block.position);
 }
 
-Vec3f PxRaycastInfo::GetNormal() const
+Vec3f RaycastInfo::GetNormal() const
 {
     return ConvertFromPxVec(pxRaycastBuffer.block.normal);
 }
 
-unsigned PxRaycastInfo::GetFaceId() const
+unsigned RaycastInfo::GetFaceId() const
 {
     return pxRaycastBuffer.block.faceIndex;
 }
 
-float PxRaycastInfo::GetDistance() const
+float RaycastInfo::GetDistance() const
 {
     return pxRaycastBuffer.block.distance;
 }
 
-Vec2f PxRaycastInfo::GetUv() const
+Vec2f RaycastInfo::GetUv() const
 {
     return Vec2f(pxRaycastBuffer.block.u, pxRaycastBuffer.block.v);
 }

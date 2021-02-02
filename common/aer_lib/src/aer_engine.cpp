@@ -34,7 +34,7 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 		//boundInputManager_ = std::make_unique<InputBindingManager>();
 		tagManager_        = std::make_unique<TagManager>(cContainer_.sceneManager);
 
-        physicsEngine_.Start();
+        physicsEngine_.InitPhysics();
 		RegisterSystem(rContainer_);
         RegisterSystem(cContainer_);
         RegisterSystem(physicsEngine_);
