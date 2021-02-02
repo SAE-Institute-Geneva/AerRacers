@@ -1007,7 +1007,8 @@ public:
     void Init(AerEngine& aerengine) override
     {
         Camera3D* camera = GizmosLocator::get().GetCamera();
-        camera->position = Vec3f(1.0f, -10.0f, 0.0f);
+        camera->position = Vec3f(0.0f, 1.0f, -10.0f);
+        camera->Rotate(EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
         aerengine.GetPhysicsEngine().StopPhysic();
     }
 };

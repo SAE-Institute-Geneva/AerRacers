@@ -268,14 +268,13 @@ void Transform3dManager::SetGlobalPosition(Entity entity, const Vec3f& position)
 
 void Transform3dManager::SetGlobalRotation(Entity entity, const EulerAngles& angles)
 {
-    SetRelativeRotation(entity, angles);
-    //Mat4f transform = Transform3d::Transform(
-    //    position3DManager_.GetComponent(entity), angles, scale3DManager_.GetComponent(entity));
-    //const auto parent = entityManager_.get().GetEntityParent(entity);
-    //if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
+    Mat4f transform = Transform3d::Transform(
+        position3DManager_.GetComponent(entity), angles, scale3DManager_.GetComponent(entity));
+    const auto parent = entityManager_.get().GetEntityParent(entity);
+    if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
 
-    //SetComponent(entity, transform);
-    //rotation3DManager_.SetComponent(entity, Transform3d::GetRotation(transform));
+    SetComponent(entity, transform);
+    rotation3DManager_.SetComponent(entity, Transform3d::GetRotation(transform));
     dirtyManager_.SetDirty(entity);
 }
 
@@ -334,16 +333,16 @@ json Transform3dViewer::GetJsonFromComponent(Entity entity) const
 void Transform3dViewer::SetComponentFromJson(Entity entity, const json& jsonComponent)
 {
     if (CheckJsonParameter(jsonComponent, "position", json::object())) {
-        transform3dManager_.SetGlobalPosition(
+        transform3dManager_.SetRelativePosition(
             entity,
             GetVector3FromJson(jsonComponent, "position"));
     }
     if (CheckJsonParameter(jsonComponent, "rotation", json::object())) {
-        transform3dManager_.SetGlobalRotation(entity,
+        transform3dManager_.SetRelativeRotation(entity,
             Quaternion::ToEulerAngles(Quaternion(GetVector4FromJson(jsonComponent, "rotation"))));
     }
     if (CheckJsonParameter(jsonComponent, "scale", json::object())) {
-        transform3dManager_.SetGlobalScale(entity, GetVector3FromJson(jsonComponent, "scale"));
+        transform3dManager_.SetRelativeScale(entity, GetVector3FromJson(jsonComponent, "scale"));
     }
 }
 

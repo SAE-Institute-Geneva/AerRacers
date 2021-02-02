@@ -217,6 +217,68 @@ struct Quaternion
 
         return angles;
     }
+ //   /*
+	//Returns a rotation that rotates z degrees around the z axis,
+	//x degrees around the x axis, and y degrees around the y axis; 
+	//applied in that order
+	//*/
+ //   static Quaternion FromEuler(const EulerAngles& angle)
+ //   {
+ //       const auto cy = Cos(angle.x * 0.5f);
+ //       const auto sy = Sin(angle.x * 0.5f);
+ //       const auto cp = Cos(angle.y * 0.5f);
+ //       const auto sp = Sin(angle.y * 0.5f);
+ //       const auto cr = Cos(angle.z * 0.5f);
+ //       const auto sr = Sin(angle.z * 0.5f);
+
+ //       return Quaternion(cy * cp * cr + sy * sp * sr,
+ //           cy * cp * sr - sy * sp * cr,
+ //           sy * cp * sr + cy * sp * cr,
+ //           sy * cp * cr - cy * sp * sr);
+ //   }
+
+  //  static EulerAngles ToEulerAngles(Quaternion& q)
+  //  {
+  //      /*
+		//reference
+		//http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+		//http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+		//*/
+
+  //      EulerAngles eulerAngles;
+
+  //      // Threshold for the singularities found at the north/south poles.
+  //      const float SINGULARITY_THRESHOLD = 0.4999995f;
+
+  //      const auto sqw = q.w * q.w;
+  //      const auto sqx = q.x * q.x;
+  //      const auto sqy = q.y * q.y;
+  //      const auto sqz = q.z * q.z;
+  //      const auto unit =
+  //          sqx + sqy + sqz + sqw;    // if normalised is one, otherwise is correction factor
+  //      const auto singularityTest = q.x * q.y + q.w * q.z;
+
+  //      if (singularityTest > SINGULARITY_THRESHOLD * unit)
+  //      {
+  //          eulerAngles.z = 2.0f * Atan2(q.x, q.w);
+  //          eulerAngles.y = radian_t(PI / 2.0f);
+  //          eulerAngles.x = radian_t(0);
+  //      }
+  //      else if (singularityTest < -SINGULARITY_THRESHOLD * unit)
+  //      {
+  //          eulerAngles.z = -2.0f * Atan2(q.x, q.w);
+  //          eulerAngles.y = radian_t(-PI / 2.0f);
+  //          eulerAngles.x = radian_t(0);
+  //      }
+  //      else
+  //      {
+  //          eulerAngles.z = Atan2(2 * (q.w * q.y - q.x * q.z), sqw + sqx - sqy - sqz);
+  //          eulerAngles.y = Asin(2 * singularityTest / unit);
+  //          eulerAngles.x = Atan2(2 * (q.w * q.x - q.y * q.z), sqw - sqx + sqy - sqz);
+  //      }
+
+  //      return eulerAngles;
+  //  }
 
 	static Quaternion FromRotationMatrix(const Mat4f& mat)
 	{
