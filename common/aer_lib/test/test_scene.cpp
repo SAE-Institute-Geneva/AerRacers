@@ -64,7 +64,10 @@ public:
 		EXPECT_TRUE(
 			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
 		EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
-		EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(1.0, 3.0, 5.0));
+		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).x,Vec3f(1.0, 3.0, 5.0).x,0.1f);
+		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).y,Vec3f(1.0, 3.0, 5.0).y,0.1f);
+		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).z,Vec3f(1.0, 3.0, 5.0).z,0.1f);
+
 	}
 };
 
@@ -98,6 +101,7 @@ public:
         EASY_BLOCK("Test Init", profiler::colors::Green);
     #endif
 		const Configuration config = BasicEngine::GetInstance()->GetConfig();
+        engine_.GetPhysicsEngine().StopPhysic();
 		engine_.GetComponentManagerContainer().sceneManager.LoadScene(
 			config.dataRootPath + testScene_.sceneName); 
 	}
@@ -218,6 +222,17 @@ public:
         cContainer.renderManager.SetModel(3, config.dataRootPath + "models/cube/cube.obj");
         cContainer.renderManager.AddComponent(2);
         cContainer.renderManager.SetModel(2, config.dataRootPath + "models/sphere/sphere.obj");
+        neko::physics::RigidStaticData rigidStatic;
+        rigidStatic.colliderType = neko::physics::ColliderType::BOX;
+        rigidStatic.material     = neko::physics::PhysicsMaterial {0.5f, 0.5f, 0.1f};
+        cContainer.rigidStaticManager.AddRigidStatic(3, rigidStatic);
+        neko::physics::RigidDynamicData rigidDynamic;
+        rigidDynamic.colliderType = neko::physics::ColliderType::SPHERE;
+        rigidDynamic.useGravity   = false;
+        rigidDynamic.freezeRotation = Vec3<bool>(true, false, true);
+        rigidDynamic.mass           = 50.0f;
+        rigidDynamic.linearDamping  = 10.0f;
+        cContainer.rigidDynamicManager.AddRigidDynamic(2, rigidDynamic);
 	}
 
 	void Update(seconds dt) override
@@ -245,23 +260,44 @@ public:
 	void HasSucceed()
 	{
 		auto& cContainer = engine_.GetComponentManagerContainer();
+		//Test Scene
 		EXPECT_TRUE(cContainer.sceneManager.GetCurrentScene().sceneName == "writed_scene");
 		EXPECT_TRUE(cContainer.entityManager.GetEntitiesNmb() == 5);
 		EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
 		EXPECT_TRUE(TagLocator::get().CompareEntitiesTag(0, 1));
 		EXPECT_TRUE(TagLocator::get().IsEntityLayer(3, "TestLayer"));
 		EXPECT_FALSE(TagLocator::get().IsEntityTag(1, 0));
+		//Test Transform
 		EXPECT_TRUE(
 			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
         EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(1.0, 3.0, 5.0));
         EXPECT_FALSE(
             cContainer.entityManager.HasComponent(1, EntityMask(ComponentType::TRANSFORM3D)));
+		//Test Renderer
         EXPECT_TRUE(
             cContainer.entityManager.HasComponent(2, EntityMask(ComponentType::MODEL)));
         EXPECT_TRUE(cContainer.rendererViewer.GetMeshName(2) == "sphere");
         EXPECT_TRUE(cContainer.entityManager.HasComponent(3, EntityMask(ComponentType::MODEL)));
         EXPECT_TRUE(cContainer.rendererViewer.GetMeshName(3) == "cube");
         EXPECT_FALSE(cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::MODEL)));
+		//Test Rigidbody
+        EXPECT_TRUE(
+            cContainer.entityManager.HasComponent(2, EntityMask(ComponentType::RIGID_DYNAMIC)));
+        EXPECT_TRUE(cContainer.rigidDynamicManager.GetRigidDynamicData(2).colliderType ==
+                    physics::ColliderType::SPHERE);
+        EXPECT_TRUE(
+            cContainer.rigidDynamicManager.GetRigidDynamicData(2).useGravity == false);
+        EXPECT_FALSE(cContainer.rigidDynamicManager.GetRigidDynamicData(2).freezeRotation ==
+                    Vec3<bool>(true, false, true));
+        EXPECT_TRUE(cContainer.rigidDynamicManager.GetRigidDynamicData(2).mass == 50.0f);
+        EXPECT_TRUE(cContainer.rigidDynamicManager.GetRigidDynamicData(2).linearDamping == 10.0f);
+        EXPECT_TRUE(cContainer.entityManager.HasComponent(3, EntityMask(ComponentType::RIGID_STATIC)));
+        EXPECT_TRUE(cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().colliderType ==
+                    physics::ColliderType::BOX);
+        EXPECT_TRUE(
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness == 0.5f);
+        EXPECT_FALSE(cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::RIGID_DYNAMIC)));
+        EXPECT_FALSE(cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::RIGID_STATIC)));
 	}
 
 private:
@@ -334,7 +370,7 @@ public:
             config.dataRootPath + testScene_.sceneName);
         Camera3D* camera = GizmosLocator::get().GetCamera();
         camera->position = Vec3f(10.0f, 5.0f, 0.0f);
-        camera->Rotate(EulerAngles(degree_t(0.0f), degree_t(90.0f), degree_t(0.0f)));
+        camera->Rotate(EulerAngles(degree_t(0.0f), degree_t(-90.0f), degree_t(0.0f)));
     }
 
     void Update(seconds dt) override
@@ -342,7 +378,7 @@ public:
     #ifdef EASY_PROFILE_USE
         EASY_BLOCK("Test Update", profiler::colors::Green);
     #endif
-        //updateCount_+=dt.count();
+        updateCount_+=dt.count();
         if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 

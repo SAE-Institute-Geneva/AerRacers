@@ -987,7 +987,7 @@ public:
     }
 private:
     float updateCount_           = 0;
-    const float kEngineDuration_ = 10;
+    const float kEngineDuration_ = 5.0f;
 
     AerEngine& engine_;
 
@@ -999,7 +999,7 @@ private:
 class TestPhysXExampleScene : public TestSceneInterface
 {
 public:
-    explicit TestPhysXExampleScene() { sceneName = "scenes/CamilleSceneWIthoutRotate.aerscene"; }
+    explicit TestPhysXExampleScene() { sceneName = "scenes/PlaygroundTest2021-01-23-21-51-59.aerscene"; }
 
     void HasSucceed(ComponentManagerContainer& cContainer) override {}
 

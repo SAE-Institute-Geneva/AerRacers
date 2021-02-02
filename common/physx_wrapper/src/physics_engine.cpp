@@ -15,7 +15,6 @@ PhysicsEngine::PhysicsEngine(
     : entityManager_(entityManager),
       transform3d_(transform3d)
 {
-    Start();
 }
 
 void PhysicsEngine::Init() {
