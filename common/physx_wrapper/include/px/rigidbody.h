@@ -281,8 +281,24 @@ public:
     /**
      * \brief Add force at the center of the object
      * \param force Force to apply
+     * \param forceMode how force is apply
      */
-    void AddForce(const Vec3f& force) const;
+    void AddForce(const Vec3f& force, physx::PxForceMode::Enum forceMode = physx::PxForceMode::eFORCE) const;
+
+    /**
+     * \brief Add Torque at the center of the object
+     * \param torque Torque to apply
+     * \param forceMode how the force will be apply
+     */
+    void AddRelativeTorque(const Vec3f& torque,
+        physx::PxForceMode::Enum forceMode = physx::PxForceMode::eFORCE) const;
+
+    /**
+     * \brief Change rotation of the rigidbody
+     * \param rot The new rotation for the Rigidbody
+     */
+    void MoveRotation(const Quaternion& rot) const;
+
     /**
      * \brief Use to modify parameter of an actor
      * Warning must be call in FixedUpdate or if physics is not running
@@ -338,8 +354,24 @@ public:
     /**
      * \brief Add force at the center of the object
      * \param force Force to apply
+     * \param forceMode how the force will be apply
      */
-    void AddForce(Entity entity, const Vec3f& force) const;
+    void AddForce(Entity entity, const Vec3f& force, physx::PxForceMode::Enum forceMode = physx::PxForceMode::eFORCE) const;
+
+    /**
+     * \brief Add Torque at the center of the object
+     * \param torque Torque to apply
+     * \param forceMode how the force will be apply
+     */
+    void AddRelativeTorque(Entity entity,
+        const Vec3f& torque,
+        physx::PxForceMode::Enum forceMode = physx::PxForceMode::eFORCE) const;
+
+    /**
+     * \brief Change rotation of the rigidbody
+     * \param rot The new rotation for the Rigidbody
+     */
+    void MoveRotation(Entity entity, const Quaternion& rot) const;
 
     /**
      * \brief Change linear velocity of the object

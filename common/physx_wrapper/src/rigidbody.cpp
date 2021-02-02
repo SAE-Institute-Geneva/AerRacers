@@ -526,13 +526,36 @@ void RigidDynamic::AddForceAtPosition(const Vec3f& force, const Vec3f& position)
         ConvertToPxVec(position));
 }
 
-void RigidDynamic::AddForce(const Vec3f& force) const
+void RigidDynamic::AddForce(const Vec3f& force, physx::PxForceMode::Enum forceMode) const
 {
     if (!rigidActor_) {
         logDebug("No rigidActor");
         return;
     }
-    rigidActor_->addForce(ConvertToPxVec(force));
+    rigidActor_->addForce(ConvertToPxVec(force), forceMode);
+}
+
+void RigidDynamic::
+AddRelativeTorque(const Vec3f& torque, physx::PxForceMode::Enum forceMode) const
+{
+    if (!rigidActor_)
+    {
+        logDebug("No rigidActor");
+        return;
+    }
+    rigidActor_->addTorque(ConvertToPxVec(torque), forceMode);
+}
+
+void RigidDynamic::MoveRotation(const Quaternion& rot) const
+{
+    if (!rigidActor_)
+    {
+        logDebug("No rigidActor");
+        return;
+    }
+    physx::PxTransform transform = rigidActor_->getGlobalPose();
+    transform.q                  = ConvertToPxQuat(rot);
+    rigidActor_->setGlobalPose(transform);
 }
 
 RigidStaticManager::RigidStaticManager(
@@ -698,70 +721,27 @@ void RigidDynamicManager::SetRigidDynamicData(
     }
 }
 
-//
-//const ColliderType& RigidDynamicManager::GetColliderType(Entity entity) const
-//{
-//    return GetRigidDynamic(entity).GetColliderType();
-//}
-//
-//const BoxColliderData& RigidDynamicManager::GetBoxColliderData(Entity entity) const
-//{
-//    if (entityManager_.get().HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC)))
-//    { return GetRigidDynamic(entity).GetBoxColliderData(); }
-//    else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC)))
-//    {
-//        return GetRigidStatic(entity).GetBoxColliderData();
-//    }
-//    return {};
-//}
-//
-//void RigidDynamicManager::SetBoxColliderData(
-//    Entity entity, const BoxColliderData& boxColliderData) const
-//{
-//    if (!physicRunning_)
-//    {
-//        if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC)))
-//        { GetRigidDynamic(entity).SetBoxColliderData(boxColliderData); }
-//        else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC)))
-//        {
-//            GetRigidStatic(entity).SetBoxColliderData(boxColliderData);
-//        }
-//    }
-//}
-//
-//const SphereColliderData& RigidDynamicManager::GetSphereColliderData(Entity entity) const
-//{
-//    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC)))
-//    { return GetRigidDynamic(entity).GetSphereColliderData(); }
-//    else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC)))
-//    {
-//        return GetRigidStatic(entity).GetSphereColliderData();
-//    }
-//    return {};
-//}
-//
-//void RigidDynamicManager::SetSphereColliderData(
-//    Entity entity, const SphereColliderData& sphereColliderData) const
-//{
-//    if (!physicRunning_)
-//    {
-//        if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC)))
-//        { GetRigidDynamic(entity).SetSphereColliderData(sphereColliderData); }
-//        else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC)))
-//        {
-//            GetRigidStatic(entity).SetSphereColliderData(sphereColliderData);
-//        }
-//    }
-//}
-
 void RigidDynamicManager::AddForceAtPosition(
     Entity entity,
     const Vec3f& force,
     const Vec3f& position) const { GetComponent(entity).AddForceAtPosition(force, position); }
 
-void RigidDynamicManager::AddForce(Entity entity, const Vec3f& force) const
+void RigidDynamicManager::AddForce(
+    Entity entity, const Vec3f& force, physx::PxForceMode::Enum forceMode) const
 {
     GetComponent(entity).AddForce(force);
+}
+
+void RigidDynamicManager::AddRelativeTorque(Entity entity,
+    const Vec3f& torque,
+    physx::PxForceMode::Enum forceMode) const
+{
+    GetComponent(entity).AddRelativeTorque(torque, forceMode);
+}
+
+void RigidDynamicManager::MoveRotation(Entity entity, const Quaternion& rot) const
+{
+    GetComponent(entity).MoveRotation(rot);
 }
 
 void RigidDynamicManager::SetLinearVelocity(Entity entity, const Vec3f& linearVelocity) const
