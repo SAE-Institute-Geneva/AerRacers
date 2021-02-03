@@ -5798,18 +5798,6 @@
 		<Unit filename="/media/Data/Repos/AerRacers/externals/benchmark-1.5.2/cmake/benchmark.pc.in">
 			<Option virtualFolder="CMake Files\externals\benchmark-1.5.2\cmake\"/>
 		</Unit>
-		<Unit filename="/media/Data/Repos/AerRacers/externals/benchmark-1.5.2/cmake/gnu_posix_regex.cpp">
-			<Option virtualFolder="CMake Files\externals\benchmark-1.5.2\cmake\"/>
-		</Unit>
-		<Unit filename="/media/Data/Repos/AerRacers/externals/benchmark-1.5.2/cmake/posix_regex.cpp">
-			<Option virtualFolder="CMake Files\externals\benchmark-1.5.2\cmake\"/>
-		</Unit>
-		<Unit filename="/media/Data/Repos/AerRacers/externals/benchmark-1.5.2/cmake/steady_clock.cpp">
-			<Option virtualFolder="CMake Files\externals\benchmark-1.5.2\cmake\"/>
-		</Unit>
-		<Unit filename="/media/Data/Repos/AerRacers/externals/benchmark-1.5.2/cmake/thread_safety_attributes.cpp">
-			<Option virtualFolder="CMake Files\externals\benchmark-1.5.2\cmake\"/>
-		</Unit>
 		<Unit filename="/media/Data/Repos/AerRacers/externals/benchmark-1.5.2/src/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\externals\benchmark-1.5.2\src\"/>
 		</Unit>

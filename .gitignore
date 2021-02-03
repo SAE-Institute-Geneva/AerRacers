@@ -62,7 +62,14 @@ web_build/*
 # tmp files
 /tmp
 
-# allow physx libraries for linux
+# physx files
+**/PhysX-4.1/**/CMakeCache.txt
+**/PhysX-4.1/**/cmake_install.cmake
+**/PhysX-4.1/**/CTestTestfile.cmake
+**/PhysX-4.1/**/Makefile
+**/PhysX-4.1/**/*.cpb
+**/PhysX-4.1/**/*.sln
+**/PhysX-4.1/**/*.vcxproj
+**/PhysX-4.1/**/*.vcxproj.filters
 !**/libGLEW.a
 !**/libGLEWmx.a
-  
