@@ -37,7 +37,7 @@
 .idea/*
 *.user
 
-#clion generation files
+# clion generation files
 */.vs/*
 **/venv/**
 .vs/*
@@ -49,14 +49,20 @@ cmake-build-release/*
 cmake-build-relwithdebinfo/*
 out/*
 web_build/*
-.clang-format
+
+# cmake files
+**/CMakeFiles/**
 
 # glsl validator temp files
-/scripts/validator/__pycache__/*
+**/__pycache__/**
 
 # log files
 /data/logs/*
  
 # tmp files
 /tmp
+
+# allow physx libraries for linux
+!**/libGLEW.a
+!**/libGLEWmx.a
   

@@ -1,2 +1,0 @@
-/usr/bin/ar qc /media/Data/Repos/AerRacers/externals/PhysX-4.1/physx/bin/linux.clang/Release/libSnippetUtils_static_64.a CMakeFiles/SnippetUtils.dir/media/Data/Repos/AerRacers/externals/PhysX-4.1/physx/snippets/snippetutils/SnippetUtils.cpp.o
-/usr/bin/ranlib /media/Data/Repos/AerRacers/externals/PhysX-4.1/physx/bin/linux.clang/Release/libSnippetUtils_static_64.a
