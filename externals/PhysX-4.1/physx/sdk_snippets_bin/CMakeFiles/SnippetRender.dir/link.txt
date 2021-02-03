@@ -1,0 +1,2 @@
+/usr/bin/ar qc /media/Data/Repos/AerRacers/externals/PhysX-4.1/physx/bin/linux.clang/Release/libSnippetRender_static_64.a CMakeFiles/SnippetRender.dir/media/Data/Repos/AerRacers/externals/PhysX-4.1/physx/snippets/snippetrender/SnippetCamera.cpp.o CMakeFiles/SnippetRender.dir/media/Data/Repos/AerRacers/externals/PhysX-4.1/physx/snippets/snippetrender/SnippetRender.cpp.o
+/usr/bin/ranlib /media/Data/Repos/AerRacers/externals/PhysX-4.1/physx/bin/linux.clang/Release/libSnippetRender_static_64.a

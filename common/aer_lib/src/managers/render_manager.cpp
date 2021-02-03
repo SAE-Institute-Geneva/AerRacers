@@ -8,7 +8,7 @@
 
 #include "engine/engine.h"
 #include "graphics/camera.h"
-#include <aer\log.h>
+#include <aer/log.h>
 #include <utils/file_utility.h>
 
 namespace neko::aer
@@ -170,7 +170,10 @@ void RendererViewer::SetComponentFromJson(Entity entity, const json& componentJs
     if(CheckJsonParameter(componentJson, "meshName", json::value_t::string))
     {
         Configuration config       = BasicEngine::GetInstance()->GetConfig();
-        const std::string meshName = std::string(componentJson["meshName"]);
+        std::string meshName = std::string(componentJson["meshName"]);
+        std::transform(meshName.begin(), meshName.end(), meshName.begin(),
+                       [](unsigned char c){ return std::tolower(c); });
+
         const std::string path =
             config.dataRootPath + "models/" + meshName + "/" + meshName + ".obj";
         if (FileExists(path))
@@ -192,7 +195,7 @@ void RendererViewer::DrawImGui(Entity entity)
         if (ImGui::TreeNode("Renderer")) {
             ResizeIfNecessary(meshNames_, entity, std::string());
             std::string meshName = "MeshName : " + meshNames_[entity];
-            ImGui::Text(meshName.c_str());
+            ImGui::Text("%s", meshName.c_str());
             ImGui::TreePop();
         }
     }

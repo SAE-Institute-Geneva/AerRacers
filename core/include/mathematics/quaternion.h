@@ -174,46 +174,25 @@ struct Quaternion
         //);
     }
 
-    static EulerAngles ToEulerAngles(Quaternion& q)
+    static EulerAngles ToEulerAngles(const Quaternion& q)
     {
         EulerAngles angles;
         // roll (x-axis rotation)
-        double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
-        double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+        float sinr_cosp = 2.0f * (q.w * q.x + q.y * q.z);
+        float cosr_cosp = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
         angles.x         = Atan2(sinr_cosp, cosr_cosp);
 
         // pitch (y-axis rotation)
-        double sinp = 2 * (q.w * q.y - q.z * q.x);
+        float sinp = 2.0f * (q.w * q.y - q.z * q.x);
         if (std::abs(sinp) >= 1)
             angles.y = radian_t(std::copysign(M_PI / 2, sinp));    // use 90 degrees if out of range
         else
             angles.y = Asin(sinp);
 
         // yaw (z-axis rotation)
-        double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
-        double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+        float siny_cosp = 2.0f * (q.w * q.z + q.x * q.y);
+        float cosy_cosp = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
         angles.z         = Atan2(siny_cosp, cosy_cosp);
-        //double sqw = q.w * q.w;
-        //double sqx = q.x * q.x;
-        //double sqy = q.y * q.y;
-        //double sqz = q.z * q.z;
-        //double unit = sqx + sqy + sqz + sqw; // if normalised is one, otherwise is correction factor
-        //double test = q.x * q.y + q.z * q.w;
-        //if (test > 0.499 * unit) { // singularity at north pole
-        //	angles.z = 2 * Atan2(q.x, q.w);
-        //	angles.y = radian_t(M_PI / 2);
-        //	angles.x = radian_t(0);
-        //	return angles;
-        //}
-        //if (test < -0.499 * unit) { // singularity at south pole
-        //	angles.z = -2 * Atan2(q.x, q.w);
-        //	angles.y = radian_t(-M_PI / 2);
-        //	angles.x = radian_t(0);
-        //	return angles;
-        //}
-        //angles.z = Atan2(2 * q.y * q.w - 2 * q.x * q.z, sqx - sqy - sqz + sqw);
-        //angles.y = Asin(2 * test / unit);
-        //angles.x = Atan2(2 * q.x * q.w - 2 * q.y * q.z, -sqx + sqy - sqz + sqw);
 
         return angles;
     }

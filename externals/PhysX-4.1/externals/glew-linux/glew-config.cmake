@@ -50,7 +50,7 @@ set_target_properties(glew PROPERTIES
 )
 
 
-# Import target "glew" for configuration "Debug"
+# Import target "glew" for configuration "debug"
 set_property(TARGET glew APPEND PROPERTY IMPORTED_CONFIGURATIONS DEBUG)
 set_target_properties(glew PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES "CXX"
