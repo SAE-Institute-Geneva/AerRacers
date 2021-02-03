@@ -305,7 +305,7 @@ void RigidStatic::Init(physx::PxPhysics* physics,
     material_ = InitMaterial(physics, rigidStatic.material);
     if (!material_) std::cerr << "createMaterial failed!";
     switch (rigidStatic.colliderType) {
-        case ColliderType::INVALID: break;
+        case ColliderType::INVALID: 
         case ColliderType::BOX: shape_ = InitBoxShape(physics,
                                     material_,
                                     rigidStatic.boxColliderData);
@@ -316,9 +316,12 @@ void RigidStatic::Init(physx::PxPhysics* physics,
             break;
         default: ;
     }
-    if (!shape_) std::cerr << "createShpae failed!";
+    if (!shape_)
+    {
+        std::cerr << "createShape failed!";
+        return;
+    }
     rigidActor_->attachShape(*shape_);
-    if (!shape_) std::cerr << "create shape failed!";
     SetRigidStaticData(rigidStatic);
 }
 
@@ -604,7 +607,7 @@ void RigidStaticViewer::FixedUpdate(seconds dt) {}
 json RigidStaticViewer::GetJsonFromComponent(Entity entity) const
 {
     json rigidDynamicViewer = json::object();
-    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC)))
+    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC)))
     {
         if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
         {

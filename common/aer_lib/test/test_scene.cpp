@@ -215,8 +215,10 @@ public:
 		TagLocator::get().SetEntityTag(0, "TestTag");
 		TagLocator::get().SetEntityTag(1, "TestTag");
 		TagLocator::get().SetEntityLayer(2, "TestLayer");
-		TagLocator::get().SetEntityLayer(3, "TestLayer");
-		cContainer.transform3dManager.AddComponent(0);
+        TagLocator::get().SetEntityLayer(3, "TestLayer");
+        cContainer.transform3dManager.AddComponent(0);
+        cContainer.transform3dManager.AddComponent(3);
+        cContainer.transform3dManager.AddComponent(2);
         cContainer.transform3dManager.SetRelativePosition(0, Vec3f(1.0, 3.0, 5.0));
         cContainer.renderManager.AddComponent(3);
         cContainer.renderManager.SetModel(3, config.dataRootPath + "models/cube/cube.obj");
@@ -224,7 +226,7 @@ public:
         cContainer.renderManager.SetModel(2, config.dataRootPath + "models/sphere/sphere.obj");
         neko::physics::RigidStaticData rigidStatic;
         rigidStatic.colliderType = neko::physics::ColliderType::BOX;
-        rigidStatic.material     = neko::physics::PhysicsMaterial {0.5f, 0.5f, 0.1f};
+        rigidStatic.material     = neko::physics::PhysicsMaterial {0.5f, 0.5f, 0.5f};
         cContainer.rigidStaticManager.AddRigidStatic(3, rigidStatic);
         neko::physics::RigidDynamicData rigidDynamic;
         rigidDynamic.colliderType = neko::physics::ColliderType::SPHERE;
@@ -252,7 +254,10 @@ public:
             loaded_ = true;
 		}
 
-        if (updateCount_ >= kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ >= kEngineDuration_) {
+            HasSucceed();
+            engine_.Stop();
+        }
 	}
 
 	void Destroy() override {}
@@ -336,8 +341,6 @@ TEST(Scene, TestSceneExporteur)
 	engine.Init();
 
 	engine.EngineLoop();
-
-	testSceneExporter.HasSucceed();
 }
 
 class TestUnitySceneViewer : public TestSceneInterface
@@ -345,7 +348,7 @@ class TestUnitySceneViewer : public TestSceneInterface
 public:
     explicit TestUnitySceneViewer()
     {
-        sceneName = "scenes/PlaygroundTest2021-01-27-15-18-14.aerscene";
+        sceneName = "scenes/PlaygroundTest2021-01-23-21-51-59.aerscene";
     }
 
     virtual void HasSucceed(ComponentManagerContainer& cContainer) override

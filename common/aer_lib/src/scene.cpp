@@ -230,10 +230,16 @@ json SceneManager::WriteEntityJson(Entity entity) const
 	entityJson["transform"]["exist"] =
 		entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
     entityJson["rigidbody"] = json::object();
-    entityJson["rigidbody"] = componentManagerContainer_
-                              .rigidStaticViewer.GetJsonFromComponent(entity);
-    entityJson["rigidbody"] = componentManagerContainer_
-                              .rigidDynamicViewer.GetJsonFromComponent(entity);
+    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC)))
+    {
+        entityJson["rigidbody"] =
+            componentManagerContainer_.rigidStaticViewer.GetJsonFromComponent(entity);
+    }
+    else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC)))
+    {
+        entityJson["rigidbody"] =
+            componentManagerContainer_.rigidDynamicViewer.GetJsonFromComponent(entity);
+    }
     entityJson["rigidbody"]["exist"] = entityManager_.HasComponent(entity,
                                            EntityMask(ComponentType::RIGID_DYNAMIC)) ||
                                        entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC));
