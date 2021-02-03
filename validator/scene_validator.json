@@ -65,9 +65,8 @@
     "name",
     "instanceId",
     "parent",
-    "layer",
-    "tag",
-    "transformData"
+    "layers",
+    "tags"
   ],
   "properties": {
     "name": {
@@ -237,60 +236,61 @@
                   "z": {
                     "type": "boolean"
                   }
-                },
-                "positionLock": {
-                  "type": "object",
-                  "required": [
-                    "x",
-                    "y",
-                    "z"
-                  ],
-                  "properties": {
-                    "x": {
-                      "type": "boolean"
-                    },
-                    "y": {
-                      "type": "boolean"
-                    },
-                    "z": {
-                      "type": "boolean"
-                    }
+                }
+              },
+              "positionLock": {
+                "type": "object",
+                "required": [
+                  "x",
+                  "y",
+                  "z"
+                ],
+                "properties": {
+                  "x": {
+                    "type": "boolean"
+                  },
+                  "y": {
+                    "type": "boolean"
+                  },
+                  "z": {
+                    "type": "boolean"
                   }
+                }
 
+
+              },
+              "boxCollider": {
+                "title": "BoxCollider",
+                "type": "object",
+                "required": [
+                  "offset",
+                  "size",
+                  "isTrigger"
+                ],
+                "properties": {
+                  "offset": {
+                    "$ref": "#/definitions/vector3"
+                  },
+                  "size": { "$ref": "#/definitions/vector3" },
+                  "isTrigger": { "type": "boolean" }
+                }
+              },
+              "sphereCollider": {
+                "title": "SphereCollider",
+                "type": "object",
+                "required": [
+                  "offset",
+                  "radius",
+                  "isTrigger"
+                ],
+                "properties": {
+                  "offset": {
+                    "$ref": "#/definitions/vector3"
+                  },
+                  "radius": { "type": "number" },
+                  "isTrigger": { "type": "boolean" }
                 }
               }
-            }
-          },
-          "boxCollider": {
-            "title": "BoxCollider",
-            "type": "object",
-            "required": [
-              "offset",
-              "size",
-              "isTrigger"
-            ],
-            "properties": {
-              "offset": {
-                "$ref": "#/definitions/vector3"
-              },
-              "size": { "$ref": "#/definitions/vector3" },
-              "isTrigger": { "type": "boolean" }
-            }
-          },
-          "sphereCollider": {
-            "title": "SphereCollider",
-            "type": "object",
-            "required": [
-              "offset",
-              "radius",
-              "isTrigger"
-            ],
-            "properties": {
-              "offset": {
-                "$ref": "#/definitions/vector3"
-              },
-              "radius": { "type": "number" },
-              "isTrigger": { "type": "boolean" }
             }
           }
         }

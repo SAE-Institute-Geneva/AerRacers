@@ -242,8 +242,7 @@ public :
 
     void HasSucceed() override
     {
-        EXPECT_TRUE(true);
-        EXPECT_TRUE(true);
+        logDebug("Test without check");
     }
 
     void Update(neko::seconds dt) override
@@ -1054,7 +1053,7 @@ private:
 class TestPhysXExampleScene : public TestSceneInterface
 {
 public:
-    explicit TestPhysXExampleScene() { sceneName = "scenes/PlaygroundTest2021-01-23-21-51-59.aerscene"; }
+    explicit TestPhysXExampleScene() { sceneName = "scenes/PlaygroundTest2021-02-03-11-20-04.aerscene"; }
 
     void HasSucceed(ComponentManagerContainer& cContainer) override {}
 
@@ -1103,7 +1102,7 @@ TEST(PhysX, TestExampleSceneImporteur)
 class TestPhysXBounceScene : public TestSceneInterface
 {
 public:
-    explicit TestPhysXBounceScene() { sceneName = "scenes/PhysicsScene01-27.aerscene"; }
+    explicit TestPhysXBounceScene() { sceneName = "scenes/PhysicsScene1-02-02.aerscene"; }
 
     void HasSucceed(ComponentManagerContainer& cContainer) override {}
     void Init(AerEngine& aerengine) override
@@ -1152,7 +1151,7 @@ TEST(PhysX, TestPhysXBounceScene)
 class TestPhysXColliderScene : public TestSceneInterface
 {
 public:
-    explicit TestPhysXColliderScene() { sceneName = "scenes/PhysicsScene2-01-27.aerscene"; }
+    explicit TestPhysXColliderScene() { sceneName = "scenes/PhysicsScene2-02-02.aerscene"; }
 
     void HasSucceed(ComponentManagerContainer& cContainer) override {}
     void Init(AerEngine& aerengine) override
