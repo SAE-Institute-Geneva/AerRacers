@@ -158,7 +158,7 @@ private:
 	AerEngine& engine_;
 };
 
-TEST(Engine, TestSimulateInput)
+TEST(Input, TestSimulateInput)
 {
 	//Travis Fix because Windows can't open a window
 	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
@@ -351,7 +351,7 @@ private:
 	AerEngine& engine_;
 };
 
-TEST(Engine, TestSimulateBindedInput)
+TEST(Input, TestSimulateBindedInput)
 {
 	//Travis Fix because Windows can't open a window
 	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
@@ -423,7 +423,7 @@ public:
 		}
 
 		updateCount_ += dt.count();
-		if (updateCount_ > kEngineDuration_ && !interactive_) { engine_.Stop(); }
+		//if (updateCount_ > kEngineDuration_ && !interactive_) { engine_.Stop(); }
 	}
 
 	void Destroy() override {}
@@ -663,7 +663,7 @@ public:
 		}
 
 		updateCount_ += dt.count();
-		if (updateCount_ > kEngineDuration_ && !interactive_) { engine_.Stop(); }
+		//if (updateCount_ > kEngineDuration_ && !interactive_) { engine_.Stop(); }
 	}
 
 	void Destroy() override {}
@@ -773,7 +773,7 @@ private:
 	bool interactive_            = false;
 };
 
-TEST(Engine, TestInteractiveInput)
+TEST(Input, TestInteractiveInput)
 {
 	//Travis Fix because Windows can't open a window
 	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
