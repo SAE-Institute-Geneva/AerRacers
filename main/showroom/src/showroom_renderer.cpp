@@ -32,7 +32,10 @@
 namespace neko
 {
 ShowRoomRenderer::ShowRoomRenderer(ShowRoomEngine& engine)
-   : engine_(engine), gizmoRenderer_(&camera_)
+   : engine_(engine),
+	 gizmoRenderer_(&camera_),
+	 bloomFbo_(BasicEngine::GetInstance()->GetConfig().windowSize),
+	 blurFbo_(BasicEngine::GetInstance()->GetConfig().windowSize)
 {
 	engine.RegisterSystem(textureManager_);
 	engine.RegisterSystem(gizmoRenderer_);
@@ -40,42 +43,96 @@ ShowRoomRenderer::ShowRoomRenderer(ShowRoomEngine& engine)
 
 void ShowRoomRenderer::Init()
 {
-	ImGuiIO &io = ImGui::GetIO();
-    const float fontSizeInPixels = 16;
+	ImGuiIO& io                  = ImGui::GetIO();
+	const float fontSizeInPixels = 16;
 
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
-	io.Fonts->AddFontFromFileTTF((config.dataRootPath + "droid_sans.ttf").c_str(), fontSizeInPixels);
+	io.Fonts->AddFontFromFileTTF("data/droid_sans.ttf", fontSizeInPixels);
+
+	camera_.Init();
+	camera_.position  = Vec3f(13.0f, 12.0f, 6.0f);
+	camera_.fovY      = 2 * Atan(0.5f * sensorSize_ / focalLength_);
+	camera_.nearPlane = 0.001f;
+	camera_.farPlane  = 1'000.0f;
+	camera_.WorldLookAt(Vec3f::zero);
+
+	pointLight_.position = Vec3f(5.0f, 3.0f, -3.0f);
+	spotLight_.position  = pointLight_.position;
+	dirLight_.direction  = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
+	spotLight_.direction = dirLight_.direction;
 
 	preRender_ = Job(
 		[this, config]
 		{
+			screenQuad_.Init();
+
 			const auto& filesystem = BasicEngine::GetInstance()->GetFilesystem();
-			searchIcon_ =
-				sr::StbCreateTexture(config.dataRootPath + "icons/search.png", filesystem);
-			folderIcon_ =
-				sr::StbCreateTexture(config.dataRootPath + "icons/folder.png", filesystem);
-			deleteIcon_ =
-				sr::StbCreateTexture(config.dataRootPath + "icons/delete.png", filesystem);
-			shader_.LoadFromFile(config.dataRootPath + "shaders/light.vert",
-				config.dataRootPath + "shaders/light.frag");
+			searchIcon_            = sr::StbCreateTexture("data/icons/search.png", filesystem);
+			folderIcon_            = sr::StbCreateTexture("data/icons/folder.png", filesystem);
+			deleteIcon_            = sr::StbCreateTexture("data/icons/delete.png", filesystem);
+
+			shader_.LoadFromFile("data/shaders/light.vert", "data/shaders/light.frag");
+			blurShader_.LoadFromFile("data/shaders/blur.vert", "data/shaders/blur.frag");
+			screenShader_.LoadFromFile("data/shaders/screen.vert", "data/shaders/screen.frag");
+
+			CreateFramebuffers();
 
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_DEPTH_TEST);
 		});
 
-	camera_.Init();
-	camera_.position = Vec3f(13.0f, 12.0f, 6.0f);
-	camera_.fovY = 2 * Atan(0.5f * sensorSize_ / focalLength_);
-	camera_.nearPlane = 0.001f;
-	camera_.farPlane = 1'000.0f;
-	camera_.WorldLookAt(Vec3f::zero);
-
-	pointLight_.position = Vec3f(5.0f, 3.0f, -3.0f);
-	spotLight_.position = pointLight_.position;
-	dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
-	spotLight_.direction = dirLight_.direction;
-
 	RendererLocator::get().AddPreRenderJob(&preRender_);
+}
+
+void ShowRoomRenderer::CreateFramebuffers()
+{
+	const Vec2u size = BasicEngine::GetInstance()->GetConfig().windowSize;
+
+	//Generate Bloom Framebuffer
+	glGenFramebuffers(1, &bloomFbo_.fbo);
+	bloomFbo_.Bind();
+
+	glGenTextures(IM_ARRAYSIZE(bloomFbo_.colorBuffers), &bloomFbo_.colorBuffers[0]);
+	for (int i = 0; i < IM_ARRAYSIZE(bloomFbo_.colorBuffers); ++i)
+	{
+		glBindTexture(GL_TEXTURE_2D, bloomFbo_.colorBuffers[i]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, size.x, size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glFramebufferTexture2D(
+			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, bloomFbo_.colorBuffers[i], 0);
+		glCheckError();
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glGenRenderbuffers(1, &bloomFbo_.depthRbo);
+	glBindRenderbuffer(GL_RENDERBUFFER, bloomFbo_.depthRbo);
+	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, size.x, size.y);
+	glFramebufferRenderbuffer(
+		GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, bloomFbo_.depthRbo);
+
+	unsigned attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+	glDrawBuffers(2, attachments);
+	glCheckFramebuffer();
+	glCheckError();
+
+	//Generate Blur Framebuffer
+	glGenFramebuffers(1, &blurFbo_.fbo);
+	blurFbo_.Bind();
+
+	glGenTextures(1, &blurFbo_.colorBuffer);
+	glBindTexture(GL_TEXTURE_2D, blurFbo_.colorBuffer);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, size.x, size.y, 0, GL_RGBA, GL_FLOAT, nullptr);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glFramebufferTexture2D(
+		GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, blurFbo_.colorBuffer, 0);
+	glCheckError();
+
+	Framebuffer::Unbind();
 }
 
 void ShowRoomRenderer::Update(const seconds dt)
@@ -111,18 +168,53 @@ void ShowRoomRenderer::Update(const seconds dt)
 
 void ShowRoomRenderer::Render()
 {
+	if (searchIcon_ == INVALID_TEXTURE_NAME) return;
+	if (model_.IsLoaded())
+	{
+		isModelLoading_ = false;
+
+		bloomFbo_.Bind();
+		{
+			bloomFbo_.Clear(Color::clear);
+			UpdateShader(shader_);
+			model_.Draw(shader_);
+		}
+
+		blurFbo_.Bind();
+		{
+			blurFbo_.Clear(Color::clear);
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_CULL_FACE);
+			blurShader_.Bind();
+			blurShader_.SetTexture("image", bloomFbo_.colorBuffers[1], 0);
+			screenQuad_.Draw();
+			glEnable(GL_CULL_FACE);
+			glEnable(GL_DEPTH_TEST);
+		}
+
+		Framebuffer::Unbind();
+	}
+
 	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	if (model_.IsLoaded())
+	{
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_CULL_FACE);
+		screenShader_.Bind();
+		screenShader_.SetTexture("screenTexture", bloomFbo_.colorBuffers[0], 0);
+		screenShader_.SetTexture("bloomBlur", blurFbo_.colorBuffer, 1);
+		screenQuad_.Draw();
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_DEPTH_TEST);
+
+		bloomFbo_.RetrieveDepth();
+	}
+
 	gizmoRenderer_.Render();
-
-	if (searchIcon_ == INVALID_TEXTURE_NAME) return;
-	if (!model_.IsLoaded()) return;
-	isModelLoading = false;
-
-	UpdateShader(shader_);
-	model_.Draw(shader_);
 }
 
 void ShowRoomRenderer::UpdateShader(const gl::Shader& shader) const
@@ -192,8 +284,20 @@ void ShowRoomRenderer::DrawGrid()
 void ShowRoomRenderer::Destroy()
 {
 	model_.Destroy();
-	textureManager_.Destroy();
 	shader_.Destroy();
+
+	textureManager_.Destroy();
+	gizmoRenderer_.Destroy();
+
+	screenShader_.Destroy();
+	blurShader_.Destroy();
+	bloomFbo_.Destroy();
+	blurFbo_.Destroy();
+	screenQuad_.Destroy();
+
+	sr::DestroyTexture(searchIcon_);
+	sr::DestroyTexture(folderIcon_);
+	sr::DestroyTexture(deleteIcon_);
 }
 
 void ShowRoomRenderer::OnEvent(const SDL_Event& event)
@@ -235,6 +339,8 @@ void ShowRoomRenderer::CreateDockableWindow()
 		PopStyleVar();
 		PopStyleVar(2);
 
+		ImGuizmo::SetDrawlist();
+
         dockspaceId_ = GetID("ShowroomDockSpace");
         if (!DockBuilderGetNode(dockspaceId_))
         {
@@ -263,7 +369,6 @@ void ShowRoomRenderer::CreateDockableWindow()
 	    DockSpace(dockspaceId_, ImVec2(0.0f, 0.0f), dockspaceFlags_);
 
 		DrawMenuBar();
-		ImGuizmo::SetDrawlist();
 
 		End();
 	}
@@ -395,7 +500,7 @@ void ShowRoomRenderer::DrawMenuBar()
 						textureManager_.Destroy();
 					}
 					model_.LoadModel(path);
-					isModelLoading = true;
+					isModelLoading_ = true;
 
 					if (GetFilenameExtension(path) == ".obj")
 					{
@@ -483,7 +588,7 @@ void ShowRoomRenderer::DrawInfoBar()
 		if (dockNode)
 			dockNode->LocalFlags |= ImGuiDockNodeFlags_NoTabBar | ImGuiDockNodeFlags_NoResize;
 
-		if (isModelLoading)
+		if (isModelLoading_)
 			Text("Loading Model...");
 
 		PopStyleVar(3);

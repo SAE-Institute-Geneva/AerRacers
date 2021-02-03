@@ -1,6 +1,7 @@
 #version 330 core
 precision mediump float;
-out vec4 FragColor; 
+layout (location = 0) out vec4 FragColor;
+layout (location = 1) out vec4 BrightColor;
 
 in Regular
 {
@@ -70,10 +71,7 @@ vec3 GetDiffuse()
  	if (bool(usedMaps & Diffuse)) diffuse = texture(material.diffuse, fs1_in.TexCoords).rgb;
  	else diffuse = material.diffuseColor;
  	
-    const float gamma = 2.2;
-    vec3 mapped = vec3(1.0) - exp(-diffuse * 1.0);
-    mapped = pow(mapped, vec3(1.0 / gamma));
-    return mapped;
+    return diffuse;
 }
 
 vec3 GetSpecular()
@@ -88,11 +86,7 @@ vec3 GetEmissive()
     if (bool(usedMaps & Emissive)) 
     {
     	vec3 emissive = texture(material.emissive, fs1_in.TexCoords).rgb;
-    	
-    	const float gamma = 2.2;
-    	vec3 mapped = vec3(1.0) - exp(-emissive * 1.0);
-    	mapped = pow(mapped, vec3(1.0 / gamma));
-    	return mapped;
+    	return emissive * 100.0f;
     }
     
     return vec3(0.0);
@@ -131,6 +125,9 @@ vec3 CalcDirLight()
     	
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+  	if (spec > 0.25) spec = 1.0;
+  	else spec = 0.0;
+  	
 	vec3 specular = vec3(light.specular) * spec * GetSpecular();
  
     diffuse *= light.intensity;
@@ -257,5 +254,17 @@ void main()
 	    break;
 	}
 	
+	float intensity = dot(normalize(fs1_in.Normal), -light.direction);
+
+	if (intensity > 0.95) result = result;
+	else if (intensity > 0.5) result = result * 0.6;
+	else result = light.ambient * GetDiffuse();
+	
 	FragColor = vec4(result, 1.0);
+	
+    float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));
+    if(brightness > 1.0)
+        BrightColor = vec4(result, 1.0);
+    else
+        BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
 }

@@ -28,6 +28,7 @@
 #include "ImGuizmo.h"
 #include "sdl_engine/sdl_engine.h"
 
+#include "gl/framebuffer.h"
 #include "graphics/lights.h"
 #include "showroom/camera.h"
 #include "showroom/gizmos_renderer.h"
@@ -38,6 +39,73 @@ namespace neko
 const static float maxFloat = std::numeric_limits<float>::max();
 const static float minFloat = std::numeric_limits<float>::lowest();
 const static float smallFloat = 0.1f;
+
+struct Framebuffer
+{
+	Framebuffer(Vec2u size) : size(size) {}
+
+	virtual void Destroy() const
+	{
+		glDeleteFramebuffers(1, &fbo);
+	}
+
+	void Bind() const
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+	}
+
+	static void Unbind()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+
+	void Clear(const Color4& color, bool clearDepth = true) const
+	{
+		glClearColor(color.x, color.y, color.z, color.w);
+		glClear(GL_COLOR_BUFFER_BIT | (clearDepth ? GL_DEPTH_BUFFER_BIT : 0));
+	}
+
+	void RetrieveDepth() const
+	{
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, fbo);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+		glBlitFramebuffer(
+			0, 0, size.x, size.y, 0, 0, size.x, size.y, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glCheckError();
+	}
+
+	Vec2u size;
+	unsigned fbo = 0;
+};
+
+struct BloomFbo : public Framebuffer
+{
+	BloomFbo(Vec2u size) : Framebuffer(size) {}
+
+	void Destroy() const override
+	{
+		glDeleteFramebuffers(1, &fbo);
+		glDeleteTextures(2, &colorBuffers[0]);
+		glDeleteRenderbuffers(1, &depthRbo);
+	}
+
+	unsigned colorBuffers[2] {};
+	unsigned depthRbo    = 0;
+};
+
+struct BlurFbo : public Framebuffer
+{
+	BlurFbo(Vec2u size) : Framebuffer(size) {}
+
+	void Destroy() const override
+	{
+		glDeleteFramebuffers(1, &fbo);
+		glDeleteTextures(1, &colorBuffer);
+	}
+
+	unsigned colorBuffer = 0;
+};
 
 class ShowRoomEngine;
 class ShowRoomRenderer final
@@ -58,6 +126,8 @@ public:
     void OnEvent(const SDL_Event& event) override;
 
 private:
+	void CreateFramebuffers();
+
     //Render
     void UpdateShader(const gl::Shader& shader) const;
 	void DrawGrid();
@@ -120,8 +190,14 @@ private:
 
     Mat4f modelMat_;
 	sr::Model model_;
-	bool isModelLoading;
 	gl::Shader shader_;
+	bool isModelLoading_;
+
+	gl::Shader screenShader_;
+	gl::Shader blurShader_;
+	BloomFbo bloomFbo_;
+	BlurFbo blurFbo_;
+	gl::RenderQuad screenQuad_{Vec3f::zero, Vec2f::one * 2};
 
 	//Lights
 	LightType lightType_ = SUN;

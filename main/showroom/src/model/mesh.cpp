@@ -48,7 +48,8 @@ void Mesh::Init()
 	{
 		//Waiting for texture to be loaded
 		while (!textureManager.IsTextureLoaded(texture.textureId)) {}
-		texture.name = textureManager.GetTexture(texture.textureId)->name;
+		if (textureManager.GetTexture(texture.textureId))
+			texture.name = textureManager.GetTexture(texture.textureId)->name;
 	}
 }
 

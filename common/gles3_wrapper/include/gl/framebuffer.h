@@ -32,45 +32,52 @@ namespace neko::gl
 class Framebuffer
 {
 public:
-    enum Type : std::uint32_t
-    {
-        COLOR_ATTACHMENT_0 = 1u,
-        DEPTH_RBO = 1u << 1u,
-        NO_DRAW = 1u << 2u,
-        DEPTH_STENCIL_RBO = 1u << 3u,
-        HDR = 1u << 4u,
-        DEPTH_ATTACHMENT = 1u << 5u,
-        DEPTH_STENCIL_ATTACHMENT = 1u << 6u,
-        DEFAULT = COLOR_ATTACHMENT_0 | DEPTH_RBO
-    };
+	enum Type : std::uint32_t
+	{
+		COLOR_ATTACHMENT_0       = 1u,
+		DEPTH_RBO                = 1u << 1u,
+		NO_DRAW                  = 1u << 2u,
+		DEPTH_STENCIL_RBO        = 1u << 3u,
+		HDR                      = 1u << 4u,
+		DEPTH_ATTACHMENT         = 1u << 5u,
+		DEPTH_STENCIL_ATTACHMENT = 1u << 6u,
+		DEFAULT                  = COLOR_ATTACHMENT_0 | DEPTH_RBO
+	};
+
 	~Framebuffer();
-    void Create();
-    void Reload();
-    void Destroy();
-    void Bind() const;
-    void Clear(const Color3& color);
-    static void Unbind();
-    /*
-     * Please Use gl::Framebuffer::Type (for example Framebuffer::NO_DRAW)
-     * Always Reload() to take effect
-     */
-    void SetType(std::uint32_t);
-    /*
-     * Always Reload() to take effect
-     */
-    void SetSize(Vec2u size);
 
-    [[nodiscard]] TextureName GetColorTexture() const { return colorBuffer_; }
-    [[nodiscard]] TextureName GetDepthTexture() const { return depthBuffer_; }
+	void Create();
+	void Reload();
+	void Destroy();
+
+	void Bind() const;
+	static void Unbind();
+
+	void Clear(const Color3& color);
+	void RetrieveDepth();
+
+	[[nodiscard]] TextureName GetColorTexture() const { return colorBuffer_; }
+	[[nodiscard]] TextureName GetDepthTexture() const { return depthBuffer_; }
+
+	/*
+     * Always Reload() to take effect
+     */
+	void SetSize(Vec2u size) { size_ = size; }
+
+	/*
+     * Always Reload() to take effect
+     */
+	void SetType(std::uint8_t type) { frameBufferType_ = type; }
+
 private:
-    inline static unsigned int currentFramebufferBind_ = 0;
-    Type frameBufferType_ = DEFAULT;
-    Vec2u size_;
-    unsigned int fbo_ = 0;
-    unsigned int colorBuffer_ = 0;
-    unsigned int depthRbo_ = 0;
-    unsigned int depthBuffer_ = 0;
+	inline static unsigned currentFramebufferBind_ = 0;
 
+	Vec2u size_;
+	std::uint8_t frameBufferType_ = DEFAULT;
+
+	unsigned fbo_         = 0;
+	unsigned colorBuffer_ = 0;
+	unsigned depthRbo_    = 0;
+	unsigned depthBuffer_ = 0;
 };
-	
-}
+}    // namespace neko::gl
