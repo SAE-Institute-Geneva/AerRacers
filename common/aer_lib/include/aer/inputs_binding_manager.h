@@ -66,15 +66,15 @@ enum class ActionAxisType : std::uint8_t
  */
 struct BindingInputs
 {
-	std::array<sdl::KeyCodeType, static_cast<size_t>(ActionButtonType::LENGTH)> pcBindingButtons {};
+	std::array<sdl::KeyCodeType, static_cast<size_t>(ActionButtonType::LENGTH)> pcBindingButtons;
 	std::array<sdl::ControllerButtonType, static_cast<size_t>(ActionButtonType::LENGTH)>
-		controllerBindingButtons {};
+		controllerBindingButtons;
 	std::array<sdl::SwitchButtonType, static_cast<size_t>(ActionButtonType::LENGTH)>
-		switchBindingButtons {};
+		switchBindingButtons;
 	std::array<sdl::ControllerAxisType, static_cast<size_t>(ActionAxisType::LENGTH)>
-		controllerBindingAxis {};
+		controllerBindingAxis;
 	std::array<sdl::SwitchAxisType, static_cast<size_t>(ActionAxisType::LENGTH)>
-		switchBindingAxis {};
+		switchBindingAxis;
 	PlayerId playerId                    = 0;
 	sdl::ControllerId bindedControllerId = 0;
 	sdl::SwitchJoyId bindedSwitchJoyId   = 0;
@@ -141,6 +141,8 @@ public:
 
 	std::string ActionEnumToString(ActionButtonType actionInputs) override;
 	std::string ActionEnumToString(ActionAxisType actionAxis) override;
+
+	void Destroy();
 
 private:
 	[[nodiscard]] unsigned FindActionIndexFromId(PlayerId playerId) const;

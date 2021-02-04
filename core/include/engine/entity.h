@@ -73,7 +73,16 @@ public:
      */
 	Entity CreateEntity(Entity entity = INVALID_ENTITY);
 	Entity GetLastEntity();
-	void DestroyEntity(Entity entity);
+
+    /**
+	 * \brief Destroy an entity and all their children
+	 */
+    void DestroyEntity(Entity entity, bool children);
+
+    /**
+	 * \brief Destroy all entities
+	 */
+    void CleanEntity();
 
 	[[nodiscard]] bool HasComponent(Entity entity, EntityMask componentType) const;
 	[[nodiscard]] bool IsPrefab(Entity entity) const;

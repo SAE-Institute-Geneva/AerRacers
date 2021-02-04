@@ -5,7 +5,6 @@
 *.slo
 *.lo
 *.o
-*.obj
 
 # Precompiled Headers
 *.gch
@@ -38,7 +37,7 @@
 .idea/*
 *.user
 
-#clion generation files
+# clion generation files
 */.vs/*
 .vs/*
 .clang-format
@@ -51,12 +50,27 @@ cmake-build-relwithdebinfo/*
 out/*
 web_build/*
 
+# cmake files
+**/CMakeFiles/**
+
 # glsl validator temp files
-/scripts/validator/__pycache__/*
+**/__pycache__/**
 
 # log files
 /data/logs/*
  
 # tmp files
 /tmp
-   
+
+# physx files
+**/PhysX-4.1/**/CMakeCache.txt
+**/PhysX-4.1/**/cmake_install.cmake
+**/PhysX-4.1/**/CTestTestfile.cmake
+**/PhysX-4.1/**/Makefile
+**/PhysX-4.1/**/PxConfig.h
+**/PhysX-4.1/**/*.cbp
+**/PhysX-4.1/**/*.sln
+**/PhysX-4.1/**/*.vcxproj
+**/PhysX-4.1/**/*.vcxproj.filters
+!**/libGLEW.a
+!**/libGLEWmx.a

@@ -136,27 +136,128 @@ struct Quaternion
 		return conj / (mag * mag);
 	}
 
-	/*
+    /*
 	Returns a rotation that rotates z degrees around the z axis,
-	x degrees around the x axis, and y degrees around the y axis;
+	x degrees around the x axis, and y degrees around the y axis; 
 	applied in that order
 	*/
-	static Quaternion FromEuler(const EulerAngles& angle)
-	{
-		const auto cy = Cos(angle.x * 0.5f);
-		const auto sy = Sin(angle.x * 0.5f);
-		const auto cp = Cos(angle.y * 0.5f);
-		const auto sp = Sin(angle.y * 0.5f);
-		const auto cr = Cos(angle.z * 0.5f);
-		const auto sr = Sin(angle.z * 0.5f);
+    static Quaternion FromEuler(const EulerAngles& angle)
+    {
+        const auto cy = Cos(angle.z * 0.5f);
+        const auto sy = Sin(angle.z * 0.5f);
+        const auto cp = Cos(angle.y * 0.5f);
+        const auto sp = Sin(angle.y * 0.5f);
+        const auto cr = Cos(angle.x * 0.5f);
+        const auto sr = Sin(angle.x * 0.5f);
+        Quaternion q;
+        q.w = cr * cp * cy + sr * sp * sy;
+        q.x = sr * cp * cy - cr * sp * sy;
+        q.y = cr * sp * cy + sr * cp * sy;
+        q.z = cr * cp * sy - sr * sp * cy;
+        //double c1 = Cos(angle.z);
+        //double s1 = Sin(angle.z);
+        //double c2 = Cos(angle.y);
+        //double s2 = Sin(angle.y);
+        //double c3 = Cos(angle.x);
+        //double s3 = Sin(angle.x);
+        //q.w = sqrtf(1.0 + c1 * c2 + c1 * c3 - s1 * s2 * s3 + c2 * c3) / 2.0;
+        //double w4 = (4.0 * q.w);
+        //q.x = (c2 * s3 + c1 * s3 + s1 * s2 * c3) / w4;
+        //q.y = (s1 * c2 + s1 * c3 + c1 * s2 * s3) / w4;
+        //q.z = (-s1 * s3 + c1 * s2 * c3 + s2) / w4;
+        return q;
+        //return Quaternion(
+        //    cy * cp * cr + sy * sp * sr,
+        //    cy * cp * sr - sy * sp * cr,
+        //    sy * cp * sr + cy * sp * cr,
+        //    sy * cp * cr - cy * sp * sr
+        //);
+    }
 
-		return Quaternion(
-			cy * cp * cr + sy * sp * sr,
-			cy * cp * sr - sy * sp * cr,
-			sy * cp * sr + cy * sp * cr,
-			sy * cp * cr - cy * sp * sr
-		);
-	}
+    static EulerAngles ToEulerAngles(const Quaternion& q)
+    {
+        EulerAngles angles;
+        // roll (x-axis rotation)
+        float sinr_cosp = 2.0f * (q.w * q.x + q.y * q.z);
+        float cosr_cosp = 1.0f - 2.0f * (q.x * q.x + q.y * q.y);
+        angles.x         = Atan2(sinr_cosp, cosr_cosp);
+
+        // pitch (y-axis rotation)
+        float sinp = 2.0f * (q.w * q.y - q.z * q.x);
+        if (std::abs(sinp) >= 1)
+            angles.y = radian_t(std::copysign(M_PI / 2, sinp));    // use 90 degrees if out of range
+        else
+            angles.y = Asin(sinp);
+
+        // yaw (z-axis rotation)
+        float siny_cosp = 2.0f * (q.w * q.z + q.x * q.y);
+        float cosy_cosp = 1.0f - 2.0f * (q.y * q.y + q.z * q.z);
+        angles.z         = Atan2(siny_cosp, cosy_cosp);
+
+        return angles;
+    }
+ //   /*
+	//Returns a rotation that rotates z degrees around the z axis,
+	//x degrees around the x axis, and y degrees around the y axis; 
+	//applied in that order
+	//*/
+ //   static Quaternion FromEuler(const EulerAngles& angle)
+ //   {
+ //       const auto cy = Cos(angle.x * 0.5f);
+ //       const auto sy = Sin(angle.x * 0.5f);
+ //       const auto cp = Cos(angle.y * 0.5f);
+ //       const auto sp = Sin(angle.y * 0.5f);
+ //       const auto cr = Cos(angle.z * 0.5f);
+ //       const auto sr = Sin(angle.z * 0.5f);
+
+ //       return Quaternion(cy * cp * cr + sy * sp * sr,
+ //           cy * cp * sr - sy * sp * cr,
+ //           sy * cp * sr + cy * sp * cr,
+ //           sy * cp * cr - cy * sp * sr);
+ //   }
+
+  //  static EulerAngles ToEulerAngles(Quaternion& q)
+  //  {
+  //      /*
+		//reference
+		//http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+		//http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
+		//*/
+
+  //      EulerAngles eulerAngles;
+
+  //      // Threshold for the singularities found at the north/south poles.
+  //      const float SINGULARITY_THRESHOLD = 0.4999995f;
+
+  //      const auto sqw = q.w * q.w;
+  //      const auto sqx = q.x * q.x;
+  //      const auto sqy = q.y * q.y;
+  //      const auto sqz = q.z * q.z;
+  //      const auto unit =
+  //          sqx + sqy + sqz + sqw;    // if normalised is one, otherwise is correction factor
+  //      const auto singularityTest = q.x * q.y + q.w * q.z;
+
+  //      if (singularityTest > SINGULARITY_THRESHOLD * unit)
+  //      {
+  //          eulerAngles.z = 2.0f * Atan2(q.x, q.w);
+  //          eulerAngles.y = radian_t(PI / 2.0f);
+  //          eulerAngles.x = radian_t(0);
+  //      }
+  //      else if (singularityTest < -SINGULARITY_THRESHOLD * unit)
+  //      {
+  //          eulerAngles.z = -2.0f * Atan2(q.x, q.w);
+  //          eulerAngles.y = radian_t(-PI / 2.0f);
+  //          eulerAngles.x = radian_t(0);
+  //      }
+  //      else
+  //      {
+  //          eulerAngles.z = Atan2(2 * (q.w * q.y - q.x * q.z), sqw + sqx - sqy - sqz);
+  //          eulerAngles.y = Asin(2 * singularityTest / unit);
+  //          eulerAngles.x = Atan2(2 * (q.w * q.x - q.y * q.z), sqw - sqx + sqy - sqz);
+  //      }
+
+  //      return eulerAngles;
+  //  }
 
 	static Quaternion FromRotationMatrix(const Mat4f& mat)
 	{

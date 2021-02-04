@@ -153,12 +153,12 @@ private:
 	bool controllerUp_   = false;
 
 	float updateCount_           = 0;
-	const float kEngineDuration_ = 5.0f;
+    const float kEngineDuration_ = 0.5f;
 
 	AerEngine& engine_;
 };
 
-TEST(Engine, TestSimulateInput)
+TEST(Input, TestSimulateInput)
 {
 	//Travis Fix because Windows can't open a window
 	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
@@ -346,12 +346,12 @@ private:
 	bool keyboardForwardUp_      = false;
 
 	float updateCount_           = 0;
-	const float kEngineDuration_ = 5.0f;
+	const float kEngineDuration_ = 0.5f;
 
 	AerEngine& engine_;
 };
 
-TEST(Engine, TestSimulateBindedInput)
+TEST(Input, TestSimulateBindedInput)
 {
 	//Travis Fix because Windows can't open a window
 	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
@@ -588,8 +588,8 @@ private:
 	bool actionUp_       = false;
 
 	float updateCount_           = 0;
-	const float kEngineDuration_ = 5.0f;
-	bool interactive_            = false;
+    const float kEngineDuration_ = 0.5f;
+    bool interactive_            = false;
 
 	AerEngine& engine_;
 };
@@ -769,11 +769,11 @@ private:
 	bool actionUp_   = false;
 
 	float updateCount_           = 0;
-	const float kEngineDuration_ = 5.0f;
+    const float kEngineDuration_ = 0.5f;
 	bool interactive_            = false;
 };
 
-TEST(Engine, TestInteractiveInput)
+TEST(Input, TestInteractiveInput)
 {
 	//Travis Fix because Windows can't open a window
 	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
@@ -794,11 +794,11 @@ TEST(Engine, TestInteractiveInput)
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 
-	InputBindingManager bindedInputManager;
-	InteractiveBindingInput interactiveBindedInput(engine, false);
-	engine.RegisterSystem(interactiveBindedInput);
-	engine.RegisterOnDrawUi(interactiveBindedInput);
-	engine.RegisterOnEvent(interactiveBindedInput);
+	//InputBindingManager bindedInputManager;
+	//InteractiveBindingInput interactiveBindedInput(engine, false);
+	//engine.RegisterSystem(interactiveBindedInput);
+	//engine.RegisterOnDrawUi(interactiveBindedInput);
+	//engine.RegisterOnEvent(interactiveBindedInput);
 	InteractiveInput interactiveInput(engine, false);
 	engine.RegisterSystem(interactiveInput);
 	engine.RegisterOnDrawUi(interactiveInput);
@@ -807,6 +807,7 @@ TEST(Engine, TestInteractiveInput)
 	engine.Init();
 
 	engine.EngineLoop();
+    logDebug("Test without check");
 }
 }    // namespace neko::aer
 #endif

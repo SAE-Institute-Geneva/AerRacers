@@ -129,7 +129,8 @@ void InputManager::OnEvent(SDL_Event event)
         case SDL_KEYDOWN:
         {
             const size_t index = event.key.keysym.scancode;
-            keyPressedState_[index] = ButtonState::DOWN;
+            if (keyPressedState_[index] != ButtonState::HELD)
+            { keyPressedState_[index] = ButtonState::DOWN; }
             break;
         }
         case SDL_KEYUP:
@@ -161,7 +162,7 @@ void InputManager::OnEvent(SDL_Event event)
         {
             const size_t index = event.button.button - 1;
             buttonState_[index] =
-                ButtonState::DOWN;
+                ButtonState::UP;
 
             break;
         }

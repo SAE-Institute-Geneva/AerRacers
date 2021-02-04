@@ -7,7 +7,8 @@ file(GLOB_RECURSE shaders_src ${CMAKE_SOURCE_DIR}/data/shaders/aer_racer/*.vert 
 source_group("Shaders"	FILES ${shaders_src})
 
 add_executable(aer_game ${aer_game_src} ${shaders_src})
-target_link_libraries(aer_game PUBLIC Neko_Core aer_lib sdl_engine gles3_wrapper)
+
+target_link_libraries(aer_game PUBLIC Neko_Core aer_lib sdl_engine gles3_wrapper PhysX)
 neko_bin_config(aer_game)
 data_generate(aer_game)
 set_target_properties (aer_game_Generate_Data PROPERTIES FOLDER Aer/Main)

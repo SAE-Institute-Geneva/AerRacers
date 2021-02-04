@@ -63,11 +63,9 @@
   "type": "object",
   "required": [
     "name",
-    "instanceId",
-    "parent",
-    "layer",
-    "tag",
-    "transformData"
+    "layers",
+    "tags",
+    "objects"
   ],
   "properties": {
     "name": {
@@ -82,7 +80,7 @@
     "layers": {
       "type": "array",
       "items": {
-        "type": "integer"
+        "type": "string"
       }
     },
     "objects": {
@@ -90,12 +88,13 @@
       "items": {
         "type": "object",
         "required": [
-          "name",
           "instanceId",
           "parent",
           "layer",
           "tag",
-          "transform"
+          "transform",
+		  "rigidbody",
+		  "modelRenderer"
         ],
         "properties": {
           "name": {
@@ -116,7 +115,7 @@
           },
           "layer": {
             "title": "Layer",
-            "type": "integer"
+            "type": "string"
           },
           "tag": {
             "title": "Tag",
@@ -126,11 +125,13 @@
             "title": "Transform",
             "type": "object",
             "required": [
-              "position",
-              "rotation",
-              "scale"
+              "exist"
             ],
             "properties": {
+              "exist": {
+                "title": "exist",
+				"type": "boolean",
+              },
               "position": {
                 "title": "Position",
                 "$ref": "#/definitions/vector3"
@@ -149,20 +150,13 @@
             "title": "ShipControls",
             "type": "object",
             "required": [
-              "rotorMaxAngle",
-              "forwardForce",
-              "backwardForce",
-              "turnAngle",
-              "rotationAngle",
-              "hoverHeight",
-              "hoverForce",
-              "gravityForce",
-              "maxAirTime",
-              "dangerousForwardSpeed",
-              "maximumForwardSpeed",
-              "bounceForce"
+              "exist"
             ],
             "properties": {
+              "exist": {
+                "title": "exist",
+				"type": "boolean",
+              },
               "rotorMaxAngle": { "type": "number" },
               "forwardForce": { "type": "number" },
               "backwardForce": { "type": "number" },
@@ -181,12 +175,13 @@
             "title": "ShipRotation",
             "type": "object",
             "required": [
-              "maxRollAngle",
-              "maxPitchAngle",
-              "inclineSpeed",
-              "rollPitchSpeed"
+              "exist"
             ],
             "properties": {
+              "exist": {
+                "title": "exist",
+				"type": "boolean",
+              },
               "maxRollAngle": { "type": "number" },
               "maxPitchAngle": { "type": "number" },
               "inclineSpeed": { "type": "number" },
@@ -197,9 +192,13 @@
             "title": "ModelRenderer",
             "type": "object",
             "required": [
-              "meshName"
+              "exist"
             ],
             "properties": {
+              "exist": {
+                "title": "exist",
+				"type": "boolean",
+              },
               "meshName": {
                 "title": "meshName",
                 "type": "string"
@@ -210,14 +209,17 @@
             "title": "Rigidbody",
             "type": "object",
             "required": [
-              "status",
-              "linearDamping",
-              "angularDamping",
-              "useGravity"
+              "exist"
             ],
             "properties": {
-              "status": { "type": "string" },
+              "exist": {
+                "title": "exist",
+				"type": "boolean",
+              },
+                  "isKinematic": { "type": "boolean" },
+                  "isStatic": { "type": "boolean" },
               "linearDamping": { "type": "number" },
+              "mass": { "type": "number" },
               "angularDamping": { "type": "number" },
               "useGravity": { "type": "boolean" },
               "rotationLock": {
@@ -237,60 +239,83 @@
                   "z": {
                     "type": "boolean"
                   }
-                },
-                "positionLock": {
-                  "type": "object",
-                  "required": [
-                    "x",
-                    "y",
-                    "z"
-                  ],
-                  "properties": {
-                    "x": {
-                      "type": "boolean"
-                    },
-                    "y": {
-                      "type": "boolean"
-                    },
-                    "z": {
-                      "type": "boolean"
-                    }
+                }
+              },
+              "positionLock": {
+                "type": "object",
+                "required": [
+                  "x",
+                  "y",
+                  "z"
+                ],
+                "properties": {
+                  "x": {
+                    "type": "boolean"
+                  },
+                  "y": {
+                    "type": "boolean"
+                  },
+                  "z": {
+                    "type": "boolean"
                   }
+                }
 
+
+              },
+              "boxCollider": {
+                "title": "BoxCollider",
+                "type": "object",
+                "required": [
+                  "offset",
+                  "size",
+                  "isTrigger"
+                ],
+                "properties": {
+				  "exist": {
+					"title": "exist",
+					"type": "boolean",
+				  },
+                  "offset": {
+                    "$ref": "#/definitions/vector3"
+                  },
+                  "size": { "$ref": "#/definitions/vector3" },
+                  "isTrigger": { "type": "boolean" }
+                }
+              },
+              "sphereCollider": {
+                "title": "SphereCollider",
+                "type": "object",
+                "required": [
+                  "offset",
+                  "radius",
+                  "isTrigger"
+                ],
+                "properties": {
+                  "offset": {
+                    "$ref": "#/definitions/vector3"
+                  },
+                  "radius": { "type": "number" },
+                  "isTrigger": { "type": "boolean" }
+                }
+              },
+              "physicsMaterial": {
+                "title": "physicsMaterial",
+                "type": "object",
+                "required": [
+                  "bouciness",
+                  "dynamicFriction",
+                  "staticFriction"
+                ],
+                "properties": {
+				  "exist": {
+					"title": "exist",
+					"type": "boolean",
+				  },
+                  "bouciness": { "type": "number" },
+                  "dynamicFriction": { "type": "number" },
+                  "staticFriction": { "type": "number" },
                 }
               }
-            }
-          },
-          "boxCollider": {
-            "title": "BoxCollider",
-            "type": "object",
-            "required": [
-              "offset",
-              "size",
-              "isTrigger"
-            ],
-            "properties": {
-              "offset": {
-                "$ref": "#/definitions/vector3"
-              },
-              "size": { "$ref": "#/definitions/vector3" },
-              "isTrigger": { "type": "boolean" }
-            }
-          },
-          "sphereCollider": {
-            "title": "SphereCollider",
-            "type": "object",
-            "required": [
-              "offset",
-              "radius",
-              "isTrigger"
-            ],
-            "properties": {
-              "offset": {
-                "$ref": "#/definitions/vector3"
-              },
-              "radius": { "type": "number" },
-              "isTrigger": { "type": "boolean" }
             }
           }
         }

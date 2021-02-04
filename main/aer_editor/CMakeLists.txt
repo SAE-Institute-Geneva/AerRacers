@@ -4,7 +4,7 @@ if(Neko_GLES3)
     file(GLOB_RECURSE aer_editor_src include/*.h src/*.cpp)
 
     add_executable(aer_editor ${aer_editor_src})
-    target_link_libraries(aer_editor PUBLIC Neko_Core aer_lib sdl_engine gles3_wrapper)
+    target_link_libraries(aer_editor PUBLIC Neko_Core aer_lib sdl_engine gles3_wrapper PhysX)
     neko_bin_config(aer_editor)
     data_generate(aer_editor)
     set_target_properties (aer_editor_Generate_Data PROPERTIES FOLDER Aer/Main)

@@ -55,14 +55,14 @@ public:
 		{
 			planeEntity_ = entityManager_.CreateEntity();
 			transform3dManager_.AddComponent(planeEntity_);
-			transform3dManager_.SetPosition(planeEntity_, planePosition_);
-			transform3dManager_.SetScale(planeEntity_, Vec3f(5, 1, 5));
+			transform3dManager_.SetRelativePosition(planeEntity_, planePosition_);
+			transform3dManager_.SetRelativeScale(planeEntity_, Vec3f(5, 1, 5));
 		}
 		//Sphere
 		{
 			sphereEntity_ = entityManager_.CreateEntity();
 			transform3dManager_.AddComponent(sphereEntity_);
-			transform3dManager_.SetPosition(sphereEntity_, cubePosition_);
+			transform3dManager_.SetRelativePosition(sphereEntity_, cubePosition_);
 		}
 	}
 
@@ -133,16 +133,17 @@ public:
 			if (entityManager_.HasComponent(
 					entity, EntityMask(ComponentType::TRANSFORM3D)))
 			{
-				model = Transform3d::Scale(model, transform3dManager_.GetScale(entity));
-				model = Transform3d::Rotate(model, transform3dManager_.GetAngles(entity));
+				model = Transform3d::Scale(model, transform3dManager_.GetRelativeScale(entity));
+				model = Transform3d::Rotate(model, transform3dManager_.GetRelativeRotation(entity));
 				model =
-					Transform3d::Translate(model, transform3dManager_.GetPosition(entity));
+					Transform3d::Translate(model, transform3dManager_.GetRelativePosition(entity));
 				shader_.SetMat4("model", model);
 				if (entity == planeEntity_)
 				{
 					cube_.Draw();
-					gizmosRenderer_.DrawCube(transform3dManager_.GetPosition(entity),
-						transform3dManager_.GetScale(entity),
+					gizmosRenderer_.DrawCube(transform3dManager_.GetRelativePosition(entity),
+                        transform3dManager_.GetRelativeScale(entity),
+                        EulerAngles(degree_t(0)),
 						Color::blue,
 						10.0f);
 				}
@@ -150,8 +151,9 @@ public:
 				if (entity == sphereEntity_)
 				{
 					sphere_.Draw();
-					gizmosRenderer_.DrawSphere(transform3dManager_.GetPosition(entity),
-						1.0f,
+					gizmosRenderer_.DrawSphere(transform3dManager_.GetRelativePosition(entity),
+                        1.0f,
+                        EulerAngles(degree_t(0)),
 						Color::green,
 						3.0f);
 				}
@@ -173,8 +175,8 @@ public:
 	void DrawImGui() override {}
 
 private:
-	int updateCount_           = 0;
-	const float kEngineDuration_ = 5.0f;
+    float updateCount_           = 0;
+	const float kEngineDuration_ = 0.5f;
 
 	AerEngine& engine_;
 	EntityManager& entityManager_;
@@ -254,6 +256,7 @@ TEST(Engine, Gizmos)
 	Job initJob {[&textGizmos]() { textGizmos.InitRenderer(); }};
 	BasicEngine::GetInstance()->ScheduleJob(&initJob, JobThreadType::RENDER_THREAD);
 	engine.EngineLoop();
+    logDebug("Test without check");
 }
 }    // namespace neko
 #endif

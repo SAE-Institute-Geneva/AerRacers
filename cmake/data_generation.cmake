@@ -56,7 +56,8 @@ function(data_generate binary)
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.pkg_json")
 	file(GLOB_RECURSE AER_FILES
 			"${CMAKE_CURRENT_SOURCE_DIR}/data/*.aermat"
-			"${CMAKE_CURRENT_SOURCE_DIR}/data/*.aershader")
+			"${CMAKE_CURRENT_SOURCE_DIR}/data/*.aershader"
+            "${CMAKE_CURRENT_SOURCE_DIR}/data/*.aerscene")
 			
     set(data_generate_name "${binary}_Generate_Data")
 

@@ -1,4 +1,7 @@
 #include "aer/gizmos_renderer.h"
+#ifdef EASY_PROFILE_USE
+    #include "easy/profiler.h"
+#endif
 
 #include <engine/engine.h>
 
@@ -14,6 +17,9 @@ GizmoRenderer::GizmoRenderer(Camera3D* camera) : camera_(camera)
 
 void GizmoRenderer::Init()
 {
+    #ifdef EASY_PROFILE_USE
+    EASY_BLOCK("GizmoRenderer::Init");
+    #endif
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
 
 	preRender_ = Job {[this, config]()
@@ -40,11 +46,17 @@ void GizmoRenderer::Init()
 
 void GizmoRenderer::Update(seconds)
 {
+    #ifdef EASY_PROFILE_USE
+    EASY_BLOCK("GizmoRenderer::Update");
+    #endif
 	RendererLocator::get().Render(this);
 }
 
 void GizmoRenderer::Render()
 {
+    #ifdef EASY_PROFILE_USE
+    EASY_BLOCK("GizmoRenderer::Render");
+    #endif
 	if (isRunning_)
 	{
 		const Mat4f camProj = camera_->GenerateProjectionMatrix();
@@ -118,6 +130,7 @@ void GizmoRenderer::Stop() { isRunning_ = false; }
 void GizmoRenderer::DrawCube(
 	const Vec3f& pos,
 	const Vec3f& size,
+	const EulerAngles& rot,
 	const Color4& color,
 	const float lineThickness)
 {
@@ -127,6 +140,7 @@ void GizmoRenderer::DrawCube(
 		Gizmo gizmo;
 		gizmo.pos           = pos;
 		gizmo.cubeSize      = size;
+		gizmo.rot           = rot;
 		gizmo.color         = color;
 		gizmo.shape         = GizmoShape::CUBE;
 		gizmo.lineThickness = lineThickness;
@@ -156,6 +170,7 @@ void GizmoRenderer::DrawLine(
 void GizmoRenderer::DrawSphere(
     const Vec3f& pos,
     const float& radius,
+	const EulerAngles& rot,
     const Color4& color,
     float lineThickness)
 {
@@ -165,7 +180,8 @@ void GizmoRenderer::DrawSphere(
 		Gizmo gizmo;
 		gizmo.pos           = pos;
 		gizmo.radius        = radius;
-		gizmo.color         = color;
+        gizmo.color         = color;
+        gizmo.rot           = rot;
 		gizmo.shape         = GizmoShape::SPHERE;
 		gizmo.lineThickness = lineThickness;
 		gizmosQueue_.push_back(gizmo);
@@ -306,9 +322,31 @@ namespace neko
 		}
 	}
 
+	void NekoGizmosRenderer::DrawSphere(
+		const Vec3f& pos,
+		const float& radius,
+		const EulerAngles& rot,
+		const Color4& color,
+		float lineThickness)
+	{
+		if (isRunning_)
+		{
+			std::lock_guard<std::mutex> lock(renderMutex_);
+			Gizmos gizmo;
+			gizmo.pos = pos;
+			gizmo.radius = radius;
+			gizmo.rot = rot;
+			gizmo.color = color;
+			gizmo.shape = GizmoShape::SPHERE;
+			gizmo.lineThickness = lineThickness;
+			gizmosQueue_.push_back(gizmo);
+		}
+	}
+
 	void NekoGizmosRenderer::SetCamera(Camera3D* camera)
 	{
 		camera_ = camera;
 	}
 }
 #endif
+ 

@@ -37,7 +37,6 @@ int main(int, char**)
 	neko::Configuration config;
 	config.windowName   = "AerEditor Version 0.01";
 	config.windowSize   = neko::Vec2u(1280, 720);
-	config.dataRootPath = "data/";
 
 	neko::sdl::Gles3Window window;
 	neko::gl::Gles3Renderer renderer;

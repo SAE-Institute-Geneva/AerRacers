@@ -117,18 +117,23 @@ public:
 	void Update() override;
 	void UpdateDirtyComponent(Entity entity) override;
 
-	[[nodiscard]] Vec3f GetPosition(Entity entity) const;
-	[[nodiscard]] EulerAngles GetAngles(Entity entity) const;
-	[[nodiscard]] Vec3f GetScale(Entity entity) const;
-	void SetPosition(Entity entity, const Vec3f& position);
-	void SetRotation(Entity entity, const EulerAngles& angles);
-	void SetScale(Entity entity, const Vec3f& scale);
+	[[nodiscard]] Vec3f GetRelativePosition(Entity entity) const;
+	[[nodiscard]] EulerAngles GetRelativeRotation(Entity entity) const;
+	[[nodiscard]] Vec3f GetRelativeScale(Entity entity) const;
+	void SetRelativePosition(Entity entity, const Vec3f& position);
+	void SetRelativeRotation(Entity entity, const EulerAngles& angles);
+	void SetRelativeScale(Entity entity, const Vec3f& scale);
+
+    [[nodiscard]] Vec3f GetGlobalPosition(Entity entity) const;
+    [[nodiscard]] EulerAngles GetGlobalRotation(Entity entity) const;
+    [[nodiscard]] Vec3f GetGlobalScale(Entity entity) const;
+    void SetGlobalPosition(Entity entity, const Vec3f& position);
+    void SetGlobalRotation(Entity entity, const EulerAngles& angles);
+    void SetGlobalScale(Entity entity, const Vec3f& scale);
 
 	void AddComponent(Entity entity) override;
 	void OnChangeParent(Entity entity, Entity newParent, Entity oldParent) override;
 
-	json GetJsonFromComponent(Entity entity) const override;
-	void SetComponentFromJson(Entity entity, const json& jsonComponent) override;
 
 protected:
 	void UpdateTransform(Entity entity) override;
@@ -139,19 +144,51 @@ protected:
 	Rotation3dManager rotation3DManager_;
 	DirtyManager dirtyManager_;
 };
+//OldTransform3dViewer
+//class Transform3dViewer : public DrawImGuiInterface
+//{
+//public:
+//	explicit Transform3dViewer(
+//		EntityManager& entityManager,
+//		Transform3dManager& transform3dManager);
+//	void DrawImGui() override;
+//	void SetSelectedEntity(Entity selectedEntity) { selectedEntity_ = selectedEntity; };
+//
+//protected:
+//	Entity selectedEntity_ = INVALID_ENTITY;
+//	EntityManager& entityManager_;
+//	Transform3dManager& transform3dManager_;
+//};
 
-class Transform3dViewer : public DrawImGuiInterface
+
+/**
+ * \brief The Component Manager use to serialize to json and imgui components
+ */
+class Transform3dViewer : public ComponentViewer
 {
 public:
-	explicit Transform3dViewer(
-		EntityManager& entityManager,
-		Transform3dManager& transform3dManager);
-	void DrawImGui() override;
-	void SetSelectedEntity(Entity selectedEntity) { selectedEntity_ = selectedEntity; };
+    explicit Transform3dViewer(
+        EntityManager& entityManager, Transform3dManager& transform3dManager);
 
-protected:
-	Entity selectedEntity_ = INVALID_ENTITY;
-	EntityManager& entityManager_;
-	Transform3dManager& transform3dManager_;
+    virtual ~Transform3dViewer() = default;
+
+    /**
+     * \brief Get a json object of the component of an entity
+     * \return json object with component parameter
+     */
+    json GetJsonFromComponent(Entity entity) const override;
+
+    /**
+     * \brief Set a component of an entity from a json of the component
+     * \componentJson json object with component parameter
+     */
+    void SetComponentFromJson(Entity entity, const json& jsonComponent) override;
+
+    /**
+     * \brief Draw the Imgui with the component parameter of an entity
+     */
+    void DrawImGui(Entity entity) override;
+private :
+    Transform3dManager& transform3dManager_;
 };
 }    // namespace neko

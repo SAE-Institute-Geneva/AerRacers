@@ -29,14 +29,9 @@
 
 #include "sdl_engine/sdl_camera.h"
 
-#include "aer/aer_engine.h"
 #include "aer/editor/editor_tool_manager.h"
 #include "aer/gizmos_renderer.h"
-#include "aer/inputs_binding_manager.h"
-#include "aer/log.h"
 #include "aer/scene.h"
-#include "aer/tag.h"
-#include "aer_engine.h"
 
 namespace neko::aer
 {
@@ -64,11 +59,6 @@ protected:
 
 	ResourceManagerContainer& rContainer_;
 	ComponentManagerContainer& cContainer_;
-
-	//Service Locator
-	std::unique_ptr<LogManager> logManager_;
-	std::unique_ptr<TagManager> tagManager_;
-	std::unique_ptr<InputBindingManager> boundInputManager_;
 
 #ifdef NEKO_GLES3
 	std::unique_ptr<GizmoRenderer> gizmosRenderer_;

@@ -32,8 +32,8 @@ namespace neko::sdl
 struct MovableCamera : SdlEventSystemInterface, SystemInterface
 {
     float moveSpeed = 5.0f;
-    float mouseSpeed = 1.0f;
-    float mouseSensitivity = 0.5f;
+    float mouseSpeed = 0.5f;
+    float mouseSensitivity = 0.25f;
 
     MovableCamera& operator=(const MovableCamera& other);
 

@@ -169,8 +169,8 @@ Mat4f RotationMatrixFrom(const Quaternion& q)
 		Vec4f(-q.y, q.x, q.w, q.z),
 		Vec4f(-q.x, -q.y, -q.z, q.w)
 	});
-
-	return left * right;
+    
+	return left.Transpose() * right.Transpose();
 }
 
 Mat4f Transform(const Vec3f& pos, const Quaternion& rot, const Vec3f& scale)
@@ -217,4 +217,34 @@ Mat4f Orthographic(float left, float right, float bottom, float top, float nearP
 	                 -(farPlane + nearPlane) / (farPlane - nearPlane), 1.0f);
 	return ortho;
 }
-} 
+
+Vec3f GetPosition(const Mat4f& transform)
+{
+    return Vec3f(transform[3]);
+}
+
+EulerAngles GetRotation(const Mat4f& transform)
+{
+    const Mat3f subMat = Mat3f(transform);
+    const Vec3f scale = GetScale(transform);
+    if (scale != Vec3f::zero)
+    {
+        const Mat3f rotMat = Mat3f(std::array<Vec3f, 3> {
+            subMat[0] / scale.x,
+            subMat[1] / scale.y,
+            subMat[2] / scale.z
+        }).Transpose();
+
+        return Mat3f::EulerFromRotationMatrix(rotMat);
+    }
+
+    return EulerAngles::zero;
+}
+
+Vec3f GetScale(const Mat4f& transform)
+{
+    const Mat3f subMat = Mat3f(transform);
+    return Vec3f(subMat[0].Magnitude(), subMat[1].Magnitude(), subMat[2].Magnitude());
+}
+}
+ 

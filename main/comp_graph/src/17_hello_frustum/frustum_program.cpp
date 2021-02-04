@@ -314,7 +314,8 @@ void HelloFrustumProgram::Culling(size_t begin, size_t end)
 #endif
     const auto* model = modelManager_.GetModel(modelId_);
     const auto& asteroidMesh = model->GetMesh(0);
-	const auto asteroidRadius = (asteroidMesh.max-asteroidMesh.min).Magnitude()/2.0f;
+    const auto asteroidRadius =
+        (asteroidMesh.aabb.upperRightBound - asteroidMesh.aabb.upperRightBound).Magnitude() / 2.0f;
     const auto cameraDir = -camera_.reverseDirection;
     const auto cameraRight = camera_.GetRight();
     const auto cameraUp = camera_.GetUp();

@@ -3,6 +3,9 @@
 #include <iomanip>
 #include <memory>
 #include <sstream>
+#ifdef EASY_PROFILE_USE
+    #include "easy/profiler.h"
+#endif
 
 #include <utils/file_utility.h>
 
@@ -71,7 +74,11 @@ LogManager::~LogManager()
 
 void LogManager::LogLoop()
 {
-	do {
+    do
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("LogManager::LogLoop");
+#endif
 		if (status_ & IS_EMPTY)
 		{
 			std::unique_lock<std::mutex> lock(logMutex_);
@@ -98,7 +105,10 @@ void LogManager::LogLoop()
 void LogManager::Wait()
 {
 	while (!(status_ & IS_EMPTY))
-	{
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("LogManager::Wait");
+#endif
 		std::unique_lock<std::mutex> lock(logMutex_);
 		if (tasks_.empty()) status_ |= IS_EMPTY;
 		else

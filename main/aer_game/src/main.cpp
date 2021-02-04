@@ -29,7 +29,7 @@
 #include "gl/graphics.h"
 #include "gl/gles3_window.h"
 
-#include "aer_engine.h"
+#include "aer/aer_engine.h"
 
 
 int main(int argc, char** argv)
