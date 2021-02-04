@@ -118,10 +118,20 @@ public:
      */
 	void AddTag(const std::string& newTagName);
 
-	/**
+    /**
      * \brief Add new layer to the current scene
      */
 	void AddLayer(const std::string& newLayerName);
+
+    /**
+     * \brief Check if a tag exist
+     */
+    bool TagExist(const std::string& newTagName);
+
+    /**
+     * \brief Check if a layer exist
+     */
+    bool LayerExist(const std::string& newLayerName);
 
 	/**
      * \brief Get tag list of the current scene

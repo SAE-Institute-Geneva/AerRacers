@@ -60,7 +60,7 @@ private:
 	// Displays the list of tools in the main menu
     void DrawList();
     Entity selectedEntity_ = INVALID_ENTITY;
-
+    bool showDemo_          = false;
 	AerEngine& engine_;
     std::vector<std::unique_ptr<EditorToolInterface>> tools_;
     ComponentManagerContainer& cContainer_;

@@ -571,19 +571,47 @@ RigidStaticManager::RigidStaticManager(
 
 void RigidStaticManager::FixedUpdate(seconds dt) { }
 
-void RigidStaticManager::AddRigidStatic(Entity entity, physics::RigidStaticData& rigidStaticData)
+void RigidStaticManager::AddRigidStatic(Entity entity, const RigidStaticData& rigidStaticData)
 {
     AddComponent(entity);
     Vec3f position                       = transform3dManager_.GetRelativePosition(entity);
     EulerAngles euler                    = transform3dManager_.GetRelativeRotation(entity);
     Vec3f scale                          = transform3dManager_.GetRelativeScale(entity);
-    rigidStaticData.boxColliderData.size = Vec3f(rigidStaticData.boxColliderData.size.x * scale.x,
-        rigidStaticData.boxColliderData.size.y * scale.y,
-        rigidStaticData.boxColliderData.size.z * scale.z);
+    RigidStaticData newRigidStaticData   = rigidStaticData;
+    newRigidStaticData.boxColliderData.size =
+        Vec3f(newRigidStaticData.boxColliderData.size.x * scale.x,
+            newRigidStaticData.boxColliderData.size.y * scale.y,
+            newRigidStaticData.boxColliderData.size.z * scale.z);
+    newRigidStaticData.sphereColliderData.radius =
+        newRigidStaticData.sphereColliderData.radius * scale.x;
     RigidStatic rigidStatic = GetComponent(entity);
-    rigidStatic.Init(physicsEngine_.GetPhysx(), rigidStaticData, position, euler);
+    rigidStatic.Init(physicsEngine_.GetPhysx(), newRigidStaticData, position, euler);
     physicsEngine_.GetScene()->addActor(*rigidStatic.GetPxRigidStatic());
     SetComponent(entity, rigidStatic);
+}
+const neko::physics::RigidStaticData& neko::physics::RigidStaticManager::GetRigidStaticData(
+    Entity entity) const
+{
+    return GetComponent(entity).GetRigidStaticData();
+}
+
+void neko::physics::RigidStaticManager::SetRigidStaticData(
+    Entity entity, const RigidStaticData& rigidStaticData) const
+{
+    if (!physicsEngine_.IsPhysicRunning()) {
+        GetComponent(entity).SetRigidStaticData(rigidStaticData);
+    }
+}
+
+void RigidStaticManager::DestroyComponent(Entity entity)
+{
+    ComponentManager::DestroyComponent(entity);
+    if (entity < components_.size())
+    {
+        if (GetComponent(entity).GetPxRigidStatic())
+        { physicsEngine_.GetScene()->removeActor(*GetComponent(entity).GetPxRigidStatic()); }
+        SetComponent(entity, RigidStatic());
+    }
 }
 
 RigidStaticViewer::RigidStaticViewer(
@@ -600,7 +628,8 @@ void RigidStaticViewer::SetSelectedEntity(Entity selectedEntity)
 {
     selectedEntity_ = selectedEntity;
     if (selectedEntity_ == INVALID_ENTITY) return;
-    rigidStaticData_ = rigidStaticManager_.GetComponent(selectedEntity_).GetRigidStaticData();
+    rigidStaticData_ =
+        rigidStaticManager_.GetRigidStaticData(selectedEntity_);
 }
 
 void RigidStaticViewer::FixedUpdate(seconds dt) {}
@@ -611,7 +640,7 @@ json RigidStaticViewer::GetJsonFromComponent(Entity entity) const
     {
         if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
         {
-            RigidStaticData rigidStaticData    = rigidStaticManager_.GetComponent(entity).GetRigidStaticData();
+            RigidStaticData rigidStaticData    = rigidStaticManager_.GetRigidStaticData(entity);
             RigidDynamicData rigidDynamicData;
             rigidDynamicViewer["useGravity"]     = rigidDynamicData.useGravity;
             rigidDynamicViewer["isKinematic"]    = rigidDynamicData.isKinematic;
@@ -659,10 +688,9 @@ void RigidStaticViewer::DrawImGui(Entity entity)
             rigidStaticData.boxColliderData     = rigidActorData.boxColliderData;
             rigidStaticData.sphereColliderData  = rigidActorData.sphereColliderData;
             if (!physicsEngine_.IsPhysicRunning()) {
-                rigidStaticManager_.GetComponent(selectedEntity_)
-                                   .SetRigidStaticData(rigidStaticData);
+                rigidStaticManager_.SetRigidStaticData(selectedEntity_, rigidStaticData);
                 rigidStaticData_ =
-                    rigidStaticManager_.GetComponent(selectedEntity_).GetRigidStaticData();
+                    rigidStaticManager_.GetRigidStaticData(selectedEntity_);
             }
             ImGui::TreePop();
         }
@@ -693,19 +721,21 @@ void RigidDynamicManager::FixedUpdate(seconds dt)
     }
 }
 
-void RigidDynamicManager::AddRigidDynamic(Entity entity, RigidDynamicData& rigidDynamicData)
+void RigidDynamicManager::AddRigidDynamic(Entity entity, const RigidDynamicData& rigidDynamicData)
 {
     AddComponent(entity);
     Vec3f position                        = transform3dManager_.GetGlobalPosition(entity);
     EulerAngles euler                     = transform3dManager_.GetGlobalRotation(entity);
     Vec3f scale                           = transform3dManager_.GetGlobalScale(entity);
-    rigidDynamicData.boxColliderData.size = Vec3f(rigidDynamicData.boxColliderData.size.x * scale.x,
-        rigidDynamicData.boxColliderData.size.y * scale.y,
-        rigidDynamicData.boxColliderData.size.z * scale.z);
-    rigidDynamicData.sphereColliderData.radius =
-        rigidDynamicData.sphereColliderData.radius * scale.x;
+    RigidDynamicData newRigidDynamicData  = rigidDynamicData;
+    newRigidDynamicData.boxColliderData.size =
+        Vec3f(newRigidDynamicData.boxColliderData.size.x * scale.x,
+            newRigidDynamicData.boxColliderData.size.y * scale.y,
+            newRigidDynamicData.boxColliderData.size.z * scale.z);
+    newRigidDynamicData.sphereColliderData.radius =
+        newRigidDynamicData.sphereColliderData.radius * scale.x;
     RigidDynamic rigidDynamic = GetComponent(entity);
-    rigidDynamic.Init(physicsEngine_.GetPhysx(), rigidDynamicData, position, euler);
+    rigidDynamic.Init(physicsEngine_.GetPhysx(), newRigidDynamicData, position, euler);
     physicsEngine_.GetScene()->addActor(*rigidDynamic.GetPxRigidDynamic());
     SetComponent(entity, rigidDynamic);
 }
@@ -713,6 +743,11 @@ void RigidDynamicManager::AddRigidDynamic(Entity entity, RigidDynamicData& rigid
 const RigidDynamicData& RigidDynamicManager::GetRigidDynamicData(Entity entity) const
 {
     return GetComponent(entity).GetRigidDynamicData();
+}
+
+const DynamicData& RigidDynamicManager::GetDynamicData(Entity entity) const
+{
+    return GetComponent(entity).GetDynamicData();
 }
 
 void RigidDynamicManager::SetRigidDynamicData(
@@ -757,6 +792,14 @@ void RigidDynamicManager::SetAngularVelocity(Entity entity, const Vec3f& angular
     GetComponent(entity).GetPxRigidDynamic()->setAngularVelocity(ConvertToPxVec(angularVelocity));
 }
 
+void RigidDynamicManager::DestroyComponent(Entity entity)
+{
+    ComponentManager::DestroyComponent(entity);
+    if (GetComponent(entity).GetPxRigidDynamic())
+    { physicsEngine_.GetScene()->removeActor(*GetComponent(entity).GetPxRigidDynamic()); }
+    SetComponent(entity, RigidDynamic());
+}
+
 RigidDynamicViewer::RigidDynamicViewer(Transform3dManager& transform3dManager,
     EntityManager& entityManager,
     PhysicsEngine& physicsEngine,
@@ -774,9 +817,8 @@ void RigidDynamicViewer::SetSelectedEntity(Entity selectedEntity)
     if (!physicsEngine_.IsPhysicRunning())
     {
         lastSelectedEntity_ = selectedEntity_;
-        rigidDynamicData_ =
-            rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetRigidDynamicData();
-        dynamicData_ = rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetDynamicData();
+        rigidDynamicData_ = rigidDynamicManager_.GetRigidDynamicData(lastSelectedEntity_);
+        dynamicData_        = rigidDynamicManager_.GetDynamicData(lastSelectedEntity_);
         lastSelectedEntity_ = selectedEntity_;
     }
 }
@@ -789,9 +831,8 @@ void RigidDynamicViewer::FixedUpdate(seconds dt)
     if (entityManager_.HasComponent(
         lastSelectedEntity_,
         static_cast<EntityMask>(ComponentType::RIGID_DYNAMIC))) {
-        dynamicData_ = rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetDynamicData();
-        rigidDynamicData_ =
-            rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetRigidDynamicData();
+        dynamicData_      = rigidDynamicManager_.GetDynamicData(lastSelectedEntity_);
+        rigidDynamicData_ = rigidDynamicManager_.GetRigidDynamicData(lastSelectedEntity_);
 
     }
 }
@@ -918,12 +959,10 @@ void RigidDynamicViewer::DrawImGui(Entity entity)
                 ImGui::TreePop();
                 if (!physicsEngine_.IsPhysicRunning())
                 {
-                    rigidDynamicManager_.GetComponent(lastSelectedEntity_)
-                        .SetRigidDynamicData(rigidDynamicData);
-                    rigidDynamicData_ = rigidDynamicManager_.GetComponent(lastSelectedEntity_)
-                                            .GetRigidDynamicData();
-                    dynamicData_ =
-                        rigidDynamicManager_.GetComponent(lastSelectedEntity_).GetDynamicData();
+                    rigidDynamicManager_.SetRigidDynamicData(lastSelectedEntity_, rigidDynamicData);
+                    rigidDynamicData_ =
+                        rigidDynamicManager_.GetRigidDynamicData(lastSelectedEntity_);
+                    dynamicData_ = rigidDynamicManager_.GetDynamicData(lastSelectedEntity_);
                     lastSelectedEntity_ = selectedEntity_;
                 }
             }

@@ -129,6 +129,11 @@ public:
      */
     bool IsPhysicRunning() const;
 
+    /**
+     * \return Reset the physics when a new scene is loaded
+     */
+    void ResetPhysics() const;
+
 private:
 
     /**

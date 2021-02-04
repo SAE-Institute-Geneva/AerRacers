@@ -190,7 +190,24 @@ public:
      * \brief Create a rigidStatic Actor in the PxScene
      * \param body initial rigidstatic data
      */
-    void AddRigidStatic(Entity entity, RigidStaticData& body);
+    void AddRigidStatic(Entity entity, const RigidStaticData& body);
+
+    /**
+     * \brief Use to get parameter of an actor
+     * Warning must be call in FixedUpdate or if physics is not running
+     */
+    [[nodiscard]] const RigidStaticData& GetRigidStaticData(Entity entity) const;
+    /**
+     * \brief Use to modify parameter of an actor
+     * Warning must be call in FixedUpdate or if physics is not running
+     * \param rigidStaticData parameter to update
+     */
+    void SetRigidStaticData(Entity entity, const RigidStaticData& rigidStaticData) const;
+
+    /**
+     * \brief Remove the actor from the scene
+     */
+    void DestroyComponent(Entity entity) override;
 
 protected:
     Transform3dManager& transform3dManager_;
@@ -342,7 +359,7 @@ public:
      * \brief Create a rigiDynamic Actor in the PxScene
      * \param body initial rigidDynamic data
      */
-    void AddRigidDynamic(Entity entity, RigidDynamicData& body);
+    void AddRigidDynamic(Entity entity, const RigidDynamicData& body);
 
     /**
      * \brief Add force at a relative position of the object
@@ -390,11 +407,20 @@ public:
      */
     [[nodiscard]] const RigidDynamicData& GetRigidDynamicData(Entity entity) const;
     /**
+     * \brief Use to get dynamicData of an actor
+     */
+    [[nodiscard]] const DynamicData& GetDynamicData(Entity entity) const;
+    /**
      * \brief Use to modify parameter of an actor
      * Warning must be call in FixedUpdate or if physics is not running
      * \param rigidDynamicData parameter to update
      */
     void SetRigidDynamicData(Entity entity, const RigidDynamicData& rigidDynamicData) const;
+
+    /**
+     * \brief Remove the actor from the scene
+     */
+    void DestroyComponent(Entity entity) override;
 
 protected:
     Transform3dManager& transform3dManager_;

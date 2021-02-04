@@ -153,7 +153,7 @@ public :
     void InitActors(
         neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration      = 1.0f;
+        engineDuration      = 100.0f;
         entityManager_      = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_      = &aerEngine_.GetComponentManagerContainer().renderManager;
@@ -474,15 +474,16 @@ public:
         EXPECT_NEAR(transform3dManager_->GetRelativePosition(sphereVelocityEntity_).x,
             sphereVelocity_.x * kPhysicsDuration_,
             precision);
-        EXPECT_NEAR(rigidDynamicManager_->GetComponent(sphereVelocityEntity_).GetDynamicData().linearVelocity.x,
+        EXPECT_NEAR(rigidDynamicManager_->GetDynamicData(sphereVelocityEntity_)
+                        .linearVelocity.x,
             sphereVelocity_.x,
             precision);
         //Sphere Force
         /*EXPECT_NEAR(transform3dManager_->GetRelativePosition(sphereForceEntity_).x,
             sphereForce_.x * 1.0f/(kPhysicsDuration_*kPhysicsDuration_),
             precision);
-        EXPECT_NEAR(rigidDynamicManager_->GetComponent(sphereForceEntity_)
-                        .GetDynamicData()
+        EXPECT_NEAR(
+                         rigidDynamicManager_->GetDynamicData(sphereForceEntity_)
                         .linearVelocity.x,
             sphereForce_.x * 1.0f/kPhysicsDuration_,
             precision);*/
@@ -490,8 +491,8 @@ public:
         EXPECT_NEAR(neko::radian_t(transform3dManager_->GetRelativeRotation(cubeAngularVelocityEntity_).z).value(),
             cubeAngularVelocity_.z * kPhysicsDuration_,
             precision);
-        EXPECT_NEAR(rigidDynamicManager_->GetComponent(cubeAngularVelocityEntity_)
-                        .GetDynamicData()
+        EXPECT_NEAR(
+            rigidDynamicManager_->GetDynamicData(cubeAngularVelocityEntity_)
                         .angularVelocity.z,
             cubeAngularVelocity_.z,
             precision);
@@ -502,9 +503,9 @@ public:
         //    precision);
         float modulo = 360.f;
         EXPECT_NEAR(
-            fmod(neko::degree_t(neko::radian_t(
-                    rigidDynamicManager_->GetComponent(cubeTorqueEntity_)
-                    .GetDynamicData()
+            fmod(neko::degree_t(
+                     neko::radian_t(
+                         rigidDynamicManager_->GetDynamicData(cubeTorqueEntity_)
                     .angularVelocity.x)).value(),modulo),
             fmod(cubeTorque_.x , modulo),
             10.0f);

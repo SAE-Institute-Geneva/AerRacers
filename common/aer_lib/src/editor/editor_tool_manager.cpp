@@ -122,7 +122,7 @@ void EditorToolManager::DrawImGui()
 		{
 			if (BeginMenu("Settings"))
 			{
-				DrawList();
+                if (ImGui::MenuItem("Show Demo")) showDemo_ = true;
                 ImGui::EndMenu();
 			}
 
@@ -137,6 +137,17 @@ void EditorToolManager::DrawImGui()
             if (!sceneManager.GetCurrentScene().saved) { sceneName += "*"; }
             ImGui::Text(sceneName.c_str());
 
+            if (engine_.GetPhysicsEngine().IsPhysicRunning()) {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 1.0f, 0.0f, 0.5f));
+                if (ImGui::Button("Physics active")) { engine_.GetPhysicsEngine().StopPhysic();
+                }
+            } else {
+                ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.0f, 0.0f, 0.5f));
+                if (ImGui::Button("Physics inactive")) { engine_.GetPhysicsEngine().StartPhysic();
+                }
+            }
+            ImGui::PopStyleColor();
+
 			EndMenuBar();
 		}
 
@@ -144,6 +155,7 @@ void EditorToolManager::DrawImGui()
 
 		End();
 	}
+    if (showDemo_) { ImGui::ShowDemoWindow(&showDemo_); }
 
 	for (auto& tool : tools_) tool->DrawImGui();
 }

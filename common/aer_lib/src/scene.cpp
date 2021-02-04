@@ -147,7 +147,7 @@ void SceneManager::ParseSceneJson(const json& sceneJson)
     {
         for (auto& tag : sceneJson["tags"])
         {
-            if (tag != INVALID_TAG)
+            if (!TagExist(tag))
             {
                 AddTag(tag);
             }
@@ -158,7 +158,7 @@ void SceneManager::ParseSceneJson(const json& sceneJson)
     {
         for (auto& layer : sceneJson["layers"])
         {
-            if (layer != INVALID_LAYER) {
+            if (!LayerExist(layer)) {
                 AddLayer(layer);
             }
         }
@@ -271,31 +271,38 @@ json SceneManager::WriteSceneJson()
 
 void SceneManager::AddTag(const std::string& newTagName)
 {
-	const auto entityTagIt = std::find_if(currentScene_.tags.begin(),
-		currentScene_.tags.end(),
-		[newTagName](std::string tagName) { return newTagName == tagName; });
-	if (entityTagIt == currentScene_.tags.end()) { currentScene_.tags.push_back(newTagName); }
+    if (LayerExist(newTagName)) { currentScene_.tags.push_back(newTagName); }
 	else
 	{
 		LogDebug("Tag already set");
 	}
 }
 
+
 void SceneManager::AddLayer(const std::string& newLayerName)
 {
-	const auto entityLayerIt = std::find_if(currentScene_.layers.begin(),
-		currentScene_.layers.end(),
-		[newLayerName](std::string layerName) { return newLayerName == layerName; });
-	if (entityLayerIt == currentScene_.layers.end())
-	{
-		currentScene_.layers.push_back(newLayerName);
-	}
-	else
-	{
-		LogDebug("Layer already set");
-	}
+    if (LayerExist(newLayerName)) { currentScene_.layers.push_back(newLayerName); } else {
+        LogDebug("Layer already set");
+    }
 }
 
+bool SceneManager::TagExist(const std::string& newTagName)
+{
+    const auto entityTagIt = std::find_if(currentScene_.tags.begin(),
+        currentScene_.tags.end(),
+        [newTagName](std::string tagName) { return newTagName == tagName; });
+    if (entityTagIt == currentScene_.tags.end()) { return false; }
+    return true;
+}
+
+bool SceneManager::LayerExist(const std::string& newLayerName)
+{
+    const auto entityLayerIt = std::find_if(currentScene_.layers.begin(),
+        currentScene_.layers.end(),
+        [newLayerName](std::string layerName) { return layerName == layerName; });
+    if (entityLayerIt == currentScene_.layers.end()) { return false; }
+    return true;
+}
 const std::vector<std::string> SceneManager::GetTags() const { return currentScene_.tags; }
 
 const std::vector<std::string> SceneManager::GetLayers() const { return currentScene_.layers; }
