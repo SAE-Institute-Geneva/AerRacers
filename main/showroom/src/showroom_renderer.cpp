@@ -58,7 +58,7 @@ void ShowRoomRenderer::Init()
 
 	pointLight_.position = Vec3f(5.0f, 3.0f, -3.0f);
 	spotLight_.position  = pointLight_.position;
-	dirLight_.direction  = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
+	dirLight_.direction  = Quaternion::FromEuler(lightAngles_) * Vec3f::down;
 	spotLight_.direction = dirLight_.direction;
 
 	preRender_ = Job(
@@ -406,7 +406,7 @@ void ShowRoomRenderer::DrawImGuizmo()
 				lightScale_ = scale;
 
 				lightAngles_         = rot;
-				dirLight_.direction  = Quaternion::FromEuler(-rot) * Vec3f::up;
+				dirLight_.direction  = Quaternion::FromEuler(rot) * Vec3f::down;
 				spotLight_.direction = dirLight_.direction;
 			}
 			break;
@@ -450,49 +450,9 @@ void ShowRoomRenderer::DrawMenuBar()
 			//Open Model
 			if (MenuItem("Open..."))
 			{
-				char filename[1024];
-#ifdef _WIN32
-				OPENFILENAME ofn;
-				ZeroMemory(&filename, sizeof(filename));
-				ZeroMemory(&ofn, sizeof(ofn));
-				ofn.lStructSize = sizeof(ofn);
-				ofn.hwndOwner   = nullptr;
-				ofn.lpstrFilter = "Model files (*.fbx;*.obj)\0*.fbx;*.obj\0";
-				ofn.lpstrFile   = filename;
-				ofn.nMaxFile    = IM_ARRAYSIZE(filename);
-				ofn.Flags       = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
-
-				if (GetOpenFileNameA(&ofn))
-				{
-                    const std::string path = filename;
-#elif linux
-				std::string data;
-				const int maxBuffer = 256;
-				char buffer[maxBuffer];
-				FILE* stream = popen("echo $XDG_CURRENT_DESKTOP", "r");
-				if (stream)
-				{
-					while (!feof(stream))
-						if (fgets(buffer, maxBuffer, stream) != NULL) data.append(buffer);
-					pclose(stream);
-				}
-
-				FILE* f;
-				if (data == "KDE\n")
-					f = popen("kdialog --title='Load Model' --getopenfilename . 'Model files "
-					          "(*.fbx *.obj)'",
-						"r");
-				else
-					f = popen("zenity --file-selection --file-filter='Model files "
-							  "(fbx, obj) | *.fbx *.obj' --title='Open...'",
-						"r");
-				fgets(filename, 1024, f);
-
-				std::string path = filename;
+				std::string path = OpenFileExplorer("Load Model", "Model files", {"fbx", "obj"});
 				if (!path.empty())
 				{
-					path = path.substr(0, path.size() - 1);
-#endif
 					selectedNode_ = NONE;
 					if (model_.IsLoaded())
 					{
@@ -546,7 +506,7 @@ void ShowRoomRenderer::DrawMenuBar()
 		}
 
 		//View Tab
-		if (BeginMenu("View"))
+		if (BeginMenu("Camera"))
 		{
 			ImGui::EndMenu();
 		}
@@ -859,20 +819,20 @@ void ShowRoomRenderer::DrawLightTransform()
 	if (DragFloat("X##anglesF", &anglesF.x, 0.1f))
 	{
 		lightAngles_.x = degree_t(anglesF.x);
-		dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
+		dirLight_.direction = Quaternion::FromEuler(lightAngles_) * Vec3f::down;
 		spotLight_.direction = dirLight_.direction;
 	}
 	if (DragFloat("Y##anglesF", &anglesF.y, 0.1f))
 	{
 		lightAngles_.y = degree_t(anglesF.y);
-		dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
+		dirLight_.direction = Quaternion::FromEuler(lightAngles_) * Vec3f::down;
 		spotLight_.direction = dirLight_.direction;
 	}
 	PopStyleVar();
 	if (DragFloat("Z##anglesF", &anglesF.z, 0.1f))
 	{
 		lightAngles_.z = degree_t(anglesF.z);
-		dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
+		dirLight_.direction = Quaternion::FromEuler(lightAngles_) * Vec3f::down;
 		spotLight_.direction = dirLight_.direction;
 	}
 	PopItemWidth();
@@ -1285,50 +1245,11 @@ void ShowRoomRenderer::DrawTextureInput(
 
 void ShowRoomRenderer::OpenTexture(const size_t index, std::vector<sr::Texture>& textures)
 {
-	char filename[1024];
-
-#ifdef _WIN32
-	OPENFILENAME ofn;
-	ZeroMemory(&filename, sizeof(filename));
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner   = nullptr;
-	ofn.lpstrFilter = "Image (*.png;*.jpg)\0*.png;*.jpg\0";
-	ofn.lpstrFile   = filename;
-	ofn.nMaxFile    = IM_ARRAYSIZE(filename);
-	ofn.Flags       = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
-
-	if (GetOpenFileNameA(&ofn))
-	{
-        const std::string path = filename;
-#elif linux
-	std::string data;
-	const int maxBuffer = 256;
-	char buffer[maxBuffer];
-	FILE* stream = popen("echo $XDG_CURRENT_DESKTOP", "r");
-	if (stream)
-	{
-		while (!feof(stream))
-			if (fgets(buffer, maxBuffer, stream) != NULL) data.append(buffer);
-		pclose(stream);
-	}
-
-	FILE* f;
-	if (data == "KDE\n")
-		f = popen("kdialog --title='Load Texture' --getopenfilename . 'Texture "
-		          "(*.png *.jpg)'",
-		          "r");
-	else
-		f = popen("zenity --file-selection --file-filter='Texture "
-		          "(png, jpg) | *.png *.jpg' --title='Load Texture...'",
-		          "r");
-	fgets(filename, 1024, f);
-	std::string path = filename;
+    const std::string path = OpenFileExplorer("Load Texture", "Texture", {"png", "jpg"});
 	if (!path.empty())
 	{
-		path = path.substr(0, path.size() - 1);
-#endif
 		textures[index].textureId = textureManager_.LoadTexture(path, Texture::TextureFlags::DEFAULT);
+		textures[index].name = INVALID_TEXTURE_NAME;
 		textures[index].sName = path.substr(path.find_last_of('/') + 1, path.size());
 	}
 }
@@ -1337,54 +1258,13 @@ void ShowRoomRenderer::OpenTexture(
 	sr::Texture::TextureType type,
 	std::vector<sr::Texture>& textures)
 {
-	char filename[1024];
-
-#ifdef _WIN32
-	OPENFILENAME ofn;
-	ZeroMemory(&filename, sizeof(filename));
-	ZeroMemory(&ofn, sizeof(ofn));
-	ofn.lStructSize = sizeof(ofn);
-	ofn.hwndOwner   = nullptr;
-	ofn.lpstrFilter = "Image (*.png;*.jpg)\0*.png;*.jpg\0";
-	ofn.lpstrFile   = filename;
-	ofn.nMaxFile    = IM_ARRAYSIZE(filename);
-	ofn.Flags       = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
-
-	if (GetOpenFileNameA(&ofn))
-	{
-        const std::string path = filename;
-#elif linux
-	std::string data;
-	const int maxBuffer = 256;
-	char buffer[maxBuffer];
-	FILE* stream = popen("echo $XDG_CURRENT_DESKTOP", "r");
-	if (stream)
-	{
-		while (!feof(stream))
-			if (fgets(buffer, maxBuffer, stream) != NULL) data.append(buffer);
-		pclose(stream);
-	}
-
-	FILE* f;
-	if (data == "KDE\n")
-		f = popen("kdialog --title='Load Texture' --getopenfilename . 'Texture "
-		          "(*.png *.jpg)'",
-		          "r");
-	else
-		f = popen("zenity --file-selection --file-filter='Texture "
-		          "(png, jpg) | *.png *.jpg' --title='Load Texture...'",
-		          "r");
-	fgets(filename, 1024, f);
-
-	std::string path = filename;
+    const std::string path = OpenFileExplorer("Load Texture", "Texture", {"png", "jpg"});
 	if (!path.empty())
 	{
-		path = path.substr(0, path.size() - 1);
-#endif
-		textures.emplace_back();
-		textures.back().type = type;
-		textures.back().textureId =
-			textureManager_.LoadTexture(path, Texture::TextureFlags::DEFAULT);
+        textures.emplace_back();
+        textures.back().type = type;
+        textures.back().textureId =
+            textureManager_.LoadTexture(path, Texture::TextureFlags::DEFAULT);
 #ifdef WIN32
 		textures.back().sName = path.substr(path.find_last_of('\\') + 1, path.size());
 #elif linux
@@ -1396,29 +1276,6 @@ void ShowRoomRenderer::OpenTexture(
 void ShowRoomRenderer::DrawPointLight()
 {
 	using namespace ImGui;
-	if (TreeNodeEx("Transform", ImGuiTreeNodeFlags_SpanAvailWidth))
-	{
-		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
-
-		Text("Position X "); SameLine();
-        const float textPos = GetCursorPosX();
-		if (DragFloat("##pointLight_.position.x", &pointLight_.position.x))
-			spotLight_.position.x = pointLight_.position.x;
-
-		SetCursorPosX(textPos - CalcTextSize("X ").x); Text("Y "); SameLine();
-		SetCursorPosX(textPos);
-		if (DragFloat("##pointLight_.position.y", &pointLight_.position.y))
-			spotLight_.position.y = pointLight_.position.y;
-		PopStyleVar();
-
-		SetCursorPosX(textPos - CalcTextSize("X ").x); Text("Z"); SameLine();
-		SetCursorPosX(textPos);
-		if (DragFloat("##pointLight_.position.z", &pointLight_.position.z))
-			spotLight_.position.z = pointLight_.position.z;
-
-		TreePop();
-	}
-
 	Text("Radius "); SameLine();
 	if (DragFloat("##spotLight_.radius", &spotLight_.radius, 0.01f))
 		pointLight_.radius = spotLight_.radius;
@@ -1427,105 +1284,11 @@ void ShowRoomRenderer::DrawPointLight()
 void ShowRoomRenderer::DrawDirectionalLight()
 {
 	using namespace ImGui;
-	if (TreeNodeEx("Transform", ImGuiTreeNodeFlags_SpanAvailWidth))
-	{
-		float angleX = lightAngles_.x.value();
-		float angleY = lightAngles_.y.value();
-		float angleZ = lightAngles_.z.value();
-
-		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
-
-		Text("Rotation X "); SameLine();
-        const float textPos = GetCursorPosX();
-		if (DragFloat("##angleXf", &angleX))
-		{
-			lightAngles_.x = degree_t(angleX);
-			dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
-			spotLight_.direction = dirLight_.direction;
-		}
-
-		SetCursorPosX(textPos - CalcTextSize("X ").x); Text("Y "); SameLine();
-		SetCursorPosX(textPos);
-		if (DragFloat("##angleYf", &angleY))
-		{
-			lightAngles_.y = degree_t(angleY);
-			dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
-			spotLight_.direction = dirLight_.direction;
-		}
-		PopStyleVar();
-
-		SetCursorPosX(textPos - CalcTextSize("X ").x); Text("Z"); SameLine();
-		SetCursorPosX(textPos);
-		if (DragFloat("##angleZf", &angleZ))
-		{
-			lightAngles_.z = degree_t(angleZ);
-			dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
-			spotLight_.direction = dirLight_.direction;
-		}
-
-		TreePop();
-	}
 }
 
 void ShowRoomRenderer::DrawSpotLight()
 {
 	using namespace ImGui;
-	if (TreeNodeEx("Transform", ImGuiTreeNodeFlags_SpanAvailWidth))
-	{
-		float angleX = lightAngles_.x.value();
-		float angleY = lightAngles_.y.value();
-		float angleZ = lightAngles_.z.value();
-
-		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
-		Text("Position X "); SameLine();
-        const float textPos1 = GetCursorPosX();
-		if (DragFloat("##pointLight_.position.x", &pointLight_.position.x))
-			spotLight_.position.x = pointLight_.position.x;
-
-		SetCursorPosX(textPos1 - CalcTextSize("X ").x); Text("Y "); SameLine();
-		SetCursorPosX(textPos1);
-		if (DragFloat("##pointLight_.position.y", &pointLight_.position.y))
-			spotLight_.position.y = pointLight_.position.y;
-		PopStyleVar();
-
-		SetCursorPosX(textPos1 - CalcTextSize("X ").x); Text("Z"); SameLine();
-		SetCursorPosX(textPos1);
-		if (DragFloat("##pointLight_.position.z", &pointLight_.position.z))
-			spotLight_.position.z = pointLight_.position.z;
-
-		PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
-
-		Text("Rotation X "); SameLine();
-        const float textPos2 = GetCursorPosX();
-		if (DragFloat("##angleXf", &angleX))
-		{
-			lightAngles_.x = degree_t(angleX);
-			dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
-			spotLight_.direction = dirLight_.direction;
-		}
-
-		SetCursorPosX(textPos2 - CalcTextSize("X ").x); Text("Y ");
-	    SameLine(); SetCursorPosX(textPos2);
-		if (DragFloat("##angleYf", &angleY))
-		{
-			lightAngles_.y = degree_t(angleY);
-			dirLight_.direction = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
-			spotLight_.direction = dirLight_.direction;
-		}
-		PopStyleVar();
-
-		SetCursorPosX(textPos2 - CalcTextSize("X ").x); Text("Z");
-	    SameLine(); SetCursorPosX(textPos2);
-        if (DragFloat("##angleZf", &angleZ))
-        {
-            lightAngles_.z       = degree_t(angleZ);
-            dirLight_.direction  = Quaternion::FromEuler(-lightAngles_) * Vec3f::up;
-            spotLight_.direction = dirLight_.direction;
-        }
-
-		TreePop();
-	}
-
 	float angle = spotLight_.angle.value();
 	Text("Angle "); SameLine();
 	if (DragFloat("##spotLight_.angle", &angle, 0.1f, 0.0f, 180.0f, "%.0f°"))
@@ -1537,6 +1300,95 @@ void ShowRoomRenderer::DrawSpotLight()
 	Text("Radius "); SameLine();
 	if (DragFloat("##spotLight_.radius", &spotLight_.radius, 0.01f))
 		pointLight_.radius = spotLight_.radius;
+}
+
+std::string ShowRoomRenderer::OpenFileExplorer(const std::string& title,
+    const std::string& fileTypeName,
+    const std::vector<std::string>& typeFilter,
+    bool saveFile) const
+{
+    char filename[1024];
+#ifdef _WIN32
+    OPENFILENAME ofn;
+    ZeroMemory(&filename, sizeof(filename));
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn);
+    ofn.hwndOwner   = nullptr;
+    ofn.lpstrFilter = "Model files (*.fbx;*.obj)\0*.fbx;*.obj\0";
+    ofn.lpstrFile   = filename;
+    ofn.nMaxFile    = IM_ARRAYSIZE(filename);
+    ofn.Flags       = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
+
+    if (GetOpenFileNameA(&ofn)) return std::string(filename);
+#elif linux
+    std::string data;
+    const int maxBuffer = 256;
+    char buffer[maxBuffer];
+    FILE* stream = popen("echo $XDG_CURRENT_DESKTOP", "r");
+    if (stream)
+    {
+        while (!feof(stream))
+            if (fgets(buffer, maxBuffer, stream) != NULL) data.append(buffer);
+        pclose(stream);
+    }
+
+    FILE* f;
+    std::string command;
+    if (data == "KDE\n")
+    {
+        command = "kdialog ";
+        if (!title.empty()) command += "--title='" + title + "' ";
+        if (saveFile) command += "--getsavefilename ";
+        else command += "--getopenfilename ";
+        command += lastPath_;
+        if (!fileTypeName.empty()) command += "'" + fileTypeName;
+        if (!typeFilter.empty())
+        {
+            command += " (";
+            for (std::size_t i = 0; i < typeFilter.size(); ++i)
+            {
+                command += "*." + typeFilter[i];
+                if (i != typeFilter.size() - 1) command += " ";
+            }
+            command += ")'";
+        }
+
+        f = popen(command.c_str(), "r");
+    }
+    else
+    {
+        command = "zenity --file-selection ";
+        if (!title.empty()) command += "--title='" + title + "' ";
+        if (saveFile) command += "--save ";
+        if (!fileTypeName.empty()) command += "--file-filter='" + fileTypeName;
+        if (!typeFilter.empty())
+        {
+            command += " (";
+            for (std::size_t i = 0; i < typeFilter.size(); ++i)
+            {
+                command += typeFilter[i];
+                if (i != typeFilter.size() - 1) command += ", ";
+            }
+            command += ") | ";
+            for (std::size_t i = 0; i < typeFilter.size(); ++i)
+            {
+                command += "*." + typeFilter[i];
+                if (i != typeFilter.size() - 1) command += ' ';
+            }
+            command += "' ";
+        }
+
+        f = popen(command.c_str(), "r");
+    }
+
+    if (fgets(filename, 1024, f))
+    {
+        std::string path = filename;
+        return path.substr(0, path.size() - 1);
+    }
+#endif
+
+    return "";
 }
 }    // namespace neko
 

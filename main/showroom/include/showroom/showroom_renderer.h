@@ -126,13 +126,18 @@ public:
     void OnEvent(const SDL_Event& event) override;
 
 private:
-	void CreateFramebuffers();
-
     //Render
+    void CreateFramebuffers();
     void UpdateShader(const gl::Shader& shader) const;
 	void DrawGrid();
 
-	//Main
+    //Utils
+    std::string OpenFileExplorer(const std::string& title = "",
+        const std::string& fileTypeName                   = "",
+        const std::vector<std::string>& typeFilter        = {},
+        bool saveFile                                     = false) const;
+
+    //Main
 	void CreateDockableWindow();
 	void DrawImGuizmo();
 	void DrawMenuBar();
@@ -182,6 +187,8 @@ private:
 		LIGHT,
 		MODEL
 	};
+
+    std::string lastPath_ = ". ";
 
 	Job preRender_;
 	sr::TextureManager textureManager_;
