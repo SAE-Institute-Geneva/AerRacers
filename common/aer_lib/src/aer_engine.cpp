@@ -26,7 +26,7 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 	}
 
 	if (mode_ != ModeEnum::TEST)
-	{
+    {
 		RegisterSystem(drawSystem_);
 		RegisterOnEvent(drawSystem_);
 		RegisterOnDrawUi(drawSystem_);

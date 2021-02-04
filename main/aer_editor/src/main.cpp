@@ -38,14 +38,14 @@ int main(int, char**)
 	config.windowName   = "AerEditor Version 0.01";
 	config.windowSize   = neko::Vec2u(1280, 720);
 
-	neko::sdl::Gles3Window window;
-	neko::gl::Gles3Renderer renderer;
-	neko::Filesystem filesystem;
+    neko::sdl::Gles3Window window;
+    neko::gl::Gles3Renderer renderer;
+    neko::Filesystem filesystem;
 	neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 
-	engine.Init();
+    engine.Init();
 	engine.EngineLoop();
 	return 0;
 }

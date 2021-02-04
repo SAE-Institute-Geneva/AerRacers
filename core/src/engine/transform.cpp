@@ -320,11 +320,11 @@ json Transform3dViewer::GetJsonFromComponent(Entity entity) const
         if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
         {
             transformComponent["position"] =
-                GetJsonFromVector3(transform3dManager_.GetRelativePosition(entity));
+                GetJsonFromVector3(transform3dManager_.GetGlobalPosition(entity));
             transformComponent["rotation"] = GetJsonFromVector4(
-                Vec4f(Quaternion::FromEuler(transform3dManager_.GetRelativeRotation(entity))));
+                Vec4f(Quaternion::FromEuler(transform3dManager_.GetGlobalRotation(entity))));
             transformComponent["scale"] =
-                GetJsonFromVector3(transform3dManager_.GetRelativeScale(entity));
+                GetJsonFromVector3(transform3dManager_.GetGlobalScale(entity));
         }
     }    // namespace neko
     return transformComponent;

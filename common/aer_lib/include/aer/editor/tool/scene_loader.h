@@ -27,12 +27,13 @@
  Date : 22.01.2021
 ---------------------------------------------------------- */
 #include "aer/editor/editor_tool_interface.h"
+#include "px/physics_callbacks.h"
 
 namespace neko::aer
 {
 class SceneManager;
 
-class SceneLoader final : public EditorToolInterface
+class SceneLoader final : public EditorToolInterface, public physics::FixedUpdateInterface
 	{
 	public:
         explicit SceneLoader(AerEngine& engine, ToolType type, int id, std::string name);
@@ -43,6 +44,7 @@ class SceneLoader final : public EditorToolInterface
         void Destroy() override;
 		void OnEvent(const SDL_Event& event) override;
 
+        void FixedUpdate(seconds dt) override;
     private:
         SceneManager& sceneManager_;
 
@@ -50,5 +52,6 @@ class SceneLoader final : public EditorToolInterface
 
         std::vector<std::string> scenesPaths_;
         unsigned selectedSceneIndex_ = 0;
+        bool toSave_                  = false;
 	};
 }

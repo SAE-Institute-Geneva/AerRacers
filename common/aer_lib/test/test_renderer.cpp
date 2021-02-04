@@ -205,6 +205,12 @@ public:
         EASY_BLOCK("Test Update", profiler::colors::Green);
     #endif
         const auto modelId = cContainer_.renderManager.GetComponent(testEntity_).modelId;
+        updateCount_ += dt.count();
+        if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
+        {
+            loaded_ = rContainer_.modelManager.IsLoaded(modelId);
+            engine_.Stop();
+        }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
 
         const auto& model = rContainer_.modelManager.GetModel(modelId);
@@ -213,20 +219,21 @@ public:
         	const auto& meshAabb = model->GetMesh(i).aabb;
         	gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
         }
-        updateCount_ += dt.count();
-        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Render() override {}
 
-    void Destroy() override {}
+    void Destroy() override
+    {
+        EXPECT_TRUE(loaded_);
+    }
 
     void DrawImGui() override {}
 
 private:
     float updateCount_           = 0;
-    const float kEngineDuration_ = 0.5f;
-
+    const float kEngineDuration_ = 10.0f;
+    bool loaded_                  = false;
     AerEngine& engine_;
     sdl::MovableCamera3D camera_;
 

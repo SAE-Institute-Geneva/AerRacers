@@ -71,7 +71,7 @@ PhysicsMaterial RigidActor::GetPhysicsMaterial() const
         logDebug("No material_");
         return physicsMaterial;
     }
-    physicsMaterial.bouciness       = material_->getRestitution();
+    physicsMaterial.bouciness = material_->getRestitution();
     physicsMaterial.staticFriction  = material_->getStaticFriction();
     physicsMaterial.dynamicFriction = material_->getDynamicFriction();
     return physicsMaterial;
@@ -354,7 +354,7 @@ RigidStaticData RigidStatic::GetRigidStaticData() const
         logDebug("No rigidActor");
         return rigidStaticData;
     }
-    rigidStaticData.material     = GetPhysicsMaterial();
+    rigidStaticData.material = GetPhysicsMaterial();
     rigidStaticData.colliderType = GetColliderType();
     switch (rigidStaticData.colliderType) {
         case ColliderType::INVALID: break;
@@ -366,9 +366,8 @@ RigidStaticData RigidStatic::GetRigidStaticData() const
             rigidStaticData.sphereColliderData = GetSphereColliderData();
             rigidActor_->attachShape(*shape_);
             break;
-        default: ;
+        default: break;
     }
-
     return rigidStaticData;
 }
 
@@ -641,6 +640,16 @@ json RigidStaticViewer::GetJsonFromComponent(Entity entity) const
         if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
         {
             RigidStaticData rigidStaticData    = rigidStaticManager_.GetRigidStaticData(entity);
+            rigidStaticData.boxColliderData.size =
+                Vec3f(rigidStaticData.boxColliderData.size.x /
+                          transform3dManager_.GetGlobalScale(entity).x,
+                    rigidStaticData.boxColliderData.size.y /
+                        transform3dManager_.GetGlobalScale(entity).y,
+                    rigidStaticData.boxColliderData.size.z /
+                        transform3dManager_.GetGlobalScale(entity).z);
+            rigidStaticData.sphereColliderData.radius =
+                rigidStaticData.sphereColliderData.radius /
+                transform3dManager_.GetGlobalScale(entity).x;
             RigidDynamicData rigidDynamicData;
             rigidDynamicViewer["useGravity"]     = rigidDynamicData.useGravity;
             rigidDynamicViewer["isKinematic"]    = rigidDynamicData.isKinematic;
@@ -845,6 +854,16 @@ json RigidDynamicViewer::GetJsonFromComponent(Entity entity) const
         if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
         {
             RigidDynamicData rigidDynamicData = rigidDynamicManager_.GetRigidDynamicData(entity);
+            rigidDynamicData.boxColliderData.size =
+                Vec3f(rigidDynamicData.boxColliderData.size.x /
+                          transform3dManager_.GetGlobalScale(entity).x,
+                    rigidDynamicData.boxColliderData.size.y /
+                        transform3dManager_.GetGlobalScale(entity).y,
+                    rigidDynamicData.boxColliderData.size.z /
+                        transform3dManager_.GetGlobalScale(entity).z);
+            rigidDynamicData.sphereColliderData.radius =
+                rigidDynamicData.sphereColliderData.radius /
+                transform3dManager_.GetGlobalScale(entity).x;
             rigidDynamicViewer["useGravity"]  = rigidDynamicData.useGravity;
             rigidDynamicViewer["isKinematic"] = rigidDynamicData.isKinematic;
             rigidDynamicViewer["isStatic"]    = false;
@@ -861,8 +880,9 @@ json RigidDynamicViewer::GetJsonFromComponent(Entity entity) const
             rigidDynamicViewer["positionLock"]["z"]    = rigidDynamicData.freezePosition.z;
             rigidDynamicViewer["boxCollider"]       = GetJsonFromBoxCollider(rigidDynamicData);
             rigidDynamicViewer["sphereCollider"]       = GetJsonFromSphereCollider(rigidDynamicData);
-            rigidDynamicViewer["physicsMaterial"]       = GetJsonFromMaterial(rigidDynamicData);
+            rigidDynamicViewer["physicsMaterial"] = GetJsonFromMaterial(rigidDynamicData);
         }
+
     }    // namespace neko
     return rigidDynamicViewer;
     ;
@@ -910,7 +930,7 @@ void RigidDynamicViewer::SetComponentFromJson(Entity entity, const json& compone
     rigidDynamicData.colliderType    = rigidActorData.colliderType;
     rigidDynamicData.boxColliderData    = rigidActorData.boxColliderData;
     rigidDynamicData.sphereColliderData = rigidActorData.sphereColliderData;
-    rigidDynamicData.material           = rigidActorData.material;
+    rigidDynamicData.material             = rigidActorData.material;
     rigidDynamicManager_.AddRigidDynamic(entity, rigidDynamicData);
 }
 

@@ -251,7 +251,8 @@ json SceneManager::WriteEntityJson(Entity entity) const
 	//entityJson["shipRotation"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
 	entityJson["modelRenderer"] = json::object();
 	entityJson["modelRenderer"] = componentManagerContainer_.rendererViewer.GetJsonFromComponent(entity);
-	entityJson["modelRenderer"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL));
+    entityJson["modelRenderer"]["exist"] =
+        entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL));
 	return entityJson;
 }
 
@@ -271,7 +272,7 @@ json SceneManager::WriteSceneJson()
 
 void SceneManager::AddTag(const std::string& newTagName)
 {
-    if (LayerExist(newTagName)) { currentScene_.tags.push_back(newTagName); }
+    if (!LayerExist(newTagName)) { currentScene_.tags.push_back(newTagName); }
 	else
 	{
 		LogDebug("Tag already set");
@@ -281,7 +282,7 @@ void SceneManager::AddTag(const std::string& newTagName)
 
 void SceneManager::AddLayer(const std::string& newLayerName)
 {
-    if (LayerExist(newLayerName)) { currentScene_.layers.push_back(newLayerName); } else {
+    if (!LayerExist(newLayerName)) { currentScene_.layers.push_back(newLayerName); } else {
         LogDebug("Layer already set");
     }
 }
@@ -299,7 +300,7 @@ bool SceneManager::LayerExist(const std::string& newLayerName)
 {
     const auto entityLayerIt = std::find_if(currentScene_.layers.begin(),
         currentScene_.layers.end(),
-        [newLayerName](std::string layerName) { return layerName == layerName; });
+        [newLayerName](std::string layerName) { return newLayerName == layerName; });
     if (entityLayerIt == currentScene_.layers.end()) { return false; }
     return true;
 }

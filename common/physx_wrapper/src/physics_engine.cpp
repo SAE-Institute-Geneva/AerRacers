@@ -81,12 +81,18 @@ void PhysicsEngine::CreateScene()
     sceneDesc.simulationEventCallback = &eventCallback_;
     //sceneDesc.flags |= physx::PxSceneFlag::eENABLE_CCD; //Use when Continous Detection
     scene_ = physics_->createScene(sceneDesc);
-    if (!scene_) std::cerr << "createScene failed!";
-    scene_->getScenePvdClient()->setScenePvdFlag(
-        physx::PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-    scene_->getScenePvdClient()->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-    scene_->getScenePvdClient()->setScenePvdFlag(
-        physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+    if (transport_->isConnected()) {
+        if (!scene_) std::cerr << "createScene failed!";
+        scene_->getScenePvdClient()->setScenePvdFlag(
+            physx::PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS,
+            true);
+        scene_->getScenePvdClient()->setScenePvdFlag(
+            physx::PxPvdSceneFlag::eTRANSMIT_CONTACTS,
+            true);
+        scene_->getScenePvdClient()->setScenePvdFlag(
+            physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES,
+            true);
+    }
 }
 
 bool PhysicsEngine::Advance(physx::PxReal dt)

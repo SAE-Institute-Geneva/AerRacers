@@ -153,7 +153,7 @@ public :
     void InitActors(
         neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration      = 100.0f;
+        engineDuration      = 2.0f;
         entityManager_      = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_      = &aerEngine_.GetComponentManagerContainer().renderManager;
@@ -358,7 +358,7 @@ public:
     void InitActors(
         neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration      = 4.0f;
+        engineDuration      = 100.0f;
         entityManager_      = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_      = &aerEngine_.GetComponentManagerContainer().renderManager;
@@ -467,7 +467,7 @@ public:
             cubeTorqueEntity_, cubeTorque_);
     }
 
-    void HasSucceed() override
+    void PostHasSucceed()
     {
         float precision = 0.1f;
         //Sphere Velocity
@@ -524,9 +524,11 @@ public:
     {
         rigidDynamicManager_->SetAngularVelocity(cubeAngularVelocityEntity_, cubeAngularVelocity_);
         rigidDynamicManager_->SetLinearVelocity(sphereVelocityEntity_, sphereVelocity_);
-        rigidDynamicManager_->MoveRotation(cubeMoveRotationEntity_, neko::Quaternion::FromEuler(cubeRotation_));
+        rigidDynamicManager_->MoveRotation(
+            cubeMoveRotationEntity_, neko::Quaternion::FromEuler(cubeRotation_));
         if (physicsTimer_ >= kPhysicsDuration_) {
             physicsEngine_->StopPhysic();
+            PostHasSucceed();
         }
         else
         {
@@ -535,6 +537,8 @@ public:
     }
 
     void DrawImGui() override { }
+    void HasSucceed() override {}
+
 private:
     neko::Vec3f cubePosition_        = neko::Vec3f(0.0f, 0.0f, 0.0f);
     neko::Vec3f sphereVelocity_           = neko::Vec3f(2.0f, 0.0f, 0.0f);
@@ -982,6 +986,7 @@ public:
     }
     virtual void HasSucceed(ComponentManagerContainer& cContainer) = 0;
     std::string sceneName;
+    float engineDuration = 10.0f;
 };
 
 class PhysXSceneImporterTester : public SystemInterface, public DrawImGuiInterface
@@ -1000,6 +1005,7 @@ public:
         engine_.GetComponentManagerContainer().sceneManager.LoadScene(
             config.dataRootPath + testScene_.sceneName);
         testScene_.Init(engine_);
+        engineDuration_ = testScene_.engineDuration;
     }
 
     void Update(seconds dt) override
@@ -1008,7 +1014,7 @@ public:
         EASY_BLOCK("Test Update", profiler::colors::Green);
 #endif
         updateCount_ += dt.count();  
-        if (updateCount_ >= kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ >= engineDuration_) { engine_.Stop(); }
     }
 
     void Destroy() override {}
@@ -1042,7 +1048,7 @@ public:
     }
 private:
     float updateCount_           = 0;
-    const float kEngineDuration_ = 5.0f;
+    float engineDuration_ = 5.0f;
 
     AerEngine& engine_;
 
@@ -1064,6 +1070,7 @@ public:
         camera->position = Vec3f(7.0f, 45.0f, 0.0f);
         camera->Rotate(EulerAngles(degree_t(90.0f), degree_t(-90.0f), degree_t(0.0f)));
         //aerengine.GetPhysicsEngine().StopPhysic();
+        engineDuration = 1.0f;
     }
 };
 TEST(PhysX, TestExampleSceneImporteur)
@@ -1110,7 +1117,8 @@ public:
     {
         Camera3D* camera = GizmosLocator::get().GetCamera();
         camera->position = Vec3f(0.0f, 3.0f, 10.0f);
-        camera->fovY = degree_t(60);
+        camera->fovY     = degree_t(60);
+        engineDuration   = 5.0f;
         //aerengine.GetPhysicsEngine().StopPhysic();
     }
 };
@@ -1159,6 +1167,7 @@ public:
         Camera3D* camera = GizmosLocator::get().GetCamera();
         camera->position = Vec3f(0.0f, 1.0f, -10.0f);
         camera->Rotate(EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
+        engineDuration = 7.0f;
         //aerengine.GetPhysicsEngine().StopPhysic();
     }
 };

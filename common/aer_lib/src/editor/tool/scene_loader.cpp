@@ -44,7 +44,7 @@ void SceneLoader::DrawImGui()
                     sceneManager_.LoadScene(scenesPaths_[selectedSceneIndex_]); }
                 if (ImGui::Button("Save Current Scene"))
                 {
-                    sceneManager_.SaveCurrentScene();
+                    toSave_ = true;
                 }
             }
 
@@ -69,5 +69,12 @@ void SceneLoader::LoadSceneFiles()
 }
 
 void SceneLoader::OnEvent(const SDL_Event& event) {}
+void SceneLoader::FixedUpdate(seconds dt)
+{
+    if (toSave_) {
+        sceneManager_.SaveCurrentScene();
+        toSave_ = false;
+    }
+}
 
 }
