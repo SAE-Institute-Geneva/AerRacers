@@ -48,55 +48,70 @@ void Inspector::DrawImGui()
                 rendererViewer_.DrawImGui(selectedEntity);
             }
 
-            //TODO Replace by actual tag list
+            //TODO Replace by actual tag and layer list
             char* tags[] = {"Untagged"};
+            char* layers[] = {"Default"};
+            
 
-
-            std::copy(
-                engine_.GetComponentManagerContainer().sceneManager.GetCurrentScene().tags.begin(),
-                engine_.GetComponentManagerContainer().sceneManager.GetCurrentScene().tags.end(),
-                tags);
-           
+            for (std::string tag :
+                engine_.GetComponentManagerContainer().sceneManager.GetCurrentScene().tags)
+            { 
+                                
+            }
 
             
-            
+            tag = TagLocator::get().GetEntityTag(selectedEntity);
+            ImGui::Text((tag.c_str()));
 
             if (ImGui::BeginCombo("Tag",TagLocator::get().GetEntityTag(selectedEntity).c_str()))
             {
                 for (int n = 0; n < IM_ARRAYSIZE(tags); n++)
                 {
-                    bool is_selected = current_item == tags [n];    // You can store your selection however you want, outside or inside your objects
+                    bool is_selected = current_item == tags [n];
                     if (ImGui::Selectable(tags[n], is_selected))
                     {
-
                         current_item = tags[n];
                         TagLocator::get().SetEntityTag(selectedEntity, current_item);
                     }
                         
 
                     if (is_selected)
-                         ImGui::SetItemDefaultFocus();   // You may set the initial focus when opening the combo (scrolling + for keyboard navigation support)
+                         ImGui::SetItemDefaultFocus();
                 }
                 ImGui::EndCombo();
             }
 
-            
-
-            layer = TagLocator::get().GetEntityLayer(selectedEntity);
-            ImGui::Text((layer.c_str()));
-
-            ImGui::InputText("New layer", newLayer, IM_ARRAYSIZE(newLayer));
-            engine_.GetComponentManagerContainer().sceneManager.AddLayer(newLayer);
 
             ImGui::InputText("New tag", newTag, IM_ARRAYSIZE(newTag));
             engine_.GetComponentManagerContainer().sceneManager.AddTag(newTag);
 
-            tag = TagLocator::get().GetEntityTag(selectedEntity);
-            ImGui::Text((tag.c_str()));
+            layer = TagLocator::get().GetEntityLayer(selectedEntity);
+            ImGui::Text((layer.c_str()));
 
-            /// <summary>
+            if (ImGui::BeginCombo("Layer", TagLocator::get().GetEntityLayer(selectedEntity).c_str()))
+            {
+                for (int n = 0; n < IM_ARRAYSIZE(layers); n++)
+                {
+                    bool is_selected = current_item == layers[n];
+                    if (ImGui::Selectable(layers[n], is_selected))
+                    {
+                        current_item = layers[n];
+                        TagLocator::get().SetEntityLayer(selectedEntity, current_item);
+                    }
+
+                    if (is_selected) ImGui::SetItemDefaultFocus();
+                }
+                ImGui::EndCombo();
+            }
+
+            ImGui::InputText("New layer", newLayer, IM_ARRAYSIZE(newLayer));
+            engine_.GetComponentManagerContainer().sceneManager.AddLayer(newLayer);
+
+            
+
+            
+
             //
-            /// </summary>
 
             if (ImGui::TreeNode("Components"))
             {
