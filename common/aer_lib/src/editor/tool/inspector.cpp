@@ -73,59 +73,72 @@ void Inspector::DrawImGui()
 
             //Tags
             tag = TagLocator::get().GetEntityTag(selectedEntity);
-            ImGui::Text((tag.c_str()));
-
-            if (ImGui::BeginCombo("Tag", TagLocator::get().GetEntityTag(selectedEntity).c_str()))
-            {
-                for (int n = 0; n < IM_ARRAYSIZE(tags); n++)
-                {
-                    bool is_selected = current_item == tags[n];
-                    if (ImGui::Selectable(tags[n], is_selected))
-                    {
-                        current_item = tags[n];
-                        TagLocator::get().SetEntityTag(selectedEntity, current_item);
-                    }
-
-                    if (is_selected) ImGui::SetItemDefaultFocus();
-                }
-                ImGui::EndCombo();
-            }
-
-            ImGui::InputText("New tag", newTag, IM_ARRAYSIZE(newTag));
-
-            if (ImGui::Button("Add Tag"))
-            {
-                if (newTag != "")
-                    engine_.GetComponentManagerContainer().sceneManager.AddTag(newTag);
-            }
-
-            //Layers
+            ImGui::Text("Tag :");
+            ImGui::SameLine();
+            ImGui::Text(tag.c_str());
+            
             layer = TagLocator::get().GetEntityLayer(selectedEntity);
-            ImGui::Text((layer.c_str()));
+            ImGui::Text("Layer :");
+            ImGui::SameLine();
+            ImGui::Text(layer.c_str());
 
-            if (ImGui::BeginCombo(
-                    "Layer", TagLocator::get().GetEntityLayer(selectedEntity).c_str()))
+            if (ImGui::TreeNode("Tag & Layer"))
             {
-                for (int n = 0; n < IM_ARRAYSIZE(layers); n++)
+                ImGui::InputText("New tag", newTag, IM_ARRAYSIZE(newTag));
+
+                if (ImGui::Button("Add Tag"))
                 {
-                    bool is_selected = current_item == layers[n];
-                    if (ImGui::Selectable(layers[n], is_selected))
-                    {
-                        current_item = layers[n];
-                        TagLocator::get().SetEntityLayer(selectedEntity, current_item);
-                    }
-
-                    if (is_selected) ImGui::SetItemDefaultFocus();
+                    if (newTag != "")
+                        engine_.GetComponentManagerContainer().sceneManager.AddTag(newTag);
                 }
-                ImGui::EndCombo();
+
+                if (ImGui::BeginCombo(
+                        "Tag", TagLocator::get().GetEntityTag(selectedEntity).c_str()))
+                {
+                    for (int n = 0; n < IM_ARRAYSIZE(tags); n++)
+                    {
+                        bool is_selected = current_item == tags[n];
+                        if (ImGui::Selectable(tags[n], is_selected))
+                        {
+                            current_item = tags[n];
+                            TagLocator::get().SetEntityTag(selectedEntity, current_item);
+                        }
+
+                        if (is_selected) ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
+                }
+
+                //Layers
+                
+
+                ImGui::InputText("New layer", newLayer, IM_ARRAYSIZE(newLayer));
+                if (ImGui::Button("Add Layer"))
+                {
+                    if (newLayer != "")
+                        engine_.GetComponentManagerContainer().sceneManager.AddLayer(newLayer);
+                }
+
+                if (ImGui::BeginCombo(
+                        "Layer", TagLocator::get().GetEntityLayer(selectedEntity).c_str()))
+                {
+                    for (int n = 0; n < IM_ARRAYSIZE(layers); n++)
+                    {
+                        bool is_selected = current_item == layers[n];
+                        if (ImGui::Selectable(layers[n], is_selected))
+                        {
+                            current_item = layers[n];
+                            TagLocator::get().SetEntityLayer(selectedEntity, current_item);
+                        }
+
+                        if (is_selected) ImGui::SetItemDefaultFocus();
+                    }
+                    ImGui::EndCombo();
+                }
+                ImGui::TreePop();
             }
 
-            ImGui::InputText("New layer", newLayer, IM_ARRAYSIZE(newLayer));
-            if (ImGui::Button("Add Layer"))
-            {
-                if (newLayer != "")
-                    engine_.GetComponentManagerContainer().sceneManager.AddLayer(newLayer);
-            }
+            
 
             if (ImGui::TreeNode("Components"))
             {
