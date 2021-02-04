@@ -59,7 +59,7 @@ public:
 
 	void Update(neko::seconds dt) override // Where we simulate tests
 	{
-        updateCount_++;
+        //updateCount_++;
         if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
 	}
 

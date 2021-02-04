@@ -47,5 +47,11 @@ namespace neko::aer
         RenderManager& renderManager_;
         Transform3dViewer& transform3dViewer_;
         RendererViewer& rendererViewer_;
+
+		std::string layer;
+        std::string tag;
+        char newLayer[128] = "";
+        char newTag[128] = "";
+        const char* current_item = NULL;
 	};
 }
