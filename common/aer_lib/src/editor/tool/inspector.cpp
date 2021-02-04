@@ -47,48 +47,64 @@ void Inspector::DrawImGui()
                 transform3dViewer_.DrawImGui(selectedEntity);
                 rendererViewer_.DrawImGui(selectedEntity);
             }
+            const char* tags[]   = {"Untagged", "", "", "", "", "", "", "", "", ""};
+            const char* layers[] = {"Default", "", "", "", "", "", "", "", "", ""};
 
-            //TODO Replace by actual tag and layer list
-            char* tags[] = {"Untagged"};
-            char* layers[] = {"Default"};
-            
+            std::vector<std::string> strings =
+                engine_.GetComponentManagerContainer().sceneManager.GetTags();
+            std::vector<char*> cstrings;
+            cstrings.reserve(strings.size());
 
-            for (std::string tag :
-                engine_.GetComponentManagerContainer().sceneManager.GetCurrentScene().tags)
-            { 
-                                
+            for (size_t i = 0; i < strings.size(); ++i)
+            {
+                cstrings.push_back(const_cast<char*>(strings[i].c_str()));
+                tags[i] = cstrings[i];
             }
 
-            
+            std::vector<std::string> stringsBis =
+                engine_.GetComponentManagerContainer().sceneManager.GetLayers();
+            std::vector<char*> cstringsBis;
+
+            for (size_t i = 0; i < stringsBis.size(); ++i)
+            {
+                cstringsBis.push_back(const_cast<char*>(stringsBis[i].c_str()));
+                layers[i] = cstringsBis[i];
+            }
+
+            //Tags
             tag = TagLocator::get().GetEntityTag(selectedEntity);
             ImGui::Text((tag.c_str()));
 
-            if (ImGui::BeginCombo("Tag",TagLocator::get().GetEntityTag(selectedEntity).c_str()))
+            if (ImGui::BeginCombo("Tag", TagLocator::get().GetEntityTag(selectedEntity).c_str()))
             {
                 for (int n = 0; n < IM_ARRAYSIZE(tags); n++)
                 {
-                    bool is_selected = current_item == tags [n];
+                    bool is_selected = current_item == tags[n];
                     if (ImGui::Selectable(tags[n], is_selected))
                     {
                         current_item = tags[n];
                         TagLocator::get().SetEntityTag(selectedEntity, current_item);
                     }
-                        
 
-                    if (is_selected)
-                         ImGui::SetItemDefaultFocus();
+                    if (is_selected) ImGui::SetItemDefaultFocus();
                 }
                 ImGui::EndCombo();
             }
 
-
             ImGui::InputText("New tag", newTag, IM_ARRAYSIZE(newTag));
-            engine_.GetComponentManagerContainer().sceneManager.AddTag(newTag);
 
+            if (ImGui::Button("Add Tag"))
+            {
+                if (newTag != "")
+                    engine_.GetComponentManagerContainer().sceneManager.AddTag(newTag);
+            }
+
+            //Layers
             layer = TagLocator::get().GetEntityLayer(selectedEntity);
             ImGui::Text((layer.c_str()));
 
-            if (ImGui::BeginCombo("Layer", TagLocator::get().GetEntityLayer(selectedEntity).c_str()))
+            if (ImGui::BeginCombo(
+                    "Layer", TagLocator::get().GetEntityLayer(selectedEntity).c_str()))
             {
                 for (int n = 0; n < IM_ARRAYSIZE(layers); n++)
                 {
@@ -105,13 +121,11 @@ void Inspector::DrawImGui()
             }
 
             ImGui::InputText("New layer", newLayer, IM_ARRAYSIZE(newLayer));
-            engine_.GetComponentManagerContainer().sceneManager.AddLayer(newLayer);
-
-            
-
-            
-
-            //
+            if (ImGui::Button("Add Layer"))
+            {
+                if (newLayer != "")
+                    engine_.GetComponentManagerContainer().sceneManager.AddLayer(newLayer);
+            }
 
             if (ImGui::TreeNode("Components"))
             {
