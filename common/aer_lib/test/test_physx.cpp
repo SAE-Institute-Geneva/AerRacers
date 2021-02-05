@@ -358,7 +358,7 @@ public:
     void InitActors(
         neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration      = 100.0f;
+        engineDuration      = 5.0f;
         entityManager_      = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_      = &aerEngine_.GetComponentManagerContainer().renderManager;
