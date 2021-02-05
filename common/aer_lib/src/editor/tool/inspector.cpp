@@ -178,12 +178,6 @@ void Inspector::DrawImGui()
                         selectedEntity, EntityMask(ComponentType::TRANSFORM2D));
                 }
 
-                if (ImGui::Button("Add Model"))
-                {
-                    entityManager_.AddComponentType(
-                        selectedEntity, EntityMask(ComponentType::MODEL));
-                }
-
                 if (ImGui::Button("Add Collider2D"))
                 {
                     entityManager_.AddComponentType(
@@ -232,12 +226,12 @@ void Inspector::DrawImGui()
                         selectedEntity, EntityMask(ComponentType::ROTATION2D));
                 }
 
-                if (ImGui::Button("Add Renderer"))
+                if (ImGui::Button("Add Model"))
                 { renderManager_.AddComponent(selectedEntity);
                 }
 
                 // Delete Buttons
-
+                
 
                 if (entityManager_.HasComponent(selectedEntity, EntityMask(ComponentType::BODY2D)))
                 {
@@ -301,9 +295,7 @@ void Inspector::DrawImGui()
                 if (entityManager_.HasComponent(selectedEntity, EntityMask(ComponentType::MODEL)))
                 {
                     if (ImGui::Button("Delete Model"))
-                    {
-                        entityManager_.RemoveComponentType(
-                            selectedEntity, EntityMask(ComponentType::MODEL));
+                    { renderManager_.DestroyComponent(selectedEntity);
                     }
                 }
 
