@@ -169,9 +169,7 @@ void Inspector::DrawImGui()
                 }
 
                 if (ImGui::Button("Add Transform3D"))
-                {
-                    entityManager_.AddComponentType(
-                        selectedEntity, EntityMask(ComponentType::TRANSFORM3D));
+                { transform3dManager_.AddComponent(selectedEntity);
                 }
 
                 if (ImGui::Button("Add Transform2D"))
@@ -234,7 +232,12 @@ void Inspector::DrawImGui()
                         selectedEntity, EntityMask(ComponentType::ROTATION2D));
                 }
 
+                if (ImGui::Button("Add Renderer"))
+                { renderManager_.AddComponent(selectedEntity);
+                }
+
                 // Delete Buttons
+
 
                 if (entityManager_.HasComponent(selectedEntity, EntityMask(ComponentType::BODY2D)))
                 {
@@ -380,7 +383,7 @@ void Inspector::DrawImGui()
                         entityManager_.RemoveComponentType(
                             selectedEntity, EntityMask(ComponentType::ROTATION2D));
                     }
-                }
+                }               
 
                 ImGui::TreePop();
             }
