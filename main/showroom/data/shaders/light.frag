@@ -86,7 +86,7 @@ vec3 GetEmissive()
     if (bool(usedMaps & Emissive)) 
     {
     	vec3 emissive = texture(material.emissive, fs1_in.TexCoords).rgb;
-    	return emissive * 100.0f;
+    	return emissive * 1000.0f;
     }
     
     return vec3(0.0);
@@ -96,7 +96,6 @@ vec3 CalcNoLight()
 {
 	vec3 result;
  	result = GetDiffuse();
-    result += GetEmissive();
     
     return result;
 }
@@ -133,7 +132,7 @@ vec3 CalcDirLight()
     diffuse *= light.intensity;
     specular *= light.intensity;
     
-    vec3 result = ambient + diffuse + specular + GetEmissive();
+    vec3 result = ambient + diffuse + specular;
 	
 	return result;
 }
@@ -171,7 +170,7 @@ vec3 CalcPointLight()
     diffuse *= attenuation;
     specular *= attenuation;
     
-    vec3 result = ambient + diffuse + specular + GetEmissive();
+    vec3 result = ambient + diffuse + specular;
 	
 	return result;
 }
@@ -230,7 +229,7 @@ vec3 CalcSpotLight()
     diffuse  *= intensity;
     specular *= intensity;
     
-    vec3 result = ambient + diffuse + specular + GetEmissive();
+    vec3 result = ambient + diffuse + specular;
 	
 	return result;
 }
@@ -260,6 +259,7 @@ void main()
 	else if (intensity > 0.5) result = result * 0.6;
 	else result = light.ambient * GetDiffuse();
 	
+	result += GetEmissive();
 	FragColor = vec4(result, 1.0);
 	
     float brightness = dot(result, vec3(0.2126, 0.7152, 0.0722));

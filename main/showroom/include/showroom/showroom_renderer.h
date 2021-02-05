@@ -149,6 +149,7 @@ private:
 	//Tool Window
 	void DrawLightTransform();
 	void DrawModelTransform();
+	void DrawMeshTransform(sr::Mesh& mesh);
 
 	//Scene Window
 	void DrawMeshImGui(sr::Mesh& mesh);

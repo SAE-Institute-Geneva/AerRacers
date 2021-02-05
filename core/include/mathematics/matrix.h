@@ -540,7 +540,7 @@ public:
 		}
 	}
 
-	void Decompose(Vec3f& pos, EulerAngles& rot, Vec3f& scale)
+	void Decompose(Vec3f& pos, EulerAngles& rot, Vec3f& scale) const
 	{
 		const auto subMat = Mat3f(*this);
 		pos = Vec3f(columns_[3]);

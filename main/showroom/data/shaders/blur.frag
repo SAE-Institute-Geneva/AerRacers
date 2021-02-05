@@ -48,7 +48,7 @@ void main()
     // GAUSSIAN BLUR SETTINGS
     float directions = 16.0; // BLUR directions (Default 16.0 - More is better but slower)
     float quality = 3.0; // BLUR quality (Default 4.0 - More is better but slower)
-    float size = 16.0; // BLUR size (radius)
+    float size = 8.0; // BLUR size (radius)
     // GAUSSIAN BLUR SETTINGS
    
     vec2 radius = size / vec2(1280.0, 720.0);

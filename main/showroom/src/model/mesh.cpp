@@ -57,7 +57,7 @@ void Mesh::Init()
 void Mesh::Draw(const gl::Shader& shader) const
 {
     BindTextures(shader);
-	//shader.SetMat4("model", modelMat_);
+	shader.SetMat4("model", modelMat_);
 
     // draw mesh
     glBindVertexArray(VAO);
@@ -113,6 +113,7 @@ void Mesh::ProcessMesh(
 {
 	aabb_.lowerLeftBound  = Vec3f(mesh->mAABB.mMin);
 	aabb_.upperRightBound = Vec3f(mesh->mAABB.mMax);
+    modelMat_ = Mat4f::Identity;
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
     {

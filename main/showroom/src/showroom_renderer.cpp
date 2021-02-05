@@ -352,17 +352,19 @@ void ShowRoomRenderer::CreateDockableWindow()
 	        ImGuiID dockDown = DockBuilderSplitNode(dockMain, ImGuiDir_Down, 0.02f, NULL, &dockMain);
 	        DockBuilderGetNode(dockspaceId_)->ChildNodes[1]->LocalFlags |= ImGuiDockNodeFlags_NoResize;
 
-	        ImGuiID dockRight = DockBuilderSplitNode(dockUp, ImGuiDir_Right, 0.2f, NULL, &dockUp);
+	        ImGuiID dockRight = DockBuilderSplitNode(dockUp, ImGuiDir_Right, 0.175f, NULL, &dockUp);
 	        ImGuiID dockLeft = DockBuilderSplitNode(dockUp, ImGuiDir_Left, 0.2f, NULL, &dockUp);
 	        ImGuiID dockDownRightId = DockBuilderSplitNode(dockRight, ImGuiDir_Down, 0.5f, nullptr, &dockRight);
 
 	        ImGuiID dockLeftLeft = DockBuilderSplitNode(dockLeft, ImGuiDir_Left, 0.2f, NULL, &dockLeft);
+	        ImGuiID dockLeftLeftDown = DockBuilderSplitNode(dockLeftLeft, ImGuiDir_Down, 0.5f, NULL, &dockLeftLeft);
 	        ImGuiID dockLeftRight = DockBuilderSplitNode(dockLeft, ImGuiDir_Right, 0.8f, NULL, &dockLeft);
 	        DockBuilderGetNode(dockLeftRight)->LocalFlags = ImGuiDockNodeFlags_CentralNode;
 
 			DockBuilderDockWindow("Scene", dockRight);
 			DockBuilderDockWindow("InfoBar", dockDown);
-			DockBuilderDockWindow("Tools", dockLeftLeft);
+			DockBuilderDockWindow("View", dockLeftLeft);
+			DockBuilderDockWindow("Transform", dockLeftLeftDown);
 			DockBuilderDockWindow("Properties", dockDownRightId);
         }
 		
@@ -424,16 +426,17 @@ void ShowRoomRenderer::DrawImGuizmo()
 		}
 		default:
 		{
-			/*if (!model_.IsLoaded()) break;
+			if (!model_.IsLoaded()) break;
 			auto& mesh = model_.GetMesh(selectedNode_ - selectionOffset_);
-			Mat4f modelMat = mesh.GetModelMatrix();
+            const Vec3f pos = mesh.GetAabb().CalculateCenter();
+			Mat4f modelMat = mesh.GetModelMatrix() * Transform3d::TranslationMatrixFrom(pos);
 			if (Manipulate(
 				&camView[0][0],
 				&camProj[0][0],
 				manipulateOperation_,
 				ImGuizmo::MODE::WORLD,
 				&modelMat[0][0]))
-				mesh.SetModelMatrix(modelMat);*/
+				mesh.SetModelMatrix(modelMat * Transform3d::TranslationMatrixFrom(-pos));
 			break;
 		}
 	}
@@ -736,62 +739,61 @@ void ShowRoomRenderer::DrawPropertiesWindow()
 
 void ShowRoomRenderer::DrawToolWindow()
 {
-	using namespace ImGui;
-	if (Begin("Tools"))
-	{
+    using namespace ImGui;
+    Begin("View");
+    {
+        Text("View");
+        Separator();
+
         if (GetWindowDockNode()) GetWindowDockNode()->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
-		if (BeginTabBar("##tabs", ImGuiTabBarFlags_None))
-		{
-			if (BeginTabItem("View"))
-			{
-				PushItemWidth(-1);
-				float width = CalcItemWidth();
-				PushItemWidth(width - CalcTextSize(" Focal Length").x);
-				if (DragFloat("Focal Length",
-						&focalLength_,
-						1.0f,
-						1.0f,
-						5000.0f,
-						"%.4f",
-						ImGuiSliderFlags_Logarithmic))
-					camera_.fovY = 2 * Atan(0.5f * sensorSize_ / focalLength_);
+        PushItemWidth(-1);
+        float width = CalcItemWidth();
+        PushItemWidth(width - CalcTextSize(" Focal Length").x);
+        if (DragFloat("Focal Length",
+                &focalLength_,
+                1.0f,
+                1.0f,
+                5000.0f,
+                "%.4f",
+                ImGuiSliderFlags_Logarithmic))
+            camera_.fovY = 2 * Atan(0.5f * sensorSize_ / focalLength_);
 
-				PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
-				DragFloat("Clip Start", &camera_.nearPlane);
-				PopStyleVar();
-				DragFloat("Clip End", &camera_.farPlane);
-				PopItemWidth();
+        PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+        DragFloat("Clip Start", &camera_.nearPlane);
+        PopStyleVar();
+        DragFloat("Clip End", &camera_.farPlane);
+        PopItemWidth();
 
-				PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
-				Text("Position:");
-				width = CalcItemWidth();
-				PushItemWidth(width - CalcTextSize(" X").x);
-				DragFloat("X", &camera_.position.x, 0.1f);
-				DragFloat("Y", &camera_.position.y, 0.1f);
-				PopStyleVar();
-				DragFloat("Z", &camera_.position.z, 0.1f);
-				PopItemWidth();
-				PopItemWidth();
+        PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+        Text("Position:");
+        width = CalcItemWidth();
+        PushItemWidth(width - CalcTextSize(" X").x);
+        DragFloat("X", &camera_.position.x, 0.1f);
+        DragFloat("Y", &camera_.position.y, 0.1f);
+        PopStyleVar();
+        DragFloat("Z", &camera_.position.z, 0.1f);
+        PopItemWidth();
+        PopItemWidth();
 
-				EndTabItem();
-			}
+        End();
+    }
 
-			if (BeginTabItem("Transform"))
-			{
-				switch (selectedNode_)
-				{
-					case NONE: break;
-					case LIGHT: DrawLightTransform(); break;
-					case MODEL: DrawModelTransform(); break;
-					default: break;
-				}
+    Begin("Transform");
+    {
+        Text("Transform");
+        Separator();
 
-				EndTabItem();
-			}
-			EndTabBar();
-		}
-		End();
-	}
+        if (GetWindowDockNode()) GetWindowDockNode()->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
+        switch (selectedNode_)
+        {
+            case NONE: break;
+            case LIGHT: DrawLightTransform(); break;
+            case MODEL: DrawModelTransform(); break;
+            default: DrawMeshTransform(model_.GetMesh(selectedNode_ - selectionOffset_)); break;
+        }
+
+        End();
+    }
 }
 
 void ShowRoomRenderer::DrawLightTransform()
@@ -893,6 +895,52 @@ void ShowRoomRenderer::DrawModelTransform()
 	PopItemWidth();
 
 	modelMat_ = Transform3d::Transform(pos, angles, scale);
+}
+
+void ShowRoomRenderer::DrawMeshTransform(sr::Mesh& mesh)
+{
+    using namespace ImGui;
+    Vec3f pos, scale;
+    EulerAngles angles;
+    mesh.GetModelMatrix().Decompose(pos, angles, scale);
+
+    PushItemWidth(-1);
+    PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+    Text("Position:");
+    float width = CalcItemWidth();
+    PushItemWidth(width - CalcTextSize(" X").x);
+    DragFloat("X##pos", &pos.x, 0.1f);
+    DragFloat("Y##pos", &pos.y, 0.1f);
+    PopStyleVar();
+    DragFloat("Z##pos", &pos.z, 0.1f);
+    PopItemWidth();
+
+    auto anglesF = Vec3f(angles);
+    PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+    Text("Rotation:");
+    width = CalcItemWidth();
+    PushItemWidth(width - CalcTextSize(" X").x);
+    if (DragFloat("X##anglesF", &anglesF.x, 0.1f))
+        angles.x = degree_t(anglesF.x);
+    if (DragFloat("Y##anglesF", &anglesF.y, 0.1f))
+        angles.y = degree_t(anglesF.y);
+    PopStyleVar();
+    if (DragFloat("Z##anglesF", &anglesF.z, 0.1f))
+        angles.z = degree_t(anglesF.z);
+    PopItemWidth();
+
+    PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
+    Text("Scale:");
+    width = CalcItemWidth();
+    PushItemWidth(width - CalcTextSize(" X").x);
+    DragFloat("X##scale", &scale.x, 0.1f, smallFloat);
+    DragFloat("Y##scale", &scale.y, 0.1f, smallFloat);
+    PopStyleVar();
+    DragFloat("Z##scale", &scale.z, 0.1f, smallFloat);
+    PopItemWidth();
+    PopItemWidth();
+
+    mesh.SetModelMatrix(Transform3d::Transform(pos, angles, scale));
 }
 
 void ShowRoomRenderer::DrawMeshImGui(sr::Mesh& mesh)
