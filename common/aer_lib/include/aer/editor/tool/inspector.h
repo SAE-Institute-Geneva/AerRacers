@@ -23,7 +23,7 @@
  SOFTWARE.
 
  Author : Guillaume Jeannin
- Co-Author :
+ Co-Author : Floreau Luca
  Date : 13.10.2020
 ---------------------------------------------------------- */
 #include "aer/editor/editor_tool_interface.h"
@@ -41,6 +41,10 @@ namespace neko::aer
 		void OnEvent(const SDL_Event& event) override;
 
     private:
+        void DisplayLayersAndTags(Entity selectedEntity);
+        void DisplayNewComponentButtons(Entity selectedEntity);
+
+
         EditorToolManager& editorToolManager_;
         EntityManager& entityManager_;
         Transform3dManager& transform3dManager_;
@@ -51,5 +55,11 @@ namespace neko::aer
         RendererViewer& rendererViewer_;
         physics::RigidDynamicViewer& rigidDynamicViewer_;
         physics::RigidStaticViewer& rigidStaticViewer_;
+
+		std::string layer_;
+        std::string tag_;
+        char newLayer_[128] = "";
+        char newTag_[128] = "";
+        const char* currentItem_ = NULL;
 	};
 }

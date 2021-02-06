@@ -1,10 +1,14 @@
-#include <aer/editor/tool/hierarchy.h>
-#include "vector"
+#include "aer/editor/tool/hierarchy.h"
+
 #include <string>
-#include "aer/aer_engine.h"
+#include <vector>
+
 #include "imgui_internal.h"
 #include "imgui.h"
+
+#include "aer/aer_engine.h"
 #include "engine/entity.h"
+
 
 namespace neko::aer {
 Hierarchy::Hierarchy(
@@ -27,11 +31,13 @@ void Hierarchy::DrawImGui()
         if (ImGui::Begin((GetName() + "##" +
                           std::to_string(GetId())).c_str(),
             &isVisible)) {
-            for (auto entityIndex = 0; entityIndex < entityManager_.GetEntitiesSize();
+            for (Entity entityIndex = 0; entityIndex < entityManager_.GetEntitiesSize();
                  entityIndex++) {
                 //Display each entity without parent
-                if (entityManager_.GetEntityParent(entityIndex) == INVALID_ENTITY && entityManager_.
-                    EntityExists(entityIndex)) { DisplayEntity(entityIndex); }
+                if (entityManager_.GetEntityParent(entityIndex) == INVALID_ENTITY && 
+                    entityManager_.EntityExists(entityIndex)) { 
+                    DisplayEntity(entityIndex); 
+                }
             }
         }
         ImGui::End();
@@ -42,12 +48,54 @@ void Hierarchy::DisplayEntity(Entity entityIndex)
 {
     ImGuiTreeNodeFlags nodeFlags;
 
-    std::string text = "Entity " + std::to_string(entityIndex);
+    const std::string text = "Entity " + std::to_string(entityIndex);
     if (editorToolManager_.GetSelectedEntity() == entityIndex) {
         nodeFlags = kNodeTreeSelectedFlags_;
-    } else { nodeFlags = kNodeTreeNotSelectedFlags_; }
+    } 
+    else { 
+        nodeFlags = kNodeTreeNotSelectedFlags_; 
+    }
+
+    //Hide arrow if no child
+    bool hasChild = false;
+    for (Entity oneEntityIndex = 0; oneEntityIndex < entityManager_.GetEntitiesSize();
+         oneEntityIndex++)
+    {
+        if (entityIndex == entityManager_.GetEntityParent(oneEntityIndex))
+        {
+            hasChild = true;
+            break;
+        }
+    }
+    if (hasChild == false) { 
+        nodeFlags |= ImGuiTreeNodeFlags_Leaf; 
+    }
+
     //Display entity
     const bool nodeOpen = ImGui::TreeNodeEx(text.c_str(), nodeFlags);
+    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) 
+    { 
+        ImGui::SetDragDropPayload("Entity", &entityIndex, sizeof(Entity)); // Registers entity index in payload 
+        ImGui::Text(text.c_str());
+        ImGui::EndDragDropSource();
+    }
+    if (ImGui::BeginDragDropTarget()) 
+    {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity")) // Get payload
+        {
+            IM_ASSERT(payload->DataSize == sizeof(Entity));
+            const Entity childIndex = *static_cast<const Entity*>(payload->Data); // Get entityIndex in payload
+            if (entityManager_.GetEntityParent(childIndex) == entityIndex) 
+            { 
+                entityManager_.SetEntityParent(childIndex, INVALID_ENTITY);
+            }
+            else
+            {
+                entityManager_.SetEntityParent(childIndex, entityIndex);
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
     //Select entity on click
     if (ImGui::IsItemClicked()) { editorToolManager_.SetSelectedEntity(entityIndex); }
     //Display context menu on right click on entity
@@ -65,7 +113,9 @@ void Hierarchy::DisplayEntity(Entity entityIndex)
              entityChild++) {
             //Display entity if it's a child of this entity
             if (entityManager_.GetEntityParent(entityChild) == entityIndex &&
-                entityManager_.EntityExists(entityChild)) { DisplayEntity(entityChild); }
+                entityManager_.EntityExists(entityChild)) { 
+                DisplayEntity(entityChild); 
+            }
         }
         ImGui::TreePop();
     }

@@ -11,8 +11,11 @@ void SceneLoader::Init()
 {
     Configuration config = engine_.GetConfig();
     filepath_ = config.dataRootPath + "scenes/";
+    engine_.GetPhysicsEngine().RegisterFixedUpdateListener(*this);
 }
-void SceneLoader::Update(seconds dt) {}
+void SceneLoader::Update(seconds dt)
+{
+}
 void SceneLoader::Destroy() {}
 
 void SceneLoader::DrawImGui()
@@ -44,7 +47,12 @@ void SceneLoader::DrawImGui()
                     sceneManager_.LoadScene(scenesPaths_[selectedSceneIndex_]); }
                 if (ImGui::Button("Save Current Scene"))
                 {
-                    toSave_ = true;
+                    if (!engine_.GetPhysicsEngine().IsPhysicRunning())
+                    {
+                        sceneManager_.SaveCurrentScene();
+                    } else {
+                        toSave_ = true;
+                    }
                 }
             }
 

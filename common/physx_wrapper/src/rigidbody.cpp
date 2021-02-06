@@ -604,13 +604,13 @@ void neko::physics::RigidStaticManager::SetRigidStaticData(
 
 void RigidStaticManager::DestroyComponent(Entity entity)
 {
-    ComponentManager::DestroyComponent(entity);
     if (entity < components_.size())
     {
         if (GetComponent(entity).GetPxRigidStatic())
         { physicsEngine_.GetScene()->removeActor(*GetComponent(entity).GetPxRigidStatic()); }
         SetComponent(entity, RigidStatic());
     }
+    ComponentManager::DestroyComponent(entity);
 }
 
 RigidStaticViewer::RigidStaticViewer(
@@ -803,10 +803,13 @@ void RigidDynamicManager::SetAngularVelocity(Entity entity, const Vec3f& angular
 
 void RigidDynamicManager::DestroyComponent(Entity entity)
 {
+    if (entity < components_.size())
+    {
+        if (GetComponent(entity).GetPxRigidDynamic())
+        { physicsEngine_.GetScene()->removeActor(*GetComponent(entity).GetPxRigidDynamic()); }
+        SetComponent(entity, RigidDynamic());
+    }
     ComponentManager::DestroyComponent(entity);
-    if (GetComponent(entity).GetPxRigidDynamic())
-    { physicsEngine_.GetScene()->removeActor(*GetComponent(entity).GetPxRigidDynamic()); }
-    SetComponent(entity, RigidDynamic());
 }
 
 RigidDynamicViewer::RigidDynamicViewer(Transform3dManager& transform3dManager,

@@ -11,17 +11,10 @@ TagManager::~TagManager() {}
 
 std::string TagManager::GetEntityTag(Entity entity) const
 {
-	if (entityTagArray_.empty())
-	{
-		LogDebug("No Tags");
-		return INVALID_TAG;
-	}
-
 	auto tags         = sceneManager_.GetCurrentScene().tags;
 	TagIndex tagIndex = GetEntityTagIndex(entity);
 	if (tagIndex >= entityTagArray_.size())
 	{
-		LogDebug("Tag invalid");
 		return INVALID_TAG;
 	}
 
@@ -32,7 +25,6 @@ TagIndex TagManager::GetEntityTagIndex(Entity entity) const
 {
 	if (entityTagArray_.empty())
 	{
-		LogDebug("No Tags");
 		return 0;
 	}
 
@@ -62,8 +54,8 @@ void TagManager::SetEntityTag(Entity entity, const std::string& entityTag)
 void TagManager::SetEntityTag(Entity entity, TagIndex entityTagIndex)
 {
 	if (entity != INVALID_ENTITY)
-	{
-		ResizeIfNecessary(entityTagArray_, entity, INVALID_ENTITY_MASK);
+    {
+        ResizeIfNecessary(entityTagArray_, entity, INVALID_ENTITY_MASK);
 		entityTagArray_[entity] = entityTagIndex;
 	}
 	else
@@ -113,17 +105,10 @@ bool TagManager::CompareEntitiesTag(Entity entityA, Entity entityB) const
 
 std::string TagManager::GetEntityLayer(Entity entity) const
 {
-	if (entityLayerArray_.empty())
-	{
-		LogDebug("No Layers");
-		return INVALID_LAYER;
-	}
-
 	auto layers           = sceneManager_.GetCurrentScene().layers;
 	LayerIndex layerIndex = GetEntityLayerIndex(entity);
 	if (layerIndex >= entityLayerArray_.size())
 	{
-		LogDebug("Layer invalid");
 		return INVALID_LAYER;
 	}
 
@@ -134,7 +119,6 @@ LayerIndex TagManager::GetEntityLayerIndex(Entity entity) const
 {
 	if (entityLayerArray_.empty())
 	{
-		LogDebug("No Layers");
 		return 0;
 	}
 

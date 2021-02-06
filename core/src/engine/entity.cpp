@@ -472,16 +472,19 @@ Entity EntityManager::GetEntityParent(Entity entity) { return parentEntities_[en
 bool EntityManager::SetEntityParent(Entity child, Entity parent)
 {
 	const auto oldParent = GetEntityParent(child);
-	auto p               = GetEntityParent(parent);
-	while (p != INVALID_ENTITY)
+	if (parent != INVALID_ENTITY) 
 	{
-		if (p == child)
-		{
-			logDebug(fmt::format(
-				"[Warning] Child entity: {} cannot have parent entity: {}", child, parent));
-			return false;
-		}
-		p = GetEntityParent(p);
+        auto p = GetEntityParent(parent);
+        while (p != INVALID_ENTITY)
+        {
+            if (p == child)
+            {
+                logDebug(fmt::format(
+                    "[Warning] Child entity: {} cannot have parent entity: {}", child, parent));
+                return false;
+            }
+            p = GetEntityParent(p);
+        }
 	}
 	parentEntities_[child] = parent;
 	onChangeParent.Execute(child, parent, oldParent);
