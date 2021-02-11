@@ -28,7 +28,6 @@
 #include "ImGuizmo.h"
 #include "sdl_engine/sdl_engine.h"
 
-#include "gl/framebuffer.h"
 #include "graphics/lights.h"
 #include "showroom/camera.h"
 #include "showroom/gizmos_renderer.h"
@@ -37,15 +36,15 @@
 
 namespace neko
 {
-const static float maxFloat = std::numeric_limits<float>::max();
-const static float minFloat = std::numeric_limits<float>::lowest();
-const static float smallFloat = 0.1f;
+constexpr float maxFloat = std::numeric_limits<float>::max();
+constexpr float minFloat = std::numeric_limits<float>::lowest();
+constexpr float smallFloat = 0.1f;
 
 struct Framebuffer
 {
-	Framebuffer(Vec2u size) : size(size) {}
+    explicit Framebuffer(const Vec2u size) : size(size) {}
 
-	virtual void Destroy() const
+	virtual void Destroy()
 	{
 		glDeleteFramebuffers(1, &fbo);
 	}
@@ -60,8 +59,8 @@ struct Framebuffer
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void Clear(const Color4& color, bool clearDepth = true) const
-	{
+    static void Clear(const Color4& color, bool clearDepth = true)
+    {
 		glClearColor(color.x, color.y, color.z, color.w);
 		glClear(GL_COLOR_BUFFER_BIT | (clearDepth ? GL_DEPTH_BUFFER_BIT : 0));
 	}
@@ -80,32 +79,32 @@ struct Framebuffer
 	unsigned fbo = 0;
 };
 
-struct BloomFbo : public Framebuffer
+struct BloomFbo : Framebuffer
 {
-	BloomFbo(Vec2u size) : Framebuffer(size) {}
+    explicit BloomFbo(const Vec2u size) : Framebuffer(size) {}
 
-	void Destroy() const override
-	{
-		glDeleteFramebuffers(1, &fbo);
-		glDeleteTextures(3, &colorBuffers[0]);
-		glDeleteRenderbuffers(1, &depthRbo);
-	}
+    void Destroy() override
+    {
+        glDeleteFramebuffers(1, &fbo);
+        glDeleteTextures(3, &colorBuffers[0]);
+        glDeleteRenderbuffers(1, &depthRbo);
+    }
 
-	unsigned colorBuffers[3] {};
-	unsigned depthRbo    = 0;
+    unsigned colorBuffers[3] {};
+    unsigned depthRbo = 0;
 };
 
-struct BlurFbo : public Framebuffer
+struct BlurFbo : Framebuffer
 {
-	BlurFbo(Vec2u size) : Framebuffer(size) {}
+    explicit BlurFbo(const Vec2u size) : Framebuffer(size) {}
 
-	void Destroy() const override
-	{
-		glDeleteFramebuffers(1, &fbo);
-		glDeleteTextures(1, &colorBuffer);
-	}
+    void Destroy() override
+    {
+        glDeleteFramebuffers(1, &fbo);
+        glDeleteTextures(1, &colorBuffer);
+    }
 
-	unsigned colorBuffer = 0;
+    unsigned colorBuffer = 0;
 };
 
 class ShowRoomEngine;

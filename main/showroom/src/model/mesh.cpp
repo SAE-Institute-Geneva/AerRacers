@@ -55,7 +55,7 @@ void Mesh::Init()
 
 void Mesh::Draw(const gl::Shader& shader, const Mat4f& modelMat) const
 {
-    if (!textures_.empty()) BindTextures(shader);
+    BindTextures(shader);
 	shader.SetMat4("model", modelMat_ * modelMat);
 
     // draw mesh

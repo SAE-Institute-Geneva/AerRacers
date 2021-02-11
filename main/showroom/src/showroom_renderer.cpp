@@ -26,6 +26,8 @@
 
 #include "showroom/showroom_renderer.h"
 
+#include <minwinbase.h>
+
 #ifdef _WIN32
     #include <commdlg.h>
 #endif
@@ -93,6 +95,7 @@ void ShowRoomRenderer::CreateFramebuffers()
 
 	//Generate Bloom Framebuffer
 	glGenFramebuffers(1, &bloomFbo_.fbo);
+	glCheckError();
 	bloomFbo_.Bind();
 
 	glGenTextures(IM_ARRAYSIZE(bloomFbo_.colorBuffers), &bloomFbo_.colorBuffers[0]);
@@ -106,7 +109,6 @@ void ShowRoomRenderer::CreateFramebuffers()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		glFramebufferTexture2D(
 			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, bloomFbo_.colorBuffers[i], 0);
-		glCheckError();
 	}
 
     unsigned attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
@@ -139,15 +141,6 @@ void ShowRoomRenderer::CreateFramebuffers()
 
 void ShowRoomRenderer::Update(const seconds dt)
 {
-    if (isResized_)
-    {
-        bloomFbo_.Destroy();
-        blurFbo_.Destroy();
-        CreateFramebuffers();
-
-        isResized_ = false;
-    }
-
 	camera_.Update(dt);
 	gizmoRenderer_.Clear();
 
@@ -179,6 +172,15 @@ void ShowRoomRenderer::Update(const seconds dt)
 
 void ShowRoomRenderer::Render()
 {
+    if (isResized_)
+    {
+        bloomFbo_.Destroy();
+        blurFbo_.Destroy();
+        CreateFramebuffers();
+
+        isResized_ = false;
+    }
+
 	if (searchIcon_ == INVALID_TEXTURE_NAME) return;
 	if (model_.IsLoaded())
 	{
@@ -186,7 +188,7 @@ void ShowRoomRenderer::Render()
 
 		bloomFbo_.Bind();
 		{
-			bloomFbo_.Clear(Color::clear);
+			BloomFbo::Clear(Color::clear);
 			UpdateShader(shader_);
 
             const auto& meshes = model_.GetMeshes();
@@ -199,7 +201,7 @@ void ShowRoomRenderer::Render()
 
 		blurFbo_.Bind();
 		{
-			blurFbo_.Clear(Color::clear);
+			BlurFbo::Clear(Color::clear);
 			glDisable(GL_DEPTH_TEST);
 			glDisable(GL_CULL_FACE);
 			blurShader_.Bind();
@@ -344,7 +346,7 @@ void ShowRoomRenderer::DrawImGui()
 	DrawImGuizmo();
 
     auto& meshes= model_.GetMeshes();
-    if (IsMouseDown(0) && !IsAnyWindowHovered() && !IsAnyItemHovered() && !ImGuizmo::IsUsing())
+    if (IsMouseDown(0) && !IsAnyWindowHovered() && !IsAnyItemHovered() && !IsAnyItemActive() && !ImGuizmo::IsUsing())
     {
         const auto& winSize = BasicEngine::GetInstance()->GetConfig().windowSize;
         const Vec3f dir     = -camera_.reverseDirection.Normalized();
@@ -378,7 +380,11 @@ void ShowRoomRenderer::DrawImGui()
         std::vector<size_t> candidates;
         for (size_t i = 0; i < meshes.size(); ++i)
         {
-            if (meshes[i].GetAabb().DoIntersectRay(ray, camera_.position))
+			const Mat4f& model = meshes[i].GetModelMatrix();
+			Aabb3d aabb = meshes[i].GetAabb();
+			aabb.lowerLeftBound += Transform3d::GetPosition(model);
+			aabb.upperRightBound += Transform3d::GetPosition(model);
+            if (aabb.DoIntersectRay(ray, camera_.position))
                 candidates.push_back(i);
         }
 
@@ -388,7 +394,12 @@ void ShowRoomRenderer::DrawImGui()
             size_t currentCandidate = INVALID_INDEX;
             for (const auto& candidate : candidates)
             {
-                const Vec3f center = model_.GetMesh(candidate).GetAabb().CalculateCenter();
+			    const Mat4f& model = model_.GetMesh(candidate).GetModelMatrix();
+			    Aabb3d aabb = model_.GetMesh(candidate).GetAabb();
+				aabb.lowerLeftBound += Transform3d::GetPosition(model);
+				aabb.upperRightBound += Transform3d::GetPosition(model);
+
+                const Vec3f center = aabb.CalculateCenter();
                 const float dist = (center - nearPos).SquareMagnitude();
                 if (dist < smallestDist)
                 {
@@ -542,7 +553,7 @@ void ShowRoomRenderer::DrawMenuBar()
 			//Open Model
 			if (MenuItem("Open..."))
 			{
-				std::string path = OpenFileExplorer("Load Model", "Model files", {"fbx", "obj"});
+				const std::string path = OpenFileExplorer("Load Model", "Model files", {"fbx", "obj"});
 				if (!path.empty())
 				{
 					selectedNode_ = NONE;
@@ -1395,7 +1406,17 @@ std::string ShowRoomRenderer::OpenFileExplorer(const std::string& title,
     ZeroMemory(&ofn, sizeof(ofn));
     ofn.lStructSize = sizeof(ofn);
     ofn.hwndOwner   = nullptr;
-    ofn.lpstrFilter = "Model files (*.fbx;*.obj)\0*.fbx;*.obj\0";
+    ofn.lpstrTitle   = title.c_str();
+
+	std::string filter;
+    for (std::size_t i = 0; i < typeFilter.size(); ++i)
+    {
+        filter += "*." + typeFilter[i];
+        if (i != typeFilter.size() - 1) filter += ";";
+    }
+
+	filter = fileTypeName + " (" + filter + ')' + '\0' + filter + '\0';
+    ofn.lpstrFilter = filter.c_str();
     ofn.lpstrFile   = filename;
     ofn.nMaxFile    = IM_ARRAYSIZE(filename);
     ofn.Flags       = OFN_DONTADDTORECENT | OFN_FILEMUSTEXIST;
