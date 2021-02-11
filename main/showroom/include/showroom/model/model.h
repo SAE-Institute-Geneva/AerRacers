@@ -36,7 +36,7 @@ public:
     Model();
     void LoadModel(std::string_view path);
     bool IsLoaded() const;
-    void Draw(const gl::Shader& shader);
+    void Draw(const gl::Shader& shader, const Mat4f& modelMat = Mat4f::Identity);
     void Destroy();
 
 	[[nodiscard]] std::string_view GetName() const { return name_; };

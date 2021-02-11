@@ -33,6 +33,7 @@
 #include "showroom/camera.h"
 #include "showroom/gizmos_renderer.h"
 #include "showroom/model/model.h"
+#include "showroom/mouse_events.h"
 
 namespace neko
 {
@@ -86,11 +87,11 @@ struct BloomFbo : public Framebuffer
 	void Destroy() const override
 	{
 		glDeleteFramebuffers(1, &fbo);
-		glDeleteTextures(2, &colorBuffers[0]);
+		glDeleteTextures(3, &colorBuffers[0]);
 		glDeleteRenderbuffers(1, &depthRbo);
 	}
 
-	unsigned colorBuffers[2] {};
+	unsigned colorBuffers[3] {};
 	unsigned depthRbo    = 0;
 };
 
@@ -135,7 +136,7 @@ private:
     std::string OpenFileExplorer(const std::string& title = "",
         const std::string& fileTypeName                   = "",
         const std::vector<std::string>& typeFilter        = {},
-        bool saveFile                                     = false) const;
+        bool saveFile                                     = false);
 
     //Main
 	void CreateDockableWindow();
@@ -195,6 +196,8 @@ private:
 	sr::TextureManager textureManager_;
 	sr::GizmoRenderer gizmoRenderer_;
 	sr::ShowRoomCamera3D camera_;
+    sr::MouseEvents mouseEvents_;
+    bool isResized_ = false;
 
     Mat4f modelMat_;
 	sr::Model model_;

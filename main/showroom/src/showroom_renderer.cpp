@@ -21,6 +21,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+#include <stb_image_write.h>
 #include "imgui_internal.h"
 
 #include "showroom/showroom_renderer.h"
@@ -87,6 +88,8 @@ void ShowRoomRenderer::Init()
 void ShowRoomRenderer::CreateFramebuffers()
 {
 	const Vec2u size = BasicEngine::GetInstance()->GetConfig().windowSize;
+    bloomFbo_.size = size;
+    blurFbo_.size = size;
 
 	//Generate Bloom Framebuffer
 	glGenFramebuffers(1, &bloomFbo_.fbo);
@@ -105,20 +108,19 @@ void ShowRoomRenderer::CreateFramebuffers()
 			GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, bloomFbo_.colorBuffers[i], 0);
 		glCheckError();
 	}
-	glBindTexture(GL_TEXTURE_2D, 0);
 
-	glGenRenderbuffers(1, &bloomFbo_.depthRbo);
-	glBindRenderbuffer(GL_RENDERBUFFER, bloomFbo_.depthRbo);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, size.x, size.y);
-	glFramebufferRenderbuffer(
-		GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, bloomFbo_.depthRbo);
+    unsigned attachments[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+    glDrawBuffers(3, attachments);
+    glCheckFramebuffer();
+    glCheckError();
 
-	unsigned attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-	glDrawBuffers(2, attachments);
-	glCheckFramebuffer();
-	glCheckError();
+    glGenRenderbuffers(1, &bloomFbo_.depthRbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, bloomFbo_.depthRbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, size.x, size.y);
+    glFramebufferRenderbuffer(
+        GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, bloomFbo_.depthRbo);
 
-	//Generate Blur Framebuffer
+    //Generate Blur Framebuffer
 	glGenFramebuffers(1, &blurFbo_.fbo);
 	blurFbo_.Bind();
 
@@ -137,14 +139,23 @@ void ShowRoomRenderer::CreateFramebuffers()
 
 void ShowRoomRenderer::Update(const seconds dt)
 {
+    if (isResized_)
+    {
+        bloomFbo_.Destroy();
+        blurFbo_.Destroy();
+        CreateFramebuffers();
+
+        isResized_ = false;
+    }
+
 	camera_.Update(dt);
 	gizmoRenderer_.Clear();
 
 	if (model_.IsLoaded())
 	{
 		auto& meshes = model_.GetMeshes();
-		for (auto& mesh : meshes) mesh.UpdateTextures();
-	}
+		for (auto& mesh : meshes) { mesh.UpdateTextures(); }
+    }
 
 	DrawGrid();
 
@@ -177,7 +188,13 @@ void ShowRoomRenderer::Render()
 		{
 			bloomFbo_.Clear(Color::clear);
 			UpdateShader(shader_);
-			model_.Draw(shader_);
+
+            const auto& meshes = model_.GetMeshes();
+            for (size_t i = 0; i < meshes.size(); ++i)
+            {
+                shader_.SetBool("isSelected", selectedNode_ - selectionOffset_ == i);
+                meshes[i].Draw(shader_, modelMat_);
+            }
 		}
 
 		blurFbo_.Bind();
@@ -187,6 +204,8 @@ void ShowRoomRenderer::Render()
 			glDisable(GL_CULL_FACE);
 			blurShader_.Bind();
 			blurShader_.SetTexture("image", bloomFbo_.colorBuffers[1], 0);
+			blurShader_.SetTexture("image", bloomFbo_.colorBuffers[1], 0);
+			blurShader_.SetVec2("screenSize", Vec2f(BasicEngine::GetInstance()->GetConfig().windowSize));
 			screenQuad_.Draw();
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_DEPTH_TEST);
@@ -207,6 +226,7 @@ void ShowRoomRenderer::Render()
 		screenShader_.Bind();
 		screenShader_.SetTexture("screenTexture", bloomFbo_.colorBuffers[0], 0);
 		screenShader_.SetTexture("bloomBlur", blurFbo_.colorBuffer, 1);
+		screenShader_.SetTexture("outline", bloomFbo_.colorBuffers[2], 2);
 		screenQuad_.Draw();
 		glEnable(GL_CULL_FACE);
 		glEnable(GL_DEPTH_TEST);
@@ -229,6 +249,7 @@ void ShowRoomRenderer::UpdateShader(const gl::Shader& shader) const
 	shader.SetMat4("model", modelMat_);
 	shader.SetMat3("normalMatrix", Mat3f(modelMat_).Inverse().Transpose());
 
+	shader.SetVec3("outlineCol", Color3(Color::orange) * 0.5f);
 	shader.SetVec3("viewPos", camera_.position);
 	shader.SetUInt("lightType", lightType_);
 
@@ -303,11 +324,17 @@ void ShowRoomRenderer::Destroy()
 void ShowRoomRenderer::OnEvent(const SDL_Event& event)
 {
 	camera_.OnEvent(event);
+
+    if (event.type == SDL_WINDOWEVENT)
+        if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+            isResized_ = true;
 }
 
 void ShowRoomRenderer::DrawImGui()
 {
 	using namespace ImGui;
+    mouseEvents_.MouseFrame();
+
 	CreateDockableWindow();
 	DrawInfoBar();
 	DrawSceneHierarchy();
@@ -315,6 +342,68 @@ void ShowRoomRenderer::DrawImGui()
 	DrawToolWindow();
 	DrawPopups();
 	DrawImGuizmo();
+
+    auto& meshes= model_.GetMeshes();
+    if (IsMouseDown(0) && !IsAnyWindowHovered() && !IsAnyItemHovered() && !ImGuizmo::IsUsing())
+    {
+        const auto& winSize = BasicEngine::GetInstance()->GetConfig().windowSize;
+        const Vec3f dir     = -camera_.reverseDirection.Normalized();
+
+        degree_t fovX        = camera_.GetFovX();
+        degree_t fovY        = camera_.fovY;
+        float halfWidthNear  = Sin(fovX / 2.0f) * camera_.nearPlane;
+        float halfHeightNear = Sin(fovY / 2.0f) * camera_.nearPlane;
+        float halfWidthFar   = Sin(fovX / 2.0f) * camera_.farPlane;
+        float halfHeightFar  = Sin(fovY / 2.0f) * camera_.farPlane;
+        Plane nearPlane      = Plane(camera_.position + dir * camera_.nearPlane, dir);
+        Plane farPlane       = Plane(camera_.position + dir * camera_.farPlane, -dir);
+
+        const Vec2f mousePos = GetMousePos();
+        const Vec2f relativeMousePos =
+            Vec2f((mousePos.x - winSize.x * 0.5f) / (winSize.x * 0.5f),
+                  -(mousePos.y - winSize.y * 0.5f) / (winSize.y * 0.5f));
+        const Vec3f up    = camera_.GetUp();
+        const Vec3f right = camera_.GetRight();
+
+        Vec3f farPos      = farPlane.point;
+        farPos += right * relativeMousePos.x * halfWidthFar;
+        farPos += up * relativeMousePos.y * halfHeightFar;
+
+        Vec3f nearPos = nearPlane.point;
+        nearPos += right * relativeMousePos.x * halfWidthNear;
+        nearPos += up * relativeMousePos.y * halfHeightNear;
+
+        Vec3f ray = farPos - camera_.position;
+
+        std::vector<size_t> candidates;
+        for (size_t i = 0; i < meshes.size(); ++i)
+        {
+            if (meshes[i].GetAabb().DoIntersectRay(ray, camera_.position))
+                candidates.push_back(i);
+        }
+
+        if (!candidates.empty())
+        {
+            float smallestDist      = maxFloat;
+            size_t currentCandidate = INVALID_INDEX;
+            for (const auto& candidate : candidates)
+            {
+                const Vec3f center = model_.GetMesh(candidate).GetAabb().CalculateCenter();
+                const float dist = (center - nearPos).SquareMagnitude();
+                if (dist < smallestDist)
+                {
+                    smallestDist = dist;
+                    currentCandidate = candidate;
+                }
+            }
+
+            selectedNode_ = currentCandidate + selectionOffset_;
+        }
+        else
+        {
+            selectedNode_ = NONE;
+        }
+    }
 
 	//ShowDemoWindow();
 }
@@ -429,14 +518,14 @@ void ShowRoomRenderer::DrawImGuizmo()
 			if (!model_.IsLoaded()) break;
 			auto& mesh = model_.GetMesh(selectedNode_ - selectionOffset_);
             const Vec3f pos = mesh.GetAabb().CalculateCenter();
-			Mat4f modelMat = mesh.GetModelMatrix() * Transform3d::TranslationMatrixFrom(pos);
+			Mat4f modelMat = mesh.GetModelMatrix() * modelMat_ * Transform3d::TranslationMatrixFrom(pos);
 			if (Manipulate(
 				&camView[0][0],
 				&camProj[0][0],
 				manipulateOperation_,
 				ImGuizmo::MODE::WORLD,
 				&modelMat[0][0]))
-				mesh.SetModelMatrix(modelMat * Transform3d::TranslationMatrixFrom(-pos));
+				mesh.SetModelMatrix(modelMat * modelMat_.Inverse() * Transform3d::TranslationMatrixFrom(-pos));
 			break;
 		}
 	}
@@ -564,63 +653,6 @@ void ShowRoomRenderer::DrawSceneHierarchy()
 	using namespace ImGui;
 
 	auto& meshes= model_.GetMeshes();
-	/*if (IsMouseClicked(0))
-	{
-		const auto& winSize = BasicEngine::GetInstance()->GetConfig().windowSize;
-		const Vec3f dir     = -camera_.reverseDirection.Normalized();
-
-		degree_t fovX        = camera_.GetFovX();
-		degree_t fovY        = camera_.fovY;
-		float halfWidthNear  = Sin(fovX / 2.0f) * camera_.nearPlane;
-		float halfHeightNear = Sin(fovY / 2.0f) * camera_.nearPlane;
-		float halfWidthFar   = Sin(fovX / 2.0f) * camera_.farPlane;
-		float halfHeightFar  = Sin(fovY / 2.0f) * camera_.farPlane;
-		Plane nearPlane      = Plane(camera_.position + dir * camera_.nearPlane, dir);
-		Plane farPlane       = Plane(camera_.position + dir * camera_.farPlane, -dir);
-
-		const Vec2f mousePos = GetMousePos();
-		const Vec2f relativeMousePos =
-			Vec2f((mousePos.x - winSize.x * 0.5f) / (winSize.x * 0.5f),
-			      -(mousePos.y - winSize.y * 0.5f) / (winSize.y * 0.5f));
-		const Vec3f up    = camera_.GetUp();
-		const Vec3f right = camera_.GetRight();
-
-		Vec3f farPos      = farPlane.point;
-		farPos += right * relativeMousePos.x * halfWidthFar;
-		farPos += up * relativeMousePos.y * halfHeightFar;
-
-		Vec3f nearPos = nearPlane.point;
-		nearPos += right * relativeMousePos.x * halfWidthNear;
-		nearPos += up * relativeMousePos.y * halfHeightNear;
-
-		Vec3f ray = farPos - camera_.position;
-
-		std::vector<size_t> candidates;
-		for (size_t i = 0; i < meshes.size(); ++i)
-		{
-			if (meshes[i].GetAabb().DoIntersectRay(ray, camera_.position))
-				candidates.push_back(i);
-		}
-
-		if (!candidates.empty())
-		{
-			float smallestDist      = maxFloat;
-			size_t currentCandidate = INVALID_INDEX;
-			for (const auto& candidate : candidates)
-			{
-				const Vec3f center = model_.GetMesh(candidate).GetAabb().CalculateCenter();
-				const float dist = (center - nearPos).SquareMagnitude();
-				if (dist < smallestDist)
-				{
-					smallestDist = dist;
-					currentCandidate = candidate;
-				}
-			}
-
-			selectedNode_ = currentCandidate + selectionOffset_;
-		}
-	}*/
-
 	if (Begin("Scene"))
 	{
         if (GetWindowDockNode()) GetWindowDockNode()->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
@@ -902,7 +934,8 @@ void ShowRoomRenderer::DrawMeshTransform(sr::Mesh& mesh)
     using namespace ImGui;
     Vec3f pos, scale;
     EulerAngles angles;
-    mesh.GetModelMatrix().Decompose(pos, angles, scale);
+    Mat4f modelMat = mesh.GetModelMatrix();
+    modelMat.Decompose(pos, angles, scale);
 
     PushItemWidth(-1);
     PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
@@ -1353,7 +1386,7 @@ void ShowRoomRenderer::DrawSpotLight()
 std::string ShowRoomRenderer::OpenFileExplorer(const std::string& title,
     const std::string& fileTypeName,
     const std::vector<std::string>& typeFilter,
-    bool saveFile) const
+    bool saveFile)
 {
     char filename[1024];
 #ifdef _WIN32
@@ -1432,6 +1465,7 @@ std::string ShowRoomRenderer::OpenFileExplorer(const std::string& title,
     if (fgets(filename, 1024, f))
     {
         std::string path = filename;
+        lastPath_ = path.substr(0, path.find_last_of('/') + 1);
         return path.substr(0, path.size() - 1);
     }
 #endif

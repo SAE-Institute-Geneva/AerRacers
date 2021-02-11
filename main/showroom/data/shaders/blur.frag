@@ -6,6 +6,7 @@ out vec4 Fragcolor;
 in vec2 TexCoords;
 
 uniform sampler2D image;
+uniform vec2 screenSize;
 
 const float offset = 1.0 / 256.0;
 
@@ -51,8 +52,7 @@ void main()
     float size = 8.0; // BLUR size (radius)
     // GAUSSIAN BLUR SETTINGS
    
-    vec2 radius = size / vec2(1280.0, 720.0);
-    
+    vec2 radius = size / screenSize;
     vec4 color = texture(image, TexCoords);
     
     // Blur calculations

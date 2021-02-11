@@ -128,7 +128,7 @@ TextureName StbCreateTexture(const std::string_view filename,
 	if (!filesystem.FileExists(filename))
 	{
 		logDebug(fmt::format("[Error] Texture: {} does not exist", filename));
-		return INVALID_TEXTURE_NAME;
+		return TEXTURE_NOT_FOUND;
 	}
 
 	BufferFile textureFile = filesystem.LoadFile(filename);
@@ -280,7 +280,7 @@ void TextureLoader::DecompressTexture()
 	if (!filesystem.FileExists(path_))
 	{
 		logDebug(fmt::format("[Error] Texture: {} does not exist", path_));
-		texture_.name = INVALID_TEXTURE_NAME;
+		texture_.name = TEXTURE_NOT_FOUND;
 		return;
 	}
 
@@ -416,6 +416,8 @@ TextureName TextureManager::GetTextureName(TextureId textureId) const
 
 bool TextureManager::IsTextureLoaded(TextureId textureId) const
 {
+    if (textureId == TEXTURE_NOT_FOUND_ID) return true;
+
 	const auto it = textureMap_.find(textureId);
 	return it != textureMap_.end();
 }
@@ -437,7 +439,7 @@ TextureId TextureManager::LoadTexture(std::string_view path, neko::Texture::Text
 	{
 		//Texture is already in queue or even loaded
 		logDebug("[Texture Manager] Texture does not exist");
-		return INVALID_TEXTURE_ID;
+		return TEXTURE_NOT_FOUND_ID;
 	}
 
 	TextureId textureId;

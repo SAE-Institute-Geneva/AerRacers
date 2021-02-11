@@ -24,15 +24,15 @@
  */
 
 #ifdef NEKO_GLES3
-	#include <vector>
+    #include <vector>
 
-	#include "assimp/material.h"
-	#include "gl/shader.h"
-	#include "mathematics/aabb.h"
-	#include "mathematics/circle.h"
-	#include "mathematics/hash.h"
-	#include "mathematics/vector.h"
-	#include "showroom/texture.h"
+    #include "assimp/material.h"
+    #include "gl/shader.h"
+    #include "mathematics/aabb.h"
+    #include "mathematics/circle.h"
+    #include "mathematics/hash.h"
+    #include "mathematics/vector.h"
+    #include "showroom/texture.h"
 
 struct aiMesh;
 struct aiScene;
@@ -55,7 +55,7 @@ public:
 	bool operator==(const Mesh& other) const;
 
 	void Init();
-	void Draw(const gl::Shader& shader) const;
+	void Draw(const gl::Shader& shader, const Mat4f& modelMat = Mat4f::Identity) const;
     void BindTextures(const gl::Shader& shader) const;
 	void Destroy();
 
@@ -69,6 +69,7 @@ public:
 	[[nodiscard]] const Mat4f& GetModelMatrix() const { return modelMat_; }
 	[[nodiscard]] size_t GetIndicesCount() const { return indices_.size(); }
 	[[nodiscard]] size_t GetVerticesCount() const { return vertices_.size(); }
+	[[nodiscard]] const std::vector<Vertex>& GetVertices() const { return vertices_; }
 	std::vector<Texture>& GetTextures() { return textures_; }
 	Texture& GetTexture(size_t index) { return textures_[index]; }
 	size_t GetTexture(sr::Texture::TextureType type);

@@ -30,7 +30,6 @@
 
 	#include "graphics/graphics.h"
 	#include "graphics/texture.h"
-	#include "io_system.h"
 
 namespace neko::sr
 {
@@ -54,10 +53,10 @@ void Mesh::Init()
 }
 
 
-void Mesh::Draw(const gl::Shader& shader) const
+void Mesh::Draw(const gl::Shader& shader, const Mat4f& modelMat) const
 {
-    BindTextures(shader);
-	shader.SetMat4("model", modelMat_);
+    if (!textures_.empty()) BindTextures(shader);
+	shader.SetMat4("model", modelMat_ * modelMat);
 
     // draw mesh
     glBindVertexArray(VAO);

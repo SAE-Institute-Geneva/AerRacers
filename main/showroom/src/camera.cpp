@@ -1,5 +1,7 @@
 #include "showroom/camera.h"
 
+#include "imgui.h"
+
 #include "mathematics/plane.h"
 
 namespace neko::sr
@@ -94,11 +96,13 @@ void ShowRoomCamera3D::Update(seconds dt)
 		}
 	}
 
-	if (wheelMotion_ != 0.0f)
+	if (wheelMotion_ != 0.0f && !ImGui::IsAnyWindowHovered() && !ImGui::IsAnyItemHovered())
 	{
+        ImGui::GetIO().MouseWheel = 0.0f;
 		position += reverseDirection.Normalized() * wheelMotion_ * wheelSpeed * dt.count();
-		wheelMotion_ = 0.0f;
 	}
+
+	wheelMotion_ = 0.0f;
 }
 
 void ShowRoomCamera3D::OnEvent(const SDL_Event& event)

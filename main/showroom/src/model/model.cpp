@@ -43,10 +43,10 @@ Model::Model() : processModelJob_([this]
                                   })
 {}
 
-void Model::Draw(const gl::Shader& shader)
+void Model::Draw(const gl::Shader& shader, const Mat4f& modelMat)
 {
 	for (auto& mesh : meshes_)
-		mesh.Draw(shader);
+		mesh.Draw(shader, modelMat);
 }
 
 void Model::Destroy()
