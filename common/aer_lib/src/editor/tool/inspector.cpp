@@ -11,10 +11,12 @@ Inspector::Inspector(AerEngine& engine, ToolType type, int id, std::string name)
       renderManager_(engine.GetComponentManagerContainer().renderManager),
       rigidDynamicManager_(engine.GetComponentManagerContainer().rigidDynamicManager),
      rigidStaticManager_(engine.GetComponentManagerContainer().rigidStaticManager),
+    shipControllerManager_(engine.GetComponentManagerContainer().shipControllerManager),
       rendererViewer_(engine.GetComponentManagerContainer().rendererViewer),
      rigidDynamicViewer_(engine.GetComponentManagerContainer().rigidDynamicViewer),
      rigidStaticViewer_(engine.GetComponentManagerContainer().rigidStaticViewer),
-      transform3dViewer_(engine.GetComponentManagerContainer().transform3dViewer) { }
+      transform3dViewer_(engine.GetComponentManagerContainer().transform3dViewer),
+    shipControllerViewer_(engine.GetComponentManagerContainer().shipControllerViewer){ }
 
 void Inspector::Init() {}
 void Inspector::Update(seconds dt) {}
@@ -51,7 +53,7 @@ void Inspector::DrawImGui()
             rendererViewer_.DrawImGui(selectedEntity);
             rigidStaticViewer_.DrawImGui(selectedEntity);
             rigidDynamicViewer_.DrawImGui(selectedEntity);
-
+            shipControllerViewer_.DrawImGui(selectedEntity);
 
             DisplayNewComponentButtons(selectedEntity);
 
@@ -198,6 +200,19 @@ void Inspector::DisplayNewComponentButtons(Entity selectedEntity)
         {
             if (ImGui::Button("Add RigidStatic")) {
                 rigidStaticManager_.AddRigidStatic(selectedEntity, physics::RigidStaticData());
+            }
+        }
+
+        if (entityManager_.HasComponent(selectedEntity, EntityMask(ComponentType::SHIP_CONTROLLER)))
+        {
+            if (ImGui::Button("Delete ShipController")) {
+                shipControllerManager_.DestroyComponent(selectedEntity);
+            }
+        }
+        else
+        {
+            if (ImGui::Button("Add ShipController")) {
+                shipControllerManager_.AddComponent(selectedEntity);
             }
         }
 

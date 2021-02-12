@@ -55,6 +55,8 @@ namespace neko::aer
         RendererViewer& rendererViewer_;
         physics::RigidDynamicViewer& rigidDynamicViewer_;
         physics::RigidStaticViewer& rigidStaticViewer_;
+        ShipControllerViewer& shipControllerViewer_;
+        ShipControllerManager& shipControllerManager_;
 
 		std::string layer_;
         std::string tag_;

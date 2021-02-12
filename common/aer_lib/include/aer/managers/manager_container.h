@@ -7,6 +7,7 @@
 #include "engine/transform.h"
 #include "px/rigidbody.h"
 #include "px/physics_engine.h"
+#include "aer/managers/ship_controller_manager.h"
 
 namespace neko::aer
 {
@@ -43,10 +44,12 @@ struct ComponentManagerContainer : public SystemInterface
           renderManager(entityManager, rContainer.modelManager, transform3dManager, rendererViewer),
           rigidDynamicManager(entityManager, transform3dManager, physicsEngine),
           rigidStaticManager(entityManager, transform3dManager, physicsEngine),
+	      shipControllerManager(entityManager, transform3dManager, rigidDynamicManager, rigidStaticManager, physicsEngine),
           transform3dViewer(entityManager, transform3dManager),
           rendererViewer(entityManager, renderManager),
           rigidDynamicViewer(transform3dManager, entityManager, physicsEngine, rigidDynamicManager),
           rigidStaticViewer(transform3dManager, entityManager, physicsEngine, rigidStaticManager),
+	      shipControllerViewer(entityManager, shipControllerManager),
           sceneManager(entityManager, *this)
 	{
         physicsEngine.RegisterFixedUpdateListener(rigidDynamicManager);
@@ -59,12 +62,14 @@ struct ComponentManagerContainer : public SystemInterface
 	{
 		transform3dManager.Init();
 		renderManager.Init();
+		shipControllerManager.Init();
 	}
 
 	void Update(seconds dt) override
 	{
 		transform3dManager.Update();
 		renderManager.Update(dt);
+		shipControllerManager.Update(dt);
 	}
 
 	void Destroy() override { renderManager.Destroy(); }
@@ -74,11 +79,14 @@ struct ComponentManagerContainer : public SystemInterface
     RenderManager renderManager;
     physics::RigidDynamicManager rigidDynamicManager;
     physics::RigidStaticManager rigidStaticManager;
+	ShipControllerManager shipControllerManager;
+
 
 	Transform3dViewer transform3dViewer;
     RendererViewer rendererViewer;
     physics::RigidDynamicViewer rigidDynamicViewer;
     physics::RigidStaticViewer rigidStaticViewer;
+	ShipControllerViewer shipControllerViewer;
 
 	SceneManager sceneManager;
 };
