@@ -28,6 +28,7 @@
 ---------------------------------------------------------- */
 
 
+#include "filter_group.h"
 #include "PxPhysicsAPI.h"
 #include "raycast.h"
 #include "rigidbody.h"
@@ -35,7 +36,6 @@
 #include "engine/transform.h"
 
 namespace neko::physics {
-
 //class PxAllocatorCallback
 //{
 //public:
@@ -97,7 +97,8 @@ public:
     const RaycastInfo Raycast(
         const Vec3f& origin,
         const Vec3f& direction,
-        float maxDistance) const;
+        float maxDistance,
+        FilterGroup::Enum filterGroup = FilterGroup::EVERYTHING) const;
 
     /**
      * \brief Register a class for the OnCollision event
@@ -190,6 +191,12 @@ private:
     neko::Transform3dManager& transform3d_;
 
     Action<seconds> fixedUpdateAction_;
+    //Where you find the layer 
+    std::unordered_map<physx::PxU32, physx::PxU32> mapFilter_ =
+    {
+        {physx::PxU32(FilterGroup::LAYER1), physx::PxU32(FilterGroup::LAYER2 | FilterGroup::LAYER3)},
+        {physx::PxU32(FilterGroup::LAYER2), physx::PxU32(FilterGroup::LAYER4)}
+    };
 };
 
 }

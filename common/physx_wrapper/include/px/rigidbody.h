@@ -27,6 +27,7 @@
  Date : 22.11.2020
 ---------------------------------------------------------- */
 #include "collider.h"
+#include "filter_group.h"
 #include "physics_callbacks.h"
 #include "PxPhysicsAPI.h"
 #include "engine/transform.h"
@@ -52,6 +53,7 @@ struct RigidActorData
     ColliderType colliderType = ColliderType::INVALID;
     BoxColliderData boxColliderData;
     SphereColliderData sphereColliderData;
+    FilterGroup::Enum filterGroup = FilterGroup::DEFAULT;
 };
 
 
@@ -97,6 +99,9 @@ protected:
     physx::PxMaterial* InitMaterial(physx::PxPhysics* physics, const PhysicsMaterial& material) const;
     physx::PxShape* InitBoxShape(physx::PxPhysics* physics, physx::PxMaterial* material, const BoxColliderData& boxCollider) const;
     physx::PxShape* InitSphereShape(physx::PxPhysics* physics, physx::PxMaterial* material, const SphereColliderData& sphereCollider) const;
+    void SetFiltering(
+        physx::PxShape* shape,
+        physx::PxU32 filterGroup);
     physx::PxMaterial* material_ = nullptr;
     physx::PxShape* shape_ = nullptr;
 };

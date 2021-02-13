@@ -151,6 +151,18 @@ physx::PxShape* RigidActor::InitSphereShape(
     return physics->createShape(physx::PxSphereGeometry(sphereCollider.radius), *material);
 }
 
+void RigidActor::SetFiltering(
+    physx::PxShape* shape,
+    physx::PxU32 filterGroup)
+{
+    physx::PxFilterData filterData;
+    filterData.word0 = filterGroup; // word0 = own ID
+    filterData.word1 = FilterGroup::EVERYTHING;
+    // contact callback;
+    shape->setSimulationFilterData(filterData);
+    shape->setQueryFilterData(filterData);
+}
+
 json RigidActorViewer::GetJsonFromBoxCollider(const RigidActorData& rigidActorData) const
 {
     json boxColliderJson           = json::object();
@@ -321,6 +333,7 @@ void RigidStatic::Init(physx::PxPhysics* physics,
         std::cerr << "createShape failed!";
         return;
     }
+    SetFiltering(shape_, rigidStatic.filterGroup);
     rigidActor_->attachShape(*shape_);
     SetRigidStaticData(rigidStatic);
 }
