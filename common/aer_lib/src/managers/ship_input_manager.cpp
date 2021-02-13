@@ -1,4 +1,6 @@
 #include "aer/managers/ship_input_manager.h"
+#include "aer/editor/tool/logger.h"
+#include "aer/log.h"
 
 namespace neko::aer
 {
@@ -15,6 +17,7 @@ void ShipInputManager::Init()
 void ShipInputManager::Update(seconds dt)
 {
 	auto& inputLocator = sdl::InputLocator::get();
+	std::string currentGestureName = "";
 	rightJoystick_ = Vec2f(
 		inputLocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_RIGHT_AXIS),
 			 inputLocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_RIGHT_AXIS));
@@ -37,49 +40,68 @@ void ShipInputManager::Update(seconds dt)
 	case Gesture::Default:
 		thruster_ = 0;
 		rudder_ = 0;
+		currentGestureName = "Default";
 		break;
 
 	case Gesture::Forward:
 		thruster_ = intensity;
 		rudder_ = 0;
+		currentGestureName = "Forward";
 		break;
 
 	case Gesture::TurnLeftForward:
 		thruster_ = intensity;
 		rudder_ = -intensity * (turnIntensity * 2);
+		currentGestureName = "turnleftforward";
 		break;
 
 	case Gesture::TurnLeftBackward:
 		thruster_ = -intensity * 0.25f;
 		rudder_ = -intensity * (turnIntensity * 0.5f);
+		currentGestureName = "turnlefbackward";
+
 		break;
 
 	case Gesture::TurnRightForward:
 		thruster_ = intensity;
 		rudder_ = intensity * (turnIntensity * 2);
+		currentGestureName = "turnrightforward";
+
 		break;
 
 	case Gesture::TurnRightBackward:
 		thruster_ = -intensity * .25f;
 		rudder_ = intensity * (turnIntensity * 0.5f);
+		currentGestureName = "turnrightbackward";
+
 		break;
 
 	case Gesture::RotateLeft:
 		thruster_ = 0;
 		rudder_ = -intensity;
+		currentGestureName = "rotateleft";
+
 		break;
 
 	case Gesture::RotateRight:
 		thruster_ = 0;
 		rudder_ = intensity;
+		currentGestureName = "rotateright";
 		break;
 
 	case Gesture::Backward:
 		thruster_ = -intensity;
 		rudder_ = 0;
 		isBreaking_ = true;
+		currentGestureName = "backward";
+
 		break;
 	}
+
+	//LogDebug("Right Joystick : " + std::to_string(rightJoystick_.x) + "," + std::to_string(rightJoystick_.y));
+	//LogDebug("Left Joystick : " + std::to_string(leftJoystick_.x) + "," + std::to_string(leftJoystick_.y));
+	LogDebug("Gesture : " + currentGestureName);
+
 
 }
 
@@ -113,6 +135,7 @@ bool ShipInputManager::isJoystickAxisInDeadzone(Joystick joystick, Axis axis) {
 }
 
 bool ShipInputManager::GetBoostButton() {
+	return false;
 }
 
 float ShipInputManager::GetJoystickAxis(Joystick joystick, Axis axis) {
