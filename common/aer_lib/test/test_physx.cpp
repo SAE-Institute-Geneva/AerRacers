@@ -599,7 +599,7 @@ public:
     explicit SceneRaycast(neko::aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
     void InitActors(neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration       = 10.0f;
+        engineDuration       = 0.5f;
         entityManager_       = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_  = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_       = &aerEngine_.GetComponentManagerContainer().renderManager;
@@ -620,7 +620,7 @@ public:
                 0.1f
             };
             rigidStatic.boxColliderData.isTrigger = false;
-            rigidStatic.filterGroup = neko::physics::FilterGroup::LAYER1;
+            rigidStatic.filterGroup = neko::physics::FilterGroup::GROUND;
             rigidStaticManager_->AddRigidStatic(
                 planeEntity_,
                 rigidStatic);
@@ -735,7 +735,7 @@ public:
                 rayOrigin_ + neko::Vec3f::right * 1,
                 rayDirection_,
                 50.0f,
-                neko::physics::FilterGroup::LAYER1);
+                neko::physics::FilterGroup::GROUND);
             //std::cout << "Raycast " << (raycastInfo.touch ? "hit" : "not hit") <<
             //    " Distance : " << raycastInfo.GetDistance() <<
             //    " Position : " << raycastInfo.GetPoint() <<
@@ -758,7 +758,7 @@ public:
                 rayOrigin_ + neko::Vec3f::right * -1,
                 rayDirection_,
                 50.0f,
-                neko::physics::FilterGroup::LAYER2);
+                neko::physics::FilterGroup::SHIP);
             //std::cout << "Raycast " << (raycastInfo.touch ? "hit" : "not hit") <<
             //    " Distance : " << raycastInfo.GetDistance() <<
             //    " Position : " << raycastInfo.GetPoint() <<

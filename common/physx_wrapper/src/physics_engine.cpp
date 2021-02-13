@@ -78,8 +78,8 @@ void PhysicsEngine::CreateScene()
     sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
     physx::PxSimulationFilterShader gDefaultFilterShader = physx::PxDefaultSimulationFilterShader;
     sceneDesc.filterShader = ContactReportFilterShader;
-    sceneDesc.filterShaderData = &mapFilter_;
-    sceneDesc.filterShaderDataSize = sizeof(mapFilter_);
+    //sceneDesc.filterShaderData = &mapFilter_;
+    //sceneDesc.filterShaderDataSize = sizeof(mapFilter_);
     cpuDispatcher_ = physx::PxDefaultCpuDispatcherCreate(1);
     if (!cpuDispatcher_)
         std::cerr << "PxDefaultCpuDispatcherCreate failed!";
@@ -154,7 +154,7 @@ physx::PxFilterFlags PhysicsEngine::ContactReportFilterShader(physx::PxFilterObj
     const void* constantBlock,
     physx::PxU32 constantBlockSize)
 {
-    const std::unordered_map<physx::PxU32, physx::PxU32>* mapFilter =  static_cast<const std::unordered_map<physx::PxU32, physx::PxU32>*>(constantBlock);
+    //const std::unordered_map<physx::PxU32, physx::PxU32>* mapFilter =  static_cast<const std::unordered_map<physx::PxU32, physx::PxU32>*>(constantBlock);
     // let triggers through
     if (physx::PxFilterObjectIsTrigger(attributes0) || physx::PxFilterObjectIsTrigger(attributes1))
     {

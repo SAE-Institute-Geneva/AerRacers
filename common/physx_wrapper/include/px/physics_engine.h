@@ -191,12 +191,12 @@ private:
     neko::Transform3dManager& transform3d_;
 
     Action<seconds> fixedUpdateAction_;
-    //Where you find the layer 
-    std::unordered_map<physx::PxU32, physx::PxU32> mapFilter_ =
-    {
-        {physx::PxU32(FilterGroup::LAYER1), physx::PxU32(FilterGroup::LAYER2 | FilterGroup::LAYER3)},
-        {physx::PxU32(FilterGroup::LAYER2), physx::PxU32(FilterGroup::LAYER4)}
-    };
+    //To use if physics layer filtering
+    //std::unordered_map<physx::PxU32, physx::PxU32> mapFilter_ =
+    //{
+    //    {physx::PxU32(FilterGroup::GROUND), physx::PxU32(FilterGroup::SHIP | FilterGroup::WALL)},
+    //    {physx::PxU32(FilterGroup::SHIP), physx::PxU32(FilterGroup::LAYER4)}
+    //};
 };
 
 }

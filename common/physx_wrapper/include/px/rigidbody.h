@@ -214,6 +214,11 @@ public:
      */
     void DestroyComponent(Entity entity) override;
 
+    /**
+     * \brief Find the Entity index from an actor
+     */
+    Entity FindEntityFromActor(physx::PxActor* actor);
+
 protected:
     Transform3dManager& transform3dManager_;
     PhysicsEngine& physicsEngine_;
@@ -426,6 +431,12 @@ public:
      * \brief Remove the actor from the scene
      */
     void DestroyComponent(Entity entity) override;
+
+    /**
+        * \brief Find the Entity index from an actor
+     */
+    Entity FindEntityFromActor(physx::PxActor* actor);
+
 
 protected:
     Transform3dManager& transform3dManager_;

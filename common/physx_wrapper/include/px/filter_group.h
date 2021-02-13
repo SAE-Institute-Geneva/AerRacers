@@ -33,12 +33,12 @@ namespace neko::physics {
 struct FilterGroup {
     enum Enum : physx::PxU32 {
         DEFAULT = 1u << 0u,
-        LAYER1 = 1u << 1u,
-        LAYER2 = 1u << 2u,
-        LAYER3 = 1u << 3u,
+        GROUND = 1u << 1u,
+        SHIP = 1u << 2u,
+        WALL = 1u << 3u,
         LAYER4 = 1u << 4u,
         LAYER5 = 1u << 5u,
-        EVERYTHING = DEFAULT | LAYER1 | LAYER2 | LAYER3 | LAYER4 | LAYER5
+        EVERYTHING = DEFAULT | GROUND | SHIP | WALL | LAYER4 | LAYER5
     };
 };
 }
