@@ -866,3 +866,164 @@ TEST(Transform, RotationMatrixFromQuaternion)
     //EXPECT_NEAR(q.w, q2.w, 0.01f);
 
 }
+
+TEST(Quaternion, QuaternionLerp)
+{
+    float precision = 0.1f;
+    neko::Quaternion expected1{0.0f, 0.0f, 0.0f, 1.0f};
+    neko::Quaternion expected2{0.4f, -0.5f, 0.6f, 0.5f};
+    std::vector<neko::Quaternion> expectedLerp =
+    {
+        neko::Quaternion{0.0f, 0.0f, 0.0f, 1.0f},
+        neko::Quaternion{0.1f, -0.1f, 0.2f, 1.0f},
+        neko::Quaternion{0.3f, -0.3f, 0.4f, 0.9f},
+        neko::Quaternion{0.4f, -0.4f, 0.5f, 0.7f},
+        neko::Quaternion{0.4f, -0.5f, 0.6f, 0.5f}
+    };
+    for (int i = 0; i <= 4; i++) {
+        neko::Quaternion qLerp1 = neko::Quaternion::Lerp(expected1, expected2, i / 4.0f);
+        EXPECT_NEAR(qLerp1.x, expectedLerp[i].x, precision);
+        EXPECT_NEAR(qLerp1.y, expectedLerp[i].y, precision);
+        EXPECT_NEAR(qLerp1.z, expectedLerp[i].z, precision);
+        EXPECT_NEAR(qLerp1.w, expectedLerp[i].w, precision);
+    }
+}
+
+
+TEST(Quaternion, LookRotation)
+{
+    float delta = 0.1f;
+    std::vector<neko::Vec3f> forwards =
+    {
+        {0.0f, 0.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 0.0f, 1.0f},
+        {0.0f, 0.0f, 0.0f},
+        {1.0f, 1.0f, 1.0f},
+        {1.0f, 1.0f, 1.0f},
+        {1.0f, 1.0f, 1.0f},
+    };
+    std::vector<neko::Vec3f> upwards =
+    {
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f},
+        {1.0f, 1.0f, 0.0f},
+        {1.0f, 1.0f, 1.0f},
+    };
+    std::vector<neko::Quaternion> expectedRotation =
+    {
+            neko::Quaternion{0.0f, 0.0f, 0.0f, 1.0f},
+            neko::Quaternion{0.0f, 0.7f, 0.0f, 0.7f},
+            neko::Quaternion{-0.7f, 0.0f, 0.0f, 0.7f},
+            neko::Quaternion{0.0f, 0.0f, 0.0f, 1.0f},
+            neko::Quaternion{0.0f, 0.0f, 0.0f, 1.0f},
+            neko::Quaternion{-0.45f, -0.06f, -0.7f, 0.54f},
+            neko::Quaternion{-0.4f, 0.2f, -0.3f, 0.8f},
+            neko::Quaternion{-0.32f, 0.32f, 0.0f, 0.88f},
+    };
+    for (int i = 0; i < forwards.size(); ++i) {
+        neko::Quaternion rotation = neko::Quaternion::LookRotation(forwards[i], upwards[i]);
+        //std::cout << forwards[i] << std::endl;
+        //std::cout << upwards[i] << std::endl;
+        //std::cout << rotation << std::endl;
+        //std::cout << expectedRotation[i] << std::endl;
+        EXPECT_NEAR(rotation.x, expectedRotation[i].x, delta);
+        EXPECT_NEAR(rotation.y, expectedRotation[i].y, delta);
+        EXPECT_NEAR(rotation.z, expectedRotation[i].z, delta);
+        EXPECT_NEAR(rotation.w, expectedRotation[i].w, delta);
+    }
+}
+
+TEST(Vector, ProjectOnPlane)
+{
+    float delta = 0.1f;
+    std::vector<neko::Vec3f> vector =
+    {
+        {0.0f, 0.0f, 0.0f},
+        {1.0f, 1.0f, 1.0f},
+        {0.0f, 0.0f, -1.0f},
+        {0.0f, -1.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f},
+    };
+    std::vector<neko::Vec3f> planeNormal =
+    {
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f},
+        {1.0f, 1.0f, 0.0f},
+        {1.0f, 1.0f, 1.0f},
+    };
+    std::vector<neko::Vec3f> expectedProj =
+    {
+        {0.0f, 0.0f, 0.0f},
+        {1.0f, 0.0f, 1.0f},
+        {0.0f, 0.0f, -1.0f},
+        {0.0f, 0.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f},
+        {0.5f, -0.5f, 0.0f},
+        {0.3f, -0.7f, 0.3f},
+    };
+    for (int i = 0; i < vector.size(); ++i) {
+        neko::Vec3f projection = neko::Vec3f::ProjectOnPlane(vector[i], planeNormal[i]);
+        //std::cout << vector[i] << std::endl;
+        //std::cout << planeNormal[i] << std::endl;
+        //std::cout << projection << std::endl;
+        //std::cout << expectedProj[i] << std::endl;
+        EXPECT_NEAR(projection.x, expectedProj[i].x, delta);
+        EXPECT_NEAR(projection.y, expectedProj[i].y, delta);
+        EXPECT_NEAR(projection.z, expectedProj[i].z, delta);
+    }
+}
+
+
+TEST(Vector, Angle)
+{
+    float delta = 1.0f;
+    std::vector<neko::Vec3f> from =
+    {
+        {0.0f, 0.0f, 0.0f},
+        {1.0f, 1.0f, 1.0f},
+        {0.0f, 0.0f, -1.0f},
+        {0.0f, -1.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f},
+    };
+    std::vector<neko::Vec3f> to =
+    {
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f},
+        {1.0f, 1.0f, 0.0f},
+        {1.0f, 1.0f, 1.0f},
+    };
+    std::vector<neko::degree_t> expectedAngle =
+    {
+        neko::degree_t(0),
+        neko::degree_t(54),
+        neko::degree_t(90),
+        neko::degree_t(180),
+        neko::degree_t(90),
+        neko::degree_t(135),
+        neko::degree_t(125),
+    };
+    for (int i = 0; i < from.size(); ++i) {
+        neko::degree_t angle = neko::Vec3f::Angle(from[i], to[i]);
+        //std::cout << from[i] << std::endl;
+        //std::cout << to[i] << std::endl;
+        //std::cout << angle << std::endl;
+        //std::cout << expectedAngle[i] << std::endl;
+        EXPECT_NEAR(angle.value(), expectedAngle[i].value(), delta);
+    }
+}
