@@ -102,7 +102,7 @@ void ShipInputManager::Update(seconds dt)
 	//LogDebug("Left Joystick : " + std::to_string(leftJoystick_.x) + "," + std::to_string(leftJoystick_.y));
 	//LogDebug("Gesture : " + currentGestureName);
 	//LogDebug("Right Joystick : " + rightStickName_);
-	LogDebug("Left Joystick : " + leftStickName_);
+	//LogDebug("Left Joystick : " + leftStickName_);
 }
 
 void ShipInputManager::Destroy()

@@ -59,7 +59,7 @@ void ShipControllerManager::CalculateHover(Entity entity, seconds dt)
     ShipController shipController = GetComponent(entity);
     physics::RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(entity);
 
-        //Raycast to ground
+    //Raycast to ground
     Vec3f groundNormal = Vec3f::zero;
     Vec3f shipPosition = transformManager_.GetGlobalPosition(entity);
     const physics::RaycastInfo& raycastInfo = physicsEngine_.Raycast(
@@ -111,16 +111,24 @@ void ShipControllerManager::CalculateHover(Entity entity, seconds dt)
         rotationSpeed = 1.0f;
     }
 
-    //TODO ProjectOnPlane
-    Vec3f projection = Vec3f(0, 0, 0);
+    Vec3f forward = Quaternion::FromEuler(transformManager_.GetGlobalRotation(entity)) * Vec3f::forward;
+    Vec3f projection = Vec3f::ProjectOnPlane(forward, groundNormal);
+ 
+    Quaternion rotation = Quaternion::LookRotation(projection, groundNormal);
 
-    //TODO Quaternion look rotation
-    Quaternion rotation = Quaternion(0, 0, 0, 0);
+    Quaternion shipRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(entity));
+    rigidDynamic.MoveRotation(Quaternion::Lerp(shipRotation,rotation, dt.count()));
 
-    //TODO Quaternion Lerp
-    //rigidDynamic.MoveRotation();
+    float angle = shipController.angleOfRoll_ * -shipInputManager_.rudder_ * shipInputManager_.GetIntensity();
+    float pitchAngle = shipController.angleOfPitch_ * shipInputManager_.thruster_ * shipInputManager_.GetIntensity();
+    Quaternion bodyRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(entity)) * Quaternion::FromEuler(EulerAngles(pitchAngle, 0.0f, angle));
 
-    float angle = shipController.angleOfRoll_;
+    transformManager_.SetGlobalRotation(entity, 
+        Quaternion::ToEulerAngles(
+            Quaternion::Lerp(
+                Quaternion::FromEuler(transformManager_.GetGlobalRotation(entity)), 
+                bodyRotation, 
+                dt.count())));
 
     SetComponent(entity, shipController);
 }
