@@ -27,6 +27,7 @@
 #include "mathematics/matrix.h"
 #include "mathematics/trigo.h"
 #include "mathematics/vector.h"
+#include <engine\log.h>
 
 namespace neko
 {
@@ -416,6 +417,49 @@ struct Quaternion
 	{
 		os << "Quaternion(" << quat.x << "," << quat.y << "," << quat.z << "," << quat.w << ")";
 		return os;
+	}
+
+    /**
+	 * \brief Interpolates between q1 and q2 by t and normalizes the result afterwards.
+	 * \param t is clamped to the range [0, 1].
+	 */
+	//from https://stackoverflow.com/questions/46156903/how-to-lerp-between-two-quaternions
+	static Quaternion Lerp(const Quaternion& q1, const Quaternion& q2, float t) {
+		//const float dot = Quaternion::Dot(q1, q2);
+		//Quaternion newQ2 = q2;
+		//if (dot < 0.0f) {
+		//	newQ2 = newQ2 * -1.0f;
+		//}
+	    return Normalized(Quaternion(
+			q1.x + (q2.x - q1.x) * t,
+            q1.y + (q2.y - q1.y) * t,
+            q1.z + (q2.z - q1.z) * t,
+            q1.w + (q2.w - q1.w) * t));
+	}
+    /**
+	 * \brief Creates a rotation with the specified forward and upwards directions.
+	 * \param lookAt The direction to look in.
+	 * \param upDirection The vector that defines in which direction up is.
+	 */
+	//from https://gamedev.net/forums/topic/613595-quaternion-lookrotationlookat-up/4876373/
+	static Quaternion LookRotation(const Vec3f& lookAt, const Vec3f& upDirection) {
+		if(lookAt.Magnitude() == 0 || upDirection.Magnitude() == 0) {
+			logDebug("Look rotation viewing vector is zero");
+			return Quaternion(0, 0, 0, 1);
+		}
+	    Vec3f forward = lookAt;
+	    Vec3f up = upDirection;
+		Vec3f::OrthoNormalize(forward, up);
+		Vec3f right = Vec3f::Cross(up, forward);
+		Mat3f mat({ right , up, forward });
+		mat = mat.Transpose();
+		Quaternion ret;
+		ret.w = sqrtf(1.0f + mat[0][0] + mat[1][1] + mat[2][2]) * 0.5f;
+		float w4_recip = 1.0f / (4.0f * ret.w);
+		ret.x = (mat[2][1] - mat[1][2]) * w4_recip;
+		ret.y = (mat[0][2] - mat[2][0]) * w4_recip;
+		ret.z = (mat[1][0] - mat[0][1]) * w4_recip;
+		return Quaternion::Normalized(ret);
 	}
 };
 }

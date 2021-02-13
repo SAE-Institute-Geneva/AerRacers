@@ -447,6 +447,64 @@ public:
 		const radian_t angle = Atan2(det, dot);
 		return angle;
 	}
+
+
+    /**
+	 * \brief Makes vectors normalized and orthogonal to each other.
+	 * \param normal ref from the normal
+	 * \param tangent ref from the tangent
+	 */
+	//from https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process
+	static void OrthoNormalize(Vec3& normal, Vec3& tangent)
+	{
+		tangent = tangent - Project(tangent, normal);
+	}
+
+
+    /**
+	 * \brief Projects a vector onto a plane defined by a normal orthogonal to the plane.
+	 * \param vector The direction from the vector towards the plane.
+	 * \param planeNormal The location of the vector above the plane.
+	 * \return Vec3 The location of the vector on the plane.
+	 */
+	//from https://github.com/Unity-Technologies/UnityCsReference/blob/master/Runtime/Export/Math/Vector3.cs
+	static Vec3<T> ProjectOnPlane(Vec3& vector, Vec3& planeNormal)
+	{
+		float sqrMag = Dot(planeNormal, planeNormal);
+		if (sqrMag < 0.0f)
+			return vector;
+		else
+		{
+			const auto dot = Dot(vector, planeNormal);
+			return { vector.x - planeNormal.x * dot / sqrMag,
+				vector.y - planeNormal.y * dot / sqrMag,
+				vector.z - planeNormal.z * dot / sqrMag };
+		}
+	}
+
+    /**
+	 * \brief Returns the angle between from and to.
+	 * \param from The vector from which the angular difference is measured.
+	 * \param to The vector to which the angular difference is measured.
+	 * \return The angle between the two vectors.
+	 */
+	//https://github.com/Unity-Technologies/UnityCsReference/blob/master/Runtime/Export/Math/Vector3.cs
+	static radian_t Angle(Vec3& from, Vec3& to)
+	{
+		// sqrt(a) * sqrt(b) = sqrt(a * b) -- valid for real numbers
+		float denominator = sqrt(from.SquareMagnitude() * to.SquareMagnitude());
+		if (denominator <= 0.0f)
+			return radian_t(0);
+
+		float dot = Dot(from, to) / denominator;
+		if (dot < -1.0f) {
+			dot = -1.0f;
+		}
+		if (dot > 1.0f) {
+			dot = 1.0f;
+		}
+		return Acos(dot);
+	}
 };
 //-----------------------------------------------------------------------------
 // Vec3 Aliases
