@@ -20,11 +20,11 @@ void ShipInputManager::Update(seconds dt)
 	std::string currentGestureName = "";
 	rightJoystick_ = Vec2f(
 		inputLocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_RIGHT_AXIS),
-			 inputLocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_RIGHT_AXIS));
+			 -inputLocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_RIGHT_AXIS));
 
 	leftJoystick_ = Vec2f(
 		inputLocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS),
-		inputLocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS));
+		-inputLocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS));
 
 	rightJoystickDirection_ = GetJoystickDirection(Joystick::Right);
 	leftJoystickDirection_ = GetJoystickDirection(Joystick::Left);
@@ -100,9 +100,9 @@ void ShipInputManager::Update(seconds dt)
 
 	//LogDebug("Right Joystick : " + std::to_string(rightJoystick_.x) + "," + std::to_string(rightJoystick_.y));
 	//LogDebug("Left Joystick : " + std::to_string(leftJoystick_.x) + "," + std::to_string(leftJoystick_.y));
-	LogDebug("Gesture : " + currentGestureName);
-
-
+	//LogDebug("Gesture : " + currentGestureName);
+	//LogDebug("Right Joystick : " + rightStickName_);
+	LogDebug("Left Joystick : " + leftStickName_);
 }
 
 void ShipInputManager::Destroy()
@@ -176,40 +176,93 @@ Vec2f ShipInputManager::GetJoystick(Joystick joystick) {
 	}
 }
 
+void ShipInputManager::EnumToString(Joystick joystick, Direction direction) {
+	std::string name = "";
+
+	switch(direction) {
+		case Direction::Center:
+			name = "center";
+		break;
+		case Direction::Forward:
+			name = "forward";
+		break;
+		case Direction::ForwardLeft:
+			name = "forwardLeft";
+		break;
+		case Direction::ForwardRight:
+			name = "forwwardRight";
+		break;
+		case Direction::Backward:
+			name = "backward";
+		break;
+		case Direction::BackwardLeft:
+			name = "backwardLeft";
+		break;
+		case Direction::BackwardRight:
+			name = "backwardRight";
+		break;
+		case Direction::Left:
+			name = "left";
+		break;
+		case Direction::Right:
+			name = "right";
+		break;
+	}
+	
+	switch(joystick) {
+		case Joystick::Left:
+			leftStickName_ = name;
+		
+			break;
+		case Joystick::Right:
+			rightStickName_ = name;
+			break;
+	}
+}
+
 ShipInputManager::Direction ShipInputManager::GetJoystickDirection(Joystick joystick) {
 	//Forward
 	if (!isJoystickAxisInDeadzone(joystick, Axis::Vertical) && GetJoystick(joystick).y > joystickDeadzone_.y && isJoystickAxisInDeadzone(joystick, Axis::Horizontal)) {
+		EnumToString(joystick, Direction::Forward);
 		return Direction::Forward;
 	}
 	//Forward Left
 	else if (!isJoystickAxisInDeadzone(joystick, Axis::Vertical) && GetJoystick(joystick).y > joystickDeadzone_.y && GetJoystick(joystick).x < joystickDeadzone_.x) {
+		EnumToString(joystick, Direction::ForwardLeft);
 		return Direction::ForwardLeft;
 	}
 	//Forward Right
 	else if (!isJoystickAxisInDeadzone(joystick, Axis::Vertical) && GetJoystick(joystick).y > joystickDeadzone_.y && GetJoystick(joystick).x > joystickDeadzone_.x) {
+		EnumToString(joystick, Direction::ForwardRight);
 		return Direction::ForwardRight;
 	}
 	//Backward
 	else if (!isJoystickAxisInDeadzone(joystick, Axis::Vertical) && GetJoystick(joystick).y < joystickDeadzone_.y && isJoystickAxisInDeadzone(joystick, Axis::Horizontal)) {
+		EnumToString(joystick, Direction::Backward);
 		return Direction::Backward;
 	}
 	//Forward Left
 	else if (!isJoystickAxisInDeadzone(joystick, Axis::Vertical) && GetJoystick(joystick).y < joystickDeadzone_.y && GetJoystick(joystick).x < joystickDeadzone_.x) {
+		EnumToString(joystick, Direction::BackwardLeft);
 		return Direction::BackwardLeft;
 	}
 	//Forward Right
 	else if (!isJoystickAxisInDeadzone(joystick, Axis::Vertical) && GetJoystick(joystick).y < joystickDeadzone_.y && GetJoystick(joystick).x > joystickDeadzone_.x) {
+		EnumToString(joystick, Direction::BackwardRight);
 		return Direction::BackwardRight;
 	}
 	//Left
 	else if (!isJoystickAxisInDeadzone(joystick, Axis::Horizontal) && GetJoystick(joystick).x < joystickDeadzone_.x && isJoystickAxisInDeadzone(joystick, Axis::Vertical)) {
+		EnumToString(joystick, Direction::Left);
 		return Direction::Left;
 	}
 	//Right
 	else if (!isJoystickAxisInDeadzone(joystick, Axis::Horizontal) && GetJoystick(joystick).x > joystickDeadzone_.x && isJoystickAxisInDeadzone(joystick, Axis::Vertical)) {
+		EnumToString(joystick, Direction::Right);
 		return Direction::Right;
 	}
 	else {
+		EnumToString(joystick, Direction::Center);
 		return Direction::Center;
 	}
 }

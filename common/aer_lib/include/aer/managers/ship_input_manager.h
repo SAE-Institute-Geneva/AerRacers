@@ -65,7 +65,7 @@ public:
 
 	Vec2f leftJoystick_;
 	Vec2f rightJoystick_;
-	Vec2f joystickDeadzone_;
+	Vec2f joystickDeadzone_ = Vec2f(0.3f, 0.3f);
 	Direction rightJoystickDirection_;
 	Direction leftJoystickDirection_;
 	Gesture currentGesture_;
@@ -73,6 +73,11 @@ public:
 	float rudder_;
 	float thruster_;
 	float isBreaking_;
+
+	//DEBUG
+	std::string rightStickName_ = "";
+	std::string leftStickName_ = "";
+	void EnumToString(Joystick joystick, Direction direction);
 protected:
 };
 }
