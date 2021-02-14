@@ -135,7 +135,37 @@ void ShipControllerManager::CalculateHover(Entity entity, seconds dt)
 
 void ShipControllerManager::CalculateThrust(Entity entity, seconds dt)
 {
-    
+    ShipController shipController = GetComponent(entity);
+    physics::RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(entity);
+
+    float rotationTorque = (shipInputManager_.rudder_ * shipController.rotationMultiplicator_) - rigidDynamic.GetDynamicData().angularVelocity.y;
+
+    rigidDynamic.AddRelativeTorque(Vec3f(0.0f, rotationTorque, 0.0f), physx::PxForceMode::eVELOCITY_CHANGE);
+
+    Vec3f right = Quaternion::FromEuler(transformManager_.GetGlobalRotation(entity)) * Vec3f::right;
+    float sidewaySpeed = Vec3f::Dot(rigidDynamic.GetDynamicData().linearVelocity, right);
+
+    Vec3f sideFriction = -right * (sidewaySpeed / dt.count());
+
+    rigidDynamic.AddForce(sideFriction, physx::PxForceMode::eACCELERATION);
+
+    if(shipInputManager_.thruster_ <= 0.0f) {
+        rigidDynamicManager_.SetLinearVelocity(entity, rigidDynamic.GetDynamicData().linearVelocity * shipController.slowingVelFactor_);
+    }
+
+    if(!shipController.isOnGround_) {
+        return;
+    }
+
+    if(shipInputManager_.isBreaking_) {
+        rigidDynamicManager_.SetLinearVelocity(entity, rigidDynamic.GetDynamicData().linearVelocity * shipController.brakingVelFactor_);
+    }
+
+    Vec3f forward = Quaternion::FromEuler(transformManager_.GetGlobalRotation(entity)) * Vec3f::forward;
+    float propultion = (shipController.forwardForce_ * shipInputManager_.thruster_ * shipController.propultionMultiplicator_) -
+        (shipController.drag_ * Clamp(Vec3f::Dot(rigidDynamic.GetDynamicData().linearVelocity, forward), 0.0f, shipController.terminalVelocity_) *
+            shipController.propultionMultiplicator_);
+    rigidDynamic.AddForce(forward * propultion, physx::PxForceMode::eACCELERATION);
 }
 
 
