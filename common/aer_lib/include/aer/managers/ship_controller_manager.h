@@ -60,6 +60,7 @@ struct ShipController {
  */
 class ShipControllerManager:
 					  public SystemInterface,
+					  public physics::FixedUpdateInterface,
                       public ComponentManager<ShipController, EntityMask(ComponentType::SHIP_CONTROLLER)>
 {
 public:
@@ -72,6 +73,7 @@ public:
 
 	void Init() override;
 	void Update(seconds dt) override;
+	void FixedUpdate(seconds dt) override;
 	void Destroy() override;
     void AddComponent(Entity entity) override;
     void CalculateHover(Entity entity, seconds dt);
@@ -82,6 +84,7 @@ protected:
     physics::RigidDynamicManager& rigidDynamicManager_;
     physics::RigidStaticManager& rigidStaticManager_;
     physics::PhysicsEngine& physicsEngine_;
+	
 };
 
 /**

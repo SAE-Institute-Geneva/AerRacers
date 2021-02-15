@@ -19,7 +19,7 @@ namespace neko::aer
         rigidStaticManager_(rigidStaticManager),
         physicsEngine_(physicsEngine)
 {
-	
+        physicsEngine.RegisterFixedUpdateListener(*this);
 }
 
 void ShipControllerManager::AddComponent(Entity entity)
@@ -40,12 +40,9 @@ void ShipControllerManager::Init()
 
 }
 
-void ShipControllerManager::Update(seconds dt)
-{
-    shipInputManager_.Update(dt);
-
+void ShipControllerManager::FixedUpdate(seconds dt) {
     const auto& entities =
-		entityManager_.get().FilterEntities(static_cast<EntityMask>(ComponentType::SHIP_CONTROLLER));
+        entityManager_.get().FilterEntities(static_cast<EntityMask>(ComponentType::SHIP_CONTROLLER));
 
     for (auto& entity : entities)
     {
@@ -54,10 +51,20 @@ void ShipControllerManager::Update(seconds dt)
     }
 }
 
+
+void ShipControllerManager::Update(seconds dt)
+{
+    shipInputManager_.Update(dt);
+}
+
 void ShipControllerManager::CalculateHover(Entity entity, seconds dt)
 {
     ShipController shipController = GetComponent(entity);
     physics::RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(entity);
+    physics::RigidDynamicData data = rigidDynamic.GetRigidDynamicData();
+    data.useGravity = false;
+
+    rigidDynamicManager_.SetRigidDynamicData(entity, data);
 
     //Raycast to ground
     Vec3f groundNormal = Vec3f::zero;
