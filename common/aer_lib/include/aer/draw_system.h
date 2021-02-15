@@ -65,5 +65,6 @@ protected:
 #endif
 
 	Entity testEntity_;
+    Entity cameraEntity_;
 };
 }    // namespace neko::aer

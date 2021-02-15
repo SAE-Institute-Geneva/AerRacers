@@ -26,7 +26,7 @@ void ShipControllerManager::AddComponent(Entity entity)
 {
    ComponentManager::AddComponent(entity);
    ShipController shipController = GetComponent(entity);
-
+   entityManager_.get().SetEntityName(entity, "ship");
     //Set the startHoverHeight base height reference has the hoverHeight value.
    shipController.startHoverHeight_ = shipController.hoverHeight_;
 
@@ -46,6 +46,7 @@ void ShipControllerManager::FixedUpdate(seconds dt) {
 
     for (auto& entity : entities)
     {
+       
         CalculateHover(entity, dt);
         CalculateThrust(entity, dt);
     }

@@ -36,6 +36,11 @@ void DrawSystem::Init()
 
 	gizmosRenderer_->SetCamera(&camera_);
 
+	cameraEntity_ = engine_.GetComponentManagerContainer().entityManager.CreateEntity();
+	engine_.GetComponentManagerContainer().entityManager.SetEntityName(cameraEntity_, "cameraEntity");
+	engine_.GetComponentManagerContainer().transform3dManager.AddComponent(cameraEntity_);
+	engine_.GetComponentManagerContainer().cameraControllerManager.AddComponent(cameraEntity_);
+
 }
 
 void DrawSystem::Update(seconds)
@@ -43,6 +48,7 @@ void DrawSystem::Update(seconds)
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("DrawSystem::Update");
 #endif
+	camera_.position = engine_.GetComponentManagerContainer().transform3dManager.GetGlobalPosition(cameraEntity_);
 }
 
 void DrawSystem::Destroy() {}
