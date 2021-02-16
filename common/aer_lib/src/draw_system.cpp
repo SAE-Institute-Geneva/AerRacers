@@ -35,12 +35,30 @@ void DrawSystem::Init()
 	camera_.farPlane         = 100.0f;
 
 	gizmosRenderer_->SetCamera(&camera_);
-
+	const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+	Entity groundEntity = engine_.GetComponentManagerContainer().entityManager.CreateEntity();
+	engine_.GetComponentManagerContainer().renderManager.AddComponent(groundEntity);
+	engine_.GetComponentManagerContainer().renderManager.SetModel(groundEntity, config.dataRootPath + "models/cube/cube.obj");
+	engine_.GetComponentManagerContainer().transform3dManager.SetRelativeScale(groundEntity, Vec3f(10000.0f, 0.5f, 10000.0f));
+	physics::RigidStaticData rigidStaticData;
+	rigidStaticData.colliderType = physics::ColliderType::BOX;
+	rigidStaticData.filterGroup = physics::FilterGroup::GROUND;
+	engine_.GetComponentManagerContainer().rigidStaticManager.AddRigidStatic(
+		groundEntity,
+		rigidStaticData);
+	
 	Entity shipEntity = engine_.GetComponentManagerContainer().entityManager.CreateEntity();
 	engine_.GetComponentManagerContainer().entityManager.SetEntityName(shipEntity, "ship");
 	engine_.GetComponentManagerContainer().transform3dManager.AddComponent(shipEntity);
+	engine_.GetComponentManagerContainer().transform3dManager.SetGlobalPosition(shipEntity, Vec3f(0, 2, 0));
 	engine_.GetComponentManagerContainer().rigidDynamicManager.AddComponent(shipEntity);
+	physics::RigidDynamicData rigidDynamic;
+	rigidDynamic.useGravity = false;
+	rigidDynamic.colliderType = physics::ColliderType::BOX;
+	engine_.GetComponentManagerContainer().rigidDynamicManager.AddRigidDynamic(shipEntity, rigidDynamic);
 	engine_.GetComponentManagerContainer().shipControllerManager.AddComponent(shipEntity);
+	engine_.GetComponentManagerContainer().renderManager.AddComponent(shipEntity);
+	engine_.GetComponentManagerContainer().renderManager.SetModel(shipEntity, config.dataRootPath + "models/cube/cube.obj");
 	
 	cameraEntity_ = engine_.GetComponentManagerContainer().entityManager.CreateEntity();
 	engine_.GetComponentManagerContainer().entityManager.SetEntityName(cameraEntity_, "cameraEntity");
