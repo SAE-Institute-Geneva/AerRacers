@@ -1218,7 +1218,7 @@ public:
         Camera3D* camera = GizmosLocator::get().GetCamera();
         camera->position = Vec3f(0.0f, 1.0f, -10.0f);
         camera->Rotate(EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
-        engineDuration = 7.0f;
+        engineDuration = 10000.0f;
         //aerengine.GetPhysicsEngine().StopPhysic();
     }
 };

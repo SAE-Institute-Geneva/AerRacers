@@ -268,6 +268,8 @@ void Transform3dManager::SetGlobalPosition(Entity entity, const Vec3f& position)
 
 void Transform3dManager::SetGlobalRotation(Entity entity, const EulerAngles& angles)
 {
+    //SetRelativeRotation(entity, angles);
+    //return;
     Mat4f transform = Transform3d::Transform(
         position3DManager_.GetComponent(entity), angles, scale3DManager_.GetComponent(entity));
     const auto parent = entityManager_.get().GetEntityParent(entity);
@@ -361,23 +363,30 @@ void Transform3dViewer::DrawImGui(Entity entity)
             position = transform3dManager_.GetRelativePosition(entity);
         }
         if (ImGui::DragFloat3("Position", position.coord)) {
-            transform3dManager_.SetRelativePosition(entity, position);
+            if (!globalPos) {
+                transform3dManager_.SetRelativePosition(entity, position);
+            }
         }
         Vec3f rotation;
         if (globalPos) { rotation = Vec3f(transform3dManager_.GetGlobalRotation(entity)); } else {
             rotation = Vec3f(transform3dManager_.GetRelativeRotation(entity));
         }
         if (ImGui::DragFloat3("Rotation", rotation.coord)) {
-            transform3dManager_.SetRelativeRotation(
-                entity,
-                EulerAngles(rotation.x, rotation.y, rotation.z));
+            if (!globalPos) {
+                transform3dManager_.SetRelativeRotation(
+                    entity,
+                    EulerAngles(rotation.x, rotation.y, rotation.z));
+            }
         }
         Vec3f scale;
         if (globalPos) { scale = transform3dManager_.GetGlobalScale(entity); } else {
             scale = transform3dManager_.GetRelativeScale(entity);
         }
         if (ImGui::DragFloat3("Scale", scale.coord)) {
-            transform3dManager_.SetRelativeScale(entity, scale); }
+            if (!globalPos) {
+                transform3dManager_.SetRelativeScale(entity, scale);
+            }
+        }
         ImGui::TreePop();
         }
     }

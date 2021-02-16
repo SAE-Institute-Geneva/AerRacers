@@ -48,46 +48,6 @@ public:
 	std::string sceneName;
 };
 
-class TestUnityScene : public TestSceneInterface
-{
-public:
-	explicit TestUnityScene() { sceneName = "scenes/WillToolScene2021-01-11-14-05-34.aerscene"; }
-
-	virtual void HasSucceed(ComponentManagerContainer& cContainer) override
-	{
-		EXPECT_TRUE(cContainer.sceneManager.GetCurrentScene().sceneName == "WillToolScene");
-		EXPECT_TRUE(cContainer.entityManager.GetEntitiesNmb() == 7);
-		EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
-		EXPECT_TRUE(TagLocator::get().CompareEntitiesTag(0, 1));
-		EXPECT_TRUE(TagLocator::get().IsEntityLayer(0, "Ground"));
-		EXPECT_TRUE(TagLocator::get().IsEntityTag(0, 0));
-		EXPECT_TRUE(
-			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
-		EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
-		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).x,Vec3f(1.0, 3.0, 5.0).x,0.1f);
-		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).y,Vec3f(1.0, 3.0, 5.0).y,0.1f);
-		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).z,Vec3f(1.0, 3.0, 5.0).z,0.1f);
-
-	}
-};
-
-class TestExampleScene : public TestSceneInterface
-{
-public:
-	explicit TestExampleScene() { sceneName = "scenes/scene_example.scene"; }
-
-	void HasSucceed(ComponentManagerContainer& cContainer) override
-	{
-		EXPECT_TRUE(TagLocator::get().CompareEntitiesTag(1, 2));
-		EXPECT_TRUE(TagLocator::get().IsEntityTag(0, "0"));
-		EXPECT_TRUE(TagLocator::get().IsEntityLayer(1, "5"));
-		EXPECT_TRUE(
-			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
-		EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
-		EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(960, 540, 0));
-	}
-};
-
 class SceneImporterTester : public SystemInterface
 {
 public:
@@ -128,6 +88,23 @@ private:
 	TestSceneInterface& testScene_;
 };
 
+class TestExampleScene : public TestSceneInterface
+{
+public:
+    explicit TestExampleScene() { sceneName = "scenes/scene_example.scene"; }
+
+    void HasSucceed(ComponentManagerContainer& cContainer) override
+    {
+        EXPECT_TRUE(TagLocator::get().CompareEntitiesTag(1, 2));
+        EXPECT_TRUE(TagLocator::get().IsEntityTag(0, "0"));
+        EXPECT_TRUE(TagLocator::get().IsEntityLayer(1, "5"));
+        EXPECT_TRUE(
+            cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
+        EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
+        EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(960, 540, 0));
+    }
+};
+
 TEST(Scene, TestExampleSceneImporteur)
 {
 	//Travis Fix because Windows can't open a window
@@ -158,6 +135,29 @@ TEST(Scene, TestExampleSceneImporteur)
 
 	testSceneImporteur.HasSucceed();
 }
+
+class TestUnityScene : public TestSceneInterface
+{
+public:
+    explicit TestUnityScene() { sceneName = "scenes/WillToolScene2021-01-11-14-05-34.aerscene"; }
+
+    virtual void HasSucceed(ComponentManagerContainer& cContainer) override
+    {
+        EXPECT_TRUE(cContainer.sceneManager.GetCurrentScene().sceneName == "WillToolScene");
+        EXPECT_TRUE(cContainer.entityManager.GetEntitiesNmb() == 7);
+        EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
+        EXPECT_TRUE(TagLocator::get().CompareEntitiesTag(0, 1));
+        EXPECT_TRUE(TagLocator::get().IsEntityLayer(0, "Ground"));
+        EXPECT_TRUE(TagLocator::get().IsEntityTag(0, 0));
+        EXPECT_TRUE(
+            cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
+        EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
+        EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).x, Vec3f(1.0, 3.0, 5.0).x, 0.1f);
+        EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).y, Vec3f(1.0, 3.0, 5.0).y, 0.1f);
+        EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).z, Vec3f(1.0, 3.0, 5.0).z, 0.1f);
+
+    }
+};
 
 TEST(Scene, TestUnitySceneImporteur)
 {

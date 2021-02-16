@@ -195,7 +195,6 @@ const RaycastInfo PhysicsEngine::Raycast(
 {
     RaycastInfo raycastHit;
     physx::PxQueryFilterData fd;
-    fd.flags |= physx::PxQueryFlag::eANY_HIT; // note the OR with the default value
     fd.data.word0 = filterGroup;
     raycastHit.touch = scene_->raycast(ConvertToPxVec(origin), ConvertToPxVec(direction.Normalized()), maxDistance, raycastHit.pxRaycastBuffer,
                                   physx::PxHitFlags(physx::PxHitFlag::eDEFAULT), fd);

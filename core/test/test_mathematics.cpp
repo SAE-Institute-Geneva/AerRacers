@@ -841,30 +841,96 @@ TEST(Transform, FromMatToMat4)
 {
     neko::Vec3f position  = neko::Vec3f(1.0f, 2.0f, 3.0f);
     neko::EulerAngles rotation = neko::EulerAngles(
-        units::angle::degree_t(-135), units::angle::degree_t(90), units::angle::degree_t(0));
+        units::angle::degree_t(75), units::angle::degree_t(45), units::angle::degree_t(90));
     neko::Vec3f scale  = neko::Vec3f(4.0f, 5.0f, 6.0f);
     neko::Mat4f transform = neko::Transform3d::Transform(position, rotation, scale);
-    EXPECT_NEAR(position.x, neko::Transform3d::GetPosition(transform).x, 0.1f);
-    EXPECT_NEAR(position.y, neko::Transform3d::GetPosition(transform).y, 0.1f);
-    EXPECT_NEAR(position.z, neko::Transform3d::GetPosition(transform).z, 0.1f);
-    //EXPECT_NEAR(rotation.x.value(), neko::Transform3d::GetRotation(transform).x.value(), 0.1f);
-    //EXPECT_NEAR(rotation.y.value(), neko::Transform3d::GetRotation(transform).y.value(), 0.1f);
-    //EXPECT_NEAR(rotation.z.value(), neko::Transform3d::GetRotation(transform).z.value(), 0.1f);
-    EXPECT_NEAR(scale.x, neko::Transform3d::GetScale(transform).x, 0.1f);
-    EXPECT_NEAR(scale.y, neko::Transform3d::GetScale(transform).y, 0.1f);
-    EXPECT_NEAR(scale.z, neko::Transform3d::GetScale(transform).z, 0.1f);
+    neko::Vec3f newPos = neko::Transform3d::GetPosition(transform);
+    neko::EulerAngles newRot = neko::Transform3d::GetRotation(transform);
+    neko::Vec3f newScale = neko::Transform3d::GetScale(transform);
+    EXPECT_NEAR(rotation.x.value(), newRot.x.value(), 0.1f);
+    EXPECT_NEAR(rotation.y.value(), newRot.y.value(), 0.1f);
+    EXPECT_NEAR(rotation.z.value(), newRot.z.value(), 0.1f);
+    EXPECT_NEAR(position.x, newPos.x, 0.1f);
+    EXPECT_NEAR(position.y, newPos.y, 0.1f);
+    EXPECT_NEAR(position.z, newPos.z, 0.1f);
+    EXPECT_NEAR(scale.x, newScale.x, 0.1f);
+    EXPECT_NEAR(scale.y, newScale.y, 0.1f);
+    EXPECT_NEAR(scale.z, newScale.z, 0.1f);
+    //float add = 90;
+    //for (float x = -180; x < 180; x += add) {
+    //    for (float y = -180; y < 180; y += add) {
+    //        for (float z = -180; z < 180; z += add) {
+    //            //neko::Vec3f position  = neko::Vec3f(1.0f, 2.0f, 3.0f);
+    //            neko::Vec3f position = neko::Vec3f::zero;
+    //            /*neko::EulerAngles rotation = neko::EulerAngles(
+    //                units::angle::degree_t(75), units::angle::degree_t(45), units::angle::degree_t(90));*/
+    //            neko::EulerAngles rotation = neko::EulerAngles(
+    //                units::angle::degree_t(x), units::angle::degree_t(y), units::angle::degree_t(z));
+    //            neko::Vec3f scale = neko::Vec3f::one;
+    //            //neko::Vec3f scale  = neko::Vec3f(4.0f, 5.0f, 6.0f);
+    //            neko::Mat4f transform = neko::Transform3d::Transform(position, rotation, scale);
+    //            neko::Vec3f newPos = neko::Transform3d::GetPosition(transform);
+    //            neko::EulerAngles newRot = neko::Transform3d::GetRotation(transform);
+    //            neko::Vec3f newScale = neko::Transform3d::GetScale(transform);
+    //            EXPECT_NEAR(rotation.x.value(), newRot.x.value(), 0.1f);
+    //            EXPECT_NEAR(rotation.y.value(), newRot.y.value(), 0.1f);
+    //            EXPECT_NEAR(rotation.z.value(), newRot.z.value(), 0.1f);
+
+    //            EXPECT_NEAR(position.x, newPos.x, 0.1f);
+    //            EXPECT_NEAR(position.y, newPos.y, 0.1f);
+    //            EXPECT_NEAR(position.z, newPos.z, 0.1f);
+    //            EXPECT_NEAR(scale.x, newScale.x, 0.1f);
+    //            EXPECT_NEAR(scale.y, newScale.y, 0.1f);
+    //            EXPECT_NEAR(scale.z, newScale.z, 0.1f);
+    //        }
+    //    }
+    //}
 }
 
 TEST(Transform, RotationMatrixFromQuaternion)
 {
-    neko::Quaternion q = neko::Quaternion(-0.001f, -0.427f, 0.142f, -0.893f);
-    neko::Mat4f mat    = neko::Transform3d::RotationMatrixFrom(q);
-    neko::Quaternion q2 = neko::Quaternion::FromRotationMatrix(mat);
-    //EXPECT_NEAR(q.x, q2.x, 0.01f);
-    //EXPECT_NEAR(q.y, q2.y, 0.01f);
-    //EXPECT_NEAR(q.z, q2.z, 0.01f);
-    //EXPECT_NEAR(q.w, q2.w, 0.01f);
-
+    {
+        neko::Quaternion q = neko::Quaternion(
+            -0.001f,
+            -0.427f,
+            0.142f,
+            -0.893f);
+        neko::Mat4f mat = neko::Transform3d::RotationMatrixFrom(q);
+        EXPECT_NEAR(mat[0][0], 0.5949, 0.01f);
+        EXPECT_NEAR(mat[0][1], -0.2536267, 0.01f);
+        EXPECT_NEAR(mat[0][2], -0.7626662, 0.01f);
+        EXPECT_NEAR(mat[1][0], 0.2536267, 0.01f);
+        EXPECT_NEAR(mat[1][1], 0.9596696, 0.01f);
+        EXPECT_NEAR(mat[1][2], -0.1212750, 0.01f);
+        EXPECT_NEAR(mat[2][0], 0.7626662, 0.01f);
+        EXPECT_NEAR(mat[2][1], -0.1212750, 0.01f);
+        EXPECT_NEAR(mat[2][2], 0.6353208, 0.01f);
+        neko::Quaternion q2 = neko::Quaternion::FromRotationMatrix(mat);
+        EXPECT_NEAR(q.x, q2.x, 0.01f);
+        EXPECT_NEAR(q.y, q2.y, 0.01f);
+        EXPECT_NEAR(q.z, q2.z, 0.01f);
+        EXPECT_NEAR(q.w, q2.w, 0.01f);
+    }
+    float add = 0.1f;
+    for (float x = -0.9; x < 1; x+= add) {
+        for (float y = -0.9; y < 1; y += add) {
+            for (float z = -0.9; z < 1; z += add) {
+                for (float w = -0.9; w < 1; w += add) {
+                    neko::Quaternion q = neko::Quaternion(x, y, z, w);
+                    q = neko::Quaternion::Normalized(q);
+                    neko::EulerAngles euler = neko::Quaternion::ToEulerAngles(q);
+                    neko::Mat4f mat = neko::Transform3d::RotationMatrixFrom(euler);
+                    neko::Quaternion q2 = neko::Quaternion::FromRotationMatrix(mat);
+                    neko::EulerAngles euler2 = neko::Quaternion::ToEulerAngles(q2);
+                    neko::Vec3f vec1 = ConvertEulerAnglesToVec3f(euler);
+                    neko::Vec3f vec2 = ConvertEulerAnglesToVec3f(euler2);
+                    EXPECT_NEAR(vec1.x, vec2.x, 0.1f);
+                    EXPECT_NEAR(vec1.y, vec2.y, 0.1f);
+                    EXPECT_NEAR(vec1.z, vec2.z, 0.1f);
+                }
+            }
+        }
+    }
 }
 
 TEST(Quaternion, QuaternionLerp)
