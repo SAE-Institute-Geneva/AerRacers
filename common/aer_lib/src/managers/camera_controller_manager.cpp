@@ -67,6 +67,11 @@ void CameraControllerManager::CreateTargetsEntity() {
     entityManager_.get().SetEntityName(targetEntity_, "targetEntity");
     transformManager_.AddComponent(targetEntity_);
     entityManager_.get().SetEntityParent(targetEntity_, shipEntity_);
+
+    //Create Spring Entity
+    springEntity_ = entityManager_.get().CreateEntity();
+    entityManager_.get().SetEntityName(springEntity_, "springEntity");
+    entityManager_.get().SetEntityParent(springEntity_, shipEntity_);
 }
 
 
@@ -77,7 +82,21 @@ void CameraControllerManager::FixedUpdate(seconds dt) {
 
     for (auto& entity : entities)
     {
-        
+        LookTurning();
+        LookDown();
+
+        Vec3f currentSpringCameraPosition = SpringPosition2D();
+        currentSpringCameraPosition = CameraSmoothSpring(currentSpringCameraPosition);
+
+        CameraSmoothLerp(currentSpringCameraPosition);
+
+        LastFrameShipValues();
+
+        SpringTransformChild(springEntity_);
+        float xPos = transformManager_.GetGlobalPosition(cameraEntity_).x;
+        float yPos = transformManager_.GetGlobalPosition(targetEntity_).y;
+        float zPos = transformManager_.GetGlobalPosition(cameraEntity_).z;
+        transformManager_.SetGlobalPosition(cameraEntity_, Vec3f(xPos, yPos, zPos));
     }
        
 }

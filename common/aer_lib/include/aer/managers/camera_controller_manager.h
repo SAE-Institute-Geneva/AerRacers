@@ -78,7 +78,8 @@ namespace neko::aer
         Entity lookTargetLeft_;
         Entity lookTargetRight_;
         Entity lookTargetNormal_;
-
+        Entity springEntity_;
+    	
         Entity shipEntity_;
     	
         Vec3f lookTargetRightPos_ = Vec3f(0, 6.85f, -9.58f);
