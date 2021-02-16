@@ -46,7 +46,7 @@ struct ComponentManagerContainer : public SystemInterface
 		rigidDynamicManager(entityManager, transform3dManager, physicsEngine),
 		rigidStaticManager(entityManager, transform3dManager, physicsEngine),
 		shipControllerManager(entityManager, transform3dManager, rigidDynamicManager, rigidStaticManager, physicsEngine),
-		cameraControllerManager(entityManager, transform3dManager, physicsEngine),
+		cameraControllerManager(entityManager, transform3dManager, rigidDynamicManager, physicsEngine),
 		transform3dViewer(entityManager, transform3dManager),
 		rendererViewer(entityManager, renderManager),
 		rigidDynamicViewer(transform3dManager, entityManager, physicsEngine, rigidDynamicManager),

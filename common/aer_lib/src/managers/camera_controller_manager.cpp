@@ -45,7 +45,7 @@ void CameraControllerManager::CreateTargetsEntity() {
     transformManager_.AddComponent(lookTargetLeft_);
     entityManager_.get().SetEntityParent(lookTargetLeft_, shipEntity_);
     transformManager_.SetRelativePosition(lookTargetLeft_, lookTargetLeftPos_);
-    transformManager_.SetRelativeRotation(lookTargetRight_, lookTargetLeftRot_);
+    transformManager_.SetRelativeRotation(lookTargetLeft_, lookTargetLeftRot_);
 
     //Create Right Target
     lookTargetRight_ = entityManager_.get().CreateEntity();

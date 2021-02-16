@@ -36,6 +36,12 @@ void DrawSystem::Init()
 
 	gizmosRenderer_->SetCamera(&camera_);
 
+	Entity shipEntity = engine_.GetComponentManagerContainer().entityManager.CreateEntity();
+	engine_.GetComponentManagerContainer().entityManager.SetEntityName(shipEntity, "ship");
+	engine_.GetComponentManagerContainer().transform3dManager.AddComponent(shipEntity);
+	engine_.GetComponentManagerContainer().rigidDynamicManager.AddComponent(shipEntity);
+	engine_.GetComponentManagerContainer().shipControllerManager.AddComponent(shipEntity);
+	
 	cameraEntity_ = engine_.GetComponentManagerContainer().entityManager.CreateEntity();
 	engine_.GetComponentManagerContainer().entityManager.SetEntityName(cameraEntity_, "cameraEntity");
 	engine_.GetComponentManagerContainer().transform3dManager.AddComponent(cameraEntity_);
