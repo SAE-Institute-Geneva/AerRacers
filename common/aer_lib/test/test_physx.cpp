@@ -620,6 +620,7 @@ public:
                 0.1f
             };
             rigidStatic.boxColliderData.isTrigger = false;
+            rigidStatic.filterGroup = neko::physics::FilterGroup::GROUND;
             rigidStaticManager_->AddRigidStatic(
                 planeEntity_,
                 rigidStatic);
@@ -637,6 +638,8 @@ public:
         EXPECT_FALSE(rayTwoTouch_);
         EXPECT_FALSE(rayThreeTouch_);
         EXPECT_FALSE(rayFourTouch_);
+        EXPECT_TRUE(rayFilteredTouch_);
+        EXPECT_FALSE(rayFilteredNotTouch_);
     }
 
     void Update(neko::seconds dt) override
@@ -725,6 +728,52 @@ public:
                 neko::Color::red,
                 2.0f);
         }
+        //FilterTouch ok
+        {
+            //Raycast
+            neko::physics::RaycastInfo raycastInfo = physicsEngine_->Raycast(
+                rayOrigin_ + neko::Vec3f::right * 1,
+                rayDirection_,
+                50.0f,
+                neko::physics::FilterGroup::GROUND);
+            //std::cout << "Raycast " << (raycastInfo.touch ? "hit" : "not hit") <<
+            //    " Distance : " << raycastInfo.GetDistance() <<
+            //    " Position : " << raycastInfo.GetPoint() <<
+            //    " Normal : " << raycastInfo.GetNormal() << std::endl;
+            rayFilteredTouch_ = raycastInfo.touch;
+
+            //Display Gizmo
+            gizmosLocator.DrawLine(
+                rayOrigin_ + neko::Vec3f::right * 1,
+                rayOrigin_ + neko::Vec3f::right * 1 + rayDirection_ * 50.0f,
+                raycastInfo.touch ?
+                neko::Color::green :
+                neko::Color::red,
+                2.0f);
+        }
+        //FilterTouch wrong
+        {
+            //Raycast
+            neko::physics::RaycastInfo raycastInfo = physicsEngine_->Raycast(
+                rayOrigin_ + neko::Vec3f::right * -1,
+                rayDirection_,
+                50.0f,
+                neko::physics::FilterGroup::SHIP);
+            //std::cout << "Raycast " << (raycastInfo.touch ? "hit" : "not hit") <<
+            //    " Distance : " << raycastInfo.GetDistance() <<
+            //    " Position : " << raycastInfo.GetPoint() <<
+            //    " Normal : " << raycastInfo.GetNormal() << std::endl;
+            rayFilteredNotTouch_ = raycastInfo.touch;
+
+            //Display Gizmo
+            gizmosLocator.DrawLine(
+                rayOrigin_ + neko::Vec3f::right * -1,
+                rayOrigin_ + neko::Vec3f::right * -1 + rayDirection_ * 50.0f,
+                raycastInfo.touch ?
+                neko::Color::green :
+                neko::Color::red,
+                2.0f);
+        }
         //std::cout << std::endl;
     }
 
@@ -740,6 +789,8 @@ private:
     bool rayTwoTouch_ = false;
     bool rayThreeTouch_ = false;
     bool rayFourTouch_ = false;
+    bool rayFilteredTouch_ = false;
+    bool rayFilteredNotTouch_ = false;
 };
 TEST(PhysX, TestRaycast)
 {
