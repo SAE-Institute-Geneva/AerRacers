@@ -2,6 +2,8 @@
 
 #include <imgui.h>
 
+
+#include "aer/tag.h"
 #include "px/physics_engine.h"
 #include "px/physx_utility.h"
 
@@ -149,6 +151,18 @@ physx::PxShape* RigidActor::InitSphereShape(
     const SphereColliderData& sphereCollider) const
 {
     return physics->createShape(physx::PxSphereGeometry(sphereCollider.radius), *material);
+}
+
+void RigidActor::SetFiltering(
+    physx::PxShape* shape,
+    physx::PxU32 filterGroup)
+{
+    physx::PxFilterData filterData;
+    filterData.word0 = filterGroup; // word0 = own ID
+    filterData.word1 = FilterGroup::EVERYTHING;
+    // contact callback;
+    shape->setSimulationFilterData(filterData);
+    shape->setQueryFilterData(filterData);
 }
 
 json RigidActorViewer::GetJsonFromBoxCollider(const RigidActorData& rigidActorData) const
@@ -321,6 +335,7 @@ void RigidStatic::Init(physx::PxPhysics* physics,
         std::cerr << "createShape failed!";
         return;
     }
+    SetFiltering(shape_, rigidStatic.filterGroup);
     rigidActor_->attachShape(*shape_);
     SetRigidStaticData(rigidStatic);
 }
@@ -613,6 +628,20 @@ void RigidStaticManager::DestroyComponent(Entity entity)
     ComponentManager::DestroyComponent(entity);
 }
 
+Entity RigidStaticManager::FindEntityFromActor(physx::PxActor* actor)
+{
+    auto entityIt = std::find_if(
+        components_.begin(),
+        components_.end(),
+        [actor](RigidStatic rigidStatic) {
+            return actor == rigidStatic.GetPxRigidStatic();
+        });
+    if (entityIt == components_.end())
+        return INVALID_ENTITY;
+
+    return std::distance(components_.begin(), entityIt);
+}
+
 RigidStaticViewer::RigidStaticViewer(
     Transform3dManager& transform3dManager,EntityManager& entityManager,
     PhysicsEngine& physicsEngine,
@@ -682,6 +711,19 @@ void RigidStaticViewer::SetComponentFromJson(Entity entity, const json& componen
     rigidStaticData.boxColliderData      = rigidActorData.boxColliderData;
     rigidStaticData.sphereColliderData  = rigidActorData.sphereColliderData;
     rigidStaticData.material             = rigidActorData.material;
+    std::string layer = aer::TagLocator::get().GetEntityLayer(entity);
+    if (layer == "Ground") {
+        rigidStaticData.filterGroup = FilterGroup::GROUND;
+    }
+    else if (layer == "Ship") {
+        rigidStaticData.filterGroup = FilterGroup::SHIP;
+    }
+    else if (layer == "Wall") {
+        rigidStaticData.filterGroup = FilterGroup::WALL;
+    }
+    else {
+        rigidStaticData.filterGroup = FilterGroup::DEFAULT;
+    }
     rigidStaticManager_.AddRigidStatic(entity, rigidStaticData);
 }
 
@@ -812,10 +854,24 @@ void RigidDynamicManager::DestroyComponent(Entity entity)
     ComponentManager::DestroyComponent(entity);
 }
 
+Entity RigidDynamicManager::FindEntityFromActor(physx::PxActor* actor)
+{
+    auto entityIt = std::find_if(
+        components_.begin(),
+        components_.end(),
+        [actor](RigidDynamic rigidDynamic) {
+            return actor == rigidDynamic.GetPxRigidDynamic();
+        });
+    if (entityIt == components_.end())
+        return INVALID_ENTITY;
+
+    return std::distance(components_.begin(), entityIt);
+}
+
 RigidDynamicViewer::RigidDynamicViewer(Transform3dManager& transform3dManager,
-    EntityManager& entityManager,
-    PhysicsEngine& physicsEngine,
-    RigidDynamicManager& rigidDynamicManager)
+                                       EntityManager& entityManager,
+                                       PhysicsEngine& physicsEngine,
+                                       RigidDynamicManager& rigidDynamicManager)
     : ComponentViewer(entityManager),
       physicsEngine_(physicsEngine),
       rigidDynamicManager_(rigidDynamicManager),
@@ -934,6 +990,19 @@ void RigidDynamicViewer::SetComponentFromJson(Entity entity, const json& compone
     rigidDynamicData.boxColliderData    = rigidActorData.boxColliderData;
     rigidDynamicData.sphereColliderData = rigidActorData.sphereColliderData;
     rigidDynamicData.material             = rigidActorData.material;
+    std::string layer = aer::TagLocator::get().GetEntityLayer(entity);
+    if (layer == "Ground") {
+        rigidDynamicData.filterGroup = FilterGroup::GROUND;
+    }
+    else if (layer == "Ship") {
+        rigidDynamicData.filterGroup = FilterGroup::SHIP;
+    }
+    else if (layer == "Wall") {
+        rigidDynamicData.filterGroup = FilterGroup::WALL;
+    }
+    else {
+        rigidDynamicData.filterGroup = FilterGroup::DEFAULT;
+    }
     rigidDynamicManager_.AddRigidDynamic(entity, rigidDynamicData);
 }
 

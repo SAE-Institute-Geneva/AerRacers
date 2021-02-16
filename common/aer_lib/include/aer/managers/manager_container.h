@@ -55,10 +55,11 @@ struct ComponentManagerContainer : public SystemInterface
 		cameraControllerViewer(entityManager, cameraControllerManager),
 		sceneManager(entityManager, *this)
 	{
-        physicsEngine.RegisterFixedUpdateListener(rigidDynamicManager);
-        physicsEngine.RegisterFixedUpdateListener(rigidStaticManager);
+		physicsEngine.RegisterFixedUpdateListener(rigidDynamicManager);
+		physicsEngine.RegisterFixedUpdateListener(rigidStaticManager);
         physicsEngine.RegisterFixedUpdateListener(rigidStaticViewer);
         physicsEngine.RegisterFixedUpdateListener(rigidDynamicViewer);
+		physicsEngine.RegisterFixedUpdateListener(shipControllerManager);
 	}
 
 	void Init() override

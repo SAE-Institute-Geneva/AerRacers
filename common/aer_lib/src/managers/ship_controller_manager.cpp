@@ -19,7 +19,6 @@ namespace neko::aer
         rigidStaticManager_(rigidStaticManager),
         physicsEngine_(physicsEngine)
 {
-        physicsEngine.RegisterFixedUpdateListener(*this);
 }
 
 void ShipControllerManager::AddComponent(Entity entity)
@@ -73,21 +72,9 @@ void ShipControllerManager::CalculateHover(Entity entity, seconds dt)
     const physics::RaycastInfo& raycastInfo = physicsEngine_.Raycast(
         shipPosition,
         Vec3f::down,
-        10.0f);
-
-    physx::PxRigidActor* actor = raycastInfo.pxRaycastBuffer.getAnyHit(0).actor;
-
-    //Check against ground
-    for (Entity e = 0; e < rigidStaticManager_.GetComponentsVector().size(); e++)
-    {
-        if (actor == rigidStaticManager_.GetComponent(e).GetPxRigidStatic())
-        {
-            if (TagLocator::get().GetEntityTag(e) == "Ground")
-            {
-                shipController.isOnGround_ = raycastInfo.GetDistance() < shipController.maxGroundDist_;
-            }
-        }
-    }
+        10.0f,
+        physics::FilterGroup::GROUND);
+    shipController.isOnGround_ = raycastInfo.GetDistance() < shipController.maxGroundDist_;
 
     if(shipController.isOnGround_)
     {
@@ -125,7 +112,7 @@ void ShipControllerManager::CalculateHover(Entity entity, seconds dt)
     Quaternion rotation = Quaternion::LookRotation(projection, groundNormal);
 
     Quaternion shipRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(entity));
-    rigidDynamic.MoveRotation(Quaternion::Lerp(shipRotation,rotation, dt.count()));
+    rigidDynamic.MoveRotation(Quaternion::Lerp(shipRotation,rotation, dt.count() * shipController.rotationMultiplicator_));
 
     float angle = shipController.angleOfRoll_ * -shipInputManager_.rudder_ * shipInputManager_.GetIntensity();
     float pitchAngle = shipController.angleOfPitch_ * shipInputManager_.thruster_ * shipInputManager_.GetIntensity();
@@ -136,7 +123,7 @@ void ShipControllerManager::CalculateHover(Entity entity, seconds dt)
             Quaternion::Lerp(
                 Quaternion::FromEuler(transformManager_.GetGlobalRotation(entity)), 
                 bodyRotation, 
-                dt.count())));
+                dt.count() * 10.0f)));
 
     SetComponent(entity, shipController);
 }

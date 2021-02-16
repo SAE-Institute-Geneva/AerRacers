@@ -32,7 +32,10 @@ void PhysicsEngine::InitPhysics()
         gDefaultAllocatorCallback,
         gDefaultErrorCallback);
     if (!foundation_)
-        logDebug("PxCreateFoundation failed!");
+    {
+        assert("PxCreateFoundation failed!");
+        return;
+    }
 
     //Use to link with PhysX Visual Debugger
     bool recordMemoryAllocations = true;
@@ -54,14 +57,17 @@ void PhysicsEngine::InitPhysics()
         physx::PxTolerancesScale(),
         recordMemoryAllocations, pvd_);
     if (!physics_)
-        logDebug("PxCreatePhysics failed!");
+    {
+        assert("PxCreatePhysics failed!");
+        return;
+    }
 
     cooking_ = PxCreateCooking(PX_PHYSICS_VERSION, *foundation_, physx::PxCookingParams(physx::PxTolerancesScale()));
     if (!cooking_)
-        logDebug("PxCreateCooking failed!");
+        assert("PxCreateCooking failed!");
 
     if (!PxInitExtensions(*physics_, pvd_))
-        logDebug("PxInitExtensions failed!");
+        assert("PxInitExtensions failed!");
     CreateScene();
 
 }
@@ -72,6 +78,8 @@ void PhysicsEngine::CreateScene()
     sceneDesc.gravity = physx::PxVec3(0.0f, -9.81f, 0.0f);
     physx::PxSimulationFilterShader gDefaultFilterShader = physx::PxDefaultSimulationFilterShader;
     sceneDesc.filterShader = ContactReportFilterShader;
+    //sceneDesc.filterShaderData = &mapFilter_;
+    //sceneDesc.filterShaderDataSize = sizeof(mapFilter_);
     cpuDispatcher_ = physx::PxDefaultCpuDispatcherCreate(1);
     if (!cpuDispatcher_)
         std::cerr << "PxDefaultCpuDispatcherCreate failed!";
@@ -146,6 +154,7 @@ physx::PxFilterFlags PhysicsEngine::ContactReportFilterShader(physx::PxFilterObj
     const void* constantBlock,
     physx::PxU32 constantBlockSize)
 {
+    //const std::unordered_map<physx::PxU32, physx::PxU32>* mapFilter =  static_cast<const std::unordered_map<physx::PxU32, physx::PxU32>*>(constantBlock);
     // let triggers through
     if (physx::PxFilterObjectIsTrigger(attributes0) || physx::PxFilterObjectIsTrigger(attributes1))
     {
@@ -153,17 +162,17 @@ physx::PxFilterFlags PhysicsEngine::ContactReportFilterShader(physx::PxFilterObj
         return physx::PxFilterFlag::eDEFAULT;
     }
     // generate contacts for all that were not filtered above
-    pairFlags =
-        physx::PxPairFlag::eCONTACT_DEFAULT |
-        physx::PxPairFlag::eNOTIFY_TOUCH_FOUND |
-        physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS |
-        physx::PxPairFlag::eNOTIFY_TOUCH_LOST |
-        physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
-
-    //// trigger the contact callback for pairs (A,B) where
-    //// the filtermask of A contains the ID of B and vice versa.
-    //if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
-    //    pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND;
+    // trigger the contact callback for pairs (A,B) where
+    // the filtermask of A contains the ID of B and vice versa.
+    //if (!(filterData0.word0 & mapFilter->at(filterData1.word0)) &&
+    //    !(filterData1.word0 & mapFilter->at(filterData0.word0)))
+    {
+        pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT;
+        pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND |
+            physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS |
+            physx::PxPairFlag::eNOTIFY_TOUCH_LOST |
+            physx::PxPairFlag::eNOTIFY_CONTACT_POINTS;
+    }
 
     return physx::PxFilterFlag::eDEFAULT;
 }
@@ -181,11 +190,12 @@ physx::PxScene* PhysicsEngine::GetScene()
 const RaycastInfo PhysicsEngine::Raycast(
     const Vec3f& origin,
     const Vec3f& direction,
-    float maxDistance) const
+    float maxDistance,
+    FilterGroup::Enum filterGroup) const
 {
     RaycastInfo raycastHit;
     physx::PxQueryFilterData fd;
-    fd.flags |= physx::PxQueryFlag::eANY_HIT; // note the OR with the default value
+    fd.data.word0 = filterGroup;
     raycastHit.touch = scene_->raycast(ConvertToPxVec(origin), ConvertToPxVec(direction.Normalized()), maxDistance, raycastHit.pxRaycastBuffer,
                                   physx::PxHitFlags(physx::PxHitFlag::eDEFAULT), fd);
     return raycastHit;
