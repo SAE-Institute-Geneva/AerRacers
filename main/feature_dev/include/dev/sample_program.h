@@ -21,39 +21,23 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
+ */
+#include <SDL_events.h>
 
- Author : Floreau Luca
- Co-Author :
- Date : 22.01.2021
----------------------------------------------------------- */
-#include "px/physics_callbacks.h"
+#include "sdl_engine/sdl_engine.h"
 
-#include "aer/editor/editor_tool_interface.h"
+#include "graphics/graphics.h"
 
-namespace neko::aer
+namespace neko::dev
 {
-class SceneManager;
-
-class SceneLoader final : public EditorToolInterface, public physics::FixedUpdateInterface
+class SampleProgram : public RenderProgram,
+					  public sdl::SdlEventSystemInterface,
+					  public DrawImGuiInterface
 {
 public:
-	explicit SceneLoader(AerEngine& engine, ToolType type, int id, std::string name);
-	void Init() override;
-	void Update(seconds dt) override;
-	void DrawImGui() override;
-	void LoadSceneFiles();
-	void Destroy() override;
-	void OnEvent(const SDL_Event& event) override;
+	virtual ~SampleProgram() = default;
 
-	void FixedUpdate(seconds dt) override;
-
-private:
-	SceneManager& sceneManager_;
-
-	std::string filepath_ = "";
-
-	std::vector<std::string> scenesPaths_;
-	unsigned selectedSceneIndex_ = 0;
-	bool toSave_                 = false;
+protected:
+	std::mutex updateMutex_;
 };
-}    // namespace neko::aer
+}    // namespace neko::dev

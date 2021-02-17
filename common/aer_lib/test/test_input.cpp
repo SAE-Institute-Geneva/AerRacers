@@ -34,7 +34,7 @@
 	#include "sdl_engine/sdl_input.h"
 
 	#include "aer/aer_engine.h"
-	#include "aer/inputs_binding_manager.h"
+	#include "aer/managers/inputs_binding_manager.h"
 
 namespace neko::aer
 {

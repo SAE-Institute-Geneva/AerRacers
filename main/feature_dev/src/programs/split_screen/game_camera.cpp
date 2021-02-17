@@ -1,0 +1,99 @@
+#include "programs/split_screen/game_camera.h"
+
+namespace neko::dev
+{
+//-----------------------------------------------------------------------------
+// GameCamera
+//-----------------------------------------------------------------------------
+void GameCamera::Init()
+{
+	for (auto& camera : cameras_)
+	{
+		camera.Init();
+		camera.mouseSpeed = 100.0f;
+	}
+}
+
+void GameCamera::Update(const seconds dt)
+{
+	const auto& inputManager = sdl::InputLocator::get();
+	for (std::size_t i = 0; i < cameras_.size(); ++i)
+	{
+		// Query left joystick movement
+		const float xMove =
+			inputManager.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS);
+		const float zMove =
+			inputManager.GetControllerAxis(i, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS);
+		const Vec3f right = cameras_[i].GetRight();
+
+		Vec3f move {};
+		move += right * xMove * dt.count();
+		move += cameras_[i].reverseDirection * zMove * dt.count();
+
+		// Apply movement
+		if (inputManager.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_A) ==
+			sdl::ButtonState::HELD)
+			move += Vec3f::up * dt.count();
+		else if (inputManager.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) ==
+				 sdl::ButtonState::HELD)
+			move += Vec3f::down * dt.count();
+
+		// Turbo mode
+		const sdl::ButtonState buttonState =
+			inputManager.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_X);
+		if (buttonState == sdl::ButtonState::DOWN)
+			cameras_[i].position += move * cameras_[i].moveSpeed * 5.0f;
+		else
+			cameras_[i].position += move * cameras_[i].moveSpeed;
+
+		// Rotation
+		const float xCamera =
+			inputManager.GetControllerAxis(i, sdl::ControllerAxisType::VERTICAL_RIGHT_AXIS);
+		const float yCamera =
+			inputManager.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_RIGHT_AXIS);
+		cameras_[i].Rotate(EulerAngles(degree_t(xCamera * cameras_[i].mouseSpeed * dt.count()),
+			degree_t(yCamera * cameras_[i].mouseSpeed * dt.count()),
+			degree_t(0.0f)));
+	}
+}
+
+void GameCamera::SetPosition(const Vec3f& position)
+{
+	for (auto& camera : cameras_)
+		camera.position = position;
+}
+
+void GameCamera::SetPosition(const Vec3f& position, std::size_t playerNum)
+{
+	cameras_[playerNum].position = position;
+}
+
+void GameCamera::SetAspect(float aspect)
+{
+	for (auto& camera : cameras_)
+		camera.SetAspect(aspect);
+}
+
+void GameCamera::SetAspect(float windowSizeX, float windowSize)
+{
+	for (auto& camera : cameras_)
+		camera.SetAspect(windowSizeX, windowSize);
+}
+
+void GameCamera::SetAspect(Vec2u windowSize)
+{
+	for (auto& camera : cameras_)
+		camera.SetAspect(windowSize.x, windowSize.y);
+}
+
+void GameCamera::WorldLookAt(const Vec3f& position)
+{
+	for (auto& camera : cameras_)
+		camera.WorldLookAt(position);
+}
+
+void GameCamera::WorldLookAt(const Vec3f& position, std::size_t playerNum)
+{
+	cameras_[playerNum].WorldLookAt(position);
+}
+}

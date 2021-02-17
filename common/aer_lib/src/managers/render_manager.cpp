@@ -43,6 +43,7 @@ void RenderManager::Init()
 		{
 			shader_.LoadFromFile(config.dataRootPath + "shaders/opengl/light.vert",
 				config.dataRootPath + "shaders/opengl/light.frag");
+			shader_.BindUbo(2 * sizeof (Mat4f));
 		}};
 
 	RendererLocator::get().AddPreRenderJob(&preRender_);
@@ -54,8 +55,6 @@ void RenderManager::Update(seconds)
     EASY_BLOCK("RenderManager::Update", profiler::colors::Brown);
 #endif
 	dirtyManager_.UpdateDirtyEntities();
-
-	RendererLocator::get().Render(this);
 }
 
 void RenderManager::Render()
@@ -72,12 +71,6 @@ void RenderManager::Render()
 	shader_.Bind();
 
 	const auto& camera = CameraLocator::get();
-	const Mat4f camView = camera.GenerateViewMatrix();
-	const Mat4f camProj = camera.GenerateProjectionMatrix();
-
-	shader_.SetMat4("view", camView);
-	shader_.SetMat4("proj", camProj);
-
 	shader_.SetVec3("viewPos", camera.position);
 	//TODO find a way to cleanly implement lighting
 	/*shader_.SetUInt("lightType", lightType_);
@@ -144,7 +137,7 @@ void RenderManager::UpdateDirtyComponent(Entity entity)
 	ComponentManager::UpdateDirtyComponent(entity);
 }
 
-void RenderManager::OnChangeParent(Entity entity, Entity newParent, Entity oldParent) {}
+void RenderManager::OnChangeParent(Entity, Entity, Entity) {}
 
 RendererViewer::RendererViewer(EntityManager& entityManager, RenderManager& renderManager) : ComponentViewer(entityManager), rendererManager_(renderManager)
 {

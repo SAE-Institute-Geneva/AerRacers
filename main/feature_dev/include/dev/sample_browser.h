@@ -21,52 +21,54 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
+ */
+#include <memory>
+#include <vector>
 
- Author : Guillaume Jeannin
- Co-Author : Floreau Luca
- Date : 13.10.2020
----------------------------------------------------------- */
-#include "aer/editor/editor_tool_interface.h"
+#include <SDL_events.h>
 
-namespace neko::aer
+#include "sdl_engine/sdl_engine.h"
+
+#include "dev/sample_program.h"
+
+namespace neko::dev
 {
-constexpr std::uint8_t MaxTagSize = 128;
+constexpr ImGuiDockNodeFlags DockspaceFlags = ImGuiDockNodeFlags_NoDockingInCentralNode |
+                                              ImGuiDockNodeFlags_AutoHideTabBar |
+                                              ImGuiDockNodeFlags_PassthruCentralNode;
 
-class Inspector final : public EditorToolInterface
+/// Class used to switch between the different tests
+class SampleBrowser : public SystemInterface,
+					  public DrawImGuiInterface,
+					  public sdl::SdlEventSystemInterface
 {
 public:
-	explicit Inspector(AerEngine& engine, ToolType type, int id, std::string name);
+	/// Executed on the render thread
 	void Init() override;
+
+	/// Executed on the main thread
 	void Update(seconds dt) override;
+
+	/// Executed on the render thread
 	void DrawImGui() override;
+
+	/// Executed on the render thread
 	void Destroy() override;
+
+	/// Executed on the render thread
+	void SwitchToProgram(size_t index);
+
+	/// Executed on the main thread
 	void OnEvent(const SDL_Event& event) override;
 
-private:
-	void DisplayLayersAndTags(Entity selectedEntity);
-	void DisplayNewComponentButtons(Entity selectedEntity);
+protected:
+	/// Adds a program to the list
+	size_t RegisterRenderProgram(std::string_view name, std::unique_ptr<SampleProgram> program);
 
-	EditorToolManager& editorToolManager_;
-	EntityManager& entityManager_;
-	Transform3dManager& transform3dManager_;
-	RenderManager& renderManager_;
-	physics::RigidDynamicManager& rigidDynamicManager_;
-	physics::RigidStaticManager& rigidStaticManager_;
-	Transform3dViewer& transform3dViewer_;
-	RendererViewer& rendererViewer_;
-	physics::RigidDynamicViewer& rigidDynamicViewer_;
-	physics::RigidStaticViewer& rigidStaticViewer_;
+	ImGuiID dockspaceId_;
 
-	std::string layer_;
-	std::string tag_;
-	std::string newLayer_    = "";
-	std::string newTag_      = "";
-	const char* currentItem_ = NULL;
+	size_t currentProgramIndex_ = 0;
+	std::vector<std::unique_ptr<SampleProgram>> programs_;
+	std::vector<std::string> programsNames_;
 };
-}    // namespace neko::aer
-
-namespace ImGui
-{
-static int InputTextCallback(ImGuiInputTextCallbackData* data);
-bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags);
-}
+}    // namespace neko::dev

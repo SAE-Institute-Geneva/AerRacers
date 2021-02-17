@@ -22,55 +22,38 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 
- Author : Floreau Luca
+ Author : Simon Canas
  Co-Author :
- Date : 29.09.2020
+ Date : 16.02.2021
 ---------------------------------------------------------- */
+#include "px/physics_engine.h"
+#include "sdl_engine/sdl_engine.h"
 
-#include "sdl_engine/sdl_camera.h"
+#include "aer/draw_system.h"
+#include "aer/managers/inputs_binding_manager.h"
+#include "aer/log.h"
+#include "aer/managers/manager_container.h"
 
-#include "aer/editor/editor_tool_manager.h"
-#include "aer/game/game_camera.h"
-#include "aer/gizmos_renderer.h"
-#include "aer/scene.h"
+#include "dev/sample_browser.h"
 
-namespace neko::aer
+namespace neko::dev
 {
-class AerEngine;
 struct ResourceManagerContainer;
 struct ComponentManagerContainer;
 
-constexpr std::uint8_t MaxPlayerNum = 4;
-
-class DrawSystem final : public SystemInterface,
-						 public sdl::SdlEventSystemInterface,
-						 public RenderCommandInterface,
-						 public DrawImGuiInterface
+/// Base engine
+class DevEngine final : public sdl::SdlEngine
 {
 public:
-	explicit DrawSystem(AerEngine& engine);
+	explicit DevEngine(const FilesystemInterface& filesystem, Configuration* config = nullptr);
 
 	void Init() override;
-	void DrawImGui() override;
-	void Update(seconds dt) override;
-	void Render() override;
 	void Destroy() override;
 
-	void OnEvent(const SDL_Event& event) override;
+	void ManageEvent() override;
+	void GenerateUiFrame() override;
 
 private:
-	void RenderScene(std::size_t playerNum);
-
-	GameCamera camera_;
-	AerEngine& engine_;
-
-	ResourceManagerContainer& rContainer_;
-	ComponentManagerContainer& cContainer_;
-
-#ifdef NEKO_GLES3
-	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
-#endif
-
-	std::uint8_t playerNum_ = 4;
+	SampleBrowser sampleBrowser_;
 };
-}    // namespace neko::aer
+}    // namespace neko::dev

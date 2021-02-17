@@ -22,55 +22,43 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 
- Author : Floreau Luca
+ Author : Simon Canas
  Co-Author :
- Date : 29.09.2020
+ Date : 16.02.2021
 ---------------------------------------------------------- */
+#include "dev/sample_program.h"
 
-#include "sdl_engine/sdl_camera.h"
+#include "gl/shader.h"
+#include "gl/shape.h"
+#include "graphics/graphics.h"
+#include "programs/split_screen/game_camera.h"
 
-#include "aer/editor/editor_tool_manager.h"
-#include "aer/game/game_camera.h"
-#include "aer/gizmos_renderer.h"
-#include "aer/scene.h"
-
-namespace neko::aer
+namespace neko::dev
 {
-class AerEngine;
-struct ResourceManagerContainer;
-struct ComponentManagerContainer;
-
 constexpr std::uint8_t MaxPlayerNum = 4;
 
-class DrawSystem final : public SystemInterface,
-						 public sdl::SdlEventSystemInterface,
-						 public RenderCommandInterface,
-						 public DrawImGuiInterface
+///Test for the split screen implementation
+class SplitScreen : public SampleProgram
 {
 public:
-	explicit DrawSystem(AerEngine& engine);
-
 	void Init() override;
-	void DrawImGui() override;
 	void Update(seconds dt) override;
+	void DrawImGui() override;
 	void Render() override;
 	void Destroy() override;
 
 	void OnEvent(const SDL_Event& event) override;
 
 private:
-	void RenderScene(std::size_t playerNum);
+	void RenderScene() const;
+
+	seconds timeSinceInit_ = seconds(0.0f);
 
 	GameCamera camera_;
-	AerEngine& engine_;
 
-	ResourceManagerContainer& rContainer_;
-	ComponentManagerContainer& cContainer_;
+	gl::Shader shader_;
+	gl::RenderCuboid cube_{Vec3f::zero, Vec3f::one};
 
-#ifdef NEKO_GLES3
-	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
-#endif
-
-	std::uint8_t playerNum_ = 4;
+	std::uint8_t playerNum_ = MaxPlayerNum;
 };
-}    // namespace neko::aer
+}    // namespace neko::dev

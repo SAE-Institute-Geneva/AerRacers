@@ -27,6 +27,7 @@
  Date : 03.11.2020
 ---------------------------------------------------------- */
 #include "engine/entity.h"
+
 #include "aer/editor/editor_tool_interface.h"
 
 namespace neko::aer
@@ -48,33 +49,32 @@ public:
 
 	// Adds a tool in the EditorToolManager and instantiates it
 	template<typename T, EditorToolInterface::ToolType Type>
-    void AddEditorTool();
+	void AddEditorTool();
 
 	// Get the number of tool
 	int GetNumberTools() const;
 
 	Entity GetSelectedEntity() const;
-    void SetSelectedEntity(const Entity selectedEntity);
+	void SetSelectedEntity(const Entity selectedEntity);
 
 private:
 	// Displays the list of tools in the main menu
-    void DrawList();
-    Entity selectedEntity_ = INVALID_ENTITY;
-    bool showDemo_          = false;
+	void DrawList();
+	Entity selectedEntity_ = INVALID_ENTITY;
+	bool showDemo_         = false;
 	AerEngine& engine_;
-    std::vector<std::unique_ptr<EditorToolInterface>> tools_;
-    ComponentManagerContainer& cContainer_;
-	static const ImGuiDockNodeFlags dockspaceFlags_ =
-		ImGuiDockNodeFlags_NoDockingInCentralNode |
-		ImGuiDockNodeFlags_AutoHideTabBar |
-		ImGuiDockNodeFlags_PassthruCentralNode;
+	std::vector<std::unique_ptr<EditorToolInterface>> tools_;
+	ComponentManagerContainer& cContainer_;
+	static const ImGuiDockNodeFlags dockspaceFlags_ = ImGuiDockNodeFlags_NoDockingInCentralNode |
+	                                                  ImGuiDockNodeFlags_AutoHideTabBar |
+	                                                  ImGuiDockNodeFlags_PassthruCentralNode;
 
 	std::string toolNames_[5] {
 		"Tool",
 		"Logger",
-        "Hierarchy",
-    	"Inspector",
-	    "Scene Loader"
+		"Hierarchy",
+		"Inspector",
+		"Scene Loader",
 	};
 };
-}
+}    // namespace neko::aer

@@ -55,6 +55,7 @@ struct MovableCamera2D final : neko::Camera2D, MovableCamera
 struct MovableCamera3D : neko::Camera3D, public MovableCamera
 {
 	MovableCamera3D& operator=(const MovableCamera3D& other);
+	MovableCamera3D& operator=(const Camera3D& other);
 
 	void Init() override { Camera::Init(); }
 	void Update(seconds dt) override;

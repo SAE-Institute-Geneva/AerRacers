@@ -1,4 +1,4 @@
-#include "aer/inputs_binding_manager.h"
+#include "aer/managers/inputs_binding_manager.h"
 
 #include "aer/log.h"
 

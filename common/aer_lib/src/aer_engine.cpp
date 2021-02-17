@@ -9,9 +9,9 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
    : SdlEngine(filesystem, *config),
 	 mode_(mode),
 	 drawSystem_(*this),
+	 physicsEngine_(cContainer_.entityManager, cContainer_.transform3dManager),
 	 cContainer_(rContainer_, physicsEngine_),
-	 toolManager_(*this),
-	 physicsEngine_(cContainer_.entityManager, cContainer_.transform3dManager)
+	 toolManager_(*this)
 {
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("AerEngine::Constructor");

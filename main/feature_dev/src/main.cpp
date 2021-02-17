@@ -1,4 +1,3 @@
-#pragma once
 /* ----------------------------------------------------
  MIT License
 
@@ -22,55 +21,29 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 
- Author : Floreau Luca
+ Author : Simon Canas
  Co-Author :
- Date : 29.09.2020
+ Date : 16.02.2021
 ---------------------------------------------------------- */
+#include "gl/graphics.h"
+#include "gl/gles3_window.h"
 
-#include "sdl_engine/sdl_camera.h"
+#include "dev/dev_engine.h"
 
-#include "aer/editor/editor_tool_manager.h"
-#include "aer/game/game_camera.h"
-#include "aer/gizmos_renderer.h"
-#include "aer/scene.h"
-
-namespace neko::aer
+int main(int, char**)
 {
-class AerEngine;
-struct ResourceManagerContainer;
-struct ComponentManagerContainer;
+	neko::Configuration config;
+	config.windowName   = "Feature Development Lab";
+	config.windowSize   = neko::Vec2u(1280, 720);
 
-constexpr std::uint8_t MaxPlayerNum = 4;
+	neko::sdl::Gles3Window window;
+	neko::gl::Gles3Renderer renderer;
+	neko::Filesystem filesystem;
+	neko::dev::DevEngine engine(filesystem, &config);
 
-class DrawSystem final : public SystemInterface,
-						 public sdl::SdlEventSystemInterface,
-						 public RenderCommandInterface,
-						 public DrawImGuiInterface
-{
-public:
-	explicit DrawSystem(AerEngine& engine);
+	engine.SetWindowAndRenderer(&window, &renderer);
 
-	void Init() override;
-	void DrawImGui() override;
-	void Update(seconds dt) override;
-	void Render() override;
-	void Destroy() override;
-
-	void OnEvent(const SDL_Event& event) override;
-
-private:
-	void RenderScene(std::size_t playerNum);
-
-	GameCamera camera_;
-	AerEngine& engine_;
-
-	ResourceManagerContainer& rContainer_;
-	ComponentManagerContainer& cContainer_;
-
-#ifdef NEKO_GLES3
-	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
-#endif
-
-	std::uint8_t playerNum_ = 4;
-};
-}    // namespace neko::aer
+    engine.Init();
+	engine.EngineLoop();
+	return 0;
+}

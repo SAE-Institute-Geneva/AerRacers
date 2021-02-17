@@ -1,76 +1,59 @@
-#include "aer/draw_system.h"
+#include "programs/split_screen/split_screen.h"
 
-#include "imgui.h"
+#include "engine/engine.h"
+#include "engine/log.h"
 
-#ifdef EASY_PROFILE_USE
-	#include <easy/profiler.h>
-#endif
-
-namespace neko::aer
+namespace neko::dev
 {
-DrawSystem::DrawSystem(AerEngine& engine)
-   : engine_(engine),
-	 rContainer_(engine.GetResourceManagerContainer()),
-	 cContainer_(engine.GetComponentManagerContainer())
+void SplitScreen::Init()
 {
-	engine.RegisterSystem(camera_);
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
+	shader_.LoadFromFile(config.dataRootPath + "shaders/opengl/base.vert",
+	                     config.dataRootPath + "shaders/opengl/base.frag");
+	shader_.BindUbo(2 * sizeof(Mat4f));
+	cube_.Init();
 
-#ifdef NEKO_GLES3
-	gizmosRenderer_ = std::make_unique<GizmoRenderer>(&camera_.GetCamera(0));
-#endif
+	camera_.Init();
+	camera_.SetPosition(Vec3f::one * 3.0f, 0);
+	camera_.SetPosition(Vec3f::right * 3.0f, 1);
+	camera_.SetPosition(Vec3f::one * 3.0f + Vec3f::left, 2);
+	camera_.SetPosition(Vec3f::down * 3.0f + Vec3f::back, 3);
+	camera_.WorldLookAt(Vec3f::zero);
 
-	engine.RegisterSystem(*gizmosRenderer_);
+	glEnable(GL_DEPTH_TEST);
+	glCheckError();
 }
 
-void DrawSystem::Init()
+void SplitScreen::Update(seconds dt)
 {
-#ifdef EASY_PROFILE_USE
-    EASY_BLOCK("DrawSystem::Init");
-#endif
-	Camera3D camera;
-	camera.position         = Vec3f::forward * 2.0f;
-	camera.reverseDirection = Vec3f::forward;
-	camera.fovY             = degree_t(45.0f);
-	camera.nearPlane        = 0.1f;
-	camera.farPlane         = 100.0f;
-	camera_.SetCameras(camera);
+	std::lock_guard<std::mutex> lock(updateMutex_);
+	timeSinceInit_ += dt;
 
-	gizmosRenderer_->SetCamera(&camera_.GetCamera(0));
+	camera_.Update(dt);
 }
 
-void DrawSystem::Update(seconds)
+void SplitScreen::Render()
 {
-#ifdef EASY_PROFILE_USE
-    EASY_BLOCK("DrawSystem::Update");
-#endif
-
-	RendererLocator::get().Render(this);
-}
-
-void DrawSystem::Render()
-{
-#ifdef EASY_PROFILE_USE
-    EASY_BLOCK("DrawSystem::Render");
-#endif
+	std::lock_guard<std::mutex> lock(updateMutex_);
 
 	const auto& size = BasicEngine::GetInstance()->GetConfig().windowSize;
 	switch (playerNum_)
 	{
 		case 1:
 		{
-			camera_.SetAspects(size.x, size.y);
+			camera_.SetAspect(size.x, size.y);
 
 			const Mat4f camProj = camera_.GenerateProjectionMatrix(0);
 			const Mat4f camView = camera_.GenerateViewMatrix(0);
 			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
 			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(0, 0, size.x, size.y);
-			RenderScene(0);
+			RenderScene();
 			break;
 		}
 		case 2:
 		{
-			camera_.SetAspects(size.x / 2.0f, size.y);
+			camera_.SetAspect(size.x / 2.0f, size.y);
 
 			// Left
 			Mat4f camProj = camera_.GenerateProjectionMatrix(0);
@@ -78,7 +61,7 @@ void DrawSystem::Render()
 			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
 			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(0, 0, size.x / 2.0f, size.y);
-			RenderScene(0);
+			RenderScene();
 
 			// Right
 			camProj = camera_.GenerateProjectionMatrix(1);
@@ -86,12 +69,12 @@ void DrawSystem::Render()
 			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
 			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(size.x / 2.0f, 0, size.x / 2.0f, size.y);
-			RenderScene(1);
+			RenderScene();
 			break;
 		}
 		case 3:
 		{
-			camera_.SetAspects(size.x / 2.0f, size.y / 2.0f);
+			camera_.SetAspect(size.x / 2.0f, size.y / 2.0f);
 
 			// Top Left
 			Mat4f camProj = camera_.GenerateProjectionMatrix(0);
@@ -99,7 +82,7 @@ void DrawSystem::Render()
 			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
 			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(0, size.y / 2.0f, size.x / 2.0f, size.y / 2.0f);
-			RenderScene(0);
+			RenderScene();
 
 			// Top Right
 			camProj = camera_.GenerateProjectionMatrix(1);
@@ -107,7 +90,7 @@ void DrawSystem::Render()
 			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
 			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(size.x / 2.0f, size.y / 2.0f, size.x / 2.0f, size.y / 2.0f);
-			RenderScene(1);
+			RenderScene();
 
 			// Bottom Left
 			camProj = camera_.GenerateProjectionMatrix(2);
@@ -115,12 +98,12 @@ void DrawSystem::Render()
 			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
 			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(0, 0, size.x / 2.0f, size.y / 2.0f);
-			RenderScene(2);
+			RenderScene();
 			break;
 		}
 		case 4:
 		{
-			camera_.SetAspects(size.x / 2.0f, size.y / 2.0f);
+			camera_.SetAspect(size.x / 2.0f, size.y / 2.0f);
 
 			// Top Left
 			Mat4f camProj = camera_.GenerateProjectionMatrix(0);
@@ -128,7 +111,7 @@ void DrawSystem::Render()
 			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
 			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(0, size.y / 2.0f, size.x / 2.0f, size.y / 2.0f);
-			RenderScene(0);
+			RenderScene();
 
 			// Top Right
 			camProj = camera_.GenerateProjectionMatrix(1);
@@ -136,7 +119,7 @@ void DrawSystem::Render()
 			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
 			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(size.x / 2.0f, size.y / 2.0f, size.x / 2.0f, size.y / 2.0f);
-			RenderScene(1);
+			RenderScene();
 
 			// Bottom Left
 			camProj = camera_.GenerateProjectionMatrix(2);
@@ -144,7 +127,7 @@ void DrawSystem::Render()
 			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
 			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(0, 0, size.x / 2.0f, size.y / 2.0f);
-			RenderScene(2);
+			RenderScene();
 
 			// Bottom Right
 			camProj = camera_.GenerateProjectionMatrix(3);
@@ -152,35 +135,38 @@ void DrawSystem::Render()
 			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
 			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(size.x / 2.0f, 0, size.x / 2.0f, size.y / 2.0f);
-			RenderScene(3);
+			RenderScene();
 			break;
 		}
 		case 0:
 		default: LogError("Invalid Player number!!"); break;
 	}
-
-	gizmosRenderer_->Clear();
 }
 
-void DrawSystem::RenderScene(const std::size_t playerNum)
+void SplitScreen::Destroy() {}
+
+void SplitScreen::DrawImGui()
 {
-#ifdef EASY_PROFILE_USE
-	EASY_BLOCK("DrawSystem::RenderScene");
-#endif
-
-	auto& cManagerContainer = engine_.GetComponentManagerContainer();
-	cManagerContainer.renderManager.Render();
-
-	gizmosRenderer_->SetCamera(&camera_.GetCamera(playerNum));
-	gizmosRenderer_->Render();
+	using namespace ImGui;
+	Begin("Parameters");
+	{
+		PushItemWidth(-1);
+		Text("Player Number"); SameLine();
+		DragInt("##playerNum_", reinterpret_cast<int*>(&playerNum_), 0.05f, 1, 4);
+		PopItemWidth();
+	}
+	End();
 }
 
-void DrawSystem::Destroy() {}
-
-void DrawSystem::DrawImGui() {}
-
-void DrawSystem::OnEvent(const SDL_Event& event)
+void SplitScreen::OnEvent(const SDL_Event& event)
 {
 	camera_.OnEvent(event);
 }
-}    // namespace neko::aer
+
+void SplitScreen::RenderScene() const
+{
+	shader_.Bind();
+	shader_.SetMat4("model", Mat4f::Identity);
+	cube_.Draw();
+}
+}    // namespace neko::dev

@@ -22,55 +22,41 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 
- Author : Floreau Luca
+ Author : Simon Canas
  Co-Author :
- Date : 29.09.2020
+ Date : 16.02.2021
 ---------------------------------------------------------- */
-
 #include "sdl_engine/sdl_camera.h"
 
-#include "aer/editor/editor_tool_manager.h"
-#include "aer/game/game_camera.h"
-#include "aer/gizmos_renderer.h"
-#include "aer/scene.h"
+#include "graphics/camera.h"
 
-namespace neko::aer
+namespace neko::dev
 {
-class AerEngine;
-struct ResourceManagerContainer;
-struct ComponentManagerContainer;
-
-constexpr std::uint8_t MaxPlayerNum = 4;
-
-class DrawSystem final : public SystemInterface,
-						 public sdl::SdlEventSystemInterface,
-						 public RenderCommandInterface,
-						 public DrawImGuiInterface
+struct GameCamera : SystemInterface, sdl::SdlEventSystemInterface
 {
 public:
-	explicit DrawSystem(AerEngine& engine);
-
 	void Init() override;
-	void DrawImGui() override;
 	void Update(seconds dt) override;
-	void Render() override;
-	void Destroy() override;
+	void Destroy() override {}
 
-	void OnEvent(const SDL_Event& event) override;
+	void OnEvent(const SDL_Event& event) override {}
+
+	Mat4f GenerateViewMatrix(std::size_t playerNum)
+	{ return cameras_[playerNum].GenerateViewMatrix(); }
+	Mat4f GenerateProjectionMatrix(std::size_t playerNum)
+	{ return cameras_[playerNum].GenerateProjectionMatrix(); }
+
+	void SetPosition(const Vec3f& position);
+	void SetPosition(const Vec3f& position, std::size_t playerNum);
+
+	void SetAspect(float aspect);
+	void SetAspect(float windowSizeX, float windowSize);
+	void SetAspect(Vec2u windowSize);
+
+	void WorldLookAt(const Vec3f& position);
+	void WorldLookAt(const Vec3f& position, std::size_t playerNum);
 
 private:
-	void RenderScene(std::size_t playerNum);
-
-	GameCamera camera_;
-	AerEngine& engine_;
-
-	ResourceManagerContainer& rContainer_;
-	ComponentManagerContainer& cContainer_;
-
-#ifdef NEKO_GLES3
-	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
-#endif
-
-	std::uint8_t playerNum_ = 4;
+	std::array<sdl::MovableCamera3D, 4> cameras_;
 };
-}    // namespace neko::aer
+}

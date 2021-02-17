@@ -21,39 +21,23 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
+ */
 
- Author : Floreau Luca
- Co-Author :
- Date : 22.01.2021
----------------------------------------------------------- */
-#include "px/physics_callbacks.h"
+#ifdef NEKO_GLES3
+#include "gl/gles3_include.h"
+#include "SDL.h"
+#include "imgui.h"
+#include "mathematics/matrix.h"
+#include "mathematics/transform.h"
+#include "engine/entity.h"
+#include "engine/transform.h"
+#include "gl/model.h"
+#include "gl/shape.h"
+#include "gl/shader.h"
+#include "gl/texture.h"
+#include "sdl_engine/sdl_camera.h"
+#endif
 
-#include "aer/editor/editor_tool_interface.h"
-
-namespace neko::aer
-{
-class SceneManager;
-
-class SceneLoader final : public EditorToolInterface, public physics::FixedUpdateInterface
-{
-public:
-	explicit SceneLoader(AerEngine& engine, ToolType type, int id, std::string name);
-	void Init() override;
-	void Update(seconds dt) override;
-	void DrawImGui() override;
-	void LoadSceneFiles();
-	void Destroy() override;
-	void OnEvent(const SDL_Event& event) override;
-
-	void FixedUpdate(seconds dt) override;
-
-private:
-	SceneManager& sceneManager_;
-
-	std::string filepath_ = "";
-
-	std::vector<std::string> scenesPaths_;
-	unsigned selectedSceneIndex_ = 0;
-	bool toSave_                 = false;
-};
-}    // namespace neko::aer
+#ifdef EASY_PROFILE_USE
+#include "easy/profiler.h"
+#endif
