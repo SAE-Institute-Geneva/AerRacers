@@ -9,7 +9,7 @@ void SplitScreen::Init()
 {
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	shader_.LoadFromFile(config.dataRootPath + "shaders/opengl/base.vert",
-	                     config.dataRootPath + "shaders/opengl/base.frag");
+		config.dataRootPath + "shaders/opengl/base.frag");
 	shader_.BindUbo(2 * sizeof(Mat4f));
 	cube_.Init();
 
@@ -18,7 +18,7 @@ void SplitScreen::Init()
 	camera_.SetPosition(Vec3f::right * 3.0f, 1);
 	camera_.SetPosition(Vec3f::one * 3.0f + Vec3f::left, 2);
 	camera_.SetPosition(Vec3f::down * 3.0f + Vec3f::back, 3);
-	camera_.WorldLookAt(Vec3f::zero);
+	camera_.WorldAllLookAt(Vec3f::zero);
 
 	glEnable(GL_DEPTH_TEST);
 	glCheckError();
@@ -41,7 +41,7 @@ void SplitScreen::Render()
 	{
 		case 1:
 		{
-			camera_.SetAspect(size.x, size.y);
+			camera_.SetAspects(size.x, size.y);
 
 			const Mat4f camProj = camera_.GenerateProjectionMatrix(0);
 			const Mat4f camView = camera_.GenerateViewMatrix(0);
@@ -53,7 +53,7 @@ void SplitScreen::Render()
 		}
 		case 2:
 		{
-			camera_.SetAspect(size.x / 2.0f, size.y);
+			camera_.SetAspects(size.x / 2.0f, size.y);
 
 			// Left
 			Mat4f camProj = camera_.GenerateProjectionMatrix(0);
@@ -74,7 +74,7 @@ void SplitScreen::Render()
 		}
 		case 3:
 		{
-			camera_.SetAspect(size.x / 2.0f, size.y / 2.0f);
+			camera_.SetAspects(size.x / 2.0f, size.y / 2.0f);
 
 			// Top Left
 			Mat4f camProj = camera_.GenerateProjectionMatrix(0);
@@ -103,7 +103,7 @@ void SplitScreen::Render()
 		}
 		case 4:
 		{
-			camera_.SetAspect(size.x / 2.0f, size.y / 2.0f);
+			camera_.SetAspects(size.x / 2.0f, size.y / 2.0f);
 
 			// Top Left
 			Mat4f camProj = camera_.GenerateProjectionMatrix(0);
@@ -151,17 +151,15 @@ void SplitScreen::DrawImGui()
 	Begin("Parameters");
 	{
 		PushItemWidth(-1);
-		Text("Player Number"); SameLine();
+		Text("Player Number");
+		SameLine();
 		DragInt("##playerNum_", reinterpret_cast<int*>(&playerNum_), 0.05f, 1, 4);
 		PopItemWidth();
 	}
 	End();
 }
 
-void SplitScreen::OnEvent(const SDL_Event& event)
-{
-	camera_.OnEvent(event);
-}
+void SplitScreen::OnEvent(const SDL_Event& event) { camera_.OnEvent(event); }
 
 void SplitScreen::RenderScene() const
 {

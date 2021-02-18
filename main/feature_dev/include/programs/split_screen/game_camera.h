@@ -32,6 +32,7 @@
 
 namespace neko::dev
 {
+/// Contains one camera for each player
 struct GameCamera : SystemInterface, sdl::SdlEventSystemInterface
 {
 public:
@@ -39,24 +40,49 @@ public:
 	void Update(seconds dt) override;
 	void Destroy() override {}
 
-	void OnEvent(const SDL_Event& event) override {}
+	void OnEvent(const SDL_Event &event) override;
 
+	/// Creates the view matrix for the specified camera
 	Mat4f GenerateViewMatrix(std::size_t playerNum)
 	{ return cameras_[playerNum].GenerateViewMatrix(); }
+
+	/// Creates the projection matrix for the specified camera
 	Mat4f GenerateProjectionMatrix(std::size_t playerNum)
 	{ return cameras_[playerNum].GenerateProjectionMatrix(); }
 
-	void SetPosition(const Vec3f& position);
+	/// Returns the specified camera
+	Camera3D& GetCamera(std::size_t playerNum) { return cameras_[playerNum]; }
+
+	/// Sets all player cameras from the given Camera3D
+	void SetCameras(const Camera3D& newCam);
+
+	/// Sets one player camera from the given Camera3D
+	void SetCamera(const Camera3D& camera, std::size_t playerNum) { cameras_[playerNum] = camera; }
+
+	/// Sets the position for all cameras
+	void SetPositions(const Vec3f& position);
+
+	/// Sets the position for one camera
 	void SetPosition(const Vec3f& position, std::size_t playerNum);
 
-	void SetAspect(float aspect);
-	void SetAspect(float windowSizeX, float windowSize);
-	void SetAspect(Vec2u windowSize);
+	/// Sets the aspect ratio for all cameras
+	void SetAspects(float aspect);
 
-	void WorldLookAt(const Vec3f& position);
+	/// Sets the aspect ratio for all cameras
+	void SetAspects(float windowSizeX, float windowSize);
+
+	/// Sets the aspect ratio for all cameras
+	void SetAspects(Vec2u windowSize);
+
+	/// Points all cameras to the specified position (world-space)
+	void WorldAllLookAt(const Vec3f& position);
+
+	/// Points a camera to the specified position (world-space)
 	void WorldLookAt(const Vec3f& position, std::size_t playerNum);
 
 private:
+	Vec2f mouseMotion_;
+
 	std::array<sdl::MovableCamera3D, 4> cameras_;
 };
 }
