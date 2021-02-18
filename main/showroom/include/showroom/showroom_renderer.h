@@ -132,7 +132,7 @@ private:
     void CreateDockableWindow();
     void DrawImGuizmo();
     void DrawMenuBar();
-    void DrawInfoBar();
+    void DrawInfoBar() const;
     void DrawSceneHierarchy();
     void DrawPropertiesWindow();
     void DrawToolWindow();
@@ -140,7 +140,7 @@ private:
     //Tool Window
     void DrawLightTransform();
     void DrawModelTransform();
-    void DrawMeshTransform(sr::Mesh& mesh);
+    void DrawMeshTransform(sr::Mesh& mesh) const;
 
     //Scene Window
     void DrawMeshImGui(sr::Mesh& mesh);
