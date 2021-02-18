@@ -52,41 +52,41 @@ void ShipInputManager::Update(seconds dt)
 
 	case Gesture::TurnLeftForward:
 		thruster_ = intensity;
-		rudder_ = -intensity * (turnIntensity * 2);
+		rudder_ = intensity * (turnIntensity * 2);
 		currentGestureName = "turnleftforward";
 		break;
 
 	case Gesture::TurnLeftBackward:
 		thruster_ = -intensity * 0.25f;
-		rudder_ = -intensity * (turnIntensity * 0.5f);
+		rudder_ = intensity * (turnIntensity * 0.5f);
 		currentGestureName = "turnlefbackward";
 
 		break;
 
 	case Gesture::TurnRightForward:
 		thruster_ = intensity;
-		rudder_ = intensity * (turnIntensity * 2);
+		rudder_ = -intensity * (turnIntensity * 2);
 		currentGestureName = "turnrightforward";
 
 		break;
 
 	case Gesture::TurnRightBackward:
 		thruster_ = -intensity * .25f;
-		rudder_ = intensity * (turnIntensity * 0.5f);
+		rudder_ = -intensity * (turnIntensity * 0.5f);
 		currentGestureName = "turnrightbackward";
 
 		break;
 
 	case Gesture::RotateLeft:
 		thruster_ = 0;
-		rudder_ = -intensity;
+		rudder_ = intensity;
 		currentGestureName = "rotateleft";
 
 		break;
 
 	case Gesture::RotateRight:
 		thruster_ = 0;
-		rudder_ = intensity;
+		rudder_ = -intensity;
 		currentGestureName = "rotateright";
 		break;
 
