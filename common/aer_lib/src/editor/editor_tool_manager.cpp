@@ -14,7 +14,7 @@ EditorToolManager::EditorToolManager(AerEngine& engine)
 
 void EditorToolManager::Init()
 {
-	ModeEnum mode = engine_.GetMode();
+    const ModeEnum mode = engine_.GetMode();
 	if (mode == ModeEnum::EDITOR)
 	{
 		AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
@@ -24,15 +24,17 @@ void EditorToolManager::Init()
 	}
 }
 
-void EditorToolManager::Update(seconds dt)
+void EditorToolManager::Update(const seconds dt)
 {
+	dt_ = dt;
+
 	for (auto& tool : tools_) tool->Update(dt);
 
 	Transform3dManager& transform3dManager            = cContainer_.transform3dManager;
 	EntityManager& entityManager                      = cContainer_.entityManager;
 	physics::RigidDynamicManager& rigidDynamicManager = cContainer_.rigidDynamicManager;
 	physics::RigidStaticManager& rigidStaticManager   = cContainer_.rigidStaticManager;
-	neko::IGizmoRenderer& gizmosLocator               = neko::GizmosLocator::get();
+	IGizmoRenderer& gizmosLocator               = GizmosLocator::get();
 	if (selectedEntity_ != INVALID_ENTITY)
 	{
 		gizmosLocator.DrawCube(transform3dManager.GetGlobalPosition(selectedEntity_),
@@ -43,16 +45,16 @@ void EditorToolManager::Update(seconds dt)
 	}
 
 	//Display Gizmo
-	for (neko::Entity entity = 0.0f; entity < entityManager.GetEntitiesSize(); entity++)
+	for (Entity entity = 0.0f; entity < entityManager.GetEntitiesSize(); entity++)
 	{
-		const neko::physics::RigidActor* rigidActor = nullptr;
+		const physics::RigidActor* rigidActor = nullptr;
 		if (entityManager.HasComponent(
-				entity, neko::EntityMask(neko::ComponentType::RIGID_DYNAMIC)))
+				entity, EntityMask(ComponentType::RIGID_DYNAMIC)))
 		{
 			rigidActor = &rigidDynamicManager.GetComponent(entity);
 		}
 		else if (entityManager.HasComponent(
-					 entity, neko::EntityMask(neko::ComponentType::RIGID_STATIC)))
+					 entity, EntityMask(ComponentType::RIGID_STATIC)))
 		{
 			rigidActor = &rigidStaticManager.GetComponent(entity);
 		}
@@ -61,36 +63,36 @@ void EditorToolManager::Update(seconds dt)
 			continue;
 		}
 
-		const neko::physics::ColliderType colliderType = rigidActor->GetColliderType();
+        const physics::ColliderType colliderType = rigidActor->GetColliderType();
         switch (colliderType)
-		{
-			case neko::physics::ColliderType::INVALID: break;
-			case neko::physics::ColliderType::BOX:
-			{
-				neko::physics::BoxColliderData boxColliderData = rigidActor->GetBoxColliderData();
-				gizmosLocator.DrawCube(
-					transform3dManager.GetGlobalPosition(entity) + boxColliderData.offset,
-					boxColliderData.size,
-					transform3dManager.GetGlobalRotation(entity),
-					boxColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
-					2.0f);
-			}
-			break;
-			case neko::physics::ColliderType::SPHERE:
-			{
-				neko::physics::SphereColliderData sphereColliderData =
-					rigidActor->GetSphereColliderData();
-				gizmosLocator.DrawSphere(
-					transform3dManager.GetGlobalPosition(entity) + sphereColliderData.offset,
-					sphereColliderData.radius,
-					transform3dManager.GetGlobalRotation(entity),
-					sphereColliderData.isTrigger ? neko::Color::yellow : neko::Color::green,
-					2.0f);
-			}
-			break;
-			default:;
-		}
-	}
+        {
+            case physics::ColliderType::INVALID: break;
+            case physics::ColliderType::BOX:
+                {
+                    physics::BoxColliderData boxColliderData = rigidActor->GetBoxColliderData();
+                    gizmosLocator.DrawCube(
+                        transform3dManager.GetGlobalPosition(entity) + boxColliderData.offset,
+                        boxColliderData.size,
+                        transform3dManager.GetGlobalRotation(entity),
+                        boxColliderData.isTrigger ? Color::yellow : Color::green,
+                        2.0f);
+                }
+                break;
+            case physics::ColliderType::SPHERE:
+                {
+                    physics::SphereColliderData sphereColliderData =
+                        rigidActor->GetSphereColliderData();
+                    gizmosLocator.DrawSphere(
+                        transform3dManager.GetGlobalPosition(entity) + sphereColliderData.offset,
+                        sphereColliderData.radius,
+                        transform3dManager.GetGlobalRotation(entity),
+                        sphereColliderData.isTrigger ? Color::yellow : Color::green,
+                        2.0f);
+                    break;
+                }
+            default: break;
+        }
+    }
 }
 
 void EditorToolManager::Destroy()
@@ -103,12 +105,12 @@ void EditorToolManager::Destroy()
 void EditorToolManager::DrawImGui()
 {
 	using namespace ImGui;
-	ImGuiIO io = ImGui::GetIO();
+	ImGuiIO io = GetIO();
 
 	ImGuiWindowFlags windowFlags =
 		ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBackground;
 
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGuiViewport* viewport = GetMainViewport();
 	SetNextWindowPos(viewport->GetWorkPos());
 	SetNextWindowSize(viewport->GetWorkSize());
 	SetNextWindowViewport(viewport->ID);
@@ -124,15 +126,15 @@ void EditorToolManager::DrawImGui()
 		PopStyleVar();
 		PopStyleVar(2);
 
-		ImGuiID dockspaceId = GetID("ShowroomDockSpace");
-		DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), dockspaceFlags_);
+        const ImGuiID dockspaceId = GetID("ShowroomDockSpace");
+		DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), kDockspaceFlags);
 
 		//Editor Menu
 		BeginMenuBar();
 		{
 			if (BeginMenu("Settings"))
 			{
-				if (ImGui::MenuItem("Show Demo")) showDemo_ = true;
+				if (MenuItem("Show Demo")) showDemo_ = true;
 				ImGui::EndMenu();
 			}
 
@@ -145,19 +147,25 @@ void EditorToolManager::DrawImGui()
 			SceneManager& sceneManager = engine_.GetComponentManagerContainer().sceneManager;
 			std::string sceneName      = sceneManager.GetCurrentScene().sceneName;
 			if (!sceneManager.GetCurrentScene().saved) { sceneName += "*"; }
-			ImGui::Text("%s", sceneName.c_str());
+			Text("%s", sceneName.c_str());
 
 			if (engine_.GetPhysicsEngine().IsPhysicRunning())
 			{
-				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 1.0f, 0.0f, 0.5f));
-				if (ImGui::Button("Physics active")) engine_.GetPhysicsEngine().StopPhysic();
+				PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 1.0f, 0.0f, 0.5f));
+				if (Button("Physics active")) engine_.GetPhysicsEngine().StopPhysic();
 			}
 			else
 			{
-				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.0f, 0.0f, 0.5f));
-				if (ImGui::Button("Physics inactive")) engine_.GetPhysicsEngine().StartPhysic();
+				PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.0f, 0.0f, 0.5f));
+				if (Button("Physics inactive")) engine_.GetPhysicsEngine().StartPhysic();
 			}
-			ImGui::PopStyleColor();
+			PopStyleColor();
+			
+            const auto fpsText = fmt::format("{:.0f} FPS", 1.0f / dt_.count());
+			const float spacing = GetStyle().ItemSpacing.x + GetStyle().FramePadding.x;
+			const float nextPos = GetWindowWidth() - CalcTextSize(fpsText.c_str()).x - spacing;
+			SetCursorPosX(nextPos);
+			Text("%s", fpsText.c_str());
 
 			EndMenuBar();
 		}
@@ -167,7 +175,7 @@ void EditorToolManager::DrawImGui()
 		End();
 	}
 
-	if (showDemo_) ImGui::ShowDemoWindow(&showDemo_);
+	if (showDemo_) ShowDemoWindow(&showDemo_);
 
 	for (auto& tool : tools_) tool->DrawImGui();
 }
@@ -203,4 +211,4 @@ void EditorToolManager::SetSelectedEntity(const Entity selectedEntity)
 {
 	selectedEntity_ = selectedEntity;
 }
-}    // namespace neko::aer
+}    // namespace aer

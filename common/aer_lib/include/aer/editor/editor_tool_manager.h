@@ -34,6 +34,11 @@ namespace neko::aer
 {
 struct ComponentManagerContainer;
 class AerEngine;
+
+constexpr ImGuiDockNodeFlags kDockspaceFlags = ImGuiDockNodeFlags_NoDockingInCentralNode |
+    ImGuiDockNodeFlags_AutoHideTabBar |
+    ImGuiDockNodeFlags_PassthruCentralNode;
+
 class EditorToolManager : public SystemInterface,
 						  public DrawImGuiInterface,
 						  public sdl::SdlEventSystemInterface
@@ -60,14 +65,16 @@ public:
 private:
 	// Displays the list of tools in the main menu
 	void DrawList();
+	
+	AerEngine& engine_;
+	ComponentManagerContainer& cContainer_;
+
+	seconds dt_;
+
 	Entity selectedEntity_ = INVALID_ENTITY;
 	bool showDemo_         = false;
-	AerEngine& engine_;
+
 	std::vector<std::unique_ptr<EditorToolInterface>> tools_;
-	ComponentManagerContainer& cContainer_;
-	static const ImGuiDockNodeFlags dockspaceFlags_ = ImGuiDockNodeFlags_NoDockingInCentralNode |
-	                                                  ImGuiDockNodeFlags_AutoHideTabBar |
-	                                                  ImGuiDockNodeFlags_PassthruCentralNode;
 
 	std::string toolNames_[5] {
 		"Tool",
