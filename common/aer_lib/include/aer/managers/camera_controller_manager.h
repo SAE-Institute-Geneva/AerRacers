@@ -12,7 +12,7 @@ namespace neko::aer
      * \brief Component used to control the ship movements.
      */
     struct CameraController {
-        int sprintStiffness = 1000;
+        int sprintStiffness = 10;
         float cameraMass = 0.1f;
         float forceLossPercentage = 0.5f;
 
@@ -85,6 +85,7 @@ namespace neko::aer
         Vec3f lookTargetRightPos_ = Vec3f(0, 6.85f, -9.58f);
         Vec3f lookTargetLeftPos_ = Vec3f(-1, 6.85f, -9.58f);
         Vec3f lookTargetNormalPos_ = Vec3f(0, 6.85f, -9.58f);
+        Vec3f targetPos_ = Vec3f(0, 2, -10);
 
         EulerAngles lookTargetRightRot_ = EulerAngles(0, 5, 0);
         EulerAngles lookTargetLeftRot_ = EulerAngles(0, -5, 0);

@@ -64,7 +64,8 @@ protected:
 	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
 #endif
 
-	Entity testEntity_;
-    Entity cameraEntity_;
+	//For test
+	Entity shipEntity_;
+	Entity cameraEntity_;
 };
 }    // namespace neko::aer

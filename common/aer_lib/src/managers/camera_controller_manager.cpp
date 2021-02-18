@@ -67,9 +67,11 @@ void CameraControllerManager::CreateTargetsEntity() {
     entityManager_.get().SetEntityName(targetEntity_, "targetEntity");
     transformManager_.AddComponent(targetEntity_);
     entityManager_.get().SetEntityParent(targetEntity_, shipEntity_);
+    transformManager_.SetRelativePosition(targetEntity_, targetPos_);
 
     //Create Spring Entity
     springEntity_ = entityManager_.get().CreateEntity();
+    transformManager_.AddComponent(springEntity_);
     entityManager_.get().SetEntityName(springEntity_, "springEntity");
     entityManager_.get().SetEntityParent(springEntity_, shipEntity_);
 }

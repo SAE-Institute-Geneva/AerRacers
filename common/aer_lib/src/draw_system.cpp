@@ -35,36 +35,41 @@ void DrawSystem::Init()
 	camera_.farPlane         = 100.0f;
 
 	gizmosRenderer_->SetCamera(&camera_);
-	const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-	Entity groundEntity = engine_.GetComponentManagerContainer().entityManager.CreateEntity();
-	engine_.GetComponentManagerContainer().renderManager.AddComponent(groundEntity);
-	engine_.GetComponentManagerContainer().renderManager.SetModel(groundEntity, config.dataRootPath + "models/cube/cube.obj");
-	engine_.GetComponentManagerContainer().transform3dManager.SetRelativeScale(groundEntity, Vec3f(10000.0f, 0.5f, 10000.0f));
-	physics::RigidStaticData rigidStaticData;
-	rigidStaticData.colliderType = physics::ColliderType::BOX;
-	rigidStaticData.filterGroup = physics::FilterGroup::GROUND;
-	engine_.GetComponentManagerContainer().rigidStaticManager.AddRigidStatic(
-		groundEntity,
-		rigidStaticData);
-	
-	Entity shipEntity = engine_.GetComponentManagerContainer().entityManager.CreateEntity();
-	engine_.GetComponentManagerContainer().entityManager.SetEntityName(shipEntity, "ship");
-	engine_.GetComponentManagerContainer().transform3dManager.AddComponent(shipEntity);
-	engine_.GetComponentManagerContainer().transform3dManager.SetGlobalPosition(shipEntity, Vec3f(0, 2, 0));
-	engine_.GetComponentManagerContainer().rigidDynamicManager.AddComponent(shipEntity);
-	physics::RigidDynamicData rigidDynamic;
-	rigidDynamic.useGravity = false;
-	rigidDynamic.colliderType = physics::ColliderType::BOX;
-	engine_.GetComponentManagerContainer().rigidDynamicManager.AddRigidDynamic(shipEntity, rigidDynamic);
-	engine_.GetComponentManagerContainer().shipControllerManager.AddComponent(shipEntity);
-	engine_.GetComponentManagerContainer().renderManager.AddComponent(shipEntity);
-	engine_.GetComponentManagerContainer().renderManager.SetModel(shipEntity, config.dataRootPath + "models/cube/cube.obj");
-	
-	cameraEntity_ = engine_.GetComponentManagerContainer().entityManager.CreateEntity();
-	engine_.GetComponentManagerContainer().entityManager.SetEntityName(cameraEntity_, "cameraEntity");
-	engine_.GetComponentManagerContainer().transform3dManager.AddComponent(cameraEntity_);
-	engine_.GetComponentManagerContainer().cameraControllerManager.AddComponent(cameraEntity_);
 
+    //For Test
+	if (engine_.GetMode() == ModeEnum::GAME) {
+        const Configuration config = BasicEngine::GetInstance()->GetConfig();
+        engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+            config.dataRootPath +
+            "scenes/SceneForNeko02-18withship.aerscene");
+        Camera3D* camera = GizmosLocator::get().GetCamera();
+        camera->farPlane = 100'000.0f;
+        camera->position = Vec3f(0.0f, 5.0f, -15.0f);
+        shipEntity_ = 15;
+        for (Entity entity = 0;
+            entity < engine_
+            .GetComponentManagerContainer().entityManager.
+            GetEntitiesSize(); ++entity) {
+            if (TagLocator::get().IsEntityTag(entity, "Camera")) {
+                cameraEntity_ = entity;
+                break;
+            }
+        }
+        engine_.GetComponentManagerContainer().shipControllerManager.
+            AddComponent(15);
+        engine_.GetComponentManagerContainer().entityManager.SetEntityParent(
+            cameraEntity_,
+            shipEntity_);
+        engine_.GetComponentManagerContainer().transform3dManager.
+            SetRelativePosition(cameraEntity_, Vec3f(0.0f, 5.0f, -15.0f));
+        engine_.GetComponentManagerContainer().transform3dManager.
+            SetRelativeRotation(
+                cameraEntity_,
+                EulerAngles(
+                    degree_t(0.0f),
+                    degree_t(-90.0f),
+                    degree_t(0.0f)));
+	}
 }
 
 void DrawSystem::Update(seconds)
@@ -72,12 +77,24 @@ void DrawSystem::Update(seconds)
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("DrawSystem::Update");
 #endif
-	camera_.position = engine_.GetComponentManagerContainer().transform3dManager.GetGlobalPosition(cameraEntity_);
+
+    //For Test
+	if (engine_.GetMode() == ModeEnum::GAME) {
+		Camera3D* camera = GizmosLocator::get().GetCamera();
+			camera->WorldLookAt(
+				engine_.GetComponentManagerContainer().transform3dManager.
+				GetGlobalPosition(shipEntity_));
+			camera->position = engine_
+				.GetComponentManagerContainer().
+				transform3dManager.GetGlobalPosition(
+					cameraEntity_);
+	}
 }
 
 void DrawSystem::Destroy() {}
 
-void DrawSystem::DrawImGui() {}
+void DrawSystem::DrawImGui() {
+}
 
 void DrawSystem::OnEvent(const SDL_Event&) {}
 }    // namespace neko::aer
