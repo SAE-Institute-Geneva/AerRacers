@@ -1,36 +1,12 @@
-/*
- MIT License
-
- Copyright (c) 2020 SAE Institute Switzerland AG
-
- Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
-
- The above copyright notice and this permission notice shall be included in all
- copies or substantial portions of the Software.
-
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- SOFTWARE.
- */
-#include <stb_image_write.h>
-#include "imgui_internal.h"
-
-#include "showroom/showroom_renderer.h"
-
 #include <minwinbase.h>
 
 #ifdef _WIN32
     #include <commdlg.h>
 #endif
+
+#include "mathematics/plane.h"
+
+#include "showroom/showroom_renderer.h"
 
 namespace neko
 {
@@ -65,7 +41,7 @@ void ShowRoomRenderer::Init()
 	spotLight_.direction = dirLight_.direction;
 
 	preRender_ = Job(
-		[this, config]
+		[this]
 		{
 			screenQuad_.Init();
 
@@ -390,7 +366,7 @@ void ShowRoomRenderer::DrawImGui()
 
         if (!candidates.empty())
         {
-            float smallestDist      = maxFloat;
+            float smallestDist      = kMaxFloat;
             size_t currentCandidate = INVALID_INDEX;
             for (const auto& candidate : candidates)
             {
@@ -447,19 +423,26 @@ void ShowRoomRenderer::CreateDockableWindow()
             DockBuilderRemoveNode(dockspaceId_);
             DockBuilderAddNode(dockspaceId_, ImGuiDockNodeFlags_None);
 
-	        ImGuiID dockMain = dockspaceId_;
-	        ImGuiID dockUp = DockBuilderSplitNode(dockMain, ImGuiDir_Up, 0.98f, NULL, &dockMain);
-	        ImGuiID dockDown = DockBuilderSplitNode(dockMain, ImGuiDir_Down, 0.02f, NULL, &dockMain);
-	        DockBuilderGetNode(dockspaceId_)->ChildNodes[1]->LocalFlags |= ImGuiDockNodeFlags_NoResize;
+            ImGuiID dockMain = dockspaceId_;
+            ImGuiID dockUp = DockBuilderSplitNode(dockMain, ImGuiDir_Up, 0.98f, nullptr, &dockMain);
+            const ImGuiID dockDown =
+                DockBuilderSplitNode(dockMain, ImGuiDir_Down, 0.02f, nullptr, &dockMain);
+            DockBuilderGetNode(dockspaceId_)->ChildNodes[1]->LocalFlags |=
+                ImGuiDockNodeFlags_NoResize;
 
-	        ImGuiID dockRight = DockBuilderSplitNode(dockUp, ImGuiDir_Right, 0.175f, NULL, &dockUp);
-	        ImGuiID dockLeft = DockBuilderSplitNode(dockUp, ImGuiDir_Left, 0.2f, NULL, &dockUp);
-	        ImGuiID dockDownRightId = DockBuilderSplitNode(dockRight, ImGuiDir_Down, 0.5f, nullptr, &dockRight);
+            ImGuiID dockRight =
+                DockBuilderSplitNode(dockUp, ImGuiDir_Right, 0.175f, nullptr, &dockUp);
+            ImGuiID dockLeft = DockBuilderSplitNode(dockUp, ImGuiDir_Left, 0.2f, nullptr, &dockUp);
+            const ImGuiID dockDownRightId =
+                DockBuilderSplitNode(dockRight, ImGuiDir_Down, 0.5f, nullptr, &dockRight);
 
-	        ImGuiID dockLeftLeft = DockBuilderSplitNode(dockLeft, ImGuiDir_Left, 0.2f, NULL, &dockLeft);
-	        ImGuiID dockLeftLeftDown = DockBuilderSplitNode(dockLeftLeft, ImGuiDir_Down, 0.5f, NULL, &dockLeftLeft);
-	        ImGuiID dockLeftRight = DockBuilderSplitNode(dockLeft, ImGuiDir_Right, 0.8f, NULL, &dockLeft);
-	        DockBuilderGetNode(dockLeftRight)->LocalFlags = ImGuiDockNodeFlags_CentralNode;
+            ImGuiID dockLeftLeft =
+                DockBuilderSplitNode(dockLeft, ImGuiDir_Left, 0.2f, nullptr, &dockLeft);
+            const ImGuiID dockLeftLeftDown =
+                DockBuilderSplitNode(dockLeftLeft, ImGuiDir_Down, 0.5f, nullptr, &dockLeftLeft);
+            const ImGuiID dockLeftRight =
+                DockBuilderSplitNode(dockLeft, ImGuiDir_Right, 0.8f, nullptr, &dockLeft);
+            DockBuilderGetNode(dockLeftRight)->LocalFlags = ImGuiDockNodeFlags_CentralNode;
 
 			DockBuilderDockWindow("Scene", dockRight);
 			DockBuilderDockWindow("InfoBar", dockDown);
@@ -584,13 +567,6 @@ void ShowRoomRenderer::DrawMenuBar()
             if (MenuItem("Save As..."))
             {
 				popupNamesStack_.emplace_back("NoFeature");
-	            /*char filename[1024];
-#ifdef _WIN32
-#elif linux
-                FILE* f = popen("zenity --file-selection --save --confirm-overwrite "
-                                "--file-filter='Model files (fbx, obj) | *.fbx *.obj'", "r");
-                fgets(filename, 1024, f);
-#endif*/
             }
 
             Separator();
@@ -638,7 +614,7 @@ void ShowRoomRenderer::DrawMenuBar()
 	}
 }
 
-void ShowRoomRenderer::DrawInfoBar()
+void ShowRoomRenderer::DrawInfoBar() const
 {
 	using namespace ImGui;
 
@@ -886,10 +862,10 @@ void ShowRoomRenderer::DrawLightTransform()
 	Text("Scale:");
 	width = CalcItemWidth();
 	PushItemWidth(width - CalcTextSize(" X").x);
-	DragFloat("X##lightScale_", &lightScale_.x, 0.1f, smallFloat);
-	DragFloat("Y##lightScale_", &lightScale_.y, 0.1f, smallFloat);
+	DragFloat("X##lightScale_", &lightScale_.x, 0.1f, kSmallFloat);
+	DragFloat("Y##lightScale_", &lightScale_.y, 0.1f, kSmallFloat);
 	PopStyleVar();
-	DragFloat("Z##lightScale_", &lightScale_.z, 0.1f, smallFloat);
+	DragFloat("Z##lightScale_", &lightScale_.z, 0.1f, kSmallFloat);
 	PopItemWidth();
 	PopItemWidth();
 }
@@ -930,22 +906,22 @@ void ShowRoomRenderer::DrawModelTransform()
 	Text("Scale:");
 	width = CalcItemWidth();
 	PushItemWidth(width - CalcTextSize(" X").x);
-	DragFloat("X##scale", &scale.x, 0.1f, smallFloat);
-	DragFloat("Y##scale", &scale.y, 0.1f, smallFloat);
+	DragFloat("X##scale", &scale.x, 0.1f, kSmallFloat);
+	DragFloat("Y##scale", &scale.y, 0.1f, kSmallFloat);
 	PopStyleVar();
-	DragFloat("Z##scale", &scale.z, 0.1f, smallFloat);
+	DragFloat("Z##scale", &scale.z, 0.1f, kSmallFloat);
 	PopItemWidth();
 	PopItemWidth();
 
 	modelMat_ = Transform3d::Transform(pos, angles, scale);
 }
 
-void ShowRoomRenderer::DrawMeshTransform(sr::Mesh& mesh)
+void ShowRoomRenderer::DrawMeshTransform(sr::Mesh& mesh) const
 {
     using namespace ImGui;
     Vec3f pos, scale;
     EulerAngles angles;
-    Mat4f modelMat = mesh.GetModelMatrix();
+    const Mat4f modelMat = mesh.GetModelMatrix();
     modelMat.Decompose(pos, angles, scale);
 
     PushItemWidth(-1);
@@ -977,10 +953,10 @@ void ShowRoomRenderer::DrawMeshTransform(sr::Mesh& mesh)
     Text("Scale:");
     width = CalcItemWidth();
     PushItemWidth(width - CalcTextSize(" X").x);
-    DragFloat("X##scale", &scale.x, 0.1f, smallFloat);
-    DragFloat("Y##scale", &scale.y, 0.1f, smallFloat);
+    DragFloat("X##scale", &scale.x, 0.1f, kSmallFloat);
+    DragFloat("Y##scale", &scale.y, 0.1f, kSmallFloat);
     PopStyleVar();
-    DragFloat("Z##scale", &scale.z, 0.1f, smallFloat);
+    DragFloat("Z##scale", &scale.z, 0.1f, kSmallFloat);
     PopItemWidth();
     PopItemWidth();
 
@@ -1197,16 +1173,16 @@ void ShowRoomRenderer::DrawModelProperties()
 	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 	Text("Position X "); SameLine();
     const float textPos1 = GetCursorPosX();
-	DragFloat("##pos.x", &pos.x, 0.1f, minFloat, maxFloat);
+	DragFloat("##pos.x", &pos.x, 0.1f, kMinFloat, kMaxFloat);
 
 	SetCursorPosX(textPos1 - CalcTextSize("X ").x); Text("Y "); SameLine();
 	SetCursorPosX(textPos1);
-	DragFloat("##pos.y", &pos.y, 0.1f, minFloat, maxFloat);
+	DragFloat("##pos.y", &pos.y, 0.1f, kMinFloat, kMaxFloat);
 	PopStyleVar();
 
 	SetCursorPosX(textPos1 - CalcTextSize("X ").x); Text("Z"); SameLine();
 	SetCursorPosX(textPos1);
-	DragFloat("##pos.z", &pos.z, 0.1f, minFloat, maxFloat);
+	DragFloat("##pos.z", &pos.z, 0.1f, kMinFloat, kMaxFloat);
 
 	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 	SetCursorPosX(textPos1 - CalcTextSize("Rotation X ").x); Text("Rotation X "); SameLine();
@@ -1228,16 +1204,16 @@ void ShowRoomRenderer::DrawModelProperties()
 	PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
 	SetCursorPosX(textPos1 - CalcTextSize("Scale X ").x); Text("Scale X "); SameLine();
 	SetCursorPosX(textPos1);
-	DragFloat("##scale.x", &scale.x, 0.1f, smallFloat, maxFloat);
+	DragFloat("##scale.x", &scale.x, 0.1f, kSmallFloat, kMaxFloat);
 
 	SetCursorPosX(textPos1 - CalcTextSize("X ").x); Text("Y "); SameLine();
 	SetCursorPosX(textPos1);
-	DragFloat("##scale.y", &scale.y, 0.1f, smallFloat, maxFloat);
+	DragFloat("##scale.y", &scale.y, 0.1f, kSmallFloat, kMaxFloat);
 	PopStyleVar();
 
 	SetCursorPosX(textPos1 - CalcTextSize("X ").x); Text("Z"); SameLine();
 	SetCursorPosX(textPos1);
-	DragFloat("##scale.z", &scale.z, 0.1f, smallFloat, maxFloat);
+	DragFloat("##scale.z", &scale.z, 0.1f, kSmallFloat, kMaxFloat);
 
 	modelMat_ = Transform3d::Transform(pos, angles, scale);
 }
@@ -1568,7 +1544,7 @@ bool ImGui::ImageButton(
     ImGuiWindow* window = g.CurrentWindow;
     if (window->SkipItems) return false;
 
-    const auto texId     = reinterpret_cast<ImTextureID>(userTextureId);
+    auto* texId     = reinterpret_cast<ImTextureID>(userTextureId);
     const ImGuiID id     = window->GetID(itemId.data());
     const ImVec2 padding = framePadding >= 0 ?
                                ImVec2(float(framePadding), float(framePadding)) :
