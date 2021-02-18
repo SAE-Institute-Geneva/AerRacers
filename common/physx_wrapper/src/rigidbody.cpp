@@ -464,6 +464,7 @@ void RigidDynamic::SetRigidDynamicData(
             break;
         default: break;
     }
+    rigidActor_->setRigidBodyFlag(physx::PxRigidBodyFlag::eENABLE_CCD, true);
 }
 
 physics::RigidDynamicData RigidDynamic::GetRigidDynamicData() const
@@ -767,7 +768,7 @@ void RigidDynamicManager::FixedUpdate(seconds dt)
         physx::PxVec3 x = transform.q.getBasisVector0();
         physx::PxVec3 y = transform.q.getBasisVector1();
         physx::PxVec3 z = transform.q.getBasisVector2();
-        transform3dManager_.SetRelativeRotation(entity,
+        transform3dManager_.SetGlobalRotation(entity,
             Quaternion::ToEulerAngles(ConvertFromPxQuat(transform.q)));
     }
 }

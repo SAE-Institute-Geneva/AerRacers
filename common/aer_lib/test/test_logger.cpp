@@ -143,36 +143,36 @@ private:
 	AerEngine& engine_;
 };
 
-TEST(Tool, TestLoggerGame)
-{
-	//Travis Fix because Windows can't open a window
-	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
-	if (env != nullptr)
-	{
-		std::cout << "Test skip for travis windows" << std::endl;
-		return;
-	}
-
-	Configuration config;
-	config.windowName = "AerEditor";
-	config.windowSize = Vec2u(1400, 900);
-
-	sdl::Gles3Window window;
-	gl::Gles3Renderer renderer;
-	Filesystem filesystem;
-	AerEngine engine(filesystem, &config, ModeEnum::GAME);
-
-	engine.SetWindowAndRenderer(&window, &renderer);
-
-	SimulateLogger simulateLogger(engine);
-	engine.RegisterSystem(simulateLogger);
-
-	engine.Init();
-
-	engine.EngineLoop();
-
-	simulateLogger.HasSucceed();
-}
+//TEST(Tool, TestLoggerGame)
+//{
+//	//Travis Fix because Windows can't open a window
+//	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+//	if (env != nullptr)
+//	{
+//		std::cout << "Test skip for travis windows" << std::endl;
+//		return;
+//	}
+//
+//	Configuration config;
+//	config.windowName = "AerEditor";
+//	config.windowSize = Vec2u(1400, 900);
+//
+//	sdl::Gles3Window window;
+//	gl::Gles3Renderer renderer;
+//	Filesystem filesystem;
+//	AerEngine engine(filesystem, &config, ModeEnum::GAME);
+//
+//	engine.SetWindowAndRenderer(&window, &renderer);
+//
+//	SimulateLogger simulateLogger(engine);
+//	engine.RegisterSystem(simulateLogger);
+//
+//	engine.Init();
+//
+//	engine.EngineLoop();
+//
+//	simulateLogger.HasSucceed();
+//}
 
 TEST(Tool, TestLoggerEditor)
 {

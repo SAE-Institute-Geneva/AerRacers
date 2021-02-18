@@ -36,6 +36,40 @@ void DrawSystem::Init()
 
 	gizmosRenderer_->SetCamera(&camera_);
 
+    //For Test
+	if (engine_.GetMode() == ModeEnum::GAME) {
+        const Configuration config = BasicEngine::GetInstance()->GetConfig();
+        engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+            config.dataRootPath +
+            "scenes/SceneForNeko02-18withship.aerscene");
+        Camera3D* camera = GizmosLocator::get().GetCamera();
+        camera->farPlane = 100'000.0f;
+        camera->position = Vec3f(0.0f, 5.0f, -15.0f);
+        shipEntity_ = 15;
+        for (Entity entity = 0;
+            entity < engine_
+            .GetComponentManagerContainer().entityManager.
+            GetEntitiesSize(); ++entity) {
+            if (TagLocator::get().IsEntityTag(entity, "Camera")) {
+                cameraEntity_ = entity;
+                break;
+            }
+        }
+        engine_.GetComponentManagerContainer().shipControllerManager.
+            AddComponent(15);
+        engine_.GetComponentManagerContainer().entityManager.SetEntityParent(
+            cameraEntity_,
+            shipEntity_);
+        engine_.GetComponentManagerContainer().transform3dManager.
+            SetRelativePosition(cameraEntity_, Vec3f(0.0f, 5.0f, -15.0f));
+        engine_.GetComponentManagerContainer().transform3dManager.
+            SetRelativeRotation(
+                cameraEntity_,
+                EulerAngles(
+                    degree_t(0.0f),
+                    degree_t(-90.0f),
+                    degree_t(0.0f)));
+	}
 }
 
 void DrawSystem::Update(seconds)
@@ -43,11 +77,24 @@ void DrawSystem::Update(seconds)
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("DrawSystem::Update");
 #endif
+
+    //For Test
+	if (engine_.GetMode() == ModeEnum::GAME) {
+		Camera3D* camera = GizmosLocator::get().GetCamera();
+			camera->WorldLookAt(
+				engine_.GetComponentManagerContainer().transform3dManager.
+				GetGlobalPosition(shipEntity_));
+			camera->position = engine_
+				.GetComponentManagerContainer().
+				transform3dManager.GetGlobalPosition(
+					cameraEntity_);
+	}
 }
 
 void DrawSystem::Destroy() {}
 
-void DrawSystem::DrawImGui() {}
+void DrawSystem::DrawImGui() {
+}
 
 void DrawSystem::OnEvent(const SDL_Event&) {}
 }    // namespace neko::aer

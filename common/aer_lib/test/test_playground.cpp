@@ -52,16 +52,11 @@ public:
         const Configuration config = BasicEngine::GetInstance()->GetConfig();
         engine_.GetComponentManagerContainer().sceneManager.LoadScene(
             config.dataRootPath +
-            "scenes/SceneForNeko2021-02-17-09-51-08.aerscene");
-        engine_.GetComponentManagerContainer().shipControllerManager.
-                AddComponent(0);
-        engine_.GetPhysicsEngine().StopPhysic();
+            "scenes/SceneForNeko02-18withship.aerscene");
         Camera3D* camera = GizmosLocator::get().GetCamera();
         camera->farPlane = 100'000.0f;
-        camera->position = Vec3f(10.0f, 5.0f, 0.0f);
-        camera->Rotate(
-            EulerAngles(degree_t(0.0f), degree_t(-90.0f), degree_t(0.0f)));
-        shipEntity_ = 0;
+        camera->position = Vec3f(0.0f, 5.0f, -15.0f);
+        shipEntity_ = 15;
         for (Entity entity = 0;
              entity < engine_
                       .GetComponentManagerContainer().entityManager.
@@ -71,6 +66,8 @@ public:
                 break;
             }
         }
+        engine_.GetComponentManagerContainer().shipControllerManager.
+            AddComponent(15);
         engine_.GetComponentManagerContainer().entityManager.SetEntityParent(
             cameraEntity_,
             shipEntity_);
@@ -92,13 +89,13 @@ public:
 #endif
         Camera3D* camera = GizmosLocator::get().GetCamera();
         if (cameraFollow) {
+            camera->WorldLookAt(
+                engine_.GetComponentManagerContainer().transform3dManager.
+                GetGlobalPosition(shipEntity_));
             camera->position = engine_
                                .GetComponentManagerContainer().
                                transform3dManager.GetGlobalPosition(
                                    cameraEntity_);
-            camera->WorldLookAt(
-                engine_.GetComponentManagerContainer().transform3dManager.
-                        GetGlobalPosition(shipEntity_));
         }
         //updateCount_ += dt.count();
         if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
@@ -117,6 +114,8 @@ public:
             ImGui::Text(position.c_str());
             std::string rotation = ConvertEulerAnglesToVec3f(camera->GetRotation()).ToString();
             ImGui::Text(rotation.c_str());
+            std::string right = camera->GetRight().ToString();
+            ImGui::Text(right.c_str());
             ImGui::Checkbox("CameraFollow", &cameraFollow);
         }
         ImGui::End();
@@ -166,6 +165,128 @@ TEST(Game, TestUnityPlayGround)
     engine.EngineLoop();
 #ifdef EASY_PROFILE_USE
         profiler::dumpBlocksToFile("Renderer_Neko_Profile.prof");
+#endif
+}
+
+class TestPlaygroundCamera
+    : public SystemInterface,
+    public RenderCommandInterface,
+    public DrawImGuiInterface {
+public:
+    TestPlaygroundCamera(
+        AerEngine& engine)
+        : engine_(engine),
+        rContainer_(engine.GetResourceManagerContainer()),
+        cContainer_(engine.GetComponentManagerContainer()) { }
+
+    void Init() override
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Init", profiler::colors::Green);
+#endif
+        camera_ = GizmosLocator::get().GetCamera();
+        camera_->farPlane = 100'000.0f;
+        const Configuration config = BasicEngine::GetInstance()->GetConfig();
+        engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+            config.dataRootPath +
+            "scenes/SceneForNeko02-18withship.aerscene");
+        Entity shipEntity = 15;
+        cContainer_.entityManager.SetEntityName(shipEntity, "ship");
+        engine_.GetComponentManagerContainer().shipControllerManager.
+            AddComponent(shipEntity);
+
+        for (Entity entity = 0;
+            entity < engine_
+            .GetComponentManagerContainer().entityManager.
+            GetEntitiesSize(); ++entity) {
+            if (TagLocator::get().IsEntityTag(entity, "Camera")) {
+                cameraEntity_ = entity;
+                break;
+            }
+        }
+        cContainer_.entityManager.SetEntityName(cameraEntity_, "cameraEntity");
+        cContainer_.cameraControllerManager.AddComponent(cameraEntity_);
+    }
+
+    void Update(seconds dt) override
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Update", profiler::colors::Green);
+#endif
+        if (cameraFollow_ && cameraEntity_ != INVALID_ENTITY && camera_)
+        {
+            camera_->position = cContainer_.transform3dManager.GetGlobalPosition(cameraEntity_);
+            camera_->reverseDirection = Quaternion::FromEuler(cContainer_.transform3dManager.GetGlobalRotation(cameraEntity_)) * Vec3f::back;
+        }
+        //updateCount_ += dt.count();
+        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+    }
+
+    void Render() override { }
+
+    void Destroy() override { }
+
+    void DrawImGui() override {
+        Camera3D* camera = GizmosLocator::get().GetCamera();
+        ImGui::Begin("Camera");
+        {
+            std::string position = camera->position.ToString();
+            ImGui::Text(position.c_str());
+            std::string rotation = ConvertEulerAnglesToVec3f(camera->GetRotation()).ToString();
+            ImGui::Text(rotation.c_str());
+            std::string right = camera->GetRight().ToString();
+            ImGui::Text(right.c_str());
+            ImGui::Checkbox("CameraFollow", &cameraFollow_);
+        }
+        ImGui::End();
+    }
+
+private:
+    float updateCount_ = 0;
+    const float kEngineDuration_ = 0.5f;
+
+    AerEngine& engine_;
+
+    ResourceManagerContainer& rContainer_;
+    ComponentManagerContainer& cContainer_;
+
+    Camera3D* camera_ = nullptr;
+    bool cameraFollow_ = true;
+
+
+    Entity shipEntity_ = INVALID_ENTITY;
+    Entity cameraEntity_ = INVALID_ENTITY;
+};
+
+TEST(Game, TestPlaygroundCamera)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr) {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    Configuration config;
+    // config.dataRootPath = "../data/";
+    config.windowName = "AerEditor";
+    config.windowSize = Vec2u(1400, 900);
+
+    sdl::Gles3Window window;
+    gl::Gles3Renderer renderer;
+    Filesystem filesystem;
+    AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+
+    TestPlaygroundCamera testPlaygroundCamera(engine);
+
+    engine.RegisterSystem(testPlaygroundCamera);
+    engine.RegisterOnDrawUi(testPlaygroundCamera);
+    engine.Init();
+    engine.EngineLoop();
+#ifdef EASY_PROFILE_USE
+    profiler::dumpBlocksToFile("Renderer_Neko_Profile.prof");
 #endif
 }
 }

@@ -84,7 +84,6 @@ protected:
     physics::RigidDynamicManager& rigidDynamicManager_;
     physics::RigidStaticManager& rigidStaticManager_;
     physics::PhysicsEngine& physicsEngine_;
-	
 };
 
 /**

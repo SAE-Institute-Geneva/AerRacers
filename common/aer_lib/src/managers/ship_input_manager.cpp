@@ -18,13 +18,14 @@ void ShipInputManager::Update(seconds dt)
 {
 	auto& inputLocator = sdl::InputLocator::get();
 	std::string currentGestureName = "";
+	if (inputLocator.GetControllerIdVector().empty()) return;
 	rightJoystick_ = Vec2f(
-		inputLocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_RIGHT_AXIS),
-			 -inputLocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_RIGHT_AXIS));
+		-inputLocator.GetControllerAxis(inputLocator.GetControllerIdVector()[0], sdl::ControllerAxisType::HORIZONTAL_RIGHT_AXIS),
+			 -inputLocator.GetControllerAxis(inputLocator.GetControllerIdVector()[0], sdl::ControllerAxisType::VERTICAL_RIGHT_AXIS));
 
 	leftJoystick_ = Vec2f(
-		inputLocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS),
-		-inputLocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS));
+		-inputLocator.GetControllerAxis(inputLocator.GetControllerIdVector()[0], sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS),
+		-inputLocator.GetControllerAxis(inputLocator.GetControllerIdVector()[0], sdl::ControllerAxisType::VERTICAL_LEFT_AXIS));
 
 	rightJoystickDirection_ = GetJoystickDirection(Joystick::Right);
 	leftJoystickDirection_ = GetJoystickDirection(Joystick::Left);
@@ -151,7 +152,7 @@ float ShipInputManager::GetJoystickAxis(Joystick joystick, Axis axis) {
 
 float ShipInputManager::GetJoystickAngle(Joystick joystick) {
 	
-	return degree_t(Vec2f::AngleBetween(Vec2f::up, GetJoystick(joystick))).value();
+	return abs(degree_t(Vec2f::AngleBetween(Vec2f::up, GetJoystick(joystick))).value());
 }
 
 float ShipInputManager::GetJoystickMagnitude(Joystick joystick) {
