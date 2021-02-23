@@ -12,6 +12,22 @@ namespace neko::aer
      * \brief Component used to control the ship movements.
      */
     struct CameraController {
+        float angularLateralMovement;
+        float angularBackwardMovement;
+        float angularForwardTarget;
+        float linearForwardTarget;
+        float forwardTarget;
+        float linearUpwardMovement;
+        float linearBackwardMovement;
+        Vec3f angularAddVector;
+        Vec3f addTargetVector;
+        Vec3f linearAddVector;
+        Vec3f newPosition;
+        float fallAddition;
+        float fallTargetAddition;
+        float dotProductPosVelo;
+        float dotProductPosVeloMult;
+        /* Old Camera
         int sprintStiffness = 10;
         float cameraMass = 0.1f;
         float forceLossPercentage = 0.5f;
@@ -29,6 +45,7 @@ namespace neko::aer
         float cameraLookLerpValue = 0.2f;
         float maxYForce = 1000.0f;
         float cameraPositionLerpValue = 0.9f;
+        */
     };
 
     /**
@@ -52,6 +69,7 @@ namespace neko::aer
         void Destroy() override;
         void AddComponent(Entity entity) override;
 
+        /*
         void CreateTargetsEntity();
         void LookTurning();
         void LookDown();
@@ -65,22 +83,44 @@ namespace neko::aer
 
         void LastFrameShipValues();
         void MaximumAngle();
+        */
     
     protected:
         ShipInputManager shipInputManager_;
         Transform3dManager& transformManager_;
         physics::RigidDynamicManager& rigidDynamicManager_;
         physics::PhysicsEngine& physicsEngine_;
-        CameraController cameraController_;
     	
         Entity cameraEntity_;
+        Entity shipEntity_;
+
+        const Vec3f kTargetPosition_ = Vec3f(0, 0, 5);
+        const float kMaxTargetPos_ = 25.0f;
+        const Vec3f kCameraPosition_ = Vec3f(0, 5, -10);
+
+        const float kAngularLateralMult_ = 3.0f;
+        const float kAngularBackwardMult_ = 1.0f;
+        const float kAngularForwardTargetMult_ = 80.0f;
+
+        const float kLinearUpwardMult_ = 0.01f;
+        const float kLinerarBackwardMult_ = -0.01f;
+        const float kLinerarBackwardDiv_ = -0.0015f;
+        const float kLinearForwardTargetMult_ = 0.1f;
+        const float kFallMultiplicator_ = 0.01f;
+        const float kFallTargetMultiplicator_ = -0.1f;
+
+        const float kAngularLerp_ = 0.1f;
+        const float kAngularTargetLerp_ = 0.1f;
+
+        const float kLinearLerp_ = 1.0f; 
+        const float kLerpPosition_ = 1.0f;
+
+        /*Old Camera
         Entity targetEntity_;
         Entity lookTargetLeft_;
         Entity lookTargetRight_;
         Entity lookTargetNormal_;
         Entity springEntity_;
-    	
-        Entity shipEntity_;
     	
         Vec3f lookTargetRightPos_ = Vec3f(0, 6.85f, -9.58f);
         Vec3f lookTargetLeftPos_ = Vec3f(-1, 6.85f, -9.58f);
@@ -89,7 +129,7 @@ namespace neko::aer
 
         EulerAngles lookTargetRightRot_ = EulerAngles(0, 5, 0);
         EulerAngles lookTargetLeftRot_ = EulerAngles(0, -5, 0);
-        seconds dt_;
+        */
     };
 
     /**

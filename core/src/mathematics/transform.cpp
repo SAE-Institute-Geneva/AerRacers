@@ -173,6 +173,15 @@ Mat4f RotationMatrixFrom(const Quaternion& q)
 	return left.Transpose() * right.Transpose();
 }
 
+Mat4f LookAt(const Mat4f& transform, const Vec3f& targetPosition)
+{
+	const Vec3f direction = targetPosition - GetPosition(transform);
+	auto quat = Quaternion::FromEuler(GetRotation(transform));
+	//from https://www.gamedev.net/forums/topic/56471-extracting-direction-vectors-from-quaternion/
+	Vec3f up = Vec3f(2 * (quat.x * quat.y - quat.w * quat.z), 1 - 2 * (quat.x * quat.x + quat.z * quat.z), 2 * (quat.y * quat.z + quat.w * quat.x));
+	return Transform3d::Transform(GetPosition(transform), Quaternion::ToEulerAngles(Quaternion::LookRotation(direction, up)), GetScale(transform));
+}
+
 Mat4f Transform(const Vec3f& pos, const Quaternion& rot, const Vec3f& scale)
 {
 	Mat4f mat = ScalingMatrixFrom(scale);

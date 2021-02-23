@@ -447,7 +447,7 @@ struct Quaternion
 		Mat3f mat({ right , up, forward });
 		mat = mat.Transpose();
 		Quaternion ret;
-		ret.w = sqrtf(1.0f + mat[0][0] + mat[1][1] + mat[2][2]) * 0.5f;
+		ret.w = Sqrt(1.0f + mat[0][0] + mat[1][1] + mat[2][2]) * 0.5f;
 		float w4_recip = 1.0f / (4.0f * ret.w);
 		ret.x = (mat[2][1] - mat[1][2]) * w4_recip;
 		ret.y = (mat[0][2] - mat[2][0]) * w4_recip;

@@ -216,7 +216,7 @@ public:
         if (cameraFollow_ && cameraEntity_ != INVALID_ENTITY && camera_)
         {
             camera_->position = cContainer_.transform3dManager.GetGlobalPosition(cameraEntity_);
-            camera_->reverseDirection = Quaternion::FromEuler(cContainer_.transform3dManager.GetGlobalRotation(cameraEntity_)) * Vec3f::back;
+            //camera_->reverseDirection = Quaternion::FromEuler(cContainer_.transform3dManager.GetGlobalRotation(cameraEntity_)) * Vec3f::back;
         }
         //updateCount_ += dt.count();
         if (updateCount_ > kEngineDuration_) { engine_.Stop(); }

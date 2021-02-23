@@ -54,7 +54,7 @@ void Inspector::DrawImGui()
             rigidStaticViewer_.DrawImGui(selectedEntity);
             rigidDynamicViewer_.DrawImGui(selectedEntity);
             shipControllerViewer_.DrawImGui(selectedEntity);
-
+            engine_.GetComponentManagerContainer().cameraControllerViewer.DrawImGui(selectedEntity);
             DisplayNewComponentButtons(selectedEntity);
 
             ImGui::End();

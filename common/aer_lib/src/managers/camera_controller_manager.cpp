@@ -23,13 +23,8 @@ namespace neko::aer
 void CameraControllerManager::AddComponent(Entity entity)
 {
     ComponentManager::AddComponent(entity);
-    cameraController_ = GetComponent(entity);
     cameraEntity_ = entityManager_.get().FindEntityByName("cameraEntity");
     shipEntity_ = entityManager_.get().FindEntityByName("ship");
-    CreateTargetsEntity();
-
-    transformManager_.SetRelativeRotation(lookTargetLeft_, EulerAngles(lookTargetLeftPos_.x, -cameraController_.lookAngle, lookTargetLeftPos_.z));
-    transformManager_.SetRelativeRotation(lookTargetRight_, EulerAngles(lookTargetRightPos_.x, cameraController_.lookAngle, lookTargetRightPos_.z));
 
 }
 
@@ -37,7 +32,138 @@ void CameraControllerManager::Init()
 {
 
 }
+void CameraControllerManager::FixedUpdate(seconds dt) {
+    const auto& entities =
+        entityManager_.get().FilterEntities(static_cast<EntityMask>(ComponentType::SHIP_CAMERA));
 
+    for (auto& entity : entities)
+    {
+        auto cameraComponent = GetComponent(entity);
+        auto shipBody = rigidDynamicManager_.GetDynamicData(shipEntity_);
+        auto shipPosition = transformManager_.GetGlobalPosition(shipEntity_);
+        auto shipRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(shipEntity_));
+        auto cameraPosition = transformManager_.GetGlobalPosition(entity);
+        auto angularVelocity = shipBody.angularVelocity;
+        auto velocity = shipBody.linearVelocity;
+
+        cameraComponent.angularLateralMovement = kAngularLateralMult_ * angularVelocity.y;
+        cameraComponent.angularBackwardMovement = kAngularBackwardMult_ * angularVelocity.y;
+        cameraComponent.linearUpwardMovement = kLinearUpwardMult_ * velocity.Magnitude();
+        cameraComponent.linearBackwardMovement = kLinerarBackwardMult_ * velocity.Magnitude();
+        cameraComponent.dotProductPosVelo = Vec3f::Dot(cameraPosition - shipPosition, velocity);
+        if (cameraComponent.dotProductPosVelo > 100)
+        {
+            cameraComponent.dotProductPosVeloMult = cameraComponent.dotProductPosVelo * kLinerarBackwardDiv_;
+            cameraComponent.linearBackwardMovement = cameraComponent.linearBackwardMovement * cameraComponent.dotProductPosVeloMult;
+        }
+        cameraComponent.newPosition = shipPosition;
+        cameraComponent.angularAddVector = Vec3f::Lerp(cameraComponent.angularAddVector, Vec3f::right * cameraComponent.angularLateralMovement + Vec3f::back * Abs(cameraComponent.angularBackwardMovement), kAngularLerp_);
+        cameraComponent.linearAddVector = Vec3f::Lerp(cameraComponent.linearAddVector, Vec3f::up * cameraComponent.linearUpwardMovement + Vec3f::back * cameraComponent.linearBackwardMovement, kLinearLerp_);
+        cameraComponent.newPosition += shipRotation * (kCameraPosition_ + cameraComponent.angularAddVector + cameraComponent.linearAddVector);
+        cameraComponent.fallAddition = (kFallMultiplicator_ * -Abs(shipBody.linearVelocity.y));
+        cameraComponent.newPosition += Vec3f::up * cameraComponent.fallAddition;
+        transformManager_.SetGlobalPosition(entity, Vec3f::Lerp(cameraPosition, cameraComponent.newPosition, kLerpPosition_));
+        cameraPosition = transformManager_.GetGlobalPosition(entity);
+        cameraComponent.angularForwardTarget = kAngularForwardTargetMult_ * Abs(angularVelocity.y);
+        cameraComponent.linearForwardTarget = kLinearForwardTargetMult_ * velocity.Magnitude();
+        cameraComponent.forwardTarget = cameraComponent.linearForwardTarget + cameraComponent.angularForwardTarget;
+        cameraComponent.fallTargetAddition = (kFallTargetMultiplicator_ * -Abs(velocity.y));
+        cameraComponent.forwardTarget = Clamp(cameraComponent.forwardTarget, -2.0f, kMaxTargetPos_);
+        cameraComponent.addTargetVector = Vec3f::Lerp(cameraComponent.addTargetVector, Vec3f::forward * Abs(cameraComponent.forwardTarget) + Vec3f::down * Abs(cameraComponent.fallTargetAddition), kAngularTargetLerp_);
+        Vec3f targetPos = shipPosition + shipRotation * (kTargetPosition_ + cameraComponent.addTargetVector);
+        //transformManager_.SetRelativeRotation(entity, Quaternion::ToEulerAngles(Quaternion::LookRotation(targetPos - cameraPosition, Vec3f::up)));
+        auto* camera_ = GizmosLocator::get().GetCamera();
+        camera_->WorldLookAt(targetPos);
+        SetComponent(entity, cameraComponent);
+    }
+}
+void CameraControllerManager::Update(seconds dt)
+{
+    shipInputManager_.Update(dt);
+}
+
+void CameraControllerManager::Destroy()
+{
+
+}
+CameraControllerViewer::CameraControllerViewer(EntityManager& entityManager, CameraControllerManager& cameraControllerManager) : ComponentViewer(entityManager), cameraControllerManager_(cameraControllerManager)
+{
+}
+
+json CameraControllerViewer::GetJsonFromComponent(Entity entity) const
+{
+    json rendererComponent = json::object();
+    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::SHIP_CAMERA)))
+    {
+        if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
+        {
+
+        }
+    }
+    return rendererComponent;
+}
+
+void CameraControllerViewer::SetComponentFromJson(Entity entity, const json& componentJson)
+{
+
+}
+
+void CameraControllerViewer::DrawImGui(Entity entity)
+{
+    if (entity == INVALID_ENTITY) return;
+    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::SHIP_CAMERA))) {
+        if (ImGui::TreeNode("ShipCamera")) {
+            auto cameraComponent = cameraControllerManager_.GetComponent(entity);
+            ImGui::Text("angularLateralMovement");
+            ImGui::SameLine();
+            ImGui::Text(std::to_string(cameraComponent.angularLateralMovement).c_str());
+            ImGui::Text("angularBackwardMovement");
+            ImGui::SameLine();
+            ImGui::Text(std::to_string(cameraComponent.angularBackwardMovement).c_str());
+            ImGui::Text("angularForwardTarget");
+            ImGui::SameLine();
+            ImGui::Text(std::to_string(cameraComponent.angularForwardTarget).c_str());
+            ImGui::Text("linearForwardTarget");
+            ImGui::SameLine();
+            ImGui::Text(std::to_string(cameraComponent.linearForwardTarget).c_str());
+            ImGui::Text("forwardTarget");
+            ImGui::SameLine();
+            ImGui::Text(std::to_string(cameraComponent.forwardTarget).c_str());
+            ImGui::Text("linearUpwardMovement");
+            ImGui::SameLine();
+            ImGui::Text(std::to_string(cameraComponent.linearUpwardMovement).c_str());
+            ImGui::Text("linearBackwardMovement");
+            ImGui::SameLine();
+            ImGui::Text(std::to_string(cameraComponent.linearBackwardMovement).c_str());
+            ImGui::Text("angularAddVector");
+            ImGui::SameLine();
+            ImGui::Text(cameraComponent.angularAddVector.ToString().c_str());
+            ImGui::Text("addTargetVector");
+            ImGui::SameLine();
+            ImGui::Text(cameraComponent.addTargetVector.ToString().c_str());
+            ImGui::Text("linearAddVector");
+            ImGui::SameLine();
+            ImGui::Text(cameraComponent.linearAddVector.ToString().c_str());
+            ImGui::Text("newPosition");
+            ImGui::SameLine();
+            ImGui::Text(cameraComponent.newPosition.ToString().c_str());
+            ImGui::Text("fallAddition");
+            ImGui::SameLine();
+            ImGui::Text(std::to_string(cameraComponent.fallAddition).c_str());
+            ImGui::Text("fallTargetAddition");
+            ImGui::SameLine();
+            ImGui::Text(std::to_string(cameraComponent.fallTargetAddition).c_str());
+            ImGui::Text("dotProductPosVelo");
+            ImGui::SameLine();
+            ImGui::Text(std::to_string(cameraComponent.dotProductPosVelo).c_str());
+            ImGui::Text("dotProductPosVeloMult");
+            ImGui::SameLine();
+            ImGui::Text(std::to_string(cameraComponent.dotProductPosVeloMult).c_str());
+            ImGui::TreePop();
+        }
+    }
+}
+/* Old Camera
 void CameraControllerManager::CreateTargetsEntity() {
     //Create Left Target
     lookTargetLeft_ = entityManager_.get().CreateEntity();
@@ -104,48 +230,7 @@ void CameraControllerManager::FixedUpdate(seconds dt) {
 }
 
 
-void CameraControllerManager::Update(seconds dt)
-{
-    shipInputManager_.Update(dt);
-}
 
-void CameraControllerManager::Destroy()
-{
-	
-}
-
-CameraControllerViewer::CameraControllerViewer(EntityManager& entityManager, CameraControllerManager& cameraControllerManager) : ComponentViewer(entityManager), cameraControllerManager_(cameraControllerManager)
-{
-}
-
-json CameraControllerViewer::GetJsonFromComponent(Entity entity) const
-{
-    json rendererComponent = json::object();
-    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::SHIP_CAMERA)))
-    {
-        if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
-        {
-            
-        }
-    }
-    return rendererComponent;
-}
-
-void CameraControllerViewer::SetComponentFromJson(Entity entity, const json& componentJson)
-{
-    
-}
-
-void CameraControllerViewer::DrawImGui(Entity entity)
-{
-    if (entity == INVALID_ENTITY) return;
-    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::SHIP_CAMERA))) {
-        if (ImGui::TreeNode("ShipCamera")) {
-            ImGui::Text("Param 1");
-            ImGui::TreePop();
-        }
-    }
-}
 
 void CameraControllerManager::LookTurning() {
     switch (shipInputManager_.GetCurrentGesture()) {
@@ -292,4 +377,5 @@ void CameraControllerManager::LastFrameShipValues() {
 void CameraControllerManager::MaximumAngle() {
     
 }
+*/
 }    // namespace neko::aer
