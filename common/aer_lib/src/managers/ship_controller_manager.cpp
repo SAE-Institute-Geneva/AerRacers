@@ -27,10 +27,10 @@ void ShipControllerManager::AddComponent(Entity entity)
    ShipController shipController = GetComponent(entity);
    entityManager_.get().SetEntityName(entity, "ship");
     //Set the startHoverHeight base height reference has the hoverHeight value.
-   shipController.startHoverHeight_ = shipController.hoverHeight_;
+   shipController.startHoverHeight = shipParameter_.kHoverHeight;
 
     //Set the drag to be the forwardForce / terminalVelocity.
-   shipController.drag_ = shipController.forwardForce_ / shipController.terminalVelocity_;
+   shipController.drag = shipParameter_.kForwardForce / shipParameter_.kTerminalVelocity;
 }
 
 
@@ -74,15 +74,15 @@ void ShipControllerManager::CalculateHover(Entity entity, seconds dt)
         Vec3f::down,
         10.0f,
         physics::FilterGroup::GROUND);
-    shipController.isOnGround_ = raycastInfo.GetDistance() < shipController.maxGroundDist_;
+    shipController.isOnGround = raycastInfo.GetDistance() < shipParameter_.kMaxGroundDist;
 
-    if(shipController.isOnGround_)
+    if(shipController.isOnGround)
     {
         float height = raycastInfo.GetDistance();
         groundNormal = raycastInfo.GetNormal().Normalized();
-        float forcePercent = shipController.hoverPID.Seek(shipController.hoverHeight_, height, dt.count());
-        Vec3f force = groundNormal * shipController.hoverForce_ * forcePercent;
-        Vec3f gravity = -groundNormal * shipController.hoverGravity_ * height;
+        float forcePercent = shipController.hoverPid.Seek(shipParameter_.kHoverHeight, height, dt.count());
+        Vec3f force = groundNormal * shipParameter_.kHoverForce * forcePercent;
+        Vec3f gravity = -groundNormal * shipParameter_.kHoverGravity * height;
        
         rigidDynamic.AddForce(force, physx::PxForceMode::eACCELERATION);
         rigidDynamic.AddForce(gravity, physx::PxForceMode::eACCELERATION);
@@ -90,14 +90,14 @@ void ShipControllerManager::CalculateHover(Entity entity, seconds dt)
     else
     {
         groundNormal = transformManager_.GetGlobalPosition(entity).up;
-        Vec3f gravity = -groundNormal * shipController.fallGravity_;
+        Vec3f gravity = -groundNormal * shipParameter_.kFallGravity;
 
         rigidDynamic.AddForce(gravity, physx::PxForceMode::eACCELERATION);
     }
 
     float rotationSpeed = 0.0f;
 
-    if(shipController.isOnGround_)
+    if(shipController.isOnGround)
     {
         rotationSpeed = 10.0f;
     }
@@ -112,10 +112,10 @@ void ShipControllerManager::CalculateHover(Entity entity, seconds dt)
     Quaternion rotation = Quaternion::LookRotation(projection, groundNormal);
 
     Quaternion shipRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(entity));
-    rigidDynamic.MoveRotation(Quaternion::Lerp(shipRotation,rotation, dt.count() * shipController.rotationMultiplicator_));
+    rigidDynamic.MoveRotation(Quaternion::Lerp(shipRotation,rotation, dt.count() * shipParameter_.kRotationMultiplicator));
 
-    float angle = shipController.angleOfRoll_ * -shipInputManager_.rudder_ * shipInputManager_.GetIntensity();
-    float pitchAngle = shipController.angleOfPitch_ * shipInputManager_.thruster_ * shipInputManager_.GetIntensity();
+    float angle = shipParameter_.kAngleOfRoll * -shipInputManager_.rudder_ * shipInputManager_.GetIntensity();
+    float pitchAngle = shipParameter_.kAngleOfPitch * shipInputManager_.thruster_ * shipInputManager_.GetIntensity();
     Quaternion bodyRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(entity)) * Quaternion::FromEuler(EulerAngles(pitchAngle, 0.0f, angle));
 
     transformManager_.SetGlobalRotation(entity, 
@@ -133,7 +133,7 @@ void ShipControllerManager::CalculateThrust(Entity entity, seconds dt)
     ShipController shipController = GetComponent(entity);
     physics::RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(entity);
 
-    float rotationTorque = (shipInputManager_.rudder_ * shipController.rotationMultiplicator_) - rigidDynamic.GetDynamicData().angularVelocity.y;
+    float rotationTorque = (shipInputManager_.rudder_ * shipParameter_.kRotationMultiplicator) - rigidDynamic.GetDynamicData().angularVelocity.y;
 
     rigidDynamic.AddRelativeTorque(Vec3f(0.0f, rotationTorque, 0.0f), physx::PxForceMode::eVELOCITY_CHANGE);
 
@@ -145,21 +145,21 @@ void ShipControllerManager::CalculateThrust(Entity entity, seconds dt)
     rigidDynamic.AddForce(sideFriction, physx::PxForceMode::eACCELERATION);
 
     if(shipInputManager_.thruster_ <= 0.0f) {
-        rigidDynamicManager_.SetLinearVelocity(entity, rigidDynamic.GetDynamicData().linearVelocity * shipController.slowingVelFactor_);
+        rigidDynamicManager_.SetLinearVelocity(entity, rigidDynamic.GetDynamicData().linearVelocity * shipParameter_.kSlowingVelFactor);
     }
 
-    if(!shipController.isOnGround_) {
+    if(!shipController.isOnGround) {
         return;
     }
 
     if(shipInputManager_.isBreaking_) {
-        rigidDynamicManager_.SetLinearVelocity(entity, rigidDynamic.GetDynamicData().linearVelocity * shipController.brakingVelFactor_);
+        rigidDynamicManager_.SetLinearVelocity(entity, rigidDynamic.GetDynamicData().linearVelocity * shipParameter_.kBrakingVelFactor);
     }
 
     Vec3f forward = Quaternion::FromEuler(transformManager_.GetGlobalRotation(entity)) * Vec3f::forward;
-    float propultion = (shipController.forwardForce_ * shipInputManager_.thruster_ * shipController.propultionMultiplicator_) -
-        (shipController.drag_ * Clamp(Vec3f::Dot(rigidDynamic.GetDynamicData().linearVelocity, forward), 0.0f, shipController.terminalVelocity_) *
-            shipController.propultionMultiplicator_);
+    float propultion = (shipParameter_.kForwardForce * shipInputManager_.thruster_ * shipParameter_.kPropultionMultiplicator) -
+        (shipController.drag * Clamp(Vec3f::Dot(rigidDynamic.GetDynamicData().linearVelocity, forward), 0.0f, shipParameter_.kTerminalVelocity) *
+            shipParameter_.kPropultionMultiplicator);
     rigidDynamic.AddForce(forward * propultion, physx::PxForceMode::eACCELERATION);
 }
 

@@ -977,13 +977,13 @@ void RigidDynamicViewer::SetComponentFromJson(Entity entity, const json& compone
     }
     if (CheckJsonParameter(componentJson, "positionLock", json::value_t::object)) {
         if (CheckJsonParameter(componentJson["positionLock"], "x", json::value_t::boolean)) {
-            rigidDynamicData.freezeRotation.x = componentJson["positionLock"]["x"];
+            rigidDynamicData.freezePosition.x = componentJson["positionLock"]["x"];
         }
         if (CheckJsonParameter(componentJson["positionLock"], "y", json::value_t::boolean)) {
-            rigidDynamicData.freezeRotation.y = componentJson["positionLock"]["y"];
+            rigidDynamicData.freezePosition.y = componentJson["positionLock"]["y"];
         }
         if (CheckJsonParameter(componentJson["positionLock"], "z", json::value_t::boolean)) {
-            rigidDynamicData.freezeRotation.z = componentJson["positionLock"]["z"];
+            rigidDynamicData.freezePosition.z = componentJson["positionLock"]["z"];
         }
     }
     RigidActorData rigidActorData       = GetRigidActorFromJson(componentJson);

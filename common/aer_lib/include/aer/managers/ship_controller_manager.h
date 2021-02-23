@@ -13,7 +13,7 @@ public:
     float Seek(float seekValue, float currentValue, float deltaTime);
 
      float pCoeff = 0.8f;
-     float iCoeff = 0.0002f;
+     float iCoeff = 0.002f;
      float dCoeff = 0.05f;
      float minimum = -1;
      float maximum = 1;
@@ -27,32 +27,37 @@ class ShipControllerViewer;
 /**
  * \brief Component used to control the ship movements.
  */
-struct ShipController {
+struct ShipParameter {
     //Drive
-    float forwardForce_ = 150.0f;
-    float slowingVelFactor_ = 0.99f;
-    float brakingVelFactor_ = 0.95f;
-    float angleOfRoll_ = 10.0f;
-    float angleOfPitch_ = 15.0f;
-    float rotationMultiplicator_ = 2.0f;
-    float propultionMultiplicator_ = 1.2f;
-    float rotorMaxAngle_ = 30.0f;
-
+    const float kForwardForce = 200.0f;
+    const float kSlowingVelFactor = 0.99f;
+    const float kBrakingVelFactor = 0.95f;
+    const float kAngleOfRoll = 10.0f;
+    const float kAngleOfPitch = 15.0f;
+    const float kRotationMultiplicator = 2.0f;
+    const float kPropultionMultiplicator = 1.2f;
+    const float kRotorMaxAngle = 30.0f;
     //Hover
-    float hoverHeight_ = 8.0f;
-    float maxGroundDist_ = 10.0f;
-    float hoverForce_ = 300.0f;
-    std::string layerName_ = "Ground";
-    PID hoverPID;
-
+    const float kHoverHeight = 8.0f;
+    const float kMaxGroundDist = 10.0f;
+    const float kHoverForce = 300.0f;
+    const std::string kLayerName = "Ground";
     //Physics
-    float bounceForce_ = 100.0f;
-    float terminalVelocity_ = 100.0f;
-    float hoverGravity_ = 20.0f;
-    float fallGravity_ = 80.0f;
-    float drag_ = 0.0f;
-    bool isOnGround_ = false;
-    float startHoverHeight_ = 0.0f;
+    const float kBounceForce = 100.0f;
+    const float kTerminalVelocity = 1000.0f;
+    const float kHoverGravity = 20.0f;
+    const float kFallGravity = 300.0f;
+};
+/**
+ * \brief Component used to control the ship movements.
+ */
+struct ShipController {
+    //Hover
+    PID hoverPid;
+    //Physics
+    float drag = 0.0f;
+    bool isOnGround = false;
+    float startHoverHeight = 0.0f;
 };
 
 /**
@@ -84,6 +89,8 @@ protected:
     physics::RigidDynamicManager& rigidDynamicManager_;
     physics::RigidStaticManager& rigidStaticManager_;
     physics::PhysicsEngine& physicsEngine_;
+
+    ShipParameter shipParameter_;
 };
 
 /**

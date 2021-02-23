@@ -189,11 +189,9 @@ public:
         const Configuration config = BasicEngine::GetInstance()->GetConfig();
         engine_.GetComponentManagerContainer().sceneManager.LoadScene(
             config.dataRootPath +
-            "scenes/SceneForNeko02-18withship.aerscene");
-        Entity shipEntity = 15;
-        cContainer_.entityManager.SetEntityName(shipEntity, "ship");
-        engine_.GetComponentManagerContainer().shipControllerManager.
-            AddComponent(shipEntity);
+            "scenes/PlayGroundLuca2021-02-23.aerscene");
+        shipEntity_ = cContainer_.entityManager.FilterEntities(EntityMask(ComponentType::SHIP_CONTROLLER))[0];
+        cContainer_.entityManager.SetEntityName(shipEntity_, "ship");
 
         for (Entity entity = 0;
             entity < engine_

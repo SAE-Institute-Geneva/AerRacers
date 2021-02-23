@@ -20,11 +20,11 @@ void ShipInputManager::Update(seconds dt)
 	std::string currentGestureName = "";
 	if (inputLocator.GetControllerIdVector().empty()) return;
 	rightJoystick_ = Vec2f(
-		-inputLocator.GetControllerAxis(inputLocator.GetControllerIdVector()[0], sdl::ControllerAxisType::HORIZONTAL_RIGHT_AXIS),
+		inputLocator.GetControllerAxis(inputLocator.GetControllerIdVector()[0], sdl::ControllerAxisType::HORIZONTAL_RIGHT_AXIS),
 			 -inputLocator.GetControllerAxis(inputLocator.GetControllerIdVector()[0], sdl::ControllerAxisType::VERTICAL_RIGHT_AXIS));
 
 	leftJoystick_ = Vec2f(
-		-inputLocator.GetControllerAxis(inputLocator.GetControllerIdVector()[0], sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS),
+		inputLocator.GetControllerAxis(inputLocator.GetControllerIdVector()[0], sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS),
 		-inputLocator.GetControllerAxis(inputLocator.GetControllerIdVector()[0], sdl::ControllerAxisType::VERTICAL_LEFT_AXIS));
 
 	rightJoystickDirection_ = GetJoystickDirection(Joystick::Right);
@@ -52,7 +52,7 @@ void ShipInputManager::Update(seconds dt)
 
 	case Gesture::TurnLeftForward:
 		thruster_ = intensity;
-		rudder_ = intensity * (turnIntensity * 2);
+		rudder_ = intensity * (turnIntensity);
 		currentGestureName = "turnleftforward";
 		break;
 
@@ -65,7 +65,7 @@ void ShipInputManager::Update(seconds dt)
 
 	case Gesture::TurnRightForward:
 		thruster_ = intensity;
-		rudder_ = -intensity * (turnIntensity * 2);
+		rudder_ = -intensity * (turnIntensity);
 		currentGestureName = "turnrightforward";
 
 		break;
