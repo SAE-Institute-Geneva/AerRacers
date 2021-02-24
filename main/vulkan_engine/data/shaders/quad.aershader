@@ -1,6 +1,6 @@
 {
-    "vert": "../../data/aer_racers/shaders/vulkan/quad.vert.spv",
-    "frag": "../../data/aer_racers/shaders/vulkan/quad.frag.spv",
+    "vert": "shaders/vulkan/quad.vert.spv",
+    "frag": "shaders/vulkan/quad.frag.spv",
     "attributes": [
         {
             "name": "inTexCoords",

@@ -2,46 +2,35 @@
 
 namespace neko::vk
 {
-TextureManager::TextureManager()
-{
-	TextureManagerLocator::provide(this);
-}
+TextureManager::TextureManager() { TextureManagerLocator::provide(this); }
 
-ResourceHash TextureManager::AddTexture2d(const std::string& texturePath)
+ResourceHash TextureManager::AddTexture2d(std::string_view texturePath)
 {
 	const ResourceHash resourceId = HashString(texturePath);
-	textures2d_.emplace(
-			resourceId,
-			std::make_unique<Image2d>(
-				texturePath,
-				VK_FORMAT_R8G8B8A8_UNORM,
-				VK_FILTER_LINEAR,
-				VK_SAMPLER_ADDRESS_MODE_REPEAT,
-				true,
-				false,
-				false
-			));
+	textures2d_.emplace(resourceId,
+		std::make_unique<Image2d>(texturePath,
+			VK_FORMAT_R8G8B8A8_SRGB,
+			VK_FILTER_LINEAR,
+			VK_SAMPLER_ADDRESS_MODE_REPEAT,
+			true,
+			false,
+			false));
 	textures2d_[resourceId]->Load();
 	return resourceId;
 }
 
-const Image2d& TextureManager::GetImage2d(const std::string& texturePath) const
+std::optional_const_ref<Image2d> TextureManager::GetImage2d(std::string_view texturePath) const
 {
 	return GetImage2d(HashString(texturePath));
 }
 
-const Image2d& TextureManager::GetImage2d(ResourceHash resourceID) const
+std::optional_const_ref<Image2d> TextureManager::GetImage2d(ResourceHash resourceId) const
 {
-	const auto it = textures2d_.find(resourceID);
-	if(it != textures2d_.end())
-	{
-		return *it->second;
-	}
-	return Image2d("");
+	const auto it = textures2d_.find(resourceId);
+	if (it != textures2d_.end()) { return *it->second; }
+
+	return std::nullopt;
 }
 
-void TextureManager::Clear()
-{
-	textures2d_.clear();
-}
-}
+void TextureManager::Clear() { textures2d_.clear(); }
+}    // namespace neko::vk

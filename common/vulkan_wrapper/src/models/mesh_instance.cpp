@@ -4,35 +4,37 @@ namespace neko::vk
 {
 VertexInput MeshInstance::Instance::GetVertexInput(uint32_t baseBinding)
 {
-	VkVertexInputBindingDescription bindingDescription{};
-	bindingDescription.binding = baseBinding;
-	bindingDescription.stride = sizeof(Instance);
+	VkVertexInputBindingDescription bindingDescription {};
+	bindingDescription.binding   = baseBinding;
+	bindingDescription.stride    = sizeof(Instance);
 	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
 
-	const std::vector<VkVertexInputAttributeDescription> attributeDescriptions =
-	{
-		{ 0, baseBinding, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Instance, modelMatrix) },
-		{ 1, baseBinding, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Instance, modelMatrix) + 16 },
-		{ 2, baseBinding, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Instance, modelMatrix) + 32 },
-		{ 3, baseBinding, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Instance, modelMatrix) + 48 },
+	const std::vector<VkVertexInputAttributeDescription> attributeDescriptions = {
+		{0, baseBinding, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Instance, modelMatrix)},
+		{1, baseBinding, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Instance, modelMatrix) + 16},
+		{2, baseBinding, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Instance, modelMatrix) + 32},
+		{3, baseBinding, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Instance, modelMatrix) + 48},
 	};
 
 	return VertexInput(0, bindingDescription, attributeDescriptions);
 }
 
 MeshInstance::MeshInstance(const Mesh& mesh, const Material& material)
-		: kMesh_(mesh),
-		  kMaterial_(material),
-		  instanceBuffer_(sizeof(Instance) * kMaxInstances),
-		  uniformObject_(false) { }
+   : kMesh_(mesh),
+	 kMaterial_(material),
+	 instanceBuffer_(sizeof(Instance) * kMaxInstances),
+	 uniformObject_(false)
+{}
 
 std::unique_ptr<MeshInstance> MeshInstance::Create(const Mesh& mesh, const Material& material)
-{ return std::make_unique<MeshInstance>(mesh, material); }
+{
+	return std::make_unique<MeshInstance>(mesh, material);
+}
 
 void MeshInstance::Update(std::vector<Mat4f>& modelMatrices)
 {
 	maxInstances_ = kMaxInstances;
-	instances_ = 0;
+	instances_    = 0;
 
 	if (modelMatrices.empty()) return;
 
@@ -43,7 +45,7 @@ void MeshInstance::Update(std::vector<Mat4f>& modelMatrices)
 	{
 		if (instances_ >= maxInstances_) break;
 
-		auto instance = &instances[instances_];
+		auto instance         = &instances[instances_];
 		instance->modelMatrix = modelMatrix;
 		instances_++;
 	}
@@ -53,12 +55,11 @@ void MeshInstance::Update(std::vector<Mat4f>& modelMatrices)
 
 bool MeshInstance::CmdRender(const CommandBuffer& commandBuffer, UniformHandle& uniformScene)
 {
-	if (instances_ == 0) return false; //No instances
+	if (instances_ == 0) return false;    //No instances
 
 	const auto& materialPipeline = kMaterial_.GetPipelineMaterial();
 
-	if (!kMaterial_.BindPipeline(commandBuffer))
-		return false;
+	if (!kMaterial_.BindPipeline(commandBuffer)) return false;
 
 	const auto& pipeline = materialPipeline.GetPipeline();
 
@@ -66,30 +67,25 @@ bool MeshInstance::CmdRender(const CommandBuffer& commandBuffer, UniformHandle& 
 	uniformObject_.PushUniformData(kMaterial_.ExportUniformData());
 
 	//Push texture to shader
-	descriptorSet_.Push(kUniformObjectHash, uniformObject_);
-	descriptorSet_.Push(kUniformSceneHash, uniformScene);
+	descriptorSet_.Push(kUboObjectHash, uniformObject_);
+	descriptorSet_.Push(kUboSceneHash, uniformScene);
 
 	descriptorSet_.PushDescriptorData(kMaterial_.ExportDescriptorData());
 
-	if (!descriptorSet_.Update(pipeline))
-		return false;
+	if (!descriptorSet_.Update(pipeline)) return false;
 
 	descriptorSet_.BindDescriptor(commandBuffer, pipeline);
 
-	VkBuffer vertexBuffers[] = {
-			kMesh_.GetVertexBuffer().GetBuffer(),
-			instanceBuffer_.GetBuffer() };
-	VkDeviceSize offset[] = {0, 0};
+	VkBuffer vertexBuffers[] = {kMesh_.GetVertexBuffer(), instanceBuffer_};
+	VkDeviceSize offset[]    = {0, 0};
 
 	//Bind buffers
-	vkCmdBindVertexBuffers(VkCommandBuffer(commandBuffer), 0, 2, vertexBuffers, offset);
-	vkCmdBindIndexBuffer(VkCommandBuffer(commandBuffer),
-			kMesh_.GetIndexBuffer().GetBuffer(), 0, Mesh::GetIndexType());
+	vkCmdBindVertexBuffers(commandBuffer, 0, 2, vertexBuffers, offset);
+	vkCmdBindIndexBuffer(commandBuffer, kMesh_.GetIndexBuffer(), 0, Mesh::GetIndexType());
 
 	//Draw the instances
-	vkCmdDrawIndexed(VkCommandBuffer(commandBuffer),
-			kMesh_.GetIndexCount(), instances_, 0, 0, 0);
+	vkCmdDrawIndexed(commandBuffer, kMesh_.GetIndexCount(), instances_, 0, 0, 0);
 
 	return true;
 }
-}
+}    // namespace neko::vk

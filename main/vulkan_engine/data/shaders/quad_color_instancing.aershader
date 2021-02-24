@@ -1,6 +1,6 @@
 {
-    "vert": "aer_racers/shaders/vulkan/quad_instancing.vert.spv",
-    "frag": "aer_racers/shaders/vulkan/quad_instancing.frag.spv",
+    "vert": "shaders/vulkan/quad_instancing.vert.spv",
+    "frag": "shaders/vulkan/quad_instancing.frag.spv",
     "attributes": [
         {
             "name": "inPosition",

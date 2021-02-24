@@ -4,59 +4,44 @@
 
 namespace neko::vk
 {
-Uniform::Uniform(
-		std::string name,
-		const std::uint32_t binding,
-		const Type type,
-		const VkShaderStageFlags stageFlags,
-		const bool writeOnly)
-        : name_(std::move(name)),
-        binding_(binding),
-        type_(type),
-        stageFlags_(stageFlags),
-        writeOnly_(writeOnly)
+Uniform::Uniform(std::string_view name,
+	uint32_t binding,
+	Type type,
+	VkShaderStageFlags stageFlags,
+	bool writeOnly)
+   : name_(std::move(name)),
+	 binding_(binding),
+	 type_(type),
+	 stageFlags_(stageFlags),
+	 writeOnly_(writeOnly)
 {}
 
-Uniform::Uniform(
-		std::string name,
-		const std::uint32_t offset,
-		const std::uint32_t size,
-		const bool writeOnly)
-        : name_(std::move(name)),
-        offset_(offset),
-        size_(size),
-        writeOnly_(writeOnly)
+Uniform::Uniform(std::string_view name, uint32_t offset, uint32_t size, bool writeOnly)
+   : name_(std::move(name)), offset_(offset), size_(size), writeOnly_(writeOnly)
 {}
 
-Uniform::Uniform(const json& uniformJson)
-{
-	FromJson(uniformJson);
-}
+Uniform::Uniform(const json& uniformJson) { FromJson(uniformJson); }
 
 bool Uniform::operator==(const Uniform& other) const
 {
-	return HashString(name_) == HashString(other.name_) &&
-	       binding_ == other.binding_ &&
-	       offset_ == other.offset_ &&
-	       size_ == other.size_ &&
-	       type_ == other.type_ &&
-	       writeOnly_ == other.writeOnly_ &&
-	       stageFlags_ == other.stageFlags_;
+	return HashString(name_) == HashString(other.name_) && binding_ == other.binding_ &&
+	       offset_ == other.offset_ && size_ == other.size_ && type_ == other.type_ &&
+	       writeOnly_ == other.writeOnly_ && stageFlags_ == other.stageFlags_;
 }
 
-bool Uniform::operator!=(const Uniform& other) const
-{
-    return !(*this == other);
-}
+bool Uniform::operator!=(const Uniform& other) const { return !(*this == other); }
 
 void Uniform::FromJson(const json& uniformJson)
 {
 	name_ = uniformJson["name"].get<std::string>();
-	if (CheckJsonExists(uniformJson, "binding")) binding_ = uniformJson["binding"].get<std::uint32_t>();
-	if (CheckJsonExists(uniformJson, "offset")) offset_ = uniformJson["offset"].get<std::uint32_t>();
+	if (CheckJsonExists(uniformJson, "binding"))
+		binding_ = uniformJson["binding"].get<std::uint32_t>();
+	if (CheckJsonExists(uniformJson, "offset"))
+		offset_ = uniformJson["offset"].get<std::uint32_t>();
 	if (CheckJsonExists(uniformJson, "size")) size_ = uniformJson["size"].get<std::uint32_t>();
 	if (CheckJsonExists(uniformJson, "type")) type_ = uniformJson["type"].get<Type>();
-	if (CheckJsonExists(uniformJson, "stageFlags")) stageFlags_ = uniformJson["stageFlags"].get<VkShaderStageFlags>();
+	if (CheckJsonExists(uniformJson, "stageFlags"))
+		stageFlags_ = uniformJson["stageFlags"].get<VkShaderStageFlags>();
 	writeOnly_ = uniformJson["writeOnly"].get<bool>();
 }
 
@@ -73,4 +58,4 @@ ordered_json Uniform::ToJson() const
 
 	return uniformJson;
 }
-}
+}    // namespace neko::vk

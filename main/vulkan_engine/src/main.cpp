@@ -1,11 +1,11 @@
 //
 // Created by frousties on 07/10/2020.
 //
-#include "vk_engine.h"
 #include "vk/graphics.h"
 #include "vk/renderers/renderer_editor.h"
+#include "vk_engine.h"
 
-int main(int argc, char** argv)
+int main(int, char**)
 {
 	using namespace neko;
     Configuration config;
@@ -16,7 +16,7 @@ int main(int argc, char** argv)
 	Filesystem filesystem;
     vk::VkEngine engine(filesystem, &config);
     sdl::VulkanWindow window;
-    engine.SetWindowAndRenderer(&window);
+    engine.SetWindowAndRenderer(&window, nullptr);
     engine.Init();
 
     vk::VkRenderer renderer(&window);

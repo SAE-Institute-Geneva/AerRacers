@@ -1,14 +1,17 @@
 #include "vk/subrenderers/subrenderer_opaque.h"
 
-#include "vk/graphics.h"
+#include "graphics/camera.h"
+
+#include "vk/vk_resources.h"
 #include "vk/material/material_manager.h"
+#include "vk/models/model_manager.h"
 
 namespace neko::vk
 {
 SubrendererOpaque::SubrendererOpaque(Pipeline::Stage stage)
     : RenderPipeline(stage),
     uniformScene_(true),
-    modelCmdBuffer_(VkObjectsLocator::get().modelCommandBuffer) {}
+    modelCmdBuffer_(VkResources::Inst->modelCommandBuffer) {}
 
 void SubrendererOpaque::Destroy() const
 {
@@ -16,15 +19,14 @@ void SubrendererOpaque::Destroy() const
 	modelCmdBuffer_.Destroy();
 }
 
-void SubrendererOpaque::OnRender(const CommandBuffer& commandBuffer)
+void SubrendererOpaque::Render(const CommandBuffer& commandBuffer)
 {
     const auto& camera = CameraLocator::get();
-
     const auto& view = camera.GenerateViewMatrix();
     auto proj = camera.GenerateProjectionMatrix();
-    proj[1][1] *= -1;
+    proj[1][1] *= -1.0f;
 
-    uniformScene_.Push(kProjectionHash, proj);
+    uniformScene_.Push(kProjHash, proj);
     uniformScene_.Push(kViewHash, view);
     uniformScene_.Push(kViewPosHash, camera.position);
 
@@ -35,7 +37,7 @@ void SubrendererOpaque::OnRender(const CommandBuffer& commandBuffer)
     auto& materialManager = MaterialManagerLocator::get();
     for (auto& modelDrawCommand : modelCmdBuffer_.GetForwardModels())
     {
-    	const auto& model = modelManager.GetModel(modelDrawCommand.modelID);
+    	const auto& model = modelManager.GetModel(modelDrawCommand.modelId);
 	    for (std::size_t i = 0; i < model->GetMeshCount(); ++i)
 	    {
 		    const auto& mesh = model->GetMesh(i);

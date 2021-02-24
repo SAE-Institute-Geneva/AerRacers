@@ -17,7 +17,8 @@ void GameCamera::Init()
 void GameCamera::Update(const seconds dt)
 {
 	const auto& inputManager = sdl::InputLocator::get();
-	for (std::size_t i = 0; i < cameras_.size(); ++i)
+	const auto& controllers = inputManager.GetControllerIdVector();
+	for (std::size_t i = 0; i < controllers.size() / 2; ++i)
 	{
 		// Query left joystick movement
 		const float xMove =

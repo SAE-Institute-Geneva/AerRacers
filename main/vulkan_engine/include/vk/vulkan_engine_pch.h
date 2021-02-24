@@ -22,13 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include "engine/log.h"
-#include "engine/assert.h"
 
 #ifdef NEKO_VULKAN
-#include "vulkan/vulkan.h"
-
-#if !defined (NDEBUG) && !defined (NN_NINTENDO_SDK)
-#define VALIDATION_LAYERS
+	#include "imgui.h"
+	#include "sdl_engine/sdl_camera.h"
+	#include "vk/images/image2d.h"
+	#include "vk/models/model.h"
+	#include "vk/shaders/shader.h"
+	#include "vk/vk_include.h"
 #endif
+
+#ifdef EASY_PROFILE_USE
+#include "easy/profiler.h"
 #endif

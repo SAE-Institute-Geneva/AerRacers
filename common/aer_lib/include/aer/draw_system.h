@@ -71,6 +71,6 @@ private:
 	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
 #endif
 
-	std::uint8_t playerNum_ = 1;
+	std::uint8_t playerNum_ = 4;
 };
 }    // namespace neko::aer

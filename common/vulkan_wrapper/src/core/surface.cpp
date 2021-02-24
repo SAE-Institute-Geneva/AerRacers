@@ -2,63 +2,62 @@
 
 #include "SDL_vulkan.h"
 
-#include "vk/graphics.h"
+#include "vk/vk_resources.h"
 
 namespace neko::vk
 {
 void Surface::Init(SDL_Window& window)
 {
-    CreateSurface(window);
+	neko_assert(SDL_Vulkan_CreateSurface(&window, VkResources::Inst->instance, &surface_),
+		"Unable to create Vulkan compatible surface using SDL!")
 }
 
 void Surface::SetFormat()
 {
-    const auto& vkObj = VkObjectsLocator::get();
+	const VkResources* vkObj = VkResources::Inst;
 
-    std::uint32_t formatCount = 0;
-    vkGetPhysicalDeviceSurfaceFormatsKHR(VkPhysicalDevice(vkObj.gpu), surface_,
-                                         &formatCount, nullptr);
-    std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
-    vkGetPhysicalDeviceSurfaceFormatsKHR(VkPhysicalDevice(vkObj.gpu), surface_,
-                                         &formatCount, surfaceFormats.data());
+	std::uint32_t formatCount = 0;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(vkObj->gpu, surface_, &formatCount, nullptr);
 
-    if (formatCount == 1 && surfaceFormats[0].format == VK_FORMAT_UNDEFINED)
-    {
-        format_.format = kFormat;
-        format_.colorSpace = surfaceFormats[0].colorSpace;
-    }
-    else
-    {
-        bool foundB8G8R8AUnorm = false;
-        for (auto&& surfaceFormat : surfaceFormats)
-        {
-            if (surfaceFormat.format == kFormat)
-            {
-                format_.format = surfaceFormat.format;
-                format_.colorSpace = surfaceFormat.colorSpace;
-                foundB8G8R8AUnorm = true;
-                break;
-            }
-        }
+	std::vector<VkSurfaceFormatKHR> surfaceFormats(formatCount);
+	vkGetPhysicalDeviceSurfaceFormatsKHR(vkObj->gpu, surface_, &formatCount, surfaceFormats.data());
 
-        if (!foundB8G8R8AUnorm)
-        {
-            format_.format = surfaceFormats[0].format;
-            format_.colorSpace = surfaceFormats[0].colorSpace;
-        }
-    }
+	if (formatCount == 1 && surfaceFormats[0].format == VK_FORMAT_UNDEFINED)
+	{
+		format_.format     = kFormat;
+		format_.colorSpace = surfaceFormats[0].colorSpace;
+	}
+	else
+	{
+		bool foundFormat = false;
+		for (auto&& surfaceFormat : surfaceFormats)
+		{
+			if (surfaceFormat.format == kFormat)
+			{
+				format_.format     = surfaceFormat.format;
+				format_.colorSpace = surfaceFormat.colorSpace;
+				foundFormat        = true;
+				break;
+			}
+		}
+
+		if (!foundFormat)
+		{
+			format_.format     = surfaceFormats[0].format;
+			format_.colorSpace = surfaceFormats[0].colorSpace;
+		}
+	}
 }
 
 void Surface::Destroy() const
 {
-    const auto& vkObj = VkObjectsLocator::get();
-    vkDestroySurfaceKHR(VkInstance(vkObj.instance), surface_, nullptr);
+	vkDestroySurfaceKHR(VkResources::Inst->instance, surface_, nullptr);
 }
 
-void Surface::CreateSurface(SDL_Window& window)
+VkSurfaceCapabilitiesKHR Surface::GetCapabilities() const
 {
-    const auto& instance = VkInstance(VkObjectsLocator::get().instance);
-    neko_assert(SDL_Vulkan_CreateSurface(&window, instance, &surface_),
-                "Unable to create Vulkan compatible surface using SDL!")
+	VkSurfaceCapabilitiesKHR capabilities;
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(VkResources::Inst->gpu, surface_, &capabilities);
+	return capabilities;
 }
-}
+}    // namespace neko::vk

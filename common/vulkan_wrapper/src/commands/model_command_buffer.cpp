@@ -5,26 +5,22 @@
 namespace neko::vk
 {
 ModelCommandBuffer::ModelCommandBuffer()
-	: meshInstances_(std::vector<std::unique_ptr<MeshInstance>>())
+   : meshInstances_(std::vector<std::unique_ptr<MeshInstance>>())
 {}
 
 void ModelCommandBuffer::Destroy()
 {
-	for (auto& forwardDrawCmd : forwardDrawingCmd_)
-		forwardDrawCmd.uniformHandle.Destroy();
+	for (auto& forwardDrawCmd : forwardDrawingCmd_) forwardDrawCmd.uniformHandle.Destroy();
 
 	Clear();
 }
 
-ModelInstanceIndex ModelCommandBuffer::GetModelInstanceIndex(
-		const Material& material,
-		const Mesh& mesh,
-		const std::vector<Mat4f>& matrices)
+ModelInstanceIndex ModelCommandBuffer::AddModelInstanceIndex(
+	const Material& material, const Mesh& mesh, const std::vector<Mat4f>& matrices)
 {
 	for (size_t i = 0; i < meshInstances_.size(); i++)
 		if (&meshInstances_[i]->GetMaterial() == &material)
-			if (&meshInstances_[i]->GetMesh() == &mesh)
-				return i;
+			if (&meshInstances_[i]->GetMesh() == &mesh) return i;
 
 	meshInstances_.emplace_back();
 	meshInstances_.back() = std::make_unique<MeshInstance>(mesh, material);
@@ -51,33 +47,30 @@ void ModelCommandBuffer::Draw(const Mat4f& worldMatrix, ModelInstanceIndex insta
 }
 
 void ModelCommandBuffer::Draw(
-		const Mat4f& worldMatrix,
-		const sole::uuid modelId,
-		ModelForwardIndex forwardIndex)
+	const Mat4f& worldMatrix, const sole::uuid modelId, ModelForwardIndex forwardIndex)
 {
-	const auto& modelManager = ModelManagerLocator::get();
 	forwardDrawingCmd_[forwardIndex].worldMatrix = worldMatrix;
-	forwardDrawingCmd_[forwardIndex].modelID = modelId;
+	forwardDrawingCmd_[forwardIndex].modelId     = modelId;
 }
 
 void ModelCommandBuffer::PrepareData()
 {
-    for (size_t i = 0; i < meshInstances_.size(); i++)
-    {
-	    meshInstances_[i]->Update(instanceMatrices_[i]);
-        //instanceMatrices_[i].clear();
-    }
+	for (size_t i = 0; i < meshInstances_.size(); i++)
+	{
+		meshInstances_[i]->Update(instanceMatrices_[i]);
+		//instanceMatrices_[i].clear();
+	}
 }
 
 void ModelCommandBuffer::Clear()
 {
-    forwardDrawingCmd_.clear();
+	forwardDrawingCmd_.clear();
 	meshInstances_.clear();
 }
 
 void ModelCommandBuffer::OnUnloadScene()
 {
-    Clear();
-    forwardDrawingCmd_.shrink_to_fit();
+	Clear();
+	forwardDrawingCmd_.shrink_to_fit();
 }
-}
+}    // namespace neko::vk
