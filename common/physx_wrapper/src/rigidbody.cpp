@@ -124,6 +124,7 @@ void RigidActor::SetMaterial(const PhysicsMaterial& physicsMaterial) const
     material_->setStaticFriction(physicsMaterial.staticFriction);
     material_->setDynamicFriction(physicsMaterial.dynamicFriction);
     material_->setRestitutionCombineMode(physx::PxCombineMode::eMIN);
+    material_->setFrictionCombineMode(physx::PxCombineMode::eMIN);
 }
 
 physx::PxMaterial* RigidActor::InitMaterial(

@@ -58,6 +58,7 @@ struct ShipController {
     float drag = 0.0f;
     bool isOnGround = false;
     float startHoverHeight = 0.0f;
+    Entity shipModel = INVALID_ENTITY;
 };
 
 /**
@@ -66,6 +67,7 @@ struct ShipController {
 class ShipControllerManager:
 					  public SystemInterface,
 					  public physics::FixedUpdateInterface,
+					  public physics::OnCollisionInterface,
                       public ComponentManager<ShipController, EntityMask(ComponentType::SHIP_CONTROLLER)>
 {
 public:
@@ -82,7 +84,9 @@ public:
 	void Destroy() override;
     void AddComponent(Entity entity) override;
     void CalculateHover(Entity entity, seconds dt);
-    void CalculateThrust(Entity entity, seconds dt);	
+    void CalculateThrust(Entity entity, seconds dt);
+    void OnCollisionEnter(
+        const physx::PxContactPairHeader& pairHeader) override;
 protected:
     ShipInputManager shipInputManager_;
 	Transform3dManager& transformManager_;

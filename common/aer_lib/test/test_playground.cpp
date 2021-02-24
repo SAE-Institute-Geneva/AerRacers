@@ -186,6 +186,7 @@ public:
 #endif
         camera_ = GizmosLocator::get().GetCamera();
         camera_->farPlane = 100'000.0f;
+        camera_->fovY = degree_t(80);
         const Configuration config = BasicEngine::GetInstance()->GetConfig();
         engine_.GetComponentManagerContainer().sceneManager.LoadScene(
             config.dataRootPath +
