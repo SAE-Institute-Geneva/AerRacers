@@ -22,17 +22,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-
+#ifdef NEKO_GLES3
 #include <vector>
 
 #include "assimp/material.h"
+#include "gl/mesh.h"
+#include "gl/shader.h"
+#include "gl/texture.h"
+#include "mathematics/aabb.h"
+#include "mathematics/circle.h"
 #include "mathematics/vector.h"
-#ifdef NEKO_GLES3
-	#include "gl/mesh.h"
-	#include "gl/shader.h"
-	#include "gl/texture.h"
-	#include "mathematics/aabb.h"
-	#include "mathematics/circle.h"
 
 struct aiMesh;
 struct aiScene;

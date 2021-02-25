@@ -40,14 +40,14 @@ void Mesh::Destroy() const
 
 void Mesh::Init() { InitData(GetVertices(0), GetIndices(0)); }
 
-bool Mesh::CmdRender(const CommandBuffer& commandBuffer, const std::uint32_t instance) const
+bool Mesh::DrawCmd(const CommandBuffer& commandBuffer, const std::uint32_t instance) const
 {
 	VkBuffer vertexBuffers[] = {vertexBuffer_.GetBuffer()};
 	VkDeviceSize offsets[]   = {0};
-	vkCmdBindVertexBuffers(VkCommandBuffer(commandBuffer), 0, 1, vertexBuffers, offsets);
-	vkCmdBindIndexBuffer(
-		VkCommandBuffer(commandBuffer), indexBuffer_->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
-	vkCmdDrawIndexed(VkCommandBuffer(commandBuffer), indexCount_, instance, 0, 0, 0);
+
+	vkCmdBindVertexBuffers(commandBuffer, 0, 1, vertexBuffers, offsets);
+	vkCmdBindIndexBuffer(commandBuffer, indexBuffer_->GetBuffer(), 0, VK_INDEX_TYPE_UINT32);
+	vkCmdDrawIndexed(commandBuffer, indexCount_, instance, 0, 0, 0);
 
 	return true;
 }
@@ -59,38 +59,33 @@ std::vector<Vertex> Mesh::GetVertices(const std::size_t offset) const
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 	CommandBuffer commandBuffer(true);
-	VkBufferCopy copyRegion = {};
-	copyRegion.size         = vertexStaging.GetSize();
-	vkCmdCopyBuffer(VkCommandBuffer(commandBuffer),
-		vertexBuffer_.GetBuffer(),
-		vertexStaging.GetBuffer(),
-		1,
-		&copyRegion);
+	{
+		VkBufferCopy copyRegion = {};
+		copyRegion.size         = vertexStaging.GetSize();
+		vkCmdCopyBuffer(commandBuffer, vertexBuffer_, vertexStaging, 1, &copyRegion);
+	}
 	commandBuffer.SubmitIdle();
 
 	char* verticesMemory;
-	vertexStaging.MapMemory(&verticesMemory);
 	std::vector<Vertex> vertices(vertexCount_);
-
-	const auto sizeOfSrcT = vertexStaging.GetSize() / vertexCount_;
-
-	for (std::uint32_t i = 0; i < vertexCount_; i++)
+	vertexStaging.MapMemory(&verticesMemory);
 	{
-		memcpy(&vertices[i],
-			static_cast<char*>(verticesMemory) + (i * sizeOfSrcT) + offset,
-			sizeof(Vertex));
+		const std::size_t sizeOfSrcT = vertexStaging.GetSize() / vertexCount_;
+		for (std::uint32_t i = 0; i < vertexCount_; i++)
+		{
+			std::memcpy(&vertices[i],
+				static_cast<char*>(verticesMemory) + (i * sizeOfSrcT) + offset,
+				sizeof(Vertex));
+		}
 	}
-
 	vertexStaging.UnmapMemory();
 	return vertices;
 }
 
 void Mesh::SetVertices(const std::vector<Vertex>& vertices)
 {
-	if (vertexBuffer_.GetBuffer()) vertexBuffer_.Destroy();
-
+	if (VkBuffer(vertexBuffer_)) vertexBuffer_.Destroy();
 	vertexCount_ = static_cast<std::uint32_t>(vertices.size());
-
 	if (vertices.empty()) return;
 
 	const auto vertexStaging = Buffer(sizeof(Vertex) * vertices.size(),
@@ -103,13 +98,11 @@ void Mesh::SetVertices(const std::vector<Vertex>& vertices)
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	CommandBuffer commandBuffer(true);
-	VkBufferCopy copyRegion = {};
-	copyRegion.size         = vertexStaging.GetSize();
-	vkCmdCopyBuffer(VkCommandBuffer(commandBuffer),
-		vertexStaging.GetBuffer(),
-		vertexBuffer_.GetBuffer(),
-		1,
-		&copyRegion);
+	{
+		VkBufferCopy copyRegion = {};
+		copyRegion.size         = vertexStaging.GetSize();
+		vkCmdCopyBuffer(commandBuffer, vertexStaging, vertexBuffer_, 1, &copyRegion);
+	}
 	commandBuffer.SubmitIdle();
 	vertexStaging.Destroy();
 }
@@ -123,28 +116,25 @@ std::vector<std::uint32_t> Mesh::GetIndices(const std::size_t offset) const
 		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
 
 	CommandBuffer commandBuffer(true);
-	VkBufferCopy copyRegion {};
-	copyRegion.size = indexStaging.GetSize();
-	vkCmdCopyBuffer(VkCommandBuffer(commandBuffer),
-		indexBuffer_->GetBuffer(),
-		indexStaging.GetBuffer(),
-		1,
-		&copyRegion);
+	{
+		VkBufferCopy copyRegion {};
+		copyRegion.size = indexStaging.GetSize();
+		vkCmdCopyBuffer(commandBuffer, indexBuffer_.value(), indexStaging, 1, &copyRegion);
+	}
 	commandBuffer.SubmitIdle();
 
 	char* indicesMemory;
-	indexStaging.MapMemory(&indicesMemory);
 	std::vector<std::uint32_t> indices(indexCount_);
-
-	const auto sizeOfSrcT = indexStaging.GetSize() / indexCount_;
-
-	for (std::uint32_t i = 0; i < indexCount_; i++)
+	indexStaging.MapMemory(&indicesMemory);
 	{
-		memcpy(&indices[i],
-			static_cast<char*>(indicesMemory) + (i * sizeOfSrcT) + offset,
-			sizeof(std::uint32_t));
+		const std::size_t sizeOfSrcT = indexStaging.GetSize() / indexCount_;
+		for (std::uint32_t i = 0; i < indexCount_; i++)
+		{
+			std::memcpy(&indices[i],
+				static_cast<char*>(indicesMemory) + (i * sizeOfSrcT) + offset,
+				sizeof(std::uint32_t));
+		}
 	}
-
 	indexStaging.UnmapMemory();
 	return indices;
 }
@@ -153,7 +143,6 @@ void Mesh::SetIndices(const std::vector<std::uint32_t>& indices)
 {
 	indexBuffer_.reset();
 	indexCount_ = static_cast<std::uint32_t>(indices.size());
-
 	if (indices.empty()) return;
 
 	const auto indexStaging = Buffer(sizeof(std::uint32_t) * indices.size(),
@@ -166,13 +155,11 @@ void Mesh::SetIndices(const std::vector<std::uint32_t>& indices)
 		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 	CommandBuffer commandBuffer(true);
-	VkBufferCopy copyRegion {};
-	copyRegion.size = indexStaging.GetSize();
-	vkCmdCopyBuffer(VkCommandBuffer(commandBuffer),
-		indexStaging.GetBuffer(),
-		indexBuffer_->GetBuffer(),
-		1,
-		&copyRegion);
+	{
+		VkBufferCopy copyRegion {};
+		copyRegion.size = indexStaging.GetSize();
+		vkCmdCopyBuffer(commandBuffer, indexStaging, indexBuffer_.value(), 1, &copyRegion);
+	}
 	commandBuffer.SubmitIdle();
 	indexStaging.Destroy();
 }

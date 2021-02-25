@@ -1,8 +1,12 @@
 #pragma once
-#include "engine/component.h"
 #include "engine/transform.h"
-#include "gl/model.h"
 #include "mathematics/matrix.h"
+
+#ifdef NEKO_GLES3
+#include "gl/model.h"
+#else
+#include "vk/models/model_manager.h"
+#endif
 
 namespace neko::aer
 {
@@ -12,6 +16,13 @@ class RendererViewer;
 struct DrawCmd
 {
 	gl::ModelId modelId = gl::INVALID_MODEL_ID;
+
+	bool isVisible = true;
+};
+#else
+struct DrawCmd
+{
+	vk::ModelId modelId = vk::INVALID_MODEL_ID;
 
 	bool isVisible = true;
 };
@@ -28,6 +39,8 @@ class RenderManager : public IRenderManager,
 					  public RenderCommandInterface,
 #ifdef NEKO_GLES3
                       public ComponentManager<DrawCmd, EntityMask(ComponentType::MODEL)>
+#else
+                      public ComponentManager<DrawCmd, EntityMask(ComponentType::MODEL)>
 #endif
 {
 public:
@@ -35,6 +48,8 @@ public:
 		EntityManager& entityManager,
 #ifdef NEKO_GLES3
 		gl::ModelManager& modelManager,
+#else
+		vk::ModelManager& modelManager,
 #endif
 		Transform3dManager& transform3DManager,
         RendererViewer& rendererViewer);
@@ -47,6 +62,8 @@ public:
 	void SetModel(Entity entity, const std::string& modelPath);
 #ifdef NEKO_GLES3
 	void SetModel(Entity entity, gl::ModelId modelId);
+#else
+	void SetModel(Entity entity, vk::ModelId modelId);
 #endif
 
 	void UpdateDirtyComponent(Entity entity) override;
@@ -56,6 +73,8 @@ protected:
 #ifdef NEKO_GLES3
 	gl::Shader shader_;
 	gl::ModelManager& modelManager_;
+#else
+	vk::ModelManager& modelManager_;
 #endif
 
 	Transform3dManager& transformManager_;
@@ -70,39 +89,39 @@ protected:
 /**
  * \brief The Component Manager use to serialize to json and imgui components
  */
-class RendererViewer : public ComponentViewer
+class RendererViewer final : public ComponentViewer
 {
 public:
     explicit RendererViewer(EntityManager& entityManager, RenderManager& renderManager);
-
-    virtual ~RendererViewer() = default;
-
-    /**
-     * \brief Get a json object of the component of an entity
-     * \return json object with component parameter
-     */
-    json GetJsonFromComponent(Entity entity) const override;
-
-    /**
-     * \brief Set a component of an entity from a json of the component
-     * \componentJson json object with component parameter
-     */
-    void SetComponentFromJson(Entity entity, const json& componentJson) override;
+    ~RendererViewer() override = default;
 
     /**
      * \brief Draw the Imgui with the component parameter of an entity
      */
     void DrawImGui(Entity entity) override;
 
+	/**
+	 * \brief Return the mesh name of a model
+	 */
+	[[nodiscard]] std::string_view GetMeshName(Entity entity) const;
+
     /**
      * \brief Use to store the meshName 
      * \param meshName meshName of the model
      */
-    void SetMeshName(Entity entity, const std::string& meshName);
-    /**
-     * \brief Return the mesh name of a model
-     */
-    std::string GetMeshName(Entity entity) const;
+    void SetMeshName(Entity entity, std::string_view meshName);
+
+	/**
+	 * \brief Set a component of an entity from a json of the component
+	 * \componentJson json object with component parameter
+	 */
+	void SetComponentFromJson(Entity entity, const json& componentJson) override;
+
+	/**
+	 * \brief Get a json object of the component of an entity
+	 * \return json object with component parameter
+	 */
+	[[nodiscard]] json GetJsonFromComponent(Entity entity) const override;
 
 private:
     RenderManager& rendererManager_;

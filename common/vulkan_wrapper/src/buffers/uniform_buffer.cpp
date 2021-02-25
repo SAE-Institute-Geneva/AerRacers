@@ -1,5 +1,3 @@
-#include "vk/buffers/uniform_buffer.h"
-
 #include "vk/vk_resources.h"
 
 namespace neko::vk
@@ -15,14 +13,13 @@ void UniformBuffer::Update(const std::vector<char>& newUniformData) const
 {
 	char* dataPtr;
 	MapMemory(&dataPtr);
-	memcpy(dataPtr, newUniformData.data(), static_cast<std::size_t>(size_));
+	memcpy(dataPtr, newUniformData.data(), size_);
 	UnmapMemory();
 }
 
 void UniformBuffer::Destroy() const
 {
-	const auto& device = VkDevice(VkResources::Inst->device);
-
+	const LogicalDevice& device = VkResources::Inst->device;
 	vkDestroyBuffer(device, buffer_, nullptr);
 	vkFreeMemory(device, memory_, nullptr);
 }

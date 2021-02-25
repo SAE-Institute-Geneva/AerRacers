@@ -1,9 +1,3 @@
-#include "vk/render_stage/render_stage.h"
-
-#include <utility>
-
-#include "engine/engine.h"
-
 #include "vk/vk_resources.h"
 
 namespace neko::vk
@@ -22,8 +16,8 @@ RenderStage::RenderStage(std::vector<Attachment> attachments,
 		switch (attachment.type)
 		{
 			case Attachment::Type::IMAGE:
+			{
 				clearValue.color = {{0.0f, 0.0f, 0.0f, 1.0f}};
-
 				for (auto& subpass : subpasses_)
 				{
 					const auto it = std::find(subpass.attachmentBindings.begin(),
@@ -37,6 +31,7 @@ RenderStage::RenderStage(std::vector<Attachment> attachments,
 					}
 				}
 				break;
+			}
 			case Attachment::Type::DEPTH:
 				clearValue.depthStencil = {1.0f, 0};
 				depthAttachment_        = Attachment(attachment);
@@ -54,12 +49,13 @@ RenderStage::RenderStage(std::vector<Attachment> attachments,
 
 void RenderStage::Update()
 {
-	const auto lastSize = size_;
-
+	const Vec2u lastSize = size_;
 	if (viewport_.size != Vec2u::zero) size_ = viewport_.size;
 	else size_ = BasicEngine::GetInstance()->GetConfig().windowSize;
 
-	size_      = Vec2u(size_.x * viewport_.scale.x, size_.y * viewport_.scale.y);
+	size_ = Vec2u(size_.x * static_cast<unsigned>(viewport_.scale.x),
+		size_.y * static_cast<unsigned>(viewport_.scale.y));
+
 	outOfDate_ = size_ != lastSize;
 }
 
@@ -67,9 +63,8 @@ void RenderStage::Rebuild(const Swapchain& swapchain)
 {
 	Update();
 
-	const VkResources* vkObj = VkResources::Inst;
-	const auto msaaSamples   = vkObj->gpu.GetMsaaSamples();
-
+	const VkResources* vkObj                = VkResources::Inst;
+	const VkSampleCountFlagBits msaaSamples = vkObj->gpu.GetMsaaSamples();
 	if (depthAttachment_.type != Attachment::Type::NONE)
 		depthStencil_ = std::make_unique<ImageDepth>(
 			size_, depthAttachment_.multisampling ? msaaSamples : VK_SAMPLE_COUNT_1_BIT);
@@ -81,12 +76,11 @@ void RenderStage::Rebuild(const Swapchain& swapchain)
 	framebuffers_ = std::make_unique<Framebuffers>(
 		size_.x, size_.y, *this, *renderPass_, swapchain, *depthStencil_, msaaSamples);
 	outOfDate_ = false;
-
 	descriptors_.clear();
 
 	for (const auto& attachment : attachments_)
 	{
-		const auto& nameHash = HashString(attachment.name);
+		const StringHash nameHash = HashString(attachment.name);
 		if (attachment.type == Attachment::Type::DEPTH)
 			descriptors_.emplace(nameHash, *depthStencil_);
 		else if (attachment.type != Attachment::Type::SWAPCHAIN)
@@ -99,7 +93,7 @@ const Attachment& RenderStage::GetAttachment(std::string_view name) const
 	for (const auto& attachment : attachments_)
 		if (attachment.name == name) return attachment;
 
-	neko_assert(false, "Attachment with name " << name << " doesn't exist")
+	neko_assert(false, "Attachment with name " << name << " doesn't exist");
 }
 
 const Attachment& RenderStage::GetAttachment(const std::uint32_t binding) const
@@ -107,7 +101,7 @@ const Attachment& RenderStage::GetAttachment(const std::uint32_t binding) const
 	for (const auto& attachment : attachments_)
 		if (attachment.binding == binding) return attachment;
 
-	neko_assert(false, "Attachment with binding" << binding << " doesn't exist")
+	neko_assert(false, "Attachment with binding" << binding << " doesn't exist");
 }
 
 std::uint32_t RenderStage::GetAttachmentCount(const std::uint32_t subpass) const

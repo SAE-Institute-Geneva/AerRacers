@@ -40,10 +40,10 @@ struct UniformBlock
 	};
 
 	UniformBlock(std::string_view name = "",
-		std::uint32_t binding              = INVALID_INDEX,
-		std::uint32_t size                 = INVALID_INDEX,
-		VkShaderStageFlags stageFlags      = 0,
-		Type type                          = Type::UNIFORM);
+		std::uint32_t binding          = INVALID_INDEX,
+		VkDeviceSize size              = INVALID_INDEX,
+		VkShaderStageFlags stageFlags  = 0,
+		Type type                      = Type::UNIFORM);
 
 	explicit UniformBlock(const json& uniformBlockJson);
 
@@ -52,7 +52,7 @@ struct UniformBlock
 
 	[[nodiscard]] std::string_view GetName() const { return name_; }
 	[[nodiscard]] std::uint32_t GetBinding() const { return binding_; }
-	[[nodiscard]] std::uint32_t GetSize() const { return size_; }
+	[[nodiscard]] VkDeviceSize GetSize() const { return size_; }
 	[[nodiscard]] VkShaderStageFlags GetStageFlags() const { return stageFlags_; }
 	[[nodiscard]] Type GetType() const { return type_; }
 	[[nodiscard]] const Uniform& GetUniform(const StringHash uniformHash) const
@@ -68,7 +68,7 @@ struct UniformBlock
 private:
 	std::string name_;
 	std::uint32_t binding_         = INVALID_INDEX;
-	std::uint32_t size_            = INVALID_INDEX;
+	VkDeviceSize size_             = INVALID_INDEX;
 	VkShaderStageFlags stageFlags_ = 0;
 	Type type_                     = Type::UNIFORM;
 

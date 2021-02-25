@@ -29,6 +29,7 @@
 #include "utils/std_utility.h"
 
 #include "vk/images/image2d.h"
+#include "vk/images/texture_loader.h"
 
 namespace neko::vk
 {
@@ -54,21 +55,25 @@ public:
 
 	[[nodiscard]] std::optional_const_ref<Image2d> GetImage2d(ResourceHash) const override
 	{
-		neko_assert(false, "Texture Manager is Null!")
+		neko_assert(false, "Texture Manager is Null!");
 	}
 
 	[[nodiscard]] std::optional_const_ref<Image2d> GetImage2d(std::string_view) const override
 	{
-		neko_assert(false, "Texture Manager is Null!")
+		neko_assert(false, "Texture Manager is Null!");
 	}
 
 	void Clear() override {}
 };
 
-class TextureManager : public ITextureManager
+class TextureManager final : public ITextureManager, public SystemInterface
 {
 public:
 	TextureManager();
+
+	void Init() override;
+	void Update(seconds dt) override;
+	void Destroy() override;
 
 	ResourceHash AddTexture2d(std::string_view texturePath) override;
 	[[nodiscard]] std::optional_const_ref<Image2d> GetImage2d(
@@ -79,7 +84,9 @@ public:
 	void Clear() override;
 
 private:
-	std::map<ResourceHash, std::unique_ptr<Image2d>> textures2d_;
+	ktxVulkanDeviceInfo vdi_;
+	std::queue<TextureLoader> textureLoaders_;
+	std::map<TextureId, std::unique_ptr<Image2d>> textureMap_;
 };
 
 using TextureManagerLocator = Locator<ITextureManager, NullTextureManager>;

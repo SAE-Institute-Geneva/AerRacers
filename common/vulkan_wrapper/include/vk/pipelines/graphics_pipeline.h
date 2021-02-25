@@ -27,6 +27,7 @@
 ---------------------------------------------------------- */
 #include "vk/models/vertex_input.h"
 #include "vk/pipelines/pipeline.h"
+#include "vk/pipelines/pipeline_stage.h"
 
 namespace neko::vk
 {
@@ -54,8 +55,8 @@ public:
 		READ_WRITE = READ | WRITE
 	};
 
-	GraphicsPipeline(Stage stage, const GraphicsPipelineCreateInfo& createInfo);
-	GraphicsPipeline(Stage stage,
+	GraphicsPipeline(const PipelineStage& stage, const GraphicsPipelineCreateInfo& createInfo);
+	GraphicsPipeline(const PipelineStage& stage,
 		std::string_view shaderPath,
 		std::vector<VertexInput> vertexInputs,
 		Mode mode,
@@ -73,7 +74,7 @@ public:
 	[[nodiscard]] const VkPipeline& GetPipeline() const override { return pipeline_; }
 	[[nodiscard]] const VkPipelineLayout& GetLayout() const { return layout_; }
 
-	[[nodiscard]] const Stage& GetStage() const { return stage_; }
+	[[nodiscard]] const PipelineStage& GetStage() const { return stage_; }
 	[[nodiscard]] const Shader& GetShader() const override { return shader_; }
 	[[nodiscard]] const VkDescriptorSetLayout& GetDescriptorSetLayout() const override
 	{
@@ -109,7 +110,7 @@ private:
 	VkPipelineLayout layout_ {};
 	VkPipelineBindPoint pipelineBindPoint_ = VK_PIPELINE_BIND_POINT_GRAPHICS;
 
-	Stage stage_ {};
+	PipelineStage stage_ {};
 	std::vector<VertexInput> vertexInputs_ {};
 	Mode mode_ {};
 	Depth depthMode_ {};

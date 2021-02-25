@@ -35,12 +35,12 @@ public:
 	MaterialPipelineContainer() = default;
 
 	MaterialPipeline& AddMaterial(
-		Pipeline::Stage pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate);
+		const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate);
 	[[nodiscard]] MaterialPipeline& GetMaterial(
-		Pipeline::Stage pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate) const;
+		const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate) const;
 
 private:
-	std::vector<std::pair<Pipeline::Stage, GraphicsPipelineCreateInfo>> registeredInfos_;
+	std::vector<std::pair<PipelineStage, GraphicsPipelineCreateInfo>> registeredInfos_;
 	std::vector<std::unique_ptr<MaterialPipeline>> registeredMaterials_;
 };
 }    // namespace neko::vk

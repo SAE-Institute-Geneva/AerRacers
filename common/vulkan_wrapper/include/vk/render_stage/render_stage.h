@@ -49,7 +49,7 @@ public:
 	[[nodiscard]] const VkFramebuffer& GetActiveFramebuffer(uint32_t activeSwapchainImage) const;
 	[[nodiscard]] const std::vector<Attachment>& GetAttachments() const { return attachments_; }
 	[[nodiscard]] const std::vector<SubpassType>& GetSubpasses() const { return subpasses_; }
-	[[nodiscard]] RenderPass* GetRenderPass() { return renderPass_.get(); }
+	[[nodiscard]] const RenderPass& GetRenderPass() { return *renderPass_; }
 	[[nodiscard]] const Vec2u& GetSize() const { return size_; }
 	[[nodiscard]] const std::vector<VkClearValue>& GetClearValues() const { return clearValues_; }
 	[[nodiscard]] const std::map<StringHash, const IDescriptor&>& GetDescriptors() const

@@ -9,7 +9,7 @@ UniformHandle::UniformHandle(const UniformBlock& uniformBlock, bool multiPipelin
 	 size_(uniformBlock.GetSize()),
 	 arbitraryUniformData_(std::vector<char>(size_)),
 	 uniformBlock_(uniformBlock),
-	 uniformBuffer_(std::make_unique<UniformBuffer>(static_cast<VkDeviceSize>(size_)))
+	 uniformBuffer_(std::make_unique<UniformBuffer>(size_))
 {}
 
 UniformHandle::~UniformHandle() { Destroy(); }
@@ -72,15 +72,13 @@ void UniformHandle::PushUniformData(const Material::PushDataContainer& dataConta
 	{
 		switch (data.second.GetType())
 		{
-			case MaterialExportData::Type::FLOAT: Push(data.first, data.second.GetFloat()); break;
-			case MaterialExportData::Type::INT: Push(data.first, data.second.GetInt()); break;
-			case MaterialExportData::Type::IMAGE_2D:
-				Push(data.first, data.second.GetImage2d());
-				break;
-				/*case MaterialExportData::Type::IMAGE_CUBE:
-			    Push(data.first, data.second.GetImageCube());*/
-				break;
-			case MaterialExportData::Type::COLOR: Push(data.first, data.second.GetColor()); break;
+			case MaterialExportData::FLOAT: Push(data.first, data.second.GetFloat()); break;
+			case MaterialExportData::INT: Push(data.first, data.second.GetInt()); break;
+			case MaterialExportData::IMAGE_2D: Push(data.first, data.second.GetImage2d()); break;
+			/*case MaterialExportData::IMAGE_CUBE:
+				Push(data.first, data.second.GetImageCube());
+				break;*/
+			case MaterialExportData::COLOR: Push(data.first, data.second.GetColor()); break;
 			default: Push(data.first, nullptr); break;
 		}
 	}
@@ -95,13 +93,13 @@ bool UniformHandle::Update(const UniformBlock& uniformBlock)
 			(uniformBlock_ && uniformBlock_->get() != uniformBlock &&
 				uniformBlock_->get().GetSize() == size_))
 		{
-			size_ = static_cast<std::uint32_t>(uniformBlock.GetSize());
+			size_ = uniformBlock.GetSize();
 		}
 
 		uniformBlock_.emplace(uniformBlock);
 		arbitraryUniformData_ = std::vector<char>(size_);
 
-		uniformBuffer_ = std::make_unique<UniformBuffer>(static_cast<VkDeviceSize>(size_));
+		uniformBuffer_ = std::make_unique<UniformBuffer>(size_);
 		handleStatus_  = Buffer::Status::CHANGED;
 
 		return false;

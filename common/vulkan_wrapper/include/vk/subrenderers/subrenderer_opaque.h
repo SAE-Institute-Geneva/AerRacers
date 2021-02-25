@@ -42,7 +42,7 @@ constexpr StringHash kViewPosHash       = HashString(kViewPosName);
 class SubrendererOpaque final : public RenderPipeline
 {
 public:
-	explicit SubrendererOpaque(Pipeline::Stage stage);
+	explicit SubrendererOpaque(PipelineStage stage);
 	void Destroy() const override;
 
 	void Render(const CommandBuffer& commandBuffer) override;

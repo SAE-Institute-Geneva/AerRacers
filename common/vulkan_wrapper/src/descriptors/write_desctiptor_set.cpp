@@ -19,8 +19,7 @@ WriteDescriptorSet::WriteDescriptorSet(
 VkWriteDescriptorSet WriteDescriptorSet::GetWriteDescriptorSet()
 {
 	if (imageInfo_.imageView) writeDescriptorSet_.pImageInfo = &imageInfo_;
-	else if (bufferInfo_.buffer)
-		writeDescriptorSet_.pBufferInfo = &bufferInfo_;
+	else if (bufferInfo_.buffer) writeDescriptorSet_.pBufferInfo = &bufferInfo_;
 
 	return writeDescriptorSet_;
 }

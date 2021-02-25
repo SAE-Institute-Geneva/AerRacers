@@ -30,7 +30,9 @@
 namespace neko::vk
 {
 constexpr std::uint64_t kDefaultFenceTimeout = 100000000000;
-//TODO put some multithreading there
+constexpr VkPipelineStageFlags kSubmitPipelineStages =
+	VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+
 class CommandBuffer
 {
 public:
@@ -49,27 +51,27 @@ public:
 	void End();
 
 	void SubmitIdle(bool destroy = true);
-	void Submit(const VkSemaphore& waitSemaphore = {},
-		const VkSemaphore& signalSemaphore       = {},
+	void Submit(
+		VkSemaphore waitSemaphore = {}, VkSemaphore signalSemaphore       = {},
 		VkFence fence                            = {});
 
 	[[nodiscard]] bool IsRunning() const { return running_; }
 
 	// Put an image memory barrier for setting an image layout on the sub resource into the given command buffer
 	void SetImageLayout(VkImage image,
-		VkImageLayout oldImageLayout,
-		VkImageLayout newImageLayout,
+		VkImageLayout oldLayout,
+		VkImageLayout newLayout,
 		VkImageSubresourceRange subresourceRange,
-		VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-		VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+		VkPipelineStageFlags srcMask      = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		VkPipelineStageFlags dstMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 
 	// Uses a fixed sub resource layout with first mip level and layer
 	void SetImageLayout(VkImage image,
 		VkImageAspectFlags aspectMask,
-		VkImageLayout oldImageLayout,
-		VkImageLayout newImageLayout,
-		VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-		VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
+		VkImageLayout oldLayout,
+		VkImageLayout newLayout,
+		VkPipelineStageFlags srcMask      = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		VkPipelineStageFlags dstMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 
 private:
 	VkQueueFlagBits queueType_ {};
@@ -78,7 +80,5 @@ private:
 	bool running_ = false;
 
 	[[nodiscard]] VkQueue GetQueue() const;
-
-	//std::thread::id threadId_;
 };
 }    // namespace neko::vk

@@ -4,13 +4,11 @@ namespace neko::vk
 {
 void LogicalDevice::Init()
 {
-	const VkResources* vkObj                            = VkResources::Inst;
+	const VkResources* vkObj                     = VkResources::Inst;
 	const QueueFamilyIndices& queueFamilyIndices = vkObj->gpu.GetQueueFamilyIndices();
-	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-	std::uint32_t uniqueQueueFamilies[] = {
-		queueFamilyIndices.graphicsFamily, queueFamilyIndices.presentFamily};
 
 	float queuePriority = 1.0f;
+	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 	if (queueFamilyIndices.graphicsFamily == queueFamilyIndices.presentFamily)
 	{
 		VkDeviceQueueCreateInfo queueCreateInfo {};
@@ -22,6 +20,10 @@ void LogicalDevice::Init()
 	}
 	else
 	{
+		std::uint32_t uniqueQueueFamilies[] = {
+			queueFamilyIndices.graphicsFamily,
+			queueFamilyIndices.presentFamily,
+		};
 		for (std::uint32_t queueFamily : uniqueQueueFamilies)
 		{
 			VkDeviceQueueCreateInfo queueCreateInfo {};
@@ -54,9 +56,8 @@ void LogicalDevice::Init()
 	createInfo.ppEnabledExtensionNames = kDeviceExtensions.data();
 
 	// Finally we're ready to create a new device
-	const VkResult res =
-		vkCreateDevice(VkPhysicalDevice(vkObj->gpu), &createInfo, nullptr, &device_);
-	neko_assert(res == VK_SUCCESS, "Failed to create logical device!")
+	const VkResult res = vkCreateDevice(vkObj->gpu, &createInfo, nullptr, &device_);
+	vkCheckError(res, "Failed to create logical device!");
 
 	vkGetDeviceQueue(device_, queueFamilyIndices.graphicsFamily, 0, &graphicsQueue_);
 	vkGetDeviceQueue(device_, queueFamilyIndices.presentFamily, 0, &presentQueue_);

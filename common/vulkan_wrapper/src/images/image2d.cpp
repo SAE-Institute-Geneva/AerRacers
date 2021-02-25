@@ -1,8 +1,6 @@
-#include "vk/images/image2d.h"
 
-#include <utility>
+#include <vk/images/image2d.h>
 
-#include "engine/engine.h"
 #include "utils/file_utility.h"
 
 #include "vk/vk_resources.h"
@@ -19,14 +17,14 @@ Image2d::Image2d(std::string_view filename,
    : Image(filter,
 		 addressMode,
 		 VK_SAMPLE_COUNT_1_BIT,
-		 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		 kLayout,
 		 VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT |
 			 VK_IMAGE_USAGE_SAMPLED_BIT,
 		 format,
 		 1,
 		 1,
 		 {0, 0, 1}),
-	 filePath_(std::move(filename)),
+	 filePath_(filename),
 	 anisotropic_(anisotropic),
 	 mipmap_(mipmap)
 {
@@ -62,7 +60,7 @@ Image2d::Image2d(const Vec2u extent,
 void Image2d::Load()
 {
 	if (GetFilenameExtension(filePath_) == ".ktx") LoadKtx();
-	else neko_assert(false, fmt::format("{} isn't a valid KTX image!", filePath_))
+	else neko_assert(false, fmt::format("{} isn't a valid KTX image!", filePath_));
 }
 
 void Image2d::LoadKtx()
@@ -94,7 +92,6 @@ void Image2d::LoadKtx()
 	if (extent_.width == 0 || extent_.height == 0) return;
 
 	sampler_ = CreateImageSampler(filter_, addressMode_, anisotropic_, mipLevels_);
-
 	view_ = CreateImageView(
 		image_, VK_IMAGE_VIEW_TYPE_2D, format_, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels_, 0, 1, 0);
 
@@ -121,6 +118,27 @@ void Image2d::LoadKtx()
 			0,
 			arrayLayers_,
 			0);
+	}
+}
+
+void Image2d::CreateFromKtx(const ktxVulkanTexture& texture)
+{
+	SetFromKtxVkTexture(texture);
+	if (extent_.width == 0 || extent_.height == 0) return;
+
+	sampler_ = CreateImageSampler(filter_, addressMode_, anisotropic_, mipLevels_);
+	view_    = CreateImageView(image_, GetViewType(), format_, kAspect, mipLevels_, 0, 1, 0);
+
+	if (mipmap_)
+	{
+		TransitionImageLayout(
+			image_, VK_IMAGE_LAYOUT_UNDEFINED, kLayout, kAspect, mipLevels_, 0, 1, 0);
+
+		CreateMipmaps(image_, extent_, format_, layout_, mipLevels_, 0, arrayLayers_);
+	}
+	else
+	{
+		TransitionImageLayout(image_, kLayout, layout_, kAspect, mipLevels_, 0, arrayLayers_, 0);
 	}
 }
 

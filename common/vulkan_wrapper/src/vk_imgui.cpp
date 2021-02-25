@@ -66,7 +66,7 @@ VkImGui::VkImGui()
 	initInfo.MinImageCount             = surfaceCapabilities.minImageCount;
 	initInfo.ImageCount                = vkObj->swapchain->GetImageCount();
 	initInfo.CheckVkResultFn           = nullptr;
-	ImGui_ImplVulkan_Init(&initInfo, *vkObj->GetRenderPass());
+	ImGui_ImplVulkan_Init(&initInfo, vkObj->GetRenderPass());
 
 	// Create font texture
 	unsigned char* fontData;

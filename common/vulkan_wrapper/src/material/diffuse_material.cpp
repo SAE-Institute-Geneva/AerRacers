@@ -187,10 +187,10 @@ void DiffuseMaterial::ResetPipeline()
                                          VK_CULL_MODE_FRONT_BIT :
                                          static_cast<VkCullModeFlags>(0);
 
-	const Pipeline::Stage stage =
-		renderMode_ == RenderMode::VK_OPAQUE ? Pipeline::Stage {0, 0} : Pipeline::Stage {0, 1};
+	const PipelineStage stage =
+		renderMode_ == RenderMode::VK_OPAQUE ? PipelineStage {0, 0} : PipelineStage {0, 1};
 
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
+	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
 	pipelineMaterial_ =
 		std::optional_ref<MaterialPipeline>(MaterialPipeline::CreateMaterialPipeline(stage,
 			GraphicsPipelineCreateInfo(config.dataRootPath + shaderPath_,
@@ -214,17 +214,17 @@ ordered_json DiffuseMaterial::ToJson() const
 	materialJson["color"]["b"] = color_.b;
 	materialJson["color"]["a"] = color_.a;
 
-	if (diffuse_) { materialJson["diffusePath"] = diffuse_->get().GetFilePath(); }
-	if (specular_) { materialJson["specularPath"] = specular_->get().GetFilePath(); }
-	if (normal_) { materialJson["normalPath"] = normal_->get().GetFilePath(); }
+	if (diffuse_) materialJson["diffusePath"] = diffuse_->get().GetFilePath();
+	if (specular_) materialJson["specularPath"] = specular_->get().GetFilePath();
+	if (normal_) materialJson["normalPath"] = normal_->get().GetFilePath();
 
 	return materialJson;
 }
 
 void DiffuseMaterial::FromJson(const json& materialJson)
 {
-	name_       = materialJson["name"].get<std::string>();
-	shaderPath_ = materialJson["shaderPath"].get<std::string>();
+	name_       = materialJson["name"].get<std::string_view>();
+	shaderPath_ = materialJson["shaderPath"].get<std::string_view>();
 
 	Color4 color;
 	color.r = materialJson["color"]["r"].get<float>();

@@ -32,8 +32,6 @@ namespace neko::vk
 class Model
 {
 public:
-	Model& operator=(const Model& other) noexcept;
-
 	void Destroy() const;
 	[[nodiscard]] bool CmdRender(
 		const CommandBuffer& commandBuffer, std::uint32_t instance = 1) const;

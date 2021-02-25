@@ -20,7 +20,7 @@ bool PushHandle::Update(const UniformBlock& uniformBlock)
 
 void PushHandle::BindPush(const CommandBuffer& commandBuffer, const Pipeline& pipeline) const
 {
-	vkCmdPushConstants(VkCommandBuffer(commandBuffer),
+	vkCmdPushConstants(commandBuffer,
 		pipeline.GetPipelineLayout(),
 		uniformBlock_->get().GetStageFlags(),
 		0,

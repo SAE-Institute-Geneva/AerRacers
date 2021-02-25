@@ -28,10 +28,8 @@ namespace neko
 Assimp::IOStream* VkIoSystem::Open(const char* pFile, const char* pMode)
 {
 	const std::string mode = pMode;
-	if (mode == "r+" || mode == "w" || mode == "w+" || mode == "a" || mode == "a+")
-	{
-		return nullptr;
-	}
+	if (mode == "r+" || mode == "w" || mode == "w+" || mode == "a" || mode == "a+") return nullptr;
+
 	auto* ioStream = new VkIoStream(filesystem_);
 	ioStream->LoadFromFile(pFile);
 	return ioStream;
@@ -49,33 +47,24 @@ size_t VkIoStream::Read(void* pvBuffer, size_t pSize, size_t pCount)
 {
 	if (!pvBuffer) return 0;
 	if (cursorIndex_ + pCount * pSize > bufferFile_.dataLength) return 0;
+
 	std::memcpy(pvBuffer, bufferFile_.dataBuffer + cursorIndex_, pSize * pCount);
 	cursorIndex_ += pSize * pCount;
 	return pSize * pCount;
 }
 
-size_t VkIoStream::Write([[maybe_unused]] const void* pvBuffer,
-	[[maybe_unused]] size_t pSize,
-	[[maybe_unused]] size_t pCount)
-{
-	return 0;
-}
+size_t VkIoStream::Write(const void*, size_t, size_t) { return 0; }
 
 aiReturn VkIoStream::Seek(size_t pOffset, aiOrigin pOrigin)
 {
 	switch (pOrigin)
 	{
-		case aiOrigin_CUR:
-			cursorIndex_ += pOffset;
-			return aiReturn_SUCCESS;
-		case aiOrigin_SET:
-			cursorIndex_ = pOffset;
-			return aiReturn_SUCCESS;
-		case aiOrigin_END:
-			cursorIndex_ = bufferFile_.dataLength - pOffset;
-			return aiReturn_SUCCESS;
+		case aiOrigin_CUR: cursorIndex_ += pOffset; return aiReturn_SUCCESS;
+		case aiOrigin_SET: cursorIndex_ = pOffset; return aiReturn_SUCCESS;
+		case aiOrigin_END: cursorIndex_ = bufferFile_.dataLength - pOffset; return aiReturn_SUCCESS;
 		default: break;
 	}
+
 	return aiReturn_FAILURE;
 }
 

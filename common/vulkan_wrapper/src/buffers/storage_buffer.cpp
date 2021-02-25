@@ -1,5 +1,3 @@
-#include "vk/buffers/storage_buffer.h"
-
 #include "vk/vk_resources.h"
 
 namespace neko::vk
@@ -15,14 +13,13 @@ void StorageBuffer::Update(const std::vector<char>& newStorageData) const
 {
 	char* dataPtr;
 	MapMemory(&dataPtr);
-	memcpy(dataPtr, newStorageData.data(), static_cast<std::size_t>(size_));
+	memcpy(dataPtr, newStorageData.data(), size_);
 	UnmapMemory();
 }
 
 void StorageBuffer::Destroy() const
 {
-	const auto& device = VkDevice(VkResources::Inst->device);
-
+	const LogicalDevice& device = VkResources::Inst->device;
 	if (buffer_) vkDestroyBuffer(device, buffer_, nullptr);
 	if (memory_) vkFreeMemory(device, memory_, nullptr);
 }

@@ -32,7 +32,7 @@ namespace neko::vk
 class RenderQuad final : public Mesh
 {
 public:
-	RenderQuad(Vec3f offset, Vec2f size);
+	RenderQuad(const Vec3f& offset, const Vec2f& size);
 
 	void Init() override;
 

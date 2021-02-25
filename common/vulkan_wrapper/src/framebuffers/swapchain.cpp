@@ -1,19 +1,16 @@
-#include "engine/engine.h"
-
 #include "vk/vk_resources.h"
 
 namespace neko::vk
 {
 void Swapchain::Init()
 {
-	const VkResources* vkObj    = VkResources::Inst;
-	const auto swapChainSupport = vkObj->gpu.QuerySwapChainSupport(vkObj->surface);
-
+	const VkResources* vkObj               = VkResources::Inst;
+	const auto swapChainSupport            = vkObj->gpu.QuerySwapChainSupport(vkObj->surface);
 	const VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
 	const VkPresentModeKHR presentMode     = ChooseSwapPresentMode(swapChainSupport.presentModes);
-
-	ChooseSwapExtent(swapChainSupport.capabilities);
 	std::uint32_t imageCount               = swapChainSupport.capabilities.minImageCount + 1;
+	ChooseSwapExtent(swapChainSupport.capabilities);
+
 	if (swapChainSupport.capabilities.maxImageCount > 0 &&
 		imageCount > swapChainSupport.capabilities.maxImageCount)
 		imageCount = swapChainSupport.capabilities.maxImageCount;
@@ -50,14 +47,12 @@ void Swapchain::Init()
 	}
 
 	// Create new one
-	const VkResult res = vkCreateSwapchainKHR(vkObj->device, &createInfo, nullptr, &swapchain_);
-	neko_assert(res == VK_SUCCESS, "Unable to create swap chain!")
+	vkCheckError(vkCreateSwapchainKHR(vkObj->device, &createInfo, nullptr, &swapchain_),
+		"Unable to create swap chain!");
 
 	vkGetSwapchainImagesKHR(vkObj->device, swapchain_, &imageCount, nullptr);
 	images_.resize(imageCount);
 	vkGetSwapchainImagesKHR(vkObj->device, swapchain_, &imageCount, images_.data());
-
-	format_ = surfaceFormat.format;
 
 	CreateImageViews(vkObj->device);
 }
@@ -108,42 +103,38 @@ void Swapchain::Init(Swapchain& oldSwapchain)
 	}
 
 	// Create new one
-	const VkResult res = vkCreateSwapchainKHR(vkObj->device, &createInfo, nullptr, &swapchain_);
-	neko_assert(res == VK_SUCCESS, "Unable to create swap chain!")
+	vkCheckError(vkCreateSwapchainKHR(vkObj->device, &createInfo, nullptr, &swapchain_),
+		"Unable to create swap chain!");
 
-		vkGetSwapchainImagesKHR(vkObj->device, swapchain_, &imageCount, nullptr);
+	vkGetSwapchainImagesKHR(vkObj->device, swapchain_, &imageCount, nullptr);
 	images_.resize(imageCount);
 	vkGetSwapchainImagesKHR(vkObj->device, swapchain_, &imageCount, images_.data());
-
-	format_ = surfaceFormat.format;
 
 	CreateImageViews(vkObj->device);
 }
 
 void Swapchain::Destroy()
 {
-	for (const auto& imageView : imageViews_)
-		vkDestroyImageView(VkResources::Inst->device, imageView, nullptr);
+	const LogicalDevice& device = VkResources::Inst->device;
+	for (const auto& imageView : imageViews_) vkDestroyImageView(device, imageView, nullptr);
 
-	vkDestroySwapchainKHR(VkResources::Inst->device, swapchain_, nullptr);
+	vkDestroySwapchainKHR(device, swapchain_, nullptr);
 }
 
 VkResult Swapchain::AcquireNextImage(VkSemaphore presentCompleteSemaphore, VkFence fence)
 {
 	const LogicalDevice& device = VkResources::Inst->device;
-	if (fence)
-		vkWaitForFences(device, 1, &fence, VK_TRUE, std::numeric_limits<std::uint64_t>::max());
+	if (fence) vkWaitForFences(device, 1, &fence, VK_TRUE, kDefaultFenceTimeout);
 
 	const VkResult res = vkAcquireNextImageKHR(device,
 		swapchain_,
-		std::numeric_limits<std::uint64_t>::max(),
+		kDefaultFenceTimeout,
 		presentCompleteSemaphore,
 		nullptr,
 		&currentImage_);
-	neko_assert(res == VK_SUCCESS || res == VK_SUBOPTIMAL_KHR || res == VK_ERROR_OUT_OF_DATE_KHR,
-		"Failed to acquire swapchain image")
+	vkCheckError(res, "Failed to acquire swapchain image!");
 
-		return res;
+	return res;
 }
 
 VkResult Swapchain::QueuePresent(VkQueue presentQueue, VkSemaphore waitSemaphore) const
@@ -178,8 +169,8 @@ void Swapchain::CreateImageViews(VkDevice device)
 		viewInfo.subresourceRange.baseArrayLayer = 0;
 		viewInfo.subresourceRange.layerCount     = 1;
 
-		const VkResult res = vkCreateImageView(device, &viewInfo, nullptr, &imageViews_[i]);
-		neko_assert(res == VK_SUCCESS, "Failed to create texture image view!")
+		vkCheckError(vkCreateImageView(device, &viewInfo, nullptr, &imageViews_[i]),
+			"Failed to create texture image view!");
 	}
 }
 
@@ -192,13 +183,19 @@ VkSurfaceFormatKHR Swapchain::ChooseSwapSurfaceFormat(
 	const std::vector<VkSurfaceFormatKHR>& availableFormats)
 {
 	for (const auto& availableFormat : availableFormats)
+	{
 		if (availableFormat.format == kFormat && availableFormat.colorSpace == kColorSpace)
+		{
+			format_ = availableFormat.format;
 			return availableFormat;
+		}
+	}
 
 #ifdef VALIDATION_LAYERS
 	std::cout << "Warning: no matching color format found, picking first available one\n";
 #endif
 
+	format_ = availableFormats[0].format;
 	return availableFormats[0];
 }
 

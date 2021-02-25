@@ -78,7 +78,7 @@ public:
 private:
 	bool multiPipeline_;
 
-	std::uint32_t size_ = 0;
+	VkDeviceSize size_ = 0;
 	std::vector<char> arbitraryUniformData_ {};
 
 	std::optional_const_ref<UniformBlock> uniformBlock_ = std::nullopt;

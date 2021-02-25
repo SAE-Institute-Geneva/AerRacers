@@ -1,10 +1,8 @@
-#include "vk/commands/command_pool.h"
-
 #include "vk/vk_resources.h"
 
 namespace neko::vk
 {
-CommandPool::CommandPool(const std::thread::id& threadId) : threadId_(threadId) { Init(); }
+CommandPool::CommandPool() { Init(); }
 
 void CommandPool::Init()
 {
@@ -16,14 +14,12 @@ void CommandPool::Init()
 	poolInfo.flags =
 		VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
 
-	const VkResult res =
-		vkCreateCommandPool(VkDevice(vkObj->device), &poolInfo, nullptr, &commandPool_);
-	neko_assert(res == VK_SUCCESS, "Failed to create command pool!")
+	const VkResult res = vkCreateCommandPool(vkObj->device, &poolInfo, nullptr, &commandPool_);
+	vkCheckError(res, "Failed to create command pool!");
 }
 
 void CommandPool::Destroy() const
 {
-	const VkResources* vkObj = VkResources::Inst;
-	vkDestroyCommandPool(VkDevice(vkObj->device), commandPool_, nullptr);
+	vkDestroyCommandPool(VkResources::Inst->device, commandPool_, nullptr);
 }
 }    // namespace neko::vk

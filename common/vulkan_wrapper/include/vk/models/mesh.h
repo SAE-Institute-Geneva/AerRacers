@@ -42,14 +42,14 @@ public:
 	void InitData(const std::vector<Vertex>& vertices, const std::vector<std::uint32_t>& indices);
 	void Destroy() const;
 
-	[[nodiscard]] bool CmdRender(
+	[[nodiscard]] bool DrawCmd(
 		const CommandBuffer& commandBuffer, std::uint32_t instance = 1) const;
 
 	[[nodiscard]] virtual std::vector<Vertex> GetVertices(std::size_t offset) const;
 	virtual void SetVertices(const std::vector<Vertex>& vertices);
 
-	[[nodiscard]] virtual std::vector<uint32_t> GetIndices(std::size_t offset) const;
-	virtual void SetIndices(const std::vector<uint32_t>& indices);
+	[[nodiscard]] virtual std::vector<std::uint32_t> GetIndices(std::size_t offset) const;
+	virtual void SetIndices(const std::vector<std::uint32_t>& indices);
 
 	[[nodiscard]] const Buffer& GetVertexBuffer() const { return vertexBuffer_; }
 	[[nodiscard]] const Buffer& GetIndexBuffer() const { return *indexBuffer_; }

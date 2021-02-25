@@ -32,21 +32,21 @@ namespace neko::vk
 class RenderPipeline
 {
 public:
-	explicit RenderPipeline(const Pipeline::Stage& stage) : stage_(stage), enabled_(true) {}
+	explicit RenderPipeline(const PipelineStage& stage) : stage_(stage), enabled_(true) {}
 	virtual ~RenderPipeline() = default;
 
 	virtual void Destroy() const = 0;
 
 	virtual void Render(const CommandBuffer& commandBuffer) = 0;
 
-	[[nodiscard]] const Pipeline::Stage& GetStage() const { return stage_; }
+	[[nodiscard]] const PipelineStage& GetStage() const { return stage_; }
 
 	void SetEnabled(const bool enable) { enabled_ = enable; }
 
 	[[nodiscard]] bool IsEnabled() const { return enabled_; }
 
 private:
-	Pipeline::Stage stage_;
+	PipelineStage stage_;
 	bool enabled_;
 };
 }    // namespace neko::vk

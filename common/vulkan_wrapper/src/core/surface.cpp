@@ -8,8 +8,8 @@ namespace neko::vk
 {
 void Surface::Init(SDL_Window& window)
 {
-	neko_assert(SDL_Vulkan_CreateSurface(&window, VkResources::Inst->instance, &surface_),
-		"Unable to create Vulkan compatible surface using SDL!")
+	const SDL_bool res = SDL_Vulkan_CreateSurface(&window, VkResources::Inst->instance, &surface_);
+	neko_assert(res, "Unable to create Vulkan compatible surface using SDL!");
 }
 
 void Surface::SetFormat()

@@ -12,7 +12,7 @@ void InstanceBuffer::Update(const std::vector<char>& newInstanceData) const
 {
 	char* instanceDataPtr;
 	MapMemory(&instanceDataPtr);
-	memcpy(instanceDataPtr, newInstanceData.data(), static_cast<size_t>(size_));
+	memcpy(instanceDataPtr, newInstanceData.data(), static_cast<std::size_t>(size_));
 	UnmapMemory();
 }
 }    // namespace neko::vk

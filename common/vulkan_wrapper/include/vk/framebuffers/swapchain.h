@@ -60,7 +60,7 @@ public:
 private:
 	void CreateImageViews(VkDevice device);
 
-	static VkSurfaceFormatKHR ChooseSwapSurfaceFormat(
+	VkSurfaceFormatKHR ChooseSwapSurfaceFormat(
 		const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	static VkPresentModeKHR ChooseSwapPresentMode(
 		const std::vector<VkPresentModeKHR>& availablePresentModes);

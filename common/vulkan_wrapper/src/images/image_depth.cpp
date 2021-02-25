@@ -13,9 +13,9 @@ ImageDepth::ImageDepth(const Vec2u& extent, VkSampleCountFlagBits samples)
 			 VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT),
 		 1,
 		 1,
-		 VkExtent3D {static_cast<std::uint32_t>(extent.x), static_cast<std::uint32_t>(extent.y), 1})
+		 {static_cast<std::uint32_t>(extent.x), static_cast<std::uint32_t>(extent.y), 1})
 {
-	neko_assert(format_ != VK_FORMAT_UNDEFINED, "Invalid depth format!")
+	neko_assert(format_ != VK_FORMAT_UNDEFINED, "Invalid depth format!");
 
 	VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 	if (HasStencil(format_)) aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;

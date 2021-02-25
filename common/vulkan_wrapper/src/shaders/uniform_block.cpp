@@ -5,11 +5,11 @@
 namespace neko::vk
 {
 UniformBlock::UniformBlock(std::string_view name,
-	uint32_t binding,
-	uint32_t size,
+	std::uint32_t binding,
+	VkDeviceSize size,
 	VkShaderStageFlags stageFlags,
 	Type type)
-   : name_(std::move(name)), binding_(binding), size_(size), stageFlags_(stageFlags), type_(type)
+   : name_(name), binding_(binding), size_(size), stageFlags_(stageFlags), type_(type)
 {}
 
 UniformBlock::UniformBlock(const json& uniformBlockJson) { FromJson(uniformBlockJson); }
@@ -30,12 +30,11 @@ bool UniformBlock::operator!=(const UniformBlock& other) const { return !(*this 
 
 void UniformBlock::FromJson(const json& uniformBlockJson)
 {
-	name_       = uniformBlockJson["name"].get<std::string>();
+	name_       = uniformBlockJson["name"].get<std::string_view>();
 	binding_    = uniformBlockJson["binding"].get<std::uint32_t>();
-	size_       = uniformBlockJson["size"].get<std::uint32_t>();
+	size_       = uniformBlockJson["size"].get<VkDeviceSize>();
 	stageFlags_ = uniformBlockJson["stageFlags"].get<VkShaderStageFlags>();
 	type_       = uniformBlockJson["type"].get<Type>();
-
 	for (const auto& uniformJson : uniformBlockJson["uniforms"])
 	{
 		Uniform uniform(uniformJson);
@@ -51,7 +50,6 @@ ordered_json UniformBlock::ToJson() const
 	uniformBlockJson["size"]       = size_;
 	uniformBlockJson["stageFlags"] = stageFlags_;
 	uniformBlockJson["type"]       = type_;
-
 	for (const auto& uniform : uniforms_)
 	{
 		uniformBlockJson["uniforms"].emplace_back(uniform.second.ToJson());

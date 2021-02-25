@@ -64,19 +64,19 @@ public:
 
 	Material& GetMaterial(std::string_view) override
 	{
-		neko_assert(false, "Material Manager is null!")
+		neko_assert(false, "Material Manager is null!");
 	}
 
-	Material& GetMaterial(ResourceHash) override {neko_assert(false, "Material Manager is null!")}
+	Material& GetMaterial(ResourceHash) override {neko_assert(false, "Material Manager is null!");}
 
 	DiffuseMaterial& GetDiffuseMaterial(std::string_view) override
 	{
-		neko_assert(false, "Material Manager is null!")
+		neko_assert(false, "Material Manager is null!");
 	}
 
 	DiffuseMaterial& GetDiffuseMaterial(ResourceHash) override
 	{
-		neko_assert(false, "Material Manager is null!")
+		neko_assert(false, "Material Manager is null!");
 	}
 
 	bool IsMaterialLoaded(std::string_view) override { return false; }

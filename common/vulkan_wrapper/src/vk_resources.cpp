@@ -37,14 +37,14 @@ VkResources::~VkResources()
 }
 
 MaterialPipeline& VkResources::AddMaterialPipeline(
-	const Pipeline::Stage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate) const
+	const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate) const
 {
 	return materialPipelineContainer_->AddMaterial(pipelineStage, pipelineCreate);
 }
 
-RenderStage* VkResources::GetRenderStage() const { return renderer_->GetRenderStage(); }
+RenderStage& VkResources::GetRenderStage() const { return renderer_->GetRenderStage(); }
 
-RenderPass* VkResources::GetRenderPass() const { return renderer_->GetRenderPass(); }
+const RenderPass& VkResources::GetRenderPass() const { return renderer_->GetRenderPass(); }
 
 CommandBuffer& VkResources::GetCurrentCmdBuffer()
 {
@@ -58,7 +58,7 @@ const CommandPool& VkResources::GetCurrentCmdPool()
 	auto it = commandPools_.find(threadId);
 	if (it != commandPools_.end()) return *it->second;
 
-	commandPools_.emplace(threadId, std::make_unique<CommandPool>(threadId));
+	commandPools_.emplace(threadId, std::make_unique<CommandPool>());
 
 	it = commandPools_.find(threadId);
 	return *it->second;

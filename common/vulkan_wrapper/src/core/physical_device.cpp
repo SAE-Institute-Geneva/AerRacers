@@ -7,8 +7,10 @@ void PhysicalDevice::Init()
 	const VkResources* vkObj = VkResources::Inst;
 
 	std::uint32_t physDeviceCount(0);
-	vkEnumeratePhysicalDevices(VkInstance(vkObj->instance), &physDeviceCount, nullptr);
-	neko_assert(physDeviceCount != 0, "No GPU found!")
+	VkResult res = vkEnumeratePhysicalDevices(vkObj->instance, &physDeviceCount, nullptr);
+	vkCheckError(res, "Couldn't retrieve the number of GPUs!");
+	neko_assert(physDeviceCount != 0, "No GPU found!");
+
 #ifdef VALIDATION_LAYERS
 	std::ostringstream oss1;
 	oss1 << "Found " << physDeviceCount << " GPUs:\n";
@@ -16,10 +18,9 @@ void PhysicalDevice::Init()
 #endif
 
 	std::vector<VkPhysicalDevice> physDevices(physDeviceCount);
-	const VkResult res =
-		vkEnumeratePhysicalDevices(vkObj->instance, &physDeviceCount, physDevices.data());
-	neko_assert(res == VK_SUCCESS, "Enumerating GPUs failed!")
-	neko_assert(physDeviceCount != 0, "No GPUs that supports Vulkan found!")
+	res = vkEnumeratePhysicalDevices(vkObj->instance, &physDeviceCount, physDevices.data());
+	vkCheckError(res, "Enumerating GPUs failed!");
+	neko_assert(!physDevices.empty(), "No GPUs that supports Vulkan found!");
 
 	VkPhysicalDeviceProperties deviceProperties;
 	for (auto& gpu : physDevices)
@@ -48,7 +49,8 @@ void PhysicalDevice::Init()
 		}
 	}
 
-	neko_assert(gpu_, "No suitable GPU found!")
+	neko_assert(gpu_, "No suitable GPU found!");
+
 #ifdef VALIDATION_LAYERS
 	std::ostringstream oss4;
 	oss4 << "Picked '" << deviceProperties.deviceName << "' as the physical device";
@@ -58,11 +60,12 @@ void PhysicalDevice::Init()
 	// Find the number queues this device supports
 	std::uint32_t familyQueueCount(0);
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu_, &familyQueueCount, nullptr);
-	neko_assert(familyQueueCount != 0, "Device has no family of queues associated with it")
+	neko_assert(familyQueueCount != 0, "Device has no family of queues associated with it");
 
 	// Extract the properties of all the queue families
 	std::vector<VkQueueFamilyProperties> queueProperties(familyQueueCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu_, &familyQueueCount, queueProperties.data());
+	neko_assert(!queueProperties.empty(), "Couldn't retrieve queue properties!");
 
 	// Make sure the family of commands contains an option to issue graphical commands.
 	std::uint32_t queueNodeIndex = INVALID_INDEX;
@@ -77,7 +80,7 @@ void PhysicalDevice::Init()
 	}
 
 	neko_assert(queueNodeIndex != INVALID_INDEX,
-		"Unable to find a queue command family that accepts graphics commands")
+		"Unable to find a queue command family that accepts graphics commands");
 }
 
 VkSampleCountFlagBits PhysicalDevice::GetMsaaSamples() const
@@ -140,12 +143,12 @@ bool PhysicalDevice::CheckDeviceExtensionSupport() const
 {
 	std::uint32_t extensionCount = 0;
 	VkResult res = vkEnumerateDeviceExtensionProperties(gpu_, nullptr, &extensionCount, nullptr);
-	neko_assert(res == VK_SUCCESS, "Unable to query vulkan device extensions count")
+	vkCheckError(res, "Unable to query vulkan device extensions count");
 
 	std::vector<VkExtensionProperties> availableExtensions(extensionCount);
 	res = vkEnumerateDeviceExtensionProperties(
 		gpu_, nullptr, &extensionCount, availableExtensions.data());
-	neko_assert(res == VK_SUCCESS, "Unable to retrieve vulkan device extension names")
+	vkCheckError(res, "Unable to retrieve vulkan device extension names");
 
 #ifdef VALIDATION_LAYERS
 	// Display layer names and find the ones we specified above
@@ -195,8 +198,7 @@ bool PhysicalDevice::IsDeviceSuitable(VkSurfaceKHR surface) const
 	bool swapChainAdequate = false;
 	if (extensionsSupported)
 	{
-		const SwapChainSupportDetails swapChainSupport =
-			QuerySwapChainSupport(VkSurfaceKHR(surface));
+		const SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(surface);
 		swapChainAdequate =
 			!swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 	}
@@ -250,16 +252,16 @@ uint32_t PhysicalDevice::GetMemoryType(
 		{
 			if ((memoryProperties.memoryTypes[i].propertyFlags & properties) == properties)
 			{
-				if (memTypeFound) { *memTypeFound = true; }
+				if (memTypeFound) *memTypeFound = true;
 				return i;
 			}
 		}
 		typeBits >>= 1;
 	}
 
-	neko_assert(memTypeFound, "Could not find a matching memory type!")
+	neko_assert(memTypeFound, "Could not find a matching memory type!");
 
-		* memTypeFound = false;
+	*memTypeFound = false;
 	return 0;
 }
 }    // namespace neko::vk

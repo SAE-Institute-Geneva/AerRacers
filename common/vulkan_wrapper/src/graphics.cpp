@@ -41,8 +41,7 @@ VkRenderer::VkRenderer(sdl::VulkanWindow* window) : Renderer(), VkResources(wind
 	surface.SetFormat();
 	device.Init();
 
-	const std::thread::id threadId = std::this_thread::get_id();
-	commandPools_.emplace(threadId, std::make_unique<CommandPool>(threadId));
+	commandPools_.emplace(std::this_thread::get_id(), std::make_unique<CommandPool>());
 
 	CreatePipelineCache();
 
@@ -83,13 +82,13 @@ void VkRenderer::AfterRenderLoop()
 
 	if (res != VK_SUCCESS && res != VK_SUBOPTIMAL_KHR) return;
 
-	Pipeline::Stage stage;
-	RenderStage* renderStage = renderer_->GetRenderStage();
-	renderStage->Update();
-	if (!StartRenderPass(*renderStage)) return;
+	PipelineStage stage;
+	RenderStage& renderStage = renderer_->GetRenderStage();
+	renderStage.Update();
+	if (!StartRenderPass(renderStage)) return;
 
 	CommandBuffer& commandBuffer = GetCurrentCmdBuffer();
-	for (const auto& subpass : renderStage->GetSubpasses())
+	for (const auto& subpass : renderStage.GetSubpasses())
 	{
 		stage.subPassId = subpass.binding;
 
@@ -98,11 +97,11 @@ void VkRenderer::AfterRenderLoop()
 
 		imgui_->Render(commandBuffer);
 
-		if (subpass.binding != renderStage->GetSubpasses().back().binding)
+		if (subpass.binding != renderStage.GetSubpasses().back().binding)
 			vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
 	}
 
-	EndRenderPass(*renderStage);
+	EndRenderPass(renderStage);
 	stage.renderPassId++;
 
 	imgui_->OnEndOfFrame();
@@ -147,10 +146,10 @@ bool VkRenderer::StartRenderPass(RenderStage& renderStage)
 	scissor.extent = renderArea.extent;
 	vkCmdSetScissor(currentCmdBuffer, 0, 1, &scissor);
 
-	auto clearValues = renderStage.GetClearValues();
+	auto clearValues                     = renderStage.GetClearValues();
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType                 = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-	renderPassInfo.renderPass            = *renderStage.GetRenderPass();
+	renderPassInfo.renderPass            = renderStage.GetRenderPass();
 	renderPassInfo.framebuffer =
 		renderStage.GetActiveFramebuffer(swapchain->GetCurrentImageIndex());
 	renderPassInfo.renderArea      = renderArea;
@@ -187,7 +186,7 @@ void VkRenderer::ResetRenderStages()
 
 	if (inFlightFences_.size() != swapchain->GetImageCount()) RecreateCommandBuffers();
 
-	renderer_->GetRenderStage()->Rebuild(*swapchain);
+	renderer_->GetRenderStage().Rebuild(*swapchain);
 
 	RecreateAttachments();
 }
@@ -228,7 +227,6 @@ void VkRenderer::RecreateCommandBuffers()
 	VkFenceCreateInfo fenceInfo {};
 	fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 	fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
-
 	for (size_t i = 0; i < inFlightFences_.size(); i++)
 	{
 		VkResult res = vkCreateSemaphore(device, &semaphoreInfo, nullptr, &availableSemaphores_[i]);
@@ -266,7 +264,7 @@ void VkRenderer::RecreateAttachments()
 {
 	attachments_.clear();
 
-	const auto& descriptors = renderer_->GetRenderStage()->GetDescriptors();
+	const auto& descriptors = renderer_->GetRenderStage().GetDescriptors();
 	attachments_.insert(descriptors.begin(), descriptors.end());
 }
 

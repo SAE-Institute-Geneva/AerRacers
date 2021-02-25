@@ -9,7 +9,7 @@ void DescriptorPool::Init()
 	const VkResources* vkObj        = VkResources::Inst;
 	const auto swapchainImagesCount = vkObj->swapchain->GetImageCount();
 
-	std::array<VkDescriptorPoolSize, 3> poolSizes {};
+	std::array<VkDescriptorPoolSize, 2> poolSizes {};
 	poolSizes[0].type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	poolSizes[0].descriptorCount = swapchainImagesCount;
 	poolSizes[1].type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -21,9 +21,8 @@ void DescriptorPool::Init()
 	poolInfo.pPoolSizes    = poolSizes.data();
 	poolInfo.maxSets       = swapchainImagesCount;
 
-	const VkResult res =
-		vkCreateDescriptorPool(vkObj->device, &poolInfo, nullptr, &descriptorPool_);
-	neko_assert(res == VK_SUCCESS, "Failed to create descriptor pool!")
+	vkCheckError(vkCreateDescriptorPool(vkObj->device, &poolInfo, nullptr, &descriptorPool_),
+		"Failed to create descriptor pool!");
 }
 
 void DescriptorPool::Destroy() const

@@ -19,8 +19,8 @@ void ModelManager::Update(seconds)
 		if (modelLoader.HasErrors()) { modelLoaders_.pop(); }
 		else if (modelLoader.IsDone())
 		{
-			const auto modelId = modelLoader.GetModelId();
-			models_[modelId]   = *modelLoader.GetModel();
+			const ModelId modelId = modelLoader.GetModelId();
+			models_[modelId]      = *modelLoader.GetModel();
 			modelLoaders_.pop();
 		}
 		else
@@ -42,10 +42,10 @@ ModelId ModelManager::LoadModel(std::string_view path)
 	const auto it = modelPathMap_.find(path.data());
 	if (it != modelPathMap_.end()) return it->second;
 
-	const auto& config         = BasicEngine::GetInstance()->GetConfig();
-	const std::string metaPath = fmt::format("{}{}.meta", config.dataRootPath, path);
-	const json metaJson        = LoadJson(metaPath);
-	ModelId modelId            = INVALID_MODEL_ID;
+	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
+	const std::string metaPath  = fmt::format("{}{}.meta", config.dataRootPath, path);
+	const json metaJson         = LoadJson(metaPath);
+	ModelId modelId             = INVALID_MODEL_ID;
 	if (CheckJsonExists(metaJson, "uuid"))
 	{
 		modelId = sole::rebuild(metaJson["uuid"].get<std::string>());
@@ -78,9 +78,7 @@ bool ModelManager::IsLoaded(ModelId modelId)
 
 	auto& materialManager = MaterialManagerLocator::get();
 	for (const auto& mesh : model->GetMeshes())
-	{
 		if (!materialManager.IsMaterialLoaded(mesh.GetMaterialId())) return false;
-	}
 
 	return true;
 }

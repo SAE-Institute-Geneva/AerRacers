@@ -35,18 +35,18 @@ namespace neko::vk
 class MaterialPipeline
 {
 public:
-	MaterialPipeline(Pipeline::Stage pipelineStage, GraphicsPipelineCreateInfo pipelineCreate);
+	MaterialPipeline(PipelineStage pipelineStage, GraphicsPipelineCreateInfo pipelineCreate);
 	~MaterialPipeline() = default;
 
 	static MaterialPipeline& CreateMaterialPipeline(
-		Pipeline::Stage pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate);
+		const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate);
 
 	bool BindPipeline(const CommandBuffer& commandBuffer);
-	[[nodiscard]] Pipeline::Stage GetStage() const { return pipelineStage_; }
+	[[nodiscard]] PipelineStage GetStage() const { return pipelineStage_; }
 	[[nodiscard]] const GraphicsPipeline& GetPipeline() const { return *pipeline_; }
 
 private:
-	Pipeline::Stage pipelineStage_;
+	PipelineStage pipelineStage_{};
 	GraphicsPipelineCreateInfo pipelineGraphicsCreate_;
 	std::optional_const_ref<RenderStage> renderStage_ = std::nullopt;
 	std::unique_ptr<GraphicsPipeline> pipeline_       = nullptr;

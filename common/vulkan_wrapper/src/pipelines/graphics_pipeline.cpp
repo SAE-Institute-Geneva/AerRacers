@@ -1,15 +1,9 @@
-#include "vk/pipelines/graphics_pipeline.h"
-
-#include <utility>
-
-#include "engine/engine.h"
-#include "utils/json_utility.h"
 #include "vk/vk_resources.h"
 
 namespace neko::vk
 {
 GraphicsPipeline::GraphicsPipeline(
-	Pipeline::Stage stage, const GraphicsPipelineCreateInfo& createInfo)
+	const PipelineStage& stage, const GraphicsPipelineCreateInfo& createInfo)
    : stage_(stage),
 	 vertexInputs_(createInfo.vertexInputs),
 	 mode_(createInfo.mode),
@@ -32,11 +26,11 @@ GraphicsPipeline::GraphicsPipeline(
 	{
 		case Mode::POLYGON: CreatePipeline(); break;
 		case Mode::MRT: CreatePipelineMrt(); break;
-		default: neko_assert(false, "Invalid pipeline mode")
+		default: neko_assert(false, "Invalid pipeline mode");
 	}
 }
 
-GraphicsPipeline::GraphicsPipeline(Stage stage,
+GraphicsPipeline::GraphicsPipeline(const PipelineStage& stage,
 	std::string_view shaderPath,
 	std::vector<VertexInput> vertexInputs,
 	Mode mode,
@@ -70,17 +64,18 @@ GraphicsPipeline::GraphicsPipeline(Stage stage,
 	{
 		case Mode::POLYGON: CreatePipeline(); break;
 		case Mode::MRT: CreatePipelineMrt(); break;
-		default: neko_assert(false, "Invalid pipeline mode")
+		default: neko_assert(false, "Invalid pipeline mode");
 	}
 }
 
 void GraphicsPipeline::Destroy() const
 {
-	const auto& device = VkDevice(VkResources::Inst->device);
-
+	const LogicalDevice& device = VkResources::Inst->device;
 	vkDestroyDescriptorSetLayout(device, descriptorSetLayout_, nullptr);
 	vkDestroyDescriptorPool(device, descriptorPool_, nullptr);
-	for (auto& module : modules_) { vkDestroyShaderModule(device, module, nullptr); }
+
+	for (auto& module : modules_) vkDestroyShaderModule(device, module, nullptr);
+
 	vkDestroyPipeline(device, pipeline_, nullptr);
 	vkDestroyPipelineLayout(device, layout_, nullptr);
 }
@@ -91,8 +86,7 @@ void GraphicsPipeline::CreateShaderProgram(const json& jsonShader)
 	const auto& stages = shader_.GetStagePaths();
 	for (std::size_t i = 0; i < modules_.size(); ++i)
 	{
-		const auto stageFlag = Shader::GetShaderStage(stages[i]);
-
+		const VkShaderStageFlagBits stageFlag = Shader::GetShaderStage(stages[i]);
 		VkPipelineShaderStageCreateInfo pipelineShaderStageCreateInfo = {};
 		pipelineShaderStageCreateInfo.sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		pipelineShaderStageCreateInfo.stage  = stageFlag;
@@ -105,9 +99,8 @@ void GraphicsPipeline::CreateShaderProgram(const json& jsonShader)
 
 void GraphicsPipeline::CreateDescriptorLayout()
 {
-	const VkResources* vkObj = VkResources::Inst;
-
-	auto& descriptorSetLayouts = shader_.GetDescriptorSetLayoutBindings();
+	const VkResources* vkObj         = VkResources::Inst;
+	const auto& descriptorSetLayouts = shader_.GetDescriptorSetLayoutBindings();
 
 	VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo {};
 	descriptorSetLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -116,9 +109,9 @@ void GraphicsPipeline::CreateDescriptorLayout()
 	descriptorSetLayoutCreateInfo.bindingCount =
 		static_cast<std::uint32_t>(descriptorSetLayouts.size());
 	descriptorSetLayoutCreateInfo.pBindings = descriptorSetLayouts.data();
-	const VkResult res                      = vkCreateDescriptorSetLayout(
-        VkDevice(vkObj->device), &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout_);
-	neko_assert(res == VK_SUCCESS, "Could not create descriptor set layout!")
+	vkCheckError(vkCreateDescriptorSetLayout(
+					 vkObj->device, &descriptorSetLayoutCreateInfo, nullptr, &descriptorSetLayout_),
+		"Could not create descriptor set layout!");
 }
 
 void GraphicsPipeline::CreateDescriptorPool()
@@ -132,9 +125,8 @@ void GraphicsPipeline::CreateDescriptorPool()
 	createInfo.maxSets       = 8192;    // 16384;
 	createInfo.poolSizeCount = static_cast<std::uint32_t>(descriptorPools.size());
 	createInfo.pPoolSizes    = descriptorPools.data();
-	const VkResult res =
-		vkCreateDescriptorPool(vkObj->device, &createInfo, nullptr, &descriptorPool_);
-	neko_assert(res == VK_SUCCESS, "Could not create descriptor pool!")
+	vkCheckError(vkCreateDescriptorPool(vkObj->device, &createInfo, nullptr, &descriptorPool_),
+		"Could not create descriptor pool!");
 }
 
 void GraphicsPipeline::CreatePipelineLayout()
@@ -148,8 +140,8 @@ void GraphicsPipeline::CreatePipelineLayout()
 	createInfo.pSetLayouts            = &descriptorSetLayout_;
 	createInfo.pushConstantRangeCount = static_cast<std::uint32_t>(pushConstantRanges.size());
 	createInfo.pPushConstantRanges    = pushConstantRanges.data();
-	const VkResult res = vkCreatePipelineLayout(vkObj->device, &createInfo, nullptr, &layout_);
-	neko_assert(res == VK_SUCCESS, "Could not create pipeline layout!")
+	vkCheckError(vkCreatePipelineLayout(vkObj->device, &createInfo, nullptr, &layout_),
+		"Could not create pipeline layout!");
 }
 
 void GraphicsPipeline::CreateAttributes()
@@ -233,7 +225,7 @@ void GraphicsPipeline::CreateAttributes()
 void GraphicsPipeline::CreatePipeline()
 {
 	const VkResources* vkObj = VkResources::Inst;
-	RenderStage* renderStage  = vkObj->GetRenderStage();
+	RenderStage& renderStage = vkObj->GetRenderStage();
 
 	std::vector<VkVertexInputBindingDescription> bindingDescriptions;
 	std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
@@ -276,20 +268,19 @@ void GraphicsPipeline::CreatePipeline()
 	createInfo.pDynamicState       = &dynamicStateInfo_;
 
 	createInfo.layout             = layout_;
-	createInfo.renderPass         = *renderStage->GetRenderPass();
+	createInfo.renderPass         = renderStage.GetRenderPass();
 	createInfo.subpass            = stage_.subPassId;
 	createInfo.basePipelineHandle = {};
 	createInfo.basePipelineIndex  = -1;
-
-	const VkResult res = vkCreateGraphicsPipelines(
-		vkObj->device, vkObj->pipelineCache, 1, &createInfo, nullptr, &pipeline_);
-	neko_assert(res == VK_SUCCESS, "Could not create graphic pipeline!")
+	vkCheckError(vkCreateGraphicsPipelines(
+					 vkObj->device, vkObj->pipelineCache, 1, &createInfo, nullptr, &pipeline_),
+		"Could not create graphic pipeline!");
 }
 
 void GraphicsPipeline::CreatePipelineMrt()
 {
-	const auto& renderStage    = VkResources::Inst->GetRenderStage();
-	const auto attachmentCount = renderStage->GetAttachmentCount(stage_.subPassId);
+	const RenderStage& renderStage    = VkResources::Inst->GetRenderStage();
+	const std::uint32_t attachmentCount = renderStage.GetAttachmentCount(stage_.subPassId);
 
 	std::vector<VkPipelineColorBlendAttachmentState> blendAttachmentStates;
 	blendAttachmentStates.reserve(attachmentCount);
@@ -335,9 +326,9 @@ GraphicsPipelineCreateInfo::GraphicsPipelineCreateInfo(std::string_view shaderPa
 	shaderJson = LoadJson(shaderPath);
 
 	if (CheckJsonExists(shaderJson, "vert"))
-		shaderStages.emplace_back(shaderJson["vert"].get<std::string>());
+		shaderStages.emplace_back(shaderJson["vert"].get<std::string_view>());
 
 	if (CheckJsonExists(shaderJson, "frag"))
-		shaderStages.emplace_back(shaderJson["frag"].get<std::string>());
+		shaderStages.emplace_back(shaderJson["frag"].get<std::string_view>());
 }
 }    // namespace neko::vk

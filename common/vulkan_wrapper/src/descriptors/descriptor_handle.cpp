@@ -1,5 +1,3 @@
-#include "vk/descriptors/descriptor_handle.h"
-
 #include "vk/vk_resources.h"
 
 namespace neko::vk
@@ -14,7 +12,7 @@ DescriptorHandle::DescriptorHandle(const Pipeline& pipeline)
 void DescriptorHandle::Destroy() const
 {
 	for (auto& descriptor : descriptor_) descriptor.second.descriptor->Destroy();
-	if (descriptorSet_) descriptorSet_.get()->Destroy();
+	if (descriptorSet_) descriptorSet_->Destroy();
 }
 
 DescriptorHandle::DescriptorHandle(const DescriptorHandle& other)
@@ -45,7 +43,7 @@ DescriptorHandle& DescriptorHandle::operator=(const DescriptorHandle& other)
 	pushDescriptor_ = other.pushDescriptor_;
 	changed_        = other.changed_;
 	if (other.descriptorSet_)
-		descriptorSet_ = std::make_unique<DescriptorSet>(*other.descriptorSet_.get());
+		descriptorSet_ = std::make_unique<DescriptorSet>(*other.descriptorSet_);
 
 	descriptor_          = other.descriptor_;
 	writeDescriptorSets_ = other.writeDescriptorSets_;
@@ -147,8 +145,8 @@ void DescriptorHandle::BindDescriptor(
 	if (pushDescriptor_)
 	{
 		const VkResources* vkObj = VkResources::Inst;
-		Instance::CmdPushDescriptorSetKhr(VkDevice(vkObj->device),
-			VkCommandBuffer(commandBuffer),
+		Instance::CmdPushDescriptorSetKhr(vkObj->device,
+			commandBuffer,
 			pipeline.GetPipelineBindPoint(),
 			pipeline.GetPipelineLayout(),
 			0,

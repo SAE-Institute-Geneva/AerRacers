@@ -75,7 +75,7 @@ private:
 	bool multiPipeline_;
 
 	std::optional_const_ref<UniformBlock> uniformBlock_ = std::nullopt;
-	std::uint32_t size_                                 = 0;
+	VkDeviceSize size_                                  = 0;
 	std::vector<char> arbitraryStorageData_;
 	std::unique_ptr<StorageBuffer> storageBuffer_ = nullptr;
 

@@ -17,17 +17,16 @@ void StorageHandle::Destroy() const
 	if (storageBuffer_) storageBuffer_->Destroy();
 }
 
-void StorageHandle::Push(const void* data, const std::size_t size)
+void StorageHandle::Push(const void* data, VkDeviceSize size)
 {
 	if (size != size_)
 	{
-		size_         = static_cast<std::uint32_t>(size);
+		size_         = size;
 		handleStatus_ = Buffer::Status::RESET;
 		return;
 	}
 
 	if (!uniformBlock_) return;
-
 	if (memcmp(arbitraryStorageData_.data(), data, size) != 0)
 	{
 		memcpy(arbitraryStorageData_.data(), data, size);
@@ -42,15 +41,15 @@ bool StorageHandle::Update(const UniformBlock& uniformBlock)
 	{
 		if ((size_ == 0 && !uniformBlock_) ||
 			(uniformBlock_ && uniformBlock_->get() != uniformBlock &&
-				static_cast<std::uint32_t>(uniformBlock_->get().GetSize()) == size_))
+				uniformBlock_->get().GetSize() == size_))
 		{
-			size_ = static_cast<std::uint32_t>(uniformBlock.GetSize());
+			size_ = uniformBlock.GetSize();
 		}
 
 		uniformBlock_.emplace(uniformBlock);
 		arbitraryStorageData_ = std::vector<char>(size_);
 
-		storageBuffer_ = std::make_unique<StorageBuffer>(static_cast<VkDeviceSize>(size_));
+		storageBuffer_ = std::make_unique<StorageBuffer>(size_);
 
 		handleStatus_ = Buffer::Status::CHANGED;
 

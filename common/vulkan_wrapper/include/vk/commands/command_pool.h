@@ -32,17 +32,14 @@ namespace neko::vk
 class CommandPool
 {
 public:
-	explicit CommandPool(const std::thread::id& threadId = std::this_thread::get_id());
+	CommandPool();
 
 	operator const VkCommandPool&() const { return commandPool_; }
 
 	void Init();
 	void Destroy() const;
 
-	[[nodiscard]] std::thread::id GetThreadId() const { return threadId_; }
-
 private:
 	VkCommandPool commandPool_ {};
-	std::thread::id threadId_;
 };
 }    // namespace neko::vk

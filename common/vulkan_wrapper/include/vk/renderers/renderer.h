@@ -41,7 +41,7 @@ public:
 	virtual void Destroy() const = 0;
 
 	template<typename T, typename... Args>
-	void AddSubrenderer(const Pipeline::Stage& pipelineStage, Args&&... args)
+	void AddSubrenderer(const PipelineStage& pipelineStage, Args&&... args)
 	{
 		rendererContainer_.Add<T>(
 			pipelineStage, std::make_unique<T>(pipelineStage, std::forward<Args>(args)...));
@@ -52,18 +52,18 @@ public:
 		renderStage_ = std::move(renderStage);
 	}
 
-	[[nodiscard]] RenderStage* GetRenderStage() const
+	[[nodiscard]] RenderStage& GetRenderStage() const
 	{
-		neko_assert(renderStage_, "Error while accessing render stage!")
+		neko_assert(renderStage_, "Error while accessing render stage!");
 
-			return renderStage_.get();
+		return *renderStage_;
 	}
 
-	[[nodiscard]] RenderPass* GetRenderPass() const
+	[[nodiscard]] const RenderPass& GetRenderPass() const
 	{
-		neko_assert(renderStage_, "Error while accessing render pass!")
+		neko_assert(renderStage_, "Error while accessing render pass!");
 
-			return renderStage_->GetRenderPass();
+		return renderStage_->GetRenderPass();
 	}
 
 	SubrendererContainer& GetRendererContainer() { return rendererContainer_; }

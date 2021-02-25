@@ -251,7 +251,7 @@ void ServerNetworkManager::ProcessReceivePacket(
         }
         else
         {
-            neko_assert(false, "Player Number is supposed to be already set!")
+            neko_assert(false, "Player Number is supposed to be already set!");
         }
 
         auto joinAckPacket = std::make_unique<asteroid::JoinAckPacket>();

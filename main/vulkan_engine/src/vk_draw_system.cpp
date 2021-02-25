@@ -1,5 +1,7 @@
 #include "vk_draw_system.h"
 
+#include "mathematics/transform.h"
+
 namespace neko::vk
 {
 void VkDrawSystem::Init()
@@ -32,6 +34,7 @@ void VkDrawSystem::Render()
 			Transform3d::Translate(Mat4f::Identity, Vec3f::zero),
 			Transform3d::Translate(Mat4f::Identity, Vec3f::right * 4.0f),
 			Transform3d::Translate(Mat4f::Identity, Vec3f::left * 4.0f),
+			Transform3d::Translate(Mat4f::Identity, Vec3f::up * 2.0f),
 		};
 
 		for (std::size_t i = 0; i < meshCount; ++i)

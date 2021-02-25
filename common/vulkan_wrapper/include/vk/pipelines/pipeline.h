@@ -47,33 +47,6 @@ enum class SubrendererIndex : std::uint8_t
 class Pipeline
 {
 public:
-	struct Stage
-	{
-		std::uint32_t renderPassId = 0;
-		std::uint32_t subPassId    = 0;
-
-		Stage() = default;
-		Stage(const std::uint32_t renderPassId, const std::uint32_t subPassId)
-		   : renderPassId(renderPassId), subPassId(subPassId)
-		{}
-
-		bool operator==(const Stage& right) const
-		{
-			return renderPassId == right.renderPassId && subPassId == right.subPassId;
-		}
-
-		bool operator!=(const Stage& right) const { return !(*this == right); }
-
-		bool operator<(const Stage& right) const
-		{
-			return renderPassId < right.renderPassId ||
-			       (right.renderPassId >= renderPassId && subPassId < right.subPassId);
-		}
-
-		bool operator>(const Stage& right) const { return right < *this; }
-	};
-
-	explicit Pipeline() = default;
 	virtual ~Pipeline() = default;
 
 	void BindPipeline(const CommandBuffer& commandBuffer) const

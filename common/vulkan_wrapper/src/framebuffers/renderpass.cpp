@@ -1,5 +1,3 @@
-#include "vk/framebuffers/renderpass.h"
-
 #include "vk/vk_resources.h"
 
 namespace neko::vk
@@ -16,9 +14,7 @@ RenderPass::RenderPass(const RenderStage& renderStage,
 	attachmentDescriptions.reserve(attachments.size());
 	for (const auto& attachment : attachments)
 	{
-		auto attachmentSamples = attachment.multisampling ? samples : VK_SAMPLE_COUNT_1_BIT;
 		VkAttachmentDescription attachmentDescription = {};
-
 		switch (attachment.type)
 		{
 			case Attachment::Type::IMAGE:
@@ -38,12 +34,15 @@ RenderPass::RenderPass(const RenderStage& renderStage,
 			default:;
 		}
 
+		auto attachmentSamples = attachment.multisampling ? samples : VK_SAMPLE_COUNT_1_BIT;
 		attachmentDescription.samples = attachmentSamples;
 		attachmentDescription.loadOp  = VK_ATTACHMENT_LOAD_OP_CLEAR;
+
 		if (attachment.type == Attachment::Type::IMAGE)
 			attachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 		else if (attachment.type == Attachment::Type::DEPTH)
 			attachmentDescription.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+
 		attachmentDescription.stencilLoadOp  = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 		attachmentDescription.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 		attachmentDescription.initialLayout  = VK_IMAGE_LAYOUT_UNDEFINED;
@@ -51,11 +50,10 @@ RenderPass::RenderPass(const RenderStage& renderStage,
 		attachmentDescriptions.emplace_back(attachmentDescription);
 	}
 
-	std::vector<std::unique_ptr<SubpassDescription>> subpasses;
-	subpasses.reserve(renderStageSubpasses.size());
 	std::vector<VkSubpassDependency> dependencies;
+	std::vector<std::unique_ptr<SubpassDescription>> subpasses;
 	dependencies.reserve(renderStageSubpasses.size());
-
+	subpasses.reserve(renderStageSubpasses.size());
 	for (const auto& subpassType : renderStageSubpasses)
 	{
 		std::vector<VkAttachmentReference> subpassColorAttachments;
@@ -87,7 +85,6 @@ RenderPass::RenderPass(const RenderStage& renderStage,
 		subpassDependency.srcAccessMask       = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		subpassDependency.dstAccessMask       = VK_ACCESS_SHADER_READ_BIT;
 		subpassDependency.dependencyFlags     = VK_DEPENDENCY_BY_REGION_BIT;
-
 		if (subpassType.binding == renderStage.GetSubpasses().size())
 		{
 			subpassDependency.dstSubpass   = VK_SUBPASS_EXTERNAL;
@@ -97,7 +94,9 @@ RenderPass::RenderPass(const RenderStage& renderStage,
 			subpassDependency.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
 		}
 		else
+		{
 			subpassDependency.dstSubpass = subpassType.binding;
+		}
 
 		if (subpassType.binding == 0)
 		{
@@ -109,7 +108,9 @@ RenderPass::RenderPass(const RenderStage& renderStage,
 				VK_ACCESS_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 		}
 		else
+		{
 			subpassDependency.srcSubpass = subpassType.binding - 1;
+		}
 
 		dependencies.emplace_back(subpassDependency);
 	}
@@ -130,9 +131,9 @@ RenderPass::RenderPass(const RenderStage& renderStage,
 	renderPassInfo.dependencyCount = static_cast<std::uint32_t>(dependencies.size());
 	renderPassInfo.pDependencies   = dependencies.data();
 
-	const VkResult res =
-		vkCreateRenderPass(VkResources::Inst->device, &renderPassInfo, nullptr, &renderPass_);
-	neko_assert(res == VK_SUCCESS, "Failed to create render pass!")
+	vkCheckError(
+		vkCreateRenderPass(VkResources::Inst->device, &renderPassInfo, nullptr, &renderPass_),
+		"Failed to create render pass!");
 }
 
 void RenderPass::Destroy() const

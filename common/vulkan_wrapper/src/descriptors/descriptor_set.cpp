@@ -1,5 +1,3 @@
-#include "vk/descriptors/descriptor_set.h"
-
 #include "vk/vk_resources.h"
 
 namespace neko::vk
@@ -17,9 +15,9 @@ DescriptorSet::DescriptorSet(const Pipeline& pipeline)
 	descriptorSetAllocateInfo.descriptorSetCount = 1;
 	descriptorSetAllocateInfo.pSetLayouts        = layouts;
 
-	const VkResult res = vkAllocateDescriptorSets(
-		VkResources::Inst->device, &descriptorSetAllocateInfo, &descriptorSet_);
-	neko_assert(res == VK_SUCCESS, "Failed to create descriptor set layout!")
+	vkCheckError(vkAllocateDescriptorSets(
+					 VkResources::Inst->device, &descriptorSetAllocateInfo, &descriptorSet_),
+		"Failed to create descriptor set layout!");
 }
 
 void DescriptorSet::Update(const std::vector<VkWriteDescriptorSet>& descriptors)

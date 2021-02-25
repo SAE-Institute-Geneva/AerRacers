@@ -35,7 +35,7 @@ namespace neko::vk
 class MaterialExportData
 {
 public:
-	enum class Type : std::uint8_t
+	enum Type : std::uint8_t
 	{
 		FLOAT = 0,
 		INT,

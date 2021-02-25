@@ -1,20 +1,18 @@
 #include "vk/models/model_loader.h"
 
-#include <utility>
-
 #include "assimp/postprocess.h"
-#include "engine/engine.h"
+
 #include "mathematics/quaternion.h"
 #include "utils/file_utility.h"
 
-#include "vk/vk_resources.h"
 #include "vk/material/material_manager.h"
 #include "vk/models/io_system.h"
+#include "vk/vk_resources.h"
 
 namespace neko::vk
 {
 ModelLoader::ModelLoader(std::string_view path, ModelId modelId)
-   : path_(std::move(path)),
+   : path_(path),
 	 modelId_(modelId),
 	 loadModelJob_([this]() { LoadModel(); }),
 	 processModelJob_([this]() { ProcessModel(); }),
@@ -48,10 +46,10 @@ void ModelLoader::Update()
 
 void ModelLoader::LoadModel()
 {
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
-	scene              = importer_.ReadFile(config.dataRootPath + path_,
-        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
-            aiProcess_CalcTangentSpace);
+	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
+	std::uint32_t sceneFlags    = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
+	                           aiProcess_CalcTangentSpace | aiProcess_GenBoundingBoxes;
+	scene = importer_.ReadFile(config.dataRootPath + path_, sceneFlags);
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
 		flags_ = ERROR_LOADING;
@@ -77,7 +75,7 @@ void ModelLoader::ProcessModel()
 void ModelLoader::ProcessNode(aiNode* node)
 {
 	// process all the node's meshes (if any)
-	for (unsigned int i = 0; i < node->mNumMeshes; i++)
+	for (std::uint32_t i = 0; i < node->mNumMeshes; i++)
 	{
 		auto& mesh = model_.meshes_.emplace_back();
 		ProcessMesh(mesh, scene->mMeshes[node->mMeshes[i]]);
@@ -100,10 +98,7 @@ void ModelLoader::ProcessMesh(Mesh& mesh, const aiMesh* aMesh)
 		// process vertex positions, normals and texture coordinates
 		vertex.position = Vec3f(aMesh->mVertices[i]);
 		if (GetFilenameExtension(path_) == ".fbx")
-		{
 			vertex.position = Quaternion::AngleAxis(degree_t(90.0f), Vec3f::left) * vertex.position;
-		}
-
 		vertex.normal = Vec3f(aMesh->mNormals[i]);
 
 		if (aMesh->mTangents)
@@ -126,7 +121,7 @@ void ModelLoader::ProcessMesh(Mesh& mesh, const aiMesh* aMesh)
 	{
 		// process indices
 		const aiFace face = aMesh->mFaces[i];
-		for (unsigned int j = 0; j < face.mNumIndices; j++) indices.push_back(face.mIndices[j]);
+		for (std::uint32_t j = 0; j < face.mNumIndices; j++) indices.push_back(face.mIndices[j]);
 	}
 	mesh.SetIndices(indices);
 
@@ -141,7 +136,7 @@ void ModelLoader::ProcessMesh(Mesh& mesh, const aiMesh* aMesh)
 		Color4 col = Color4(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
 
 		auto& materialManager = MaterialManagerLocator::get();
-		const auto& matName   = GetFilename(path_) + std::to_string(aMesh->mMaterialIndex);
+		const std::string matName = GetFilename(path_) + std::to_string(aMesh->mMaterialIndex);
 		if (materialManager.IsMaterialLoaded(matName))
 		{
 			mesh.materialId_ = HashString(matName);
@@ -152,9 +147,7 @@ void ModelLoader::ProcessMesh(Mesh& mesh, const aiMesh* aMesh)
 		materialManager.GetDiffuseMaterial(mesh.materialId_).SetSpecularExponent(specularExp);
 		materialManager.GetDiffuseMaterial(mesh.materialId_).SetColor(col);
 		for (int i = 0; i < AI_TEXTURE_TYPE_MAX; i++)
-		{
 			LoadMaterialTextures(material, static_cast<aiTextureType>(i), directoryPath_, mesh);
-		}
 	}
 }
 
@@ -166,23 +159,22 @@ void ModelLoader::LoadMaterialTextures(
 	auto& textureManager  = TextureManagerLocator::get();
 	auto& materialManager = MaterialManagerLocator::get();
 	const auto count      = material->GetTextureCount(textureType);
-	for (unsigned int i = 0; i < count; i++)
+	for (std::uint32_t i = 0; i < count; i++)
 	{
 		aiString textureName;
 		material->GetTexture(textureType, i, &textureName);
 
-		size_t start_pos           = 0;
-		std::string textureNameStr = std::string(textureName.C_Str());
-		while ((start_pos = textureNameStr.find('\\', start_pos)) != std::string::npos)
+		std::size_t startPos       = 0;
+		std::string textureNameStr = textureName.C_Str();
+		while ((startPos = textureNameStr.find('\\', startPos)) != std::string::npos)
 		{
-			textureNameStr.replace(start_pos, 1, "/");
-			start_pos += 1;
+			textureNameStr.replace(startPos, 1, "/");
+			startPos += 1;
 		}
 
-		const auto& config   = BasicEngine::GetInstance()->GetConfig();
-		const auto textureId = textureManager.AddTexture2d(
+		const Configuration& config  = BasicEngine::GetInstance()->GetConfig();
+		const ResourceHash textureId = textureManager.AddTexture2d(
 			fmt::format("{}/{}.ktx", config.dataRootPath + directory.data(), textureNameStr));
-
 		switch (textureType)
 		{
 			case aiTextureType_DIFFUSE:

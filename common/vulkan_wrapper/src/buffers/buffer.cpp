@@ -1,5 +1,3 @@
-#include "vk/buffers/buffer.h"
-
 #include "vk/vk_resources.h"
 
 namespace neko::vk
@@ -97,7 +95,7 @@ std::uint32_t Buffer::FindMemoryType(
 			(memProperties.memoryTypes[i].propertyFlags & properties) == properties)
 			return i;
 
-	neko_assert(false, "Failed to find suitable memory type!")
+	neko_assert(false, "Failed to find suitable memory type!");
 }
 
 void Buffer::CreateBuffer(const VkDevice& device,

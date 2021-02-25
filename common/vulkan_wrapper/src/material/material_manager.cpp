@@ -2,10 +2,7 @@
 
 namespace neko::vk
 {
-MaterialManager::MaterialManager()
-{
-	MaterialManagerLocator::provide(this);
-}
+MaterialManager::MaterialManager() { MaterialManagerLocator::provide(this); }
 
 void MaterialManager::Clear()
 {
@@ -33,26 +30,19 @@ ResourceHash MaterialManager::AddMaterial(std::string_view materialPath)
 	{
 		case MaterialType::DIFFUSE:
 		{
-			diffuseMaterials_.emplace(resourceId, DiffuseMaterial());
-
 			auto& textureManager = TextureManagerLocator::get();
+			diffuseMaterials_.emplace(resourceId, DiffuseMaterial());
 
 			// Textures defined in the material's JSON use the relative path to the data folder
 			// defined in "BasicEngine::config->dataRootPath"
 			if (CheckJsonExists(materialJson, "diffusePath"))
-			{
 				textureManager.AddTexture2d(materialJson["diffusePath"].get<std::string_view>());
-			}
 
 			if (CheckJsonExists(materialJson, "specularPath"))
-			{
 				textureManager.AddTexture2d(materialJson["specularPath"].get<std::string_view>());
-			}
 
 			if (CheckJsonExists(materialJson, "normalPath"))
-			{
 				textureManager.AddTexture2d(materialJson["normalPath"].get<std::string_view>());
-			}
 
 			diffuseMaterials_[resourceId].FromJson(materialJson);
 			diffuseMaterials_[resourceId].CreatePipeline(Vertex::GetVertexInput(0));

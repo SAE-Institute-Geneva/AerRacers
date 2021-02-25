@@ -38,8 +38,7 @@ Image::Image(const ktxVulkanTexture& texture)
 
 void Image::Destroy() const
 {
-	const auto& device = VkResources::Inst->device;
-
+	const LogicalDevice& device = VkResources::Inst->device;
 	vkDestroyImageView(device, view_, nullptr);
 	vkDestroySampler(device, sampler_, nullptr);
 	vkDestroyImage(device, image_, nullptr);
@@ -86,17 +85,18 @@ std::uint32_t Image::GetMipLevels(const VkExtent3D& extent)
 
 bool Image::HasDepth(VkFormat format)
 {
-	return std::find(kDepthFormat.begin(), kDepthFormat.end(), format) != kDepthFormat.end();
+	const VkFormat* it = std::find(kDepthFormat.begin(), kDepthFormat.end(), format);
+	return it != kDepthFormat.end();
 }
 
 bool Image::HasStencil(VkFormat format)
 {
-	return std::find(kStencilFormats.begin(), kStencilFormats.end(), format) !=
-	       kStencilFormats.end();
+	const VkFormat* it = std::find(kStencilFormats.begin(), kStencilFormats.end(), format);
+	return it != kStencilFormats.end();
 }
 
-VkImage Image::CreateImage(VkDeviceMemory& memory,
-	const VkExtent3D extent,
+VkImage Image::CreateImage(VkDeviceMemory memory,
+	const VkExtent3D& extent,
 	const VkFormat format,
 	const VkSampleCountFlagBits samples,
 	const VkImageTiling tiling,
@@ -106,7 +106,6 @@ VkImage Image::CreateImage(VkDeviceMemory& memory,
 	const std::uint32_t arrayLayers,
 	const VkImageType type)
 {
-	const auto& device = VkResources::Inst->device;
 	VkImageCreateInfo imageCreateInfo = {};
 	imageCreateInfo.sType             = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	imageCreateInfo.flags             = arrayLayers == 6 ? VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT : 0;
@@ -122,22 +121,23 @@ VkImage Image::CreateImage(VkDeviceMemory& memory,
 	imageCreateInfo.initialLayout     = VK_IMAGE_LAYOUT_UNDEFINED;
 
 	VkImage image;
-	VkResult res = vkCreateImage(device, &imageCreateInfo, nullptr, &image);
-	neko_assert(res == VK_SUCCESS, "Could not create image!")
+	const LogicalDevice& device = VkResources::Inst->device;
+	VkResult res                = vkCreateImage(device, &imageCreateInfo, nullptr, &image);
+	vkCheckError(res, "Could not create image!");
 
-	VkMemoryRequirements memoryRequirements;
-	vkGetImageMemoryRequirements(device, image, &memoryRequirements);
+	VkMemoryRequirements memRq;
+	vkGetImageMemoryRequirements(device, image, &memRq);
 
-	VkMemoryAllocateInfo memoryAllocateInfo = {};
-	memoryAllocateInfo.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-	memoryAllocateInfo.allocationSize       = memoryRequirements.size;
-	memoryAllocateInfo.memoryTypeIndex =
-		Buffer::FindMemoryType(memoryRequirements.memoryTypeBits, properties);
-	res = vkAllocateMemory(device, &memoryAllocateInfo, nullptr, &memory);
-	neko_assert(res == VK_SUCCESS, "Could not allocate memory for image!")
+	VkMemoryAllocateInfo allocInfo = {};
+	allocInfo.sType                = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	allocInfo.allocationSize       = memRq.size;
+	allocInfo.memoryTypeIndex      = Buffer::FindMemoryType(memRq.memoryTypeBits, properties);
+
+	res = vkAllocateMemory(device, &allocInfo, nullptr, &memory);
+	vkCheckError(res, "Could not allocate memory for image!");
 
 	res = vkBindImageMemory(device, image, memory, 0);
-	neko_assert(res == VK_SUCCESS, "Could not bind image memory!")
+	vkCheckError(res, "Could not bind image memory!");
 
 	return image;
 }
@@ -171,8 +171,8 @@ VkSampler Image::CreateImageSampler(
 	samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 
 	VkSampler sampler;
-	const VkResult res = vkCreateSampler(vkObj->device, &samplerCreateInfo, nullptr, &sampler);
-	neko_assert(res == VK_SUCCESS, "Could not create image sampler!")
+	vkCheckError(vkCreateSampler(vkObj->device, &samplerCreateInfo, nullptr, &sampler),
+		"Could not create image sampler!");
 
 	return sampler;
 }
@@ -186,8 +186,6 @@ VkImageView Image::CreateImageView(const VkImage& image,
 	const std::uint32_t layerCount,
 	const std::uint32_t baseArrayLayer)
 {
-	const auto& device = VkResources::Inst->device;
-
 	VkImageView imageView;
 	VkImageViewCreateInfo imageViewCreateInfo           = {};
 	imageViewCreateInfo.sType                           = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -204,8 +202,9 @@ VkImageView Image::CreateImageView(const VkImage& image,
 	imageViewCreateInfo.subresourceRange.baseArrayLayer = baseArrayLayer;
 	imageViewCreateInfo.subresourceRange.layerCount     = layerCount;
 
-	const VkResult res = vkCreateImageView(device, &imageViewCreateInfo, nullptr, &imageView);
-	neko_assert(res == VK_SUCCESS, "Could not create image view!")
+	vkCheckError(
+		vkCreateImageView(VkResources::Inst->device, &imageViewCreateInfo, nullptr, &imageView),
+		"Could not create image view!");
 
 	return imageView;
 }
@@ -218,7 +217,7 @@ void Image::CreateMipmaps(const VkImage& image,
 	std::uint32_t baseArrayLayer,
 	std::uint32_t layerCount)
 {
-	const auto& gpu = VkResources::Inst->gpu;
+	const PhysicalDevice& gpu = VkResources::Inst->gpu;
 
 	// Get device properties for the requested texture format.
 	VkFormatProperties formatProperties;
@@ -226,9 +225,9 @@ void Image::CreateMipmaps(const VkImage& image,
 
 	// Mip-chain generation requires support for blit source and destination
 	neko_assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_SRC_BIT,
-		"Hardware does not support blit")
+		"Hardware does not support blit!");
 	neko_assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_BLIT_DST_BIT,
-		"Hardware does not support blit")
+		"Hardware does not support blit!");
 
 	CommandBuffer commandBuffer(true);
 	for (std::uint32_t i = 1; i < mipLevels; i++)
@@ -247,7 +246,7 @@ void Image::CreateMipmaps(const VkImage& image,
 		barrier0.subresourceRange.levelCount     = 1;
 		barrier0.subresourceRange.baseArrayLayer = baseArrayLayer;
 		barrier0.subresourceRange.layerCount     = layerCount;
-		vkCmdPipelineBarrier(VkCommandBuffer(commandBuffer),
+		vkCmdPipelineBarrier(commandBuffer,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
 			0,
@@ -258,19 +257,22 @@ void Image::CreateMipmaps(const VkImage& image,
 			1,
 			&barrier0);
 
+		VkOffset3D src = {
+			std::int32_t(extent.width >> (i - 1)), std::int32_t(extent.height >> (i - 1)), 1};
+		VkOffset3D dst = {std::int32_t(extent.width >> i), std::int32_t(extent.height >> i), 1};
+
 		VkImageBlit imageBlit {};
-		imageBlit.srcOffsets[1] = {
-			std::int32_t(extent.width >> (i - 1)), int32_t(extent.height >> (i - 1)), 1};
+		imageBlit.srcOffsets[1]                 = src;
 		imageBlit.srcSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
 		imageBlit.srcSubresource.mipLevel       = i - 1;
 		imageBlit.srcSubresource.baseArrayLayer = baseArrayLayer;
 		imageBlit.srcSubresource.layerCount     = layerCount;
-		imageBlit.dstOffsets[1] = {int32_t(extent.width >> i), int32_t(extent.height >> i), 1};
+		imageBlit.dstOffsets[1]                 = dst;
 		imageBlit.dstSubresource.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
 		imageBlit.dstSubresource.mipLevel       = i;
 		imageBlit.dstSubresource.baseArrayLayer = baseArrayLayer;
 		imageBlit.dstSubresource.layerCount     = layerCount;
-		vkCmdBlitImage(VkCommandBuffer(commandBuffer),
+		vkCmdBlitImage(commandBuffer,
 			image,
 			VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 			image,
@@ -279,20 +281,20 @@ void Image::CreateMipmaps(const VkImage& image,
 			&imageBlit,
 			VK_FILTER_LINEAR);
 
-		VkImageMemoryBarrier barrier1 {};
-		barrier1.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-		barrier1.srcAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
-		barrier1.dstAccessMask                   = VK_ACCESS_SHADER_READ_BIT;
-		barrier1.oldLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-		barrier1.newLayout                       = dstImageLayout;
-		barrier1.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-		barrier1.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-		barrier1.image                           = image;
-		barrier1.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
-		barrier1.subresourceRange.baseMipLevel   = i - 1;
-		barrier1.subresourceRange.levelCount     = 1;
-		barrier1.subresourceRange.baseArrayLayer = baseArrayLayer;
-		barrier1.subresourceRange.layerCount     = layerCount;
+		VkImageMemoryBarrier barrier {};
+		barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.srcAccessMask                   = VK_ACCESS_TRANSFER_READ_BIT;
+		barrier.dstAccessMask                   = VK_ACCESS_SHADER_READ_BIT;
+		barrier.oldLayout                       = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+		barrier.newLayout                       = dstImageLayout;
+		barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+		barrier.image                           = image;
+		barrier.subresourceRange.aspectMask     = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.baseMipLevel   = i - 1;
+		barrier.subresourceRange.levelCount     = 1;
+		barrier.subresourceRange.baseArrayLayer = baseArrayLayer;
+		barrier.subresourceRange.layerCount     = layerCount;
 		vkCmdPipelineBarrier(commandBuffer,
 			VK_PIPELINE_STAGE_TRANSFER_BIT,
 			VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
@@ -302,7 +304,7 @@ void Image::CreateMipmaps(const VkImage& image,
 			0,
 			nullptr,
 			1,
-			&barrier1);
+			&barrier);
 	}
 
 	VkImageMemoryBarrier barrier {};
@@ -319,7 +321,7 @@ void Image::CreateMipmaps(const VkImage& image,
 	barrier.subresourceRange.levelCount     = 1;
 	barrier.subresourceRange.baseArrayLayer = baseArrayLayer;
 	barrier.subresourceRange.layerCount     = layerCount;
-	vkCmdPipelineBarrier(VkCommandBuffer(commandBuffer),
+	vkCmdPipelineBarrier(commandBuffer,
 		VK_PIPELINE_STAGE_TRANSFER_BIT,
 		VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 		0,
@@ -343,41 +345,41 @@ void Image::TransitionImageLayout(const VkImage& image,
 	const std::uint32_t baseArrayLayer)
 {
 	CommandBuffer commandBuffer(true);
-	VkImageMemoryBarrier imageMemoryBarrier            = {};
-	imageMemoryBarrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-	imageMemoryBarrier.oldLayout                       = srcImageLayout;
-	imageMemoryBarrier.newLayout                       = dstImageLayout;
-	imageMemoryBarrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-	imageMemoryBarrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
-	imageMemoryBarrier.image                           = image;
-	imageMemoryBarrier.subresourceRange.aspectMask     = imageAspect;
-	imageMemoryBarrier.subresourceRange.baseMipLevel   = baseMipLevel;
-	imageMemoryBarrier.subresourceRange.levelCount     = mipLevels;
-	imageMemoryBarrier.subresourceRange.baseArrayLayer = baseArrayLayer;
-	imageMemoryBarrier.subresourceRange.layerCount     = layerCount;
+	VkImageMemoryBarrier barrier            = {};
+	barrier.sType                           = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+	barrier.oldLayout                       = srcImageLayout;
+	barrier.newLayout                       = dstImageLayout;
+	barrier.srcQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex             = VK_QUEUE_FAMILY_IGNORED;
+	barrier.image                           = image;
+	barrier.subresourceRange.aspectMask     = imageAspect;
+	barrier.subresourceRange.baseMipLevel   = baseMipLevel;
+	barrier.subresourceRange.levelCount     = mipLevels;
+	barrier.subresourceRange.baseArrayLayer = baseArrayLayer;
+	barrier.subresourceRange.layerCount     = layerCount;
 
 	// Source access mask controls actions that have to be finished on the old layout before
 	// it will be transitioned to the new layout.
 	switch (srcImageLayout)
 	{
-		case VK_IMAGE_LAYOUT_UNDEFINED: imageMemoryBarrier.srcAccessMask = 0; break;
+		case VK_IMAGE_LAYOUT_UNDEFINED: barrier.srcAccessMask = 0; break;
 		case VK_IMAGE_LAYOUT_PREINITIALIZED:
-			imageMemoryBarrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
+			barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT;
 			break;
 		case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
-			imageMemoryBarrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			barrier.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 			break;
 		case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
-			imageMemoryBarrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			barrier.srcAccessMask = VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 			break;
 		case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
-			imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+			barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 			break;
 		case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-			imageMemoryBarrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			break;
 		case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
-			imageMemoryBarrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
 			break;
 		default: break;
 	}
@@ -386,33 +388,33 @@ void Image::TransitionImageLayout(const VkImage& image,
 	switch (dstImageLayout)
 	{
 		case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
-			imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
 			break;
 		case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
-			imageMemoryBarrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+			barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 			break;
 		case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
-			imageMemoryBarrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			barrier.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
 			break;
 		case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
-			imageMemoryBarrier.dstAccessMask =
-				imageMemoryBarrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+			barrier.dstAccessMask =
+				barrier.dstAccessMask | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 			break;
 		case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
-			if (imageMemoryBarrier.srcAccessMask == 0)
+		{
+			if (barrier.srcAccessMask == 0)
 			{
-				imageMemoryBarrier.srcAccessMask =
-					VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
+				barrier.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT | VK_ACCESS_TRANSFER_WRITE_BIT;
 			}
 
-			imageMemoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 			break;
+		}
 		default: break;
 	}
 
 	const VkPipelineStageFlags srcStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
 	const VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
-
 	vkCmdPipelineBarrier(commandBuffer,
 		srcStageMask,
 		dstStageMask,
@@ -422,7 +424,7 @@ void Image::TransitionImageLayout(const VkImage& image,
 		0,
 		nullptr,
 		1,
-		&imageMemoryBarrier);
+		&barrier);
 
 	commandBuffer.SubmitIdle();
 }
@@ -445,12 +447,12 @@ VkFormat Image::FindSupportedFormat(const std::vector<VkFormat>& candidates,
 			return format;
 	}
 
-	neko_assert(false, "Failed to find supported format!")
+	neko_assert(false, "Failed to find supported format!");
 }
 
 [[maybe_unused]] void Image::CopyBufferToImage(VkBuffer buffer,
 	VkImage image,
-	VkExtent3D extent,
+	const VkExtent3D& extent,
 	std::uint32_t layerCount,
 	std::uint32_t baseArrayLayer)
 {

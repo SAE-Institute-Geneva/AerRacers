@@ -9,11 +9,12 @@ VertexInput MeshInstance::Instance::GetVertexInput(uint32_t baseBinding)
 	bindingDescription.stride    = sizeof(Instance);
 	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
 
+	const VkFormat format = VK_FORMAT_R32G32B32A32_SFLOAT;
 	const std::vector<VkVertexInputAttributeDescription> attributeDescriptions = {
-		{0, baseBinding, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Instance, modelMatrix)},
-		{1, baseBinding, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Instance, modelMatrix) + 16},
-		{2, baseBinding, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Instance, modelMatrix) + 32},
-		{3, baseBinding, VK_FORMAT_R32G32B32A32_SFLOAT, offsetof(Instance, modelMatrix) + 48},
+		{0, baseBinding, format, offsetof(Instance, modelMatrix)},
+		{1, baseBinding, format, offsetof(Instance, modelMatrix) + sizeof(Vec4f)},
+		{2, baseBinding, format, offsetof(Instance, modelMatrix) + 2 * sizeof(Vec4f)},
+		{3, baseBinding, format, offsetof(Instance, modelMatrix) + 3 * sizeof(Vec4f)},
 	};
 
 	return VertexInput(0, bindingDescription, attributeDescriptions);
@@ -35,21 +36,20 @@ void MeshInstance::Update(std::vector<Mat4f>& modelMatrices)
 {
 	maxInstances_ = kMaxInstances;
 	instances_    = 0;
-
 	if (modelMatrices.empty()) return;
 
 	Instance* instances;
 	instanceBuffer_.MapMemory(reinterpret_cast<char**>(&instances));
-
-	for (auto& modelMatrix : modelMatrices)
 	{
-		if (instances_ >= maxInstances_) break;
+		for (auto& modelMatrix : modelMatrices)
+		{
+			if (instances_ >= maxInstances_) break;
 
-		auto instance         = &instances[instances_];
-		instance->modelMatrix = modelMatrix;
-		instances_++;
+			auto instance         = &instances[instances_];
+			instance->modelMatrix = modelMatrix;
+			instances_++;
+		}
 	}
-
 	instanceBuffer_.UnmapMemory();
 }
 
@@ -57,11 +57,10 @@ bool MeshInstance::CmdRender(const CommandBuffer& commandBuffer, UniformHandle& 
 {
 	if (instances_ == 0) return false;    //No instances
 
-	const auto& materialPipeline = kMaterial_.GetPipelineMaterial();
-
+	const MaterialPipeline& materialPipeline = kMaterial_.GetPipelineMaterial();
 	if (!kMaterial_.BindPipeline(commandBuffer)) return false;
 
-	const auto& pipeline = materialPipeline.GetPipeline();
+	const GraphicsPipeline& pipeline = materialPipeline.GetPipeline();
 
 	//Push uniforms to shader
 	uniformObject_.PushUniformData(kMaterial_.ExportUniformData());
@@ -69,9 +68,7 @@ bool MeshInstance::CmdRender(const CommandBuffer& commandBuffer, UniformHandle& 
 	//Push texture to shader
 	descriptorSet_.Push(kUboObjectHash, uniformObject_);
 	descriptorSet_.Push(kUboSceneHash, uniformScene);
-
 	descriptorSet_.PushDescriptorData(kMaterial_.ExportDescriptorData());
-
 	if (!descriptorSet_.Update(pipeline)) return false;
 
 	descriptorSet_.BindDescriptor(commandBuffer, pipeline);

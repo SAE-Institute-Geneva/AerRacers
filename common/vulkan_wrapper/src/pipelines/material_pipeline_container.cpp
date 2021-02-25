@@ -3,7 +3,7 @@
 namespace neko::vk
 {
 MaterialPipeline& MaterialPipelineContainer::AddMaterial(
-	Pipeline::Stage pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate)
+	const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate)
 {
 	for (std::size_t i = 0; i < registeredInfos_.size(); i++)
 		if (registeredInfos_[i].second == pipelineCreate) return *registeredMaterials_[i];
@@ -16,7 +16,7 @@ MaterialPipeline& MaterialPipelineContainer::AddMaterial(
 }
 
 MaterialPipeline& MaterialPipelineContainer::GetMaterial(
-	Pipeline::Stage pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate) const
+	const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate) const
 {
 	auto i = 0;
 	for (const auto& infoMaterial : registeredInfos_)

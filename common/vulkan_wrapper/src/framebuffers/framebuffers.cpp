@@ -1,5 +1,3 @@
-#include "vk/framebuffers/framebuffers.h"
-
 #include "vk/vk_resources.h"
 
 namespace neko::vk
@@ -12,8 +10,6 @@ Framebuffers::Framebuffers(const std::uint32_t width,
 	const ImageDepth& depthStencil,
 	const VkSampleCountFlagBits samples)
 {
-	const VkResources* vkObj = VkResources::Inst;
-
 	if (!imageAttachments_.empty())
 	{
 		imageAttachments_.clear();
@@ -22,6 +18,7 @@ Framebuffers::Framebuffers(const std::uint32_t width,
 	}
 
 	int index = 0;
+	const VkResources* vkObj = VkResources::Inst;
 	for (const auto& attachment : renderStage.GetAttachments())
 	{
 		auto attachmentSamples = attachment.multisampling ? samples : VK_SAMPLE_COUNT_1_BIT;
@@ -44,9 +41,9 @@ Framebuffers::Framebuffers(const std::uint32_t width,
 	}
 
 	const auto& imageViews      = swapchain.GetImageViews();
-	const auto& swapchainExtent = swapchain.GetExtent();
-	framebuffers_.resize(imageViews.size());
+	const VkExtent2D& swapchainExtent = swapchain.GetExtent();
 
+	framebuffers_.resize(imageViews.size());
 	for (std::size_t i = 0; i < imageViews.size(); i++)
 	{
 		std::vector<VkImageView> attachments;
@@ -70,16 +67,16 @@ Framebuffers::Framebuffers(const std::uint32_t width,
 
 		VkFramebufferCreateInfo framebufferInfo {};
 		framebufferInfo.sType           = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		framebufferInfo.renderPass      = VkRenderPass(renderPass);
+		framebufferInfo.renderPass      = renderPass;
 		framebufferInfo.attachmentCount = static_cast<std::uint32_t>(attachments.size());
 		framebufferInfo.pAttachments    = attachments.data();
 		framebufferInfo.width           = swapchainExtent.width;
 		framebufferInfo.height          = swapchainExtent.height;
 		framebufferInfo.layers          = 1;
 
-		const VkResult res =
-			vkCreateFramebuffer(vkObj->device, &framebufferInfo, nullptr, &framebuffers_[i]);
-		neko_assert(res == VK_SUCCESS, "Failed to create framebuffer!")
+		vkCheckError(
+			vkCreateFramebuffer(vkObj->device, &framebufferInfo, nullptr, &framebuffers_[i]),
+			"Failed to create framebuffer!");
 	}
 }
 
@@ -87,6 +84,7 @@ void Framebuffers::Destroy() const
 {
 	for (const auto& attachment : imageAttachments_)
 		if (attachment) attachment->Destroy();
+
 	for (const auto& framebuffer : framebuffers_)
 		vkDestroyFramebuffer(VkResources::Inst->device, framebuffer, nullptr);
 }

@@ -29,7 +29,7 @@
 
 namespace neko::vk
 {
-using StageIndex = std::pair<Pipeline::Stage, std::size_t>;
+using StageIndex = std::pair<PipelineStage, std::size_t>;
 
 class SubrendererContainer
 {
@@ -51,13 +51,13 @@ public:
 		auto typeId = T::GetSubrendererIndex();
 		auto it     = subrenderers_.find(typeId);
 		neko_assert(
-			it != subrenderers_.end() && it->second, "Error when trying to access subrenderer")
+			it != subrenderers_.end() && it->second, "Error when trying to access subrenderer");
 
 		return static_cast<T&>(*it->second);
 	}
 
 	template<typename T, typename... Args>
-	void Add(const Pipeline::Stage& stage, std::unique_ptr<T>&& subrenderer)
+	void Add(const PipelineStage& stage, std::unique_ptr<T>&& subrenderer)
 	{
 		static_assert(
 			std::is_base_of<RenderPipeline, T>::value, "T has to be a subset of RenderPipeline");
@@ -67,7 +67,7 @@ public:
 		subrenderers_[typeId] = std::move(subrenderer);
 	}
 
-	void RenderStage(const Pipeline::Stage& stage, const CommandBuffer& commandBuffer)
+	void RenderStage(const PipelineStage& stage, const CommandBuffer& commandBuffer)
 	{
 		for (const auto& [stageIndex, typeId] : stages_)
 		{

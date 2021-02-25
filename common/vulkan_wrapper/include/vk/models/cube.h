@@ -32,7 +32,7 @@ namespace neko::vk
 class RenderCuboid final : public Mesh
 {
 public:
-	RenderCuboid(Vec3f offset, Vec3f size);
+	RenderCuboid(const Vec3f& offset, const Vec3f& size);
 
 	void Init() override;
 

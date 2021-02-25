@@ -3,8 +3,8 @@
 namespace neko::vk
 {
 Attribute::Attribute(
-	std::string_view name, std::uint32_t location, std::uint32_t size, Attribute::Type type)
-   : name_(std::move(name)), location_(location), size_(size), type_(type)
+	std::string_view name, std::uint32_t location, std::uint32_t size, Type type)
+   : name_(name), location_(location), size_(size), type_(type)
 {}
 
 constexpr VkFormat Attribute::GetVkFormat() const
@@ -23,8 +23,8 @@ constexpr VkFormat Attribute::GetVkFormat() const
 		case Type::VEC2U: return VK_FORMAT_R32G32_SINT;
 		case Type::VEC3U: return VK_FORMAT_R32G32B32_SINT;
 		case Type::VEC4U: return VK_FORMAT_R32G32B32A32_SINT;
-		case Type::MAT2:  return VK_FORMAT_R32G32B32A32_SFLOAT;
-		case Type::MAT3:  return VK_FORMAT_R32G32B32A32_SFLOAT;
+		case Type::MAT2:  return VK_FORMAT_R32G32_SFLOAT;
+		case Type::MAT3:  return VK_FORMAT_R32G32B32_SFLOAT;
 		case Type::MAT4:  return VK_FORMAT_R32G32B32A32_SFLOAT;
 		case Type::UNDEFINED:
 		default: return VK_FORMAT_UNDEFINED;
@@ -33,7 +33,7 @@ constexpr VkFormat Attribute::GetVkFormat() const
 
 void Attribute::FromJson(const json& attributeJson)
 {
-	name_     = attributeJson["name"].get<std::string>();
+	name_     = attributeJson["name"].get<std::string_view>();
 	location_ = attributeJson["location"].get<std::uint32_t>();
 	size_     = attributeJson["size"].get<std::uint32_t>();
 	type_     = attributeJson["type"].get<Type>();

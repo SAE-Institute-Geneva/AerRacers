@@ -44,11 +44,11 @@ public:
 	~VkResources();
 
 	/// Add a new material pipeline to the render queue
-	[[nodiscard]] MaterialPipeline& AddMaterialPipeline(const Pipeline::Stage& pipelineStage,
+	[[nodiscard]] MaterialPipeline& AddMaterialPipeline(const PipelineStage& pipelineStage,
 		const GraphicsPipelineCreateInfo& pipelineCreate) const;
 
-	[[nodiscard]] RenderStage* GetRenderStage() const;
-	[[nodiscard]] RenderPass* GetRenderPass() const;
+	[[nodiscard]] RenderStage& GetRenderStage() const;
+	[[nodiscard]] const RenderPass& GetRenderPass() const;
 	[[nodiscard]] CommandBuffer& GetCurrentCmdBuffer();
 	[[nodiscard]] const CommandPool& GetCurrentCmdPool();
 

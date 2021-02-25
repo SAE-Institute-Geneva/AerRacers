@@ -2,7 +2,7 @@
 
 namespace neko::vk
 {
-RenderQuad::RenderQuad(const Vec3f offset, const Vec2f size) : offset_(offset), size_(size) {}
+RenderQuad::RenderQuad(const Vec3f& offset, const Vec2f& size) : offset_(offset), size_(size) {}
 
 void RenderQuad::Init()
 {

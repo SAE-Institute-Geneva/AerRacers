@@ -2,31 +2,35 @@
 
 #include <imgui.h>
 
-#ifdef EASY_PROFILE_USE
-    #include "easy/profiler.h"
-#endif
-
 #include "engine/engine.h"
 #include "graphics/camera.h"
-#include <aer/log.h>
-#include <utils/file_utility.h>
+#include "utils/file_utility.h"
+
+#include "aer/log.h"
+
+#ifdef EASY_PROFILE_USE
+#include "easy/profiler.h"
+#endif
 
 namespace neko::aer
 {
-RenderManager::RenderManager(
-	EntityManager& entityManager,
+RenderManager::RenderManager(EntityManager& entityManager,
 #ifdef NEKO_GLES3
 	gl::ModelManager& modelManager,
+#else
+	vk::ModelManager& modelManager,
 #endif
 	Transform3dManager& transform3DManager,
-    RendererViewer& rendererViewer)
+	RendererViewer& rendererViewer)
 #ifdef NEKO_GLES3
+   : ComponentManager<DrawCmd, EntityMask(ComponentType::MODEL)>(entityManager),
+#else
    : ComponentManager<DrawCmd, EntityMask(ComponentType::MODEL)>(entityManager),
 #endif
 	 modelManager_(modelManager),
 	 transformManager_(transform3DManager),
 	 dirtyManager_(entityManager),
-     rendererViewer_(rendererViewer)
+	 rendererViewer_(rendererViewer)
 {
 	entityManager_.get().RegisterOnChangeParent(this);
 	dirtyManager_.RegisterComponentManager(this);
@@ -37,6 +41,7 @@ void RenderManager::Init()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("RenderManager::Init", profiler::colors::Brown);
 #endif
+#ifdef NEKO_GLES3
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
 
 	preRender_ = Job {[this, config]()
@@ -47,6 +52,8 @@ void RenderManager::Init()
 		}};
 
 	RendererLocator::get().AddPreRenderJob(&preRender_);
+#else
+#endif
 }
 
 void RenderManager::Update(seconds)
@@ -107,14 +114,20 @@ void RenderManager::Render()
 
 void RenderManager::Destroy()
 {
+#ifdef NEKO_GLES3
 	shader_.Destroy();
+#else
+#endif
 }
 
 void RenderManager::SetModel(Entity entity, const std::string& modelPath)
 {
 #ifdef NEKO_GLES3
-	auto& modelManager  = gl::ModelManagerLocator::get();
-	gl::ModelId modelId = modelManager.LoadModel(modelPath);
+	gl::ModelId modelId = modelManager_.LoadModel(modelPath);
+
+	SetModel(entity, modelId);
+#else
+	vk::ModelId modelId = modelManager_.LoadModel(modelPath);
 
 	SetModel(entity, modelId);
 #endif
@@ -130,6 +143,14 @@ void RenderManager::SetModel(Entity entity, gl::ModelId modelId)
 
 	SetComponent(entity, drawCmd);
 }
+#else
+void RenderManager::SetModel(Entity entity, vk::ModelId modelId)
+{
+	DrawCmd drawCmd = GetComponent(entity);
+	drawCmd.modelId = modelId;
+
+	SetComponent(entity, drawCmd);
+}
 #endif
 
 void RenderManager::UpdateDirtyComponent(Entity entity)
@@ -139,75 +160,81 @@ void RenderManager::UpdateDirtyComponent(Entity entity)
 
 void RenderManager::OnChangeParent(Entity, Entity, Entity) {}
 
-RendererViewer::RendererViewer(EntityManager& entityManager, RenderManager& renderManager) : ComponentViewer(entityManager), rendererManager_(renderManager)
+RendererViewer::RendererViewer(EntityManager& entityManager, RenderManager& renderManager)
+   : ComponentViewer(entityManager), rendererManager_(renderManager)
 {
-    ResizeIfNecessary(meshNames_, INIT_ENTITY_NMB - 1, std::string());
-}
-
-json RendererViewer::GetJsonFromComponent(Entity entity) const
-{
-    json rendererComponent = json::object();
-    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL)))
-    {
-        if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
-        {
-            Configuration config          = BasicEngine::GetInstance()->GetConfig();
-            rendererComponent["meshName"] = meshNames_[entity];
-        }
-    }
-    return rendererComponent;
-}
-
-void RendererViewer::SetComponentFromJson(Entity entity, const json& componentJson)
-{
-    if(CheckJsonParameter(componentJson, "meshName", json::value_t::string))
-    {
-        Configuration config       = BasicEngine::GetInstance()->GetConfig();
-        std::string meshName = std::string(componentJson["meshName"]);
-        std::transform(meshName.begin(), meshName.end(), meshName.begin(),
-                       [](unsigned char c){ return std::tolower(c); });
-
-        const std::string path =
-            config.dataRootPath + "models/" + meshName + "/" + meshName + ".obj";
-        if (FileExists(path))
-        {
-            rendererManager_.AddComponent(entity);
-            rendererManager_.SetModel(entity, path);
-        }
-        else
-        {
-            LogDebug("File " + meshName + " not found");
-        }
-    }
+	ResizeIfNecessary(meshNames_, INIT_ENTITY_NMB - 1, std::string());
 }
 
 void RendererViewer::DrawImGui(Entity entity)
 {
-    if (entity == INVALID_ENTITY) return;
-    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL))) {
-        if (ImGui::TreeNode("Renderer")) {
-            ResizeIfNecessary(meshNames_, entity, std::string());
-            std::string meshName = "MeshName : " + meshNames_[entity];
-            ImGui::Text("%s", meshName.c_str());
-            ImGui::TreePop();
-        }
-    }
+	if (entity == INVALID_ENTITY) return;
+	if (entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL)))
+	{
+		if (ImGui::TreeNode("Renderer"))
+		{
+			ResizeIfNecessary(meshNames_, entity, std::string());
+			std::string meshName = "MeshName : " + meshNames_[entity];
+			ImGui::Text("%s", meshName.c_str());
+			ImGui::TreePop();
+		}
+	}
 }
 
-void neko::aer::RendererViewer::SetMeshName(Entity entity, const std::string& meshPath)
+void RendererViewer::SetMeshName(Entity entity, std::string_view meshName)
 {
-    if (entity == INVALID_ENTITY) return;
-    ResizeIfNecessary(meshNames_, entity, std::string());
-    auto startName       = meshPath.find_last_of('/')+1;
-    auto endName         = meshPath.find_first_of('.');
-    auto size            = endName - startName;
-    std::string meshName = meshPath.substr(startName, size);
-    meshNames_[entity] = meshName;
+	if (entity == INVALID_ENTITY) return;
+
+	ResizeIfNecessary(meshNames_, entity, std::string());
+	std::size_t startName = meshName.find_last_of('/') + 1;
+	std::size_t endName   = meshName.find_first_of('.');
+	std::size_t size      = endName - startName;
+	std::string_view name = meshName.substr(startName, size);
+	meshNames_[entity]    = name;
 }
 
-std::string RendererViewer::GetMeshName(Entity entity) const
+std::string_view RendererViewer::GetMeshName(Entity entity) const
 {
-    if (entity == INVALID_ENTITY && entity >= meshNames_.size()) return "";
-    return meshNames_[entity];
+	if (entity == INVALID_ENTITY && entity >= meshNames_.size()) return "";
+	return meshNames_[entity];
+}
+
+json RendererViewer::GetJsonFromComponent(Entity entity) const
+{
+	json rendererComponent = json::object();
+	if (entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL)))
+	{
+		if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
+		{
+			Configuration config          = BasicEngine::GetInstance()->GetConfig();
+			rendererComponent["meshName"] = meshNames_[entity];
+		}
+	}
+	return rendererComponent;
+}
+
+void RendererViewer::SetComponentFromJson(Entity entity, const json& componentJson)
+{
+	if (CheckJsonParameter(componentJson, "meshName", json::value_t::string))
+	{
+		Configuration config = BasicEngine::GetInstance()->GetConfig();
+		std::string meshName = std::string(componentJson["meshName"]);
+		std::transform(meshName.begin(),
+			meshName.end(),
+			meshName.begin(),
+			[](unsigned char c) { return std::tolower(c); });
+
+		const std::string path =
+			config.dataRootPath + "models/" + meshName + "/" + meshName + ".obj";
+		if (FileExists(path))
+		{
+			rendererManager_.AddComponent(entity);
+			rendererManager_.SetModel(entity, path);
+		}
+		else
+		{
+			LogDebug("File " + meshName + " not found");
+		}
+	}
 }
 }    // namespace neko::aer
