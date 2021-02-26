@@ -16,7 +16,7 @@ ModelLoader::ModelLoader(std::string_view path, ModelId modelId)
 	 modelId_(modelId),
 	 loadModelJob_([this]() { LoadModel(); }),
 	 processModelJob_([this]() { ProcessModel(); }),
-	 uploadMeshesToVkJob_([this]() { UploadMeshesToVk(); })
+	 uploadJob_([this]() { UploadMeshesToVk(); })
 {
 	importer_.SetIOHandler(new VkIoSystem(BasicEngine::GetInstance()->GetFilesystem()));
 }
@@ -26,7 +26,7 @@ ModelLoader::ModelLoader(ModelLoader&& other) noexcept
 	 modelId_(other.modelId_),
 	 loadModelJob_([this]() { LoadModel(); }),
 	 processModelJob_([this]() { ProcessModel(); }),
-	 uploadMeshesToVkJob_([this]() { UploadMeshesToVk(); })
+	 uploadJob_([this]() { UploadMeshesToVk(); })
 {}
 
 void ModelLoader::Start()
@@ -40,7 +40,49 @@ void ModelLoader::Update()
 	if (flags_ & ERROR_LOADING) return;
 	if (!(flags_ & LOADED) && processModelJob_.IsDone())
 	{
-		if (uploadMeshesToVkJob_.IsDone()) flags_ = flags_ | LOADED;
+		const auto& textureManager = TextureManagerLocator::get();
+		auto& materialManager = MaterialManagerLocator::get();
+		bool isLoaded = false;
+
+		// load textures if possible
+		for (auto& mesh : model_.meshes_)
+		{
+			std::uint8_t loadedTextures = 0;
+			DiffuseMaterial& material = materialManager.GetDiffuseMaterial(mesh.materialId_);
+			if (diffuseId_ != INVALID_TEXTURE_ID)
+			{
+				const auto* texturePtr = textureManager.GetTexture(diffuseId_);
+				if (texturePtr)
+				{
+					material.SetDiffuse(*texturePtr);
+					loadedTextures |= DIFFUSE;
+				}
+			}
+
+			if (specularId_ != INVALID_TEXTURE_ID)
+			{
+				const auto* texturePtr = textureManager.GetTexture(specularId_);
+				if (texturePtr)
+				{
+					material.SetSpecular(*texturePtr);
+					loadedTextures |= SPECULAR;
+				}
+			}
+
+			if (normalId_ != INVALID_TEXTURE_ID)
+			{
+				const auto* texturePtr = textureManager.GetTexture(normalId_);
+				if (texturePtr)
+				{
+					material.SetNormal(*texturePtr);
+					loadedTextures |= NORMAL;
+				}
+			}
+
+			if (loadedTextures == textureMaps_) isLoaded = true;
+		}
+
+		if (isLoaded && uploadJob_.IsDone()) flags_ |= LOADED;
 	}
 }
 
@@ -49,8 +91,8 @@ void ModelLoader::LoadModel()
 	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
 	std::uint32_t sceneFlags    = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
 	                           aiProcess_CalcTangentSpace | aiProcess_GenBoundingBoxes;
-	scene = importer_.ReadFile(config.dataRootPath + path_, sceneFlags);
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+	scene_ = importer_.ReadFile(config.dataRootPath + path_, sceneFlags);
+	if (!scene_ || scene_->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene_->mRootNode)
 	{
 		flags_ = ERROR_LOADING;
 		logDebug(fmt::format("[ERROR] ASSIMP {}", importer_.GetErrorString()));
@@ -62,14 +104,13 @@ void ModelLoader::LoadModel()
 
 void ModelLoader::ProcessModel()
 {
-	model_.meshes_.reserve(scene->mNumMeshes);
+	model_.meshes_.reserve(scene_->mNumMeshes);
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("Process Nodes");
 #endif
-	ProcessNode(scene->mRootNode);
+	ProcessNode(scene_->mRootNode);
 
-	flags_ = flags_ | LOADED;    //TODO for testing only
-	RendererLocator::get().AddPreRenderJob(&uploadMeshesToVkJob_);
+	RendererLocator::get().AddPreRenderJob(&uploadJob_);
 }
 
 void ModelLoader::ProcessNode(aiNode* node)
@@ -78,7 +119,7 @@ void ModelLoader::ProcessNode(aiNode* node)
 	for (std::uint32_t i = 0; i < node->mNumMeshes; i++)
 	{
 		auto& mesh = model_.meshes_.emplace_back();
-		ProcessMesh(mesh, scene->mMeshes[node->mMeshes[i]]);
+		ProcessMesh(mesh, scene_->mMeshes[node->mMeshes[i]]);
 	}
 
 	// then do the same for each of its children
@@ -128,7 +169,7 @@ void ModelLoader::ProcessMesh(Mesh& mesh, const aiMesh* aMesh)
 	if (aMesh->mMaterialIndex >= 0)
 	{
 		// process material
-		const aiMaterial* material = scene->mMaterials[aMesh->mMaterialIndex];
+		const aiMaterial* material = scene_->mMaterials[aMesh->mMaterialIndex];
 		float specularExp;
 		aiColor4D diffuse;
 		material->Get(AI_MATKEY_SHININESS, specularExp);
@@ -173,23 +214,29 @@ void ModelLoader::LoadMaterialTextures(
 		}
 
 		const Configuration& config  = BasicEngine::GetInstance()->GetConfig();
-		const ResourceHash textureId = textureManager.AddTexture2d(
+		const ResourceHash textureId = textureManager.AddTexture(
 			fmt::format("{}/{}.ktx", config.dataRootPath + directory.data(), textureNameStr));
 		switch (textureType)
 		{
 			case aiTextureType_DIFFUSE:
-				materialManager.GetDiffuseMaterial(mesh.materialId_)
-					.SetDiffuse(textureManager.GetImage2d(textureId)->get());
+				textureMaps_ |= DIFFUSE;
+				diffuseId_ = textureId;
+				//materialManager.GetDiffuseMaterial(mesh.materialId_)
+				//	.SetDiffuse(textureManager.GetImage2d(textureId));
 				break;
 			case aiTextureType_SPECULAR:
-				materialManager.GetDiffuseMaterial(mesh.materialId_)
-					.SetSpecular(textureManager.GetImage2d(textureId)->get());
+				textureMaps_ |= SPECULAR;
+				specularId_ = textureId;
+				//materialManager.GetDiffuseMaterial(mesh.materialId_)
+				//	.SetSpecular(textureManager.GetImage2d(textureId));
 				break;
 			case aiTextureType_EMISSIVE: break;
 			case aiTextureType_HEIGHT:
 			case aiTextureType_NORMALS:
-				materialManager.GetDiffuseMaterial(mesh.materialId_)
-					.SetNormal(textureManager.GetImage2d(textureId)->get());
+				textureMaps_ |= NORMAL;
+				normalId_ = textureId;
+				//materialManager.GetDiffuseMaterial(mesh.materialId_)
+				//	.SetNormal(textureManager.GetImage2d(textureId));
 				break;
 			case aiTextureType_NONE:
 			case aiTextureType_UNKNOWN:

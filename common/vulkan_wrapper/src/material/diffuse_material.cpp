@@ -237,19 +237,19 @@ void DiffuseMaterial::FromJson(const json& materialJson)
 	if (CheckJsonExists(materialJson, "diffusePath"))
 	{
 		const auto& path = materialJson["diffusePath"].get<std::string>();
-		SetDiffuse(textureManager.GetImage2d(path)->get());
+		SetDiffuse(*textureManager.GetTexture(path));
 	}
 
 	if (CheckJsonExists(materialJson, "specularPath"))
 	{
 		const auto& path = materialJson["specularPath"].get<std::string>();
-		SetDiffuse(textureManager.GetImage2d(path)->get());
+		SetDiffuse(*textureManager.GetTexture(path));
 	}
 
 	if (CheckJsonExists(materialJson, "normalPath"))
 	{
 		const auto& path = materialJson["normalPath"].get<std::string>();
-		SetDiffuse(textureManager.GetImage2d(path)->get());
+		SetDiffuse(*textureManager.GetTexture(path));
 	}
 }
 }    // namespace neko::vk

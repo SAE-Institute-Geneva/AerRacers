@@ -1,21 +1,15 @@
-#include "vk/images/texture_loader.h"
-
 #include "vk/vk_resources.h"
 
 namespace neko::vk
 {
-TextureLoader::TextureLoader(std::string_view path,
-	ktxVulkanDeviceInfo& vdi,
-	TextureId textureId,
-	Texture::TextureFlags flags)
+TextureLoader::TextureLoader(
+	std::string_view path, StringHash textureId, Texture::TextureFlags flags)
    : filesystem_(BasicEngine::GetInstance()->GetFilesystem()),
 	 flags_(flags),
-	 vdi_(vdi),
 	 loadingTextureJob_([this]() { LoadTexture(); }),
 	 decompressTextureJob_([this]() { DecompressTexture(); }),
 	 uploadJob_([this]() { Upload(); }),
 	 path_(path),
-	 texture_(""),
 	 textureId_(textureId)
 {}
 
@@ -45,16 +39,16 @@ void TextureLoader::LoadTexture()
 		return;
 	}
 
-	BasicEngine::GetInstance()->ScheduleJob(&decompressTextureJob_, JobThreadType::OTHER_THREAD);
+	BasicEngine::GetInstance()->ScheduleJob(&decompressTextureJob_, JobThreadType::RESOURCE_THREAD);
 }
 
 void TextureLoader::DecompressTexture()
 {
+#ifdef EASY_PROFILE_USE
+	EASY_BLOCK("Create KTX from memory");
+#endif
 	KTX_error_code result;
 	{
-#ifdef EASY_PROFILE_USE
-		EASY_BLOCK("Create KTX from memory");
-#endif
 		result = ktxTexture_CreateFromMemory(
 			reinterpret_cast<const ktx_uint8_t*>(bufferFile_.dataBuffer),
 			bufferFile_.dataLength,
@@ -69,23 +63,38 @@ void TextureLoader::DecompressTexture()
 		return;
 	}
 
-	RendererLocator ::get().AddPreRenderJob(&uploadJob_);
+	BasicEngine::GetInstance()->ScheduleJob(&uploadJob_, JobThreadType::RESOURCE_THREAD);
 }
 
 void TextureLoader::Upload()
 {
 	ktxVulkanTexture texture;
+	ktxVulkanDeviceInfo vdi;
 	VkResources* vkObj = VkResources::Inst;
-
-	vdi_.cmdPool   = vkObj->GetCurrentCmdPool();
-	const auto res = ktxTexture_VkUploadEx(kTexture_, &vdi_, &texture, kTiling, kUsage, kLayout);
+	ktxVulkanDeviceInfo_Construct(&vdi,
+		vkObj->gpu,
+		vkObj->device,
+		vkObj->device.GetGraphicsQueue(),
+		vkObj->GetCurrentCmdPool(),
+		nullptr);
+	const auto res = ktxTexture_VkUploadEx(kTexture_, &vdi, &texture, kTiling, kUsage, kLayout);
+	ktxTexture_Destroy(kTexture_);
+	ktxVulkanDeviceInfo_Destruct(&vdi);
 	if (res != KTX_SUCCESS)
 	{
 		error_ = TextureLoaderError::UPLOAD_TO_GPU_ERROR;
 		ktxCheckError(res);
+		return;
 	}
 
-	ktxTexture_Destroy(kTexture_);
-	texture_.CreateFromKtx(texture);
+	VkSamplerAddressMode addressMode = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+	if (flags_ & Texture::REPEAT_WRAP) addressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	else if (flags_ & Texture::MIRROR_REPEAT_WRAP)
+		addressMode = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+
+	texture_.CreateFromKtx(texture,
+		flags_ & Texture::SMOOTH_TEXTURE ? VK_FILTER_LINEAR : VK_FILTER_NEAREST,
+		addressMode,
+		false);
 }
 }    // namespace neko::vk

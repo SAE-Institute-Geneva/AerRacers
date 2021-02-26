@@ -16,7 +16,10 @@ void ModelManager::Update(seconds)
 	{
 		auto& modelLoader = modelLoaders_.front();
 		modelLoader.Update();
-		if (modelLoader.HasErrors()) { modelLoaders_.pop(); }
+		if (modelLoader.HasErrors())
+		{
+			modelLoaders_.pop();
+		}
 		else if (modelLoader.IsDone())
 		{
 			const ModelId modelId = modelLoader.GetModelId();
@@ -42,6 +45,7 @@ ModelId ModelManager::LoadModel(std::string_view path)
 	const auto it = modelPathMap_.find(path.data());
 	if (it != modelPathMap_.end()) return it->second;
 
+	logDebug(fmt::format("[Debug] Loading model: {}", path));
 	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
 	const std::string metaPath  = fmt::format("{}{}.meta", config.dataRootPath, path);
 	const json metaJson         = LoadJson(metaPath);

@@ -45,6 +45,14 @@ public:
 		ERROR_LOADING = 1u << 1u,
 	};
 
+	enum TextureMaps : std::uint8_t
+	{
+		DIFFUSE  = 1u << 0u,
+		SPECULAR = 1u << 1u,
+		NORMAL   = 1u << 2u,
+		EMISSIVE = 1u << 3u,
+	};
+
 	ModelLoader(std::string_view path, ModelId modelId);
 
 	ModelLoader(ModelLoader&& other) noexcept;
@@ -68,7 +76,7 @@ private:
 	void ProcessModel();
 	void ProcessNode(aiNode* node);
 	void ProcessMesh(Mesh& mesh, const aiMesh* aMesh);
-	static void LoadMaterialTextures(const aiMaterial* material,
+	void LoadMaterialTextures(const aiMaterial* material,
 		aiTextureType textureType,
 		std::string_view directory,
 		Mesh& mesh);
@@ -82,13 +90,18 @@ private:
 	ModelId modelId_ = INVALID_MODEL_ID;
 
 	Assimp::Importer importer_;
-	const aiScene* scene = nullptr;
+	const aiScene* scene_ = nullptr;
 	Model model_;
 
 	Job loadModelJob_;
 	Job processModelJob_;
-	Job uploadMeshesToVkJob_;
+	Job uploadJob_;
 
-	std::uint8_t flags_ = NONE;
+	std::uint8_t flags_        = NONE;
+	std::uint8_t textureMaps_ = 0;
+
+	ResourceHash diffuseId_  = 0;
+	ResourceHash specularId_ = 0;
+	ResourceHash normalId_   = 0;
 };
 }    // namespace neko::vk

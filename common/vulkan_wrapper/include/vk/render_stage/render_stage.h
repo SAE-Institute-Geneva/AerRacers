@@ -61,19 +61,19 @@ public:
 	[[nodiscard]] bool IsOutOfDate() const { return outOfDate_; }
 
 private:
-	std::vector<Attachment> attachments_;
-	std::vector<SubpassType> subpasses_;
+	std::vector<Attachment> attachments_ {};
+	std::vector<SubpassType> subpasses_ {};
 
-	Viewport viewport_;
+	Viewport viewport_ {};
 
-	std::unique_ptr<RenderPass> renderPass_;
-	std::unique_ptr<ImageDepth> depthStencil_;
-	std::unique_ptr<Framebuffers> framebuffers_;
+	std::unique_ptr<RenderPass> renderPass_ {};
+	std::unique_ptr<ImageDepth> depthStencil_ {};
+	std::unique_ptr<Framebuffers> framebuffers_ {};
 
-	std::map<StringHash, const IDescriptor&> descriptors_;
+	std::map<StringHash, const IDescriptor&> descriptors_ {};
 
-	std::vector<VkClearValue> clearValues_;
-	std::vector<std::uint32_t> subpassAttachmentCount_;
+	std::vector<VkClearValue> clearValues_ {};
+	std::vector<std::uint32_t> subpassAttachmentCount_ {};
 	Attachment depthAttachment_ {};
 	Attachment swapchainAttachment_ {};
 

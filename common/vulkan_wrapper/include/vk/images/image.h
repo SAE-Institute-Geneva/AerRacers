@@ -28,7 +28,6 @@
 #include <array>
 
 #include "vulkan/vulkan.h"
-
 #include "ktxvulkan.h"
 
 #include "graphics/texture.h"
@@ -57,6 +56,7 @@ constexpr std::array<VkFormat, 4> kStencilFormats = {
 class Image : public IDescriptor
 {
 public:
+	Image() = default;
 	Image(VkFilter filter,
 		VkSamplerAddressMode addressMode,
 		VkSampleCountFlagBits samples,
@@ -90,14 +90,14 @@ public:
 protected:
 	static VkImage CreateImage(VkDeviceMemory memory,
 		const VkExtent3D& extent,
-		const VkFormat format,
-		const VkSampleCountFlagBits samples,
-		const VkImageTiling tiling,
-		const VkImageUsageFlags usage,
-		const VkMemoryPropertyFlags properties,
-		const uint32_t mipLevels,
-		const uint32_t arrayLayers,
-		const VkImageType type);
+		VkFormat format,
+		VkSampleCountFlagBits samples,
+		VkImageTiling tiling,
+		VkImageUsageFlags usage,
+		VkMemoryPropertyFlags properties,
+		std::uint32_t mipLevels,
+		std::uint32_t arrayLayers,
+		VkImageType type);
 
 	static VkSampler CreateImageSampler(VkFilter filter,
 		VkSamplerAddressMode addressMode,
@@ -140,17 +140,17 @@ protected:
 		uint32_t layerCount,
 		uint32_t baseArrayLayer);
 
-	VkExtent3D extent_;
-	VkFormat format_;
-	VkSampleCountFlagBits sample_;
+	VkExtent3D extent_ {};
+	VkFormat format_ {};
+	VkSampleCountFlagBits sample_ {};
 	VkImageUsageFlags usage_ {};
-	std::uint32_t mipLevels_;
-	std::uint32_t arrayLayers_;
+	std::uint32_t mipLevels_ {};
+	std::uint32_t arrayLayers_ {};
 
-	VkFilter filter_;
-	VkSamplerAddressMode addressMode_;
+	VkFilter filter_ {};
+	VkSamplerAddressMode addressMode_ {};
 
-	VkImageLayout layout_;
+	VkImageLayout layout_ {};
 
 	VkImage image_ {};
 	VkDeviceMemory memory_ {};

@@ -57,6 +57,28 @@ Image2d::Image2d(const Vec2u extent,
 	Load();
 }
 
+Image2d& Image2d::operator=(const Image2d& other) noexcept
+{
+	extent_      = other.extent_;
+	format_      = other.format_;
+	sample_      = other.sample_;
+	usage_       = other.usage_;
+	mipLevels_   = other.mipLevels_;
+	arrayLayers_ = other.arrayLayers_;
+	filter_      = other.filter_;
+	addressMode_ = other.addressMode_;
+	layout_      = other.layout_;
+	image_       = other.image_;
+	memory_      = other.memory_;
+	sampler_     = other.sampler_;
+	view_        = other.view_;
+	filePath_    = other.filePath_;
+	anisotropic_ = other.anisotropic_;
+	mipmap_      = other.mipmap_;
+	components_  = other.components_;
+	return *this;
+}
+
 void Image2d::Load()
 {
 	if (GetFilenameExtension(filePath_) == ".ktx") LoadKtx();
@@ -79,9 +101,9 @@ void Image2d::LoadKtx()
 	const auto err = ktxTexture_VkUploadEx(kTexture,
 		&vdi,
 		&texture,
-		VK_IMAGE_TILING_OPTIMAL,
+		kTiling,
 		usage_,
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		kLayout);
 	if (err != KTX_SUCCESS)
 		logDebug(fmt::format("KTX Error: {} for file '{}'", ktxErrorString(err), filePath_));
 	ktxTexture_Destroy(kTexture);
@@ -99,8 +121,8 @@ void Image2d::LoadKtx()
 	{
 		TransitionImageLayout(image_,
 			VK_IMAGE_LAYOUT_UNDEFINED,
-			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-			VK_IMAGE_ASPECT_COLOR_BIT,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			kAspect,
 			mipLevels_,
 			0,
 			1,
@@ -111,9 +133,9 @@ void Image2d::LoadKtx()
 	else
 	{
 		TransitionImageLayout(image_,
-			VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+			kLayout,
 			layout_,
-			VK_IMAGE_ASPECT_COLOR_BIT,
+			kAspect,
 			mipLevels_,
 			0,
 			arrayLayers_,
@@ -121,15 +143,18 @@ void Image2d::LoadKtx()
 	}
 }
 
-void Image2d::CreateFromKtx(const ktxVulkanTexture& texture)
+void Image2d::CreateFromKtx(const ktxVulkanTexture& texture,
+	const VkFilter filter,
+	const VkSamplerAddressMode addressMode,
+	bool mipmap)
 {
 	SetFromKtxVkTexture(texture);
 	if (extent_.width == 0 || extent_.height == 0) return;
 
-	sampler_ = CreateImageSampler(filter_, addressMode_, anisotropic_, mipLevels_);
+	sampler_ = CreateImageSampler(filter, addressMode, anisotropic_, mipLevels_);
 	view_    = CreateImageView(image_, GetViewType(), format_, kAspect, mipLevels_, 0, 1, 0);
 
-	if (mipmap_)
+	if (mipmap)
 	{
 		TransitionImageLayout(
 			image_, VK_IMAGE_LAYOUT_UNDEFINED, kLayout, kAspect, mipLevels_, 0, 1, 0);

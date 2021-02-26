@@ -202,8 +202,10 @@ VkSurfaceFormatKHR Swapchain::ChooseSwapSurfaceFormat(
 VkPresentModeKHR Swapchain::ChooseSwapPresentMode(
 	const std::vector<VkPresentModeKHR>& availablePresentModes)
 {
+	const bool vsync = BasicEngine::GetInstance()->GetConfig().flags & Configuration::VSYNC;
+	VkPresentModeKHR presentMode = vsync ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
 	for (const auto& availablePresentMode : availablePresentModes)
-		if (availablePresentMode == kPresentationMode) return availablePresentMode;
+		if (availablePresentMode == presentMode) return availablePresentMode;
 
 #ifdef VALIDATION_LAYERS
 	std::cout << "Unable to obtain preferred display mode, fallback to FIFO\n";

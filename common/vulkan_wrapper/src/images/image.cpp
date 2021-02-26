@@ -201,7 +201,6 @@ VkImageView Image::CreateImageView(const VkImage& image,
 	imageViewCreateInfo.subresourceRange.levelCount     = mipLevels;
 	imageViewCreateInfo.subresourceRange.baseArrayLayer = baseArrayLayer;
 	imageViewCreateInfo.subresourceRange.layerCount     = layerCount;
-
 	vkCheckError(
 		vkCreateImageView(VkResources::Inst->device, &imageViewCreateInfo, nullptr, &imageView),
 		"Could not create image view!");

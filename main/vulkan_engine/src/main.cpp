@@ -12,17 +12,16 @@ int main(int, char**)
     config.windowSize = Vec2u(1280, 720);
     config.windowName = "Vulkan Creation Test";
 	config.dataRootPath = "data/";
+	config.flags = Configuration::NONE;
 
 	Filesystem filesystem;
     vk::VkEngine engine(filesystem, &config);
     sdl::VulkanWindow window;
-    engine.SetWindowAndRenderer(&window, nullptr);
-    engine.Init();
-
     vk::VkRenderer renderer(&window);
     renderer.SetRenderer(std::make_unique<vk::RendererEditor>());
     engine.SetWindowAndRenderer(&window, &renderer);
 
+	engine.Init();
     engine.EngineLoop();
     return 0;
 }

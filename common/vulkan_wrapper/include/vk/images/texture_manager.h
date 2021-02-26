@@ -26,24 +26,23 @@
  Date:
 ---------------------------------------------------------- */
 #include "mathematics/hash.h"
-#include "utils/std_utility.h"
 
-#include "vk/images/image2d.h"
 #include "vk/images/texture_loader.h"
 
 namespace neko::vk
 {
 using ResourceHash = StringHash;
+constexpr ResourceHash kInvalidTextureId = 0;
+
 class ITextureManager
 {
 public:
 	virtual ~ITextureManager() = default;
 
-	virtual ResourceHash AddTexture2d(std::string_view texturePath) = 0;
-	[[nodiscard]] virtual std::optional_const_ref<Image2d> GetImage2d(
-		ResourceHash resourceId) const = 0;
-	[[nodiscard]] virtual std::optional_const_ref<Image2d> GetImage2d(
-		std::string_view texturePath) const = 0;
+	virtual ResourceHash AddTexture(std::string_view)                        = 0;
+	virtual ResourceHash AddTexture(std::string_view, Texture::TextureFlags) = 0;
+	[[nodiscard]] virtual const Image2d* GetTexture(ResourceHash) const      = 0;
+	[[nodiscard]] virtual const Image2d* GetTexture(std::string_view) const  = 0;
 
 	virtual void Clear() = 0;
 };
@@ -51,14 +50,15 @@ public:
 class NullTextureManager : public ITextureManager
 {
 public:
-	ResourceHash AddTexture2d(std::string_view) override { return 0; }
+	ResourceHash AddTexture(std::string_view) override { return 0; }
+	ResourceHash AddTexture(std::string_view, Texture::TextureFlags) override { return 0; }
 
-	[[nodiscard]] std::optional_const_ref<Image2d> GetImage2d(ResourceHash) const override
+	[[nodiscard]] const Image2d* GetTexture(ResourceHash) const override
 	{
 		neko_assert(false, "Texture Manager is Null!");
 	}
 
-	[[nodiscard]] std::optional_const_ref<Image2d> GetImage2d(std::string_view) const override
+	[[nodiscard]] const Image2d* GetTexture(std::string_view) const override
 	{
 		neko_assert(false, "Texture Manager is Null!");
 	}
@@ -75,18 +75,16 @@ public:
 	void Update(seconds dt) override;
 	void Destroy() override;
 
-	ResourceHash AddTexture2d(std::string_view texturePath) override;
-	[[nodiscard]] std::optional_const_ref<Image2d> GetImage2d(
-		ResourceHash resourceId) const override;
-	[[nodiscard]] std::optional_const_ref<Image2d> GetImage2d(
-		std::string_view texturePath) const override;
+	ResourceHash AddTexture(std::string_view path) override;
+	ResourceHash AddTexture(std::string_view path, Texture::TextureFlags flags) override;
+	[[nodiscard]] const Image2d* GetTexture(ResourceHash resourceId) const override;
+	[[nodiscard]] const Image2d* GetTexture(std::string_view texturePath) const override;
 
 	void Clear() override;
 
 private:
-	ktxVulkanDeviceInfo vdi_;
 	std::queue<TextureLoader> textureLoaders_;
-	std::map<TextureId, std::unique_ptr<Image2d>> textureMap_;
+	std::map<ResourceHash, Image2d> textureMap_;
 };
 
 using TextureManagerLocator = Locator<ITextureManager, NullTextureManager>;

@@ -4,34 +4,36 @@ namespace neko::vk
 {
 TextureManager::TextureManager() { TextureManagerLocator::provide(this); }
 
-void TextureManager::Init() { TextureManagerLocator::provide(this); }
+void TextureManager::Init() {}
 
 void TextureManager::Update(seconds)
 {
-	while(!textureLoaders_.empty())
+	while (!textureLoaders_.empty())
 	{
 		auto& textureLoader = textureLoaders_.front();
-		if(textureLoader.HasErrors())
+		if (textureLoader.HasErrors())
 		{
-			switch (textureLoader.GetErrors())
+			switch (textureLoader.error_)
 			{
 				case TextureLoader::TextureLoaderError::ASSET_LOADING_ERROR:
-					logDebug(fmt::format("[Error] Could not load texture {} from disk", textureLoader.GetPath()));
+					logDebug(fmt::format(
+						"[Error] Could not load texture {} from disk", textureLoader.path_));
 					break;
 				case TextureLoader::TextureLoaderError::DECOMPRESS_ERROR:
-					logDebug(fmt::format("[Error] Could not decompress texture {} from disk", textureLoader.GetPath()));
+					logDebug(fmt::format(
+						"[Error] Could not decompress texture {} from disk", textureLoader.path_));
 					break;
 				case TextureLoader::TextureLoaderError::UPLOAD_TO_GPU_ERROR:
-					logDebug(fmt::format("[Error] Could not upload texture {} from disk", textureLoader.GetPath()));
+					logDebug(fmt::format(
+						"[Error] Could not upload texture {} from disk", textureLoader.path_));
 					break;
-				default:
-					break;
+				default: break;
 			}
 			textureLoaders_.pop();
 		}
-		else if(textureLoader.IsDone())
+		else if (textureLoader.IsDone())
 		{
-			textureMap_[textureLoader.GetTextureId()] = textureLoader.GetTexture();
+			textureMap_[textureLoader.textureId_] = textureLoader.texture_;
 			textureLoaders_.pop();
 		}
 		else
@@ -43,36 +45,45 @@ void TextureManager::Update(seconds)
 
 void TextureManager::Destroy()
 {
-	for (auto& textureName : textureMap_) textureName.second->Destroy();
+	for (auto& textureName : textureMap_) textureName.second.Destroy();
 }
 
-ResourceHash TextureManager::AddTexture2d(std::string_view texturePath)
+ResourceHash TextureManager::AddTexture(std::string_view path)
 {
-	const ResourceHash resourceId = HashString(texturePath);
-	textureMap_.emplace(resourceId,
-		std::make_unique<Image2d>(texturePath,
-			VK_FORMAT_R8G8B8A8_SRGB,
-			VK_FILTER_LINEAR,
-			VK_SAMPLER_ADDRESS_MODE_REPEAT,
-			true,
-			false,
-			false));
-	textureMap_[resourceId]->Load();
-	return resourceId;
+	return AddTexture(path, Texture::DEFAULT);
 }
 
-std::optional_const_ref<Image2d> TextureManager::GetImage2d(std::string_view texturePath) const
+ResourceHash TextureManager::AddTexture(std::string_view path, Texture::TextureFlags flags)
 {
-	return GetImage2d(HashString(texturePath));
+	const ResourceHash textureId = HashString(path);
+	const auto it                = textureMap_.find(textureId);
+	if (it != textureMap_.end()) return it->first;
+
+	//const std::string metaPath = fmt::format("{}.meta", path.substr(0, path.size() - 4));
+	//const json metaJson = LoadJson(metaPath);
+	if (textureId == kInvalidTextureId)
+	{
+		logDebug("[Error] Invalid texture id on texture load");
+		return textureId;
+	}
+
+	const auto& config = BasicEngine::GetInstance()->GetConfig();
+	textureLoaders_.push({path, textureId, flags});
+	textureLoaders_.back().Start();
+	return textureId;
 }
 
-std::optional_const_ref<Image2d> TextureManager::GetImage2d(ResourceHash resourceId) const
+const Image2d* TextureManager::GetTexture(std::string_view texturePath) const
+{
+	return GetTexture(HashString(texturePath));
+}
+
+const Image2d* TextureManager::GetTexture(ResourceHash resourceId) const
 {
 	const auto it = textureMap_.find(resourceId);
-	if (it != textureMap_.end()) { return *it->second; }
-
-	logDebug("Texture doesn't exist!");
-	return std::nullopt;
+	if (it != textureMap_.end()) { return &it->second; }
+;
+	return nullptr;
 }
 
 void TextureManager::Clear() { textureMap_.clear(); }

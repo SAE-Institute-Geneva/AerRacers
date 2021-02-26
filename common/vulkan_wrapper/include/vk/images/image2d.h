@@ -31,13 +31,14 @@ namespace neko::vk
 {
 constexpr VkImageTiling kTiling = VK_IMAGE_TILING_OPTIMAL;
 constexpr VkImageUsageFlags kUsage =
-	VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
+	VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 constexpr VkImageAspectFlagBits kAspect = VK_IMAGE_ASPECT_COLOR_BIT;
 constexpr VkImageLayout kLayout         = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 
 class Image2d final : public Image
 {
 public:
+	Image2d() = default;
 	Image2d(std::string_view filename,
 		VkFormat format                  = VK_FORMAT_R8G8B8A8_SRGB,
 		VkFilter filter                  = VK_FILTER_LINEAR,
@@ -56,10 +57,15 @@ public:
 		bool anisotropic                 = false,
 		bool mipmap                      = false);
 
+	Image2d& operator=(const Image2d& other) noexcept;
+
 	void Load();
 	void LoadKtx();
 
-	void CreateFromKtx(const ktxVulkanTexture& texture);
+	void CreateFromKtx(const ktxVulkanTexture& texture,
+		VkFilter filter                  = VK_FILTER_LINEAR,
+		VkSamplerAddressMode addressMode = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+		bool mipmap                      = false);
 
 	[[nodiscard]] static constexpr VkImageType GetType() { return VK_IMAGE_TYPE_2D; }
 	[[nodiscard]] static constexpr VkImageViewType GetViewType() { return VK_IMAGE_VIEW_TYPE_2D; }
@@ -69,10 +75,10 @@ public:
 	[[nodiscard]] std::string_view GetFilePath() const { return filePath_; }
 
 private:
-	std::string filePath_ = {};
+	std::string filePath_ {};
 
-	bool anisotropic_;
-	bool mipmap_;
+	bool anisotropic_ {};
+	bool mipmap_ {};
 
 	std::uint32_t components_ = 4;
 };

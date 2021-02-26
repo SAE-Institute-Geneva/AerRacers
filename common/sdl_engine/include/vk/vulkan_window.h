@@ -31,6 +31,8 @@ namespace neko::sdl
 class VulkanWindow final : public SdlWindow
 {
 public:
+	VulkanWindow();
+
 	[[nodiscard]] SDL_Window* GetWindow() { return window_; }
 
 	void Init() override;

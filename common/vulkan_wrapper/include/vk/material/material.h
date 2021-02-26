@@ -56,7 +56,8 @@ public:
 	virtual void CreatePipeline(const VertexInput& vertexInput) = 0;
 	[[nodiscard]] bool BindPipeline(const CommandBuffer& commandBuffer) const
 	{
-		return pipelineMaterial_->get().BindPipeline(commandBuffer);
+		if (pipelineMaterial_) return pipelineMaterial_->get().BindPipeline(commandBuffer);
+		else return false;
 	}
 
 	[[nodiscard]] const PushDataContainer& ExportUniformData() const { return uniformData_; }

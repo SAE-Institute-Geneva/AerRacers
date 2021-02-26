@@ -18,7 +18,7 @@ MaterialPipeline& MaterialPipeline::CreateMaterialPipeline(
 
 bool MaterialPipeline::BindPipeline(const CommandBuffer& commandBuffer)
 {
-	RenderStage& renderStage = VkResources::Inst->GetRenderStage();
+	const RenderStage& renderStage = VkResources::Inst->GetRenderStage();
 	if (!renderStage_ || &renderStage_->get() != &renderStage)
 	{
 		renderStage_.emplace(renderStage);

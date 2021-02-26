@@ -36,13 +36,13 @@ ResourceHash MaterialManager::AddMaterial(std::string_view materialPath)
 			// Textures defined in the material's JSON use the relative path to the data folder
 			// defined in "BasicEngine::config->dataRootPath"
 			if (CheckJsonExists(materialJson, "diffusePath"))
-				textureManager.AddTexture2d(materialJson["diffusePath"].get<std::string_view>());
+				textureManager.AddTexture(materialJson["diffusePath"].get<std::string_view>());
 
 			if (CheckJsonExists(materialJson, "specularPath"))
-				textureManager.AddTexture2d(materialJson["specularPath"].get<std::string_view>());
+				textureManager.AddTexture(materialJson["specularPath"].get<std::string_view>());
 
 			if (CheckJsonExists(materialJson, "normalPath"))
-				textureManager.AddTexture2d(materialJson["normalPath"].get<std::string_view>());
+				textureManager.AddTexture(materialJson["normalPath"].get<std::string_view>());
 
 			diffuseMaterials_[resourceId].FromJson(materialJson);
 			diffuseMaterials_[resourceId].CreatePipeline(Vertex::GetVertexInput(0));

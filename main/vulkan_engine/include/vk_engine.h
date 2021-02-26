@@ -9,6 +9,7 @@ public:
 	VkEngine() = delete;
 	VkEngine(const FilesystemInterface& filesystem, Configuration* config = nullptr);
 
+	void Init() override;
 	void Destroy() override;
 
 	void GenerateUiFrame() override;

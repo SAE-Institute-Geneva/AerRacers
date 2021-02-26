@@ -9,6 +9,12 @@
 
 namespace neko::sdl
 {
+VulkanWindow::VulkanWindow()
+{
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
+	Init();
+}
+
 void VulkanWindow::Init()
 {
 #ifdef EASY_PROFILE_USE

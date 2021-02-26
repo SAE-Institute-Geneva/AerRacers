@@ -6,6 +6,9 @@
 
 namespace neko::vk
 {
+constexpr ImGuiDockNodeFlags kDockspaceFlags = ImGuiDockNodeFlags_NoDockingInCentralNode |
+                                               ImGuiDockNodeFlags_AutoHideTabBar |
+                                               ImGuiDockNodeFlags_PassthruCentralNode;
 class VkDrawSystem final : public SystemInterface,
 						   public DrawImGuiInterface,
 						   public sdl::SdlEventSystemInterface,
@@ -23,6 +26,8 @@ public:
 	void DrawImGui() override;
 
 private:
+	seconds dt_ {};
+
 	sdl::MovableCamera3D camera_;
 
 	TextureManager textureManager_;
