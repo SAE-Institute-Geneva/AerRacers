@@ -369,7 +369,7 @@ public:
 		return os;
 	}
 
-	std::string ToString()
+	std::string ToString() const
 	{ return fmt::format("Vec3({}, {}, {})", x, y, z); }
 
 	//-----------------------------------------------------------------------------

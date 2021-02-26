@@ -55,6 +55,7 @@ struct ComponentManagerContainer : public SystemInterface
 		cameraControllerViewer(entityManager, cameraControllerManager),
 		sceneManager(entityManager, *this)
 	{
+		physicsEngine.RegisterCollisionListener(shipControllerManager);
 		physicsEngine.RegisterFixedUpdateListener(rigidDynamicManager);
 		physicsEngine.RegisterFixedUpdateListener(rigidStaticManager);
         physicsEngine.RegisterFixedUpdateListener(rigidStaticViewer);
