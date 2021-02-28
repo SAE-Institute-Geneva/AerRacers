@@ -19,6 +19,7 @@ void GameCamera::Update(const seconds dt)
 	const auto& inputManager = sdl::InputLocator::get();
 	for (std::size_t i = 0; i < cameras_.size(); ++i)
 	{
+		if (inputManager.GetControllerIdVector().size() <= i) continue;
 		// Query left joystick movement
 		const float xMove =
 			inputManager.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS);

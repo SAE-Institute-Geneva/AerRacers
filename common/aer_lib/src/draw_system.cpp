@@ -32,7 +32,7 @@ void DrawSystem::Init()
 	camera.reverseDirection = Vec3f::forward;
 	camera.fovY             = degree_t(45.0f);
 	camera.nearPlane        = 0.1f;
-	camera.farPlane         = 100.0f;
+	camera.farPlane         = 10000.0f;
 	camera_.SetCameras(camera);
 
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(0));

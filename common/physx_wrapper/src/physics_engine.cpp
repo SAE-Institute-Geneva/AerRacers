@@ -87,7 +87,7 @@ void PhysicsEngine::CreateScene()
     sceneDesc.kineKineFilteringMode = physx::PxPairFilteringMode::eKEEP; // So kin-kin contacts with be reported
     sceneDesc.staticKineFilteringMode = physx::PxPairFilteringMode::eKEEP; // So static-kin constacts will be reported
     sceneDesc.simulationEventCallback = &eventCallback_;
-    //sceneDesc.flags |= physx::PxSceneFlag::eENABLE_CCD; //Use when Continous Detection
+    sceneDesc.flags |= physx::PxSceneFlag::eENABLE_CCD; //Use when Continous Detection
     scene_ = physics_->createScene(sceneDesc);
     if (transport_->isConnected()) {
         if (!scene_) std::cerr << "createScene failed!";
@@ -168,6 +168,7 @@ physx::PxFilterFlags PhysicsEngine::ContactReportFilterShader(physx::PxFilterObj
     //    !(filterData1.word0 & mapFilter->at(filterData0.word0)))
     {
         pairFlags = physx::PxPairFlag::eCONTACT_DEFAULT;
+        pairFlags |= physx::PxPairFlag::eDETECT_CCD_CONTACT;
         pairFlags |= physx::PxPairFlag::eNOTIFY_TOUCH_FOUND |
             physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS |
             physx::PxPairFlag::eNOTIFY_TOUCH_LOST |
@@ -195,7 +196,6 @@ const RaycastInfo PhysicsEngine::Raycast(
 {
     RaycastInfo raycastHit;
     physx::PxQueryFilterData fd;
-    fd.flags |= physx::PxQueryFlag::eANY_HIT; // note the OR with the default value
     fd.data.word0 = filterGroup;
     raycastHit.touch = scene_->raycast(ConvertToPxVec(origin), ConvertToPxVec(direction.Normalized()), maxDistance, raycastHit.pxRaycastBuffer,
                                   physx::PxHitFlags(physx::PxHitFlag::eDEFAULT), fd);

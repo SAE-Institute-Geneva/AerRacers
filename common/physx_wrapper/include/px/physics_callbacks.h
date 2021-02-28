@@ -26,58 +26,66 @@
  Co-Author :
  Date : 28.12.2020
 ---------------------------------------------------------- */
-#include "PxPhysicsAPI.h"
 
+#include "PxPhysicsAPI.h"
 #include "utils/action_utility.h"
 #include "utils/time_utility.h"
 
-namespace neko::physics
-{
+namespace neko::physics {
+
 class PhysicsSimulationEventCallback : public physx::PxSimulationEventCallback
 {
 public:
-	virtual void onConstraintBreak(
-		physx::PxConstraintInfo* constraints, physx::PxU32 count) override;
+    virtual void onConstraintBreak(
+        physx::PxConstraintInfo* constraints,
+        physx::PxU32 count) override;
 
-	virtual void onWake(physx::PxActor** actors, physx::PxU32 count) override;
+    virtual void onWake(physx::PxActor** actors, physx::PxU32 count) override;
 
-	virtual void onSleep(physx::PxActor** actors, physx::PxU32 count) override;
+    virtual void onSleep(physx::PxActor** actors, physx::PxU32 count) override;
 
-	virtual void onContact(const physx::PxContactPairHeader& pairHeader,
-		const physx::PxContactPair* pairs,
-		physx::PxU32 nbPairs) override;
+    virtual void onContact(
+        const physx::PxContactPairHeader& pairHeader,
+        const physx::PxContactPair* pairs,
+        physx::PxU32 nbPairs) override;
 
-	virtual void onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count) override;
+    virtual void onTrigger(
+        physx::PxTriggerPair* pairs,
+        physx::PxU32 count) override;
 
-	virtual void onAdvance(const physx::PxRigidBody* const* bodyBuffer,
-		const physx::PxTransform* poseBuffer,
-		const physx::PxU32 count) override;
+    virtual void onAdvance(
+        const physx::PxRigidBody* const* bodyBuffer,
+        const physx::PxTransform* poseBuffer,
+        const physx::PxU32 count) override;
 
-	Action<const physx::PxContactPairHeader&> onCollisionEnterAction;
-	Action<const physx::PxContactPairHeader&> onCollisionStayAction;
-	Action<const physx::PxContactPairHeader&> onCollisionExitAction;
-	Action<physx::PxTriggerPair*> onTriggerEnterAction;
-	Action<physx::PxTriggerPair*> onTriggerExitAction;
+    Action<const physx::PxContactPairHeader& > onCollisionEnterAction;
+    Action<const physx::PxContactPairHeader&> onCollisionStayAction;
+    Action<const physx::PxContactPairHeader&> onCollisionExitAction;
+    Action<physx::PxTriggerPair*> onTriggerEnterAction;
+    Action<physx::PxTriggerPair*> onTriggerExitAction;
 };
+
 
 class FixedUpdateInterface
 {
 public:
-	virtual void FixedUpdate(seconds dt) = 0;
+    virtual void FixedUpdate(seconds dt) = 0;
 };
 
 class OnCollisionInterface
 {
 public:
-	virtual void OnCollisionEnter(const physx::PxContactPairHeader& pairHeader) = 0;
-	virtual void OnCollisionStay(const physx::PxContactPairHeader& pairHeader)  = 0;
-	virtual void OnCollisionExit(const physx::PxContactPairHeader& pairHeader)  = 0;
+    virtual void OnCollisionEnter(const physx::PxContactPairHeader& pairHeader) {}
+    virtual void OnCollisionStay(const physx::PxContactPairHeader& pairHeader) {}
+    virtual void OnCollisionExit(const physx::PxContactPairHeader& pairHeader) {}
 };
+
 
 class OnTriggerInterface
 {
 public:
-	virtual void OnTriggerEnter(physx::PxTriggerPair* pairs) = 0;
-	virtual void OnTriggerExit(physx::PxTriggerPair* pairs)  = 0;
+    virtual void OnTriggerEnter(physx::PxTriggerPair* pairs) {}
+    virtual void OnTriggerExit(physx::PxTriggerPair* pairs) {}
 };
-}    // namespace neko::physics
+
+}

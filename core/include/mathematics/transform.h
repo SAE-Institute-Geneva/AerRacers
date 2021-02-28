@@ -42,6 +42,7 @@ Mat4f RotationMatrixFrom(degree_t angle, const Vec3f& axis);
 Mat4f RotationMatrixFrom(radian_t angle, const Vec3f& axis);
 Mat4f RotationMatrixFrom(const EulerAngles& eulerAngles);
 Mat4f RotationMatrixFrom(const Quaternion& quaternion);
+Mat4f LookAt(const Mat4f& transform, const Vec3f& targetPosition);
 
 Mat4f Transform(const Vec3f& pos, const Quaternion& rot, const Vec3f& scale);
 Mat4f Transform(const Vec3f& pos, const EulerAngles& rot, const Vec3f& scale);

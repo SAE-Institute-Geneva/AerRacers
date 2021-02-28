@@ -244,7 +244,7 @@ Vec3f Transform3dManager::GetGlobalPosition(Entity entity) const
 
 EulerAngles Transform3dManager::GetGlobalRotation(Entity entity) const
 {
-    return GetRelativeRotation(entity);
+    //return GetRelativeRotation(entity);
     return Transform3d::GetRotation(GetComponent(entity));
 }
 
@@ -257,7 +257,7 @@ void Transform3dManager::SetGlobalPosition(Entity entity, const Vec3f& position)
 {
     Mat4f transform = Transform3d::Transform(
         position,
-        rotation3DManager_.GetComponent(entity), scale3DManager_.GetComponent(entity));
+        Transform3d::GetRotation(GetComponent(entity)), Transform3d::GetScale(GetComponent(entity)));
     SetComponent(entity, transform);
     const auto parent = entityManager_.get().GetEntityParent(entity);
     if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
@@ -268,24 +268,26 @@ void Transform3dManager::SetGlobalPosition(Entity entity, const Vec3f& position)
 
 void Transform3dManager::SetGlobalRotation(Entity entity, const EulerAngles& angles)
 {
+    //SetRelativeRotation(entity, angles);
+    //return;
     Mat4f transform = Transform3d::Transform(
-        position3DManager_.GetComponent(entity), angles, scale3DManager_.GetComponent(entity));
+        Transform3d::GetPosition(GetComponent(entity)), angles, Transform3d::GetScale(GetComponent(entity)));
     const auto parent = entityManager_.get().GetEntityParent(entity);
+    SetComponent(entity, transform);
     if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
 
-    SetComponent(entity, transform);
     rotation3DManager_.SetComponent(entity, Transform3d::GetRotation(transform));
     dirtyManager_.SetDirty(entity);
 }
 
 void Transform3dManager::SetGlobalScale(Entity entity, const Vec3f& scale)
 {
-    Mat4f transform = Transform3d::Transform(position3DManager_.GetComponent(entity),
-        rotation3DManager_.GetComponent(entity), scale);
+    Mat4f transform = Transform3d::Transform(Transform3d::GetPosition(GetComponent(entity)),
+        Transform3d::GetRotation(GetComponent(entity)), scale);
     const auto parent = entityManager_.get().GetEntityParent(entity);
+    SetComponent(entity, transform);
     if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
 
-    SetComponent(entity, transform);
     scale3DManager_.SetComponent(entity, Transform3d::GetScale(transform));
     dirtyManager_.SetDirty(entity);
 }
@@ -302,9 +304,9 @@ void Transform3dManager::AddComponent(Entity entity)
 void Transform3dManager::OnChangeParent(Entity entity, Entity newParent, Entity oldParent)
 {
     Mat4f transform = GetComponent(entity);
-    SetGlobalPosition(entity, Transform3d::GetPosition(transform));
-    SetGlobalRotation(entity, Transform3d::GetRotation(transform));
     SetGlobalScale(entity, Transform3d::GetScale(transform));
+    SetGlobalRotation(entity, Transform3d::GetRotation(transform));
+    SetGlobalPosition(entity, Transform3d::GetPosition(transform));
 	dirtyManager_.SetDirty(entity);
 }
 

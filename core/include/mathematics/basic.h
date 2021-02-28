@@ -40,6 +40,15 @@ inline float Lerp(float start, float end, float t)
 {
     return start + (end - start) * t;
 }
+
+inline int Sign(float v) {
+    if(v >= 0) {
+        return 1;
+    }
+    if( v < 0) {
+        return -1;
+    }
+}
 template<typename T>
 float Clamp(T value, T lower, T upper)
 {
