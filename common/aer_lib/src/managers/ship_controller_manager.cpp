@@ -47,7 +47,7 @@ void ShipControllerManager::FixedUpdate(seconds dt) {
     //LogDebug(std::to_string(dt.count()));
     for (auto& entity : entities)
     {
-       
+        if (!entityManager_.get().HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC))) continue;
         CalculateHover(entity, dt);
         CalculateThrust(entity, dt);
     }

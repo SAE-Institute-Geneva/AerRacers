@@ -1,125 +1,130 @@
 #include "aer/editor/tool/hierarchy.h"
 
 #include <string>
-#include <vector>
 
-#include "imgui_internal.h"
 #include "imgui.h"
 
 #include "aer/aer_engine.h"
 #include "engine/entity.h"
 
+namespace neko::aer
+{
+Hierarchy::Hierarchy(AerEngine& engine, ToolType type, int id, std::string name)
+   : EditorToolInterface(engine, type, id, name),
+	 editorToolManager_(engine.GetEditorToolManager()),
+	 entityManager_(engine.GetComponentManagerContainer().entityManager)
+{}
 
-namespace neko::aer {
-Hierarchy::Hierarchy(
-    AerEngine& engine,
-    ToolType type,
-    int id,
-    std::string name)
-    : EditorToolInterface(engine, type, id, name),
-      editorToolManager_(engine.GetEditorToolManager()),
-      entityManager_(engine.GetComponentManagerContainer().entityManager) { }
+void Hierarchy::Init() {}
 
-void Hierarchy::Init() { }
-void Hierarchy::Update(seconds dt) {}
+void Hierarchy::Update(seconds) {}
+
 void Hierarchy::Destroy() {}
 
 void Hierarchy::DrawImGui()
 {
-    if (isVisible) {
-        //Open window
-        if (ImGui::Begin((GetName() + "##" +
-                          std::to_string(GetId())).c_str(),
-            &isVisible)) {
-            for (Entity entityIndex = 0; entityIndex < entityManager_.GetEntitiesSize();
-                 entityIndex++) {
-                //Display each entity without parent
-                if (entityManager_.GetEntityParent(entityIndex) == INVALID_ENTITY && 
-                    entityManager_.EntityExists(entityIndex)) { 
-                    DisplayEntity(entityIndex); 
-                }
-            }
-        }
-        ImGui::End();
-    }
+	if (isVisible)
+	{
+		//Open window
+		if (ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(), &isVisible))
+		{
+			for (Entity entityIndex = 0; entityIndex < entityManager_.GetEntitiesSize();
+				 entityIndex++)
+			{
+				//Display each entity without parent
+				if (entityManager_.GetEntityParent(entityIndex) == INVALID_ENTITY &&
+					entityManager_.EntityExists(entityIndex))
+				{
+					DisplayEntity(entityIndex);
+				}
+			}
+		}
+		ImGui::End();
+	}
 }
 
 void Hierarchy::DisplayEntity(Entity entityIndex)
 {
-    ImGuiTreeNodeFlags nodeFlags;
+	ImGuiTreeNodeFlags nodeFlags;
+	const std::string text = "Entity " + std::to_string(entityIndex);
+	if (editorToolManager_.GetSelectedEntity() == entityIndex)
+	{
+		nodeFlags = kNodeTreeSelectedFlags_;
+	}
+	else
+	{
+		nodeFlags = kNodeTreeNotSelectedFlags_;
+	}
 
-    const std::string text = "Entity " + std::to_string(entityIndex);
-    if (editorToolManager_.GetSelectedEntity() == entityIndex) {
-        nodeFlags = kNodeTreeSelectedFlags_;
-    } 
-    else { 
-        nodeFlags = kNodeTreeNotSelectedFlags_; 
-    }
+	//Hide arrow if no child
+	bool hasChild = false;
+	for (Entity oneEntityIndex = 0; oneEntityIndex < entityManager_.GetEntitiesSize();
+		 oneEntityIndex++)
+	{
+		if (entityIndex == entityManager_.GetEntityParent(oneEntityIndex))
+		{
+			hasChild = true;
+			break;
+		}
+	}
 
-    //Hide arrow if no child
-    bool hasChild = false;
-    for (Entity oneEntityIndex = 0; oneEntityIndex < entityManager_.GetEntitiesSize();
-         oneEntityIndex++)
-    {
-        if (entityIndex == entityManager_.GetEntityParent(oneEntityIndex))
-        {
-            hasChild = true;
-            break;
-        }
-    }
-    if (hasChild == false) { 
-        nodeFlags |= ImGuiTreeNodeFlags_Leaf; 
-    }
+	if (!hasChild) { nodeFlags |= ImGuiTreeNodeFlags_Leaf; }
 
-    //Display entity
-    const bool nodeOpen = ImGui::TreeNodeEx(text.c_str(), nodeFlags);
-    if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None)) 
-    { 
-        ImGui::SetDragDropPayload("Entity", &entityIndex, sizeof(Entity)); // Registers entity index in payload 
-        ImGui::Text(text.c_str());
-        ImGui::EndDragDropSource();
-    }
-    if (ImGui::BeginDragDropTarget()) 
-    {
-        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity")) // Get payload
-        {
-            IM_ASSERT(payload->DataSize == sizeof(Entity));
-            const Entity childIndex = *static_cast<const Entity*>(payload->Data); // Get entityIndex in payload
-            if (entityManager_.GetEntityParent(childIndex) == entityIndex) 
-            { 
-                entityManager_.SetEntityParent(childIndex, INVALID_ENTITY);
-            }
-            else
-            {
-                entityManager_.SetEntityParent(childIndex, entityIndex);
-            }
-        }
-        ImGui::EndDragDropTarget();
-    }
-    //Select entity on click
-    if (ImGui::IsItemClicked()) { editorToolManager_.SetSelectedEntity(entityIndex); }
-    //Display context menu on right click on entity
-    if (ImGui::BeginPopupContextItem()) {
-        if (ImGui::MenuItem("Add Entity")) { entityManager_.CreateEntity(); }
+	//Display entity
+	const bool nodeOpen = ImGui::TreeNodeEx(text.c_str(), nodeFlags);
+	if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
+	{
+		ImGui::SetDragDropPayload("Entity", &entityIndex, sizeof(Entity));    // Registers entity index in payload
+		ImGui::Text("%s", text.c_str());
+		ImGui::EndDragDropSource();
+	}
 
-        if (ImGui::MenuItem("Delete Entity")) {
-            entityManager_.DestroyEntity(entityIndex, true);
-        }
-        ImGui::EndPopup();
-    }
-    //If node open display their children
-    if (nodeOpen) {
-        for (Entity entityChild = 0; entityChild < entityManager_.GetEntitiesSize();
-             entityChild++) {
-            //Display entity if it's a child of this entity
-            if (entityManager_.GetEntityParent(entityChild) == entityIndex &&
-                entityManager_.EntityExists(entityChild)) { 
-                DisplayEntity(entityChild); 
-            }
-        }
-        ImGui::TreePop();
-    }
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Entity"))    // Get payload
+		{
+			IM_ASSERT(payload->DataSize == sizeof(Entity));
+			const Entity childIndex =
+				*static_cast<const Entity*>(payload->Data);    // Get entityIndex in payload
+			if (entityManager_.GetEntityParent(childIndex) == entityIndex)
+			{
+				entityManager_.SetEntityParent(childIndex, INVALID_ENTITY);
+			}
+			else
+			{
+				entityManager_.SetEntityParent(childIndex, entityIndex);
+			}
+		}
+		ImGui::EndDragDropTarget();
+	}
+
+	//Select entity on click
+	if (ImGui::IsItemClicked()) { editorToolManager_.SetSelectedEntity(entityIndex); }
+
+	//Display context menu on right click on entity
+	if (ImGui::BeginPopupContextItem())
+	{
+		if (ImGui::MenuItem("Add Entity")) { entityManager_.CreateEntity(); }
+
+		if (ImGui::MenuItem("Delete Entity")) { entityManager_.DestroyEntity(entityIndex, true); }
+		ImGui::EndPopup();
+	}
+
+	//If node open display their children
+	if (nodeOpen)
+	{
+		for (Entity entityChild = 0; entityChild < entityManager_.GetEntitiesSize(); entityChild++)
+		{
+			//Display entity if it's a child of this entity
+			if (entityManager_.GetEntityParent(entityChild) == entityIndex &&
+				entityManager_.EntityExists(entityChild))
+			{
+				DisplayEntity(entityChild);
+			}
+		}
+		ImGui::TreePop();
+	}
 }
 
-void Hierarchy::OnEvent(const SDL_Event& event) {}
+void Hierarchy::OnEvent(const SDL_Event&) {}
 }

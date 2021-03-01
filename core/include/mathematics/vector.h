@@ -78,14 +78,14 @@ struct Vec2
 	//-----------------------------------------------------------------------------
 	Vec2() noexcept = default;
 	explicit Vec2(T same) noexcept : x(same), y(same) {}
-	Vec2(T X, T Y) noexcept : x(X), y(Y) {}
+	Vec2(T x, T y) noexcept : x(x), y(y) {}
 	explicit Vec2(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]) {}
 
 	template<class U>
 	explicit Vec2(U u) noexcept : x(T(u.x)), y(T(u.y))  {}
 
 	template<class U>
-	Vec2(U X, U Y) noexcept : x(T(X)), y(T(Y)) {}
+	Vec2(U x, U y) noexcept : x(T(x)), y(T(y)) {}
 
 	explicit Vec2(std::array<T, 2> v) noexcept
 	{

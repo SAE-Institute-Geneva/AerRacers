@@ -116,6 +116,18 @@ MovableCamera3D& MovableCamera3D::operator=(const MovableCamera3D& other)
     return *this;
 }
 
+MovableCamera3D& MovableCamera3D::operator=(const Camera3D& other)
+{
+	position = other.position;
+	reverseDirection = other.reverseDirection;
+
+	farPlane = other.farPlane;
+	nearPlane = other.nearPlane;
+	fovY = other.fovY;
+
+	return *this;
+}
+
 void MovableCamera3D::Update(const seconds dt)
 {
     //Checking if keys are down

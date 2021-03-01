@@ -307,12 +307,12 @@ public:
         EASY_BLOCK("Test Update", profiler::colors::Green);
 #endif
         const auto modelId = cContainer_.renderManager.GetComponent(testEntity_).modelId;
-        //updateCount_ += dt.count();
-        //if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
-        //{
-        //    loaded_ = rContainer_.modelManager.IsLoaded(modelId);
-        //    engine_.Stop();
-        //}
+        updateCount_ += dt.count();
+        if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
+        {
+            loaded_ = rContainer_.modelManager.IsLoaded(modelId);
+            engine_.Stop();
+        }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
 
         const auto& model = rContainer_.modelManager.GetModel(modelId);

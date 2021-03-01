@@ -17,22 +17,27 @@ GizmoRenderer::GizmoRenderer(Camera3D* camera) : camera_(camera)
 
 void GizmoRenderer::Init()
 {
-    #ifdef EASY_PROFILE_USE
-    EASY_BLOCK("GizmoRenderer::Init");
-    #endif
+	#ifdef EASY_PROFILE_USE
+	EASY_BLOCK("GizmoRenderer::Init");
+	#endif
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
-	preRender_ = Job {[this, config]()
-		{
-			shaderCube_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoCube.vert",
-				config.dataRootPath + "shaders/opengl/gizmoCube.frag");
-			shaderLine_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoLine.vert",
-				config.dataRootPath + "shaders/opengl/gizmoLine.frag");
-			shaderSphere_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoSphere.vert",
-				config.dataRootPath + "shaders/opengl/gizmoSphere.frag");
-			cube_.Init();
-			sphere_.Init();
-			line_.Init();
-		}};
+	preRender_         = Job {[this, config]()
+        {
+            shaderCube_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoCube.vert",
+                config.dataRootPath + "shaders/opengl/gizmoCube.frag");
+            shaderLine_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoLine.vert",
+                config.dataRootPath + "shaders/opengl/gizmoLine.frag");
+            shaderSphere_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoSphere.vert",
+                config.dataRootPath + "shaders/opengl/gizmoSphere.frag");
+
+            shaderCube_.BindUbo(2 * sizeof(Mat4f));
+            shaderLine_.BindUbo(2 * sizeof(Mat4f));
+            shaderSphere_.BindUbo(2 * sizeof(Mat4f));
+
+            cube_.Init();
+            sphere_.Init();
+            line_.Init();
+        }};
 
 	gizmosQueue_.reserve(kGizmoReserveSize);
 	RendererLocator::get().AddPreRenderJob(&preRender_);
@@ -43,7 +48,6 @@ void GizmoRenderer::Update(seconds)
     #ifdef EASY_PROFILE_USE
     EASY_BLOCK("GizmoRenderer::Update");
     #endif
-	RendererLocator::get().Render(this);
 }
 
 void GizmoRenderer::Render()
@@ -62,8 +66,6 @@ void GizmoRenderer::Render()
 			{
 				if (shaderCube_.GetProgram() == 0) continue;
 				shaderCube_.Bind();
-				shaderCube_.SetMat4("view", camera_->GenerateViewMatrix());
-				shaderCube_.SetMat4("projection", camera_->GenerateProjectionMatrix());
 				shaderCube_.SetVec4("color", gizmo.color);
 				Mat4f model = Mat4f::Identity;
 				model = Transform3d::Scale(model, gizmo.cubeSize);
@@ -78,8 +80,6 @@ void GizmoRenderer::Render()
 			{
 				if (shaderLine_.GetProgram() == 0) continue;
 				shaderLine_.Bind();
-				shaderLine_.SetMat4("view", camera_->GenerateViewMatrix());
-				shaderLine_.SetMat4("projection", camera_->GenerateProjectionMatrix());
 				shaderLine_.SetVec4("color", gizmo.color);
 				Mat4f model = Transform3d::Translate(Mat4f::Identity, gizmo.pos);
 				shaderLine_.SetMat4("model", model);
@@ -92,8 +92,6 @@ void GizmoRenderer::Render()
 			{
 				if (shaderSphere_.GetProgram() == 0) continue;
 				shaderSphere_.Bind();
-				shaderSphere_.SetMat4("view", camera_->GenerateViewMatrix());
-				shaderSphere_.SetMat4("projection", camera_->GenerateProjectionMatrix());
 				shaderSphere_.SetVec4("color", gizmo.color);
 				Mat4f model = Mat4f::Identity;
 				model = Transform3d::Scale(model, Vec3f(gizmo.radius+0.01f));
@@ -108,8 +106,6 @@ void GizmoRenderer::Render()
 				logDebug("Invalid Gizmo shape!");
 			}
 		}
-		gizmosQueue_.clear();
-		gizmosQueue_.reserve(kGizmoReserveSize);
 	}
 }
 

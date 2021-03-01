@@ -159,9 +159,12 @@ public:
 		const Color4& color = Color::red,
 		float lineThickness = 1.0f) override;
 
-	void SetCamera(Camera3D* camera) override;
+	void Clear() { gizmosQueue_.clear(); }
+
 	Camera3D* GetCamera() const override { return camera_; }
 	Vec3f GetCameraPos() const override { return camera_->position; }
+
+	void SetCamera(Camera3D* camera) override;
 
 private:
 	std::mutex renderMutex_;

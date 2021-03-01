@@ -62,6 +62,7 @@ public:
 		std::string_view vertexShaderPath, std::string_view fragmentShaderPath) override;
 
 	void Bind() const;
+	void BindUbo(const uint64_t& size);
 	void Destroy() override;
 
 	[[nodiscard]] GLuint GetProgram() const;
@@ -85,8 +86,12 @@ public:
 	void SetTexture(std::string_view name, TextureName texture, unsigned int slot = 0) const;
 	void SetCubemap(std::string_view name, TextureName texture, unsigned int slot = 0) const;
 
+	static void SetUbo(const uint64_t& size, const uint64_t& offset, const void* data);
+
 private:
 	const FilesystemInterface& filesystem_;
+
 	GLuint shaderProgram_ = 0;
+	GLuint ubo_ = 0;
 };
 }
