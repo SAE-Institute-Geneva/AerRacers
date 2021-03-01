@@ -4,6 +4,14 @@
 #include "engine/component.h"
 #include "engine/transform.h"
 #include "ship_input_manager.h"
+#include <aer\managers\player_manager.h>
+
+
+
+#include <chrono>
+#include <chrono>
+#include <chrono>
+#include <chrono>
 
 namespace neko::aer
 {
@@ -24,6 +32,7 @@ private:
 };
 
 class ShipControllerViewer;
+class PlayerManager;
 /**
  * \brief Component used to control the ship movements.
  */
@@ -67,8 +76,7 @@ struct ShipController {
 class ShipControllerManager:
 					  public SystemInterface,
 					  public physics::FixedUpdateInterface,
-					  public physics::OnCollisionInterface,
-                      public ComponentManager<ShipController, EntityMask(ComponentType::SHIP_CONTROLLER)>
+					  public physics::OnCollisionInterface
 {
 public:
     explicit ShipControllerManager(
@@ -76,20 +84,26 @@ public:
         Transform3dManager& transform3DManager,
         physics::RigidDynamicManager& rigidDynamicManager,
         physics::RigidStaticManager& rigidStaticManager,
-        physics::PhysicsEngine& physicsEngine);
+        physics::PhysicsEngine& physicsEngine,
+        ShipInputManager& shipInputManager,
+        PlayerManager& playerManager);
 
 	void Init() override;
 	void Update(seconds dt) override;
 	void FixedUpdate(seconds dt) override;
 	void Destroy() override;
-    void AddComponent(Entity entity) override;
-    void CalculateHover(Entity entity, seconds dt);
-    void CalculateThrust(Entity entity, seconds dt);
+    void InitComponent(PlayerId playerId);
+    void CalculateHover(PlayerId playerId, seconds dt);
+    void CalculateThrust(PlayerId playerId, seconds dt);
     void OnCollisionEnter(
         const physx::PxContactPairHeader& pairHeader) override;
 protected:
-    ShipInputManager shipInputManager_;
+    std::vector<ShipController> shipControllers_;
+    PlayerManager& playerManager_;
+
+    ShipInputManager& shipInputManager_;
 	Transform3dManager& transformManager_;
+	EntityManager& entityManager_;
     physics::RigidDynamicManager& rigidDynamicManager_;
     physics::RigidStaticManager& rigidStaticManager_;
     physics::PhysicsEngine& physicsEngine_;

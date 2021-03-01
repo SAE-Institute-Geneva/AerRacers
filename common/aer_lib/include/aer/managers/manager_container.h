@@ -40,7 +40,8 @@ struct ResourceManagerContainer : public SystemInterface
 
 struct ComponentManagerContainer : public SystemInterface
 {
-	ComponentManagerContainer(ResourceManagerContainer& rContainer, physics::PhysicsEngine& physicsEngine)
+    ComponentManagerContainer(AerEngine& engine, ResourceManagerContainer& rContainer,
+        physics::PhysicsEngine& physicsEngine)
         : transform3dManager(entityManager),
           renderManager(
               entityManager,
@@ -49,18 +50,22 @@ struct ComponentManagerContainer : public SystemInterface
               rendererViewer),
           rigidDynamicManager(entityManager, transform3dManager, physicsEngine),
           rigidStaticManager(entityManager, transform3dManager, physicsEngine),
+          playerManager(*this),
+          shipInputManager(playerManager),
           shipControllerManager(
               entityManager,
               transform3dManager,
               rigidDynamicManager,
               rigidStaticManager,
-              physicsEngine),
+              physicsEngine,
+              shipInputManager,
+              playerManager),
           cameraControllerManager(
               entityManager,
               transform3dManager,
               rigidDynamicManager,
-              physicsEngine),
-          playerManager(*this),
+              physicsEngine,
+              playerManager, engine),
           transform3dViewer(entityManager, transform3dManager),
           rendererViewer(entityManager, renderManager),
           rigidDynamicViewer(
@@ -83,6 +88,7 @@ struct ComponentManagerContainer : public SystemInterface
         physicsEngine.RegisterFixedUpdateListener(rigidStaticViewer);
         physicsEngine.RegisterFixedUpdateListener(rigidDynamicViewer);
         physicsEngine.RegisterFixedUpdateListener(shipControllerManager);
+        physicsEngine.RegisterFixedUpdateListener(cameraControllerManager);
     }
 
 	void Init() override
@@ -98,6 +104,8 @@ struct ComponentManagerContainer : public SystemInterface
 		renderManager.Update(dt);
         shipControllerManager.Update(dt);
 		cameraControllerManager.Update(dt);
+        shipInputManager.Update(dt);
+        playerManager.Update(dt);
 	}
 
 	void Destroy() override { renderManager.Destroy(); }
@@ -107,9 +115,10 @@ struct ComponentManagerContainer : public SystemInterface
     RenderManager renderManager;
     physics::RigidDynamicManager rigidDynamicManager;
     physics::RigidStaticManager rigidStaticManager;
-	ShipControllerManager shipControllerManager;
+    PlayerManager playerManager;
+    ShipInputManager shipInputManager;
+    ShipControllerManager shipControllerManager;
 	CameraControllerManager cameraControllerManager;
-	PlayerManager playerManager;
 
 	Transform3dViewer transform3dViewer;
     RendererViewer rendererViewer;

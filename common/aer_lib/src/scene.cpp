@@ -65,16 +65,16 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 		}
 	}
 
-	if (CheckJsonParameter(componentJson, "shipControl", json::value_t::object))
-	{
-		if (CheckJsonParameter(componentJson["shipControl"], "exist", json::value_t::boolean))
-		{
-			if (componentJson["shipControl"]["exist"])
-			{
-                componentManagerContainer_.shipControllerManager.AddComponent(entity);
-			}
-		}
-	}
+	//if (CheckJsonParameter(componentJson, "shipControl", json::value_t::object))
+	//{
+	//	if (CheckJsonParameter(componentJson["shipControl"], "exist", json::value_t::boolean))
+	//	{
+	//		if (componentJson["shipControl"]["exist"])
+	//		{
+ //               componentManagerContainer_.shipControllerManager.AddComponent(entity);
+	//		}
+	//	}
+	//}
 
 	if (CheckJsonParameter(componentJson, "modelRenderer", json::value_t::object))
 	{

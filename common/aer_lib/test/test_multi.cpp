@@ -55,6 +55,7 @@ namespace neko::aer {
             cContainer_.playerManager.CreatePlayer(Vec3f(0, 10.0f, 0));
             cContainer_.playerManager.CreatePlayer(Vec3f(10.0f, 10.0f, 0));
             cContainer_.playerManager.CreatePlayer(Vec3f(-10.0f, 10.0f, 0));
+            cContainer_.playerManager.CreatePlayer(Vec3f(0.0f, 10.0f, 10.0f));
         }
 
         void Update(seconds dt) override

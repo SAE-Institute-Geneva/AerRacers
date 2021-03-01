@@ -1,4 +1,5 @@
 #pragma once
+#include "player_manager.h"
 #include "px/physics_engine.h"
 #include "px/rigidbody.h"
 #include "engine/component.h"
@@ -6,7 +7,6 @@
 #include "sdl_engine/sdl_input.h"
 namespace neko::aer
 {
-
 class ShipInputManager: public SystemInterface
 {
 public:	
@@ -43,41 +43,58 @@ public:
 		Left,
 		Right,
 	};
-	
-    explicit ShipInputManager();
+
+	struct ShipInput {
+	public:
+		void Update(sdl::ControllerId controllerId, seconds dt);
+		float GetRudder();
+		float GetIntensity();
+		float GetThruster();
+		bool IsBreaking();
+
+	private:
+		bool IsJoystickActive(Joystick joystick);
+		bool IsJoystickAxisInDeadzone(Joystick joystick, Axis axis);
+		bool GetBoostButton();
+
+		float GetJoystickAxis(Joystick joystick, Axis axis);
+		float GetJoystickAngle(Joystick joystick);
+		float GetJoystickMagnitude(Joystick joystick);
+
+		Vec2f GetJoystick(Joystick joystick);
+		Direction GetJoystickDirection(Joystick joystick);
+		Gesture GetCurrentGesture();
+		Vec2f leftJoystick_;
+		Vec2f rightJoystick_;
+		Vec2f joystickDeadzone_ = Vec2f(0.3f, 0.3f);
+		Direction rightJoystickDirection_;
+		Direction leftJoystickDirection_;
+		Gesture currentGesture_;
+
+		float rudder_;
+		float thruster_;
+		float isBreaking_;
+	};
+
+    explicit ShipInputManager(PlayerManager& playerManager);
+
+	float GetRudder(PlayerId playerId);
+	float GetThruster(PlayerId playerId);
+	float GetIntensity(PlayerId playerId);
+	bool IsBreaking(PlayerId playerId);
 
 	void Init() override;
 	void Update(seconds dt) override;
 	void Destroy() override;
-	
-	bool IsJoystickActive(Joystick joystick);
-	bool isJoystickAxisInDeadzone(Joystick joystick, Axis axis);
-	bool GetBoostButton();
-	
-	float GetJoystickAxis(Joystick joystick, Axis axis);
-	float GetJoystickAngle(Joystick joystick);
-	float GetJoystickMagnitude(Joystick joystick);
-	float GetIntensity();
-	
-	Vec2f GetJoystick(Joystick joystick);
-	Direction GetJoystickDirection(Joystick joystick);
-	Gesture GetCurrentGesture();
 
-	Vec2f leftJoystick_;
-	Vec2f rightJoystick_;
-	Vec2f joystickDeadzone_ = Vec2f(0.3f, 0.3f);
-	Direction rightJoystickDirection_;
-	Direction leftJoystickDirection_;
-	Gesture currentGesture_;
+private:
+	std::vector<ShipInput> shipInputs_;
 
-	float rudder_;
-	float thruster_;
-	float isBreaking_;
+	PlayerManager& playerManager_;
 
 	//DEBUG
-	std::string rightStickName_ = "";
-	std::string leftStickName_ = "";
+	//std::string rightStickName_ = "";
+	//std::string leftStickName_ = "";
 	void EnumToString(Joystick joystick, Direction direction);
-protected:
 };
 }

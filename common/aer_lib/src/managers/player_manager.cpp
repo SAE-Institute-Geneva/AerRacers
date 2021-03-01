@@ -2,15 +2,30 @@
 #include "aer/managers/player_manager.h"
 #include "aer/managers/manager_container.h"
 #include "engine/engine.h"
+#include <aer\log.h>
 
 namespace neko::aer
 {
-	int PlayerManager::CreatePlayer(Vec3f pos)
+PlayerManager::PlayerManager(ComponentManagerContainer& cContainer)
+    : cContainer_(cContainer),
+      cameraControllerManager_(cContainer.cameraControllerManager),
+      shipControllerManager_(cContainer.shipControllerManager),
+      shipInputManager_(cContainer.shipInputManager)
+{
+    playerComponents_.resize(INIT_PLAYER_NMB, PlayerComponent());
+}
+
+	PlayerId PlayerManager::CreatePlayer(Vec3f pos)
 	{
+        if (playerCount_ >= INIT_PLAYER_NMB) {
+            LogError("Max Player Create");
+            return playerCount_ - 1;
+        }
         const auto& config = BasicEngine::GetInstance()->GetConfig();
         cContainer_.sceneManager.AddTag("Ship");
         cContainer_.sceneManager.AddTag("Camera");
         Entity shipEntity = cContainer_.entityManager.CreateEntity();
+        cContainer_.entityManager.AddComponentType(shipEntity, EntityMask(ComponentType::PLAYER_COMPONENT));
         cContainer_.entityManager.SetEntityName(shipEntity, "ship");
         TagLocator::get().SetEntityTag(shipEntity, "Ship");
         cContainer_.transform3dManager.AddComponent(shipEntity);
@@ -25,7 +40,7 @@ namespace neko::aer
         rigidDynamic.material.staticFriction = 0.0f;
         rigidDynamic.material.dynamicFriction = 0.0f;
         cContainer_.rigidDynamicManager.AddRigidDynamic(shipEntity, rigidDynamic);
-        cContainer_.shipControllerManager.AddComponent(shipEntity);
+        shipControllerManager_.InitComponent(playerCount_);
         Entity shipModelEntity = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(shipModelEntity);
         cContainer_.transform3dManager.SetGlobalPosition(shipModelEntity, pos);
@@ -38,14 +53,56 @@ namespace neko::aer
         cContainer_.entityManager.SetEntityName(cameraEntity, "cameraEntity");
         TagLocator::get().SetEntityTag(shipEntity, "Camera");
         cContainer_.transform3dManager.AddComponent(cameraEntity);
-        cContainer_.cameraControllerManager.AddComponent(cameraEntity);
         PlayerComponent playerComponent;
         playerComponent.cameraEntity = cameraEntity;
         playerComponent.shipEntity = shipEntity;
-        playerComponent.shipEntity = shipModelEntity;
+        playerComponent.shipModelEntity = shipModelEntity;
         playerComponent.playerNumber = playerComponents_.size();
-        playerComponents_.push_back(playerComponent);
+        std::vector<sdl::ControllerId>& controllers = sdl::InputLocator::get().GetControllerIdVector();
+        if (controllers.size() > playerCount_)
+            playerComponent.linkedJoystick = controllers[playerCount_];
+        playerComponents_[playerCount_] = playerComponent;
+        playerCount_++;
 
 		return playerComponent.playerNumber;
 	}
+
+PlayerComponent PlayerManager::GetPlayerComponent(PlayerId playerId)
+{
+    return playerComponents_[playerId];
+}
+
+Entity PlayerManager::GetShipEntity(PlayerId playerId)
+{
+    return playerComponents_[playerId].shipEntity;
+}
+
+Entity PlayerManager::GetCameraEntity(PlayerId playerId)
+{
+    return playerComponents_[playerId].cameraEntity;
+}
+
+void PlayerManager::Init()
+{
+    
+}
+
+void PlayerManager::Update(seconds dt)
+{
+
+    for (PlayerId playerId = 0; playerId < GetPlayerCount(); ++playerId) {
+        std::vector<sdl::ControllerId>& controllers = sdl::InputLocator::get().GetControllerIdVector();
+        if (controllers.size() > playerId)
+        {
+            playerComponents_[playerId].linkedJoystick = controllers[playerId];
+        } else {
+            playerComponents_[playerId].linkedJoystick = controllers[0];
+        }
+    }
+}
+
+void PlayerManager::Destroy()
+{
+    
+}
 }

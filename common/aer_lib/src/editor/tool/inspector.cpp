@@ -68,8 +68,8 @@ void Inspector::OnEvent(const SDL_Event&) {}
 
 void Inspector::DisplayLayersAndTags(Entity selectedEntity)
 {
-	const char* tags[]   = {"Untagged", "", "", "", "", "", "", "", "", ""};
-	const char* layers[] = {"Default", "", "", "", "", "", "", "", "", ""};
+	const char* tags[]   = {"Untagged", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""};
+	const char* layers[] = {"Default", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""};
 
 	std::vector<std::string> strings =
 		engine_.GetComponentManagerContainer().sceneManager.GetTags();
@@ -204,19 +204,6 @@ void Inspector::DisplayNewComponentButtons(Entity selectedEntity)
         {
             if (ImGui::Button("Add RigidStatic")) {
                 rigidStaticManager_.AddRigidStatic(selectedEntity, physics::RigidStaticData());
-            }
-        }
-
-        if (entityManager_.HasComponent(selectedEntity, EntityMask(ComponentType::SHIP_CONTROLLER)))
-        {
-            if (ImGui::Button("Delete ShipController")) {
-                shipControllerManager_.DestroyComponent(selectedEntity);
-            }
-        }
-        else
-        {
-            if (ImGui::Button("Add ShipController")) {
-                shipControllerManager_.AddComponent(selectedEntity);
             }
         }
 

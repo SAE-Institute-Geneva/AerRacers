@@ -67,7 +67,7 @@ public:
             cContainer_.rigidDynamicManager.AddRigidDynamic(
                 shipEntity_,
                 rigidDynamic);
-            cContainer_.shipControllerManager.AddComponent(shipEntity_);
+            //cContainer_.shipControllerManager.AddComponent(shipEntity_);
         }
         {
             groundEntity_ = cContainer_.entityManager.CreateEntity();
@@ -215,14 +215,14 @@ public:
         rigidDynamic.useGravity = false;
         rigidDynamic.colliderType = physics::ColliderType::BOX;
         cContainer_.rigidDynamicManager.AddRigidDynamic(shipEntity, rigidDynamic);
-        cContainer_.shipControllerManager.AddComponent(shipEntity);
+        //cContainer_.shipControllerManager.AddComponent(shipEntity);
         cContainer_.renderManager.AddComponent(shipEntity);
         cContainer_.renderManager.SetModel(shipEntity, config.dataRootPath + "models/cube/cube.obj");
 
         cameraEntity_ = engine_.GetComponentManagerContainer().entityManager.CreateEntity();
         cContainer_.entityManager.SetEntityName(cameraEntity_, "cameraEntity");
         cContainer_.transform3dManager.AddComponent(cameraEntity_);
-        cContainer_.cameraControllerManager.AddComponent(cameraEntity_);
+        //cContainer_.cameraControllerManager.AddComponent(cameraEntity_);
         {
             Entity grund2Entity = cContainer_.entityManager.CreateEntity();
             cContainer_.transform3dManager.AddComponent(grund2Entity);

@@ -10,7 +10,7 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 	 mode_(mode),
 	 drawSystem_(*this),
 	 physicsEngine_(cContainer_.entityManager, cContainer_.transform3dManager),
-	 cContainer_(rContainer_, physicsEngine_),
+	 cContainer_(*this, rContainer_, physicsEngine_),
 	 toolManager_(*this)
 {
 #ifdef EASY_PROFILE_USE

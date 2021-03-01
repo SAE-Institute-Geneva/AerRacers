@@ -7,9 +7,11 @@
 
 namespace neko::aer
 {
-    class CameraControllerViewer;
+class AerEngine;
+class PlayerManager;
+class CameraControllerViewer;
     /**
-     * \brief Component used to control the ship movements.
+     * \brief Component used to control the camera movements.
      */
     struct CameraController {
         float angularLateralMovement;
@@ -28,111 +30,68 @@ namespace neko::aer
         float dotProductPosVelo;
         float dotProductPosVeloMult;
         Vec3f targetPos;
-        /* Old Camera
-        int sprintStiffness = 10;
-        float cameraMass = 0.1f;
-        float forceLossPercentage = 0.5f;
+        Vec3f cameraPos;
+    };
+    /**
+     * \brief Component used to control the camera movements.
+     */
+    struct CameraParameter {
+        const Vec3f kTargetPosition = Vec3f(0, 0, 5);
+        const float kMaxTargetPos = 25.0f;
+        const Vec3f kCameraPosition = Vec3f(0, 5, -10);
 
-        float minimumSpeed = 20.0f;
-        float lookingDownIntensity = 45.0f;
-        float maxYVelocity = 30.0f;
-        float lookAngle = 25.0f;
-        float cameraFixedY = 2.0f;
+        const float kAngularLateralMult = 3.0f;
+        const float kAngularBackwardMult = 1.0f;
+        const float kAngularForwardTargetMult = 80.0f;
 
-        Vec3f cameraVelocity = Vec3f::zero;
-        Vec3f lastFrameShipVelocity;
+        const float kLinearUpwardMult = 0.01f;
+        const float kLinerarBackwardMult = -0.01f;
+        const float kLinerarBackwardDiv = -0.0015f;
+        const float kLinearForwardTargetMult = 0.1f;
+        const float kFallMultiplicator = 0.01f;
+        const float kFallTargetMultiplicator = -0.1f;
 
-        float lerpLookTurning = 0.025f;
-        float cameraLookLerpValue = 0.2f;
-        float maxYForce = 1000.0f;
-        float cameraPositionLerpValue = 0.9f;
-        */
+        const float kAngularLerp = 0.1f;
+        const float kAngularTargetLerp = 0.1f;
+
+        const float kLinearLerp = 1.0f;
+        const float kLerpPosition = 1.0f;
     };
 
     /**
      * \brief System that manages ShipControllers
      */
-    class CameraControllerManager :
+    class CameraControllerManager final :
         public SystemInterface,
         public physics::FixedUpdateInterface,
-        public RenderCommandInterface,
-        public ComponentManager<CameraController, EntityMask(ComponentType::SHIP_CAMERA)>
+        public RenderCommandInterface
     {
     public:
         explicit CameraControllerManager(
             EntityManager& entityManager,
             Transform3dManager& transform3DManager,
             physics::RigidDynamicManager& rigidDynamicManager,
-            physics::PhysicsEngine& physicsEngine);
+            physics::PhysicsEngine& physicsEngine,
+            PlayerManager& playerManager,
+            AerEngine& aerEngine);
 
         void Init() override;
         void Update(seconds dt) override;
         void FixedUpdate(seconds dt) override;
         void Render() override;
         void Destroy() override;
-        void AddComponent(Entity entity) override;
+                
+    private:
+        std::vector<CameraController> cameraControllers_;
+        PlayerManager& playerManager_;
 
-        /*
-        void CreateTargetsEntity();
-        void LookTurning();
-        void LookDown();
-        Vec2f SpringForceSmooth(Vec2f force);
-        Vec3f SpringForceSmooth(Vec3f force);
-        Vec3f SpringPosition2D();
-        Vec3f SpringPosition();
-        Vec3f CameraSmoothSpring(Vec3f springPosition);
-        void SpringTransformChild(Entity shipChildEntity);
-        void CameraSmoothLerp(Vec3f cameraPosition);
-
-        void LastFrameShipValues();
-        void MaximumAngle();
-        */
-
-        
-    protected:
+        AerEngine& engine_;
         Transform3dManager& transformManager_;
         physics::RigidDynamicManager& rigidDynamicManager_;
         physics::PhysicsEngine& physicsEngine_;
     	
-        Entity cameraEntity_;
-        Entity shipEntity_;
+        const CameraParameter kCameraParameter_;
 
-        const Vec3f kTargetPosition_ = Vec3f(0, 0, 5);
-        const float kMaxTargetPos_ = 25.0f;
-        const Vec3f kCameraPosition_ = Vec3f(0, 5, -10);
-
-        const float kAngularLateralMult_ = 3.0f;
-        const float kAngularBackwardMult_ = 1.0f;
-        const float kAngularForwardTargetMult_ = 80.0f;
-
-        const float kLinearUpwardMult_ = 0.01f;
-        const float kLinerarBackwardMult_ = -0.01f;
-        const float kLinerarBackwardDiv_ = -0.0015f;
-        const float kLinearForwardTargetMult_ = 0.1f;
-        const float kFallMultiplicator_ = 0.01f;
-        const float kFallTargetMultiplicator_ = -0.1f;
-
-        const float kAngularLerp_ = 0.1f;
-        const float kAngularTargetLerp_ = 0.1f;
-
-        const float kLinearLerp_ = 1.0f; 
-        const float kLerpPosition_ = 1.0f;
-
-        /*Old Camera
-        Entity targetEntity_;
-        Entity lookTargetLeft_;
-        Entity lookTargetRight_;
-        Entity lookTargetNormal_;
-        Entity springEntity_;
-    	
-        Vec3f lookTargetRightPos_ = Vec3f(0, 6.85f, -9.58f);
-        Vec3f lookTargetLeftPos_ = Vec3f(-1, 6.85f, -9.58f);
-        Vec3f lookTargetNormalPos_ = Vec3f(0, 6.85f, -9.58f);
-        Vec3f targetPos_ = Vec3f(0, 2, -10);
-
-        EulerAngles lookTargetRightRot_ = EulerAngles(0, 5, 0);
-        EulerAngles lookTargetLeftRot_ = EulerAngles(0, -5, 0);
-        */
     };
 
     /**

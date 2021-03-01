@@ -61,12 +61,11 @@ enum class ComponentType : EntityMask
     RIGID_STATIC = 1u << 14u,
     RIGID_DYNAMIC = 1u << 15u,
 
-	// Ship
-	SHIP_CONTROLLER = 1u << 16u,
-	SHIP_CAMERA = 1u << 17u,
+	// Game
+	PLAYER_COMPONENT = 1u << 16u,
 
-	PREFAB     = 1u << 18u,
-	OTHER_TYPE = 1u << 19u
+	PREFAB     = 1u << 17u,
+	OTHER_TYPE = 1u << 18u
 };
 
 struct Component

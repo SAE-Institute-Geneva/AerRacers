@@ -28,19 +28,27 @@
 ---------------------------------------------------------- */
 #include <engine\entity.h>
 #include <mathematics/vector.h>
+#include <sdl_engine/sdl_input.h>
 
 namespace neko::aer
 {
+class ShipInputManager;
+class ShipControllerManager;
+class CameraControllerManager;
 struct ComponentManagerContainer;
+
 const size_t INIT_PLAYER_NMB = 4;
+
+using PlayerId = uint8_t;
+
 	struct PlayerComponent
 	{
 		Entity shipEntity = INVALID_ENTITY;
 		Entity cameraEntity = INVALID_ENTITY;
 		Entity shipModelEntity = INVALID_ENTITY;
 
-		int playerNumber = 0;
-		int linkedJoystick = 0;
+		PlayerId playerNumber = 0;
+		sdl::ControllerId linkedJoystick = 0;
 
 		//TODO texture
 	};
@@ -48,21 +56,29 @@ const size_t INIT_PLAYER_NMB = 4;
 	/**
 	 * \brief PlayerManager use to store player data
 	 */
-	class PlayerManager
+	class PlayerManager final : public SystemInterface
 	{
 	public:
-		explicit PlayerManager(ComponentManagerContainer& cContainer) : cContainer_(cContainer)
-		{
-			playerComponents_.reserve(INIT_PLAYER_NMB);
-		}
+		explicit PlayerManager(ComponentManagerContainer& cContainer);
 
 		virtual ~PlayerManager() = default;
 
-		int CreatePlayer(Vec3f pos);
+		PlayerId CreatePlayer(Vec3f pos);
 
-	protected:
-		int playerCount = 0;
+		PlayerComponent GetPlayerComponent(PlayerId playerId);
+		Entity GetShipEntity(PlayerId playerId);
+		Entity GetCameraEntity(PlayerId playerId);
+		size_t GetPlayerCount() const { return playerCount_; }
+
+        void Init() override;
+        void Update(seconds dt) override;
+        void Destroy() override;
+	private:
+		size_t playerCount_ = 0;
 		std::vector<PlayerComponent> playerComponents_;
 		ComponentManagerContainer& cContainer_;
+		CameraControllerManager& cameraControllerManager_;
+		ShipControllerManager& shipControllerManager_;
+		ShipInputManager& shipInputManager_;
 	};
 }

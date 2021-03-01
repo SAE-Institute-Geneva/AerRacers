@@ -70,6 +70,7 @@ public:
 	EditorToolManager& GetEditorToolManager() { return toolManager_; }
     physics::PhysicsEngine& GetPhysicsEngine() { return physicsEngine_; }
 
+	GameCamera& GetGameCamera() { return drawSystem_.GetGameCamera(); }
 private:
 	ModeEnum mode_;
 

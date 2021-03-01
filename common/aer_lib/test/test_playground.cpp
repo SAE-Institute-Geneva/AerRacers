@@ -66,8 +66,8 @@ public:
                 break;
             }
         }
-        engine_.GetComponentManagerContainer().shipControllerManager.
-            AddComponent(15);
+        //engine_.GetComponentManagerContainer().shipControllerManager.
+        //    AddComponent(15);
         engine_.GetComponentManagerContainer().entityManager.SetEntityParent(
             cameraEntity_,
             shipEntity_);
@@ -191,7 +191,7 @@ public:
         engine_.GetComponentManagerContainer().sceneManager.LoadScene(
             config.dataRootPath +
             "scenes/PlayGroundLuca2021-02-23.aerscene");
-        shipEntity_ = cContainer_.entityManager.FilterEntities(EntityMask(ComponentType::SHIP_CONTROLLER))[0];
+        //shipEntity_ = cContainer_.entityManager.FilterEntities(EntityMask(ComponentType::SHIP_CONTROLLER))[0];
         cContainer_.entityManager.SetEntityName(shipEntity_, "ship");
 
         for (Entity entity = 0;
@@ -204,7 +204,7 @@ public:
             }
         }
         cContainer_.entityManager.SetEntityName(cameraEntity_, "cameraEntity");
-        cContainer_.cameraControllerManager.AddComponent(cameraEntity_);
+        //cContainer_.cameraControllerManager.AddComponent(cameraEntity_);
     }
 
     void Update(seconds dt) override

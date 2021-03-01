@@ -19,46 +19,46 @@ void GameCamera::Init()
 void GameCamera::Update(const seconds dt)
 {
 	const auto& inputManager = sdl::InputLocator::get();
-	for (std::size_t i = 0; i < cameras_.size(); ++i)
-	{
-		if (inputManager.GetControllerIdVector().size() <= i) continue;
-		sdl::ControllerId controllerId = inputManager.GetControllerIdVector()[i];
-		// Query left joystick movement
-		const float xMove =
-			inputManager.GetControllerAxis(controllerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS);
-		const float zMove =
-			inputManager.GetControllerAxis(controllerId, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS);
-		const Vec3f right = cameras_[i].GetRight();
+	//for (std::size_t i = 0; i < cameras_.size(); ++i)
+	//{
+	//	if (inputManager.GetControllerIdVector().size() <= i) continue;
+	//	sdl::ControllerId controllerId = inputManager.GetControllerIdVector()[i];
+	//	// Query left joystick movement
+	//	const float xMove =
+	//		inputManager.GetControllerAxis(controllerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS);
+	//	const float zMove =
+	//		inputManager.GetControllerAxis(controllerId, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS);
+	//	const Vec3f right = cameras_[i].GetRight();
 
-		Vec3f move {};
-		move += right * xMove * dt.count();
-		move += cameras_[i].reverseDirection * zMove * dt.count();
+	//	Vec3f move {};
+	//	move += right * xMove * dt.count();
+	//	move += cameras_[i].reverseDirection * zMove * dt.count();
 
-		// Vertical Joystick Movement
-		if (inputManager.GetControllerButtonState(controllerId, sdl::ControllerButtonType::BUTTON_B) ==
-			sdl::ButtonState::HELD)
-			move += Vec3f::up * dt.count();
-		else if (inputManager.GetControllerButtonState(controllerId, sdl::ControllerButtonType::BUTTON_A) ==
-				 sdl::ButtonState::HELD)
-			move += Vec3f::down * dt.count();
+	//	// Vertical Joystick Movement
+	//	if (inputManager.GetControllerButtonState(controllerId, sdl::ControllerButtonType::BUTTON_B) ==
+	//		sdl::ButtonState::HELD)
+	//		move += Vec3f::up * dt.count();
+	//	else if (inputManager.GetControllerButtonState(controllerId, sdl::ControllerButtonType::BUTTON_A) ==
+	//			 sdl::ButtonState::HELD)
+	//		move += Vec3f::down * dt.count();
 
-		// Apply movement and check for turbo mode
-		const sdl::ButtonState buttonState =
-			inputManager.GetControllerButtonState(controllerId, sdl::ControllerButtonType::BUTTON_X);
-		if (buttonState == sdl::ButtonState::DOWN)
-			cameras_[i].position += move * cameras_[i].moveSpeed * 5.0f;
-		else
-			cameras_[i].position += move * cameras_[i].moveSpeed;
+	//	// Apply movement and check for turbo mode
+	//	const sdl::ButtonState buttonState =
+	//		inputManager.GetControllerButtonState(controllerId, sdl::ControllerButtonType::BUTTON_X);
+	//	if (buttonState == sdl::ButtonState::DOWN)
+	//		cameras_[i].position += move * cameras_[i].moveSpeed * 5.0f;
+	//	else
+	//		cameras_[i].position += move * cameras_[i].moveSpeed;
 
-		// Joystick Rotation
-		const float xCamera =
-			inputManager.GetControllerAxis(controllerId, sdl::ControllerAxisType::VERTICAL_RIGHT_AXIS);
-		const float yCamera =
-			inputManager.GetControllerAxis(controllerId, sdl::ControllerAxisType::HORIZONTAL_RIGHT_AXIS);
-		cameras_[i].Rotate(EulerAngles(degree_t(xCamera * cameras_[i].mouseSpeed * dt.count()),
-			degree_t(yCamera * cameras_[i].mouseSpeed * dt.count()),
-			degree_t(0.0f)));
-	}
+	//	// Joystick Rotation
+	//	const float xCamera =
+	//		inputManager.GetControllerAxis(controllerId, sdl::ControllerAxisType::VERTICAL_RIGHT_AXIS);
+	//	const float yCamera =
+	//		inputManager.GetControllerAxis(controllerId, sdl::ControllerAxisType::HORIZONTAL_RIGHT_AXIS);
+	//	cameras_[i].Rotate(EulerAngles(degree_t(xCamera * cameras_[i].mouseSpeed * dt.count()),
+	//		degree_t(yCamera * cameras_[i].mouseSpeed * dt.count()),
+	//		degree_t(0.0f)));
+	//}
 
 	// Query Keyboard movement
 	Vec3f move {};

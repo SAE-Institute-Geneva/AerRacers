@@ -53,7 +53,7 @@ public:
 	void Destroy() override;
 
 	void OnEvent(const SDL_Event& event) override;
-
+	GameCamera& GetGameCamera() { return camera_; }
 private:
 	void RenderScene(std::size_t playerNum);
 
@@ -66,8 +66,6 @@ private:
 #ifdef NEKO_GLES3
 	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
 #endif
-
-	std::uint8_t playerNum_ = 1;
 
 	//For Test
 	Entity shipEntity_;
