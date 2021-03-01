@@ -1,12 +1,8 @@
 #pragma once
-#ifdef NEKO_GLES3
-#include "gl/model.h"
-#endif
+#include "px/physics_engine.h"
 
 #include "aer/managers/render_manager.h"
-#include "engine/transform.h"
-#include "px/rigidbody.h"
-#include "px/physics_engine.h"
+#include "aer/scene.h"
 
 namespace neko::aer
 {
