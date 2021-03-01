@@ -27,7 +27,7 @@
 #include "mathematics/matrix.h"
 #include "mathematics/trigo.h"
 #include "mathematics/vector.h"
-#include <engine\log.h>
+#include <engine/log.h>
 
 namespace neko
 {
