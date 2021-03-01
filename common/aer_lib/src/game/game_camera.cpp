@@ -1,5 +1,7 @@
 #include "aer/game/game_camera.h"
 
+#include "gl/shader.h"
+
 namespace neko::aer
 {
 //-----------------------------------------------------------------------------
@@ -95,6 +97,15 @@ void GameCamera::OnEvent(const SDL_Event& event)
 {
 	if (event.type == SDL_MOUSEMOTION)
 		mouseMotion_ = Vec2f(-event.motion.xrel, -event.motion.yrel) * cameras_[0].mouseSensitivity;
+}
+
+void GameCamera::Bind(std::size_t playerNum)
+{
+	Mat4f camProj = GenerateProjectionMatrix(playerNum);
+	Mat4f camView = GenerateViewMatrix(playerNum);
+	gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
+	gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+	CameraLocator::provide(&cameras_[playerNum]);
 }
 
 void GameCamera::SetCameras(const Camera3D& newCam)

@@ -26,13 +26,9 @@
  Co-Author :
  Date : 29.09.2020
 ---------------------------------------------------------- */
-
-#include "sdl_engine/sdl_camera.h"
-
 #include "aer/editor/editor_tool_manager.h"
 #include "aer/game/game_camera.h"
 #include "aer/gizmos_renderer.h"
-#include "aer/scene.h"
 
 namespace neko::aer
 {
@@ -40,7 +36,7 @@ class AerEngine;
 struct ResourceManagerContainer;
 struct ComponentManagerContainer;
 
-constexpr std::uint8_t MaxPlayerNum = 4;
+constexpr std::uint8_t kMaxPlayerNum = 4;
 
 class DrawSystem final : public SystemInterface,
 						 public sdl::SdlEventSystemInterface,
