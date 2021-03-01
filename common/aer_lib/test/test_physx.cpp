@@ -1028,7 +1028,7 @@ TEST(PhysX, TestTriggerCollision)
 #pragma region InterfaceScene
 namespace neko::aer
 {
-class TestSceneInterface
+class PhysXSceneInterface
 {
 public:
     virtual void Init(AerEngine&)
@@ -1043,7 +1043,7 @@ public:
 class PhysXSceneImporterTester : public SystemInterface, public DrawImGuiInterface
 {
 public:
-    explicit PhysXSceneImporterTester(AerEngine& engine, TestSceneInterface& testScene)
+    explicit PhysXSceneImporterTester(AerEngine& engine, PhysXSceneInterface& testScene)
        : engine_(engine), testScene_(testScene)
     {}
 
@@ -1103,12 +1103,12 @@ private:
 
     AerEngine& engine_;
 
-    TestSceneInterface& testScene_;
+    PhysXSceneInterface& testScene_;
 };
 
 #pragma endregion
 #pragma region ExampleScene
-class TestPhysXExampleScene : public TestSceneInterface
+class TestPhysXExampleScene : public PhysXSceneInterface
 {
 public:
     explicit TestPhysXExampleScene() { sceneName = "scenes/PlaygroundTest2021-02-03-11-20-04.aerscene"; }
@@ -1158,7 +1158,7 @@ TEST(PhysX, TestExampleSceneImporteur)
 
 #pragma endregion
 #pragma region BounceScene
-class TestPhysXBounceScene : public TestSceneInterface
+class TestPhysXBounceScene : public PhysXSceneInterface
 {
 public:
     explicit TestPhysXBounceScene() { sceneName = "scenes/PhysicsScene1-02-02.aerscene"; }
@@ -1207,7 +1207,7 @@ TEST(PhysX, TestPhysXBounceScene)
 
 #pragma endregion
 #pragma region ColliderScene
-class TestPhysXColliderScene : public TestSceneInterface
+class TestPhysXColliderScene : public PhysXSceneInterface
 {
 public:
     explicit TestPhysXColliderScene() { sceneName = "scenes/PhysicsScene2-02-02.aerscene"; }

@@ -1,6 +1,4 @@
 #pragma once
-#include "engine/component.h"
-
 /*
  MIT License
 
@@ -28,14 +26,18 @@
  Co-Author : 
  Date : 28.02.2021
 ---------------------------------------------------------- */
+#include <engine\entity.h>
+#include <mathematics/vector.h>
 
 namespace neko::aer
 {
-	const size_t INIT_PLAYER_NMB = 16;
+struct ComponentManagerContainer;
+const size_t INIT_PLAYER_NMB = 4;
 	struct PlayerComponent
 	{
 		Entity shipEntity = INVALID_ENTITY;
 		Entity cameraEntity = INVALID_ENTITY;
+		Entity shipModelEntity = INVALID_ENTITY;
 
 		int playerNumber = 0;
 		int linkedJoystick = 0;
@@ -44,24 +46,23 @@ namespace neko::aer
 	};
 
 	/**
-	 * \brief The Component Manager connects data to entity
+	 * \brief PlayerManager use to store player data
 	 */
-
 	class PlayerManager
 	{
 	public:
-		explicit PlayerManager(EntityManager& entityManager) : entityManager_(entityManager)
+		explicit PlayerManager(ComponentManagerContainer& cContainer) : cContainer_(cContainer)
 		{
-			ResizeIfNecessary(playerComponents_, INIT_PLAYER_NMB - 1, PlayerComponent{});
+			playerComponents_.reserve(INIT_PLAYER_NMB);
 		}
 
 		virtual ~PlayerManager() = default;
 
-		int CreatePlayer();
+		int CreatePlayer(Vec3f pos);
 
 	protected:
-		int playerNmb = 0;
+		int playerCount = 0;
 		std::vector<PlayerComponent> playerComponents_;
-		std::reference_wrapper<EntityManager> entityManager_;
+		ComponentManagerContainer& cContainer_;
 	};
 }

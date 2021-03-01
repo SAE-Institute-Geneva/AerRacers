@@ -437,7 +437,6 @@ public:
      */
     Entity FindEntityFromActor(physx::PxActor* actor);
 
-
 protected:
     Transform3dManager& transform3dManager_;
     PhysicsEngine& physicsEngine_;

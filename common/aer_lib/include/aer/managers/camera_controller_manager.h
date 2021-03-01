@@ -27,6 +27,7 @@ namespace neko::aer
         float fallTargetAddition;
         float dotProductPosVelo;
         float dotProductPosVeloMult;
+        Vec3f targetPos;
         /* Old Camera
         int sprintStiffness = 10;
         float cameraMass = 0.1f;
@@ -54,6 +55,7 @@ namespace neko::aer
     class CameraControllerManager :
         public SystemInterface,
         public physics::FixedUpdateInterface,
+        public RenderCommandInterface,
         public ComponentManager<CameraController, EntityMask(ComponentType::SHIP_CAMERA)>
     {
     public:
@@ -66,6 +68,7 @@ namespace neko::aer
         void Init() override;
         void Update(seconds dt) override;
         void FixedUpdate(seconds dt) override;
+        void Render() override;
         void Destroy() override;
         void AddComponent(Entity entity) override;
 
@@ -84,9 +87,9 @@ namespace neko::aer
         void LastFrameShipValues();
         void MaximumAngle();
         */
-    
+
+        
     protected:
-        ShipInputManager shipInputManager_;
         Transform3dManager& transformManager_;
         physics::RigidDynamicManager& rigidDynamicManager_;
         physics::PhysicsEngine& physicsEngine_;

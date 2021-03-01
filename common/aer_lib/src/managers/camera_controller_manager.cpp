@@ -72,14 +72,31 @@ void CameraControllerManager::FixedUpdate(seconds dt) {
         cameraComponent.addTargetVector = Vec3f::Lerp(cameraComponent.addTargetVector, Vec3f::forward * Abs(cameraComponent.forwardTarget) + Vec3f::down * Abs(cameraComponent.fallTargetAddition), kAngularTargetLerp_);
         Vec3f targetPos = shipPosition + shipRotation * (kTargetPosition_ + cameraComponent.addTargetVector);
         //transformManager_.SetRelativeRotation(entity, Quaternion::ToEulerAngles(Quaternion::LookRotation(targetPos - cameraPosition, Vec3f::up)));
-        auto* camera_ = GizmosLocator::get().GetCamera();
-        camera_->WorldLookAt(targetPos);
+        cameraComponent.targetPos = targetPos;
         SetComponent(entity, cameraComponent);
     }
 }
-void CameraControllerManager::Update(seconds dt)
+
+    void CameraControllerManager::Render()
+    {
+        const auto& entities =
+            entityManager_.get().FilterEntities(static_cast<EntityMask>(ComponentType::SHIP_CAMERA));
+        auto* camera_ = GizmosLocator::get().GetCamera();
+
+        for (auto& entity : entities)
+        {
+            camera_->fovY = degree_t(80.0f);
+            camera_->farPlane = 1'000'000.0f;
+            camera_->position = transformManager_.GetGlobalPosition(entity);
+            auto cameraComponent = GetComponent(entity);
+            camera_->WorldLookAt(cameraComponent.targetPos);
+        }
+        
+    }
+
+    void CameraControllerManager::Update(seconds dt)
 {
-    shipInputManager_.Update(dt);
+    RendererLocator::get().Render(this);
 }
 
 void CameraControllerManager::Destroy()
