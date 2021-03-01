@@ -111,7 +111,7 @@ public:
     #ifdef EASY_PROFILE_USE
         EASY_BLOCK("Test Update", profiler::colors::Green);
     #endif
-		//updateCount_++;
+		updateCount_++;
 		if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
 	}
 
