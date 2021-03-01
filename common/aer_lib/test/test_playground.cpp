@@ -97,7 +97,7 @@ public:
                                transform3dManager.GetGlobalPosition(
                                    cameraEntity_);
         }
-        //updateCount_ += dt.count();
+        updateCount_ += dt.count();
         if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 

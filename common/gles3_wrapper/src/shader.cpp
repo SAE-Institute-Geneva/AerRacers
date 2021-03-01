@@ -80,6 +80,18 @@ void Shader::Bind() const
 	glCheckError();
 }
 
+void Shader::BindUbo(const uint64_t& size)
+{
+	const unsigned uniformSun = glGetUniformBlockIndex(shaderProgram_, "Matrices");
+	glUniformBlockBinding(shaderProgram_, uniformSun, 0);
+
+	glGenBuffers(1, &ubo_);
+	glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
+	glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo_, 0, size);
+}
+
 GLuint Shader::GetProgram() const { return shaderProgram_; }
 
 void Shader::SetBool(const std::string_view attributeName, bool value) const
@@ -181,6 +193,11 @@ void Shader::SetCubemap(const std::string_view name, TextureName texture, unsign
 	glUniform1i(glGetUniformLocation(shaderProgram_, name.data()), slot);
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
+}
+
+void Shader::SetUbo(const uint64_t& size, const uint64_t& offset, const void* data)
+{
+	glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
 }
 
 GLuint LoadShader(const BufferFile& shaderfile, GLenum shaderType)

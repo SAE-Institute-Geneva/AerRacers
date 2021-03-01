@@ -97,7 +97,7 @@ public:
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         sceneInterface_.Update(dt);
 
-        //updateCount_ += dt.count();
+        updateCount_ += dt.count();
         if (updateCount_ >= sceneInterface_.engineDuration)
         {
             HasSucceed();

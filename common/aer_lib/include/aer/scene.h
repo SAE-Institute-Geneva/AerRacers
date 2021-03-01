@@ -39,8 +39,8 @@ struct ComponentManagerContainer;
 /**
  * \brief Temporary InstanceId use to determined parents
  */
-using InstanceId                     = int;
-const InstanceId INVALID_INSTANCE_ID = -1;
+using InstanceId                         = int;
+constexpr InstanceId INVALID_INSTANCE_ID = -1;
 
 /**
  * \brief Struct of scene infos
@@ -51,7 +51,7 @@ struct Scene
 	std::string scenePath           = "";
 	std::vector<std::string> layers = {INVALID_LAYER};
 	std::vector<std::string> tags   = {INVALID_TAG};
-    bool saved                      = true;
+	bool saved                      = true;
 };
 
 /**
@@ -60,8 +60,8 @@ struct Scene
 class SceneManager
 {
 public:
-    explicit SceneManager(
-        EntityManager& entityManager, ComponentManagerContainer& componentManagerContainer);
+	explicit SceneManager(
+		EntityManager& entityManager, ComponentManagerContainer& componentManagerContainer);
 	~SceneManager() = default;
 
 	/**
@@ -118,20 +118,20 @@ public:
      */
 	void AddTag(const std::string& newTagName);
 
-    /**
+	/**
      * \brief Add new layer to the current scene
      */
 	void AddLayer(const std::string& newLayerName);
 
-    /**
+	/**
      * \brief Check if a tag exist
      */
-    bool TagExist(const std::string& newTagName);
+	bool TagExist(const std::string& newTagName);
 
-    /**
+	/**
      * \brief Check if a layer exist
      */
-    bool LayerExist(const std::string& newLayerName);
+	bool LayerExist(const std::string& newLayerName);
 
 	/**
      * \brief Get tag list of the current scene
@@ -157,9 +157,9 @@ protected:
      */
 	std::vector<InstanceId> entityInstanceIdArray_;
 
-    /**
+	/**
      * \brief Temporary vector of entities parent InstanceId 
      */
-    std::vector<InstanceId> entityParentInstanceIdArray_;
+	std::vector<InstanceId> entityParentInstanceIdArray_;
 };
 }    // namespace neko::aer

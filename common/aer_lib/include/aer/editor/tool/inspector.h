@@ -30,20 +30,21 @@
 
 namespace neko::aer
 {
-	class Inspector final : public EditorToolInterface
-	{
-	public:
-		explicit Inspector(AerEngine& engine, ToolType type, int id, std::string name);
-		void Init() override;
-		void Update(seconds dt) override;
-		void DrawImGui() override;
-		void Destroy() override;
-		void OnEvent(const SDL_Event& event) override;
+constexpr std::uint8_t MaxTagSize = 128;
 
-    private:
-        void DisplayLayersAndTags(Entity selectedEntity);
-        void DisplayNewComponentButtons(Entity selectedEntity);
+class Inspector final : public EditorToolInterface
+{
+public:
+	explicit Inspector(AerEngine& engine, ToolType type, int id, std::string name);
+	void Init() override;
+	void Update(seconds dt) override;
+	void DrawImGui() override;
+	void Destroy() override;
+	void OnEvent(const SDL_Event& event) override;
 
+private:
+	void DisplayLayersAndTags(Entity selectedEntity);
+	void DisplayNewComponentButtons(Entity selectedEntity);
 
         EditorToolManager& editorToolManager_;
         EntityManager& entityManager_;
@@ -58,10 +59,16 @@ namespace neko::aer
         ShipControllerViewer& shipControllerViewer_;
         ShipControllerManager& shipControllerManager_;
 
-		std::string layer_;
-        std::string tag_;
-        char newLayer_[128] = "";
-        char newTag_[128] = "";
-        const char* currentItem_ = NULL;
-	};
+	std::string layer_;
+	std::string tag_;
+	std::string newLayer_    = "";
+	std::string newTag_      = "";
+	const char* currentItem_ = NULL;
+};
+}    // namespace neko::aer
+
+namespace ImGui
+{
+static int InputTextCallback(ImGuiInputTextCallbackData* data);
+bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags);
 }

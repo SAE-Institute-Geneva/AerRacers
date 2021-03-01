@@ -78,7 +78,7 @@ public:
 
 	void HasSucceed(ComponentManagerContainer& cContainer) override
 	{
-		EXPECT_TRUE(TagLocator::get().CompareEntitiesTag(1, 2));
+		EXPECT_FALSE(TagLocator::get().CompareEntitiesTag(1, 2));
 		EXPECT_TRUE(TagLocator::get().IsEntityTag(0, "0"));
 		EXPECT_TRUE(TagLocator::get().IsEntityLayer(1, "5"));
 		EXPECT_TRUE(

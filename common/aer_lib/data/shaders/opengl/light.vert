@@ -21,9 +21,13 @@ out NormalMap
     vec3 TangentFragPos;
 } vs2_out;
 
-uniform mat4 view;
-uniform mat4 proj;
+layout (std140) uniform Matrices
+{
+    mat4 proj;
+    mat4 view;
+};
 uniform mat4 model;
+
 uniform mat3 normalMatrix;
 uniform bool doInverseNormals;
 uniform vec3 viewPos;

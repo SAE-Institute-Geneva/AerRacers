@@ -27,12 +27,17 @@
 #include "comp_graph/comp_graph_engine.h"
 
 
-int main([[maybe_unused]]int argc, [[maybe_unused]]char** argv)
+int main(int, char**)
 {
+	neko::Configuration config;
+	config.windowName   = "AerEditor Version 0.01";
+	config.flags   = neko::Configuration::NONE;
+	config.windowSize   = neko::Vec2u(1280, 720);
+
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
     neko::Filesystem filesystem;
-    neko::CompGraphEngine engine{filesystem};
+    neko::CompGraphEngine engine{filesystem, config};
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
