@@ -1024,6 +1024,107 @@ TEST(PhysX, TestTriggerCollision)
     engine.EngineLoop();
 }
 #pragma endregion
+#pragma region MeshCollider
+class SceneMeshCollider final : public SceneInterface {
+public:
+    explicit SceneMeshCollider(neko::aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
+    void InitActors(neko::physics::PhysicsEngine& physicsEngine) override
+    {
+        engineDuration = 5.0f;
+        entityManager_ = &aerEngine_.GetComponentManagerContainer().entityManager;
+        transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
+        renderManager_ = &aerEngine_.GetComponentManagerContainer().renderManager;
+        rigidStaticManager_ = &aerEngine_.GetComponentManagerContainer().rigidStaticManager;
+        rigidDynamicManager_ = &aerEngine_.GetComponentManagerContainer().rigidDynamicManager;
+        physicsEngine_ = &physicsEngine;
+        //Plane
+        {
+            planeEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(planeEntity_);
+            transform3dManager_->SetRelativePosition(
+                planeEntity_,
+                planePosition_);
+            renderManager_->AddComponent(planeEntity_);
+            renderManager_->SetModel(planeEntity_,
+                aerEngine_.GetConfig().dataRootPath + "models/sphere/sphere.obj");
+        }
+        {
+            sphereEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(sphereEntity_);
+            transform3dManager_->SetRelativePosition(
+                sphereEntity_,
+                objPosition_);
+            renderManager_->AddComponent(sphereEntity_);
+            renderManager_->SetModel(sphereEntity_,
+                aerEngine_.GetConfig().dataRootPath + "models/sphere/sphere.obj");
+            neko::physics::RigidDynamicData rigidDynamic;
+            rigidDynamic.colliderType = neko::physics::ColliderType::SPHERE;
+            rigidDynamicManager_->AddRigidDynamic(
+                sphereEntity_, rigidDynamic);
+        }
+        viewedEntity = sphereEntity_;
+    }
+
+    void HasSucceed() override
+    {
+    }
+
+    void Update(neko::seconds dt) override
+    {
+        if (neko::gl::ModelManagerLocator::get().IsLoaded(renderManager_->GetComponent(planeEntity_).modelId) && !entityManager_->HasComponent(planeEntity_, neko::EntityMask(neko::ComponentType::RIGID_STATIC))) {
+
+            neko::physics::RigidStaticData rigidStatic;
+            rigidStatic.colliderType = neko::physics::ColliderType::MESH;
+            rigidStatic.meshColliderData.modelId = renderManager_->GetComponent(planeEntity_).modelId;
+            rigidStaticManager_->AddRigidStatic(
+                planeEntity_, rigidStatic);
+        }
+    }
+
+    void FixedUpdate(neko::seconds dt) override { }
+
+    void DrawImGui() override { }
+private:
+    const static size_t kCubeNumbers = 25;
+    neko::Vec3f objPosition_ = neko::Vec3f(0.0f, 5.0f, -5.0f);
+    neko::Vec3f planePosition_ = neko::Vec3f(0.0f, 0.0f, -5.0f);
+
+    neko::Entity sphereEntity_ = neko::INVALID_ENTITY;
+
+    neko::Entity planeEntity_ = neko::INVALID_ENTITY;
+
+};
+TEST(PhysX, TestMeshCollider)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr) {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    neko::Configuration config;
+    //config.dataRootPath = "../data/";
+    config.windowName = "AerEditor";
+    config.windowSize = neko::Vec2u(1400, 900);
+
+    neko::sdl::Gles3Window window;
+    neko::gl::Gles3Renderer renderer;
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+
+    SceneMeshCollider sceneMeshCollider = SceneMeshCollider(engine);
+    TestPhysX testPhysX(engine, sceneMeshCollider);
+
+    engine.RegisterOnDrawUi(testPhysX);
+    engine.Init();
+    testPhysX.Init();
+    engine.RegisterSystem(testPhysX);
+    engine.EngineLoop();
+}
+#pragma endregion
 #pragma region SceneTest
 #pragma region InterfaceScene
 namespace neko::aer

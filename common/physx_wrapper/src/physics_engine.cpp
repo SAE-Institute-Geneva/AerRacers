@@ -178,14 +178,19 @@ physx::PxFilterFlags PhysicsEngine::ContactReportFilterShader(physx::PxFilterObj
     return physx::PxFilterFlag::eDEFAULT;
 }
 
-physx::PxPhysics* PhysicsEngine::GetPhysx()
+physx::PxPhysics* PhysicsEngine::GetPhysx() const
 {
     return physics_;
 }
 
-physx::PxScene* PhysicsEngine::GetScene()
+physx::PxScene* PhysicsEngine::GetScene() const
 {
     return scene_;
+}
+
+physx::PxCooking* PhysicsEngine::GetCooking() const
+{
+    return cooking_;
 }
 
 const RaycastInfo PhysicsEngine::Raycast(

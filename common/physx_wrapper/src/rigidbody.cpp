@@ -18,13 +18,13 @@ ColliderType RigidActor::GetColliderType() const
             break;
         case physx::PxGeometryType::ePLANE: return ColliderType::INVALID;
             break;
-        case physx::PxGeometryType::eCAPSULE: return ColliderType::INVALID;
+        case physx::PxGeometryType::eCAPSULE: return ColliderType::CAPSULE;
             break;
         case physx::PxGeometryType::eBOX: return ColliderType::BOX;
             break;
         case physx::PxGeometryType::eCONVEXMESH: return ColliderType::INVALID;
             break;
-        case physx::PxGeometryType::eTRIANGLEMESH: return ColliderType::INVALID;
+        case physx::PxGeometryType::eTRIANGLEMESH: return ColliderType::MESH;
             break;
         case physx::PxGeometryType::eHEIGHTFIELD: return ColliderType::INVALID;
             break;
@@ -118,6 +118,26 @@ void RigidActor::SetBoxColliderData(
     
 }
 
+void RigidActor::SetMeshColliderData(
+    const physics::MeshColliderData& meshColliderData) const
+{
+    if (!shape_) {
+        logDebug("No shape_");
+        return;
+    }
+    physx::PxTransform transform = shape_->getLocalPose();
+    transform.p = ConvertToPxVec(meshColliderData.offset);
+    shape_->setLocalPose(transform);
+    if (meshColliderData.isTrigger) {
+        shape_->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, false);
+        shape_->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, meshColliderData.isTrigger);
+    }
+    else {
+        shape_->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, meshColliderData.isTrigger);
+        shape_->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, true);
+    }
+}
+
 void RigidActor::SetMaterial(const PhysicsMaterial& physicsMaterial) const
 {
     material_->setRestitution(physicsMaterial.bouciness);
@@ -152,6 +172,51 @@ physx::PxShape* RigidActor::InitSphereShape(
     const SphereColliderData& sphereCollider) const
 {
     return physics->createShape(physx::PxSphereGeometry(sphereCollider.radius), *material);
+}
+
+physx::PxShape* RigidActor::InitMeshCollider(
+    const PhysicsEngine& physics,
+    physx::PxMaterial* material,
+    const MeshColliderData& meshColliderData) const
+{
+    if (gl::ModelManagerLocator::get().IsLoaded(meshColliderData.modelId))
+    {
+        const auto& model = gl::ModelManagerLocator::get().GetModel(meshColliderData.modelId);
+        std::vector<assimp::Vertex> vertices = model->GetMesh(0).vertices;
+        std::vector<unsigned> indices = model->GetMesh(0).indices;
+        std::vector<physx::PxVec3> vertices2;
+        vertices2.resize(vertices.size());
+        std::transform(vertices.begin(), vertices.end(),  vertices2.begin(),
+            [](assimp::Vertex vert) -> physx::PxVec3 { return ConvertToPxVec(vert.position); });
+        physx::PxTriangleMeshDesc meshDesc;
+        meshDesc.points.count = vertices2.size();
+        meshDesc.points.stride = sizeof(physx::PxVec3);
+        meshDesc.points.data = vertices2.data();
+
+        meshDesc.triangles.count = indices.size();
+        meshDesc.triangles.stride = 3* sizeof(unsigned);
+        meshDesc.triangles.data = indices.data();
+        physx::PxDefaultMemoryOutputStream writeBuffer;
+        physx::PxTriangleMeshCookingResult::Enum result;
+        bool status = physics.GetCooking()->cookTriangleMesh(meshDesc, writeBuffer, &result);
+        if (!status) {
+            switch (result) {
+                case physx::PxTriangleMeshCookingResult::eSUCCESS: break;
+                case physx::PxTriangleMeshCookingResult::eLARGE_TRIANGLE:
+                    logDebug("eLARGE_TRIANGLE");
+                break;
+                case physx::PxTriangleMeshCookingResult::eFAILURE:
+                    logDebug("eFAILURE");
+                break;
+                default: ; }
+        }
+
+        physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+        physx::PxTriangleMesh* triangleMesh = physics.GetPhysx()->createTriangleMesh(readBuffer);
+        return physics.GetPhysx()->createShape(physx::PxTriangleMeshGeometry(triangleMesh), *material);
+    } else {
+        return nullptr;
+    }
 }
 
 void RigidActor::SetFiltering(
@@ -308,26 +373,30 @@ RigidActorData RigidActorViewer::DrawImGuiRigidActor(
     return newRigidActorData;
 }
 
-void RigidStatic::Init(physx::PxPhysics* physics,
+void RigidStatic::Init(const PhysicsEngine& physics,
     const RigidStaticData& rigidStatic,
     const Vec3f& position,
     const EulerAngles& eulerAngle)
 {
     physx::PxTransform transform = physx::PxTransform(ConvertToPxVec(position),
         ConvertToPxQuat(Quaternion::FromEuler(eulerAngle)));
-    rigidActor_ = physics->createRigidStatic(transform);
+    rigidActor_ = physics.GetPhysx()->createRigidStatic(transform);
     if (!rigidActor_) std::cerr << "create actor failed!";
-    material_ = InitMaterial(physics, rigidStatic.material);
+    material_ = InitMaterial(physics.GetPhysx(), rigidStatic.material);
     if (!material_) std::cerr << "createMaterial failed!";
     switch (rigidStatic.colliderType) {
         case ColliderType::INVALID: 
-        case ColliderType::BOX: shape_ = InitBoxShape(physics,
+        case ColliderType::BOX: shape_ = InitBoxShape(physics.GetPhysx(),
                                     material_,
                                     rigidStatic.boxColliderData);
             break;
-        case ColliderType::SPHERE: shape_ = InitSphereShape(physics,
+        case ColliderType::SPHERE: shape_ = InitSphereShape(physics.GetPhysx(),
                                        material_,
                                        rigidStatic.sphereColliderData);
+            break;
+        case ColliderType::MESH: shape_ = InitMeshCollider(physics,
+            material_,
+            rigidStatic.meshColliderData);
             break;
         default: ;
     }
@@ -359,6 +428,10 @@ void RigidStatic::SetRigidStaticData(
             SetSphereColliderData(rigidStaticData.sphereColliderData);
             rigidActor_->attachShape(*shape_);
             break;
+        case ColliderType::MESH: rigidActor_->detachShape(*shape_);
+            SetMeshColliderData(rigidStaticData.meshColliderData);
+            rigidActor_->attachShape(*shape_);
+            break;
         default: ;
     }
 }
@@ -387,32 +460,36 @@ RigidStaticData RigidStatic::GetRigidStaticData() const
     return rigidStaticData;
 }
 
-void RigidDynamic::Init(physx::PxPhysics* physics,
+void RigidDynamic::Init(const PhysicsEngine& physics,
     const RigidDynamicData& rigidDynamic,
     const Vec3f& position,
     const EulerAngles& eulerAngle)
 {
     physx::PxTransform transform = physx::PxTransform(ConvertToPxVec(position),
         ConvertToPxQuat(Quaternion::FromEuler(eulerAngle)));
-    rigidActor_ = physics->createRigidDynamic(transform);
+    rigidActor_ = physics.GetPhysx()->createRigidDynamic(transform);
     if (!rigidActor_) {
         std::cerr << "create actor failed!";
         return;
     }
-    material_ = InitMaterial(physics, rigidDynamic.material);
+    material_ = InitMaterial(physics.GetPhysx(), rigidDynamic.material);
     if (!material_) {
         std::cerr << "createMaterial failed!";
         return;
     }
     switch (rigidDynamic.colliderType) {
         case ColliderType::INVALID: break;
-        case ColliderType::BOX: shape_ = InitBoxShape(physics,
+        case ColliderType::BOX: shape_ = InitBoxShape(physics.GetPhysx(),
                                     material_,
                                     rigidDynamic.boxColliderData);
             break;
-        case ColliderType::SPHERE: shape_ = InitSphereShape(physics,
+        case ColliderType::SPHERE: shape_ = InitSphereShape(physics.GetPhysx(),
                                        material_,
                                        rigidDynamic.sphereColliderData);
+            break;
+        case ColliderType::MESH: shape_ = InitMeshCollider(physics,
+            material_,
+            rigidDynamic.meshColliderData);
             break;
         default: ;
     }
@@ -601,7 +678,7 @@ void RigidStaticManager::AddRigidStatic(Entity entity, const RigidStaticData& ri
     newRigidStaticData.sphereColliderData.radius =
         newRigidStaticData.sphereColliderData.radius * scale.x;
     RigidStatic rigidStatic = GetComponent(entity);
-    rigidStatic.Init(physicsEngine_.GetPhysx(), newRigidStaticData, position, euler);
+    rigidStatic.Init(physicsEngine_, newRigidStaticData, position, euler);
     physicsEngine_.GetScene()->addActor(*rigidStatic.GetPxRigidStatic());
     SetComponent(entity, rigidStatic);
 }
@@ -788,7 +865,7 @@ void RigidDynamicManager::AddRigidDynamic(Entity entity, const RigidDynamicData&
     newRigidDynamicData.sphereColliderData.radius =
         newRigidDynamicData.sphereColliderData.radius * scale.x;
     RigidDynamic rigidDynamic = GetComponent(entity);
-    rigidDynamic.Init(physicsEngine_.GetPhysx(), newRigidDynamicData, position, euler);
+    rigidDynamic.Init(physicsEngine_, newRigidDynamicData, position, euler);
     physicsEngine_.GetScene()->addActor(*rigidDynamic.GetPxRigidDynamic());
     SetComponent(entity, rigidDynamic);
 }

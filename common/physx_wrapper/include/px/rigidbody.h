@@ -53,6 +53,7 @@ struct RigidActorData
     ColliderType colliderType = ColliderType::INVALID;
     BoxColliderData boxColliderData;
     SphereColliderData sphereColliderData;
+    MeshColliderData meshColliderData;
     FilterGroup::Enum filterGroup = FilterGroup::DEFAULT;
 };
 
@@ -90,6 +91,13 @@ public:
      * Warning must be call in FixedUpdate or if physics is not running
      */
     void SetBoxColliderData(const BoxColliderData& boxColliderData) const;
+
+    /**
+     * \brief Use to get parameter of an actor
+     * Warning must be call in FixedUpdate or if physics is not running
+     */
+    void SetMeshColliderData(const physics::MeshColliderData& meshColliderData) const;
+
     /**
      * \brief Use to get parameter of an actor
      * Warning must be call in FixedUpdate or if physics is not running
@@ -99,6 +107,9 @@ protected:
     physx::PxMaterial* InitMaterial(physx::PxPhysics* physics, const PhysicsMaterial& material) const;
     physx::PxShape* InitBoxShape(physx::PxPhysics* physics, physx::PxMaterial* material, const BoxColliderData& boxCollider) const;
     physx::PxShape* InitSphereShape(physx::PxPhysics* physics, physx::PxMaterial* material, const SphereColliderData& sphereCollider) const;
+    physx::PxShape* InitMeshCollider(const PhysicsEngine& physics,
+        physx::PxMaterial* material,
+        const MeshColliderData& meshColliderData) const;
     void SetFiltering(
         physx::PxShape* shape,
         physx::PxU32 filterGroup);
@@ -158,7 +169,7 @@ struct RigidStatic : RigidActor {
      * \param position initial position of the actor
      * \param eulerAngle initial rotation of the actor
      */
-    void Init(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic, const Vec3f& position, const  EulerAngles& eulerAngle);
+    void Init(const PhysicsEngine& physics, const physics::RigidStaticData& rigidStatic, const Vec3f& position, const  EulerAngles& eulerAngle);
     physx::PxRigidStatic* GetPxRigidStatic() const { return rigidActor_; }
     /**
      * \brief Use to modify parameter of an actor
@@ -295,7 +306,7 @@ public:
      * \param position initial position of the actor
      * \param eulerAngle initial rotation of the actor
      */
-    void Init(physx::PxPhysics* physics,
+    void Init(const PhysicsEngine& physics,
         const physics::RigidDynamicData& rigidDynamic,
         const Vec3f& position,
         const EulerAngles& eulerAngle);

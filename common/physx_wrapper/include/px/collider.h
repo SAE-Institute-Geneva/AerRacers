@@ -29,6 +29,10 @@
 
 #include <engine/component.h>
 
+#ifdef NEKO_GLES3
+#include "gl/model.h"
+#endif
+
 namespace neko::physics {
 
 /**
@@ -37,7 +41,9 @@ namespace neko::physics {
 enum class ColliderType {
     INVALID,
     BOX,
-    SPHERE
+    SPHERE,
+    CAPSULE,
+    MESH
 };
 
 struct PhysicsMaterial {
@@ -60,5 +66,12 @@ struct SphereColliderData : public ColliderData {
 struct BoxColliderData : public ColliderData {
 public:
     Vec3f size = Vec3f::one;
+};
+
+struct MeshColliderData : public ColliderData {
+public:
+#ifdef NEKO_GLES3
+    gl::ModelId modelId = gl::INVALID_MODEL_ID;
+#endif
 };
 }
