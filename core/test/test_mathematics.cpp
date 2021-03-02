@@ -890,54 +890,6 @@ TEST(Quaternion, QuaternionLerp)
 }
 
 
-TEST(Quaternion, LookRotation)
-{
-    float delta = 0.1f;
-    std::vector<neko::Vec3f> forwards =
-    {
-        {0.0f, 0.0f, 0.0f},
-        {1.0f, 0.0f, 0.0f},
-        {0.0f, 1.0f, 0.0f},
-        {0.0f, 0.0f, 1.0f},
-        {0.0f, 0.0f, 0.0f},
-        {1.0f, 1.0f, 1.0f},
-        {1.0f, 1.0f, 1.0f},
-        {1.0f, 1.0f, 1.0f},
-    };
-    std::vector<neko::Vec3f> upwards =
-    {
-        {0.0f, 1.0f, 0.0f},
-        {0.0f, 1.0f, 0.0f},
-        {0.0f, 1.0f, 0.0f},
-        {0.0f, 1.0f, 0.0f},
-        {1.0f, 0.0f, 0.0f},
-        {1.0f, 0.0f, 0.0f},
-        {1.0f, 1.0f, 0.0f},
-        {1.0f, 1.0f, 1.0f},
-    };
-    std::vector<neko::Quaternion> expectedRotation =
-    {
-            neko::Quaternion{0.0f, 0.0f, 0.0f, 1.0f},
-            neko::Quaternion{0.0f, 0.7f, 0.0f, 0.7f},
-            neko::Quaternion{-0.7f, 0.0f, 0.0f, 0.7f},
-            neko::Quaternion{0.0f, 0.0f, 0.0f, 1.0f},
-            neko::Quaternion{0.0f, 0.0f, 0.0f, 1.0f},
-            neko::Quaternion{-0.45f, -0.06f, -0.7f, 0.54f},
-            neko::Quaternion{-0.4f, 0.2f, -0.3f, 0.8f},
-            neko::Quaternion{-0.32f, 0.32f, 0.0f, 0.88f},
-    };
-    for (int i = 0; i < forwards.size(); ++i) {
-        neko::Quaternion rotation = neko::Quaternion::LookRotation(forwards[i], upwards[i]);
-        //std::cout << forwards[i] << std::endl;
-        //std::cout << upwards[i] << std::endl;
-        //std::cout << rotation << std::endl;
-        //std::cout << expectedRotation[i] << std::endl;
-        EXPECT_NEAR(rotation.x, expectedRotation[i].x, delta);
-        EXPECT_NEAR(rotation.y, expectedRotation[i].y, delta);
-        EXPECT_NEAR(rotation.z, expectedRotation[i].z, delta);
-        EXPECT_NEAR(rotation.w, expectedRotation[i].w, delta);
-    }
-}
 
 TEST(Vector, ProjectOnPlane)
 {
@@ -1028,6 +980,55 @@ TEST(Vector, Angle)
     }
 }
 
+TEST(Quaternion, LookRotation)
+{
+    float delta = 0.1f;
+    std::vector<neko::Vec3f> forwards =
+    {
+        {0.0f, 0.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 0.0f, 1.0f},
+        {0.0f, 0.0f, 0.0f},
+        {1.0f, 1.0f, 1.0f},
+        {1.0f, 1.0f, 1.0f},
+        {1.0f, 1.0f, 1.0f},
+    };
+    std::vector<neko::Vec3f> upwards =
+    {
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f},
+        {1.0f, 1.0f, 0.0f},
+        {1.0f, 1.0f, 1.0f},
+    };
+    std::vector<neko::Quaternion> expectedRotation =
+    {
+            neko::Quaternion{0.0f, 0.0f, 0.0f, 1.0f},
+            neko::Quaternion{0.0f, 0.7f, 0.0f, 0.7f},
+            neko::Quaternion{-0.7f, 0.0f, 0.0f, 0.7f},
+            neko::Quaternion{0.0f, 0.0f, 0.0f, 1.0f},
+            neko::Quaternion{0.0f, 0.0f, 0.0f, 1.0f},
+            neko::Quaternion{-0.45f, -0.06f, -0.7f, 0.54f},
+            neko::Quaternion{-0.4f, 0.2f, -0.3f, 0.8f},
+            neko::Quaternion{-0.32f, 0.32f, 0.0f, 0.88f},
+    };
+    for (int i = 0; i < forwards.size(); ++i) {
+        neko::Quaternion rotation = neko::Quaternion::LookRotation(forwards[i], upwards[i]);
+        //std::cout << forwards[i] << std::endl;
+        //std::cout << upwards[i] << std::endl;
+        //std::cout << rotation << std::endl;
+        //std::cout << expectedRotation[i] << std::endl;
+        EXPECT_NEAR(rotation.x, expectedRotation[i].x, delta);
+        EXPECT_NEAR(rotation.y, expectedRotation[i].y, delta);
+        EXPECT_NEAR(rotation.z, expectedRotation[i].z, delta);
+        EXPECT_NEAR(rotation.w, expectedRotation[i].w, delta);
+    }
+}
+
 TEST(Quaternion, LookRotationForward)
 {
     for (int x = -100; x < 100; x += 10)
@@ -1038,7 +1039,6 @@ TEST(Quaternion, LookRotationForward)
             {
                 neko::Vec3f upward = neko::Vec3f::up;
                 neko::Vec3f forward = neko::Vec3f(x, y, z);
-                //neko::Vec3f forward = neko::Vec3f(0, 0, -1);
                 forward = forward.Normalized();
                 neko::Quaternion q = neko::Quaternion::LookRotation(forward, upward);
                 if (q == neko::Quaternion::Identity()) continue;

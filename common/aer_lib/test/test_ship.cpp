@@ -31,12 +31,12 @@
 #include "engine/engine.h"
 
 namespace neko::aer {
-    class TestMultiSpawning
+    class TestShipController
         : public SystemInterface,
         public RenderCommandInterface,
         public DrawImGuiInterface {
     public:
-        TestMultiSpawning(
+        TestShipController(
             AerEngine& engine)
             : engine_(engine),
             rContainer_(engine.GetResourceManagerContainer()),
@@ -56,10 +56,7 @@ namespace neko::aer {
             engine_.GetComponentManagerContainer().sceneManager.LoadScene(
                 config.dataRootPath +
                 "scenes/PlayGroundLuca2021-03-01withoutShip.aerscene");
-            cContainer_.playerManager.CreatePlayer(Vec3f(0, 10.0f, 0));
-            cContainer_.playerManager.CreatePlayer(Vec3f(10.0f, 10.0f, 0));
-            cContainer_.playerManager.CreatePlayer(Vec3f(-10.0f, 10.0f, 0));
-            cContainer_.playerManager.CreatePlayer(Vec3f(0.0f, 10.0f, 10.0f));
+            cContainer_.playerManager.CreatePlayer(Vec3f(0, 0.0f, 0));
         }
 
         void Update(seconds dt) override
@@ -67,11 +64,8 @@ namespace neko::aer {
 #ifdef EASY_PROFILE_USE
             EASY_BLOCK("Test Update", profiler::colors::Green);
 #endif
-            //updateCount_ += dt.count();
-            if (updateCount_ > kEngineDuration_) {
-                HasSucceed();
-                engine_.Stop();
-            }
+            updateCount_ += dt.count();
+            //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
         }
 
         void Render() override { }
@@ -80,15 +74,9 @@ namespace neko::aer {
 
         void DrawImGui() override {}
 
-        void HasSucceed()
-        {
-            EXPECT_TRUE(cContainer_.playerManager.GetPlayerCount() == 4);
-
-        }
-
     private:
         float updateCount_ = 0;
-        const float kEngineDuration_ = 10.0f;
+        const float kEngineDuration_ = 0.5f;
 
         AerEngine& engine_;
 
@@ -100,7 +88,7 @@ namespace neko::aer {
         Entity groundEntity_;
     };
 
-    TEST(Game, TestMultiSpawning)
+    TEST(Game, TestShipController)
     {
         //Travis Fix because Windows can't open a window
         char* env = getenv("TRAVIS_DEACTIVATE_GUI");
@@ -121,10 +109,10 @@ namespace neko::aer {
 
         engine.SetWindowAndRenderer(&window, &renderer);
 
-        TestMultiSpawning testMultiSpawning(engine);
+        TestShipController testShipController(engine);
 
-        engine.RegisterSystem(testMultiSpawning);
-        engine.RegisterOnDrawUi(testMultiSpawning);
+        engine.RegisterSystem(testShipController);
+        engine.RegisterOnDrawUi(testShipController);
         engine.Init();
         engine.EngineLoop();
     }
