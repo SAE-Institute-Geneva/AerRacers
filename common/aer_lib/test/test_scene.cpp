@@ -56,7 +56,7 @@ public:
 	virtual void HasSucceed(ComponentManagerContainer& cContainer) override
 	{
 		EXPECT_TRUE(cContainer.sceneManager.GetCurrentScene().sceneName == "WillToolScene");
-		EXPECT_TRUE(cContainer.entityManager.GetEntitiesNmb() == 7);
+		EXPECT_EQ(cContainer.entityManager.GetEntitiesNmb(),7);
 		EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
 		EXPECT_TRUE(TagLocator::get().CompareEntitiesTag(0, 1));
 		EXPECT_TRUE(TagLocator::get().IsEntityLayer(0, "Ground"));
@@ -78,7 +78,7 @@ public:
 
 	void HasSucceed(ComponentManagerContainer& cContainer) override
 	{
-		EXPECT_FALSE(TagLocator::get().CompareEntitiesTag(1, 2));
+        EXPECT_TRUE(TagLocator::get().CompareEntitiesTag(1, 2));
 		EXPECT_TRUE(TagLocator::get().IsEntityTag(0, "0"));
 		EXPECT_TRUE(TagLocator::get().IsEntityLayer(1, "5"));
 		EXPECT_TRUE(
@@ -318,7 +318,7 @@ public:
 private:
 	float updateCount_           = 0;
     const float kFirstSceneDuration_ = 2.0f;
-    const float kEngineDuration_ = 5.0f;
+    const float kEngineDuration_ = 4.0f;
 
 	bool loaded_ = false;
 
@@ -401,7 +401,7 @@ public:
 
 private:
     float updateCount_           = 0;
-    const float kEngineDuration_ = 2.0f;
+    const float kEngineDuration_ = 0.5f;
 
     AerEngine& engine_;
 

@@ -1038,6 +1038,7 @@ TEST(Quaternion, LookRotationForward)
             {
                 neko::Vec3f upward = neko::Vec3f::up;
                 neko::Vec3f forward = neko::Vec3f(x, y, z);
+                //neko::Vec3f forward = neko::Vec3f(0, 0, -1);
                 forward = forward.Normalized();
                 neko::Quaternion q = neko::Quaternion::LookRotation(forward, upward);
                 if (q == neko::Quaternion::Identity()) continue;

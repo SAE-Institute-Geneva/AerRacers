@@ -422,7 +422,7 @@ public:
 			}
 		}
 
-		//updateCount_ += dt.count();
+		updateCount_ += dt.count();
 		if (updateCount_ > kEngineDuration_ && !interactive_) { engine_.Stop(); }
 	}
 
@@ -588,7 +588,7 @@ private:
 	bool actionUp_       = false;
 
 	float updateCount_           = 0;
-    const float kEngineDuration_ = 0.5f;
+    const float kEngineDuration_ = 1.0f;
     bool interactive_            = false;
 
 	AerEngine& engine_;

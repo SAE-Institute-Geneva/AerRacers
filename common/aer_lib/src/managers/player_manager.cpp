@@ -95,8 +95,11 @@ void PlayerManager::Update(seconds dt)
         if (controllers.size() > playerId)
         {
             playerComponents_[playerId].linkedJoystick = controllers[playerId];
-        } else {
+        } else if (!controllers.empty()) {
             playerComponents_[playerId].linkedJoystick = controllers[0];
+        }
+        else {
+            playerComponents_[playerId].linkedJoystick = 0;
         }
     }
 }

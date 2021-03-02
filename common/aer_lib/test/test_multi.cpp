@@ -48,6 +48,10 @@ namespace neko::aer {
             EASY_BLOCK("Test Init", profiler::colors::Green);
 #endif
             Camera3D* camera = GizmosLocator::get().GetCamera();
+            camera->fovY = degree_t(80.0f);
+            camera->nearPlane = 0.1f;
+            camera->farPlane = 1'000'000.0f;
+            engine_.GetGameCamera().SetCameras(*camera);
             const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
             engine_.GetComponentManagerContainer().sceneManager.LoadScene(
                 config.dataRootPath +

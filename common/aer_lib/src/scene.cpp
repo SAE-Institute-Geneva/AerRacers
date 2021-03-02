@@ -92,62 +92,48 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 
 void SceneManager::ParseEntityJson(const json& entityJson)
 {
-    if (CheckJsonParameter(entityJson, "isActive", json::value_t::boolean))
-    {
-        Entity entity = entityManager_.CreateEntity();
-        if (CheckJsonParameter(entityJson, "name", json::value_t::string))
-        {
-            //entityManager_.SetEntityName(entity, entityJson["name"]); TODO(@Luca) Set when name is done
-        }
+    if (CheckJsonParameter(entityJson, "isActive", json::value_t::boolean)) {
+        if (!entityJson["isActive"]) return;
+    }
+    Entity entity = entityManager_.CreateEntity();
+    if (CheckJsonParameter(entityJson, "name", json::value_t::string)) {
+        //entityManager_.SetEntityName(entity, entityJson["name"]); TODO(@Luca) Set when name is done
+    }
 
-        if (CheckJsonNumber(entityJson, "instanceId"))
-        {
-            InstanceId instanceId = entityJson["instanceId"];
-            ResizeIfNecessary(entityInstanceIdArray_, entity, INVALID_INSTANCE_ID);
-            entityInstanceIdArray_[entity] = instanceId;
-        }
+    if (CheckJsonNumber(entityJson, "instanceId")) {
+        InstanceId instanceId = entityJson["instanceId"];
+        ResizeIfNecessary(entityInstanceIdArray_, entity, INVALID_INSTANCE_ID);
+        entityInstanceIdArray_[entity] = instanceId;
+    }
 
-        if (CheckJsonNumber(entityJson, "parent"))
-        {
-            InstanceId instanceId = entityJson["parent"];
-            ResizeIfNecessary(entityParentInstanceIdArray_, entity, INVALID_INSTANCE_ID);
-            entityParentInstanceIdArray_[entity] = instanceId;
-        }
+    if (CheckJsonNumber(entityJson, "parent")) {
+        InstanceId instanceId = entityJson["parent"];
+        ResizeIfNecessary(entityParentInstanceIdArray_, entity, INVALID_INSTANCE_ID);
+        entityParentInstanceIdArray_[entity] = instanceId;
+    }
 
-        if (CheckJsonParameter(entityJson, "layer", json::value_t::string))
-        {
-            TagLocator::get().SetEntityLayer(entity, static_cast<std::string>(entityJson["layer"]));
-        }
+    if (CheckJsonParameter(entityJson, "layer", json::value_t::string)) {
+        TagLocator::get().SetEntityLayer(entity, static_cast<std::string>(entityJson["layer"]));
+    }
 
-        if (CheckJsonParameter(entityJson, "tag", json::value_t::string))
-        {
-            TagLocator::get().SetEntityTag(entity, static_cast<std::string>(entityJson["tag"]));
-        }
+    if (CheckJsonParameter(entityJson, "tag", json::value_t::string)) {
+        TagLocator::get().SetEntityTag(entity, static_cast<std::string>(entityJson["tag"]));
+    }
 
-        //TODO (@Luca) Set active
+    //TODO (@Luca) Set active
 
     ParseComponentJson(entityJson, entity);
-    }
 }
 
 void SceneManager::ParseSceneJson(const json& sceneJson)
 {
-	if (CheckJsonParameter(sceneJson, "name", json::value_t::string))
-	{
-		currentScene_.sceneName = sceneJson["name"];
-	}
-	else
-	{
-		currentScene_.sceneName = "New Scene";
-	}
+    if (CheckJsonParameter(sceneJson, "name", json::value_t::string)) {
+        currentScene_.sceneName = sceneJson["name"];
+    } else { currentScene_.sceneName = "New Scene"; }
 
-	if (CheckJsonParameter(sceneJson, "tags", json::value_t::array))
-	{
-		for (auto& tag : sceneJson["tags"])
-		{
-			if (!TagExist(tag)) { AddTag(tag); }
-		}
-	}
+    if (CheckJsonParameter(sceneJson, "tags", json::value_t::array)) {
+        for (auto& tag : sceneJson["tags"]) { if (!TagExist(tag)) { AddTag(tag); } }
+    }
 
 	if (CheckJsonParameter(sceneJson, "layers", json::value_t::array))
 	{

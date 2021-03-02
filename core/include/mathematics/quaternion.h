@@ -444,26 +444,27 @@ struct Quaternion
 			return Quaternion(0, 0, 0, 1);
 		}
 
-		////from https://answers.unity.com/questions/467614/what-is-the-source-code-of-quaternionlookrotation.html
-	 //   
-		//
-		//Vec3f vector = lookAt.Normalized();
-		//Vec3f vector2 = Vec3f::Cross(upDirection, vector).Normalized();
-		//Vec3f vector3 = Vec3f::Cross(vector, vector2);
-		//float m00 = vector2.x;
-		//float m01 = vector2.y;
-		//float m02 = vector2.z;
-		//float m10 = vector3.x;
-		//float m11 = vector3.y;
-		//float m12 = vector3.z;
-		//float m20 = vector.x;
-		//float m21 = vector.y;
-		//float m22 = vector.z;
+		//from https://answers.unity.com/questions/467614/what-is-the-source-code-of-quaternionlookrotation.html
+	    
+		
+		// Vec3f forward = lookAt;
+		// Vec3f up = upDirection;
+		//Vec3f::OrthoNormalize(forward, up);
+		//Vec3f right = Vec3f::Cross(up, forward);
+		//float m00 = right.x;
+		//float m01 = right.y;
+		//float m02 = right.z;
+		//float m10 = up.x;
+		//float m11 = up.y;
+		//float m12 = up.z;
+		//float m20 = forward.x;
+		//float m21 = forward.y;
+		//float m22 = forward.z;
 
 
 		//float num8 = (m00 + m11) + m22;
 		//Quaternion quaternion;
-		//if (num8 > 0.0f)
+		//if (num8 != 0.0f)
 		//{
 		//	float num = Sqrt(num8 + 1.0f);
 		//	quaternion.w = num * 0.5f;

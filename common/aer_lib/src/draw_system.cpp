@@ -28,7 +28,7 @@ void DrawSystem::Init()
 	Camera3D camera;
 	camera.position         = Vec3f::forward * 2.0f;
 	camera.reverseDirection = Vec3f::forward;
-	camera.fovY             = degree_t(100.0f);
+	camera.fovY             = degree_t(60.0f);
 	camera.nearPlane        = 0.1f;
 	camera.farPlane         = 1'000'000.0f;
 	camera_.SetCameras(camera);
@@ -60,6 +60,7 @@ void DrawSystem::Render()
 	const Vec2u size = BasicEngine::GetInstance()->GetConfig().windowSize;
 	switch (cContainer_.playerManager.GetPlayerCount())
 	{
+		case 0:
 		case 1:
 		{
 			camera_.SetAspects(static_cast<float>(size.x), static_cast<float>(size.y));
@@ -131,7 +132,6 @@ void DrawSystem::Render()
 			RenderScene(3);
 			break;
 		}
-		case 0:
 		default: LogError("Invalid Player number!!"); break;
 	}
 

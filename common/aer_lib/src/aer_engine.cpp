@@ -48,7 +48,15 @@ void AerEngine::Init()
 #endif
 	SdlEngine::Init();
 
-	if (mode_ == ModeEnum::GAME) {}
+	if (mode_ == ModeEnum::GAME) {
+		cContainer_.sceneManager.LoadScene(
+			GetConfig().dataRootPath +
+			"scenes/PlayGroundLuca2021-03-01withoutShip.aerscene");
+		cContainer_.playerManager.CreatePlayer(Vec3f(0, 10.0f, 0));
+		cContainer_.playerManager.CreatePlayer(Vec3f(10.0f, 10.0f, 0));
+		cContainer_.playerManager.CreatePlayer(Vec3f(-10.0f, 10.0f, 0));
+		cContainer_.playerManager.CreatePlayer(Vec3f(0.0f, 10.0f, 10.0f));
+	}
 }
 
 void AerEngine::Destroy()
