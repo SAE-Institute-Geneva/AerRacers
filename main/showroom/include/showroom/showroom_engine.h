@@ -22,7 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include "sdl_engine/sdl_engine.h"
 #include "showroom/showroom_renderer.h"
 
 namespace neko
@@ -30,14 +29,12 @@ namespace neko
 class ShowRoomEngine : public sdl::SdlEngine
 {
 public:
-	explicit ShowRoomEngine(
-		const FilesystemInterface& filesystem,
-		Configuration* config = nullptr);
+	explicit ShowRoomEngine(const FilesystemInterface& filesystem, Configuration* config = nullptr);
 
 	void GenerateUiFrame() override;
-    void Destroy() override;
+	void Destroy() override;
 
 private:
 	ShowRoomRenderer showRoomRenderer_;
 };
-}
+}    // namespace neko

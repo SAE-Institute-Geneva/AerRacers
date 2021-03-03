@@ -142,6 +142,7 @@ include_directories("${IMGUIZMO_ROOT}")
 add_subdirectory("${IMGUIZMO_ROOT}")
 set_target_properties(ImGuizmo PROPERTIES UNITY_BUILD ON)
 
+add_compile_definitions("TINYOBJLOADER_IMPLEMENTATION=1")
 
 if(Neko_VULKAN)
 	set(ASSIMP_VERSION 5.0.1)

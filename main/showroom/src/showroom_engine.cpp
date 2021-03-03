@@ -26,9 +26,8 @@
 
 namespace neko
 {
-ShowRoomEngine::ShowRoomEngine(
-	const FilesystemInterface& filesystem,
-	Configuration* config) : SdlEngine(filesystem, *config), showRoomRenderer_(*this)
+ShowRoomEngine::ShowRoomEngine(const FilesystemInterface& filesystem, Configuration* config)
+   : SdlEngine(filesystem, *config), showRoomRenderer_(*this)
 {
 	RegisterSystem(showRoomRenderer_);
 	RegisterOnDrawUi(showRoomRenderer_);
@@ -44,6 +43,6 @@ void ShowRoomEngine::GenerateUiFrame()
 void ShowRoomEngine::Destroy()
 {
 	showRoomRenderer_.Destroy();
-    SdlEngine::Destroy();
+	SdlEngine::Destroy();
 }
-}
+}    // namespace neko

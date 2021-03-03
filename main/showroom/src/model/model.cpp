@@ -69,7 +69,7 @@ void Model::LoadModel(std::string_view path)
 #ifdef NEKO_SAMETHREAD
 	processModelJob_.Execute();
 #else
-	BasicEngine::GetInstance()->ScheduleJob(&processModelJob_, JobThreadType::OTHER_THREAD);
+	BasicEngine::GetInstance()->ScheduleJob(&processModelJob_, JobThreadType::RESOURCE_THREAD);
 #endif
 }
 
@@ -89,28 +89,12 @@ bool Model::IsLoaded() const
 void Model::ProcessModel()
 {
 	Assimp::Importer import;
-	const aiScene* scene = nullptr;
-#ifdef NEKO_SAMETHREAD
+	const aiScene* scene;
 	//assimp delete automatically the IO System
-	NekoIOSystem* ioSystem = new NekoIOSystem();
-	import.SetIOHandler(ioSystem);
-
+	import.SetIOHandler(new NekoIOSystem(BasicEngine::GetInstance()->GetFilesystem()));
 	scene = import.ReadFile(path_.data(),
-							aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
-							aiProcess_CalcTangentSpace);
-#else
-	Job loadingModelJob = Job([this, &import, &scene]
-	{
-		//assimp delete automatically the IO System
-		import.SetIOHandler(new NekoIOSystem(BasicEngine::GetInstance()->GetFilesystem()));
-
-		scene = import.ReadFile(path_.data(),
-		                        aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
-		                        aiProcess_CalcTangentSpace | aiProcess_GenBoundingBoxes);
-	});
-	BasicEngine::GetInstance()->ScheduleJob(&loadingModelJob, JobThreadType::RESOURCE_THREAD);
-	loadingModelJob.Join();
-#endif
+		aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
+			aiProcess_CalcTangentSpace | aiProcess_GenBoundingBoxes);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -138,9 +122,8 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 		aiQuaternion rot;
 		node->mTransformation.Decompose(scale, rot, pos);
 
-		Quaternion newRot = Quaternion::AngleAxis(degree_t(90.0f), Vec3f::right) * Quaternion(rot);
 		mesh.modelMat_    = Transform3d::ScalingMatrixFrom(Vec3f(scale) / 100.0f);
-		mesh.modelMat_    = Transform3d::Rotate(mesh.modelMat_, newRot);
+		mesh.modelMat_    = Transform3d::Rotate(mesh.modelMat_, Quaternion(rot));
 		mesh.modelMat_    = Transform3d::Translate(mesh.modelMat_, Vec3f(pos));
 
 		aiMesh* assMesh      = scene->mMeshes[node->mMeshes[i]];

@@ -4,12 +4,13 @@
 #endif
 
 #include "mathematics/plane.h"
+#include "utils/file_utility.h"
 
 #include "showroom/showroom_renderer.h"
 
 namespace neko
 {
-ShowRoomRenderer::ShowRoomRenderer(ShowRoomEngine& engine)
+ShowRoomRenderer::ShowRoomRenderer(BasicEngine& engine)
    : engine_(engine),
 	 gizmoRenderer_(&camera_),
 	 bloomFbo_(BasicEngine::GetInstance()->GetConfig().windowSize),
@@ -117,9 +118,9 @@ void ShowRoomRenderer::Update(const seconds dt)
 	camera_.Update(dt);
 	gizmoRenderer_.Clear();
 
-	if (model_.IsLoaded())
+	if (modelObj_.IsLoaded())
 	{
-		auto& meshes = model_.GetMeshes();
+		auto& meshes = modelObj_.GetMeshes();
 		for (auto& mesh : meshes) { mesh.UpdateTextures(); }
     }
 
@@ -155,7 +156,7 @@ void ShowRoomRenderer::Render()
     }
 
 	if (searchIcon_ == INVALID_TEXTURE_NAME) return;
-	if (model_.IsLoaded())
+	if (modelObj_.IsLoaded())
 	{
 		if (isModelLoading_)
 		{
@@ -170,11 +171,18 @@ void ShowRoomRenderer::Render()
 			BloomFbo::Clear(Color::clear);
 			UpdateShader(shader_);
 
-            const auto& meshes = model_.GetMeshes();
+            /*const auto& meshes = modelObj_.GetMeshes();
             for (size_t i = 0; i < meshes.size(); ++i)
             {
                 shader_.SetBool("isSelected", selectedNode_ - selectionOffset_ == i);
                 meshes[i].Draw(shader_, modelMat_);
+            }*/
+
+            const auto& meshesObj = modelObj_.GetMeshes();
+            for (std::size_t i = 0; i < meshesObj.size(); ++i)
+            {
+                shader_.SetBool("isSelected", selectedNode_ - selectionOffset_ == i);
+	            meshesObj[i].Draw(shader_, modelMat_);
             }
 		}
 
@@ -200,7 +208,7 @@ void ShowRoomRenderer::Render()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	if (model_.IsLoaded())
+	if (modelObj_.IsLoaded())
 	{
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_CULL_FACE);
@@ -214,7 +222,6 @@ void ShowRoomRenderer::Render()
 
 		bloomFbo_.RetrieveDepth();
 	}
-
 	gizmoRenderer_.Render();
 }
 
@@ -249,7 +256,7 @@ void ShowRoomRenderer::UpdateShader(const gl::Shader& shader) const
 void ShowRoomRenderer::DrawGrid()
 {
 	//Draw the coordinate axes
-	const Vec3f posI      = Vec3f(camera_.position);
+	const Vec3i posI      = Vec3i(camera_.position);
 	const Vec3f startPosX = Vec3f::right * (posI.x - 100.0f);
 	const Vec3f endPosX   = Vec3f::right * (posI.x + 100.0f);
 	const Vec3f startPosZ = Vec3f::forward * (posI.z - 100.0f);
@@ -289,7 +296,7 @@ void ShowRoomRenderer::DrawGrid()
 
 void ShowRoomRenderer::Destroy()
 {
-	model_.Destroy();
+	modelObj_.Destroy();
 	shader_.Destroy();
 
 	textureManager_.Destroy();
@@ -328,7 +335,7 @@ void ShowRoomRenderer::DrawImGui()
 	DrawPopups();
 	DrawImGuizmo();
 
-    auto& meshes= model_.GetMeshes();
+    auto& meshes= modelObj_.GetMeshes();
     if (IsMouseDown(0) && !IsAnyWindowHovered() && !IsAnyItemHovered() && !IsAnyItemActive() && !ImGuizmo::IsUsing())
     {
         const Vec2f winSize = Vec2f(BasicEngine::GetInstance()->GetConfig().windowSize);
@@ -377,8 +384,8 @@ void ShowRoomRenderer::DrawImGui()
             size_t currentCandidate = INVALID_INDEX;
             for (const auto& candidate : candidates)
             {
-			    const Mat4f& model = model_.GetMesh(candidate).GetModelMatrix();
-			    Aabb3d aabb = model_.GetMesh(candidate).GetAabb();
+			    const Mat4f& model = modelObj_.GetMesh(candidate).GetModelMatrix();
+			    Aabb3d aabb = modelObj_.GetMesh(candidate).GetAabb();
 				aabb.lowerLeftBound += Transform3d::GetPosition(model);
 				aabb.upperRightBound += Transform3d::GetPosition(model);
 
@@ -457,7 +464,7 @@ void ShowRoomRenderer::CreateDockableWindow()
 			DockBuilderDockWindow("Transform", dockLeftLeftDown);
 			DockBuilderDockWindow("Properties", dockDownRightId);
         }
-		
+
 	    DockSpace(dockspaceId_, ImVec2(0.0f, 0.0f), dockspaceFlags_);
 
 		DrawMenuBar();
@@ -505,7 +512,7 @@ void ShowRoomRenderer::DrawImGuizmo()
 		}
 		case MODEL:
 		{
-			if (!model_.IsLoaded()) break;
+			if (!modelObj_.IsLoaded()) break;
 			Manipulate(
 				&camView[0][0],
 				&camProj[0][0],
@@ -516,8 +523,8 @@ void ShowRoomRenderer::DrawImGuizmo()
 		}
 		default:
 		{
-			if (!model_.IsLoaded()) break;
-			auto& mesh = model_.GetMesh(selectedNode_ - selectionOffset_);
+			if (!modelObj_.IsLoaded()) break;
+			auto& mesh = modelObj_.GetMesh(selectedNode_ - selectionOffset_);
             const Vec3f pos = mesh.GetAabb().CalculateCenter();
 			Mat4f modelMat = mesh.GetModelMatrix() * modelMat_ * Transform3d::TranslationMatrixFrom(pos);
 			if (Manipulate(
@@ -547,13 +554,14 @@ void ShowRoomRenderer::DrawMenuBar()
 				if (!path.empty())
 				{
 					selectedNode_ = NONE;
-					if (model_.IsLoaded())
+					if (modelObj_.IsLoaded())
 					{
-						model_.Destroy();
+						modelObj_.Destroy();
 						textureManager_.Destroy();
 					}
 
-					model_.LoadModel(path);
+					//model_.LoadModel(path);
+					modelObj_.LoadModel(path);
 					isModelLoading_ = true;
 					modelLoadingStart_ = std::chrono::high_resolution_clock::now();
 					if (GetFilenameExtension(path) == ".obj")
@@ -637,7 +645,7 @@ void ShowRoomRenderer::DrawInfoBar() const
 
 		if (isModelLoading_)
 			Text("Loading Model...");
-		else if (model_.GetMeshCount() != 0)
+		else if (modelObj_.GetMeshCount() != 0)
 			Text("Model loaded in %.3fs", modelLoadingTime_);
 
 		PopStyleVar(3);
@@ -649,7 +657,7 @@ void ShowRoomRenderer::DrawSceneHierarchy()
 {
 	using namespace ImGui;
 
-	auto& meshes= model_.GetMeshes();
+	auto& meshes= modelObj_.GetMeshes();
 	if (Begin("Scene"))
 	{
         if (GetWindowDockNode()) GetWindowDockNode()->LocalFlags |= ImGuiDockNodeFlags_NoTabBar;
@@ -697,14 +705,14 @@ void ShowRoomRenderer::DrawSceneHierarchy()
 
 			ImGuiTreeNodeFlags rootNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 			std::string rootName;
-			if (!model_.IsLoaded())
+			if (!modelObj_.IsLoaded())
 			{
 				rootNodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 				rootName = "No Model Loaded";
 			}
 			else
 			{
-				rootName = model_.GetName();
+				rootName = modelObj_.GetName();
 			}
 
 			if (selectedNode_ == MODEL)
@@ -715,22 +723,9 @@ void ShowRoomRenderer::DrawSceneHierarchy()
 			if (IsItemClicked())
 				selectedNode_ = MODEL;
 
-			if (isOpen && model_.IsLoaded())
+			if (isOpen && modelObj_.IsLoaded())
 			{
-				for (auto& mesh : meshes)
-				{
-					if (mesh.GetParentName() == 0 && !searchFilter_.IsActive())
-					{
-						if (GetFilenameExtension(model_.GetPath()) == ".obj")
-							DrawMeshImGuiObj(mesh);
-						else
-							DrawMeshImGui(mesh);
-					}
-					else if (searchFilter_.IsActive())
-					{
-						DrawMeshImGuiObj(mesh);
-					}
-				}
+				for (auto& mesh : meshes) DrawMeshImGuiObj(mesh);
 
 				TreePop();
 			}
@@ -818,7 +813,7 @@ void ShowRoomRenderer::DrawToolWindow()
             case NONE: break;
             case LIGHT: DrawLightTransform(); break;
             case MODEL: DrawModelTransform(); break;
-            default: DrawMeshTransform(model_.GetMesh(selectedNode_ - selectionOffset_)); break;
+            default: DrawMeshTransform(modelObj_.GetMesh(selectedNode_ - selectionOffset_)); break;
         }
 
         End();
@@ -926,7 +921,7 @@ void ShowRoomRenderer::DrawModelTransform()
 	modelMat_ = Transform3d::Transform(pos, angles, scale);
 }
 
-void ShowRoomRenderer::DrawMeshTransform(sr::Mesh& mesh)
+void ShowRoomRenderer::DrawMeshTransform(sr::MeshObj& mesh)
 {
     using namespace ImGui;
     Vec3f pos, scale;
@@ -973,70 +968,13 @@ void ShowRoomRenderer::DrawMeshTransform(sr::Mesh& mesh)
     mesh.SetModelMatrix(Transform3d::Transform(pos, angles, scale));
 }
 
-void ShowRoomRenderer::DrawMeshImGui(sr::Mesh& mesh)
-{
-	using namespace ImGui;
-	std::vector<sr::Mesh*> children;
-	for (auto& modelMesh : model_.GetMeshes())
-		if (modelMesh.GetParentName() == HashString(mesh.GetName()))
-			children.push_back(&modelMesh);
-
-	const std::size_t nodeId = model_.GetMeshId(mesh) + selectionOffset_;
-	const std::string popupName = std::string("RenameNode##").append(std::to_string(mesh.GetVAO()));
-	ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
-
-	if (children.empty())
-		nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
-	if (selectedNode_ == nodeId)
-		nodeFlags |= ImGuiTreeNodeFlags_Selected;
-
-	const bool nodeOpen = TreeNodeEx(mesh.GetName().data(), nodeFlags);
-	if (IsItemClicked())
-		selectedNode_ = nodeId;
-
-	if (ImGuiLastItemDataBackup().LastItemStatusFlags & ImGuiItemStatusFlags_HoveredRect && IsMouseDoubleClicked(0))
-	{
-		OpenPopup(popupName.c_str());
-		popupToggled_ = true;
-		popup_ = HashString(popupName);
-	}
-
-	const bool lastState = popupToggled_;
-	if (BeginPopup(popupName.c_str()))
-	{
-		newNameBuffer_ = std::string(mesh.GetName());
-		if (InputText("##RenameNode", &newNameBuffer_, ImGuiInputTextFlags_EnterReturnsTrue))
-			CloseCurrentPopup();
-
-		EndPopup();
-	}
-	else if (popup_ == HashString(popupName)) popupToggled_ = false;
-
-	if (!popupToggled_ && lastState)
-	{
-		for (auto& aMesh : model_.GetMeshes())
-			if (aMesh.GetParentName() == HashString(mesh.GetName()))
-				aMesh.SetParentName(newNameBuffer_);
-
-		mesh.SetName(newNameBuffer_);
-	}
-
-	if (nodeOpen && !children.empty())
-	{
-		for (auto& child : children)
-			DrawMeshImGui(*child);
-
-		TreePop();
-	}
-}
-
-void ShowRoomRenderer::DrawMeshImGuiObj(sr::Mesh& mesh)
+void ShowRoomRenderer::DrawMeshImGuiObj(sr::MeshObj& mesh)
 {
 	if (!searchFilter_.PassFilter(mesh.GetName().data())) return;
 
 	using namespace ImGui;
-	const std::size_t nodeId = model_.GetMeshId(mesh) + selectionOffset_;
-	const std::string popupName = std::string("RenameNode##").append(std::to_string(mesh.GetVAO()));
+	const std::size_t nodeId = modelObj_.GetMeshId(mesh) + selectionOffset_;
+	const std::string popupName = std::string("RenameNode##").append(std::to_string(mesh.GetVao()));
 	ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
 	nodeFlags |= ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen;
 
@@ -1178,10 +1116,10 @@ void ShowRoomRenderer::DrawLightProperties()
 void ShowRoomRenderer::DrawModelProperties()
 {
 	using namespace ImGui;
-	if (model_.IsLoaded()) Text("%s", model_.GetName().data());
+	if (modelObj_.IsLoaded()) Text("%s", modelObj_.GetName().data());
 	else Text("%s", "No model loaded");
 	Separator();
-	if (!model_.IsLoaded()) return;
+	if (!modelObj_.IsLoaded()) return;
 
 	Vec3f pos, scale;
 	EulerAngles angles;
@@ -1239,7 +1177,7 @@ void ShowRoomRenderer::DrawModelProperties()
 void ShowRoomRenderer::DrawMeshProperties()
 {
 	using namespace ImGui;
-	auto& mesh = model_.GetMesh(selectedNode_ - selectionOffset_);
+	auto& mesh = modelObj_.GetMesh(selectedNode_ - selectionOffset_);
 	Text("%s", mesh.GetName().data());
 	Separator();
 

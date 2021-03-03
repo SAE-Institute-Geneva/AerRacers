@@ -28,6 +28,7 @@
 #include "showroom/camera.h"
 #include "showroom/gizmos_renderer.h"
 #include "showroom/model/model.h"
+#include "showroom/model/model_obj.h"
 #include "showroom/mouse_events.h"
 
 namespace neko
@@ -95,14 +96,13 @@ struct BlurFbo final : Framebuffer
     unsigned colorBuffer = 0;
 };
 
-class ShowRoomEngine;
 class ShowRoomRenderer final : public SystemInterface,
 							   public DrawImGuiInterface,
 							   public sdl::SdlEventSystemInterface,
 							   public RenderCommandInterface
 {
 public:
-    explicit ShowRoomRenderer(ShowRoomEngine& engine);
+    explicit ShowRoomRenderer(BasicEngine& engine);
 
     void Init() override;
     void Update(seconds dt) override;
@@ -136,11 +136,10 @@ private:
     //Tool Window
     void DrawLightTransform();
     void DrawModelTransform();
-    static void DrawMeshTransform(sr::Mesh& mesh) ;
+    static void DrawMeshTransform(sr::MeshObj& mesh) ;
 
     //Scene Window
-    void DrawMeshImGui(sr::Mesh& mesh);
-    void DrawMeshImGuiObj(sr::Mesh& mesh);
+    void DrawMeshImGuiObj(sr::MeshObj& mesh);
     void DrawPopups();
 
     //Properties Window
@@ -157,7 +156,7 @@ private:
     static void DrawDirectionalLight();
     void DrawSpotLight();
 
-    ShowRoomEngine& engine_;
+    BasicEngine& engine_;
 
 	std::chrono::high_resolution_clock::time_point modelLoadingStart_;
 	double modelLoadingTime_ = 0.0;
@@ -188,6 +187,7 @@ private:
 
     Mat4f modelMat_;
     sr::Model model_;
+    sr::ModelObj modelObj_;
     gl::Shader shader_;
     bool isModelLoading_ = false;
 

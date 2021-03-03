@@ -270,7 +270,7 @@ void TextureLoader::LoadTexture()
 		return;
 	}
 
-	BasicEngine::GetInstance()->ScheduleJob(&decompressTextureJob_, JobThreadType::OTHER_THREAD);
+	BasicEngine::GetInstance()->ScheduleJob(&decompressTextureJob_, JobThreadType::RESOURCE_THREAD);
 }
 
 void TextureLoader::DecompressTexture()
