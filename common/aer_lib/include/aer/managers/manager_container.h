@@ -1,11 +1,12 @@
 #pragma once
 #include "px/physics_engine.h"
 
-#include "aer/managers/render_manager.h"
-
 #ifdef NEKO_VULKAN
 #include "vk/material/material_manager.h"
 #endif
+
+#include "aer/managers/render_manager.h"
+#include "aer/scene.h"
 
 namespace neko::aer
 {
@@ -87,3 +88,4 @@ struct ComponentManagerContainer : public SystemInterface
 	SceneManager sceneManager;
 };
 }
+ 

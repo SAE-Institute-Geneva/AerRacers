@@ -262,47 +262,40 @@ struct Quaternion
 
 	static Quaternion FromRotationMatrix(const Mat4f& mat)
 	{
-		const float T = 1 + mat[0][0] + mat[1][1] + mat[2][2];
-		if (T <= 0)
-		{
-			if (mat[0][0] > mat[1][1] && mat[0][0] > mat[2][2])
-			{
-				const float S = sqrtf(1 + mat[0][0] - mat[1][1] - mat[2][2]) * 2.0f;
-				const float w = (mat[2][1] - mat[1][2]) / S;
-				const float x = 0.25f * S;
-				const float y = (mat[0][1] + mat[1][0]) / S;
-				const float z = (mat[0][2] + mat[2][0]) / S;
-
-				return Quaternion(x, y, z, w);
+		Quaternion q;
+		float trace = mat[0][0] + mat[1][1] + mat[2][2]; // I removed + 1.0f; see discussion with Ethan
+		if (trace > 0) {// I changed M_EPSILON to 0
+			float s = 0.5f / sqrtf(trace + 1.0f);
+			q.w = 0.25f / s;
+			q.x = (mat[2][1] - mat[1][2]) * s;
+			q.y = (mat[0][2] - mat[2][0]) * s;
+			q.z = (mat[1][0] - mat[0][1]) * s;
+		}
+		else {
+			if (mat[0][0] > mat[1][1] && mat[0][0] > mat[2][2]) {
+				float s = 2.0f * sqrtf(1.0f + mat[0][0] - mat[1][1] - mat[2][2]);
+				q.w = (mat[2][1] - mat[1][2]) / s;
+				q.x = 0.25f * s;
+				q.y = (mat[0][1] + mat[1][0]) / s;
+				q.z = (mat[0][2] + mat[2][0]) / s;
 			}
-			else if (mat[1][1] > mat[2][2])
-			{
-				const float S = sqrtf(1 + mat[1][1] - mat[0][0] - mat[2][2]) * 2.0f;
-				const float w = (mat[0][2] - mat[2][0]) / S;
-				const float x = (mat[0][1] + mat[1][0]) / S;
-				const float y = 0.25f * S;
-				const float z = (mat[1][2] + mat[2][1]) / S;
-
-				return Quaternion(x, y, z, w);
+			else if (mat[1][1] > mat[2][2]) {
+				float s = 2.0f * sqrtf(1.0f + mat[1][1] - mat[0][0] - mat[2][2]);
+				q.w = (mat[0][2] - mat[2][0]) / s;
+				q.x = (mat[0][1] + mat[1][0]) / s;
+				q.y = 0.25f * s;
+				q.z = (mat[1][2] + mat[2][1]) / s;
 			}
-			else
-			{
-				const float S = sqrtf(1 + mat[2][2] - mat[0][0] - mat[1][1]) * 2.0f;
-				const float w = (mat[1][0] - mat[0][1]) / S;
-				const float x = (mat[0][2] + mat[2][0]) / S;
-				const float y = (mat[1][2] + mat[2][1]) / S;
-				const float z = 0.25f * S;
-
-				return Quaternion(x, y, z, w);
+			else {
+				float s = 2.0f * sqrtf(1.0f + mat[2][2] - mat[0][0] - mat[1][1]);
+				q.w = (mat[1][0] - mat[0][1]) / s;
+				q.x = (mat[0][2] + mat[2][0]) / s;
+				q.y = (mat[1][2] + mat[2][1]) / s;
+				q.z = 0.25f * s;
 			}
 		}
-
-		const float w = sqrtf(T) / 2.0f;
-		const float x = (mat[2][1] - mat[1][2]) / (w * 4.0f);
-		const float y = (mat[0][2] - mat[2][0]) / (w * 4.0f);
-		const float z = (mat[1][0] - mat[0][1]) / (w * 4.0f);
-
-		return Quaternion(x, y, z, w);
+		q.w *= -1.0f;
+		return q;
 	}
 
 	static Quaternion Identity()
@@ -441,25 +434,90 @@ struct Quaternion
 	 * \param lookAt The direction to look in.
 	 * \param upDirection The vector that defines in which direction up is.
 	 */
-	//from https://gamedev.net/forums/topic/613595-quaternion-lookrotationlookat-up/4876373/
 	static Quaternion LookRotation(const Vec3f& lookAt, const Vec3f& upDirection) {
 		if(lookAt.Magnitude() == 0 || upDirection.Magnitude() == 0) {
 			logDebug("Look rotation viewing vector is zero");
 			return Quaternion(0, 0, 0, 1);
 		}
-	    Vec3f forward = lookAt;
-	    Vec3f up = upDirection;
+		if (Vec3f::Cross(lookAt, upDirection) == Vec3f::zero) {
+			logDebug("LookRotation vectors are colinear");
+			return Quaternion(0, 0, 0, 1);
+		}
+
+		////from https://answers.unity.com/questions/467614/what-is-the-source-code-of-quaternionlookrotation.html
+	 //   
+		//
+		//Vec3f vector = lookAt.Normalized();
+		//Vec3f vector2 = Vec3f::Cross(upDirection, vector).Normalized();
+		//Vec3f vector3 = Vec3f::Cross(vector, vector2);
+		//float m00 = vector2.x;
+		//float m01 = vector2.y;
+		//float m02 = vector2.z;
+		//float m10 = vector3.x;
+		//float m11 = vector3.y;
+		//float m12 = vector3.z;
+		//float m20 = vector.x;
+		//float m21 = vector.y;
+		//float m22 = vector.z;
+
+
+		//float num8 = (m00 + m11) + m22;
+		//Quaternion quaternion;
+		//if (num8 > 0.0f)
+		//{
+		//	float num = Sqrt(num8 + 1.0f);
+		//	quaternion.w = num * 0.5f;
+		//	num = 0.5f / num;
+		//	quaternion.x = (m12 - m21) * num;
+		//	quaternion.y = (m20 - m02) * num;
+		//	quaternion.z = (m01 - m10) * num;
+		//	return quaternion;
+		//}
+		//if ((m00 >= m11) && (m00 >= m22))
+		//{
+		//	float num7 = Sqrt(((1.0f + m00) - m11) - m22);
+		//	float num4 = 0.5f / num7;
+		//	quaternion.x = 0.5f * num7;
+		//	quaternion.y = (m01 + m10) * num4;
+		//	quaternion.z = (m02 + m20) * num4;
+		//	quaternion.w = (m12 - m21) * num4;
+		//	return quaternion;
+		//}
+		//if (m11 > m22)
+		//{
+		//	float num6 = Sqrt(((1.0f + m11) - m00) - m22);
+		//	float num3 = 0.5f / num6;
+		//	quaternion.x = (m10 + m01) * num3;
+		//	quaternion.y = 0.5f * num6;
+		//	quaternion.z = (m21 + m12) * num3;
+		//	quaternion.w = (m20 - m02) * num3;
+		//	return quaternion;
+		//}
+		//float num5 = Sqrt(((1.0f + m22) - m00) - m11);
+		//float num2 = 0.5f / num5;
+		//quaternion.x = (m20 + m02) * num2;
+		//quaternion.y = (m21 + m12) * num2;
+		//quaternion.z = 0.5f * num5;
+		//quaternion.w = (m01 - m10) * num2;
+		//return quaternion;
+		
+		
+		//from https://gamedev.net/forums/topic/613595-quaternion-lookrotationlookat-up/4876373/
+		 Vec3f forward = lookAt;
+		 Vec3f up = upDirection;
 		Vec3f::OrthoNormalize(forward, up);
 		Vec3f right = Vec3f::Cross(up, forward);
 		Mat3f mat({ right , up, forward });
 		mat = mat.Transpose();
 		Quaternion ret;
-		ret.w = sqrtf(1.0f + mat[0][0] + mat[1][1] + mat[2][2]) * 0.5f;
+		ret.w = Sqrt(1.0f + mat[0][0] + mat[1][1] + mat[2][2]) * 0.5f;
 		float w4_recip = 1.0f / (4.0f * ret.w);
 		ret.x = (mat[2][1] - mat[1][2]) * w4_recip;
 		ret.y = (mat[0][2] - mat[2][0]) * w4_recip;
 		ret.z = (mat[1][0] - mat[0][1]) * w4_recip;
 		return Quaternion::Normalized(ret);
+		
+		
 	}
 };
 }

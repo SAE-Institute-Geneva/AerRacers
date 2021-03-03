@@ -43,12 +43,14 @@ public:
 	void OnEvent(const SDL_Event &event) override;
 
 	/// Creates the view matrix for the specified camera
-	Mat4f GenerateViewMatrix(std::size_t playerNum)
+	[[nodiscard]] Mat4f GenerateViewMatrix(std::size_t playerNum) const
 	{ return cameras_[playerNum].GenerateViewMatrix(); }
 
 	/// Creates the projection matrix for the specified camera
-	Mat4f GenerateProjectionMatrix(std::size_t playerNum)
+	[[nodiscard]] Mat4f GenerateProjectionMatrix(std::size_t playerNum) const
 	{ return cameras_[playerNum].GenerateProjectionMatrix(); }
+
+	void Bind(std::size_t playerNum);
 
 	/// Returns the specified camera
 	Camera3D& GetCamera(std::size_t playerNum) { return cameras_[playerNum]; }
@@ -69,7 +71,7 @@ public:
 	void SetAspects(float aspect);
 
 	/// Sets the aspect ratio for all cameras
-	void SetAspects(float windowSizeX, float windowSize);
+	void SetAspects(int windowSizeX, int windowSize);
 
 	/// Sets the aspect ratio for all cameras
 	void SetAspects(Vec2u windowSize);

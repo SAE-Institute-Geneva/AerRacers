@@ -124,6 +124,7 @@ void RigidActor::SetMaterial(const PhysicsMaterial& physicsMaterial) const
     material_->setStaticFriction(physicsMaterial.staticFriction);
     material_->setDynamicFriction(physicsMaterial.dynamicFriction);
     material_->setRestitutionCombineMode(physx::PxCombineMode::eMIN);
+    material_->setFrictionCombineMode(physx::PxCombineMode::eMIN);
 }
 
 physx::PxMaterial* RigidActor::InitMaterial(
@@ -464,6 +465,7 @@ void RigidDynamic::SetRigidDynamicData(
             break;
         default: break;
     }
+    rigidActor_->setRigidBodyFlag(physx::PxRigidBodyFlag::eENABLE_CCD, true);
 }
 
 physics::RigidDynamicData RigidDynamic::GetRigidDynamicData() const
@@ -767,7 +769,7 @@ void RigidDynamicManager::FixedUpdate(seconds dt)
         physx::PxVec3 x = transform.q.getBasisVector0();
         physx::PxVec3 y = transform.q.getBasisVector1();
         physx::PxVec3 z = transform.q.getBasisVector2();
-        transform3dManager_.SetRelativeRotation(entity,
+        transform3dManager_.SetGlobalRotation(entity,
             Quaternion::ToEulerAngles(ConvertFromPxQuat(transform.q)));
     }
 }
@@ -976,13 +978,13 @@ void RigidDynamicViewer::SetComponentFromJson(Entity entity, const json& compone
     }
     if (CheckJsonParameter(componentJson, "positionLock", json::value_t::object)) {
         if (CheckJsonParameter(componentJson["positionLock"], "x", json::value_t::boolean)) {
-            rigidDynamicData.freezeRotation.x = componentJson["positionLock"]["x"];
+            rigidDynamicData.freezePosition.x = componentJson["positionLock"]["x"];
         }
         if (CheckJsonParameter(componentJson["positionLock"], "y", json::value_t::boolean)) {
-            rigidDynamicData.freezeRotation.y = componentJson["positionLock"]["y"];
+            rigidDynamicData.freezePosition.y = componentJson["positionLock"]["y"];
         }
         if (CheckJsonParameter(componentJson["positionLock"], "z", json::value_t::boolean)) {
-            rigidDynamicData.freezeRotation.z = componentJson["positionLock"]["z"];
+            rigidDynamicData.freezePosition.z = componentJson["positionLock"]["z"];
         }
     }
     RigidActorData rigidActorData       = GetRigidActorFromJson(componentJson);

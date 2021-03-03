@@ -1027,3 +1027,35 @@ TEST(Vector, Angle)
         EXPECT_NEAR(angle.value(), expectedAngle[i].value(), delta);
     }
 }
+
+TEST(Quaternion, LookRotationForward)
+{
+    for (int x = -100; x < 100; x += 10)
+    {
+        for (int y = -100; y < 100; y += 10)
+        {
+            for (int z = -100; z < 100; z += 10)
+            {
+                neko::Vec3f upward = neko::Vec3f::up;
+                neko::Vec3f forward = neko::Vec3f(x, y, z);
+                forward = forward.Normalized();
+                neko::Quaternion q = neko::Quaternion::LookRotation(forward, upward);
+                if (q == neko::Quaternion::Identity()) continue;
+                if (!isnan(q.x))
+                {
+                    if ((q * neko::Vec3f::forward).x - forward.x > 0.1f)
+                    {
+                        logDebug((q * neko::Vec3f::forward).ToString());
+                        logDebug((forward).ToString());
+                    }
+                    EXPECT_NEAR((q* neko::Vec3f::forward).x, forward.x, 0.1f);
+                    EXPECT_NEAR((q* neko::Vec3f::forward).y, forward.y, 0.1f);
+                    EXPECT_NEAR((q* neko::Vec3f::forward).z, forward.z, 0.1f);
+                } else {
+                    logDebug(forward.ToString());
+                    EXPECT_FALSE(isnan(q.x));
+                }
+            }
+        }
+    }
+}

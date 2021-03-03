@@ -81,7 +81,7 @@ unsigned InputManager::FindControllerIndexFromId(
 
     if (controllerInputIt >= controllerInputs_.end())
     {
-        logDebug(&"Invalid controllerId : " [ controllerId]);
+        logDebug("Invalid controllerId : " + std::to_string(controllerId));
         return controllerInputs_.size();
     }
 
@@ -103,7 +103,7 @@ unsigned InputManager::FindSwitchIndexFromId(
         });
     if (switchInputIt >= switchInputs_.end())
     {
-        logDebug(&"Invalid switchJoyId : " [switchJoyId]);
+        logDebug("Invalid switchJoyId : " + std::to_string(switchJoyId));
         return switchInputs_.size();
     }
     const unsigned index = std::distance(switchInputs_.begin(),
@@ -441,7 +441,7 @@ ButtonState InputManager::GetSwitchButtonState(
             FindSwitchIndexFromId(switchJoyId);
     if (switchIndex >= switchInputs_.size())
     {
-        logDebug(&"Unknown Joystick : " [switchJoyId]);
+        logDebug("Unknown Joystick : " + std::to_string(switchJoyId));
         return ButtonState::NONE;
     }
     return switchInputs_[switchIndex].switchButtonStates[
@@ -456,7 +456,7 @@ float InputManager::GetSwitchAxis(
         switchJoyId);
     if (switchIndex >= switchInputs_.size())
     {
-        logDebug(&"Unknown Joystick : " [switchJoyId]);
+        logDebug("Unknown Joystick : " + std::to_string(switchJoyId));
         return 0.0f;
     }
     return switchInputs_[switchIndex].switchAxis[
@@ -471,7 +471,7 @@ ButtonState InputManager::GetControllerButtonState(
         controllerId);
     if (controllerIndex >= controllerInputs_.size())
     {
-        logDebug(&"Unknown Controller : " [controllerId]);
+        logDebug("Unknown Controller : " + std::to_string(controllerId));
         return ButtonState::NONE;
     }
     return controllerInputs_[controllerIndex].controllerButtonStates[
@@ -486,7 +486,7 @@ float InputManager::GetControllerAxis(
         controllerId);
     if (controllerIndex >= controllerInputs_.size())
     {
-        logDebug(&"Unknown Controller : " [controllerId]);
+        logDebug("Unknown Controller : " + std::to_string(controllerId));
         return 0.0f;
     }
     return controllerInputs_[controllerIndex].controllerAxis[

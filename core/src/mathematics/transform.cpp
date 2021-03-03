@@ -164,6 +164,15 @@ Mat4f RotationMatrixFrom(const Quaternion& q)
 	return left.Transpose() * right.Transpose();
 }
 
+Mat4f LookAt(const Mat4f& transform, const Vec3f& targetPosition)
+{
+	const Vec3f direction = targetPosition - GetPosition(transform);
+	auto quat = Quaternion::FromEuler(GetRotation(transform));
+	//from https://www.gamedev.net/forums/topic/56471-extracting-direction-vectors-from-quaternion/
+	Vec3f up = Vec3f(2 * (quat.x * quat.y - quat.w * quat.z), 1 - 2 * (quat.x * quat.x + quat.z * quat.z), 2 * (quat.y * quat.z + quat.w * quat.x));
+	return Transform3d::Transform(GetPosition(transform), Quaternion::ToEulerAngles(Quaternion::LookRotation(direction, up)), GetScale(transform));
+}
+
 Mat4f Transform(const Vec3f& pos, const Quaternion& rot, const Vec3f& scale)
 {
 	Mat4f mat = ScalingMatrixFrom(scale);
@@ -244,29 +253,28 @@ EulerAngles GetRotation(const Mat4f& transform)
 
 	newTransform[3][3] = 1.0f;
 	// Verify orientation, if necessary invert it.
-	Vec3f tmpZAxis = Vec3f::Cross(Vec3f(newTransform[0][0], newTransform[0][1], newTransform[0][2]),
-		Vec3f(newTransform[1][0], newTransform[1][1], newTransform[1][2]));
-	if (Vec3f::Dot(tmpZAxis, Vec3f(newTransform[2][0], newTransform[2][1], newTransform[2][2])) <
-		0.0f)
-	{
-		scale.x *= -1.0f;
-		newTransform[0][0] *= -1.0f;
-		newTransform[0][1] *= -1.0f;
-		newTransform[0][2] *= -1.0f;
-	}
+ //   Vec3f tmpZAxis = Vec3f::Cross(Vec3f(newTransform[0][0], newTransform[0][1], newTransform[0][2]),
+ //       Vec3f(newTransform[1][0], newTransform[1][1], newTransform[1][2]));
+ //   if (Vec3f::Dot(tmpZAxis, Vec3f(newTransform[2][0], newTransform[2][1], newTransform[2][2])) < 0)
+ //   {
+ //       scale.x *= -1;
+ //       newTransform[0][0] *= -1;
+ //       newTransform[0][1] *= -1;
+ //       newTransform[0][2] *= -1;
+ //   }
+	////Extract rotation
+	////Source : Extracting Euler Angles from a Rotation Matrix, Mike Day, Insomniac Games
+	////http://www.insomniacgames.com/mike-day-extracting-euler-angles-from-a-rotation-matrix/
 
-	//Extract rotation
-	//Source : Extracting Euler Angles from a Rotation Matrix, Mike Day, Insomniac Games
-	//http://www.insomniacgames.com/mike-day-extracting-euler-angles-from-a-rotation-matrix/
-	radian_t theta1 = Atan2(newTransform[1][2], newTransform[2][2]);
-	float c2 =
-		Sqrt(newTransform[0][0] * newTransform[0][0] + newTransform[0][1] * newTransform[0][1]);
-	radian_t theta2 = Atan2(-newTransform[0][2], c2);
-	float s1        = Sin(theta1);
-	float c1        = Cos(theta1);
-	radian_t theta3 = Atan2(s1 * newTransform[2][0] - c1 * newTransform[1][0],
-		c1 * newTransform[1][1] - s1 * newTransform[2][1]);
-	return EulerAngles(-theta1, -theta2, -theta3);
+ //   radian_t theta1 = Atan2(newTransform[1][2], newTransform[2][2]);
+ //   float c2        =
+ //       Sqrt(newTransform[0][0] * newTransform[0][0] + newTransform[0][1] * newTransform[0][1]);
+ //   radian_t theta2 = Atan2(-newTransform[0][2], c2);
+ //   float s1        = Sin(theta1);
+ //   float c1        = Cos(theta1);
+ //   radian_t theta3 = Atan2(s1 * newTransform[2][0] - c1 * newTransform[1][0],
+ //       c1 * newTransform[1][1] - s1 * newTransform[2][1]);
+    return Quaternion::ToEulerAngles(Quaternion::FromRotationMatrix(newTransform));
 }
 
 Vec3f GetScale(const Mat4f& transform)
@@ -277,3 +285,4 @@ Vec3f GetScale(const Mat4f& transform)
 		transform[3][3] * Vec3f(transform[2][0], transform[2][1], transform[2][2]).Magnitude());
 }
 }    // namespace neko::Transform3d
+ 

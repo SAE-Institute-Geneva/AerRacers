@@ -29,7 +29,7 @@ void DrawSystem::Init()
 	camera.reverseDirection = Vec3f::forward;
 	camera.fovY             = degree_t(45.0f);
 	camera.nearPlane        = 0.1f;
-	camera.farPlane         = 100.0f;
+	camera.farPlane         = 10000.0f;
 	camera_.SetCameras(camera);
 
 #ifdef NEKO_GLES3
@@ -53,105 +53,77 @@ void DrawSystem::Render()
 #endif
 
 #ifdef NEKO_GLES3
-	const auto& size = BasicEngine::GetInstance()->GetConfig().windowSize;
+	const Vec2u size = BasicEngine::GetInstance()->GetConfig().windowSize;
 	switch (playerNum_)
 	{
 		case 1:
 		{
-			camera_.SetAspects(size.x, size.y);
+			camera_.SetAspects(static_cast<float>(size.x), static_cast<float>(size.y));
 
-			const Mat4f camProj = camera_.GenerateProjectionMatrix(0);
-			const Mat4f camView = camera_.GenerateViewMatrix(0);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+			camera_.Bind(0);
 			glViewport(0, 0, size.x, size.y);
 			RenderScene(0);
 			break;
 		}
 		case 2:
 		{
-			camera_.SetAspects(size.x / 2.0f, size.y);
+			camera_.SetAspects(static_cast<float>(size.x) / 2.0f, static_cast<float>(size.y));
 
 			// Left
-			Mat4f camProj = camera_.GenerateProjectionMatrix(0);
-			Mat4f camView = camera_.GenerateViewMatrix(0);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
-			glViewport(0, 0, size.x / 2.0f, size.y);
+			camera_.Bind(0);
+			glViewport(0, 0, size.x / 2, size.y);
 			RenderScene(0);
 
 			// Right
-			camProj = camera_.GenerateProjectionMatrix(1);
-			camView = camera_.GenerateViewMatrix(1);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
-			glViewport(size.x / 2.0f, 0, size.x / 2.0f, size.y);
+			camera_.Bind(1);
+			glViewport(size.x / 2, 0, size.x / 2, size.y);
 			RenderScene(1);
 			break;
 		}
 		case 3:
 		{
-			camera_.SetAspects(size.x / 2.0f, size.y / 2.0f);
+			camera_.SetAspects(
+				static_cast<float>(size.x) / 2.0f, static_cast<float>(size.y) / 2.0f);
 
 			// Top Left
-			Mat4f camProj = camera_.GenerateProjectionMatrix(0);
-			Mat4f camView = camera_.GenerateViewMatrix(0);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
-			glViewport(0, size.y / 2.0f, size.x / 2.0f, size.y / 2.0f);
+			camera_.Bind(0);
+			glViewport(0, size.y / 2, size.x / 2, size.y / 2);
 			RenderScene(0);
 
 			// Top Right
-			camProj = camera_.GenerateProjectionMatrix(1);
-			camView = camera_.GenerateViewMatrix(1);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
-			glViewport(size.x / 2.0f, size.y / 2.0f, size.x / 2.0f, size.y / 2.0f);
+			camera_.Bind(1);
+			glViewport(size.x / 2, size.y / 2, size.x / 2, size.y / 2);
 			RenderScene(1);
 
 			// Bottom Left
-			camProj = camera_.GenerateProjectionMatrix(2);
-			camView = camera_.GenerateViewMatrix(2);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
-			glViewport(0, 0, size.x / 2.0f, size.y / 2.0f);
+			camera_.Bind(2);
+			glViewport(0, 0, size.x / 2, size.y / 2);
 			RenderScene(2);
 			break;
 		}
 		case 4:
 		{
-			camera_.SetAspects(size.x / 2.0f, size.y / 2.0f);
+			camera_.SetAspects(
+				static_cast<float>(size.x) / 2.0f, static_cast<float>(size.y) / 2.0f);
 
 			// Top Left
-			Mat4f camProj = camera_.GenerateProjectionMatrix(0);
-			Mat4f camView = camera_.GenerateViewMatrix(0);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
-			glViewport(0, size.y / 2.0f, size.x / 2.0f, size.y / 2.0f);
+			camera_.Bind(0);
+			glViewport(0, size.y / 2, size.x / 2, size.y / 2);
 			RenderScene(0);
 
 			// Top Right
-			camProj = camera_.GenerateProjectionMatrix(1);
-			camView = camera_.GenerateViewMatrix(1);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
-			glViewport(size.x / 2.0f, size.y / 2.0f, size.x / 2.0f, size.y / 2.0f);
+			camera_.Bind(1);
+			glViewport(size.x / 2, size.y / 2, size.x / 2, size.y / 2);
 			RenderScene(1);
 
 			// Bottom Left
-			camProj = camera_.GenerateProjectionMatrix(2);
-			camView = camera_.GenerateViewMatrix(2);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
-			glViewport(0, 0, size.x / 2.0f, size.y / 2.0f);
+			camera_.Bind(2);
+			glViewport(0, 0, size.x / 2, size.y / 2);
 			RenderScene(2);
 
 			// Bottom Right
-			camProj = camera_.GenerateProjectionMatrix(3);
-			camView = camera_.GenerateViewMatrix(3);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
-			glViewport(size.x / 2.0f, 0, size.x / 2.0f, size.y / 2.0f);
+			camera_.Bind(3);
+			glViewport(size.x / 2, 0, size.x / 2, size.y / 2);
 			RenderScene(3);
 			break;
 		}
@@ -190,3 +162,4 @@ void DrawSystem::OnEvent(const SDL_Event& event)
 	camera_.OnEvent(event);
 }
 }    // namespace neko::aer
+ 

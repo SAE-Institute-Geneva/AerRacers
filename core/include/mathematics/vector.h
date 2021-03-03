@@ -71,14 +71,14 @@ struct Vec2
 	//-----------------------------------------------------------------------------
 	Vec2() noexcept = default;
 	explicit Vec2(T same) noexcept : x(same), y(same) {}
-	Vec2(T X, T Y) noexcept : x(X), y(Y) {}
+	Vec2(T x, T y) noexcept : x(x), y(y) {}
 	explicit Vec2(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]) {}
 
 	template<class U>
 	explicit Vec2(U u) noexcept : x(T(u.x)), y(T(u.y))  {}
 
 	template<class U>
-	Vec2(U X, U Y) noexcept : x(T(X)), y(T(Y)) {}
+	Vec2(U x, U y) noexcept : x(T(x)), y(T(y)) {}
 
 	explicit Vec2(std::array<T, 2> v) noexcept
 	{
@@ -362,7 +362,7 @@ public:
 		return os;
 	}
 
-	std::string ToString()
+	std::string ToString() const
 	{ return fmt::format("Vec3({}, {}, {})", x, y, z); }
 
 	//-----------------------------------------------------------------------------
@@ -461,7 +461,7 @@ public:
 	 * \return Vec3 The location of the vector on the plane.
 	 */
 	//from https://github.com/Unity-Technologies/UnityCsReference/blob/master/Runtime/Export/Math/Vector3.cs
-	static Vec3<T> ProjectOnPlane(Vec3& vector, Vec3& planeNormal)
+	static Vec3<T> ProjectOnPlane(const Vec3& vector, const Vec3& planeNormal)
 	{
 		float sqrMag = Dot(planeNormal, planeNormal);
 		if (sqrMag < 0.0f)
@@ -482,7 +482,7 @@ public:
 	 * \return The angle between the two vectors.
 	 */
 	//https://github.com/Unity-Technologies/UnityCsReference/blob/master/Runtime/Export/Math/Vector3.cs
-	static radian_t Angle(Vec3& from, Vec3& to)
+	static radian_t Angle(const Vec3& from, const Vec3& to)
 	{
 		// sqrt(a) * sqrt(b) = sqrt(a * b) -- valid for real numbers
 		float denominator = sqrt(from.SquareMagnitude() * to.SquareMagnitude());

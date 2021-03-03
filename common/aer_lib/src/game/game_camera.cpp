@@ -1,5 +1,9 @@
 #include "aer/game/game_camera.h"
 
+#ifdef NEKO_GLES3
+#include "gl/shader.h"
+#endif
+
 namespace neko::aer
 {
 //-----------------------------------------------------------------------------
@@ -20,11 +24,13 @@ void GameCamera::Update(const seconds dt)
 	const auto& controllers = inputManager.GetControllerIdVector();
 	for (std::size_t i = 0; i < controllers.size() / 2; ++i)
 	{
+		if (inputManager.GetControllerIdVector().size() <= i) continue;
+		sdl::ControllerId controllerId = inputManager.GetControllerIdVector()[i];
 		// Query left joystick movement
 		const float xMove =
-			inputManager.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS);
+			inputManager.GetControllerAxis(controllerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS);
 		const float zMove =
-			inputManager.GetControllerAxis(i, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS);
+			inputManager.GetControllerAxis(controllerId, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS);
 		const Vec3f right = cameras_[i].GetRight();
 
 		Vec3f move {};
@@ -32,16 +38,16 @@ void GameCamera::Update(const seconds dt)
 		move += cameras_[i].reverseDirection * zMove * dt.count();
 
 		// Vertical Joystick Movement
-		if (inputManager.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) ==
+		if (inputManager.GetControllerButtonState(controllerId, sdl::ControllerButtonType::BUTTON_B) ==
 			sdl::ButtonState::HELD)
 			move += Vec3f::up * dt.count();
-		else if (inputManager.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_A) ==
+		else if (inputManager.GetControllerButtonState(controllerId, sdl::ControllerButtonType::BUTTON_A) ==
 				 sdl::ButtonState::HELD)
 			move += Vec3f::down * dt.count();
 
 		// Apply movement and check for turbo mode
 		const sdl::ButtonState buttonState =
-			inputManager.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_X);
+			inputManager.GetControllerButtonState(controllerId, sdl::ControllerButtonType::BUTTON_X);
 		if (buttonState == sdl::ButtonState::DOWN)
 			cameras_[i].position += move * cameras_[i].moveSpeed * 5.0f;
 		else
@@ -49,9 +55,9 @@ void GameCamera::Update(const seconds dt)
 
 		// Joystick Rotation
 		const float xCamera =
-			inputManager.GetControllerAxis(i, sdl::ControllerAxisType::VERTICAL_RIGHT_AXIS);
+			inputManager.GetControllerAxis(controllerId, sdl::ControllerAxisType::VERTICAL_RIGHT_AXIS);
 		const float yCamera =
-			inputManager.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_RIGHT_AXIS);
+			inputManager.GetControllerAxis(controllerId, sdl::ControllerAxisType::HORIZONTAL_RIGHT_AXIS);
 		cameras_[i].Rotate(EulerAngles(degree_t(xCamera * cameras_[i].mouseSpeed * dt.count()),
 			degree_t(yCamera * cameras_[i].mouseSpeed * dt.count()),
 			degree_t(0.0f)));
@@ -97,6 +103,17 @@ void GameCamera::OnEvent(const SDL_Event& event)
 		mouseMotion_ = Vec2f(-event.motion.xrel, -event.motion.yrel) * cameras_[0].mouseSensitivity;
 }
 
+void GameCamera::Bind(std::size_t playerNum)
+{
+#ifdef NEKO_GLES3
+	Mat4f camProj = GenerateProjectionMatrix(playerNum);
+	Mat4f camView = GenerateViewMatrix(playerNum);
+	gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
+	gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+#endif
+	CameraLocator::provide(&cameras_[playerNum]);
+}
+
 void GameCamera::SetCameras(const Camera3D& newCam)
 {
 	for (auto& camera : cameras_)
@@ -120,7 +137,7 @@ void GameCamera::SetAspects(float aspect)
 		camera.SetAspect(aspect);
 }
 
-void GameCamera::SetAspects(float windowSizeX, float windowSize)
+void GameCamera::SetAspects(int windowSizeX, int windowSize)
 {
 	for (auto& camera : cameras_)
 		camera.SetAspect(windowSizeX, windowSize);
