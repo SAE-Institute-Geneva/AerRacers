@@ -22,11 +22,6 @@ layout(binding = 0) uniform UboScene
 	vec3 viewPos;
 } ubo;
 
-layout(binding = 1) uniform UboObject 
-{
-	vec4 color;
-} object;
-
 void main() 
 {
 	FragPos = vec3(inModelMatrix * vec4(inPosition, 1.0));
@@ -42,5 +37,5 @@ void main()
     TangentViewPos  = TBN * ubo.viewPos;
     TangentFragPos  = TBN * FragPos;
     
-    gl_Position = ubo.proj * ubo.view * inModelMatrix * vec4(inPosition, 1.0) * object.color;
+    gl_Position = ubo.proj * ubo.view * inModelMatrix * vec4(inPosition, 1.0);
 }
