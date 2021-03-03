@@ -1,24 +1,25 @@
 #pragma once
-#include <xxhash.h>
-#include <string>
+#include <xxhash_cx.h>
 
 namespace neko
 {
-using StringHash = XXH64_hash_t;
-const static XXH64_hash_t kHashSeed = 0;
+using StringHash = xxhash::hash<64>::hash_type;
+constexpr StringHash kHashSeed = 0;
 
-static XXH64_hash_t HashString(const std::string& s)
+constexpr StringHash HashString(const std::string& s)
 {
-    return XXH64(s.c_str(), s.size(), kHashSeed);
+	// Using IM_ARRAYSIZE and data() because otherwise hashes does not generate the same way
+	return xxhash::xxh64(s.data(), s.size(), kHashSeed);
 }
 
-static XXH64_hash_t HashString(const std::string_view& s)
+constexpr StringHash HashString(const std::string_view& s)
 {
-    return XXH64(&s[0], s.size(), kHashSeed);
+	// Using IM_ARRAYSIZE and data() because otherwise hashes does not generate the same way
+	return xxhash::xxh64(s.data(), s.size(), kHashSeed);
 }
 
-static XXH64_hash_t HashString(const char s[256])
+constexpr StringHash HashString(const char* s, std::size_t length)
 {
-    return XXH64(&s[0], strlen(s), kHashSeed);
+	return xxhash::xxh64(s, length, kHashSeed);
 }
 }

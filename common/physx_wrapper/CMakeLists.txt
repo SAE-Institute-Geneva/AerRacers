@@ -52,6 +52,7 @@ if (MSVC)
 			$<$<CONFIG:Profile>:${PHYSX_WINDOWS_PROFILE_COMPILE_DEFS};>
 			$<$<CONFIG:Release>:${PHYSX_WINDOWS_RELEASE_COMPILE_DEFS};>
 			)
+	execute_process(COMMAND "${PHYSX_ROOT_DIR}/generate_projects.bat" windows)
 elseif (UNIX)
 	SET(PHYSX_COMPILE_DEFS
 			# Common to all configurations
@@ -63,6 +64,7 @@ elseif (UNIX)
 			$<$<CONFIG:Profile>:${PHYSX_LINUX_PROFILE_COMPILE_DEFS};>
 			$<$<CONFIG:Release>:${PHYSX_LINUX_RELEASE_COMPILE_DEFS};>
 			)
+	execute_process(COMMAND "${PHYSX_ROOT_DIR}/generate_projects.sh" linux)
 endif ()
 
 TARGET_COMPILE_DEFINITIONS(physx_wrapper

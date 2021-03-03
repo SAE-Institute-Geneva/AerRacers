@@ -21,9 +21,7 @@ static void BM_Aabb2CheckIntersect(benchmark::State& state)
     for (auto _ : state)
     {
         for (size_t i = 0; i < n; i++)
-        {
-            benchmark::DoNotOptimize(v1[i].DoIntersectAabb(v2[i]));
-        }
+        { benchmark::DoNotOptimize(v1[i].DoIntersectAabb(v2[i])); }
     }
 }
 
@@ -51,4 +49,4 @@ static void BM_Aabb2CheckContains(benchmark::State& state)
 
 BENCHMARK(BM_Aabb2CheckContains)->Range(fromRange, toRange);
 
-BENCHMARK_MAIN();
+BENCHMARK_MAIN(); 

@@ -1,6 +1,5 @@
 #pragma once
-
-/*
+/* ----------------------------------------------------
  MIT License
 
  Copyright (c) 2020 SAE Institute Switzerland AG
@@ -22,62 +21,66 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
- */
 
-#include <assimp/IOSystem.hpp>
-#include <utils/file_utility.h>
-
+ Author: Canas Simon
+ Date:
+---------------------------------------------------------- */
 #include <assimp/IOStream.hpp>
+#include <assimp/IOSystem.hpp>
+
+#include "engine/filesystem.h"
 
 namespace neko
 {
 /**
  * \brief Read-only IO Stream use by Assimp that use Neko BufferFile
  */
-class NekoIOStream : public Assimp::IOStream
+class VkIoStream : public Assimp::IOStream
 {
 public:
-    explicit NekoIOStream(const FilesystemInterface&);
-    size_t Read(void* pvBuffer, size_t pSize, size_t pCount) override;
+	explicit VkIoStream(const FilesystemInterface&);
 
-    size_t Write(const void* pvBuffer, size_t pSize, size_t pCount) override;
+	void Destroy();
 
-    aiReturn Seek(size_t pOffset, aiOrigin pOrigin) override;
+	size_t Read(void* pvBuffer, size_t pSize, size_t pCount) override;
+	size_t Write(const void* pvBuffer, size_t pSize, size_t pCount) override;
 
-    [[nodiscard]] size_t Tell() const override;
+	aiReturn Seek(size_t pOffset, aiOrigin pOrigin) override;
 
-    [[nodiscard]] size_t FileSize() const override;
+	[[nodiscard]] size_t Tell() const override;
 
-    void Flush() override;
+	[[nodiscard]] size_t FileSize() const override;
 
-    void LoadFromFile(std::string_view path);
-    void Destroy();
+	void Flush() override;
+
+	void LoadFromFile(std::string_view path);
+
 private:
-    const FilesystemInterface& filesystem_;
-    BufferFile bufferFile_;
-    size_t cursorIndex_ = 0;
+	const FilesystemInterface& filesystem_;
+	BufferFile bufferFile_;
+	size_t cursorIndex_ = 0;
 };
 
-class NekoIOSystem : public Assimp::IOSystem
+class VkIoSystem : public Assimp::IOSystem
 {
 public:
-    explicit NekoIOSystem(const FilesystemInterface&);
-	bool Exists(const char* pFile) const override
-	{
-		return filesystem_.FileExists(pFile);
-	}
+	explicit VkIoSystem(const FilesystemInterface&);
 
-	[[nodiscard]] char getOsSeparator() const override {
+	Assimp::IOStream* Open(const char* pFile, const char* pMode) override;
+	void Close(Assimp::IOStream* pFile) override;
+
+	bool Exists(const char* pFile) const override { return filesystem_.FileExists(pFile); }
+
+	[[nodiscard]] char getOsSeparator() const override
+	{
 #ifdef WIN32
 		return '\\';
 #else
 		return '/';
 #endif
 	};
-	Assimp::IOStream* Open(const char* pFile, const char* pMode) override;
-	void Close(Assimp::IOStream* pFile) override;
 
 protected:
-    const FilesystemInterface& filesystem_;
+	const FilesystemInterface& filesystem_;
 };
-}
+}    // namespace neko

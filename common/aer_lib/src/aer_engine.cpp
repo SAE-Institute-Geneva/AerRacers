@@ -1,4 +1,9 @@
 #include "aer/aer_engine.h"
+
+#ifdef NEKO_VULKAN
+#include "vk/vk_resources.h"
+#endif
+
 #ifdef EASY_PROFILE_USE
     #include <easy/profiler.h>
 #endif
@@ -9,9 +14,9 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
    : SdlEngine(filesystem, *config),
 	 mode_(mode),
 	 drawSystem_(*this),
+	 physicsEngine_(cContainer_.entityManager, cContainer_.transform3dManager),
 	 cContainer_(rContainer_, physicsEngine_),
-	 toolManager_(*this),
-	 physicsEngine_(cContainer_.entityManager, cContainer_.transform3dManager)
+	 toolManager_(*this)
 {
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("AerEngine::Constructor");
@@ -26,7 +31,7 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 	}
 
 	if (mode_ != ModeEnum::TEST)
-	{
+    {
 		RegisterSystem(drawSystem_);
 		RegisterOnEvent(drawSystem_);
 		RegisterOnDrawUi(drawSystem_);
@@ -46,9 +51,14 @@ void AerEngine::Init()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("AerEngine::Init");
 #endif
-	SdlEngine::Init();
 
-	if (mode_ == ModeEnum::GAME) {}
+#ifdef NEKO_GLES3
+	SdlEngine::Init();
+#elif NEKO_VULKAN
+	jobSystem_.Init();
+	initAction_.Execute();
+	inputManager_.Init();
+#endif
 }
 
 void AerEngine::Destroy()
@@ -66,7 +76,13 @@ void AerEngine::GenerateUiFrame()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("AerEngine::GenerateUiFrame");
 #endif
+
+#ifdef NEKO_GLES3
 	window_->GenerateUiFrame();
 	drawImGuiAction_.Execute();
+#elif NEKO_VULKAN
+	if (vk::VkResources::Inst->IsImGuiReady())
+		drawImGuiAction_.Execute();
+#endif
 }
 }    // namespace neko::aer

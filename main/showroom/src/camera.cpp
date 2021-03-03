@@ -1,8 +1,7 @@
 #include "showroom/camera.h"
 
-#include "imgui.h"
-
 #include "mathematics/plane.h"
+#include "mathematics/quaternion.h"
 
 namespace neko::sr
 {

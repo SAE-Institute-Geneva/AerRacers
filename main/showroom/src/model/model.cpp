@@ -156,7 +156,7 @@ void Model::ProcessNode(aiNode* node, const aiScene* scene)
 
 		node->mName = mesh.name_;
 		if (node->mParent->mNumMeshes != 0)
-			mesh.parentName_ = HashString(node->mParent->mName.C_Str());
+			mesh.parentName_ = HashString(std::string(node->mParent->mName.C_Str()));
 		mesh.ProcessMesh(assMesh, scene, directory_, path_);
 	}
 

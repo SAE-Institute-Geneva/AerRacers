@@ -220,12 +220,6 @@ if(Neko_PhysX)
 	set(PHYSX_ROOT_DIR ${PHYSX_DIR}/physx)
 	# Call into PhysX's CMake scripts
     add_subdirectory("common/physx_wrapper")
-
-    if (MSVC)
-        execute_process(COMMAND "${PHYSX_ROOT_DIR}/generate_projects.bat" windows)
-    elseif (UNIX)
-        execute_process(COMMAND "${PHYSX_ROOT_DIR}/generate_projects.sh" linux)
-    endif ()
 endif()
 
 if(Neko_Freetype)
@@ -268,8 +262,12 @@ foreach(main_project_path ${main_projects} )
     # I used a simple string replace, to cut off .cpp.
     get_filename_component(main_project_name ${main_project_path} NAME )
 
-    message("Main project path: ${main_project_path} and name: ${main_project_name}")
-    set(${main_project_name} ON CACHE BOOL "")
+    message("Main project path: ${main_project_path} and name: ${main_project_name}.")
+	if (${main_project_name} STREQUAL "aer_editor" OR ${main_project_name} STREQUAL "aer_game" OR ${main_project_name} STREQUAL "vulkan_engine")
+		set(${main_project_name} ON CACHE BOOL "")
+	else()
+		set(${main_project_name} OFF CACHE BOOL "")
+    endif()
 
     if(${main_project_name})
         add_subdirectory(${main_project_path})

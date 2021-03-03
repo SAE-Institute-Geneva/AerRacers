@@ -23,33 +23,50 @@
  SOFTWARE.
 
  Author : Guillaume Jeannin
- Co-Author :
+ Co-Author : Floreau Luca
  Date : 13.10.2020
 ---------------------------------------------------------- */
 #include "aer/editor/editor_tool_interface.h"
 
 namespace neko::aer
 {
-	class Inspector final : public EditorToolInterface
-	{
-	public:
-		explicit Inspector(AerEngine& engine, ToolType type, int id, std::string name);
-		void Init() override;
-		void Update(seconds dt) override;
-		void DrawImGui() override;
-		void Destroy() override;
-		void OnEvent(const SDL_Event& event) override;
+constexpr std::uint8_t MaxTagSize = 128;
 
-    private:
-        EditorToolManager& editorToolManager_;
-        EntityManager& entityManager_;
-        Transform3dManager& transform3dManager_;
-        RenderManager& renderManager_;
-        physics::RigidDynamicManager& rigidDynamicManager_;
-        physics::RigidStaticManager& rigidStaticManager_;
-        Transform3dViewer& transform3dViewer_;
-        RendererViewer& rendererViewer_;
-        physics::RigidDynamicViewer& rigidDynamicViewer_;
-        physics::RigidStaticViewer& rigidStaticViewer_;
-	};
+class Inspector final : public EditorToolInterface
+{
+public:
+	explicit Inspector(AerEngine& engine, ToolType type, int id, std::string name);
+	void Init() override;
+	void Update(seconds dt) override;
+	void DrawImGui() override;
+	void Destroy() override;
+	void OnEvent(const SDL_Event& event) override;
+
+private:
+	void DisplayLayersAndTags(Entity selectedEntity);
+	void DisplayNewComponentButtons(Entity selectedEntity);
+
+	EditorToolManager& editorToolManager_;
+	EntityManager& entityManager_;
+	Transform3dManager& transform3dManager_;
+	RenderManager& renderManager_;
+	physics::RigidDynamicManager& rigidDynamicManager_;
+	physics::RigidStaticManager& rigidStaticManager_;
+	Transform3dViewer& transform3dViewer_;
+	RendererViewer& rendererViewer_;
+	physics::RigidDynamicViewer& rigidDynamicViewer_;
+	physics::RigidStaticViewer& rigidStaticViewer_;
+
+	std::string layer_;
+	std::string tag_;
+	std::string newLayer_    = "";
+	std::string newTag_      = "";
+	const char* currentItem_ = NULL;
+};
+}    // namespace neko::aer
+
+namespace ImGui
+{
+static int InputTextCallback(ImGuiInputTextCallbackData* data);
+bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags);
 }

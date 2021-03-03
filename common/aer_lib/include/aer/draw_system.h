@@ -26,12 +26,9 @@
  Co-Author :
  Date : 29.09.2020
 ---------------------------------------------------------- */
-
-#include "sdl_engine/sdl_camera.h"
-
 #include "aer/editor/editor_tool_manager.h"
+#include "aer/game/game_camera.h"
 #include "aer/gizmos_renderer.h"
-#include "aer/scene.h"
 
 namespace neko::aer
 {
@@ -39,8 +36,11 @@ class AerEngine;
 struct ResourceManagerContainer;
 struct ComponentManagerContainer;
 
+constexpr std::uint8_t kMaxPlayerNum = 4;
+
 class DrawSystem final : public SystemInterface,
 						 public sdl::SdlEventSystemInterface,
+						 public RenderCommandInterface,
 						 public DrawImGuiInterface
 {
 public:
@@ -49,12 +49,15 @@ public:
 	void Init() override;
 	void DrawImGui() override;
 	void Update(seconds dt) override;
+	void Render() override;
 	void Destroy() override;
 
 	void OnEvent(const SDL_Event& event) override;
 
-protected:
-	sdl::MovableCamera3D camera_;
+private:
+	void RenderScene(std::size_t playerNum);
+
+	GameCamera camera_;
 	AerEngine& engine_;
 
 	ResourceManagerContainer& rContainer_;
@@ -64,6 +67,6 @@ protected:
 	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
 #endif
 
-	Entity testEntity_;
+	std::uint8_t playerNum_ = 4;
 };
 }    // namespace neko::aer

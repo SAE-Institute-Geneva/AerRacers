@@ -26,29 +26,34 @@
  Co-Author :
  Date : 22.01.2021
 ---------------------------------------------------------- */
+#include "px/physics_callbacks.h"
+
 #include "aer/editor/editor_tool_interface.h"
 
 namespace neko::aer
 {
 class SceneManager;
 
-class SceneLoader final : public EditorToolInterface
-	{
-	public:
-        explicit SceneLoader(AerEngine& engine, ToolType type, int id, std::string name);
-		void Init() override;
-		void Update(seconds dt) override;
-		void DrawImGui() override;
-        void LoadSceneFiles();
-        void Destroy() override;
-		void OnEvent(const SDL_Event& event) override;
+class SceneLoader final : public EditorToolInterface, public physics::FixedUpdateInterface
+{
+public:
+	explicit SceneLoader(AerEngine& engine, ToolType type, int id, std::string name);
+	void Init() override;
+	void Update(seconds dt) override;
+	void DrawImGui() override;
+	void LoadSceneFiles();
+	void Destroy() override;
+	void OnEvent(const SDL_Event& event) override;
 
-    private:
-        SceneManager& sceneManager_;
+	void FixedUpdate(seconds dt) override;
 
-        std::string filepath_ = "";
+private:
+	SceneManager& sceneManager_;
 
-        std::vector<std::string> scenesPaths_;
-        unsigned selectedSceneIndex_ = 0;
-	};
-}
+	std::string filepath_ = "";
+
+	std::vector<std::string> scenesPaths_;
+	unsigned selectedSceneIndex_ = 0;
+	bool toSave_                 = false;
+};
+}    // namespace neko::aer

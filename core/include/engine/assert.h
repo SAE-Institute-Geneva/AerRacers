@@ -28,15 +28,15 @@
 #include <iostream>
 
 #ifdef NEKO_ASSERT
-#define neko_assert(Expr, Msg) \
-    if(!(Expr)) \
-    { \
-        std::cerr << "Assert failed:\t"<<Msg <<'\n' \
-            <<"Condition:\t"<< (#Expr) << '\n' \
-            << "Source:\t\t"<<__FILE__<<", line "<<__LINE__<<'\n'; \
-            abort(); \
-    }
+#define neko_assert(Expr, Msg)                                                   \
+	if (!(Expr))                                                                 \
+	{                                                                            \
+		std::cerr << "Assert failed:\t" << Msg << '\n'                           \
+				  << "Condition:\t" << (#Expr) << '\n'                           \
+				  << "Source:\t\t" << __FILE__ << ", line " << __LINE__ << '\n'; \
+		abort();                                                                 \
+	}                                                                            \
+	static_assert(true, "")
 #else
-#define neko_assert(Expr, Msg) \
-    void(0);
+#define neko_assert(Expr, Msg) void(0);
 #endif

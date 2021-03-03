@@ -26,8 +26,12 @@
 
 namespace neko::sr
 {
-const TextureName TEXTURE_NOT_FOUND = std::numeric_limits<std::uint32_t>::max();
-const TextureId TEXTURE_NOT_FOUND_ID = sole::rebuild(HashString("INVALID TEXTURE"), HashString("TEXTURE NOT FOUND"));
+constexpr TextureName TEXTURE_NOT_FOUND = std::numeric_limits<std::uint32_t>::max();
+constexpr std::string_view kInvalidTex = "INVALID TEXTURE";
+constexpr std::string_view kNotFoundTex = "TEXTURE NOT FOUND";
+const static TextureId TEXTURE_NOT_FOUND_ID =
+	sole::rebuild(HashString(kInvalidTex), HashString(kNotFoundTex));
+
 struct Image
 {
 	Image() = default;

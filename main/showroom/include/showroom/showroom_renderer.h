@@ -22,11 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <vector>
-
-#include <SDL_events.h>
 #include "ImGuizmo.h"
-#include "sdl_engine/sdl_engine.h"
 
 #include "graphics/lights.h"
 #include "showroom/camera.h"
@@ -101,9 +97,9 @@ struct BlurFbo final : Framebuffer
 
 class ShowRoomEngine;
 class ShowRoomRenderer final : public SystemInterface,
-                               public DrawImGuiInterface,
-                               public sdl::SdlEventSystemInterface,
-                               public RenderCommandInterface
+							   public DrawImGuiInterface,
+							   public sdl::SdlEventSystemInterface,
+							   public RenderCommandInterface
 {
 public:
     explicit ShowRoomRenderer(ShowRoomEngine& engine);
@@ -140,7 +136,7 @@ private:
     //Tool Window
     void DrawLightTransform();
     void DrawModelTransform();
-    void DrawMeshTransform(sr::Mesh& mesh) const;
+    static void DrawMeshTransform(sr::Mesh& mesh) ;
 
     //Scene Window
     void DrawMeshImGui(sr::Mesh& mesh);
@@ -158,10 +154,13 @@ private:
 
     //Light properties
     void DrawPointLight();
-    void DrawDirectionalLight();
+    static void DrawDirectionalLight();
     void DrawSpotLight();
 
     ShowRoomEngine& engine_;
+
+	std::chrono::high_resolution_clock::time_point modelLoadingStart_;
+	double modelLoadingTime_ = 0.0;
 
     enum LightType : uint8_t
     {
@@ -196,7 +195,7 @@ private:
     gl::Shader blurShader_;
     BloomFbo bloomFbo_;
     BlurFbo blurFbo_;
-    gl::RenderQuad screenQuad_ {Vec3f::zero, Vec2f::one * 2};
+    gl::RenderQuad screenQuad_ {Vec3f::zero, Vec2f::one * 2.0f};
 
     //Lights
     LightType lightType_ = SUN;
@@ -238,21 +237,23 @@ private:
 
 namespace ImGui
 {
-bool ButtonCentered(std::string_view label, const ImVec2& size = ImVec2(0, 0));
+bool ButtonCentered(std::string_view label, const ImVec2& size = ImVec2(0.0f, 0.0f));
 void TextCentered(std::string_view text);
 
 static int InputTextCallback(ImGuiInputTextCallbackData* data);
 bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags);
 
-static bool Combo(const char* label, int* currentItem, const std::vector<std::string>& items, int heightInItems = -1);
+static bool Combo(const char* label,
+	int* currentItem,
+	const std::vector<std::string>& items,
+	int heightInItems = -1);
 
-bool ImageButton(
-	std::string_view itemId,
+bool ImageButton(std::string_view itemId,
 	neko::TextureName userTextureId,
 	const ImVec2& size,
-	const ImVec2& uv0 = ImVec2(neko::Vec2f::zero),
-	const ImVec2& uv1 = ImVec2(neko::Vec2f::one),
-	int framePadding = -1,
-	const ImVec4& bgCol = ImVec4(neko::Color::clear),
+	const ImVec2& uv0     = ImVec2(neko::Vec2f::zero),
+	const ImVec2& uv1     = ImVec2(neko::Vec2f::one),
+	int framePadding      = -1,
+	const ImVec4& bgCol   = ImVec4(neko::Color::clear),
 	const ImVec4& tintCol = ImVec4(neko::Color::white));
-}
+}    // namespace ImGui

@@ -299,8 +299,18 @@ public:
         EXPECT_TRUE(cContainer.entityManager.HasComponent(3, EntityMask(ComponentType::RIGID_STATIC)));
         EXPECT_TRUE(cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().colliderType ==
                     physics::ColliderType::BOX);
-        EXPECT_TRUE(
-            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness == 0.5f);
+        EXPECT_NEAR(
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness,
+            0.5f,
+            0.01f);
+        EXPECT_NEAR(
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness,
+            0.5f,
+            0.01f);
+        EXPECT_NEAR(
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness,
+            0.5f,
+            0.01f);
         EXPECT_FALSE(cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::RIGID_DYNAMIC)));
         EXPECT_FALSE(cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::RIGID_STATIC)));
 	}
@@ -391,7 +401,7 @@ public:
 
 private:
     float updateCount_           = 0;
-    const float kEngineDuration_ = 10.0f;
+    const float kEngineDuration_ = 2.0f;
 
     AerEngine& engine_;
 

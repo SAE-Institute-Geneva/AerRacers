@@ -68,7 +68,8 @@ static void BM_MatrixMultTranspose(benchmark::State& state)
     float result = 0.0f;
     for (size_t i = 0; i < n; i++)
     {
-        result += neko::Mat4f::MatrixDifference(v1[i].MultiplyNaive(v2[i]), v1[i].MultiplyTranspose(v2[i]));
+        result += neko::Mat4f::MatrixDifference(
+            v1[i].MultiplyNaive(v2[i]), v1[i].MultiplyTranspose(v2[i]));
     }
     std::cout << "Matrix difference for Transpose: " << result / static_cast<float>(n) << " Range: "
               << n << "\n";
@@ -126,7 +127,8 @@ static void BM_MatrixMultIntrinsics(benchmark::State& state)
     float result = 0.0f;
     for (size_t i = 0; i < n; i++)
     {
-        result += neko::Mat4f::MatrixDifference(v1[i].MultiplyNaive(v2[i]), v1[i].MultiplyIntrinsics(v2[i]));
+        result += neko::Mat4f::MatrixDifference(
+            v1[i].MultiplyNaive(v2[i]), v1[i].MultiplyIntrinsics(v2[i]));
     }
     std::cout << "Matrix difference for Intrinsincs: " << result / static_cast<float>(n) << " Range: " << n << "\n";
 }
@@ -135,4 +137,4 @@ BENCHMARK(BM_MatrixMultIntrinsics)->Range(fromRange, toRange);
 
 
 
-BENCHMARK_MAIN();
+BENCHMARK_MAIN(); 

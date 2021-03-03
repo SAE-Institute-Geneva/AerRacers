@@ -2,7 +2,7 @@
 
 namespace neko::vk
 {
-RenderCuboid::RenderCuboid(const Vec3f offset, const Vec3f size) : offset_(offset), size_(size){}
+RenderCuboid::RenderCuboid(const Vec3f& offset, const Vec3f& size) : offset_(offset), size_(size){}
 
 void RenderCuboid::Init()
 {
@@ -42,9 +42,9 @@ void RenderCuboid::Init()
 
     const std::vector<std::uint32_t> indices =
     {
-		0,  1,  2,  2,  3,  0, //Front Face
-		4,  5,  6,  6,  7,  4, //Back Face
-		8,  9,  10, 10, 11, 8, //Right Face
+		0,  1,  2,  2,  3,  0,  //Front Face
+		4,  5,  6,  6,  7,  4,  //Back Face
+		8,  9,  10, 10, 11, 8,  //Right Face
 		12, 13, 14, 14, 15, 12, //Left Face
 		16, 17, 18, 18, 19, 16, //Top Face
 		20, 21, 22, 22, 23, 20, //Bottom Face

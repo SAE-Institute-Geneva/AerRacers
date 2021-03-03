@@ -2,6 +2,8 @@
 
 #include <imgui.h>
 
+
+#include "aer/tag.h"
 #include "px/physics_engine.h"
 #include "px/physx_utility.h"
 
@@ -71,7 +73,7 @@ PhysicsMaterial RigidActor::GetPhysicsMaterial() const
         logDebug("No material_");
         return physicsMaterial;
     }
-    physicsMaterial.bouciness       = material_->getRestitution();
+    physicsMaterial.bouciness = material_->getRestitution();
     physicsMaterial.staticFriction  = material_->getStaticFriction();
     physicsMaterial.dynamicFriction = material_->getDynamicFriction();
     return physicsMaterial;
@@ -122,6 +124,7 @@ void RigidActor::SetMaterial(const PhysicsMaterial& physicsMaterial) const
     material_->setStaticFriction(physicsMaterial.staticFriction);
     material_->setDynamicFriction(physicsMaterial.dynamicFriction);
     material_->setRestitutionCombineMode(physx::PxCombineMode::eMIN);
+    material_->setFrictionCombineMode(physx::PxCombineMode::eMIN);
 }
 
 physx::PxMaterial* RigidActor::InitMaterial(
@@ -149,6 +152,18 @@ physx::PxShape* RigidActor::InitSphereShape(
     const SphereColliderData& sphereCollider) const
 {
     return physics->createShape(physx::PxSphereGeometry(sphereCollider.radius), *material);
+}
+
+void RigidActor::SetFiltering(
+    physx::PxShape* shape,
+    physx::PxU32 filterGroup)
+{
+    physx::PxFilterData filterData;
+    filterData.word0 = filterGroup; // word0 = own ID
+    filterData.word1 = FilterGroup::EVERYTHING;
+    // contact callback;
+    shape->setSimulationFilterData(filterData);
+    shape->setQueryFilterData(filterData);
 }
 
 json RigidActorViewer::GetJsonFromBoxCollider(const RigidActorData& rigidActorData) const
@@ -321,6 +336,7 @@ void RigidStatic::Init(physx::PxPhysics* physics,
         std::cerr << "createShape failed!";
         return;
     }
+    SetFiltering(shape_, rigidStatic.filterGroup);
     rigidActor_->attachShape(*shape_);
     SetRigidStaticData(rigidStatic);
 }
@@ -354,7 +370,7 @@ RigidStaticData RigidStatic::GetRigidStaticData() const
         logDebug("No rigidActor");
         return rigidStaticData;
     }
-    rigidStaticData.material     = GetPhysicsMaterial();
+    rigidStaticData.material = GetPhysicsMaterial();
     rigidStaticData.colliderType = GetColliderType();
     switch (rigidStaticData.colliderType) {
         case ColliderType::INVALID: break;
@@ -366,9 +382,8 @@ RigidStaticData RigidStatic::GetRigidStaticData() const
             rigidStaticData.sphereColliderData = GetSphereColliderData();
             rigidActor_->attachShape(*shape_);
             break;
-        default: ;
+        default: break;
     }
-
     return rigidStaticData;
 }
 
@@ -450,6 +465,7 @@ void RigidDynamic::SetRigidDynamicData(
             break;
         default: break;
     }
+    rigidActor_->setRigidBodyFlag(physx::PxRigidBodyFlag::eENABLE_CCD, true);
 }
 
 physics::RigidDynamicData RigidDynamic::GetRigidDynamicData() const
@@ -605,13 +621,27 @@ void neko::physics::RigidStaticManager::SetRigidStaticData(
 
 void RigidStaticManager::DestroyComponent(Entity entity)
 {
-    ComponentManager::DestroyComponent(entity);
     if (entity < components_.size())
     {
         if (GetComponent(entity).GetPxRigidStatic())
         { physicsEngine_.GetScene()->removeActor(*GetComponent(entity).GetPxRigidStatic()); }
         SetComponent(entity, RigidStatic());
     }
+    ComponentManager::DestroyComponent(entity);
+}
+
+Entity RigidStaticManager::FindEntityFromActor(physx::PxActor* actor)
+{
+    auto entityIt = std::find_if(
+        components_.begin(),
+        components_.end(),
+        [actor](RigidStatic rigidStatic) {
+            return actor == rigidStatic.GetPxRigidStatic();
+        });
+    if (entityIt == components_.end())
+        return INVALID_ENTITY;
+
+    return std::distance(components_.begin(), entityIt);
 }
 
 RigidStaticViewer::RigidStaticViewer(
@@ -641,6 +671,16 @@ json RigidStaticViewer::GetJsonFromComponent(Entity entity) const
         if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
         {
             RigidStaticData rigidStaticData    = rigidStaticManager_.GetRigidStaticData(entity);
+            rigidStaticData.boxColliderData.size =
+                Vec3f(rigidStaticData.boxColliderData.size.x /
+                          transform3dManager_.GetGlobalScale(entity).x,
+                    rigidStaticData.boxColliderData.size.y /
+                        transform3dManager_.GetGlobalScale(entity).y,
+                    rigidStaticData.boxColliderData.size.z /
+                        transform3dManager_.GetGlobalScale(entity).z);
+            rigidStaticData.sphereColliderData.radius =
+                rigidStaticData.sphereColliderData.radius /
+                transform3dManager_.GetGlobalScale(entity).x;
             RigidDynamicData rigidDynamicData;
             rigidDynamicViewer["useGravity"]     = rigidDynamicData.useGravity;
             rigidDynamicViewer["isKinematic"]    = rigidDynamicData.isKinematic;
@@ -673,6 +713,19 @@ void RigidStaticViewer::SetComponentFromJson(Entity entity, const json& componen
     rigidStaticData.boxColliderData      = rigidActorData.boxColliderData;
     rigidStaticData.sphereColliderData  = rigidActorData.sphereColliderData;
     rigidStaticData.material             = rigidActorData.material;
+    std::string layer = aer::TagLocator::get().GetEntityLayer(entity);
+    if (layer == "Ground") {
+        rigidStaticData.filterGroup = FilterGroup::GROUND;
+    }
+    else if (layer == "Ship") {
+        rigidStaticData.filterGroup = FilterGroup::SHIP;
+    }
+    else if (layer == "Wall") {
+        rigidStaticData.filterGroup = FilterGroup::WALL;
+    }
+    else {
+        rigidStaticData.filterGroup = FilterGroup::DEFAULT;
+    }
     rigidStaticManager_.AddRigidStatic(entity, rigidStaticData);
 }
 
@@ -716,7 +769,7 @@ void RigidDynamicManager::FixedUpdate(seconds dt)
         physx::PxVec3 x = transform.q.getBasisVector0();
         physx::PxVec3 y = transform.q.getBasisVector1();
         physx::PxVec3 z = transform.q.getBasisVector2();
-        transform3dManager_.SetRelativeRotation(entity,
+        transform3dManager_.SetGlobalRotation(entity,
             Quaternion::ToEulerAngles(ConvertFromPxQuat(transform.q)));
     }
 }
@@ -794,16 +847,33 @@ void RigidDynamicManager::SetAngularVelocity(Entity entity, const Vec3f& angular
 
 void RigidDynamicManager::DestroyComponent(Entity entity)
 {
+    if (entity < components_.size())
+    {
+        if (GetComponent(entity).GetPxRigidDynamic())
+        { physicsEngine_.GetScene()->removeActor(*GetComponent(entity).GetPxRigidDynamic()); }
+        SetComponent(entity, RigidDynamic());
+    }
     ComponentManager::DestroyComponent(entity);
-    if (GetComponent(entity).GetPxRigidDynamic())
-    { physicsEngine_.GetScene()->removeActor(*GetComponent(entity).GetPxRigidDynamic()); }
-    SetComponent(entity, RigidDynamic());
+}
+
+Entity RigidDynamicManager::FindEntityFromActor(physx::PxActor* actor)
+{
+    auto entityIt = std::find_if(
+        components_.begin(),
+        components_.end(),
+        [actor](RigidDynamic rigidDynamic) {
+            return actor == rigidDynamic.GetPxRigidDynamic();
+        });
+    if (entityIt == components_.end())
+        return INVALID_ENTITY;
+
+    return std::distance(components_.begin(), entityIt);
 }
 
 RigidDynamicViewer::RigidDynamicViewer(Transform3dManager& transform3dManager,
-    EntityManager& entityManager,
-    PhysicsEngine& physicsEngine,
-    RigidDynamicManager& rigidDynamicManager)
+                                       EntityManager& entityManager,
+                                       PhysicsEngine& physicsEngine,
+                                       RigidDynamicManager& rigidDynamicManager)
     : ComponentViewer(entityManager),
       physicsEngine_(physicsEngine),
       rigidDynamicManager_(rigidDynamicManager),
@@ -845,6 +915,16 @@ json RigidDynamicViewer::GetJsonFromComponent(Entity entity) const
         if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
         {
             RigidDynamicData rigidDynamicData = rigidDynamicManager_.GetRigidDynamicData(entity);
+            rigidDynamicData.boxColliderData.size =
+                Vec3f(rigidDynamicData.boxColliderData.size.x /
+                          transform3dManager_.GetGlobalScale(entity).x,
+                    rigidDynamicData.boxColliderData.size.y /
+                        transform3dManager_.GetGlobalScale(entity).y,
+                    rigidDynamicData.boxColliderData.size.z /
+                        transform3dManager_.GetGlobalScale(entity).z);
+            rigidDynamicData.sphereColliderData.radius =
+                rigidDynamicData.sphereColliderData.radius /
+                transform3dManager_.GetGlobalScale(entity).x;
             rigidDynamicViewer["useGravity"]  = rigidDynamicData.useGravity;
             rigidDynamicViewer["isKinematic"] = rigidDynamicData.isKinematic;
             rigidDynamicViewer["isStatic"]    = false;
@@ -861,8 +941,9 @@ json RigidDynamicViewer::GetJsonFromComponent(Entity entity) const
             rigidDynamicViewer["positionLock"]["z"]    = rigidDynamicData.freezePosition.z;
             rigidDynamicViewer["boxCollider"]       = GetJsonFromBoxCollider(rigidDynamicData);
             rigidDynamicViewer["sphereCollider"]       = GetJsonFromSphereCollider(rigidDynamicData);
-            rigidDynamicViewer["physicsMaterial"]       = GetJsonFromMaterial(rigidDynamicData);
+            rigidDynamicViewer["physicsMaterial"] = GetJsonFromMaterial(rigidDynamicData);
         }
+
     }    // namespace neko
     return rigidDynamicViewer;
     ;
@@ -897,20 +978,33 @@ void RigidDynamicViewer::SetComponentFromJson(Entity entity, const json& compone
     }
     if (CheckJsonParameter(componentJson, "positionLock", json::value_t::object)) {
         if (CheckJsonParameter(componentJson["positionLock"], "x", json::value_t::boolean)) {
-            rigidDynamicData.freezeRotation.x = componentJson["positionLock"]["x"];
+            rigidDynamicData.freezePosition.x = componentJson["positionLock"]["x"];
         }
         if (CheckJsonParameter(componentJson["positionLock"], "y", json::value_t::boolean)) {
-            rigidDynamicData.freezeRotation.y = componentJson["positionLock"]["y"];
+            rigidDynamicData.freezePosition.y = componentJson["positionLock"]["y"];
         }
         if (CheckJsonParameter(componentJson["positionLock"], "z", json::value_t::boolean)) {
-            rigidDynamicData.freezeRotation.z = componentJson["positionLock"]["z"];
+            rigidDynamicData.freezePosition.z = componentJson["positionLock"]["z"];
         }
     }
     RigidActorData rigidActorData       = GetRigidActorFromJson(componentJson);
     rigidDynamicData.colliderType    = rigidActorData.colliderType;
     rigidDynamicData.boxColliderData    = rigidActorData.boxColliderData;
     rigidDynamicData.sphereColliderData = rigidActorData.sphereColliderData;
-    rigidDynamicData.material           = rigidActorData.material;
+    rigidDynamicData.material             = rigidActorData.material;
+    std::string layer = aer::TagLocator::get().GetEntityLayer(entity);
+    if (layer == "Ground") {
+        rigidDynamicData.filterGroup = FilterGroup::GROUND;
+    }
+    else if (layer == "Ship") {
+        rigidDynamicData.filterGroup = FilterGroup::SHIP;
+    }
+    else if (layer == "Wall") {
+        rigidDynamicData.filterGroup = FilterGroup::WALL;
+    }
+    else {
+        rigidDynamicData.filterGroup = FilterGroup::DEFAULT;
+    }
     rigidDynamicManager_.AddRigidDynamic(entity, rigidDynamicData);
 }
 

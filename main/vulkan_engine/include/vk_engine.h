@@ -1,43 +1,22 @@
 #pragma once
 #include "vk_draw_system.h"
-#include "sdl_engine/sdl_engine.h"
-#include "vk/vulkan_window.h"
 
 namespace neko::vk
 {
 class VkEngine final : public sdl::SdlEngine
 {
 public:
-    VkEngine() = delete;
+	VkEngine() = delete;
+	VkEngine(const FilesystemInterface& filesystem, Configuration* config = nullptr);
 
-    explicit VkEngine(const FilesystemInterface& filesystem, Configuration* config = nullptr)
-		    : SdlEngine(filesystem, *config)
-    {
-        RegisterSystem(drawSystem_);
-        RegisterOnEvent(drawSystem_);
-    }
+	void Init() override;
+	void Destroy() override;
 
-	void Destroy() override
-    {
-		drawSystem_.Destroy();
-		SdlEngine::Destroy();
-    }
+	void GenerateUiFrame() override;
 
-	void GenerateUiFrame() override { /*SdlEngine::GenerateUiFrame();*/ }
+	void SetWindowAndRenderer(Window* window, neko::Renderer* renderer) override;
 
-    void SetWindowAndRenderer(sdl::VulkanWindow* window, neko::Renderer* renderer = nullptr)
-    {
-        window_ = window;
-
-        if (renderer)
-        {
-            renderer_ = renderer;
-            renderer_->SetWindow(window);
-            RendererLocator::provide(renderer);
-        }
-    }
-	
 private:
 	VkDrawSystem drawSystem_;
 };
-}
+}    // namespace neko::vk

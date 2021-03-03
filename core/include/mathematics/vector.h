@@ -22,13 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-
-#include <ostream>
-#include <array>
-
-#include "engine/intrinsincs.h"
-#include "mathematics/const.h"
-#include "mathematics/angle.h"
 #include "mathematics/trigo.h"
 
 #include <fmt/format.h>
@@ -78,14 +71,14 @@ struct Vec2
     //-----------------------------------------------------------------------------
     Vec2() noexcept = default;
 	explicit Vec2(T same) noexcept : x(same), y(same) {}
-	Vec2(T X, T Y) noexcept : x(X), y(Y) {}
+	Vec2(T x, T y) noexcept : x(x), y(y) {}
 	explicit Vec2(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]) {}
 
 	template<class U>
 	explicit Vec2(U u) noexcept : x(T(u.x)), y(T(u.y))  {}
 
 	template<class U>
-	Vec2(U X, U Y) noexcept : x(T(X)), y(T(Y)) {}
+	Vec2(U x, U y) noexcept : x(T(x)), y(T(y)) {}
 
 	explicit Vec2(std::array<T, 2> v) noexcept
 	{
@@ -207,7 +200,7 @@ struct Vec2
 	{
 		const float mag1 = v1.Magnitude();
 		const float mag2 = v2.Magnitude();
-		if (mag1 == 0 || mag2 == 0) return neko::radian_t(0.0f);
+		if (mag1 == 0.0f || mag2 == 0.0f) return neko::radian_t(0.0f);
 
 		const float dot      = Vec2<T>::Dot(v1, v2) / mag1 / mag2;
 		const float det      = v1.x * v2.y - v1.y * v2.x;
@@ -281,7 +274,7 @@ public:
     //-----------------------------------------------------------------------------
 	Vec3() noexcept = default;
 	explicit Vec3(T same) noexcept : x(same), y(same), z(same) {}
-	Vec3(T X, T Y, T Z) noexcept : x(X), y(Y), z(Z) {}
+	Vec3(T x, T y, T z) noexcept : x(x), y(y), z(z) {}
 	explicit Vec3(Vec2<T> v, T z = 0) noexcept : x(v.x), y(v.y), z(z) {}
 	explicit Vec3(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]), z(ptr[2]) {}
 
@@ -289,7 +282,7 @@ public:
 	explicit Vec3(U u) noexcept : x(T(u.x)), y(T(u.y)), z(T(u.z))  {}
 
 	template<class U>
-	Vec3(U X, U Y, U Z) noexcept : x(T(X)), y(T(Y)), z(T(Z)) {}
+	Vec3(U x, U y, U z) noexcept : x(T(x)), y(T(y)), z(T(z)) {}
 
 	explicit Vec3(std::array<T, 3> v) noexcept
 	{
@@ -369,8 +362,8 @@ public:
 		return os;
 	}
 
-    std::string ToString()
-    { return fmt::format("Vec3({}, {}, {})", x, y, z); }
+	std::string ToString() const
+	{ return fmt::format("Vec3({}, {}, {})", x, y, z); }
 
     //-----------------------------------------------------------------------------
     // Formulas
@@ -382,15 +375,15 @@ public:
 	}
 
 	/// \brief Calculates the cross product from two Vec3.
-    static Vec3<T> Cross(const Vec3<T> v1, const Vec3<T> v2)
-    {
-        return Vec3<T>(v1.y * v2.z - v1.z * v2.y,
-                       v1.z * v2.x - v1.x * v2.z,
-                       v1.x * v2.y - v1.y * v2.x);
-    }
+	static Vec3<T> Cross(const Vec3<T> v1, const Vec3<T> v2)
+	{
+		return Vec3<T>(v1.y * v2.z - v1.z * v2.y,
+		               v1.z * v2.x - v1.x * v2.z,
+		               v1.x * v2.y - v1.y * v2.x);
+	}
 
-    /// \brief Calculates the square magnitude.
-	T SquareMagnitude() const { return Dot(*this, *this); }
+	/// \brief Calculates the square magnitude.
+	[[nodiscard]] T SquareMagnitude() const { return Dot(*this, *this); }
 
 	/// \brief Calculates the magnitude.
     template<typename ReturnT = float>
@@ -398,8 +391,8 @@ public:
 	{ return std::sqrt(SquareMagnitude()); }
 
 	/// \brief Calculates the normalized vector.
-    Vec3<T> Normalized() const
-    { return (*this) / (*this).Magnitude(); }
+	[[nodiscard]] Vec3<T> Normalized() const
+	{ return (*this) / (*this).Magnitude(); }
 
     /// \brief Interpolate between two vectors.
     /// \param t the interpolation amount.
@@ -416,28 +409,28 @@ public:
 	}
 
 	static Vec3<T> Refract(const Vec3<T>& inVec, const Vec3<T>& normal, const T eta)
-    {
-        Vec3<T> N = normal.Normalized();
-    	const T k = 1 - eta * eta * (1.0 - Dot(N, inVec) * Dot(N, inVec));
+	{
+		Vec3<T> n = normal.Normalized();
+		const T k = 1 - eta * eta * (1.0 - Dot(n, inVec) * Dot(n, inVec));
 		return k < 0 ?
-                   Vec3<T>::zero :
-                   eta * inVec - (eta * Dot(N, inVec) + std::sqrt(k)) * N;
+		       Vec3<T>::zero :
+		       eta * inVec - (eta * Dot(n, inVec) + std::sqrt(k)) * n;
 	}
 
-    /// \brief Project v1 on v2 (doesn't need to be normalized).
-    /// \param v1 the vector to project.
-    /// \param v2 the vector to project on.
-    static Vec3<T> Project(const Vec3<T>& v1, const Vec3<T>& v2)
-    {
-        const auto dot = Dot(v1, v2);
-        const auto mag = v2.SquareMagnitude();
-        return {(dot / mag) * v2.x,
-                (dot / mag) * v2.y,
-                (dot / mag) * v2.z};
-    }
+	/// \brief Project v1 on v2 (doesn't need to be normalized).
+	/// \param v1 the vector to project.
+	/// \param v2 the vector to project on.
+	static Vec3<T> Project(const Vec3<T>& v1, const Vec3<T>& v2)
+	{
+		const auto dot = Dot(v1, v2);
+		const auto mag = v2.SquareMagnitude();
+		return {(dot / mag) * v2.x,
+		        (dot / mag) * v2.y,
+		        (dot / mag) * v2.z};
+	}
 
-    static neko::radian_t AngleBetween(const Vec3& v1, const Vec3& v2)
-    {
+	static neko::radian_t AngleBetween(const Vec3& v1, const Vec3& v2)
+	{
 		const float mag1 = v1.Magnitude();
 		const float mag2 = v2.Magnitude();
 		if (mag1 == 0.0f || mag2 == 0.0f) return neko::radian_t(0.0f);
@@ -446,6 +439,64 @@ public:
 		const float det      = v1.x * v2.y - v1.y * v2.x;
 		const radian_t angle = Atan2(det, dot);
 		return angle;
+	}
+
+
+    /**
+	 * \brief Makes vectors normalized and orthogonal to each other.
+	 * \param normal ref from the normal
+	 * \param tangent ref from the tangent
+	 */
+	//from https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process
+	static void OrthoNormalize(Vec3& normal, Vec3& tangent)
+	{
+		tangent = tangent - Project(tangent, normal);
+	}
+
+
+    /**
+	 * \brief Projects a vector onto a plane defined by a normal orthogonal to the plane.
+	 * \param vector The direction from the vector towards the plane.
+	 * \param planeNormal The location of the vector above the plane.
+	 * \return Vec3 The location of the vector on the plane.
+	 */
+	//from https://github.com/Unity-Technologies/UnityCsReference/blob/master/Runtime/Export/Math/Vector3.cs
+	static Vec3<T> ProjectOnPlane(const Vec3& vector, const Vec3& planeNormal)
+	{
+		float sqrMag = Dot(planeNormal, planeNormal);
+		if (sqrMag < 0.0f)
+			return vector;
+		else
+		{
+			const auto dot = Dot(vector, planeNormal);
+			return { vector.x - planeNormal.x * dot / sqrMag,
+				vector.y - planeNormal.y * dot / sqrMag,
+				vector.z - planeNormal.z * dot / sqrMag };
+		}
+	}
+
+    /**
+	 * \brief Returns the angle between from and to.
+	 * \param from The vector from which the angular difference is measured.
+	 * \param to The vector to which the angular difference is measured.
+	 * \return The angle between the two vectors.
+	 */
+	//https://github.com/Unity-Technologies/UnityCsReference/blob/master/Runtime/Export/Math/Vector3.cs
+	static radian_t Angle(const Vec3& from, const Vec3& to)
+	{
+		// sqrt(a) * sqrt(b) = sqrt(a * b) -- valid for real numbers
+		float denominator = sqrt(from.SquareMagnitude() * to.SquareMagnitude());
+		if (denominator <= 0.0f)
+			return radian_t(0.0f);
+
+		float dot = Dot(from, to) / denominator;
+		if (dot < -1.0f) {
+			dot = -1.0f;
+		}
+		if (dot > 1.0f) {
+			dot = 1.0f;
+		}
+		return Acos(dot);
 	}
 };
 //-----------------------------------------------------------------------------

@@ -38,9 +38,9 @@
 *.user
 
 # clion generation files
-*/.vs/*
+**/.vs/**
+**/venv/**
 .vs/*
-.clang-format
 CMakeSettings.json
 Folder.DotSettings.user
 [Bb]uild/*
@@ -66,7 +66,7 @@ web_build/*
 **/PhysX-4.1/**/CMakeCache.txt
 **/PhysX-4.1/**/cmake_install.cmake
 **/PhysX-4.1/**/CTestTestfile.cmake
-**/PhysX-4.1/**/Makefile
+**/PhysX-4.1/**/Makefile*
 **/PhysX-4.1/**/PxConfig.h
 **/PhysX-4.1/**/*.cbp
 **/PhysX-4.1/**/*.sln
@@ -74,3 +74,4 @@ web_build/*
 **/PhysX-4.1/**/*.vcxproj.filters
 !**/libGLEW.a
 !**/libGLEWmx.a
+
