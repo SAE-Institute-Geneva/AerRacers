@@ -7,9 +7,7 @@ namespace neko::vk
 {
 VkImGui::VkImGui()
 {
-	BasicEngine::GetInstance()->RegisterOnDrawUi(*this);
 	static_cast<sdl::SdlEngine*>(BasicEngine::GetInstance())->RegisterOnEvent(*this);
-
 	const VkResources* vkObj = VkResources::Inst;
 
 	IMGUI_CHECKVERSION();
@@ -28,23 +26,23 @@ VkImGui::VkImGui()
 	ImGui::StyleColorsDark();
 
 	VkDescriptorPoolSize poolSizes[] = {
-		{VK_DESCRIPTOR_TYPE_SAMPLER, 1000},
-		{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
-		{VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 1000},
-		{VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1000},
-		{VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 1000},
-		{VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 1000},
-		{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1000},
-		{VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1000},
-		{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
-		{VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
-		{VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 1000},
+		{VK_DESCRIPTOR_TYPE_SAMPLER, 128},
+		{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 128},
+		{VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 128},
+		{VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 128},
+		{VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 128},
+		{VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 128},
+		{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 128},
+		{VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 128},
+		{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 128},
+		{VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 128},
+		{VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 128},
 	};
 
 	VkDescriptorPoolCreateInfo poolInfo = {};
 	poolInfo.sType                      = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	poolInfo.flags                      = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-	poolInfo.maxSets                    = 1000 * IM_ARRAYSIZE(poolSizes);
+	poolInfo.maxSets                    = 128 * IM_ARRAYSIZE(poolSizes);
 	poolInfo.poolSizeCount              = static_cast<uint32_t>(IM_ARRAYSIZE(poolSizes));
 	poolInfo.pPoolSizes                 = poolSizes;
 	vkCreateDescriptorPool(VkDevice(vkObj->device), &poolInfo, nullptr, &descriptorPool_);
@@ -149,7 +147,8 @@ void VkImGui::OnEndOfFrame()
 	hasBeenDrawn_ = false;
 }
 
-void VkImGui::DrawImGui() {}
-
-void VkImGui::OnEvent(const SDL_Event& event) { ImGui_ImplSDL2_ProcessEvent(&event); }
+void VkImGui::OnEvent(const SDL_Event& event)
+{
+	ImGui_ImplSDL2_ProcessEvent(&event);
+}
 }    // namespace neko::vk

@@ -41,7 +41,7 @@ enum class MaterialType : std::uint8_t
 class Material
 {
 public:
-	using PushDataContainer = std::vector<std::pair<StringHash, MaterialExportData>>;
+	using PushDataContainer = std::map<StringHash, MaterialExportData>;
 
 	enum class RenderMode : std::uint8_t
 	{
@@ -67,9 +67,10 @@ public:
 	[[nodiscard]] virtual ordered_json ToJson() const = 0;
 	virtual void FromJson(const json& materialJson)   = 0;
 
-	virtual void SetRenderMode(RenderMode renderMode)      = 0;
-	[[nodiscard]] virtual MaterialType GetType() const     = 0;
-	[[nodiscard]] virtual RenderMode GetRenderMode() const = 0;
+	virtual void SetRenderMode(RenderMode renderMode)       = 0;
+	[[nodiscard]] virtual MaterialType GetType() const      = 0;
+	[[nodiscard]] virtual RenderMode GetRenderMode() const  = 0;
+	[[nodiscard]] virtual std::string GetShaderPath() const = 0;
 
 	[[nodiscard]] std::string_view GetName() const { return name_; }
 

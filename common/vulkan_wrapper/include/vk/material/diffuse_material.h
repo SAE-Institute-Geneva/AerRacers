@@ -33,14 +33,24 @@ constexpr std::string_view kDiffuseName  = ("diffuse");
 constexpr std::string_view kSpecularName = ("specular");
 constexpr std::string_view kNormalName   = ("normal");
 constexpr std::string_view kColorName    = ("color");
-constexpr StringHash kDiffuseHash  = HashString(kDiffuseName);
-constexpr StringHash kSpecularHash = HashString(kSpecularName);
-constexpr StringHash kNormalHash   = HashString(kNormalName);
-constexpr StringHash kColorHash    = HashString(kColorName);
+constexpr std::string_view kUsedMapsName = ("usedMaps");
+constexpr StringHash kDiffuseHash        = HashString(kDiffuseName);
+constexpr StringHash kSpecularHash       = HashString(kSpecularName);
+constexpr StringHash kNormalHash         = HashString(kNormalName);
+constexpr StringHash kColorHash          = HashString(kColorName);
+constexpr StringHash kUsedMapsHash       = HashString(kUsedMapsName);
 
 class DiffuseMaterial : public Material
 {
 public:
+	enum TextureMaps : std::uint8_t
+	{
+		DIFFUSE  = 1u << 0u,
+		SPECULAR = 1u << 1u,
+		NORMAL   = 1u << 2u,
+		EMISSIVE = 1u << 3u,
+	};
+
 	DiffuseMaterial(std::string_view name                       = "",
 		Color4 color                                            = Color::white,
 		const std::optional_const_ref<Image2d>& textureAlbedo   = std::nullopt,
@@ -50,8 +60,7 @@ public:
 	bool operator==(const DiffuseMaterial& other) const;
 	bool operator!=(const DiffuseMaterial& other) const { return !(*this == other); }
 
-	void SetShaderPath(std::string_view shaderPath) { shaderPath_ = shaderPath; }
-	[[nodiscard]] std::string_view GetShaderPath() const { return shaderPath_; }
+	[[nodiscard]] std::string GetShaderPath() const override;
 	[[nodiscard]] MaterialType GetType() const override { return MaterialType::DIFFUSE; }
 
 	void SetColor(const Color4& color);
@@ -83,12 +92,12 @@ public:
 private:
 	void ResetPipeline();
 
-	std::string shaderPath_ = "shaders/quad_color_instancing.aershader";
-
 	Color4 color_;
 	std::optional_const_ref<Image2d> diffuse_;
 	std::optional_const_ref<Image2d> specular_;
 	std::optional_const_ref<Image2d> normal_;
+
+	std::uint8_t usedMaps_ = 0;
 
 	float specularExp_ = 32.0f;
 };

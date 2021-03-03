@@ -25,6 +25,8 @@
  Author: Canas Simon
  Date:
 ---------------------------------------------------------- */
+#include <variant>
+
 #include "graphics/color.h"
 
 #include "vk/images/image2d.h"
@@ -39,42 +41,29 @@ public:
 	{
 		FLOAT = 0,
 		INT,
+		UCHAR,
 		IMAGE_2D,
-		//IMAGE_CUBE,
 		COLOR
 	};
 
-	explicit MaterialExportData(float f) : type_(Type::FLOAT), float_(f) {}
+	MaterialExportData() = default;
+	explicit MaterialExportData(float f) : data_(f) {}
+	explicit MaterialExportData(int i) : data_(i) {}
+	explicit MaterialExportData(std::uint8_t i) : data_(i) {}
+	explicit MaterialExportData(const Image2d* image2d) : data_(image2d) {}
+	explicit MaterialExportData(Color4 color) : data_(color) {}
 
-	explicit MaterialExportData(int i) : type_(Type::INT), integer_(i) {}
+	MaterialExportData(const MaterialExportData& other) = default;
 
-	explicit MaterialExportData(const Image2d* image2d) : type_(Type::IMAGE_2D), image2d_(image2d)
-	{}
+	[[nodiscard]] float GetFloat() const { return std::get<float>(data_); }
+	[[nodiscard]] int GetInt() const { return std::get<int>(data_); }
+	[[nodiscard]] int GetUChar() const { return std::get<std::uint8_t>(data_); }
+	[[nodiscard]] const Image2d* GetImage2d() const { return std::get<const Image2d*>(data_); }
+	[[nodiscard]] Color4 GetColor() const { return std::get<Color4>(data_); }
 
-	//explicit MaterialExportData(const ImageCube* imageCube)
-	//    : type_(Type::IMAGE_CUBE),
-	//      imageCube_(imageCube) { }
-
-	explicit MaterialExportData(Color4 color) : type_(Type::COLOR), color_(color) {}
-
-	[[nodiscard]] float GetFloat() const { return float_; }
-	[[nodiscard]] int GetInt() const { return integer_; }
-	[[nodiscard]] const Image2d* GetImage2d() const { return image2d_; }
-	//[[nodiscard]] const ImageCube* GetImageCube() const { return imageCube_; }
-	[[nodiscard]] Color4 GetColor() const { return color_; }
-
-	[[nodiscard]] Type GetType() const { return type_; }
+	[[nodiscard]] Type GetType() const { return static_cast<Type>(data_.index()); }
 
 private:
-	Type type_;
-
-	union
-	{
-		float float_ = 0.0f;
-		int integer_;
-		const Image2d* image2d_;
-		//const ImageCube* imageCube_;
-		Color4 color_;
-	};
+	std::variant<float, int, std::uint8_t, const Image2d*, Color4> data_;
 };
 }    // namespace neko::vk

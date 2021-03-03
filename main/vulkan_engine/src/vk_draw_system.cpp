@@ -4,14 +4,52 @@
 
 namespace neko::vk
 {
+VkDrawSystem::VkDrawSystem()
+   : transformManager_(entityManager_),
+	 renderManager_(entityManager_, modelManager_, transformManager_, rendererViewer_),
+	 rendererViewer_(entityManager_, renderManager_)
+{}
+
 void VkDrawSystem::Init()
 {
 	camera_.Init();
-	camera_.reverseDirection = Vec3f::back;
-	camera_.position         = Vec3f::back * 10.0f;
+	camera_.reverseDirection = Vec3f::forward;
+	camera_.position         = Vec3f::forward * 10.0f;
 	CameraLocator::provide(&camera_);
 
-	modelId_ = modelManager_.LoadModel("models/rock/rock.obj");
+	transformManager_.Init();
+	renderManager_.Init();
+
+	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
+	modelId_ = modelManager_.LoadModel(config.dataRootPath + "models/rock/rock.obj");
+
+	testEntity_ = entityManager_.CreateEntity();
+	transformManager_.AddComponent(testEntity_);
+	transformManager_.SetGlobalPosition(testEntity_, Vec3f::forward * 2.0f);
+	renderManager_.AddComponent(testEntity_);
+	renderManager_.SetModel(testEntity_, modelId_);
+
+	entityManager_.CreateEntity(1);
+	transformManager_.AddComponent(1);
+	transformManager_.SetGlobalPosition(1, Vec3f::zero);
+	renderManager_.AddComponent(1);
+	renderManager_.SetModel(1, modelId_);
+	entityManager_.CreateEntity(2);
+	transformManager_.AddComponent(2);
+	transformManager_.SetGlobalPosition(2, Vec3f::right * 4.0f);
+	renderManager_.AddComponent(2);
+	renderManager_.SetModel(2, modelId_);
+	entityManager_.CreateEntity(3);
+	transformManager_.AddComponent(3);
+	transformManager_.SetGlobalPosition(3, Vec3f::left * 4.0f);
+	renderManager_.AddComponent(3);
+	renderManager_.SetModel(3, modelId_);
+	entityManager_.CreateEntity(4);
+	transformManager_.AddComponent(4);
+	transformManager_.SetGlobalPosition(4, Vec3f::up * 2.0f);
+	renderManager_.AddComponent(4);
+	renderManager_.SetModel(4, modelId_);
+
 	BasicEngine::GetInstance()->RegisterSystem(textureManager_);
 	BasicEngine::GetInstance()->RegisterSystem(modelManager_);
 	BasicEngine::GetInstance()->RegisterOnDrawUi(*this);
@@ -22,29 +60,15 @@ void VkDrawSystem::Update(seconds dt)
 	dt_ = dt;
 	camera_.Update(dt);
 
+	transformManager_.Update();
+	renderManager_.Update(dt);
+
 	RendererLocator::get().Render(this);
 }
 
 void VkDrawSystem::Render()
 {
-	const Model* model = modelManager_.GetModel(modelId_);
-	if (modelManager_.IsLoaded(modelId_))
-	{
-		const auto& meshCount       = model->GetMeshCount();
-		std::vector<Mat4f> matrices = {
-			Transform3d::Translate(Mat4f::Identity, Vec3f::zero),
-			Transform3d::Translate(Mat4f::Identity, Vec3f::right * 4.0f),
-			Transform3d::Translate(Mat4f::Identity, Vec3f::left * 4.0f),
-			Transform3d::Translate(Mat4f::Identity, Vec3f::up * 2.0f),
-		};
-
-		for (std::size_t i = 0; i < meshCount; ++i)
-		{
-			const auto& mesh     = model->GetMesh(i);
-			const auto& material = materialManager_.GetMaterial(mesh.GetMaterialId());
-			VkResources::Inst->modelCommandBuffer.AddModelInstanceIndex(material, mesh, matrices);
-		}
-	}
+	renderManager_.Render();
 }
 
 void VkDrawSystem::Destroy() { camera_.Destroy(); }

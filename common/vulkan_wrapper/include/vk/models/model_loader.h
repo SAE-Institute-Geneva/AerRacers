@@ -45,14 +45,6 @@ public:
 		ERROR_LOADING = 1u << 1u,
 	};
 
-	enum TextureMaps : std::uint8_t
-	{
-		DIFFUSE  = 1u << 0u,
-		SPECULAR = 1u << 1u,
-		NORMAL   = 1u << 2u,
-		EMISSIVE = 1u << 3u,
-	};
-
 	ModelLoader(std::string_view path, ModelId modelId);
 
 	ModelLoader(ModelLoader&& other) noexcept;
@@ -76,14 +68,13 @@ private:
 	void ProcessModel();
 	void ProcessNode(aiNode* node);
 	void ProcessMesh(Mesh& mesh, const aiMesh* aMesh);
-	void LoadMaterialTextures(const aiMaterial* material,
-		aiTextureType textureType,
-		std::string_view directory,
-		Mesh& mesh);
+	void LoadMaterialTextures(
+		const aiMaterial* material, aiTextureType textureType, std::string_view directory);
 
 	/// Method called on the Render thread to create the VAOs of the meshes
 	void UploadMeshesToVk();
 
+	friend class ModelManager;
 	std::string path_;
 	std::string directoryPath_;
 

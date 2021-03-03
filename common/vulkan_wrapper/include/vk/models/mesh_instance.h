@@ -27,7 +27,7 @@
 ---------------------------------------------------------- */
 #include "vk/buffers/instance_buffer.h"
 #include "vk/descriptors/descriptor_handle.h"
-#include "vk/models/mesh.h"
+#include "vk/models/model_manager.h"
 
 namespace neko::vk
 {
@@ -37,7 +37,7 @@ constexpr static StringHash kUboSceneHash        = HashString(kUboSceneName);
 constexpr static StringHash kUboObjectHash       = HashString(kUboObjectName);
 constexpr static std::uint32_t kMaxInstances     = 32;
 
-class MeshInstance
+class ModelInstance
 {
 public:
 	struct Instance
@@ -47,21 +47,26 @@ public:
 		Mat4f modelMatrix = Mat4f::Identity;
 	};
 
-	explicit MeshInstance(const Mesh& mesh, const Material& material);
+	explicit ModelInstance(const ModelId& modelId);
 
-	[[nodiscard]] static std::unique_ptr<MeshInstance> Create(
-		const Mesh& mesh, const Material& material);
+	[[nodiscard]] static std::unique_ptr<ModelInstance> Create(const ModelId& modelId);
 
 	void Update(std::vector<Mat4f>& modelMatrices);
 
 	bool CmdRender(const CommandBuffer& commandBuffer, UniformHandle& uniformScene);
 
-	[[nodiscard]] const Mesh& GetMesh() const { return kMesh_; }
-	[[nodiscard]] const Material& GetMaterial() const { return kMaterial_; }
+	[[nodiscard]] const ModelId& GetModelId() const { return modelId_; }
+
+	void AddInstance(const std::size_t instanceNum = 1) { instances_ += instanceNum; }
+	void SetModelId(const ModelId& modelId) { modelId_ = modelId; }
 
 private:
-	const Mesh& kMesh_;
-	const Material& kMaterial_;
+	bool CmdRenderOpaque(const CommandBuffer& commandBuffer,
+		UniformHandle& uniformScene,
+		const Mesh& mesh,
+		const Material& material);
+
+	ModelId modelId_;
 
 	std::uint32_t maxInstances_ = 0;
 	std::uint32_t instances_    = 0;

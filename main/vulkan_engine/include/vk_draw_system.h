@@ -1,6 +1,8 @@
 #pragma once
+#include "engine/transform.h"
 #include "sdl_engine/sdl_camera.h"
 
+#include "aer/managers/render_manager.h"
 #include "vk/material/material_manager.h"
 #include "vk/models/model_manager.h"
 
@@ -15,7 +17,7 @@ class VkDrawSystem final : public SystemInterface,
 						   public RenderCommandInterface
 {
 public:
-	VkDrawSystem() = default;
+	VkDrawSystem();
 
 	void Init() override;
 	void Update(seconds dt) override;
@@ -34,6 +36,12 @@ private:
 	MaterialManager materialManager_;
 	ModelManager modelManager_;
 
+	EntityManager entityManager_;
+	Transform3dManager transformManager_;
+	aer::RenderManager renderManager_;
+	aer::RendererViewer rendererViewer_;
+
+	Entity testEntity_ {};
 	ModelId modelId_ = sole::uuid();
 };
 }

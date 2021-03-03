@@ -67,7 +67,7 @@ void DescriptorHandle::PushDescriptorData(const Material::PushDataContainer& dat
 {
 	for (const auto& data : dataContainer)
 	{
-		if (data.second.GetType() == MaterialExportData::Type::IMAGE_2D)
+		if (data.second.GetType() == MaterialExportData::IMAGE_2D)
 			Push(data.first, data.second.GetImage2d());
 		//else
 		//    Push(data.first, data.second.GetImageCube());

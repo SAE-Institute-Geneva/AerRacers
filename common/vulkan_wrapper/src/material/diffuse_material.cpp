@@ -17,30 +17,33 @@ DiffuseMaterial::DiffuseMaterial(std::string_view name,
 	 normal_(textureNormal)
 {
 	const auto baseDiffuse = MaterialExportData(color_);
-	uniformData_.emplace_back(kColorHash, baseDiffuse);
+	uniformData_.emplace(kColorHash, baseDiffuse);
 
 	if (diffuse_)
 	{
 		const auto diffuse = MaterialExportData(&diffuse_->get());
-		descriptorData_.emplace_back(kDiffuseHash, diffuse);
+		descriptorData_.emplace(kDiffuseHash, diffuse);
 	}
 
 	if (specular_)
 	{
 		const auto mra = MaterialExportData(&specular_->get());
-		descriptorData_.emplace_back(kSpecularHash, mra);
+		descriptorData_.emplace(kSpecularHash, mra);
 	}
 
 	if (normal_)
 	{
 		const auto normal = MaterialExportData(&normal_->get());
-		descriptorData_.emplace_back(kNormalHash, normal);
+		descriptorData_.emplace(kNormalHash, normal);
 	}
+
+	const auto usedMaps = MaterialExportData(usedMaps_);
+	uniformData_.emplace(kUsedMapsHash, usedMaps);
 }
 
 bool DiffuseMaterial::operator==(const DiffuseMaterial& other) const
 {
-	return shaderPath_ == other.shaderPath_ && color_ == other.color_ &&
+	return /*shaderPath_ == other.shaderPath_ && */ color_ == other.color_ &&
 	       ((diffuse_ && other.diffuse_ && &diffuse_.value() == &other.diffuse_.value()) ||
 			   (!diffuse_ && !other.diffuse_)) &&
 	       ((specular_ && other.specular_ && &specular_.value() == &other.specular_.value()) ||
@@ -56,21 +59,36 @@ void DiffuseMaterial::CreatePipeline(const VertexInput&)
 	ResetPipeline();
 }
 
+std::string DiffuseMaterial::GetShaderPath() const
+{
+	std::string directory = "shaders/vulkan/";
+	directory += "no_light/"; //TODO put a check for light type
+	std::string shaderName = "instancing_color";
+	if (diffuse_ && !specular_ && !normal_)
+		shaderName = "instancing_diffuse";
+	else if (diffuse_ && specular_ && !normal_)
+		shaderName = "instancing_specular";
+	else if (diffuse_ && specular_ && normal_)
+		shaderName = "instancing_light";
+
+	return directory + shaderName + ".aershader";
+}
+
 void DiffuseMaterial::SetColor(const Color4& color)
 {
 	color_ = color;
 
-	auto baseDiffuseData = MaterialExportData(color_);
+	auto colorData = MaterialExportData(color_);
 	for (auto& data : uniformData_)
 	{
 		if (data.first == kColorHash)
 		{
-			data.second = baseDiffuseData;
+			data.second = colorData;
 			return;
 		}
 	}
 
-	uniformData_.emplace_back(kColorHash, baseDiffuseData);
+	uniformData_.emplace(kColorHash, colorData);
 }
 
 void DiffuseMaterial::SetDiffuse(const Image2d& textureDiffuse)
@@ -78,31 +96,27 @@ void DiffuseMaterial::SetDiffuse(const Image2d& textureDiffuse)
 	diffuse_ = std::optional_const_ref<Image2d>(textureDiffuse);
 
 	auto diffuse = MaterialExportData(&diffuse_->get());
-	for (auto& data : descriptorData_)
+	const auto it = descriptorData_.find(kDiffuseHash);
+	if (it != descriptorData_.end())
 	{
-		if (data.first == kDiffuseHash)
-		{
-			data.second = diffuse;
-			return;
-		}
+		descriptorData_[kDiffuseHash] = diffuse;
+		return;
 	}
 
-	descriptorData_.emplace_back(kDiffuseHash, diffuse);
+	usedMaps_ |= DIFFUSE;
+	descriptorData_[kUsedMapsHash] = MaterialExportData(usedMaps_);
+	descriptorData_.emplace(kDiffuseHash, diffuse);
 	ResetPipeline();
 }
 
 void DiffuseMaterial::ResetDiffuse()
 {
 	diffuse_.reset();
+	usedMaps_ &= ~DIFFUSE;
+	descriptorData_[kUsedMapsHash] = MaterialExportData(usedMaps_);
 
-	for (auto it = descriptorData_.begin(); it != descriptorData_.end(); ++it)
-	{
-		if (it->first == kDiffuseHash)
-		{
-			descriptorData_.erase(it);
-			break;
-		}
-	}
+	const auto it = descriptorData_.find(kDiffuseHash);
+	if (it != descriptorData_.end()) descriptorData_.erase(it);
 
 	ResetPipeline();
 }
@@ -112,31 +126,27 @@ void DiffuseMaterial::SetSpecular(const Image2d& textureSpecular)
 	specular_ = std::optional_const_ref<Image2d>(textureSpecular);
 
 	auto specular = MaterialExportData(&specular_->get());
-	for (auto& data : descriptorData_)
+	const auto it = descriptorData_.find(kSpecularHash);
+	if (it != descriptorData_.end())
 	{
-		if (data.first == kSpecularHash)
-		{
-			data.second = specular;
-			return;
-		}
+		descriptorData_[kSpecularHash] = specular;
+		return;
 	}
 
-	descriptorData_.emplace_back(kSpecularHash, specular);
+	usedMaps_ |= SPECULAR;
+	descriptorData_[kUsedMapsHash] = MaterialExportData(usedMaps_);
+	descriptorData_.emplace(kSpecularHash, specular);
 	ResetPipeline();
 }
 
 void DiffuseMaterial::ResetSpecular()
 {
 	specular_.reset();
+	usedMaps_ &= ~SPECULAR;
+	descriptorData_[kUsedMapsHash] = MaterialExportData(usedMaps_);
 
-	for (auto it = descriptorData_.begin(); it != descriptorData_.end(); ++it)
-	{
-		if (it->first == kSpecularHash)
-		{
-			descriptorData_.erase(it);
-			break;
-		}
-	}
+	const auto it = descriptorData_.find(kSpecularHash);
+	if (it != descriptorData_.end()) descriptorData_.erase(it);
 
 	ResetPipeline();
 }
@@ -146,31 +156,27 @@ void DiffuseMaterial::SetNormal(const Image2d& textureNormal)
 	normal_ = std::optional_const_ref<Image2d>(textureNormal);
 
 	auto normal = MaterialExportData(&normal_->get());
-	for (auto& data : descriptorData_)
+	const auto it = descriptorData_.find(kNormalHash);
+	if (it != descriptorData_.end())
 	{
-		if (data.first == kNormalHash)
-		{
-			data.second = normal;
-			return;
-		}
+		descriptorData_[kNormalHash] = normal;
+		return;
 	}
 
-	descriptorData_.emplace_back(kNormalHash, normal);
+	usedMaps_ |= NORMAL;
+	descriptorData_[kUsedMapsHash] = MaterialExportData(usedMaps_);
+	descriptorData_.emplace(kNormalHash, normal);
 	ResetPipeline();
 }
 
 void DiffuseMaterial::ResetNormal()
 {
 	normal_.reset();
+	usedMaps_ &= ~NORMAL;
+	descriptorData_[kUsedMapsHash] = MaterialExportData(usedMaps_);
 
-	for (auto it = descriptorData_.begin(); it != descriptorData_.end(); ++it)
-	{
-		if (it->first == kNormalHash)
-		{
-			descriptorData_.erase(it);
-			break;
-		}
-	}
+	const auto it = descriptorData_.find(kNormalHash);
+	if (it != descriptorData_.end()) descriptorData_.erase(it);
 
 	ResetPipeline();
 }
@@ -193,8 +199,8 @@ void DiffuseMaterial::ResetPipeline()
 	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
 	pipelineMaterial_ =
 		std::optional_ref<MaterialPipeline>(MaterialPipeline::CreateMaterialPipeline(stage,
-			GraphicsPipelineCreateInfo(config.dataRootPath + shaderPath_,
-				{Vertex::GetVertexInput(0), MeshInstance::Instance::GetVertexInput(1)},
+			GraphicsPipelineCreateInfo(config.dataRootPath + GetShaderPath(),
+				{Vertex::GetVertexInput(0), ModelInstance::Instance::GetVertexInput(1)},
 				GraphicsPipeline::Mode::MRT,
 				GraphicsPipeline::Depth::READ_WRITE,
 				VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
@@ -207,7 +213,7 @@ ordered_json DiffuseMaterial::ToJson() const
 {
 	ordered_json materialJson;
 	materialJson["name"]       = name_;
-	materialJson["shaderPath"] = shaderPath_;
+	//materialJson["shaderPath"] = shaderPath_;
 	materialJson["type"]       = GetType();
 	materialJson["color"]["r"] = color_.r;
 	materialJson["color"]["g"] = color_.g;
@@ -224,7 +230,7 @@ ordered_json DiffuseMaterial::ToJson() const
 void DiffuseMaterial::FromJson(const json& materialJson)
 {
 	name_       = materialJson["name"].get<std::string_view>();
-	shaderPath_ = materialJson["shaderPath"].get<std::string_view>();
+	//shaderPath_ = materialJson["shaderPath"].get<std::string_view>();
 
 	Color4 color;
 	color.r = materialJson["color"]["r"].get<float>();

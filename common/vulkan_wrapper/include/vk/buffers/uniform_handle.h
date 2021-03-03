@@ -63,7 +63,6 @@ public:
 		if (!uniformBlock_) return;
 
 		const auto& uniform = uniformBlock_->get().GetUniform(uniformHash);
-
 		auto realSize = size;
 		if (realSize == 0)
 			realSize = std::min(sizeof(object), static_cast<std::size_t>(uniform.GetSize()));

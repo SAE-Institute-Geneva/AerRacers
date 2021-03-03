@@ -1,5 +1,3 @@
-#include "vk/models/model_loader.h"
-
 #include "assimp/postprocess.h"
 
 #include "mathematics/quaternion.h"
@@ -55,7 +53,7 @@ void ModelLoader::Update()
 				if (texturePtr)
 				{
 					material.SetDiffuse(*texturePtr);
-					loadedTextures |= DIFFUSE;
+					loadedTextures |= DiffuseMaterial::DIFFUSE;
 				}
 			}
 
@@ -65,7 +63,7 @@ void ModelLoader::Update()
 				if (texturePtr)
 				{
 					material.SetSpecular(*texturePtr);
-					loadedTextures |= SPECULAR;
+					loadedTextures |= DiffuseMaterial::SPECULAR;
 				}
 			}
 
@@ -75,7 +73,7 @@ void ModelLoader::Update()
 				if (texturePtr)
 				{
 					material.SetNormal(*texturePtr);
-					loadedTextures |= NORMAL;
+					loadedTextures |= DiffuseMaterial::NORMAL;
 				}
 			}
 
@@ -91,7 +89,7 @@ void ModelLoader::LoadModel()
 	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
 	std::uint32_t sceneFlags    = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
 	                           aiProcess_CalcTangentSpace | aiProcess_GenBoundingBoxes;
-	scene_ = importer_.ReadFile(config.dataRootPath + path_, sceneFlags);
+	scene_ = importer_.ReadFile(path_, sceneFlags);
 	if (!scene_ || scene_->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene_->mRootNode)
 	{
 		flags_ = ERROR_LOADING;
@@ -188,18 +186,17 @@ void ModelLoader::ProcessMesh(Mesh& mesh, const aiMesh* aMesh)
 		materialManager.GetDiffuseMaterial(mesh.materialId_).SetSpecularExponent(specularExp);
 		materialManager.GetDiffuseMaterial(mesh.materialId_).SetColor(col);
 		for (int i = 0; i < AI_TEXTURE_TYPE_MAX; i++)
-			LoadMaterialTextures(material, static_cast<aiTextureType>(i), directoryPath_, mesh);
+			LoadMaterialTextures(material, static_cast<aiTextureType>(i), directoryPath_);
 	}
 }
 
 void ModelLoader::UploadMeshesToVk() {}
 
 void ModelLoader::LoadMaterialTextures(
-	const aiMaterial* material, aiTextureType textureType, std::string_view directory, Mesh& mesh)
+	const aiMaterial* material, aiTextureType textureType, std::string_view directory)
 {
-	auto& textureManager  = TextureManagerLocator::get();
-	auto& materialManager = MaterialManagerLocator::get();
-	const auto count      = material->GetTextureCount(textureType);
+	auto& textureManager = TextureManagerLocator::get();
+	const unsigned count = material->GetTextureCount(textureType);
 	for (std::uint32_t i = 0; i < count; i++)
 	{
 		aiString textureName;
@@ -215,28 +212,22 @@ void ModelLoader::LoadMaterialTextures(
 
 		const Configuration& config  = BasicEngine::GetInstance()->GetConfig();
 		const ResourceHash textureId = textureManager.AddTexture(
-			fmt::format("{}/{}.ktx", config.dataRootPath + directory.data(), textureNameStr));
+			fmt::format("{}/{}.ktx", directory.data(), textureNameStr));
 		switch (textureType)
 		{
 			case aiTextureType_DIFFUSE:
-				textureMaps_ |= DIFFUSE;
+				textureMaps_ |= DiffuseMaterial::DIFFUSE;
 				diffuseId_ = textureId;
-				//materialManager.GetDiffuseMaterial(mesh.materialId_)
-				//	.SetDiffuse(textureManager.GetImage2d(textureId));
 				break;
 			case aiTextureType_SPECULAR:
-				textureMaps_ |= SPECULAR;
+				textureMaps_ |= DiffuseMaterial::SPECULAR;
 				specularId_ = textureId;
-				//materialManager.GetDiffuseMaterial(mesh.materialId_)
-				//	.SetSpecular(textureManager.GetImage2d(textureId));
 				break;
 			case aiTextureType_EMISSIVE: break;
 			case aiTextureType_HEIGHT:
 			case aiTextureType_NORMALS:
-				textureMaps_ |= NORMAL;
+				textureMaps_ |= DiffuseMaterial::NORMAL;
 				normalId_ = textureId;
-				//materialManager.GetDiffuseMaterial(mesh.materialId_)
-				//	.SetNormal(textureManager.GetImage2d(textureId));
 				break;
 			case aiTextureType_NONE:
 			case aiTextureType_UNKNOWN:

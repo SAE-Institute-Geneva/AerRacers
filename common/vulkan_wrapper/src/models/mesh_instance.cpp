@@ -1,8 +1,10 @@
 #include "vk/models/mesh_instance.h"
 
+#include "vk/material/material_manager.h"
+
 namespace neko::vk
 {
-VertexInput MeshInstance::Instance::GetVertexInput(uint32_t baseBinding)
+VertexInput ModelInstance::Instance::GetVertexInput(uint32_t baseBinding)
 {
 	VkVertexInputBindingDescription bindingDescription {};
 	bindingDescription.binding   = baseBinding;
@@ -20,19 +22,18 @@ VertexInput MeshInstance::Instance::GetVertexInput(uint32_t baseBinding)
 	return VertexInput(0, bindingDescription, attributeDescriptions);
 }
 
-MeshInstance::MeshInstance(const Mesh& mesh, const Material& material)
-   : kMesh_(mesh),
-	 kMaterial_(material),
+ModelInstance::ModelInstance(const ModelId& modelId)
+   : modelId_(modelId),
 	 instanceBuffer_(sizeof(Instance) * kMaxInstances),
 	 uniformObject_(false)
 {}
 
-std::unique_ptr<MeshInstance> MeshInstance::Create(const Mesh& mesh, const Material& material)
+std::unique_ptr<ModelInstance> ModelInstance::Create(const ModelId& modelId)
 {
-	return std::make_unique<MeshInstance>(mesh, material);
+	return std::make_unique<ModelInstance>(modelId);
 }
 
-void MeshInstance::Update(std::vector<Mat4f>& modelMatrices)
+void ModelInstance::Update(std::vector<Mat4f>& modelMatrices)
 {
 	maxInstances_ = kMaxInstances;
 	instances_    = 0;
@@ -53,35 +54,62 @@ void MeshInstance::Update(std::vector<Mat4f>& modelMatrices)
 	instanceBuffer_.UnmapMemory();
 }
 
-bool MeshInstance::CmdRender(const CommandBuffer& commandBuffer, UniformHandle& uniformScene)
+bool ModelInstance::CmdRender(const CommandBuffer& commandBuffer, UniformHandle& uniformScene)
 {
 	if (instances_ == 0) return false;    //No instances
 
-	const MaterialPipeline& materialPipeline = kMaterial_.GetPipelineMaterial();
-	if (!kMaterial_.BindPipeline(commandBuffer)) return false;
+	auto& modelManager = ModelManagerLocator::get();
+	if (!modelManager.IsLoaded(modelId_)) return false;
+
+	const Model* model          = modelManager.GetModel(modelId_);
+	const std::size_t meshCount = model->GetMeshCount();
+	for (std::size_t i = 0; i < meshCount; ++i)
+	{
+		const Mesh& mesh         = model->GetMesh(i);
+		auto& materialManager    = MaterialManagerLocator::get();
+		const Material& material = materialManager.GetMaterial(mesh.GetMaterialId());
+		switch (material.GetRenderMode())
+		{
+			case Material::RenderMode::VK_OPAQUE:
+				if (!CmdRenderOpaque(commandBuffer, uniformScene, mesh, material)) return false;
+				break;
+			case Material::RenderMode::VK_TRANSPARENT: break;
+		}
+	}
+
+	return true;
+}
+
+bool ModelInstance::CmdRenderOpaque(const CommandBuffer& commandBuffer,
+	UniformHandle& uniformScene,
+	const Mesh& mesh,
+	const Material& material)
+{
+	const MaterialPipeline& materialPipeline = material.GetPipelineMaterial();
+	if (!material.BindPipeline(commandBuffer)) return false;
 
 	const GraphicsPipeline& pipeline = materialPipeline.GetPipeline();
 
 	//Push uniforms to shader
-	uniformObject_.PushUniformData(kMaterial_.ExportUniformData());
+	uniformObject_.PushUniformData(material.ExportUniformData());
 
 	//Push texture to shader
 	descriptorSet_.Push(kUboObjectHash, uniformObject_);
 	descriptorSet_.Push(kUboSceneHash, uniformScene);
-	descriptorSet_.PushDescriptorData(kMaterial_.ExportDescriptorData());
+	descriptorSet_.PushDescriptorData(material.ExportDescriptorData());
 	if (!descriptorSet_.Update(pipeline)) return false;
 
 	descriptorSet_.BindDescriptor(commandBuffer, pipeline);
 
-	VkBuffer vertexBuffers[] = {kMesh_.GetVertexBuffer(), instanceBuffer_};
+	VkBuffer vertexBuffers[] = {mesh.GetVertexBuffer(), instanceBuffer_};
 	VkDeviceSize offset[]    = {0, 0};
 
 	//Bind buffers
 	vkCmdBindVertexBuffers(commandBuffer, 0, 2, vertexBuffers, offset);
-	vkCmdBindIndexBuffer(commandBuffer, kMesh_.GetIndexBuffer(), 0, Mesh::GetIndexType());
+	vkCmdBindIndexBuffer(commandBuffer, mesh.GetIndexBuffer(), 0, Mesh::GetIndexType());
 
 	//Draw the instances
-	vkCmdDrawIndexed(commandBuffer, kMesh_.GetIndexCount(), instances_, 0, 0, 0);
+	vkCmdDrawIndexed(commandBuffer, mesh.GetIndexCount(), instances_, 0, 0, 0);
 
 	return true;
 }

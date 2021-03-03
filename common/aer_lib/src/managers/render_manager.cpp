@@ -1,12 +1,9 @@
 #include "aer/managers/render_manager.h"
 
-#include <imgui.h>
-
-#include "engine/engine.h"
-#include "graphics/camera.h"
 #include "utils/file_utility.h"
 
 #include "aer/log.h"
+#include "vk/vk_resources.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -15,11 +12,7 @@
 namespace neko::aer
 {
 RenderManager::RenderManager(EntityManager& entityManager,
-#ifdef NEKO_GLES3
-	gl::ModelManager& modelManager,
-#else
 	vk::ModelManager& modelManager,
-#endif
 	Transform3dManager& transform3DManager,
 	RendererViewer& rendererViewer)
 #ifdef NEKO_GLES3
@@ -79,6 +72,7 @@ void RenderManager::Render()
 
 	const auto& camera = CameraLocator::get();
 	shader_.SetVec3("viewPos", camera.position);
+
 	//TODO find a way to cleanly implement lighting
 	/*shader_.SetUInt("lightType", lightType_);
 
@@ -96,18 +90,25 @@ void RenderManager::Render()
 	auto& modelManager = gl::ModelManagerLocator::get();
 	for (auto& entity : entities)
 	{
-		const auto& drawCmd = GetComponent(entity);
-		if (drawCmd.isVisible &&
-			drawCmd.modelId != gl::INVALID_MODEL_ID &&
-			modelManager.IsLoaded(drawCmd.modelId))
+		if (components_[entity].isVisible && components_[entity].modelId != gl::INVALID_MODEL_ID &&
+			modelManager.IsLoaded(components_[entity].modelId))
 		{
 			const Mat4f& modelMat = transformManager_.GetComponent(entity);
 			shader_.SetMat4("model", modelMat);
 			shader_.SetMat3("normalMatrix", Mat3f(modelMat).Inverse().Transpose());
 
-			const auto& model = modelManager.GetModel(drawCmd.modelId);
+			const auto& model = modelManager.GetModel(components_[entity].modelId);
 			model->Draw(shader_);
 		}
+	}
+#elif NEKO_VULKAN
+	vk::VkResources* vkObj = vk::VkResources::Inst;
+	for (auto& entity : entities)
+	{
+		if (!modelManager_.IsLoaded(components_[entity].modelId)) continue;
+
+		const Mat4f& modelMat = transformManager_.GetComponent(entity);
+		vkObj->modelCommandBuffer.AddMatrix(components_[entity].modelInstanceIndex, modelMat);
 	}
 #endif
 }
@@ -117,6 +118,7 @@ void RenderManager::Destroy()
 #ifdef NEKO_GLES3
 	shader_.Destroy();
 #else
+	vk::VkResources::Inst->modelCommandBuffer.Destroy();
 #endif
 }
 
@@ -144,12 +146,29 @@ void RenderManager::SetModel(Entity entity, gl::ModelId modelId)
 	SetComponent(entity, drawCmd);
 }
 #else
+void RenderManager::DestroyComponent(Entity entity)
+{
+	ComponentManager::DestroyComponent(entity);
+
+	components_[entity] = DrawCmd();
+}
+
 void RenderManager::SetModel(Entity entity, vk::ModelId modelId)
 {
-	DrawCmd drawCmd = GetComponent(entity);
-	drawCmd.modelId = modelId;
+	components_[entity].modelId = modelId;
 
-	SetComponent(entity, drawCmd);
+	const Mat4f& modelMat = transformManager_.GetComponent(entity);
+	if (components_[entity].modelInstanceIndex == INVALID_INDEX)
+	{
+		components_[entity].modelInstanceIndex =
+			vk::VkResources::Inst->modelCommandBuffer.AddModelInstanceIndex(
+				components_[entity].modelId, modelMat);
+	}
+	else
+	{
+		vk::VkResources::Inst->modelCommandBuffer.SetModelId(
+			components_[entity].modelInstanceIndex, components_[entity].modelId);
+	}
 }
 #endif
 

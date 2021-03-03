@@ -1,14 +1,11 @@
 #pragma once
-#ifdef NEKO_GLES3
-#include "gl/model.h"
-#else
-#include "vk/models/model_manager.h"
-#endif
+#include "px/physics_engine.h"
 
 #include "aer/managers/render_manager.h"
-#include "engine/transform.h"
-#include "px/rigidbody.h"
-#include "px/physics_engine.h"
+
+#ifdef NEKO_VULKAN
+#include "vk/material/material_manager.h"
+#endif
 
 namespace neko::aer
 {
@@ -38,6 +35,7 @@ struct ResourceManagerContainer : public SystemInterface
 #else
 	vk::TextureManager textureManager;
 	vk::ModelManager modelManager;
+	vk::MaterialManager materialManager;
 #endif
 };
 

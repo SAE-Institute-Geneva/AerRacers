@@ -1,6 +1,6 @@
 {
-    "vert": "shaders/vulkan/quad.vert.spv",
-    "frag": "shaders/vulkan/quad.frag.spv",
+    "vert": "shaders/vulkan/instancing_no_normal.vert.spv",
+    "frag": "shaders/vulkan/no_light/instancing_normal.frag.spv",
     "attributes": [
         {
             "name": "inPosition",
@@ -9,16 +9,16 @@
             "type": 3
         },
         {
-            "name": "inNormal",
-            "location": 1,
-            "size": 12,
-            "type": 3
-        },
-        {
             "name": "inTexCoords",
             "location": 2,
             "size": 8,
             "type": 2
+        },
+        {
+            "name": "inModelMatrix",
+            "location": 5,
+            "size": 64,
+            "type": 15
         }
     ],
     "uniforms": [
@@ -28,13 +28,27 @@
             "type": 1,
             "stageFlags": 16,
             "writeOnly": false
+        },
+        {
+            "name": "specular",
+            "binding": 3,
+            "type": 1,
+            "stageFlags": 16,
+            "writeOnly": false
+        },
+        {
+            "name": "normal",
+            "binding": 4,
+            "type": 1,
+            "stageFlags": 16,
+            "writeOnly": false
         }
     ],
     "uniformBlocks": [
         {
             "name": "UboScene",
             "binding": 0,
-            "size": 128,
+            "size": 140,
             "stageFlags": 1,
             "type": 0,
             "uniforms": [
@@ -49,29 +63,35 @@
                     "offset": 64,
                     "size": 64,
                     "writeOnly": false
+                },
+                {
+                    "name": "viewPos",
+                    "offset": 128,
+                    "size": 12,
+                    "writeOnly": false
                 }
             ]
         },
         {
             "name": "UboObject",
             "binding": 1,
-            "size": 80,
-            "stageFlags": 17,
+            "size": 20,
+            "stageFlags": 16,
             "type": 0,
             "uniforms": [
                 {
-                    "name": "model",
+                    "name": "color",
                     "offset": 0,
-                    "size": 64,
+                    "size": 16,
                     "writeOnly": false
                 },
                 {
-                    "name": "color",
-                    "offset": 64,
-                    "size": 16,
+                    "name": "usedMaps",
+                    "offset": 16,
+                    "size": 4,
                     "writeOnly": false
                 }
             ]
         }
     ]
-} 
+}

@@ -43,11 +43,15 @@ void ModelManager::Destroy()
 ModelId ModelManager::LoadModel(std::string_view path)
 {
 	const auto it = modelPathMap_.find(path.data());
-	if (it != modelPathMap_.end()) return it->second;
+	if (it != modelPathMap_.end())
+	{
+		logDebug(fmt::format("[Debug] Model is already loaded: {}", path));
+		return it->second;
+	}
 
 	logDebug(fmt::format("[Debug] Loading model: {}", path));
 	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
-	const std::string metaPath  = fmt::format("{}{}.meta", config.dataRootPath, path);
+	const std::string metaPath  = fmt::format("{}.meta", path);
 	const json metaJson         = LoadJson(metaPath);
 	ModelId modelId             = INVALID_MODEL_ID;
 	if (CheckJsonExists(metaJson, "uuid"))
@@ -60,6 +64,7 @@ ModelId ModelManager::LoadModel(std::string_view path)
 		return modelId;
 	}
 
+	modelPathMap_.emplace(path.data(), modelId);
 	modelLoaders_.push(ModelLoader(path, modelId));
 	modelLoaders_.back().Start();
 	return modelId;

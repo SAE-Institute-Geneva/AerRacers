@@ -54,8 +54,7 @@ void SubrendererOpaque::Render(const CommandBuffer& commandBuffer)
 
 	//GPU Instancing
 	for (auto& meshInstance : modelCmdBuffer_.GetMeshInstances())
-		if (meshInstance->GetMaterial().GetRenderMode() == Material::RenderMode::VK_OPAQUE)
-			meshInstance->CmdRender(commandBuffer, uniformScene_);
+		meshInstance->CmdRender(commandBuffer, uniformScene_);
 }
 
 bool SubrendererOpaque::CmdRender(const CommandBuffer& commandBuffer,

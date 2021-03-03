@@ -52,13 +52,10 @@ public:
 	//void InitData();
 	void Destroy();
 
-	std::vector<std::unique_ptr<MeshInstance>>& GetMeshInstances() { return meshInstances_; }
-	std::vector<ForwardDrawCmd>& GetForwardModels() { return forwardDrawingCmd_; }
-
+	ModelInstanceIndex AddModelInstanceIndex(const ModelId& modelId);
+	ModelInstanceIndex AddModelInstanceIndex(const ModelId& modelId, const Mat4f& matrix);
 	ModelInstanceIndex AddModelInstanceIndex(
-		const Material& material, const Mesh& mesh, const std::vector<Mat4f>& matrices);
-
-	void FreeForwardIndex(ModelForwardIndex index);
+		const ModelId& modelId, const std::vector<Mat4f>& matrices);
 
 	void Draw(const ForwardDrawCmd& drawCommand);
 	void Draw(const Mat4f& worldMatrix, ModelInstanceIndex instanceIndex);
@@ -67,14 +64,19 @@ public:
 
 	void Clear();
 
-private:
-	void OnUnloadScene();
+	std::vector<std::unique_ptr<ModelInstance>>& GetMeshInstances() { return modelInstances_; }
+	std::vector<ForwardDrawCmd>& GetForwardModels() { return forwardDrawingCmd_; }
 
+	void AddMatrix(ModelInstanceIndex index, const Mat4f& matrix);
+	void SetMatrices(ModelInstanceIndex index, const std::vector<Mat4f>& matrices);
+	void SetModelId(ModelInstanceIndex index, const ModelId& modelId);
+
+private:
 	//Data for forward rendering
 	std::vector<ForwardDrawCmd> forwardDrawingCmd_ {};
 
 	//Data for gpu instancing
 	std::vector<std::vector<Mat4f>> instanceMatrices_ {};
-	std::vector<std::unique_ptr<MeshInstance>> meshInstances_ {};
+	std::vector<std::unique_ptr<ModelInstance>> modelInstances_ {};
 };
 }    // namespace neko::vk
