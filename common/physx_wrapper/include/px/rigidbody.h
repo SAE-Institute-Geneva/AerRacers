@@ -340,7 +340,7 @@ public:
     /**
      * \brief Use to get dynamic parameter of an actor
      */
-    physics::DynamicData GetDynamicData() const;
+    const physics::DynamicData GetDynamicData() const;
     physx::PxRigidDynamic* GetPxRigidDynamic() const { return rigidActor_; }
 
 private:
@@ -419,7 +419,7 @@ public:
     /**
      * \brief Use to get dynamicData of an actor
      */
-    [[nodiscard]] const DynamicData& GetDynamicData(Entity entity) const;
+    [[nodiscard]] const DynamicData GetDynamicData(Entity entity) const;
     /**
      * \brief Use to modify parameter of an actor
      * Warning must be call in FixedUpdate or if physics is not running

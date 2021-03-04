@@ -97,6 +97,8 @@ public:
     void CalculateThrust(PlayerId playerId, seconds dt);
     void OnCollisionEnter(
         const physx::PxContactPairHeader& pairHeader) override;
+
+    ShipController GetComponent(PlayerId playerId) { return shipControllers_[playerId]; }
 protected:
     std::vector<ShipController> shipControllers_;
     PlayerManager& playerManager_;
@@ -117,7 +119,7 @@ protected:
 class ShipControllerViewer : public ComponentViewer
 {
 public:
-    explicit ShipControllerViewer(EntityManager& entityManager, ShipControllerManager& shipControllerManager);
+    explicit ShipControllerViewer(EntityManager& entityManager, PlayerManager& playerManager, ShipControllerManager& shipControllerManager);
 
     virtual ~ShipControllerViewer() = default;
 
@@ -139,6 +141,7 @@ public:
     void DrawImGui(Entity entity) override;
 
 private:
+    PlayerManager& playerManager_;
     ShipControllerManager& shipControllerManager_;
 };
 }

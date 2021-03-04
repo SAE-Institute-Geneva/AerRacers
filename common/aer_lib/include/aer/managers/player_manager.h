@@ -44,7 +44,6 @@ using PlayerId = uint8_t;
 	struct PlayerComponent
 	{
 		Entity shipEntity = INVALID_ENTITY;
-		Entity cameraEntity = INVALID_ENTITY;
 		Entity shipModelEntity = INVALID_ENTITY;
 
 		PlayerId playerNumber = 0;
@@ -67,7 +66,6 @@ using PlayerId = uint8_t;
 
 		PlayerComponent GetPlayerComponent(PlayerId playerId);
 		Entity GetShipEntity(PlayerId playerId);
-		Entity GetCameraEntity(PlayerId playerId);
 		size_t GetPlayerCount() const { return playerCount_; }
 
         void Init() override;

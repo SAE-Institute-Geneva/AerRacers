@@ -173,7 +173,7 @@ private:
     /**
      * \brief FixedStep duration
      */
-    seconds stepSize_ = seconds(1.0f / 60.0f);
+    seconds stepSize_ = seconds(0.02f);
 
     /**
      * \brief if the physics must be stopped

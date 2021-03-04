@@ -522,7 +522,7 @@ physics::RigidDynamicData RigidDynamic::GetRigidDynamicData() const
     return rigidDynamicData;
 }
 
-physics::DynamicData RigidDynamic::GetDynamicData() const
+const physics::DynamicData RigidDynamic::GetDynamicData() const
 {
     DynamicData dynamicData;
     if (!rigidActor_) {
@@ -798,7 +798,7 @@ const RigidDynamicData& RigidDynamicManager::GetRigidDynamicData(Entity entity) 
     return GetComponent(entity).GetRigidDynamicData();
 }
 
-const DynamicData& RigidDynamicManager::GetDynamicData(Entity entity) const
+const DynamicData RigidDynamicManager::GetDynamicData(Entity entity) const
 {
     return GetComponent(entity).GetDynamicData();
 }

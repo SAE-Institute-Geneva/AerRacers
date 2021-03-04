@@ -212,9 +212,12 @@ void ShipControllerManager::Destroy()
 	
 }
 
-ShipControllerViewer::ShipControllerViewer(EntityManager& entityManager, ShipControllerManager& shipControllerManager) : ComponentViewer(entityManager), shipControllerManager_(shipControllerManager)
-{
-}
+ShipControllerViewer::ShipControllerViewer(EntityManager& entityManager,
+    PlayerManager& playerManager,
+    ShipControllerManager& shipControllerManager)
+    : ComponentViewer(entityManager),
+        shipControllerManager_(shipControllerManager),
+        playerManager_(playerManager) {}
 
 json ShipControllerViewer::GetJsonFromComponent(Entity entity) const
 {
@@ -230,13 +233,13 @@ void ShipControllerViewer::SetComponentFromJson(Entity entity, const json& compo
 
 void ShipControllerViewer::DrawImGui(Entity entity)
 {
-    if (entity == INVALID_ENTITY) return;
-    //if (entityManager_.HasComponent(entity, EntityMask(ComponentType::SHIP_CONTROLLER))) {
-    //    if (ImGui::TreeNode("ShipController")) {
-    //        ImGui::Text("Param 1");
-    //        ImGui::TreePop();
-    //    }
-    //}
+    for (PlayerId playerId = 0; playerId < playerManager_.GetPlayerCount(); ++playerId) {
+        if (playerManager_.GetShipEntity(playerId) != entity) continue;
+        if (ImGui::TreeNode("ShipController")) {
+            //auto cameraComponent = cameraControllerManager_.GetComponent(entity);
+            auto shipController = shipControllerManager_.GetComponent(playerId);
+        }
+    }
 }
 
 float PID::Seek(float seekValue, float currentValue, float deltaTime)

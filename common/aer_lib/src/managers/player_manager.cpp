@@ -49,16 +49,11 @@ PlayerManager::PlayerManager(ComponentManagerContainer& cContainer)
         cContainer_.renderManager.AddComponent(shipModelEntity);
         cContainer_.renderManager.SetModel(shipModelEntity, config.dataRootPath + "models/cube/cube.obj");
 
-        Entity cameraEntity = cContainer_.entityManager.CreateEntity();
-        cContainer_.entityManager.SetEntityName(cameraEntity, "cameraEntity");
-        TagLocator::get().SetEntityTag(shipEntity, "Camera");
-        cContainer_.transform3dManager.AddComponent(cameraEntity);
         PlayerComponent playerComponent;
-        playerComponent.cameraEntity = cameraEntity;
         playerComponent.shipEntity = shipEntity;
         playerComponent.shipModelEntity = shipModelEntity;
         playerComponent.playerNumber = playerComponents_.size();
-        std::vector<sdl::ControllerId>& controllers = sdl::InputLocator::get().GetControllerIdVector();
+        std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
         if (controllers.size() > playerCount_)
             playerComponent.linkedJoystick = controllers[playerCount_];
         playerComponents_[playerCount_] = playerComponent;
@@ -77,11 +72,6 @@ Entity PlayerManager::GetShipEntity(PlayerId playerId)
     return playerComponents_[playerId].shipEntity;
 }
 
-Entity PlayerManager::GetCameraEntity(PlayerId playerId)
-{
-    return playerComponents_[playerId].cameraEntity;
-}
-
 void PlayerManager::Init()
 {
     
@@ -89,9 +79,8 @@ void PlayerManager::Init()
 
 void PlayerManager::Update(seconds dt)
 {
-
     for (PlayerId playerId = 0; playerId < GetPlayerCount(); ++playerId) {
-        std::vector<sdl::ControllerId>& controllers = sdl::InputLocator::get().GetControllerIdVector();
+        std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
         if (controllers.size() > playerId)
         {
             playerComponents_[playerId].linkedJoystick = controllers[playerId];

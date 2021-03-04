@@ -30,31 +30,32 @@ class CameraControllerViewer;
         float dotProductPosVelo;
         float dotProductPosVeloMult;
         Vec3f targetPos;
-        Vec3f cameraPos;
+        Vec3f cameraPos = Vec3f(0, 0, 5);
+        physics::DynamicData dynamicData;
     };
     /**
      * \brief Component used to control the camera movements.
      */
     struct CameraParameter {
         const Vec3f kTargetPosition = Vec3f(0, 0, 5);
-        const float kMaxTargetPos = 25.0f;
+        const float kMaxTargetPos = 15.0f;
         const Vec3f kCameraPosition = Vec3f(0, 5, -10);
 
         const float kAngularLateralMult = 3.0f;
         const float kAngularBackwardMult = 1.0f;
         const float kAngularForwardTargetMult = 80.0f;
 
-        const float kLinearUpwardMult = 0.01f;
-        const float kLinerarBackwardMult = -0.01f;
+        const float kLinearUpwardMult = 0.005f;
+        const float kLinerarBackwardMult = 0.001f;
         const float kLinerarBackwardDiv = -0.0015f;
         const float kLinearForwardTargetMult = 0.1f;
         const float kFallMultiplicator = 0.01f;
-        const float kFallTargetMultiplicator = -0.1f;
+        const float kFallTargetMultiplicator = -0.005f;
 
         const float kAngularLerp = 0.1f;
         const float kAngularTargetLerp = 0.1f;
 
-        const float kLinearLerp = 1.0f;
+        const float kLinearLerp = 0.8f;
         const float kLerpPosition = 1.0f;
     };
 
@@ -80,7 +81,8 @@ class CameraControllerViewer;
         void FixedUpdate(seconds dt) override;
         void Render() override;
         void Destroy() override;
-                
+
+        CameraController GetComponent(PlayerId playerId) { return cameraControllers_[playerId]; }
     private:
         std::vector<CameraController> cameraControllers_;
         PlayerManager& playerManager_;
@@ -100,7 +102,7 @@ class CameraControllerViewer;
     class CameraControllerViewer : public ComponentViewer
     {
     public:
-        explicit CameraControllerViewer(EntityManager& entityManager, CameraControllerManager& cameraControllerManager);
+        explicit CameraControllerViewer(EntityManager& entityManager, PlayerManager& playerManager, CameraControllerManager& cameraControllerManager);
 
         virtual ~CameraControllerViewer() = default;
 
@@ -122,6 +124,7 @@ class CameraControllerViewer;
         void DrawImGui(Entity entity) override;
 
     private:
+        PlayerManager& playerManager_;
         CameraControllerManager& cameraControllerManager_;
     };
 }

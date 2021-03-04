@@ -78,8 +78,8 @@ struct ComponentManagerContainer : public SystemInterface
               entityManager,
               physicsEngine,
               rigidStaticManager),
-          shipControllerViewer(entityManager, shipControllerManager),
-          cameraControllerViewer(entityManager, cameraControllerManager),
+          shipControllerViewer(entityManager, playerManager, shipControllerManager),
+          cameraControllerViewer(entityManager, playerManager, cameraControllerManager),
           sceneManager(entityManager, *this)
     {
         physicsEngine.RegisterCollisionListener(shipControllerManager);
@@ -102,10 +102,10 @@ struct ComponentManagerContainer : public SystemInterface
 	{
 		transform3dManager.Update();
 		renderManager.Update(dt);
+        playerManager.Update(dt);
         shipControllerManager.Update(dt);
 		cameraControllerManager.Update(dt);
         shipInputManager.Update(dt);
-        playerManager.Update(dt);
 	}
 
 	void Destroy() override { renderManager.Destroy(); }

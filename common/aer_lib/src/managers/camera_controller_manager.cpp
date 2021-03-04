@@ -34,13 +34,11 @@ void CameraControllerManager::FixedUpdate(seconds dt) {
     for (PlayerId playerId = 0; playerId < playerManager_.GetPlayerCount(); ++playerId)
     {
         auto& cameraComponent = cameraControllers_[playerId];
-        Entity cameraEntity = playerManager_.GetCameraEntity(playerId);
         Entity shipEntity = playerManager_.GetShipEntity(playerId);
-        if (cameraEntity == INVALID_ENTITY || shipEntity == INVALID_ENTITY) continue;
+        if (shipEntity == INVALID_ENTITY) continue;
         auto shipBody = rigidDynamicManager_.GetDynamicData(shipEntity);
         auto shipPosition = transformManager_.GetGlobalPosition(shipEntity);
         auto shipRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(shipEntity));
-        auto cameraPosition = transformManager_.GetGlobalPosition(cameraEntity);
         auto angularVelocity = shipBody.angularVelocity;
         auto velocity = shipBody.linearVelocity;
 
@@ -48,7 +46,7 @@ void CameraControllerManager::FixedUpdate(seconds dt) {
         cameraComponent.angularBackwardMovement = kCameraParameter_.kAngularBackwardMult * angularVelocity.y;
         cameraComponent.linearUpwardMovement = kCameraParameter_.kLinearUpwardMult * velocity.Magnitude();
         cameraComponent.linearBackwardMovement = kCameraParameter_.kLinerarBackwardMult * velocity.Magnitude();
-        cameraComponent.dotProductPosVelo = Vec3f::Dot(cameraPosition - shipPosition, velocity);
+        cameraComponent.dotProductPosVelo = Vec3f::Dot(cameraComponent.cameraPos - shipPosition, velocity);
         if (cameraComponent.dotProductPosVelo > 100)
         {
             cameraComponent.dotProductPosVeloMult = cameraComponent.dotProductPosVelo * kCameraParameter_.kLinerarBackwardDiv;
@@ -60,8 +58,8 @@ void CameraControllerManager::FixedUpdate(seconds dt) {
         cameraComponent.newPosition += shipRotation * (kCameraParameter_.kCameraPosition + cameraComponent.angularAddVector + cameraComponent.linearAddVector);
         cameraComponent.fallAddition = (kCameraParameter_.kFallMultiplicator * -Abs(shipBody.linearVelocity.y));
         cameraComponent.newPosition += Vec3f::up * cameraComponent.fallAddition;
-        transformManager_.SetGlobalPosition(cameraEntity, Vec3f::Lerp(cameraPosition, cameraComponent.newPosition, kCameraParameter_.kLerpPosition));
-        cameraComponent.cameraPos = transformManager_.GetGlobalPosition(cameraEntity);
+        //transformManager_.SetGlobalPosition(cameraEntity, Vec3f::Lerp(cameraPosition, cameraComponent.newPosition, kCameraParameter_.kLerpPosition));
+        cameraComponent.cameraPos = Vec3f::Lerp(cameraComponent.cameraPos, cameraComponent.newPosition, kCameraParameter_.kLerpPosition);
 
         cameraComponent.angularForwardTarget = kCameraParameter_.kAngularForwardTargetMult * Abs(angularVelocity.y);
         cameraComponent.linearForwardTarget = kCameraParameter_.kLinearForwardTargetMult * velocity.Magnitude();
@@ -75,21 +73,17 @@ void CameraControllerManager::FixedUpdate(seconds dt) {
     }
 }
 
-    void CameraControllerManager::Render()
-    {
-        for (PlayerId playerId = 0; playerId < playerManager_.GetPlayerCount(); ++playerId)
-        {
-            auto& camera = engine_.GetGameCamera().GetCamera(playerId);
-            auto& cameraComponent = cameraControllers_[playerId];
-            Entity cameraEntity = playerManager_.GetCameraEntity(playerId);
-            if (cameraEntity == INVALID_ENTITY) continue;
-            camera.position = transformManager_.GetGlobalPosition(cameraEntity);
-            camera.WorldLookAt(cameraComponent.targetPos);
-        }
-        
+void CameraControllerManager::Render()
+{
+    for (PlayerId playerId = 0; playerId < playerManager_.GetPlayerCount(); ++playerId) {
+        auto& camera          = engine_.GetGameCamera().GetCamera(playerId);
+        auto& cameraComponent = cameraControllers_[playerId];
+        camera.position       = cameraComponent.cameraPos;
+        camera.WorldLookAt(cameraComponent.targetPos);
     }
+}
 
-    void CameraControllerManager::Update(seconds dt)
+void CameraControllerManager::Update(seconds dt)
 {
     RendererLocator::get().Render(this);
 }
@@ -98,7 +92,13 @@ void CameraControllerManager::Destroy()
 {
 
 }
-CameraControllerViewer::CameraControllerViewer(EntityManager& entityManager, CameraControllerManager& cameraControllerManager) : ComponentViewer(entityManager), cameraControllerManager_(cameraControllerManager)
+
+CameraControllerViewer::CameraControllerViewer(EntityManager& entityManager,
+    PlayerManager& playerManager,
+    CameraControllerManager& cameraControllerManager)
+    : ComponentViewer(entityManager),
+      cameraControllerManager_(cameraControllerManager),
+    playerManager_(playerManager)
 {
 }
 
@@ -115,10 +115,11 @@ void CameraControllerViewer::SetComponentFromJson(Entity entity, const json& com
 
 void CameraControllerViewer::DrawImGui(Entity entity)
 {
-    if (entity == INVALID_ENTITY) return;
-    if (ImGui::TreeNode("ShipCamera")) {
+    for (PlayerId playerId = 0; playerId < playerManager_.GetPlayerCount(); ++playerId) {
+        if (playerManager_.GetShipEntity(playerId) != entity) continue;
+        if (ImGui::TreeNode("ShipCamera")) {
             //auto cameraComponent = cameraControllerManager_.GetComponent(entity);
-            auto cameraComponent = CameraController();
+            auto cameraComponent = cameraControllerManager_.GetComponent(playerId);
             ImGui::Text("angularLateralMovement");
             ImGui::SameLine();
             ImGui::Text(std::to_string(cameraComponent.angularLateralMovement).c_str());
@@ -166,5 +167,6 @@ void CameraControllerViewer::DrawImGui(Entity entity)
             ImGui::Text(std::to_string(cameraComponent.dotProductPosVeloMult).c_str());
             ImGui::TreePop();
         }
+    }
 }
 }    // namespace neko::aer
