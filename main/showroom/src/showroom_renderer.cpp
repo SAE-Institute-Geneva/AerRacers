@@ -550,7 +550,7 @@ void ShowRoomRenderer::DrawMenuBar()
 			//Open Model
 			if (MenuItem("Open..."))
 			{
-				const std::string path = OpenFileExplorer("Load Model", "Model files", {"fbx", "obj"});
+				const std::string path = OpenFileExplorer("Load Model", "Model files", {"obj"});
 				if (!path.empty())
 				{
 					selectedNode_ = NONE;
@@ -564,10 +564,6 @@ void ShowRoomRenderer::DrawMenuBar()
 					modelObj_.LoadModel(path);
 					isModelLoading_ = true;
 					modelLoadingStart_ = std::chrono::high_resolution_clock::now();
-					if (GetFilenameExtension(path) == ".obj")
-					{
-						popupNamesStack_.emplace_back("ObjWarning");
-					}
 				}
 			}
 
@@ -1014,15 +1010,6 @@ void ShowRoomRenderer::DrawPopups()
 	{
 		OpenPopup(popupNamesStack_[it - popupNamesStack_.begin()].c_str());
 		it = popupNamesStack_.erase(it);
-	}
-
-	if (BeginPopupModal("ObjWarning", nullptr, ImGuiWindowFlags_AlwaysAutoResize))
-	{
-		TextCentered("Warning: Obj format does not supported mesh hierarchy");
-		Separator();
-		if (ButtonCentered("OK", ImVec2(100.0f, 0.0f))) CloseCurrentPopup();
-
-		EndPopup();
 	}
 
 	if (BeginPopupModal("About", nullptr, ImGuiWindowFlags_AlwaysAutoResize))

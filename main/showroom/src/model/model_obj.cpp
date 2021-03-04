@@ -58,9 +58,11 @@ void ModelObj::LoadModel(std::string_view path)
 #ifdef _WIN32
 	directory_ = path.substr(0, path.find_last_of("\\"));
 	directory_ += '\\';
+	name_ = path.substr(path.find_last_of('\\') + 1, path.size());
 #elif linux
 	directory_ = path.substr(0, path.find_last_of('/'));
 	directory_ += '/';
+	name_ = path.substr(path.find_last_of('/') + 1, path.size());
 #endif
 	logDebug(fmt::format("ASSIMP: Loading model: {}", path_));
 	BasicEngine::GetInstance()->ScheduleJob(&processModelJob_, JobThreadType::RESOURCE_THREAD);
