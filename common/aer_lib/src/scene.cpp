@@ -189,6 +189,9 @@ bool SceneManager::LoadScene(const std::string_view& jsonPath)
 	{
 		json scene              = neko::LoadJson(jsonPath);
 		currentScene_.scenePath = jsonPath;
+#ifdef NEKO_VULKAN
+		vk::VkResources::Inst->modelCommandBuffer.Destroy();
+#endif
 		entityManager_.CleanEntity();
 		ParseSceneJson(scene);
 		return true;

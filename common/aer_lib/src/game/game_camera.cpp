@@ -1,6 +1,8 @@
 #include "aer/game/game_camera.h"
 
+#ifdef NEKO_GLES3
 #include "gl/shader.h"
+#endif
 
 namespace neko::aer
 {
@@ -19,7 +21,8 @@ void GameCamera::Init()
 void GameCamera::Update(const seconds dt)
 {
 	const auto& inputManager = sdl::InputLocator::get();
-	for (std::size_t i = 0; i < cameras_.size(); ++i)
+	const auto& controllers = inputManager.GetControllerIdVector();
+	for (std::size_t i = 0; i < controllers.size() / 2; ++i)
 	{
 		if (inputManager.GetControllerIdVector().size() <= i) continue;
 		sdl::ControllerId controllerId = inputManager.GetControllerIdVector()[i];
@@ -102,10 +105,12 @@ void GameCamera::OnEvent(const SDL_Event& event)
 
 void GameCamera::Bind(std::size_t playerNum)
 {
+#ifdef NEKO_GLES3
 	Mat4f camProj = GenerateProjectionMatrix(playerNum);
 	Mat4f camView = GenerateViewMatrix(playerNum);
 	gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
 	gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+#endif
 	CameraLocator::provide(&cameras_[playerNum]);
 }
 
@@ -132,7 +137,7 @@ void GameCamera::SetAspects(float aspect)
 		camera.SetAspect(aspect);
 }
 
-void GameCamera::SetAspects(float windowSizeX, float windowSize)
+void GameCamera::SetAspects(int windowSizeX, int windowSize)
 {
 	for (auto& camera : cameras_)
 		camera.SetAspect(windowSizeX, windowSize);

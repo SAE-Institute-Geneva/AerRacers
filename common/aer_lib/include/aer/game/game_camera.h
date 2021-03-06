@@ -71,7 +71,7 @@ public:
 	void SetAspects(float aspect);
 
 	/// Sets the aspect ratio for all cameras
-	void SetAspects(float windowSizeX, float windowSize);
+	void SetAspects(int windowSizeX, int windowSize);
 
 	/// Sets the aspect ratio for all cameras
 	void SetAspects(Vec2u windowSize);

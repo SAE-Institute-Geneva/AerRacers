@@ -43,31 +43,39 @@ Java_swiss_sae_gpr5300_MainActivity_load(JNIEnv *env, [[maybe_unused]] jclass cl
 
 namespace neko
 {
+constexpr char GetOsSeparator()
+{
+#ifdef WIN32
+	return '\\';
+#else
+	return '/';
+#endif
+}
 
 bool FileExists(std::string_view filename);
 
-void IterateDirectory(const std::string_view dirname, std::function<void(const std::string_view)> func, bool recursive=false);
+void IterateDirectory(std::string_view dirname, std::function<void(const std::string_view)> func, bool recursive=false);
 
 size_t CalculateFileSize(const std::string& filename);
 
 std::string GetCurrentPath();
 
-bool CreateDirectory(const std::string_view dirname);
+bool CreateDirectory(std::string_view dirname);
 
-bool RemoveDirectory(const std::string_view dirname, bool removeAll = true);
+bool RemoveDirectory(std::string_view dirname, bool removeAll = true);
 
 const std::string LoadFile(const std::string& path);
 const std::string LoadBinaries(const std::string& path);
 
-std::string LinkFolderAndFile(const std::string_view folderPath, const std::string_view filePath);
-std::string GetRelativePath(const std::string_view path, const std::string_view relative);
-std::string GetFilenameExtension(const std::string_view path);
+std::string LinkFolderAndFile(std::string_view folderPath, std::string_view filePath);
+std::string GetRelativePath(std::string_view path, std::string_view relative);
+std::string GetFilenameExtension(std::string_view path);
 
-std::string GetFileParentPath(const std::string_view path);
-std::string GetFilename(const std::string_view path);
-std::string GetStem(const std::string_view path);
+std::string GetFileParentPath(std::string_view path);
+std::string GetFilename(std::string_view path);
+std::string GetStem(std::string_view path);
 
-std::string MakeGeneric(const std::string_view path);
+std::string MakeGeneric(std::string_view path);
 
-void WriteStringToFile(const std::string& path, const std::string_view content);
+void WriteStringToFile(const std::string& path, std::string_view content);
 }

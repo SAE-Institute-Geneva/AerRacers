@@ -1,5 +1,4 @@
 #pragma once
-
 /*
  MIT License
 
@@ -25,62 +24,31 @@
  */
 
 #ifdef NEKO_VULKAN
-
-#include "imgui.h"
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_vulkan.h"
-
 #include "sdl_engine/sdl_window.h"
-#include "graphics/graphics.h"
-#include "mathematics/vector.h"
-
-#include "vk/vulkan_include.h"
 
 namespace neko::sdl
 {
-class VkOnResizeRenderCommand final : public RenderCommandInterface
-{
-public:
-	void Render() override;
-    void SetWindowSize(const Vec2u newWindowSize) { newWindowSize_ = newWindowSize; }
-protected:
-    Vec2u newWindowSize_;
-};
-
 class VulkanWindow final : public SdlWindow
 {
 public:
-    enum WindowFlag : uint8_t
-    {
-        ImGuiFirstFrame = 1u << 0u,
-        NEED_RESIZE = 1u << 1u,
-        IS_MINIMIZED = 1u << 2u
-    };
+	VulkanWindow();
 
-    [[nodiscard]] const SDL_Window& GetWindow() const { return *window_; }
-    [[nodiscard]] SDL_Window& GetWindow() { return *window_; }
+	[[nodiscard]] SDL_Window* GetWindow() { return window_; }
 
-    void Init() override;
+	void Init() override;
+	void Destroy() override;
 
-    void InitImGui() override;
-
-    void Destroy() override;
-    void GenerateUiFrame() override;
-    void SwapBuffer() override;
-
-    void OnResize(Vec2u newWindowSize) override;
-
-    void MinimizedLoop() const;
+	/// Loop to stop the window from being rendered while it is minimized
+	void MinimizedLoop() const;
 
 protected:
-    void RenderUi() override;
-
-    SDL_Event event_{};
-
-    WindowFlag state_{};
-    VkOnResizeRenderCommand onResizeCommand_;
-
-    VkDescriptorPool imguiDescriptorPool_;
+	/// Unused: Required by SdlWindow
+	void InitImGui() override {}
+	void RenderUi() override {}
+	void GenerateUiFrame() override {}
+	void OnResize(Vec2u) override {}
+	void SwapBuffer() override {}
+	/// Unused: Required by SdlWindow
 };
-}
+}    // namespace neko::sdl
 #endif

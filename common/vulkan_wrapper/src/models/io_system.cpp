@@ -25,92 +25,62 @@
 
 namespace neko
 {
-Assimp::IOStream* NekoIOSystem::Open(const char* pFile, [[maybe_unused]] const char* pMode)
+Assimp::IOStream* VkIoSystem::Open(const char* pFile, const char* pMode)
 {
-    const std::string mode = pMode;
-    if(mode == "r+" || mode == "w" || mode == "w+" || mode == "a" || mode == "a+")
-    {
-        return nullptr;
-    }
-    auto* ioStream = new NekoIOStream(filesystem_);
-    ioStream->LoadFromFile(pFile);
+	const std::string mode = pMode;
+	if (mode == "r+" || mode == "w" || mode == "w+" || mode == "a" || mode == "a+") return nullptr;
+
+	auto* ioStream = new VkIoStream(filesystem_);
+	ioStream->LoadFromFile(pFile);
 	return ioStream;
 }
 
-void NekoIOSystem::Close(Assimp::IOStream* pFile)
+void VkIoSystem::Close(Assimp::IOStream* pFile)
 {
-    auto* ioStream = static_cast<NekoIOStream*>(pFile);
-    ioStream->Destroy();
+	auto* ioStream = static_cast<VkIoStream*>(pFile);
+	ioStream->Destroy();
 }
 
-NekoIOSystem::NekoIOSystem(const FilesystemInterface& filesystem) : filesystem_(filesystem)
-{}
+VkIoSystem::VkIoSystem(const FilesystemInterface& filesystem) : filesystem_(filesystem) {}
 
-size_t NekoIOStream::Read(void* pvBuffer, size_t pSize, size_t pCount)
+size_t VkIoStream::Read(void* pvBuffer, size_t pSize, size_t pCount)
 {
-    if(!pvBuffer)
-        return 0;
-    if (cursorIndex_ + pCount * pSize > bufferFile_.dataLength)
-        return 0;
-    std::memcpy(pvBuffer, bufferFile_.dataBuffer+cursorIndex_,pSize*pCount);
-    cursorIndex_ += pSize*pCount;
-    return pSize*pCount;
+	if (!pvBuffer) return 0;
+	if (cursorIndex_ + pCount * pSize > bufferFile_.dataLength) return 0;
+
+	std::memcpy(pvBuffer, bufferFile_.dataBuffer + cursorIndex_, pSize * pCount);
+	cursorIndex_ += pSize * pCount;
+	return pSize * pCount;
 }
 
-size_t NekoIOStream::Write([[maybe_unused]]const void* pvBuffer, [[maybe_unused]]size_t pSize, [[maybe_unused]]size_t pCount)
+size_t VkIoStream::Write(const void*, size_t, size_t) { return 0; }
+
+aiReturn VkIoStream::Seek(size_t pOffset, aiOrigin pOrigin)
 {
-    return 0;
+	switch (pOrigin)
+	{
+		case aiOrigin_CUR: cursorIndex_ += pOffset; return aiReturn_SUCCESS;
+		case aiOrigin_SET: cursorIndex_ = pOffset; return aiReturn_SUCCESS;
+		case aiOrigin_END: cursorIndex_ = bufferFile_.dataLength - pOffset; return aiReturn_SUCCESS;
+		default: break;
+	}
+
+	return aiReturn_FAILURE;
 }
 
-aiReturn NekoIOStream::Seek(size_t pOffset, aiOrigin pOrigin)
+size_t VkIoStream::Tell() const { return cursorIndex_; }
+
+size_t VkIoStream::FileSize() const { return bufferFile_.dataLength; }
+
+void VkIoStream::Flush() {}
+
+void VkIoStream::LoadFromFile(std::string_view path)
 {
-    switch(pOrigin)
-    {
-        case aiOrigin_CUR:
-            cursorIndex_ += pOffset;
-            return aiReturn_SUCCESS;
-            break;
-        case aiOrigin_SET:
-            cursorIndex_ = pOffset;
-            return aiReturn_SUCCESS;
-            break;
-        case aiOrigin_END:
-            cursorIndex_ = bufferFile_.dataLength-pOffset;
-            return aiReturn_SUCCESS;
-            break;
-        default:
-            break;
-    }
-    return aiReturn_FAILURE;
+	bufferFile_  = filesystem_.LoadFile(path);
+	cursorIndex_ = 0;
 }
 
-size_t NekoIOStream::Tell() const
-{
-    return cursorIndex_;
-}
+void VkIoStream::Destroy() { bufferFile_.Destroy(); }
 
-size_t NekoIOStream::FileSize() const
-{
-    return bufferFile_.dataLength;
-}
-
-void NekoIOStream::Flush()
-{}
-
-void NekoIOStream::LoadFromFile(std::string_view path)
-{
-    bufferFile_ = filesystem_.LoadFile(path);
-    cursorIndex_ = 0;
-}
-
-void NekoIOStream::Destroy()
-{
-    bufferFile_.Destroy();
-}
-
-NekoIOStream::NekoIOStream(const FilesystemInterface& filesystem) :
-    filesystem_(filesystem)
-{
-}
-}
-
+VkIoStream::VkIoStream(const FilesystemInterface& filesystem) : filesystem_(filesystem) {}
+}    // namespace neko

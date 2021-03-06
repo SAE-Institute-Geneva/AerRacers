@@ -168,7 +168,7 @@ public:
 
 	const std::vector<LogMessage>& GetLogs() override
 	{
-		neko_assert(false, "Impossible to get log history from a null LogManager")
+		neko_assert(false, "Impossible to get log history from a null LogManager");
 	}
 
 	void ClearLogs() override

@@ -301,7 +301,7 @@ void Transform3dManager::AddComponent(Entity entity)
     return DoubleBufferComponentManager::AddComponent(entity);
 }
 
-void Transform3dManager::OnChangeParent(Entity entity, Entity newParent, Entity oldParent)
+void Transform3dManager::OnChangeParent(Entity entity, Entity, Entity)
 {
     Mat4f transform = GetComponent(entity);
     SetGlobalScale(entity, Transform3d::GetScale(transform));
@@ -385,3 +385,4 @@ void Transform3dViewer::DrawImGui(Entity entity)
     }
 }
 }// namespace neko
+ 
