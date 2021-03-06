@@ -177,13 +177,10 @@ physx::PxShape* RigidActor::InitSphereShape(
 physx::PxShape* RigidActor::InitMeshCollider(
     const PhysicsEngine& physics,
     physx::PxMaterial* material,
-    const MeshColliderData& meshColliderData) const
+    const assimp::Mesh& mesh) const
 {
-    if (gl::ModelManagerLocator::get().IsLoaded(meshColliderData.modelId))
-    {
-        const auto& model = gl::ModelManagerLocator::get().GetModel(meshColliderData.modelId);
-        std::vector<assimp::Vertex> vertices = model->GetMesh(0).vertices;
-        std::vector<unsigned> indices = model->GetMesh(0).indices;
+        std::vector<assimp::Vertex> vertices = mesh.vertices;
+        std::vector<unsigned> indices = mesh.indices;
         std::vector<physx::PxVec3> vertices2;
         vertices2.resize(vertices.size());
         std::transform(vertices.begin(), vertices.end(),  vertices2.begin(),
@@ -214,9 +211,6 @@ physx::PxShape* RigidActor::InitMeshCollider(
         physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
         physx::PxTriangleMesh* triangleMesh = physics.GetPhysx()->createTriangleMesh(readBuffer);
         return physics.GetPhysx()->createShape(physx::PxTriangleMeshGeometry(triangleMesh), *material);
-    } else {
-        return nullptr;
-    }
 }
 
 void RigidActor::SetFiltering(
@@ -384,30 +378,48 @@ void RigidStatic::Init(const PhysicsEngine& physics,
     if (!rigidActor_) std::cerr << "create actor failed!";
     material_ = InitMaterial(physics.GetPhysx(), rigidStatic.material);
     if (!material_) std::cerr << "createMaterial failed!";
-    switch (rigidStatic.colliderType) {
-        case ColliderType::INVALID: 
+    if (rigidStatic.colliderType == ColliderType::MESH) {
+        if (gl::ModelManagerLocator::get().IsLoaded(rigidStatic.meshColliderData.modelId))
+        {
+            const auto& model = gl::ModelManagerLocator::get().GetModel(rigidStatic.meshColliderData.modelId);
+            for (size_t meshIndex = 0; meshIndex < model->GetMeshCount(); ++meshIndex) {
+                shape_ = InitMeshCollider(physics,
+                    material_,
+                    model->GetMesh(meshIndex));
+                if (!shape_) {
+                    std::cerr << "createShape failed!";
+                    return;
+                }
+                SetFiltering(shape_, rigidStatic.filterGroup);
+                rigidActor_->attachShape(*shape_);
+                SetRigidStaticData(rigidStatic);
+            }
+                
+        }
+    }
+    else
+    {
+        switch (rigidStatic.colliderType) {
+        case ColliderType::INVALID:
         case ColliderType::BOX: shape_ = InitBoxShape(physics.GetPhysx(),
-                                    material_,
-                                    rigidStatic.boxColliderData);
+            material_,
+            rigidStatic.boxColliderData);
             break;
         case ColliderType::SPHERE: shape_ = InitSphereShape(physics.GetPhysx(),
-                                       material_,
-                                       rigidStatic.sphereColliderData);
-            break;
-        case ColliderType::MESH: shape_ = InitMeshCollider(physics,
             material_,
-            rigidStatic.meshColliderData);
+            rigidStatic.sphereColliderData);
             break;
-        default: ;
+        default:;
+        }
+        if (!shape_)
+        {
+            std::cerr << "createShape failed!";
+            return;
+        }
+        SetFiltering(shape_, rigidStatic.filterGroup);
+        rigidActor_->attachShape(*shape_);
+        SetRigidStaticData(rigidStatic);
     }
-    if (!shape_)
-    {
-        std::cerr << "createShape failed!";
-        return;
-    }
-    SetFiltering(shape_, rigidStatic.filterGroup);
-    rigidActor_->attachShape(*shape_);
-    SetRigidStaticData(rigidStatic);
 }
 
 void RigidStatic::SetRigidStaticData(
@@ -487,14 +499,13 @@ void RigidDynamic::Init(const PhysicsEngine& physics,
                                        material_,
                                        rigidDynamic.sphereColliderData);
             break;
-        case ColliderType::MESH: shape_ = InitMeshCollider(physics,
-            material_,
-            rigidDynamic.meshColliderData);
+        case ColliderType::MESH:
+            std::cerr << "Dynamic mesh collider are not available ! ";
             break;
         default: ;
     }
     if (!shape_) {
-        std::cerr << "createShpae failed!";
+        std::cerr << "Create dynamic Shape failed!";
         return;
     }
     rigidActor_->attachShape(*shape_);

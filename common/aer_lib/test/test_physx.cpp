@@ -1030,7 +1030,7 @@ public:
     explicit SceneMeshCollider(neko::aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
     void InitActors(neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration = 5.0f;
+        engineDuration = 60.0f;
         entityManager_ = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_ = &aerEngine_.GetComponentManagerContainer().renderManager;
@@ -1046,7 +1046,7 @@ public:
                 planePosition_);
             renderManager_->AddComponent(planeEntity_);
             renderManager_->SetModel(planeEntity_,
-                aerEngine_.GetConfig().dataRootPath + "models/sphere/sphere.obj");
+                aerEngine_.GetConfig().dataRootPath + "models/test/test.obj");
         }
         {
             sphereEntity_ = entityManager_->CreateEntity();
@@ -1086,7 +1086,7 @@ public:
     void DrawImGui() override { }
 private:
     const static size_t kCubeNumbers = 25;
-    neko::Vec3f objPosition_ = neko::Vec3f(0.0f, 5.0f, -5.0f);
+    neko::Vec3f objPosition_ = neko::Vec3f(0.1f, 10.0f, -5.0f);
     neko::Vec3f planePosition_ = neko::Vec3f(0.0f, 0.0f, -5.0f);
 
     neko::Entity sphereEntity_ = neko::INVALID_ENTITY;
