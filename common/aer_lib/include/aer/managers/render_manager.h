@@ -45,7 +45,11 @@ class RenderManager : public IRenderManager,
 {
 public:
 	explicit RenderManager(EntityManager& entityManager,
+#ifdef NEKO_GLES3
+		gl::ModelManager& modelManager,
+#else
 		vk::ModelManager& modelManager,
+#endif
 		Transform3dManager& transform3DManager,
 		RendererViewer& rendererViewer);
 

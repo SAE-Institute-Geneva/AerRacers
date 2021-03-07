@@ -3,7 +3,10 @@
 #include "utils/file_utility.h"
 
 #include "aer/log.h"
+
+#ifdef NEKO_VULKAN
 #include "vk/vk_resources.h"
+#endif
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -12,7 +15,11 @@
 namespace neko::aer
 {
 RenderManager::RenderManager(EntityManager& entityManager,
+#ifdef NEKO_GLES3
+	gl::ModelManager& modelManager,
+#else
 	vk::ModelManager& modelManager,
+#endif
 	Transform3dManager& transform3DManager,
 	RendererViewer& rendererViewer)
 #ifdef NEKO_GLES3
