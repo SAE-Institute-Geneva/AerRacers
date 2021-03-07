@@ -81,7 +81,7 @@ void AerEngine::GenerateUiFrame()
 	window_->GenerateUiFrame();
 	drawImGuiAction_.Execute();
 #elif NEKO_VULKAN
-	if (vk::VkResources::Inst->IsImGuiReady())
+	if (ImGui::GetCurrentContext())
 		drawImGuiAction_.Execute();
 #endif
 }

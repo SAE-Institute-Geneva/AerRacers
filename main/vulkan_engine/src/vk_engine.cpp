@@ -33,7 +33,7 @@ void VkEngine::Destroy()
 
 void VkEngine::GenerateUiFrame()
 {
-	if (VkResources::Inst->IsImGuiReady())
+	if (ImGui::GetCurrentContext())
 		drawImGuiAction_.Execute();
 }
 

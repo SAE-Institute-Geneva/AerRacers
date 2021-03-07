@@ -94,7 +94,7 @@ void VkDrawSystem::DrawImGui()
 	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-	Begin("Showroom", reinterpret_cast<bool*>(true), windowFlags);
+	Begin("Dockspace", reinterpret_cast<bool*>(true), windowFlags);
 	{
 		PopStyleVar();
 		PopStyleVar(2);
