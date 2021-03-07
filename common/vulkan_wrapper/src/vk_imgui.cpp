@@ -7,7 +7,6 @@ namespace neko::vk
 {
 VkImGui::VkImGui()
 {
-	static_cast<sdl::SdlEngine*>(BasicEngine::GetInstance())->RegisterOnEvent(*this);
 	const VkResources* vkObj = VkResources::Inst;
 
 	IMGUI_CHECKVERSION();
@@ -110,7 +109,7 @@ void VkImGui::Render(const CommandBuffer& commandBuffer)
 	//End drawing
 	ImGui::Render();
 	ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
-	hasBeenDrawn_ = true;
+	ImGui::GetDrawData()->Clear();
 
 	//Start drawing
 	ImGui_ImplVulkan_NewFrame();
@@ -128,27 +127,5 @@ void VkImGui::OnWindowResize()
 	ImGui_ImplVulkan_NewFrame();
 	ImGui_ImplSDL2_NewFrame(VkResources::Inst->vkWindow->GetWindow());
 	ImGui::NewFrame();
-}
-
-void VkImGui::OnEndOfFrame()
-{
-	if (!hasBeenDrawn_)
-	{
-		//End drawing
-		ImGui::Render();
-		ImGui::GetDrawData()->Clear();
-
-		//Start drawing
-		ImGui_ImplVulkan_NewFrame();
-		ImGui_ImplSDL2_NewFrame(VkResources::Inst->vkWindow->GetWindow());
-		ImGui::NewFrame();
-	}
-
-	hasBeenDrawn_ = false;
-}
-
-void VkImGui::OnEvent(const SDL_Event& event)
-{
-	ImGui_ImplSDL2_ProcessEvent(&event);
 }
 }    // namespace neko::vk
