@@ -18,13 +18,13 @@ ColliderType RigidActor::GetColliderType() const
             break;
         case physx::PxGeometryType::ePLANE: return ColliderType::INVALID;
             break;
-        case physx::PxGeometryType::eCAPSULE: return ColliderType::INVALID;
+        case physx::PxGeometryType::eCAPSULE: return ColliderType::CAPSULE;
             break;
         case physx::PxGeometryType::eBOX: return ColliderType::BOX;
             break;
         case physx::PxGeometryType::eCONVEXMESH: return ColliderType::INVALID;
             break;
-        case physx::PxGeometryType::eTRIANGLEMESH: return ColliderType::INVALID;
+        case physx::PxGeometryType::eTRIANGLEMESH: return ColliderType::MESH;
             break;
         case physx::PxGeometryType::eHEIGHTFIELD: return ColliderType::INVALID;
             break;
@@ -64,6 +64,21 @@ BoxColliderData RigidActor::GetBoxColliderData() const
                                  physx::PxShapeFlags(physx::PxShapeFlag::eTRIGGER_SHAPE)) ==
                                 physx::PxShapeFlags(physx::PxShapeFlag::eTRIGGER_SHAPE);
     return boxColliderData;
+}
+CapsuleColliderData RigidActor::GetCapsuleColliderData() const
+{
+    CapsuleColliderData capsuleColliderData;
+    if (!shape_) {
+        logDebug("No shape_");
+        return capsuleColliderData;
+    }
+    capsuleColliderData.offset = ConvertFromPxVec(shape_->getLocalPose().p);
+    capsuleColliderData.height = shape_->getGeometry().capsule().halfHeight * 2.0f;
+    capsuleColliderData.radius = shape_->getGeometry().capsule().radius;
+    capsuleColliderData.isTrigger = (shape_->getFlags() &
+        physx::PxShapeFlags(physx::PxShapeFlag::eTRIGGER_SHAPE)) ==
+        physx::PxShapeFlags(physx::PxShapeFlag::eTRIGGER_SHAPE);
+    return capsuleColliderData;
 }
 
 PhysicsMaterial RigidActor::GetPhysicsMaterial() const
@@ -118,6 +133,49 @@ void RigidActor::SetBoxColliderData(
     
 }
 
+void RigidActor::SetCapsuleColliderData(const CapsuleColliderData& capsuleColliderData) const {
+    if (!shape_) {
+        logDebug("No shape_");
+        return;
+    }
+    physx::PxTransform transform = shape_->getLocalPose();
+    transform.p = ConvertToPxVec(capsuleColliderData.offset);
+    shape_->setLocalPose(transform);
+    physx::PxCapsuleGeometry geometry = shape_->getGeometry().capsule();
+    geometry.halfHeight = capsuleColliderData.height / 2.0f;
+    geometry.radius = capsuleColliderData.radius;
+    shape_->setGeometry(geometry);
+    if (capsuleColliderData.isTrigger) {
+        shape_->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, false);
+        shape_->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, capsuleColliderData.isTrigger);
+    }
+    else {
+        shape_->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, capsuleColliderData.isTrigger);
+        shape_->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, true);
+    }
+}
+
+
+void RigidActor::SetMeshColliderData(
+    const physics::MeshColliderData& meshColliderData) const
+{
+    if (!shape_) {
+        logDebug("No shape_");
+        return;
+    }
+    physx::PxTransform transform = shape_->getLocalPose();
+    transform.p = ConvertToPxVec(meshColliderData.offset);
+    shape_->setLocalPose(transform);
+    if (meshColliderData.isTrigger) {
+        shape_->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, false);
+        shape_->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, meshColliderData.isTrigger);
+    }
+    else {
+        shape_->setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, meshColliderData.isTrigger);
+        shape_->setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, true);
+    }
+}
+
 void RigidActor::SetMaterial(const PhysicsMaterial& physicsMaterial) const
 {
     material_->setRestitution(physicsMaterial.bouciness);
@@ -154,6 +212,50 @@ physx::PxShape* RigidActor::InitSphereShape(
     return physics->createShape(physx::PxSphereGeometry(sphereCollider.radius), *material);
 }
 
+physx::PxShape* RigidActor::InitCapsuleShape(physx::PxPhysics* physics, physx::PxMaterial* material, const CapsuleColliderData& capsuleCollider) const {
+    return physics->createShape(physx::PxCapsuleGeometry(capsuleCollider.radius, capsuleCollider.height / 2.0f), *material);
+}
+
+
+physx::PxShape* RigidActor::InitMeshCollider(
+    const PhysicsEngine& physics,
+    physx::PxMaterial* material,
+    const assimp::Mesh& mesh) const
+{
+        std::vector<assimp::Vertex> vertices = mesh.vertices;
+        std::vector<unsigned> indices = mesh.indices;
+        std::vector<physx::PxVec3> vertices2;
+        vertices2.resize(vertices.size());
+        std::transform(vertices.begin(), vertices.end(),  vertices2.begin(),
+            [](assimp::Vertex vert) -> physx::PxVec3 { return ConvertToPxVec(vert.position); });
+        physx::PxTriangleMeshDesc meshDesc;
+        meshDesc.points.count = vertices2.size();
+        meshDesc.points.stride = sizeof(physx::PxVec3);
+        meshDesc.points.data = vertices2.data();
+
+        meshDesc.triangles.count = indices.size();
+        meshDesc.triangles.stride = 3* sizeof(unsigned);
+        meshDesc.triangles.data = indices.data();
+        physx::PxDefaultMemoryOutputStream writeBuffer;
+        physx::PxTriangleMeshCookingResult::Enum result;
+        bool status = physics.GetCooking()->cookTriangleMesh(meshDesc, writeBuffer, &result);
+        if (!status) {
+            switch (result) {
+                case physx::PxTriangleMeshCookingResult::eSUCCESS: break;
+                case physx::PxTriangleMeshCookingResult::eLARGE_TRIANGLE:
+                    logDebug("eLARGE_TRIANGLE");
+                break;
+                case physx::PxTriangleMeshCookingResult::eFAILURE:
+                    logDebug("eFAILURE");
+                break;
+                default: ; }
+        }
+
+        physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+        physx::PxTriangleMesh* triangleMesh = physics.GetPhysx()->createTriangleMesh(readBuffer);
+        return physics.GetPhysx()->createShape(physx::PxTriangleMeshGeometry(triangleMesh), *material);
+}
+
 void RigidActor::SetFiltering(
     physx::PxShape* shape,
     physx::PxU32 filterGroup)
@@ -174,6 +276,17 @@ json RigidActorViewer::GetJsonFromBoxCollider(const RigidActorData& rigidActorDa
     boxColliderJson["offset"]         = GetJsonFromVector3(rigidActorData.boxColliderData.offset);
     boxColliderJson["size"]           = GetJsonFromVector3(rigidActorData.boxColliderData.size);
     return boxColliderJson;
+}
+
+json RigidActorViewer::GetJsonFromCapsuleCollider(const RigidActorData& rigidActorData) const
+{
+    json capsleColliderJson = json::object();
+    capsleColliderJson["exist"] = rigidActorData.colliderType == ColliderType::CAPSULE;
+    capsleColliderJson["isTrigger"] = rigidActorData.capsuleColliderData.isTrigger;
+    capsleColliderJson["offset"] = GetJsonFromVector3(rigidActorData.capsuleColliderData.offset);
+    capsleColliderJson["height"] = rigidActorData.capsuleColliderData.height;
+    capsleColliderJson["radius"] = rigidActorData.capsuleColliderData.radius;
+    return capsleColliderJson;
 }
 
 json RigidActorViewer::GetJsonFromSphereCollider(const RigidActorData& rigidActorData) const
@@ -242,6 +355,28 @@ RigidActorData RigidActorViewer::GetRigidActorFromJson(const json& rigidActorJso
             }
         }
     }
+    if (CheckJsonParameter(rigidActorJson, "capsuleCollider", json::value_t::object))
+    {
+        if (CheckJsonParameter(rigidActorJson["capsuleCollider"], "exist", json::value_t::boolean))
+        {
+            if (rigidActorJson["capsuleCollider"]["exist"])
+            {
+                rigidActorData.colliderType = ColliderType::CAPSULE;
+                if (CheckJsonParameter(
+                    rigidActorJson["capsuleCollider"], "isTrigger", json::value_t::boolean))
+                {
+                    rigidActorData.capsuleColliderData.isTrigger =
+                        rigidActorJson["capsuleCollider"]["isTrigger"];
+                }
+                rigidActorData.capsuleColliderData.offset =
+                    GetVector3FromJson(rigidActorJson["capsuleCollider"], "offset");
+                rigidActorData.capsuleColliderData.height =
+                    rigidActorJson["capsuleCollider"], "height";
+                rigidActorData.capsuleColliderData.radius =
+                    rigidActorJson["capsuleCollider"], "radius";
+            }
+        }
+    }
     if (CheckJsonParameter(rigidActorJson, "physicsMaterial", json::value_t::object))
     {
         if (CheckJsonNumber(rigidActorJson["physicsMaterial"], "bouciness"))
@@ -295,6 +430,32 @@ RigidActorData RigidActorViewer::DrawImGuiRigidActor(
             }
             break;
         }
+        case neko::physics::ColliderType::CAPSULE:
+        {
+            neko::physics::CapsuleColliderData capsuleColliderData =
+                newRigidActorData.capsuleColliderData;
+            if (ImGui::CollapsingHeader("SphereCollider", true))
+            {
+                ImGui::DragFloat3("offset", capsuleColliderData.offset.coord, 0);
+                ImGui::DragFloat("radius", &capsuleColliderData.radius);
+                ImGui::DragFloat("height", &capsuleColliderData.height);
+                ImGui::Checkbox("isTrigger", &capsuleColliderData.isTrigger);
+                newRigidActorData.capsuleColliderData = capsuleColliderData;
+            }
+            break;
+        }
+        case neko::physics::ColliderType::MESH:
+        {
+            neko::physics::MeshColliderData meshColliderData =
+                newRigidActorData.meshColliderData;
+            if (ImGui::CollapsingHeader("MeshCollider", true))
+            {
+                ImGui::DragFloat3("offset", meshColliderData.offset.coord, 0);
+                ImGui::Checkbox("isTrigger", &meshColliderData.isTrigger);
+                newRigidActorData.meshColliderData = meshColliderData;
+            }
+            break;
+        }
         default:; break;
     }
     if (ImGui::CollapsingHeader("Material", true))
@@ -308,37 +469,63 @@ RigidActorData RigidActorViewer::DrawImGuiRigidActor(
     return newRigidActorData;
 }
 
-void RigidStatic::Init(physx::PxPhysics* physics,
+void RigidStatic::Init(const PhysicsEngine& physics,
     const RigidStaticData& rigidStatic,
     const Vec3f& position,
     const EulerAngles& eulerAngle)
 {
     physx::PxTransform transform = physx::PxTransform(ConvertToPxVec(position),
         ConvertToPxQuat(Quaternion::FromEuler(eulerAngle)));
-    rigidActor_ = physics->createRigidStatic(transform);
+    rigidActor_ = physics.GetPhysx()->createRigidStatic(transform);
     if (!rigidActor_) std::cerr << "create actor failed!";
-    material_ = InitMaterial(physics, rigidStatic.material);
+    material_ = InitMaterial(physics.GetPhysx(), rigidStatic.material);
     if (!material_) std::cerr << "createMaterial failed!";
-    switch (rigidStatic.colliderType) {
-        case ColliderType::INVALID: 
-        case ColliderType::BOX: shape_ = InitBoxShape(physics,
-                                    material_,
-                                    rigidStatic.boxColliderData);
-            break;
-        case ColliderType::SPHERE: shape_ = InitSphereShape(physics,
-                                       material_,
-                                       rigidStatic.sphereColliderData);
-            break;
-        default: ;
+    if (rigidStatic.colliderType == ColliderType::MESH) {
+        if (gl::ModelManagerLocator::get().IsLoaded(rigidStatic.meshColliderData.modelId))
+        {
+            const auto& model = gl::ModelManagerLocator::get().GetModel(rigidStatic.meshColliderData.modelId);
+            for (size_t meshIndex = 0; meshIndex < model->GetMeshCount(); ++meshIndex) {
+                shape_ = InitMeshCollider(physics,
+                    material_,
+                    model->GetMesh(meshIndex));
+                if (!shape_) {
+                    std::cerr << "createShape failed!";
+                    return;
+                }
+                SetFiltering(shape_, rigidStatic.filterGroup);
+                rigidActor_->attachShape(*shape_);
+                SetRigidStaticData(rigidStatic);
+            }
+                
+        }
     }
-    if (!shape_)
+    else
     {
-        std::cerr << "createShape failed!";
-        return;
+        switch (rigidStatic.colliderType) {
+        case ColliderType::INVALID:
+        case ColliderType::BOX: shape_ = InitBoxShape(physics.GetPhysx(),
+            material_,
+            rigidStatic.boxColliderData);
+            break;
+        case ColliderType::SPHERE: shape_ = InitSphereShape(physics.GetPhysx(),
+            material_,
+            rigidStatic.sphereColliderData);
+            break;
+        case ColliderType::CAPSULE: shape_ = InitCapsuleShape(physics.GetPhysx(),
+            material_,
+            rigidStatic.capsuleColliderData);
+            break;
+        default:;
+        }
+        if (!shape_)
+        {
+            std::cerr << "createShape failed!";
+            return;
+        }
+        SetFiltering(shape_, rigidStatic.filterGroup);
+        rigidActor_->attachShape(*shape_);
+        SetRigidStaticData(rigidStatic);
     }
-    SetFiltering(shape_, rigidStatic.filterGroup);
-    rigidActor_->attachShape(*shape_);
-    SetRigidStaticData(rigidStatic);
 }
 
 void RigidStatic::SetRigidStaticData(
@@ -357,6 +544,14 @@ void RigidStatic::SetRigidStaticData(
             break;
         case ColliderType::SPHERE: rigidActor_->detachShape(*shape_);
             SetSphereColliderData(rigidStaticData.sphereColliderData);
+            rigidActor_->attachShape(*shape_);
+            break;
+        case ColliderType::CAPSULE: rigidActor_->detachShape(*shape_);
+            SetCapsuleColliderData(rigidStaticData.capsuleColliderData);
+            rigidActor_->attachShape(*shape_);
+            break;
+        case ColliderType::MESH: rigidActor_->detachShape(*shape_);
+            SetMeshColliderData(rigidStaticData.meshColliderData);
             rigidActor_->attachShape(*shape_);
             break;
         default: ;
@@ -382,42 +577,53 @@ RigidStaticData RigidStatic::GetRigidStaticData() const
             rigidStaticData.sphereColliderData = GetSphereColliderData();
             rigidActor_->attachShape(*shape_);
             break;
+        case ColliderType::CAPSULE: rigidActor_->detachShape(*shape_);
+            rigidStaticData.capsuleColliderData = GetCapsuleColliderData();
+            rigidActor_->attachShape(*shape_);
+            break;
         default: break;
     }
     return rigidStaticData;
 }
 
-void RigidDynamic::Init(physx::PxPhysics* physics,
+void RigidDynamic::Init(const PhysicsEngine& physics,
     const RigidDynamicData& rigidDynamic,
     const Vec3f& position,
     const EulerAngles& eulerAngle)
 {
     physx::PxTransform transform = physx::PxTransform(ConvertToPxVec(position),
         ConvertToPxQuat(Quaternion::FromEuler(eulerAngle)));
-    rigidActor_ = physics->createRigidDynamic(transform);
+    rigidActor_ = physics.GetPhysx()->createRigidDynamic(transform);
     if (!rigidActor_) {
         std::cerr << "create actor failed!";
         return;
     }
-    material_ = InitMaterial(physics, rigidDynamic.material);
+    material_ = InitMaterial(physics.GetPhysx(), rigidDynamic.material);
     if (!material_) {
         std::cerr << "createMaterial failed!";
         return;
     }
     switch (rigidDynamic.colliderType) {
         case ColliderType::INVALID: break;
-        case ColliderType::BOX: shape_ = InitBoxShape(physics,
+        case ColliderType::BOX: shape_ = InitBoxShape(physics.GetPhysx(),
                                     material_,
                                     rigidDynamic.boxColliderData);
             break;
-        case ColliderType::SPHERE: shape_ = InitSphereShape(physics,
+        case ColliderType::SPHERE: shape_ = InitSphereShape(physics.GetPhysx(),
                                        material_,
                                        rigidDynamic.sphereColliderData);
+            break;
+        case ColliderType::CAPSULE: shape_ = InitCapsuleShape(physics.GetPhysx(),
+            material_,
+            rigidDynamic.capsuleColliderData);
+            break;
+        case ColliderType::MESH:
+            std::cerr << "Dynamic mesh collider are not available ! ";
             break;
         default: ;
     }
     if (!shape_) {
-        std::cerr << "createShpae failed!";
+        std::cerr << "Create dynamic Shape failed!";
         return;
     }
     rigidActor_->attachShape(*shape_);
@@ -461,6 +667,10 @@ void RigidDynamic::SetRigidDynamicData(
             break;
         case ColliderType::SPHERE: rigidActor_->detachShape(*shape_);
             SetSphereColliderData(rigidDynamicData.sphereColliderData);
+            rigidActor_->attachShape(*shape_);
+            break;
+        case ColliderType::CAPSULE: rigidActor_->detachShape(*shape_);
+            SetCapsuleColliderData(rigidDynamicData.capsuleColliderData);
             rigidActor_->attachShape(*shape_);
             break;
         default: break;
@@ -514,6 +724,10 @@ physics::RigidDynamicData RigidDynamic::GetRigidDynamicData() const
             break;
         case ColliderType::SPHERE: rigidActor_->detachShape(*shape_);
             rigidDynamicData.sphereColliderData = GetSphereColliderData();
+            rigidActor_->attachShape(*shape_);
+            break;
+        case ColliderType::CAPSULE: rigidActor_->detachShape(*shape_);
+            rigidDynamicData.capsuleColliderData = GetCapsuleColliderData();
             rigidActor_->attachShape(*shape_);
             break;
         default: ;
@@ -600,8 +814,12 @@ void RigidStaticManager::AddRigidStatic(Entity entity, const RigidStaticData& ri
             newRigidStaticData.boxColliderData.size.z * scale.z);
     newRigidStaticData.sphereColliderData.radius =
         newRigidStaticData.sphereColliderData.radius * scale.x;
+    newRigidStaticData.capsuleColliderData.height =
+        newRigidStaticData.capsuleColliderData.height * scale.x;
+    newRigidStaticData.capsuleColliderData.radius =
+        newRigidStaticData.capsuleColliderData.radius * scale.z;
     RigidStatic rigidStatic = GetComponent(entity);
-    rigidStatic.Init(physicsEngine_.GetPhysx(), newRigidStaticData, position, euler);
+    rigidStatic.Init(physicsEngine_, newRigidStaticData, position, euler);
     physicsEngine_.GetScene()->addActor(*rigidStatic.GetPxRigidStatic());
     SetComponent(entity, rigidStatic);
 }
@@ -671,16 +889,21 @@ json RigidStaticViewer::GetJsonFromComponent(Entity entity) const
         if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
         {
             RigidStaticData rigidStaticData    = rigidStaticManager_.GetRigidStaticData(entity);
+            Vec3f scale = transform3dManager_.GetGlobalScale(entity);
             rigidStaticData.boxColliderData.size =
                 Vec3f(rigidStaticData.boxColliderData.size.x /
-                          transform3dManager_.GetGlobalScale(entity).x,
+                    scale.x,
                     rigidStaticData.boxColliderData.size.y /
-                        transform3dManager_.GetGlobalScale(entity).y,
+                    scale.y,
                     rigidStaticData.boxColliderData.size.z /
-                        transform3dManager_.GetGlobalScale(entity).z);
+                    scale.z);
             rigidStaticData.sphereColliderData.radius =
                 rigidStaticData.sphereColliderData.radius /
-                transform3dManager_.GetGlobalScale(entity).x;
+                scale.x;
+            rigidStaticData.capsuleColliderData.height =
+                rigidStaticData.capsuleColliderData.height / scale.x;
+            rigidStaticData.capsuleColliderData.radius =
+                rigidStaticData.capsuleColliderData.radius / scale.z;
             RigidDynamicData rigidDynamicData;
             rigidDynamicViewer["useGravity"]     = rigidDynamicData.useGravity;
             rigidDynamicViewer["isKinematic"]    = rigidDynamicData.isKinematic;
@@ -698,6 +921,7 @@ json RigidStaticViewer::GetJsonFromComponent(Entity entity) const
             rigidDynamicViewer["positionLock"]["z"] = rigidDynamicData.freezePosition.z;
             rigidDynamicViewer["boxCollider"]       = GetJsonFromBoxCollider(rigidStaticData);
             rigidDynamicViewer["sphereCollider"]    = GetJsonFromSphereCollider(rigidStaticData);
+            rigidDynamicViewer["capsuleCollider"] = GetJsonFromCapsuleCollider(rigidStaticData);
             rigidDynamicViewer["physicsMaterial"]   = GetJsonFromMaterial(rigidStaticData);
         }
     }    // namespace neko
@@ -712,6 +936,7 @@ void RigidStaticViewer::SetComponentFromJson(Entity entity, const json& componen
     rigidStaticData.colliderType         = rigidActorData.colliderType;
     rigidStaticData.boxColliderData      = rigidActorData.boxColliderData;
     rigidStaticData.sphereColliderData  = rigidActorData.sphereColliderData;
+    rigidStaticData.capsuleColliderData = rigidActorData.capsuleColliderData;
     rigidStaticData.material             = rigidActorData.material;
     std::string layer = aer::TagLocator::get().GetEntityLayer(entity);
     if (layer == "Ground") {
@@ -740,6 +965,7 @@ void RigidStaticViewer::DrawImGui(Entity entity)
             rigidStaticData.material            = rigidActorData.material;
             rigidStaticData.boxColliderData     = rigidActorData.boxColliderData;
             rigidStaticData.sphereColliderData  = rigidActorData.sphereColliderData;
+            rigidStaticData.capsuleColliderData = rigidActorData.capsuleColliderData;
             if (!physicsEngine_.IsPhysicRunning()) {
                 rigidStaticManager_.SetRigidStaticData(selectedEntity_, rigidStaticData);
                 rigidStaticData_ =
@@ -787,8 +1013,12 @@ void RigidDynamicManager::AddRigidDynamic(Entity entity, const RigidDynamicData&
             newRigidDynamicData.boxColliderData.size.z * scale.z);
     newRigidDynamicData.sphereColliderData.radius =
         newRigidDynamicData.sphereColliderData.radius * scale.x;
+    newRigidDynamicData.capsuleColliderData.height =
+        newRigidDynamicData.capsuleColliderData.height * scale.x;
+    newRigidDynamicData.capsuleColliderData.radius =
+        newRigidDynamicData.capsuleColliderData.radius * scale.z;
     RigidDynamic rigidDynamic = GetComponent(entity);
-    rigidDynamic.Init(physicsEngine_.GetPhysx(), newRigidDynamicData, position, euler);
+    rigidDynamic.Init(physicsEngine_, newRigidDynamicData, position, euler);
     physicsEngine_.GetScene()->addActor(*rigidDynamic.GetPxRigidDynamic());
     SetComponent(entity, rigidDynamic);
 }
@@ -915,16 +1145,21 @@ json RigidDynamicViewer::GetJsonFromComponent(Entity entity) const
         if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
         {
             RigidDynamicData rigidDynamicData = rigidDynamicManager_.GetRigidDynamicData(entity);
+            Vec3f scale = transform3dManager_.GetGlobalScale(entity);
             rigidDynamicData.boxColliderData.size =
                 Vec3f(rigidDynamicData.boxColliderData.size.x /
-                          transform3dManager_.GetGlobalScale(entity).x,
+                    scale.x,
                     rigidDynamicData.boxColliderData.size.y /
-                        transform3dManager_.GetGlobalScale(entity).y,
+                    scale.y,
                     rigidDynamicData.boxColliderData.size.z /
-                        transform3dManager_.GetGlobalScale(entity).z);
+                    scale.z);
             rigidDynamicData.sphereColliderData.radius =
                 rigidDynamicData.sphereColliderData.radius /
-                transform3dManager_.GetGlobalScale(entity).x;
+                scale.x;
+            rigidDynamicData.capsuleColliderData.height =
+                rigidDynamicData.capsuleColliderData.height / scale.x;
+            rigidDynamicData.capsuleColliderData.radius =
+                rigidDynamicData.capsuleColliderData.radius / scale.z;
             rigidDynamicViewer["useGravity"]  = rigidDynamicData.useGravity;
             rigidDynamicViewer["isKinematic"] = rigidDynamicData.isKinematic;
             rigidDynamicViewer["isStatic"]    = false;
@@ -941,6 +1176,7 @@ json RigidDynamicViewer::GetJsonFromComponent(Entity entity) const
             rigidDynamicViewer["positionLock"]["z"]    = rigidDynamicData.freezePosition.z;
             rigidDynamicViewer["boxCollider"]       = GetJsonFromBoxCollider(rigidDynamicData);
             rigidDynamicViewer["sphereCollider"]       = GetJsonFromSphereCollider(rigidDynamicData);
+            rigidDynamicViewer["capsuleCollider"] = GetJsonFromCapsuleCollider(rigidDynamicData);
             rigidDynamicViewer["physicsMaterial"] = GetJsonFromMaterial(rigidDynamicData);
         }
 
@@ -991,6 +1227,7 @@ void RigidDynamicViewer::SetComponentFromJson(Entity entity, const json& compone
     rigidDynamicData.colliderType    = rigidActorData.colliderType;
     rigidDynamicData.boxColliderData    = rigidActorData.boxColliderData;
     rigidDynamicData.sphereColliderData = rigidActorData.sphereColliderData;
+    rigidDynamicData.capsuleColliderData = rigidActorData.capsuleColliderData;
     rigidDynamicData.material             = rigidActorData.material;
     std::string layer = aer::TagLocator::get().GetEntityLayer(entity);
     if (layer == "Ground") {
@@ -1050,6 +1287,7 @@ void RigidDynamicViewer::DrawImGui(Entity entity)
                 rigidDynamicData.material           = rigidActorData.material;
                 rigidDynamicData.boxColliderData    = rigidActorData.boxColliderData;
                 rigidDynamicData.sphereColliderData = rigidActorData.sphereColliderData;
+                rigidDynamicData.capsuleColliderData = rigidActorData.capsuleColliderData;
                 ImGui::TreePop();
                 if (!physicsEngine_.IsPhysicRunning())
                 {

@@ -83,9 +83,11 @@ public:
      */
     void Destroy() override;
 
-    physx::PxPhysics* GetPhysx();
+    physx::PxPhysics* GetPhysx() const;
 
-    physx::PxScene* GetScene();
+    physx::PxScene* GetScene() const;
+
+    physx::PxCooking* GetCooking() const;
 
     /**
      * \brief Launch a raycast through the scene

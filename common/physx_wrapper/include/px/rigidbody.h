@@ -53,6 +53,8 @@ struct RigidActorData
     ColliderType colliderType = ColliderType::INVALID;
     BoxColliderData boxColliderData;
     SphereColliderData sphereColliderData;
+    CapsuleColliderData capsuleColliderData;
+    MeshColliderData meshColliderData;
     FilterGroup::Enum filterGroup = FilterGroup::DEFAULT;
 };
 
@@ -79,6 +81,11 @@ public:
      * \brief Use to get parameter of an actor
      * Warning must be call in FixedUpdate or if physics is not running
      */
+    CapsuleColliderData GetCapsuleColliderData() const;
+    /**
+     * \brief Use to get parameter of an actor
+     * Warning must be call in FixedUpdate or if physics is not running
+     */
     PhysicsMaterial GetPhysicsMaterial() const;
     /**
      * \brief Use to get parameter of an actor
@@ -94,11 +101,27 @@ public:
      * \brief Use to get parameter of an actor
      * Warning must be call in FixedUpdate or if physics is not running
      */
+    void SetCapsuleColliderData(const CapsuleColliderData& capsuleColliderData) const;
+
+    /**
+     * \brief Use to get parameter of an actor
+     * Warning must be call in FixedUpdate or if physics is not running
+     */
+    void SetMeshColliderData(const physics::MeshColliderData& meshColliderData) const;
+
+    /**
+     * \brief Use to get parameter of an actor
+     * Warning must be call in FixedUpdate or if physics is not running
+     */
     void SetMaterial(const PhysicsMaterial& physicsMaterial) const;
 protected:
     physx::PxMaterial* InitMaterial(physx::PxPhysics* physics, const PhysicsMaterial& material) const;
     physx::PxShape* InitBoxShape(physx::PxPhysics* physics, physx::PxMaterial* material, const BoxColliderData& boxCollider) const;
+    physx::PxShape* InitCapsuleShape(physx::PxPhysics* physics, physx::PxMaterial* material, const CapsuleColliderData& capsuleCollider) const;
     physx::PxShape* InitSphereShape(physx::PxPhysics* physics, physx::PxMaterial* material, const SphereColliderData& sphereCollider) const;
+    physx::PxShape* InitMeshCollider(const PhysicsEngine& physics,
+        physx::PxMaterial* material,
+        const assimp::Mesh& mesh) const;
     void SetFiltering(
         physx::PxShape* shape,
         physx::PxU32 filterGroup);
@@ -122,6 +145,11 @@ protected:
      * \return json object with the sphereCollider parameter
      */
     json GetJsonFromSphereCollider(const RigidActorData& rigidActorData) const;
+    /**
+     * \brief Get a json object of the sphereCollider of a RigidActorData
+     * \return json object with the sphereCollider parameter
+     */
+    json GetJsonFromCapsuleCollider(const RigidActorData& rigidActorData) const;
     /**
      * \brief Get a json object of the material of a RigidActorData
      * \return json object with the material parameter
@@ -158,7 +186,7 @@ struct RigidStatic : RigidActor {
      * \param position initial position of the actor
      * \param eulerAngle initial rotation of the actor
      */
-    void Init(physx::PxPhysics* physics, const physics::RigidStaticData& rigidStatic, const Vec3f& position, const  EulerAngles& eulerAngle);
+    void Init(const PhysicsEngine& physics, const physics::RigidStaticData& rigidStatic, const Vec3f& position, const  EulerAngles& eulerAngle);
     physx::PxRigidStatic* GetPxRigidStatic() const { return rigidActor_; }
     /**
      * \brief Use to modify parameter of an actor
@@ -295,7 +323,7 @@ public:
      * \param position initial position of the actor
      * \param eulerAngle initial rotation of the actor
      */
-    void Init(physx::PxPhysics* physics,
+    void Init(const PhysicsEngine& physics,
         const physics::RigidDynamicData& rigidDynamic,
         const Vec3f& position,
         const EulerAngles& eulerAngle);
