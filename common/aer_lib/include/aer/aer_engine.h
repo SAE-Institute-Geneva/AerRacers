@@ -28,7 +28,6 @@
 Last Modif: 26.01.2021
 ---------------------------------------------------------- */
 
-#include "aer/managers/inputs_binding_manager.h"
 #include "log.h"
 #include "px/physics_engine.h"
 #include "sdl_engine/sdl_engine.h"
