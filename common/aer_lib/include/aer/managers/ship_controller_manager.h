@@ -24,7 +24,7 @@ public:
      float iCoeff = 0.002f;
      float dCoeff = 0.05f;
      float minimum = -1;
-     float maximum = 1;
+     float maximum = 10;
 
 private:
     float integral;
@@ -43,17 +43,18 @@ struct ShipParameter {
     const float kBrakingVelFactor = 0.95f;
     const float kAngleOfRoll = 10.0f;
     const float kAngleOfPitch = 15.0f;
+    const float kAngleRoadLerp = 0.2f;
     const float kRotationMultiplicator = 2.0f;
     const float kPropultionMultiplicator = 1.2f;
     const float kRotorMaxAngle = 30.0f;
     //Hover
-    const float kHoverHeight = 12.0f;
-    const float kMaxGroundDist = 15.0f;
+    const float kHoverHeight = 8.0f;
+    const float kMaxGroundDist = 10.0f;
     const float kHoverForce = 300.0f;
     const std::string kLayerName = "Ground";
     //Physics
     const float kBounceForce = 100.0f;
-    const float kTerminalVelocity = 500.0f;
+    const float kTerminalVelocity = 1000.0f;
     const float kHoverGravity = 20.0f;
     const float kFallGravity = 300.0f;
 };

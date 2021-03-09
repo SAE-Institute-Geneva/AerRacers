@@ -416,18 +416,33 @@ struct Quaternion
 	 * \brief Interpolates between q1 and q2 by t and normalizes the result afterwards.
 	 * \param t is clamped to the range [0, 1].
 	 */
-	//from https://stackoverflow.com/questions/46156903/how-to-lerp-between-two-quaternions
+	//from http://www.technologicalutopia.com/sourcecode/xnageometry/quaternion.cs.htm
 	static Quaternion Lerp(const Quaternion& q1, const Quaternion& q2, float t) {
-		//const float dot = Quaternion::Dot(q1, q2);
-		//Quaternion newQ2 = q2;
-		//if (dot < 0.0f) {
-		//	newQ2 = newQ2 * -1.0f;
-		//}
-	    return Normalized(Quaternion(
-			q1.x + (q2.x - q1.x) * t,
-            q1.y + (q2.y - q1.y) * t,
-            q1.z + (q2.z - q1.z) * t,
-            q1.w + (q2.w - q1.w) * t));
+		double num = t;
+		double num2 = 1.0f - num;
+		Quaternion quaternion = Quaternion();
+		double num5 = (((q1.x * q2.x) + (q1.y * q2.y)) + (q1.z * q2.z)) + (q1.w * q2.w);
+		if (num5 >= 0.0f)
+		{
+			quaternion.x = (num2 * q1.x) + (num * q2.x);
+			quaternion.y = (num2 * q1.y) + (num * q2.y);
+			quaternion.z = (num2 * q1.z) + (num * q2.z);
+			quaternion.w = (num2 * q1.w) + (num * q2.w);
+		}
+		else
+		{
+			quaternion.x = (num2 * q1.x) - (num * q2.x);
+			quaternion.y = (num2 * q1.y) - (num * q2.y);
+			quaternion.z = (num2 * q1.z) - (num * q2.z);
+			quaternion.w = (num2 * q1.w) - (num * q2.w);
+		}
+		double num4 = (((quaternion.x * quaternion.x) + (quaternion.y * quaternion.y)) + (quaternion.z * quaternion.z)) + (quaternion.w * quaternion.w);
+		double num3 = 1.0f / (Sqrt(num4));
+		quaternion.x *= num3;
+		quaternion.y *= num3;
+		quaternion.z *= num3;
+		quaternion.w *= num3;
+		return quaternion;
 	}
     /**
 	 * \brief Creates a rotation with the specified forward and upwards directions.
@@ -435,14 +450,14 @@ struct Quaternion
 	 * \param upDirection The vector that defines in which direction up is.
 	 */
 	static Quaternion LookRotation(const Vec3f& lookAt, const Vec3f& upDirection) {
-		if(lookAt.Magnitude() == 0 || upDirection.Magnitude() == 0) {
-			logDebug("Look rotation viewing vector is zero");
-			return Quaternion(0, 0, 0, 1);
-		}
-		if (Vec3f::Cross(lookAt, upDirection) == Vec3f::zero) {
-			logDebug("LookRotation vectors are colinear");
-			return Quaternion(0, 0, 0, 1);
-		}
+		//if(lookAt.Magnitude() == 0 || upDirection.Magnitude() == 0) {
+		//	logDebug("Look rotation viewing vector is zero");
+		//	return Quaternion(0, 0, 0, 1);
+		//}
+		//if (Vec3f::Cross(lookAt, upDirection) == Vec3f::zero) {
+		//	logDebug("LookRotation vectors are colinear");
+		//	return Quaternion(0, 0, 0, 1);
+		//}
 
 		//from https://answers.unity.com/questions/467614/what-is-the-source-code-of-quaternionlookrotation.html
 	    
@@ -450,7 +465,9 @@ struct Quaternion
 		 Vec3f forward = lookAt;
 		 Vec3f up = upDirection;
 		Vec3f::OrthoNormalize(forward, up);
-		Vec3f right = Vec3f::Cross(up, forward);
+		forward = forward.Normalized();
+		up = up.Normalized();
+		Vec3f right = Vec3f::Cross(up, forward).Normalized();
 		Mat3f mat({ right , up, forward });
 
 

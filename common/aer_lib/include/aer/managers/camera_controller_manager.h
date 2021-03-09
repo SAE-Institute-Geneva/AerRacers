@@ -38,25 +38,25 @@ class CameraControllerViewer;
      */
     struct CameraParameter {
         const Vec3f kTargetPosition = Vec3f(0, 0, 5);
-        const float kMaxTargetPos = 15.0f;
+        const float kMaxTargetPos = 50.0f;
         const Vec3f kCameraPosition = Vec3f(0, 5, -10);
 
         const float kAngularLateralMult = 3.0f;
         const float kAngularBackwardMult = 1.0f;
         const float kAngularForwardTargetMult = 80.0f;
 
-        const float kLinearUpwardMult = 0.005f;
-        const float kLinerarBackwardMult = 0.001f;
+        const float kLinearUpwardMult = 0.01f;
+        const float kLinerarBackwardMult = -0.01f;
         const float kLinerarBackwardDiv = -0.0015f;
         const float kLinearForwardTargetMult = 0.1f;
         const float kFallMultiplicator = 0.01f;
-        const float kFallTargetMultiplicator = -0.005f;
+        const float kFallTargetMultiplicator = -0.05f;
 
         const float kAngularLerp = 0.1f;
         const float kAngularTargetLerp = 0.1f;
 
-        const float kLinearLerp = 0.8f;
-        const float kLerpPosition = 1.0f;
+        const float kLinearLerp = 1.0f;
+        const float kLerpPosition = 0.5f;
     };
 
     /**
