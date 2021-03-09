@@ -23,6 +23,8 @@
  SOFTWARE.
  */
 
+#include <array>
+
 #include "mathematics/vector.h"
 #include "matrix.h"
 #include "const.h"

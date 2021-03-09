@@ -52,8 +52,6 @@ public:
 	[[nodiscard]] CommandBuffer& GetCurrentCmdBuffer();
 	[[nodiscard]] const CommandPool& GetCurrentCmdPool();
 
-	[[nodiscard]] bool IsImGuiReady() const { return imgui_.get(); }
-
 	static VkResources* Inst;
 
 	sdl::VulkanWindow* vkWindow = nullptr;

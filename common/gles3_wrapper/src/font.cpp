@@ -22,6 +22,7 @@
  SOFTWARE.
  */
 
+#include "utils/json_utility.h"
 #include "gl/font.h"
 #include "mathematics/transform.h"
 #include "engine/engine.h"

@@ -95,16 +95,14 @@ void VkRenderer::AfterRenderLoop()
 		// Renders subpass subrender pipelines.
 		renderer_->GetRendererContainer().RenderStage(stage, commandBuffer);
 
-		imgui_->Render(commandBuffer);
-
 		if (subpass.binding != renderStage.GetSubpasses().back().binding)
 			vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
 	}
 
+	imgui_->Render(commandBuffer);
+
 	EndRenderPass(renderStage);
 	stage.renderPassId++;
-
-	imgui_->OnEndOfFrame();
 }
 
 bool VkRenderer::StartRenderPass(RenderStage& renderStage)

@@ -25,29 +25,22 @@
  Author: Canas Simon
  Date:
 ---------------------------------------------------------- */
-#include "sdl_engine/sdl_engine.h"
-
 #include "vk/vk_include.h"
 
 namespace neko::vk
 {
-class VkImGui final : sdl::SdlEventSystemInterface
+class VkImGui final
 {
 public:
 	VkImGui();
 	~VkImGui();
 
-	void Render(const CommandBuffer& commandBuffer);
+	static void Render(const CommandBuffer& commandBuffer);
 	void Destroy() const;
 
 	static void OnWindowResize();
-	void OnEndOfFrame();
 
 private:
-	void OnEvent(const SDL_Event &event) override;
-
-	bool hasBeenDrawn_ = false;
-
 	VkDescriptorPool descriptorPool_ {};
 };
 }    // namespace neko::vk
