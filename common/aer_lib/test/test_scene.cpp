@@ -292,7 +292,7 @@ public:
                     physics::ColliderType::SPHERE);
         EXPECT_TRUE(
             cContainer.rigidDynamicManager.GetRigidDynamicData(2).useGravity == false);
-        EXPECT_FALSE(cContainer.rigidDynamicManager.GetRigidDynamicData(2).freezeRotation ==
+        EXPECT_TRUE(cContainer.rigidDynamicManager.GetRigidDynamicData(2).freezeRotation ==
                     Vec3<bool>(true, false, true));
         EXPECT_TRUE(cContainer.rigidDynamicManager.GetRigidDynamicData(2).mass == 50.0f);
         EXPECT_TRUE(cContainer.rigidDynamicManager.GetRigidDynamicData(2).linearDamping == 10.0f);

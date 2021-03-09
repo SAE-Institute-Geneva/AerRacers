@@ -153,7 +153,7 @@ public :
     void InitActors(
         neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration      = 2.0f;
+        engineDuration      = 5.0f;
         entityManager_      = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_      = &aerEngine_.GetComponentManagerContainer().renderManager;
@@ -201,6 +201,7 @@ public :
             renderManager_->SetModel(
                 cubeEntity_, aerEngine_.GetConfig().dataRootPath + "models/cube/cube.obj");
         }
+        //Sphere
         for (int i = 0; i < kSphereNumbers; ++i)
         {
             neko::Entity sphereEntity = entityManager_->CreateEntity();
@@ -215,6 +216,22 @@ public :
             renderManager_->AddComponent(sphereEntity);
             renderManager_->SetModel(
                 sphereEntity, aerEngine_.GetConfig().dataRootPath + "models/sphere/sphere.obj");
+        }
+        //Capsule
+        for (int i = 0; i < kCapsuleNumbers; ++i)
+        {
+            neko::Entity capsuleEntity = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(capsuleEntity);
+            transform3dManager_->SetRelativePosition(
+                capsuleEntity, cubePosition_ + neko::Vec3f(0, i + kCubeNumbers + kSphereNumbers, 0));
+            transform3dManager_->SetRelativeScale(capsuleEntity, neko::Vec3f::one / 4.0f);
+            neko::physics::RigidDynamicData rigidDynamic;
+            rigidDynamic.colliderType = neko::physics::ColliderType::CAPSULE;
+            rigidDynamic.material = neko::physics::PhysicsMaterial{ 0.5f, 0.5f, 0.1f };
+            rigidDynamicManager_->AddRigidDynamic(capsuleEntity, rigidDynamic);
+            renderManager_->AddComponent(capsuleEntity);
+            renderManager_->SetModel(
+                capsuleEntity, aerEngine_.GetConfig().dataRootPath + "models/capsule/capsule.obj");
         }
         {
             plateformEntity_ = entityManager_->CreateEntity();
@@ -296,6 +313,7 @@ public :
 private:
     const static size_t kCubeNumbers = 10;
     const static size_t kSphereNumbers = 10;
+    const static size_t kCapsuleNumbers = 10;
     neko::Vec3f cubePosition_ = neko::Vec3f(0.0f, 5.0f, -5.0f);
     neko::Vec3f planePosition_ = neko::Vec3f(0.0f, -3.0f, -5.0f);
     neko::Vec3f cubePositions_[kCubeNumbers] =
@@ -1030,7 +1048,7 @@ public:
     explicit SceneMeshCollider(neko::aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
     void InitActors(neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration = 60.0f;
+        engineDuration = 5.0f;
         entityManager_ = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_ = &aerEngine_.GetComponentManagerContainer().renderManager;

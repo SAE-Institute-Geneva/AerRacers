@@ -53,6 +53,7 @@ struct RigidActorData
     ColliderType colliderType = ColliderType::INVALID;
     BoxColliderData boxColliderData;
     SphereColliderData sphereColliderData;
+    CapsuleColliderData capsuleColliderData;
     MeshColliderData meshColliderData;
     FilterGroup::Enum filterGroup = FilterGroup::DEFAULT;
 };
@@ -80,6 +81,11 @@ public:
      * \brief Use to get parameter of an actor
      * Warning must be call in FixedUpdate or if physics is not running
      */
+    CapsuleColliderData GetCapsuleColliderData() const;
+    /**
+     * \brief Use to get parameter of an actor
+     * Warning must be call in FixedUpdate or if physics is not running
+     */
     PhysicsMaterial GetPhysicsMaterial() const;
     /**
      * \brief Use to get parameter of an actor
@@ -91,6 +97,11 @@ public:
      * Warning must be call in FixedUpdate or if physics is not running
      */
     void SetBoxColliderData(const BoxColliderData& boxColliderData) const;
+    /**
+     * \brief Use to get parameter of an actor
+     * Warning must be call in FixedUpdate or if physics is not running
+     */
+    void SetCapsuleColliderData(const CapsuleColliderData& capsuleColliderData) const;
 
     /**
      * \brief Use to get parameter of an actor
@@ -106,6 +117,7 @@ public:
 protected:
     physx::PxMaterial* InitMaterial(physx::PxPhysics* physics, const PhysicsMaterial& material) const;
     physx::PxShape* InitBoxShape(physx::PxPhysics* physics, physx::PxMaterial* material, const BoxColliderData& boxCollider) const;
+    physx::PxShape* InitCapsuleShape(physx::PxPhysics* physics, physx::PxMaterial* material, const CapsuleColliderData& capsuleCollider) const;
     physx::PxShape* InitSphereShape(physx::PxPhysics* physics, physx::PxMaterial* material, const SphereColliderData& sphereCollider) const;
     physx::PxShape* InitMeshCollider(const PhysicsEngine& physics,
         physx::PxMaterial* material,
@@ -133,6 +145,11 @@ protected:
      * \return json object with the sphereCollider parameter
      */
     json GetJsonFromSphereCollider(const RigidActorData& rigidActorData) const;
+    /**
+     * \brief Get a json object of the sphereCollider of a RigidActorData
+     * \return json object with the sphereCollider parameter
+     */
+    json GetJsonFromCapsuleCollider(const RigidActorData& rigidActorData) const;
     /**
      * \brief Get a json object of the material of a RigidActorData
      * \return json object with the material parameter

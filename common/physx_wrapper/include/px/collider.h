@@ -68,6 +68,12 @@ public:
     Vec3f size = Vec3f::one;
 };
 
+struct CapsuleColliderData : public ColliderData {
+public:
+    float radius = 0.5f;
+    float height = 1.0f;
+};
+
 struct MeshColliderData : public ColliderData {
 public:
 #ifdef NEKO_GLES3
