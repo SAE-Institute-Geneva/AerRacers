@@ -1,0 +1,993 @@
+{
+    "name": "WillToolScene",
+    "tags": [
+        "Untagged",
+        "Respawn",
+        "Finish",
+        "EditorOnly",
+        "MainCamera",
+        "Player",
+        "GameController",
+        "Wall"
+    ],
+    "layers": [
+        "Default",
+        "TransparentFX",
+        "Ignore Raycast",
+        "Water",
+        "UI",
+        "Ground"
+    ],
+    "objects": [
+        {
+            "name": "Cube",
+            "tag": "Untagged",
+            "layer": "Ground",
+            "instanceId": 24150,
+            "parent": -1,
+            "chunkId": 0,
+            "isActive": true,
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 1.0,
+                    "y": 3.0,
+                    "z": 5.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": 0.027050143107771875,
+                    "y": 0.01605277508497238,
+                    "z": 0.05185376852750778,
+                    "w": 0.9981591701507568
+                }
+            },
+            "rigidbody": {
+                "exist": true,
+                "useGravity": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "mass": 1.0,
+                "linearDamping": 0.0,
+                "angularDamping": 0.05000000074505806,
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                }
+            },
+            "boxCollider": {
+                "exist": true,
+                "isTrigger": false,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "size": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "sphereCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "radius": 0.0,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "shipControl": {
+                "exist": false,
+                "rotorMaxAngle": 0.0,
+                "forwardForce": 0.0,
+                "backwardForce": 0.0,
+                "turnAngle": 0.0,
+                "rotationAngle": 0.0,
+                "hoverHeight": 0.0,
+                "hoverForce": 0.0,
+                "gravityForce": 0.0,
+                "maxAirTime": 0.0,
+                "dangerousForwardSpeed": 0.0,
+                "maximumForwardSpeed": 0.0,
+                "bounceForce": 0.0
+            },
+            "shipRotation": {
+                "exist": false,
+                "maxRollAngle": 0.0,
+                "maxPitchAngle": 0.0,
+                "inclineSpeed": 0.0,
+                "rollPitchSpeed": 0.0
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "Cube"
+            }
+        },
+        {
+            "name": "Sphere",
+            "tag": "Untagged",
+            "layer": "Ground",
+            "instanceId": 24198,
+            "parent": 24150,
+            "chunkId": 0,
+            "isActive": false,
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": -0.5415678024291992,
+                    "y": 0.5181105136871338,
+                    "z": 1.5269618034362794
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": 0.07990831136703491,
+                    "y": 0.08426371961832047,
+                    "z": 0.10090988129377365,
+                    "w": 0.9880948066711426
+                }
+            },
+            "rigidbody": {
+                "exist": false,
+                "useGravity": false,
+                "isKinematic": false,
+                "isStatic": false,
+                "mass": 0.0,
+                "linearDamping": 0.0,
+                "angularDamping": 0.0,
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                }
+            },
+            "boxCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "size": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "sphereCollider": {
+                "exist": true,
+                "isTrigger": false,
+                "radius": 0.5,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "shipControl": {
+                "exist": false,
+                "rotorMaxAngle": 0.0,
+                "forwardForce": 0.0,
+                "backwardForce": 0.0,
+                "turnAngle": 0.0,
+                "rotationAngle": 0.0,
+                "hoverHeight": 0.0,
+                "hoverForce": 0.0,
+                "gravityForce": 0.0,
+                "maxAirTime": 0.0,
+                "dangerousForwardSpeed": 0.0,
+                "maximumForwardSpeed": 0.0,
+                "bounceForce": 0.0
+            },
+            "shipRotation": {
+                "exist": false,
+                "maxRollAngle": 0.0,
+                "maxPitchAngle": 0.0,
+                "inclineSpeed": 0.0,
+                "rollPitchSpeed": 0.0
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "Sphere"
+            }
+        },
+        {
+            "name": "Cube (2)",
+            "tag": "Untagged",
+            "layer": "Ground",
+            "instanceId": 24162,
+            "parent": -1,
+            "chunkId": 0,
+            "isActive": true,
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 1.0,
+                    "y": 3.0,
+                    "z": 5.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": 0.027050143107771875,
+                    "y": 0.01605277508497238,
+                    "z": 0.05185376852750778,
+                    "w": 0.9981591701507568
+                }
+            },
+            "rigidbody": {
+                "exist": true,
+                "useGravity": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "mass": 1.0,
+                "linearDamping": 0.0,
+                "angularDamping": 0.05000000074505806,
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                }
+            },
+            "boxCollider": {
+                "exist": true,
+                "isTrigger": false,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "size": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "sphereCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "radius": 0.0,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "shipControl": {
+                "exist": false,
+                "rotorMaxAngle": 0.0,
+                "forwardForce": 0.0,
+                "backwardForce": 0.0,
+                "turnAngle": 0.0,
+                "rotationAngle": 0.0,
+                "hoverHeight": 0.0,
+                "hoverForce": 0.0,
+                "gravityForce": 0.0,
+                "maxAirTime": 0.0,
+                "dangerousForwardSpeed": 0.0,
+                "maximumForwardSpeed": 0.0,
+                "bounceForce": 0.0
+            },
+            "shipRotation": {
+                "exist": false,
+                "maxRollAngle": 0.0,
+                "maxPitchAngle": 0.0,
+                "inclineSpeed": 0.0,
+                "rollPitchSpeed": 0.0
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "Cube"
+            }
+        },
+        {
+            "name": "Sphere",
+            "tag": "Untagged",
+            "layer": "Ground",
+            "instanceId": 24230,
+            "parent": 24162,
+            "chunkId": 0,
+            "isActive": true,
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": -0.5415678024291992,
+                    "y": 0.5181105136871338,
+                    "z": 1.5269618034362794
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": 0.07990831136703491,
+                    "y": 0.08426371961832047,
+                    "z": 0.10090988129377365,
+                    "w": 0.9880948066711426
+                }
+            },
+            "rigidbody": {
+                "exist": false,
+                "useGravity": false,
+                "isKinematic": false,
+                "isStatic": false,
+                "mass": 0.0,
+                "linearDamping": 0.0,
+                "angularDamping": 0.0,
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                }
+            },
+            "boxCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "size": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "sphereCollider": {
+                "exist": true,
+                "isTrigger": false,
+                "radius": 0.5,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "shipControl": {
+                "exist": false,
+                "rotorMaxAngle": 0.0,
+                "forwardForce": 0.0,
+                "backwardForce": 0.0,
+                "turnAngle": 0.0,
+                "rotationAngle": 0.0,
+                "hoverHeight": 0.0,
+                "hoverForce": 0.0,
+                "gravityForce": 0.0,
+                "maxAirTime": 0.0,
+                "dangerousForwardSpeed": 0.0,
+                "maximumForwardSpeed": 0.0,
+                "bounceForce": 0.0
+            },
+            "shipRotation": {
+                "exist": false,
+                "maxRollAngle": 0.0,
+                "maxPitchAngle": 0.0,
+                "inclineSpeed": 0.0,
+                "rollPitchSpeed": 0.0
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "Sphere"
+            }
+        },
+        {
+            "name": "Cube (1)",
+            "tag": "Untagged",
+            "layer": "Ground",
+            "instanceId": 24174,
+            "parent": -1,
+            "chunkId": 0,
+            "isActive": false,
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 1.0,
+                    "y": 3.0,
+                    "z": 5.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": 0.027050143107771875,
+                    "y": 0.01605277508497238,
+                    "z": 0.05185376852750778,
+                    "w": 0.9981591701507568
+                }
+            },
+            "rigidbody": {
+                "exist": true,
+                "useGravity": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "mass": 1.0,
+                "linearDamping": 0.0,
+                "angularDamping": 0.05000000074505806,
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                }
+            },
+            "boxCollider": {
+                "exist": true,
+                "isTrigger": false,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "size": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            },
+            "sphereCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "radius": 0.0,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "shipControl": {
+                "exist": false,
+                "rotorMaxAngle": 0.0,
+                "forwardForce": 0.0,
+                "backwardForce": 0.0,
+                "turnAngle": 0.0,
+                "rotationAngle": 0.0,
+                "hoverHeight": 0.0,
+                "hoverForce": 0.0,
+                "gravityForce": 0.0,
+                "maxAirTime": 0.0,
+                "dangerousForwardSpeed": 0.0,
+                "maximumForwardSpeed": 0.0,
+                "bounceForce": 0.0
+            },
+            "shipRotation": {
+                "exist": false,
+                "maxRollAngle": 0.0,
+                "maxPitchAngle": 0.0,
+                "inclineSpeed": 0.0,
+                "rollPitchSpeed": 0.0
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "Cube"
+            }
+        },
+        {
+            "name": "Sphere",
+            "tag": "Untagged",
+            "layer": "Ground",
+            "instanceId": 24220,
+            "parent": 24174,
+            "chunkId": 0,
+            "isActive": false,
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": -0.5415678024291992,
+                    "y": 0.5181105136871338,
+                    "z": 1.5269618034362794
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": 0.07990831136703491,
+                    "y": 0.08426371961832047,
+                    "z": 0.10090988129377365,
+                    "w": 0.9880948066711426
+                }
+            },
+            "rigidbody": {
+                "exist": false,
+                "useGravity": false,
+                "isKinematic": false,
+                "isStatic": false,
+                "mass": 0.0,
+                "linearDamping": 0.0,
+                "angularDamping": 0.0,
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                }
+            },
+            "boxCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "size": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "sphereCollider": {
+                "exist": true,
+                "isTrigger": false,
+                "radius": 0.5,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "shipControl": {
+                "exist": false,
+                "rotorMaxAngle": 0.0,
+                "forwardForce": 0.0,
+                "backwardForce": 0.0,
+                "turnAngle": 0.0,
+                "rotationAngle": 0.0,
+                "hoverHeight": 0.0,
+                "hoverForce": 0.0,
+                "gravityForce": 0.0,
+                "maxAirTime": 0.0,
+                "dangerousForwardSpeed": 0.0,
+                "maximumForwardSpeed": 0.0,
+                "bounceForce": 0.0
+            },
+            "shipRotation": {
+                "exist": false,
+                "maxRollAngle": 0.0,
+                "maxPitchAngle": 0.0,
+                "inclineSpeed": 0.0,
+                "rollPitchSpeed": 0.0
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "Sphere"
+            }
+        },
+        {
+            "name": "Capsule",
+            "tag": "Untagged",
+            "layer": "Default",
+            "instanceId": 24186,
+            "parent": -1,
+            "chunkId": 0,
+            "isActive": true,
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 8.75,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                }
+            },
+            "rigidbody": {
+                "exist": true,
+                "useGravity": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "mass": 1.0,
+                "linearDamping": 0.0,
+                "angularDamping": 0.05000000074505806,
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                }
+            },
+            "boxCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "size": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "sphereCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "radius": 0.0,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "shipControl": {
+                "exist": false,
+                "rotorMaxAngle": 0.0,
+                "forwardForce": 0.0,
+                "backwardForce": 0.0,
+                "turnAngle": 0.0,
+                "rotationAngle": 0.0,
+                "hoverHeight": 0.0,
+                "hoverForce": 0.0,
+                "gravityForce": 0.0,
+                "maxAirTime": 0.0,
+                "dangerousForwardSpeed": 0.0,
+                "maximumForwardSpeed": 0.0,
+                "bounceForce": 0.0
+            },
+            "shipRotation": {
+                "exist": false,
+                "maxRollAngle": 0.0,
+                "maxPitchAngle": 0.0,
+                "inclineSpeed": 0.0,
+                "rollPitchSpeed": 0.0
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "Capsule"
+            }
+        },
+        {
+            "name": "DataManager",
+            "tag": "Untagged",
+            "layer": "Default",
+            "instanceId": 24208,
+            "parent": -1,
+            "chunkId": 0,
+            "isActive": true,
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 16.951702117919923,
+                    "y": 59.088592529296878,
+                    "z": -14.113845825195313
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                }
+            },
+            "rigidbody": {
+                "exist": false,
+                "useGravity": false,
+                "isKinematic": false,
+                "isStatic": false,
+                "mass": 0.0,
+                "linearDamping": 0.0,
+                "angularDamping": 0.0,
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                }
+            },
+            "boxCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "size": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "sphereCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "radius": 0.0,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "shipControl": {
+                "exist": false,
+                "rotorMaxAngle": 0.0,
+                "forwardForce": 0.0,
+                "backwardForce": 0.0,
+                "turnAngle": 0.0,
+                "rotationAngle": 0.0,
+                "hoverHeight": 0.0,
+                "hoverForce": 0.0,
+                "gravityForce": 0.0,
+                "maxAirTime": 0.0,
+                "dangerousForwardSpeed": 0.0,
+                "maximumForwardSpeed": 0.0,
+                "bounceForce": 0.0
+            },
+            "shipRotation": {
+                "exist": false,
+                "maxRollAngle": 0.0,
+                "maxPitchAngle": 0.0,
+                "inclineSpeed": 0.0,
+                "rollPitchSpeed": 0.0
+            },
+            "modelRenderer": {
+                "exist": false,
+                "meshName": ""
+            }
+        },
+        {
+            "name": "Directional Light",
+            "tag": "Untagged",
+            "layer": "Default",
+            "instanceId": 24214,
+            "parent": -1,
+            "chunkId": 0,
+            "isActive": true,
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": 0.4082178771495819,
+                    "y": -0.23456968367099763,
+                    "z": 0.10938163101673126,
+                    "w": 0.8754261136054993
+                }
+            },
+            "rigidbody": {
+                "exist": false,
+                "useGravity": false,
+                "isKinematic": false,
+                "isStatic": false,
+                "mass": 0.0,
+                "linearDamping": 0.0,
+                "angularDamping": 0.0,
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                }
+            },
+            "boxCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "size": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "sphereCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "radius": 0.0,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "shipControl": {
+                "exist": false,
+                "rotorMaxAngle": 0.0,
+                "forwardForce": 0.0,
+                "backwardForce": 0.0,
+                "turnAngle": 0.0,
+                "rotationAngle": 0.0,
+                "hoverHeight": 0.0,
+                "hoverForce": 0.0,
+                "gravityForce": 0.0,
+                "maxAirTime": 0.0,
+                "dangerousForwardSpeed": 0.0,
+                "maximumForwardSpeed": 0.0,
+                "bounceForce": 0.0
+            },
+            "shipRotation": {
+                "exist": false,
+                "maxRollAngle": 0.0,
+                "maxPitchAngle": 0.0,
+                "inclineSpeed": 0.0,
+                "rollPitchSpeed": 0.0
+            },
+            "modelRenderer": {
+                "exist": false,
+                "meshName": ""
+            }
+        },
+        {
+            "name": "Camera",
+            "tag": "Untagged",
+            "layer": "Default",
+            "instanceId": 24240,
+            "parent": -1,
+            "chunkId": 0,
+            "isActive": true,
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "rotation": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0,
+                    "w": 1.0
+                }
+            },
+            "rigidbody": {
+                "exist": false,
+                "useGravity": false,
+                "isKinematic": false,
+                "isStatic": false,
+                "mass": 0.0,
+                "linearDamping": 0.0,
+                "angularDamping": 0.0,
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                }
+            },
+            "boxCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "size": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "sphereCollider": {
+                "exist": false,
+                "isTrigger": false,
+                "radius": 0.0,
+                "offset": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                }
+            },
+            "shipControl": {
+                "exist": false,
+                "rotorMaxAngle": 0.0,
+                "forwardForce": 0.0,
+                "backwardForce": 0.0,
+                "turnAngle": 0.0,
+                "rotationAngle": 0.0,
+                "hoverHeight": 0.0,
+                "hoverForce": 0.0,
+                "gravityForce": 0.0,
+                "maxAirTime": 0.0,
+                "dangerousForwardSpeed": 0.0,
+                "maximumForwardSpeed": 0.0,
+                "bounceForce": 0.0
+            },
+            "shipRotation": {
+                "exist": false,
+                "maxRollAngle": 0.0,
+                "maxPitchAngle": 0.0,
+                "inclineSpeed": 0.0,
+                "rollPitchSpeed": 0.0
+            },
+            "modelRenderer": {
+                "exist": false,
+                "meshName": ""
+            }
+        }
+    ]
+}
