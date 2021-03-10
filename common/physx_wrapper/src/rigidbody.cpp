@@ -830,6 +830,18 @@ void RigidDynamic::MoveRotation(const Quaternion& rot) const
     rigidActor_->setGlobalPose(transform);
 }
 
+void RigidDynamic::MovePosition(const Vec3f& pos) const
+{
+    if (!rigidActor_)
+    {
+        logDebug("No rigidActor");
+        return;
+    }
+    physx::PxTransform transform = rigidActor_->getGlobalPose();
+    transform.p = ConvertToPxVec(pos);
+    rigidActor_->setGlobalPose(transform);
+}
+
 RigidStaticManager::RigidStaticManager(
     EntityManager& entityManager,
     Transform3dManager& transform3dManager,
@@ -1104,6 +1116,10 @@ void RigidDynamicManager::AddRelativeTorque(Entity entity,
 void RigidDynamicManager::MoveRotation(Entity entity, const Quaternion& rot) const
 {
     GetComponent(entity).MoveRotation(rot);
+}
+
+void RigidDynamicManager::MovePosition(Entity entity, const Vec3f& pos) const {
+    GetComponent(entity).MovePosition(pos);
 }
 
 void RigidDynamicManager::SetLinearVelocity(Entity entity, const Vec3f& linearVelocity) const

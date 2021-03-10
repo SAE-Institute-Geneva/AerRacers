@@ -358,6 +358,11 @@ public:
      * \param rot The new rotation for the Rigidbody
      */
     void MoveRotation(const Quaternion& rot) const;
+    /**
+     * \brief Change position of the rigidbody
+     * \param pos The new position for the Rigidbody
+     */
+    void MovePosition(const Vec3f& pos) const;
 
     /**
      * \brief Use to modify parameter of an actor
@@ -433,6 +438,11 @@ public:
      */
     void MoveRotation(Entity entity, const Quaternion& rot) const;
 
+    /**
+     * \brief Change position of the rigidbody
+     * \param pos The new position for the Rigidbody
+     */
+    void MovePosition(Entity entity, const Vec3f& pos) const;
     /**
      * \brief Change linear velocity of the object
      * \param linearVelocity new linear velocity
