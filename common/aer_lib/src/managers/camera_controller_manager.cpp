@@ -46,8 +46,8 @@ void CameraControllerManager::FixedUpdate(seconds dt) {
         cameraComponent.angularBackwardMovement = kCameraParameter_.kAngularBackwardMult * angularVelocity.y;
         cameraComponent.linearUpwardMovement = kCameraParameter_.kLinearUpwardMult * velocity.Magnitude();
         cameraComponent.linearBackwardMovement = kCameraParameter_.kLinerarBackwardMult * velocity.Magnitude();
-        cameraComponent.dotProductPosVelo = Vec3f::Dot(cameraComponent.cameraPos - shipPosition, velocity);
-        if (cameraComponent.dotProductPosVelo > 100)
+        cameraComponent.dotProductPosVelo = Vec3f::Dot((cameraComponent.cameraPos - shipPosition).Normalized(), velocity.Normalized());
+        if (cameraComponent.dotProductPosVelo > 0.1f)
         {
             cameraComponent.dotProductPosVeloMult = cameraComponent.dotProductPosVelo * kCameraParameter_.kLinerarBackwardDiv;
             cameraComponent.linearBackwardMovement = cameraComponent.linearBackwardMovement * cameraComponent.dotProductPosVeloMult;

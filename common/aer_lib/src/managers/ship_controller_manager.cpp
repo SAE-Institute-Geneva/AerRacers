@@ -70,8 +70,12 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
     //Raycast to ground
     Vec3f groundNormal = Vec3f::zero;
     Vec3f shipPosition = transformManager_.GetGlobalPosition(shipEntity);
+    Vec3f rayPos =  shipPosition;
+    Quaternion shipRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(shipEntity));
+    Vec3f forward = shipRotation * Vec3f::forward;
+    //Vec3f rayPos =  forward + shipPosition;
     const physics::RaycastInfo& raycastInfo = physicsEngine_.Raycast(
-        shipPosition,
+        rayPos,
         Vec3f::down,
         shipParameter_.kMaxGroundDist,
         physics::FilterGroup::GROUND);
@@ -108,20 +112,18 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
         rotationSpeed = 1.0f;
     }
     //LogDebug(groundNormal.ToString());
-    Vec3f forward = Quaternion::FromEuler(transformManager_.GetGlobalRotation(shipEntity)) * Vec3f::forward;
     Vec3f projection = Vec3f::ProjectOnPlane(forward, groundNormal);
     
     Quaternion rotation = Quaternion::LookRotation(projection, groundNormal);
     //GizmosLocator::get().DrawLine(shipPosition, shipPosition + forward * 10.0f, Color::green, 5.0f);
+    //GizmosLocator::get().DrawLine(shipPosition, shipPosition + (shipRotation * Vec3f::up) * 3.0f, Color::green, 5.0f);
+    //GizmosLocator::get().DrawLine(shipPosition, shipPosition + (shipRotation * Vec3f::right) * 3.0f, Color::green, 5.0f);
     //GizmosLocator::get().DrawLine(shipPosition, shipPosition + projection * 10.0f, Color::yellow, 5.0f);
     //GizmosLocator::get().DrawLine(shipPosition, shipPosition + groundNormal * 3.0f, Color::yellow, 5.0f);
-    //Vec3f::OrthoNormalize(projection, groundNormal);
-    //GizmosLocator::get().DrawLine(shipPosition, shipPosition + projection * 12.0f, Color::magenta, 5.0f);
-    //GizmosLocator::get().DrawLine(shipPosition, shipPosition + groundNormal * 5.0f, Color::magenta, 5.0f);
     //GizmosLocator::get().DrawLine(shipPosition, shipPosition + (rotation * Vec3f::forward) * 10.0f, Color::red, 5.0f);
     //GizmosLocator::get().DrawLine(shipPosition, shipPosition + (rotation * Vec3f::up) * 3.0f, Color::red, 5.0f);
-    Quaternion shipRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(shipEntity));
-    rigidDynamic.MoveRotation(Quaternion::Lerp(shipRotation,rotation, dt.count() * shipParameter_.kRotationMultiplicator));
+    //GizmosLocator::get().DrawLine(shipPosition, shipPosition + (rotation * Vec3f::right) * 3.0f, Color::red, 5.0f);
+    rigidDynamic.MoveRotation(Quaternion::Lerp(shipRotation,rotation, shipParameter_.kAngleRoadLerp));
     float angle = shipParameter_.kAngleOfRoll * -shipInputManager_.GetRudder(playerId) * shipInputManager_.GetIntensity(playerId);
     float pitchAngle = shipParameter_.kAngleOfPitch * shipInputManager_.GetThruster(playerId) * shipInputManager_.GetIntensity(playerId);
     Quaternion bodyRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(playerId)) * Quaternion::FromEuler(EulerAngles(pitchAngle, 0.0f, angle));

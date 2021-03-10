@@ -59,14 +59,14 @@ void AerEngine::Init()
 	inputManager_.Init();
 #endif
 
-	if (mode_ == ModeEnum::GAME) {
+	if (mode_ == ModeEnum::GAME || mode_ == ModeEnum::EDITOR) {
 		cContainer_.sceneManager.LoadScene(
 			GetConfig().dataRootPath +
 			"scenes/PlayGroundLuca2021-03-01withoutShip.aerscene");
-		cContainer_.playerManager.CreatePlayer(Vec3f(0, 10.0f, 0));
-		cContainer_.playerManager.CreatePlayer(Vec3f(10.0f, 10.0f, 0));
-		cContainer_.playerManager.CreatePlayer(Vec3f(-10.0f, 10.0f, 0));
-		cContainer_.playerManager.CreatePlayer(Vec3f(0.0f, 10.0f, 10.0f));
+		cContainer_.playerManager.CreatePlayer(Vec3f(0, 10.0f, 30));
+		cContainer_.playerManager.CreatePlayer(Vec3f(20.0f, 10.0f, 30));
+		cContainer_.playerManager.CreatePlayer(Vec3f(40.0f, 10.0f, 30));
+		cContainer_.playerManager.CreatePlayer(Vec3f(60.0f, 10.0f, 30.0f));
 	}
 }
 
