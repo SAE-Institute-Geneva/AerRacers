@@ -48,6 +48,7 @@ using PlayerId = uint8_t;
 
 		PlayerId playerNumber = 0;
 		sdl::ControllerId linkedJoystick = 0;
+		Vec3f playerSpawn = Vec3f(0, 0, 0);
 
 		//TODO texture
 	};
@@ -63,6 +64,7 @@ using PlayerId = uint8_t;
 		virtual ~PlayerManager() = default;
 
 		PlayerId CreatePlayer(Vec3f pos);
+		PlayerId CreatePlayer(Vec3f pos, Vec3f spawnPos);
 
 		PlayerComponent GetPlayerComponent(PlayerId playerId);
 		Entity GetShipEntity(PlayerId playerId);
@@ -78,5 +80,7 @@ using PlayerId = uint8_t;
 		CameraControllerManager& cameraControllerManager_;
 		ShipControllerManager& shipControllerManager_;
 		ShipInputManager& shipInputManager_;
+
+		const float yDespawnPosition = -50.0f;
 	};
 }
