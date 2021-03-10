@@ -220,7 +220,8 @@ physx::PxShape* RigidActor::InitCapsuleShape(physx::PxPhysics* physics, physx::P
 physx::PxShape* RigidActor::InitMeshCollider(
     const PhysicsEngine& physics,
     physx::PxMaterial* material,
-    const assimp::Mesh& mesh) const
+    const assimp::Mesh& mesh,
+    const physx::PxMeshScale& scale) const
 {
         std::vector<assimp::Vertex> vertices = mesh.vertices;
         std::vector<unsigned> indices = mesh.indices;
@@ -253,7 +254,7 @@ physx::PxShape* RigidActor::InitMeshCollider(
 
         physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
         physx::PxTriangleMesh* triangleMesh = physics.GetPhysx()->createTriangleMesh(readBuffer);
-        return physics.GetPhysx()->createShape(physx::PxTriangleMeshGeometry(triangleMesh), *material);
+        return physics.GetPhysx()->createShape(physx::PxTriangleMeshGeometry(triangleMesh, scale), *material);
 }
 
 void RigidActor::SetFiltering(
@@ -487,7 +488,8 @@ void RigidStatic::Init(const PhysicsEngine& physics,
             for (size_t meshIndex = 0; meshIndex < model->GetMeshCount(); ++meshIndex) {
                 shape_ = InitMeshCollider(physics,
                     material_,
-                    model->GetMesh(meshIndex));
+                    model->GetMesh(meshIndex),
+                    physx::PxMeshScale(rigidStatic.meshColliderData.size));
                 if (!shape_) {
                     std::cerr << "createShape failed!";
                     return;
@@ -818,6 +820,8 @@ void RigidStaticManager::AddRigidStatic(Entity entity, const RigidStaticData& ri
         newRigidStaticData.capsuleColliderData.height * scale.x;
     newRigidStaticData.capsuleColliderData.radius =
         newRigidStaticData.capsuleColliderData.radius * scale.z;
+    newRigidStaticData.meshColliderData.size =
+        newRigidStaticData.meshColliderData.size * scale.x;
     RigidStatic rigidStatic = GetComponent(entity);
     rigidStatic.Init(physicsEngine_, newRigidStaticData, position, euler);
     physicsEngine_.GetScene()->addActor(*rigidStatic.GetPxRigidStatic());

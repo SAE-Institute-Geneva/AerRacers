@@ -299,7 +299,7 @@ public:
         cContainer_.transform3dManager.AddComponent(testEntity_);
         cContainer_.renderManager.AddComponent(testEntity_);
         cContainer_.renderManager.SetModel(
-            testEntity_, config.dataRootPath + "models/leveldesign/aer_racer_circuit_v37.obj");
+            testEntity_, config.dataRootPath + "models/leveldesign/big_terrain_01.obj");
     }
 
     void Update(seconds dt) override

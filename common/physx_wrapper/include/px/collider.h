@@ -76,6 +76,7 @@ public:
 
 struct MeshColliderData : public ColliderData {
 public:
+    float size = 1.0f;
 #ifdef NEKO_GLES3
     gl::ModelId modelId = gl::INVALID_MODEL_ID;
 #endif

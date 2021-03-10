@@ -121,7 +121,8 @@ protected:
     physx::PxShape* InitSphereShape(physx::PxPhysics* physics, physx::PxMaterial* material, const SphereColliderData& sphereCollider) const;
     physx::PxShape* InitMeshCollider(const PhysicsEngine& physics,
         physx::PxMaterial* material,
-        const assimp::Mesh& mesh) const;
+        const assimp::Mesh& mesh,
+        const physx::PxMeshScale& scale) const;
     void SetFiltering(
         physx::PxShape* shape,
         physx::PxU32 filterGroup);
