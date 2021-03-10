@@ -53,6 +53,7 @@ PlayerManager::PlayerManager(ComponentManagerContainer& cContainer)
         playerComponent.shipEntity = shipEntity;
         playerComponent.shipModelEntity = shipModelEntity;
         playerComponent.playerNumber = playerComponents_.size();
+        playerComponent.playerSpawn = pos;
         std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
         if (controllers.size() > playerCount_)
             playerComponent.linkedJoystick = controllers[playerCount_];

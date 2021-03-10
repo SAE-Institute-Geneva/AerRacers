@@ -60,13 +60,24 @@ void AerEngine::Init()
 #endif
 
 	if (mode_ == ModeEnum::GAME) {
-		cContainer_.sceneManager.LoadScene(
-			GetConfig().dataRootPath +
-			"scenes/PlayGroundLuca2021-03-01withoutShip.aerscene");
-		cContainer_.playerManager.CreatePlayer(Vec3f(0, 10.0f, 30));
-		cContainer_.playerManager.CreatePlayer(Vec3f(20.0f, 10.0f, 30));
-		cContainer_.playerManager.CreatePlayer(Vec3f(40.0f, 10.0f, 30));
-		cContainer_.playerManager.CreatePlayer(Vec3f(60.0f, 10.0f, 30.0f));
+		if (false)
+		{
+			cContainer_.sceneManager.LoadScene(
+				GetConfig().dataRootPath +
+				"scenes/PlayGroundLuca2021-03-01withoutShip.aerscene");
+			cContainer_.playerManager.CreatePlayer(Vec3f(0, 10.0f, 30));
+			cContainer_.playerManager.CreatePlayer(Vec3f(20.0f, 10.0f, 30));
+			cContainer_.playerManager.CreatePlayer(Vec3f(40.0f, 10.0f, 30));
+			cContainer_.playerManager.CreatePlayer(Vec3f(60.0f, 10.0f, 30.0f));
+		} else {
+			cContainer_.sceneManager.LoadScene(
+				GetConfig().dataRootPath +
+					"scenes/test_leveldesign.aerscene");
+			cContainer_.playerManager.CreatePlayer(Vec3f(202.0f, 84.0f, 56.0f));
+			cContainer_.playerManager.CreatePlayer(Vec3f(192.0f, 84.0f, 56.0f));
+			cContainer_.playerManager.CreatePlayer(Vec3f(182.0f, 84.0f, 56.0f));
+			cContainer_.playerManager.CreatePlayer(Vec3f(172.0f, 84.0f, 56.0f));
+		}
 	}
 }
 
