@@ -121,7 +121,11 @@ protected:
     physx::PxShape* InitSphereShape(physx::PxPhysics* physics, physx::PxMaterial* material, const SphereColliderData& sphereCollider) const;
     physx::PxShape* InitMeshCollider(const PhysicsEngine& physics,
         physx::PxMaterial* material,
+#ifdef NEKO_GLES3
         const assimp::Mesh& mesh,
+#elif NEKO_VULKAN
+        const vk::Mesh& mesh,
+#endif
         const physx::PxMeshScale& scale) const;
     void SetFiltering(
         physx::PxShape* shape,

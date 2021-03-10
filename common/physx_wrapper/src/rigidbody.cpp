@@ -6,6 +6,9 @@
 #include "aer/tag.h"
 #include "px/physics_engine.h"
 #include "px/physx_utility.h"
+#ifdef NEKO_VULKAN
+#include "vk/models/model_manager.h"
+#endif
 
 
 namespace neko::physics {
@@ -220,22 +223,35 @@ physx::PxShape* RigidActor::InitCapsuleShape(physx::PxPhysics* physics, physx::P
 physx::PxShape* RigidActor::InitMeshCollider(
     const PhysicsEngine& physics,
     physx::PxMaterial* material,
+#ifdef NEKO_GLES3
     const assimp::Mesh& mesh,
+#elif NEKO_VULKAN
+    const vk::Mesh& mesh,
+#endif
     const physx::PxMeshScale& scale) const
 {
+#ifdef NEKO_GLES3
         std::vector<assimp::Vertex> vertices = mesh.vertices;
-        std::vector<unsigned> indices = mesh.indices;
+        std::vector<std::uint32_t> indices = mesh.indices;
         std::vector<physx::PxVec3> vertices2;
         vertices2.resize(vertices.size());
         std::transform(vertices.begin(), vertices.end(),  vertices2.begin(),
             [](assimp::Vertex vert) -> physx::PxVec3 { return ConvertToPxVec(vert.position); });
+#elif NEKO_VULKAN
+    std::vector<vk::Vertex> vertices = mesh.GetVertices(0);
+    std::vector<unsigned> indices = mesh.GetIndices(0);
+    std::vector<physx::PxVec3> vertices2;
+    vertices2.resize(vertices.size());
+    std::transform(vertices.begin(), vertices.end(), vertices2.begin(),
+        [](vk::Vertex vert) -> physx::PxVec3 { return ConvertToPxVec(vert.position); });
+#endif
         physx::PxTriangleMeshDesc meshDesc;
         meshDesc.points.count = vertices2.size();
         meshDesc.points.stride = sizeof(physx::PxVec3);
         meshDesc.points.data = vertices2.data();
 
-        meshDesc.triangles.count = indices.size();
-        meshDesc.triangles.stride = 3* sizeof(unsigned);
+        meshDesc.triangles.count = indices.size()/3;
+        meshDesc.triangles.stride = 3* sizeof(physx::PxU32);
         meshDesc.triangles.data = indices.data();
         physx::PxDefaultMemoryOutputStream writeBuffer;
         physx::PxTriangleMeshCookingResult::Enum result;
@@ -482,6 +498,7 @@ void RigidStatic::Init(const PhysicsEngine& physics,
     material_ = InitMaterial(physics.GetPhysx(), rigidStatic.material);
     if (!material_) std::cerr << "createMaterial failed!";
     if (rigidStatic.colliderType == ColliderType::MESH) {
+#ifdef NEKO_GLES3
         if (gl::ModelManagerLocator::get().IsLoaded(rigidStatic.meshColliderData.modelId))
         {
             const auto& model = gl::ModelManagerLocator::get().GetModel(rigidStatic.meshColliderData.modelId);
@@ -500,6 +517,26 @@ void RigidStatic::Init(const PhysicsEngine& physics,
             }
                 
         }
+#elif NEKO_VULKAN
+        if (vk::ModelManagerLocator::get().IsLoaded(rigidStatic.meshColliderData.modelId))
+        {
+            const auto& model = vk::ModelManagerLocator::get().GetModel(rigidStatic.meshColliderData.modelId);
+            for (size_t meshIndex = 0; meshIndex < model->GetMeshCount(); ++meshIndex) {
+                shape_ = InitMeshCollider(physics,
+                    material_,
+                    model->GetMesh(meshIndex),
+                    physx::PxMeshScale(rigidStatic.meshColliderData.size));
+                if (!shape_) {
+                    std::cerr << "createShape failed!";
+                    return;
+                }
+                SetFiltering(shape_, rigidStatic.filterGroup);
+                rigidActor_->attachShape(*shape_);
+                SetRigidStaticData(rigidStatic);
+            }
+
+        }
+#endif
     }
     else
     {

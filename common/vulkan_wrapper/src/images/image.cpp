@@ -85,13 +85,13 @@ std::uint32_t Image::GetMipLevels(const VkExtent3D& extent)
 
 bool Image::HasDepth(VkFormat format)
 {
-	const VkFormat* it = std::find(kDepthFormat.begin(), kDepthFormat.end(), format);
+	const auto it = std::find(kDepthFormat.begin(), kDepthFormat.end(), format);
 	return it != kDepthFormat.end();
 }
 
 bool Image::HasStencil(VkFormat format)
 {
-	const VkFormat* it = std::find(kStencilFormats.begin(), kStencilFormats.end(), format);
+	const auto it = std::find(kStencilFormats.begin(), kStencilFormats.end(), format);
 	return it != kStencilFormats.end();
 }
 
