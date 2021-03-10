@@ -48,7 +48,7 @@ void AerEngine::Init()
 #endif
 	SdlEngine::Init();
 
-	if (mode_ == ModeEnum::GAME || mode_ == ModeEnum::EDITOR) {
+	if (mode_ == ModeEnum::GAME) {
 		cContainer_.sceneManager.LoadScene(
 			GetConfig().dataRootPath +
 			"scenes/PlayGroundLuca2021-03-01withoutShip.aerscene");

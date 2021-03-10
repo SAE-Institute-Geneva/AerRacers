@@ -16,39 +16,38 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
- Author : Floreau Luca
+ Author : Sebastien Feser
  Co-Author :
- Date : 01.03.2021
+ Date : 10.03.2021
 ---------------------------------------------------------- */
+
 #include <gtest/gtest.h>
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
 #endif
 
 #include "aer/gizmos_renderer.h"
-#include "gl/gles3_window.h"
-#include "gl/graphics.h"
 #ifdef NEKO_GLES3
 #include "aer/aer_engine.h"
 #include "engine/engine.h"
+#include <engine/system.h>
+#include <gl/gles3_window.h>
+#include <gl/graphics.h>
 
 namespace neko::aer {
-    class TestMultiSpawning
-        : public SystemInterface,
-        public RenderCommandInterface,
-        public DrawImGuiInterface {
+
+    class TestLevelDesign
+        : public SystemInterface
+         {
     public:
-        TestMultiSpawning(
+        TestLevelDesign(
             AerEngine& engine)
             : engine_(engine),
             rContainer_(engine.GetResourceManagerContainer()),
             cContainer_(engine.GetComponentManagerContainer()) { }
 
-        void Init() override
-        {
-#ifdef EASY_PROFILE_USE
-            EASY_BLOCK("Test Init", profiler::colors::Green);
-#endif
+
+        void Init() override {
             Camera3D* camera = GizmosLocator::get().GetCamera();
             camera->fovY = degree_t(80.0f);
             camera->nearPlane = 0.1f;
@@ -57,78 +56,51 @@ namespace neko::aer {
             const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
             engine_.GetComponentManagerContainer().sceneManager.LoadScene(
                 config.dataRootPath +
-                "scenes/PlayGroundLuca2021-03-01withoutShip.aerscene");
-            cContainer_.playerManager.CreatePlayer(Vec3f(0, 10.0f, 0));
-            cContainer_.playerManager.CreatePlayer(Vec3f(10.0f, 10.0f, 0));
-            cContainer_.playerManager.CreatePlayer(Vec3f(-10.0f, 10.0f, 0));
-            cContainer_.playerManager.CreatePlayer(Vec3f(0.0f, 10.0f, 10.0f));
+                "scenes/test_leveldesign.aerscene");
+            cContainer_.playerManager.CreatePlayer(Vec3f(192.0f, 84.0f, 56.0f));
         }
 
-        void Update(seconds dt) override
-        {
-#ifdef EASY_PROFILE_USE
-            EASY_BLOCK("Test Update", profiler::colors::Green);
-#endif
-            //updateCount_ += dt.count();
-            if (updateCount_ > kEngineDuration_) {
-                HasSucceed();
+        void Update(neko::seconds dt) override {
+
+            if (testFinish_ == true) {
                 engine_.Stop();
             }
         }
 
-        void Render() override { }
+        void Destroy() override {
+        }
 
-        void Destroy() override { }
-
-        void DrawImGui() override {}
-
-        void HasSucceed()
-        {
-            EXPECT_TRUE(cContainer_.playerManager.GetPlayerCount() == 4);
-
+        void HasSucceed() const {
+            EXPECT_TRUE(testFinish_);
         }
 
     private:
-        float updateCount_ = 0;
-        const float kEngineDuration_ = 10.0f;
-
-        AerEngine& engine_;
+        bool testFinish_ = false;
 
         ResourceManagerContainer& rContainer_;
         ComponentManagerContainer& cContainer_;
 
-
-        Entity shipEntity_;
-        Entity groundEntity_;
+        AerEngine& engine_;
     };
 
-    TEST(Game, TestMultiSpawning)
+    TEST(Game, TestLevelDesign)
     {
-        //Travis Fix because Windows can't open a window
-        char* env = getenv("TRAVIS_DEACTIVATE_GUI");
-        if (env != nullptr) {
-            std::cout << "Test skip for travis windows" << std::endl;
-            return;
-        }
-
         Configuration config;
-        // config.dataRootPath = "../data/";
         config.windowName = "AerEditor";
-        config.windowSize = Vec2u(1400, 900);
-
+        config.windowSize = neko::Vec2u(1400, 900);
         sdl::Gles3Window window;
         gl::Gles3Renderer renderer;
         Filesystem filesystem;
         AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
-
         engine.SetWindowAndRenderer(&window, &renderer);
 
-        TestMultiSpawning testMultiSpawning(engine);
+        TestLevelDesign testLevelDesign(engine);
+        engine.RegisterSystem(testLevelDesign);
 
-        engine.RegisterSystem(testMultiSpawning);
-        engine.RegisterOnDrawUi(testMultiSpawning);
         engine.Init();
         engine.EngineLoop();
+        testLevelDesign.HasSucceed();
+
     }
 }
 #endif
