@@ -5,36 +5,62 @@
 namespace neko::vk
 {
 ModelCommandBuffer::ModelCommandBuffer()
-	: meshInstances_(std::vector<std::unique_ptr<MeshInstance>>())
+   : modelInstances_(std::vector<std::unique_ptr<ModelInstance>>())
 {}
 
 void ModelCommandBuffer::Destroy()
 {
-	for (auto& forwardDrawCmd : forwardDrawingCmd_)
-		forwardDrawCmd.uniformHandle.Destroy();
+	for (auto& forwardDrawCmd : forwardDrawingCmd_) forwardDrawCmd.uniformHandle.Destroy();
 
 	Clear();
 }
 
-ModelInstanceIndex ModelCommandBuffer::GetModelInstanceIndex(
-		const Material& material,
-		const Mesh& mesh,
-		const std::vector<Mat4f>& matrices)
+ModelInstanceIndex ModelCommandBuffer::AddModelInstanceIndex(const ModelId& modelId)
 {
-	for (size_t i = 0; i < meshInstances_.size(); i++)
-		if (&meshInstances_[i]->GetMaterial() == &material)
-			if (&meshInstances_[i]->GetMesh() == &mesh)
-				return i;
+	for (size_t i = 0; i < modelInstances_.size(); i++)
+		if (modelInstances_[i]->GetModelId() == modelId) return i;
 
-	meshInstances_.emplace_back();
-	meshInstances_.back() = std::make_unique<MeshInstance>(mesh, material);
-	instanceMatrices_.emplace_back(matrices);
-	return meshInstances_.size() - 1;
+	modelInstances_.emplace_back();
+	modelInstances_.back() = std::make_unique<ModelInstance>(modelId);
+	instanceMatrices_.emplace_back();
+	return modelInstances_.size() - 1;
 }
 
-void ModelCommandBuffer::FreeForwardIndex(ModelForwardIndex index)
+ModelInstanceIndex ModelCommandBuffer::AddModelInstanceIndex(
+	const ModelId& modelId, const Mat4f& matrix)
 {
-	forwardDrawingCmd_.erase(forwardDrawingCmd_.cbegin() + index);
+	for (size_t i = 0; i < modelInstances_.size(); i++)
+	{
+		if (modelInstances_[i]->GetModelId() == modelId)
+		{
+			instanceMatrices_[i].push_back(matrix);
+			return i;
+		}
+	}
+
+	modelInstances_.emplace_back();
+	modelInstances_.back() = std::make_unique<ModelInstance>(modelId);
+	instanceMatrices_.emplace_back().push_back(matrix);
+	return modelInstances_.size() - 1;
+}
+
+ModelInstanceIndex ModelCommandBuffer::AddModelInstanceIndex(
+	const ModelId& modelId, const std::vector<Mat4f>& matrices)
+{
+	for (size_t i = 0; i < modelInstances_.size(); i++)
+	{
+		if (modelInstances_[i]->GetModelId() == modelId)
+		{
+			instanceMatrices_[i].insert(
+				instanceMatrices_[i].end(), matrices.begin(), matrices.end());
+			return i;
+		}
+	}
+
+	modelInstances_.emplace_back();
+	modelInstances_.back() = std::make_unique<ModelInstance>(modelId);
+	instanceMatrices_.emplace_back(matrices);
+	return modelInstances_.size() - 1;
 }
 
 void ModelCommandBuffer::Draw(const ForwardDrawCmd& drawCommand)
@@ -51,33 +77,41 @@ void ModelCommandBuffer::Draw(const Mat4f& worldMatrix, ModelInstanceIndex insta
 }
 
 void ModelCommandBuffer::Draw(
-		const Mat4f& worldMatrix,
-		const sole::uuid modelId,
-		ModelForwardIndex forwardIndex)
+	const Mat4f& worldMatrix, const sole::uuid modelId, ModelForwardIndex forwardIndex)
 {
-	const auto& modelManager = ModelManagerLocator::get();
 	forwardDrawingCmd_[forwardIndex].worldMatrix = worldMatrix;
-	forwardDrawingCmd_[forwardIndex].modelID = modelId;
+	forwardDrawingCmd_[forwardIndex].modelId     = modelId;
 }
 
 void ModelCommandBuffer::PrepareData()
 {
-    for (size_t i = 0; i < meshInstances_.size(); i++)
-    {
-	    meshInstances_[i]->Update(instanceMatrices_[i]);
-        //instanceMatrices_[i].clear();
-    }
+	for (size_t i = 0; i < modelInstances_.size(); i++)
+	{
+		modelInstances_[i]->Update(instanceMatrices_[i]);
+		instanceMatrices_[i].clear();
+	}
 }
 
 void ModelCommandBuffer::Clear()
 {
-    forwardDrawingCmd_.clear();
-	meshInstances_.clear();
+	forwardDrawingCmd_.clear();
+	modelInstances_.clear();
 }
 
-void ModelCommandBuffer::OnUnloadScene()
+void ModelCommandBuffer::AddMatrix(ModelInstanceIndex index, const Mat4f& matrix)
 {
-    Clear();
-    forwardDrawingCmd_.shrink_to_fit();
+	instanceMatrices_[index].push_back(matrix);
+	modelInstances_[index]->AddInstance();
 }
+
+void ModelCommandBuffer::SetMatrices(ModelInstanceIndex index, const std::vector<Mat4f>& matrices)
+{
+	instanceMatrices_[index] = matrices;
+	modelInstances_[index]->AddInstance(matrices.size());
 }
+
+void ModelCommandBuffer::SetModelId(ModelInstanceIndex index, const ModelId& modelId)
+{
+	modelInstances_[index]->SetModelId(modelId);
+}
+}    // namespace neko::vk

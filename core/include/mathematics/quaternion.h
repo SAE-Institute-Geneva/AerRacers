@@ -22,11 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <engine/component.h>
-
 #include "mathematics/matrix.h"
 #include "mathematics/trigo.h"
 #include "mathematics/vector.h"
+#include "mathematics/const.h"
 #include <engine/log.h>
 
 namespace neko

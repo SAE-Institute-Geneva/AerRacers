@@ -90,6 +90,31 @@ void EditorToolManager::Update(const seconds dt)
                         2.0f);
                     break;
                 }
+			case physics::ColliderType::CAPSULE:
+			{
+				physics::CapsuleColliderData capsuleColliderData =
+					rigidActor->GetCapsuleColliderData();
+				Quaternion rot = Quaternion::FromEuler(transform3dManager.GetGlobalRotation(entity));
+				gizmosLocator.DrawSphere(
+					transform3dManager.GetGlobalPosition(entity) + capsuleColliderData.offset + (capsuleColliderData.height / 2.0f) * (rot * Vec3f::right),
+					capsuleColliderData.radius,
+					transform3dManager.GetGlobalRotation(entity),
+					capsuleColliderData.isTrigger ? Color::yellow : Color::green,
+					2.0f);
+				gizmosLocator.DrawSphere(
+					transform3dManager.GetGlobalPosition(entity) + capsuleColliderData.offset + (capsuleColliderData.height/2.0f) * (rot * Vec3f::left),
+					capsuleColliderData.radius,
+					transform3dManager.GetGlobalRotation(entity),
+					capsuleColliderData.isTrigger ? Color::yellow : Color::green,
+					2.0f);
+				gizmosLocator.DrawCube(
+					transform3dManager.GetGlobalPosition(entity) + capsuleColliderData.offset,
+					Vec3f(capsuleColliderData.height, capsuleColliderData.radius*1.5f, capsuleColliderData.radius*1.5f),
+					transform3dManager.GetGlobalRotation(entity),
+					capsuleColliderData.isTrigger ? Color::yellow : Color::green,
+					2.0f);
+				break;
+			}
             default: break;
         }
     }

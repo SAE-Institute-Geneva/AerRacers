@@ -24,10 +24,9 @@
 
 #ifdef NEKO_GLES3
 #include "gl/mesh.h"
+#include "assimp/material.h"
 #include "assimp/mesh.h"
 #include "assimp/scene.h"
-#include "assimp/material.h"
-
 
 #include "gl/gles3_include.h"
 #include "graphics/graphics.h"

@@ -214,12 +214,6 @@ if(Neko_PhysX)
 	set(PHYSX_ROOT_DIR ${PHYSX_DIR}/physx)
 	# Call into PhysX's CMake scripts
     add_subdirectory("common/physx_wrapper")
-
-    if (MSVC)
-        execute_process(COMMAND "${PHYSX_ROOT_DIR}/generate_projects.bat" windows)
-    elseif (UNIX)
-        execute_process(COMMAND "${PHYSX_ROOT_DIR}/generate_projects.sh" linux)
-    endif ()
 endif()
 
 if(Neko_Freetype)

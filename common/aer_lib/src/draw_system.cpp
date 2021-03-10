@@ -15,9 +15,8 @@ DrawSystem::DrawSystem(AerEngine& engine)
 
 #ifdef NEKO_GLES3
 	gizmosRenderer_ = std::make_unique<GizmoRenderer>(&camera_.GetCamera(0));
-#endif
-
 	engine.RegisterSystem(*gizmosRenderer_);
+#endif
 }
 
 void DrawSystem::Init()
@@ -32,11 +31,9 @@ void DrawSystem::Init()
 	camera.nearPlane        = 0.1f;
 	camera.farPlane         = 1'000'000.0f;
 	camera_.SetCameras(camera);
+#ifdef NEKO_GLES3
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(0));
-
-    //For Test
-	if (engine_.GetMode() == ModeEnum::GAME) {
-	}
+#endif
 }
 
 void DrawSystem::Update(seconds)
@@ -57,6 +54,7 @@ void DrawSystem::Render()
     EASY_BLOCK("DrawSystem::Render");
 #endif
 
+#ifdef NEKO_GLES3
 	const Vec2u size = BasicEngine::GetInstance()->GetConfig().windowSize;
 	switch (cContainer_.playerManager.GetPlayerCount())
 	{
@@ -136,6 +134,10 @@ void DrawSystem::Render()
 	}
 
 	gizmosRenderer_->Clear();
+#elif NEKO_VULKAN
+	CameraLocator::provide(&camera_.GetCamera(0));
+	RenderScene(0);
+#endif
 }
 
 void DrawSystem::RenderScene(const std::size_t playerNum)
@@ -147,8 +149,10 @@ void DrawSystem::RenderScene(const std::size_t playerNum)
 	auto& cManagerContainer = engine_.GetComponentManagerContainer();
 	cManagerContainer.renderManager.Render();
 
+#ifdef NEKO_GLES3
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(playerNum));
 	gizmosRenderer_->Render();
+#endif
 }
 
 void DrawSystem::Destroy() {}
@@ -161,3 +165,4 @@ void DrawSystem::OnEvent(const SDL_Event& event)
 	camera_.OnEvent(event);
 }
 }    // namespace neko::aer
+ 
