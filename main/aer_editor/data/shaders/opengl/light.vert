@@ -1,4 +1,5 @@
-#version 330 core
+#version 450 core
+#define MAX_LIGHTS 32
 precision mediump float;
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec2 aTexCoords;
@@ -21,7 +22,7 @@ out NormalMap
     vec3 TangentFragPos;
 } vs2_out;
 
-layout (std140) uniform Matrices
+layout (std140, binding = 0) uniform Matrices
 {
     mat4 proj;
     mat4 view;
@@ -32,17 +33,22 @@ uniform mat3 normalMatrix;
 uniform bool doInverseNormals;
 uniform vec3 viewPos;
 
-struct Light 
+struct Light
 {
     vec3 position;
-    vec3 direction;
-
-    vec3 ambient;
     vec3 diffuse;
-    float specular;
+    vec3 ambient;
+
     float intensity;
+    float radius;
+    float specular;
 };
-uniform Light light;
+
+layout (std140, binding = 1) uniform Lights
+{
+    uint lightNum;
+    Light lights[MAX_LIGHTS];
+};
 
 void main()
 {
@@ -55,8 +61,8 @@ void main()
     vec3 N = normalize(mat3(model) * aNormal);
     mat3 TBN = transpose(mat3(T, B, N));
 	
-    vs2_out.TangentLightPos = TBN * light.position;
-    vs2_out.TangentLightDir = TBN * light.direction;
+    vs2_out.TangentLightPos = TBN * lights[0].position;
+    //vs2_out.TangentLightDir = TBN * light.direction;
     vs2_out.TangentViewPos  = TBN * viewPos;
     vs2_out.TangentFragPos  = TBN * vs1_out.FragPos;
 	

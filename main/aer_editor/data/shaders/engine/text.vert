@@ -1,4 +1,4 @@
-#version 300 es
+#version 450 core
 precision highp float;
 
 layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>

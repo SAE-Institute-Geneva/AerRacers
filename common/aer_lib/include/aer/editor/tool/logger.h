@@ -37,7 +37,7 @@ namespace neko::aer
 class Logger final : public EditorToolInterface
 {
 public:
-	explicit Logger(AerEngine& engine, ToolType type, int id, std::string name);
+	explicit Logger(AerEngine& engine, ToolType type, int id, std::string_view name);
 
 	void Init() override;
 	void Update(seconds dt) override;

@@ -4,11 +4,12 @@
 
 namespace neko::aer
 {
-EditorToolInterface::EditorToolInterface(AerEngine& engine, ToolType type, int id, std::string name)
+EditorToolInterface::EditorToolInterface(
+	AerEngine& engine, ToolType type, int id, std::string_view name)
    : kId_(id), name_(name), type_(type), engine_(engine)
 {}
 
-std::string EditorToolInterface::GetName() const { return name_; }
+std::string_view EditorToolInterface::GetName() const { return name_; }
 
 int EditorToolInterface::GetId() const { return kId_; }
 

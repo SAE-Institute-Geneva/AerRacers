@@ -29,8 +29,8 @@ set(Neko_XXHash ON CACHE BOOL "Activate XXHash")
 
 MESSAGE("CMAKE SYSTEM NAME: ${CMAKE_SYSTEM_NAME}")
 
+string(TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
 if(UNIX)
-    string(TOUPPER ${CMAKE_BUILD_TYPE} BUILD_TYPE)
     if(BUILD_TYPE STREQUAL "DEBUG")
         message(STATUS "Enabled '-fstandalone-debug' for LLDB")
         add_compile_options(-fstandalone-debug)
@@ -57,6 +57,27 @@ set(UTILITIES_DIR "${EXTERNAL_DIR}/utilities" CACHE INTERNAL "")
 
 if(Neko_Assert)
     add_compile_definitions("NEKO_ASSERT=1")
+endif()
+
+if(Neko_PhysX)
+    #### Build PhysX library ####
+    set(PHYSX_VERSION 4.1)
+    set(PHYSX_DIR ${EXTERNAL_DIR}/PhysX-${PHYSX_VERSION})
+    set(PHYSX_ROOT_DIR ${PHYSX_DIR}/physx)
+    if (EXISTS "${PHYSX_ROOT_DIR}/include/PxConfig.h")
+        message(STATUS "PhysX is already built")
+    elseif (BUILD_TYPE STREQUAL "RELEASE")
+        message(STATUS "Rebuilding PhysX")
+
+        if (MSVC)
+            execute_process(COMMAND "${PHYSX_ROOT_DIR}/generate_projects.bat" windows)
+        elseif (UNIX)
+            execute_process(COMMAND "${PHYSX_ROOT_DIR}/generate_projects.sh" linux)
+        endif ()
+    endif ()
+
+    # Call into PhysX's CMake scripts
+    add_subdirectory("common/physx_wrapper")
 endif()
 
 if(Neko_KTX)
@@ -205,15 +226,6 @@ if(Neko_SFML_NET)
 	set(SFML_DIR "${EXTERNAL_DIR}/SFML-2.5.1" CACHE STRING "")
 	include_directories("${SFML_DIR}/include")
 	add_subdirectory("${SFML_DIR}")
-endif()
-
-if(Neko_PhysX)
-	#### Build PhysX library ####
-    set(PHYSX_VERSION 4.1)
-    set(PHYSX_DIR ${EXTERNAL_DIR}/PhysX-${PHYSX_VERSION}/)
-	set(PHYSX_ROOT_DIR ${PHYSX_DIR}/physx)
-	# Call into PhysX's CMake scripts
-    add_subdirectory("common/physx_wrapper")
 endif()
 
 if(Neko_Freetype)

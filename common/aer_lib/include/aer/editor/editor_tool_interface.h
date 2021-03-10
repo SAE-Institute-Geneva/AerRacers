@@ -36,7 +36,7 @@ class EditorToolInterface : public SystemInterface,
 							public sdl::SdlEventSystemInterface
 {
 public:
-	enum class ToolType
+	enum class ToolType : std::uint8_t
 	{
 		NONE = 0,
 		LOGGER,
@@ -45,11 +45,11 @@ public:
 		SCENE_LOADER
 	};
 
-	explicit EditorToolInterface(AerEngine& engine, ToolType type, int id, std::string name);
+	explicit EditorToolInterface(AerEngine& engine, ToolType type, int id, std::string_view name);
 
-	int GetId() const;
-	ToolType GetType() const;
-	std::string GetName() const;
+	[[nodiscard]] int GetId() const;
+	[[nodiscard]] ToolType GetType() const;
+	[[nodiscard]] std::string_view GetName() const;
 
 	bool isVisible = true;
 

@@ -22,16 +22,21 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <string>
-#include <graphics/shader.h>
-#include "graphics/texture.h"
 #include "gl/gles3_include.h"
-#include "mathematics/vector.h"
+
+#include "graphics/lights.h"
+#include "graphics/shader.h"
+#include "graphics/texture.h"
 #include "mathematics/matrix.h"
 
 namespace neko::gl
 {
-const GLuint INVALID_SHADER = 0;
+constexpr GLuint INVALID_SHADER            = 0;
+constexpr std::uint8_t kUboMatricesBinding = 0;
+constexpr std::uint8_t kUboLightsBinding   = 1;
+constexpr std::size_t kUboMatricesSize     = 2 * sizeof(Mat4f);
+constexpr std::size_t kUboLightsSize       = sizeof(PointLight) * kMaxLights;
+
 /**
  * Load shader with given shader type
  * (GL_COMPUTE_SHADER, GL_VERTEX_SHADER, GL_TESS_CONTROL_SHADER,
@@ -55,14 +60,14 @@ void DeleteShader(GLuint shader);
 class Shader : public neko::Shader
 {
 public:
-	explicit Shader();
+	Shader();
 	~Shader() override;
 
 	void LoadFromFile(
 		std::string_view vertexShaderPath, std::string_view fragmentShaderPath) override;
 
 	void Bind() const;
-	void BindUbo(const uint64_t& size);
+	void BindUbo(const uint64_t& size, std::uint8_t binding = 0);
 	void Destroy() override;
 
 	[[nodiscard]] GLuint GetProgram() const;
@@ -86,12 +91,15 @@ public:
 	void SetTexture(std::string_view name, TextureName texture, unsigned int slot = 0) const;
 	void SetCubemap(std::string_view name, TextureName texture, unsigned int slot = 0) const;
 
-	static void SetUbo(const uint64_t& size, const uint64_t& offset, const void* data);
+	void SetUbo(std::uint32_t size,
+		std::uint32_t offset,
+		const void* data,
+		std::uint8_t binding = 0) const;
 
 private:
 	const FilesystemInterface& filesystem_;
 
 	GLuint shaderProgram_ = 0;
-	GLuint ubo_ = 0;
+	GLuint ubos_[3];
 };
 }

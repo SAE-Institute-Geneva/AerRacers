@@ -6,7 +6,7 @@
 
 namespace neko::aer
 {
-SceneLoader::SceneLoader(AerEngine& engine, ToolType type, int id, std::string name)
+SceneLoader::SceneLoader(AerEngine& engine, ToolType type, int id, std::string_view name)
    : EditorToolInterface(engine, type, id, name),
 	 sceneManager_(engine.GetComponentManagerContainer().sceneManager)
 {}
@@ -37,7 +37,8 @@ void SceneLoader::DrawImGui()
     //If is True Display Window
     if (isVisible)
     {
-		if (ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(), &isVisible))
+	    const std::string name = std::string(GetName()) + "##" + std::to_string(GetId());
+		if (ImGui::Begin(name.c_str(), &isVisible))
 		{
 			LoadSceneFiles();
 			if (!scenesPaths_.empty())
@@ -82,7 +83,7 @@ void SceneLoader::LoadSceneFiles()
 	scenesPaths_.clear();
 	IterateDirectory(
 		filepath_,
-		[this](const std::string_view path) { scenesPaths_.push_back(path.data()); },
+		[this](const std::string_view path) { scenesPaths_.emplace_back(path.data()); },
 		true);
 }
 

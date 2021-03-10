@@ -160,39 +160,44 @@ void OldModel::ProcessNode(aiNode* node, const aiScene* scene)
 void Model::BindTextures(size_t meshIndex, const Shader& shader) const
 {
 	glCheckError();
-	unsigned int diffuseNr  = 1;
-	unsigned int specularNr = 1;
-	unsigned int normalNr   = 1;
-	auto& mesh              = meshes_[meshIndex];
-	for (size_t i = 0; i < mesh.textures.size(); i++)
+	std::uint8_t usedMaps    = 0;
+	const assimp::Mesh& mesh = meshes_[meshIndex];
+	for (const auto& texture : mesh.textures)
 	{
 		// activate proper texture unit before binding
-		glActiveTexture(GL_TEXTURE0 + i);
 		// retrieve texture number (the N in diffuse_textureN)
-		std::string number;
+		std::uint8_t number = 0;
 		std::string name;
-		switch (mesh.textures[i].type)
+		switch (texture.type)
 		{
 			case aiTextureType_DIFFUSE:
-				name   = "texture_diffuse";
-				number = std::to_string(diffuseNr++);
+				name   = "diffuse";
+				number = 0;
 				break;
 			case aiTextureType_SPECULAR:
-				name   = "texture_specular";
-				number = std::to_string(specularNr++);
+				name   = "specular";
+				number = 1;
 				break;
 			case aiTextureType_HEIGHT:
-				name   = "texture_normal";
-				number = std::to_string(normalNr++);
+			case aiTextureType_NORMALS:
+				name   = "normal";
+				number = 2;
 				break;
-			default: continue;
+			case aiTextureType_EMISSIVE:
+				name   = "emissive";
+				number = 3;
+				break;
+			default:;
 		}
-		shader.SetInt(fmt::format("material.{}{}", name, number), i);
-		glBindTexture(GL_TEXTURE_2D, mesh.textures[i].textureName);
+
+		usedMaps |= 1u << number;
+		glActiveTexture(GL_TEXTURE0 + number);
+		shader.SetInt(std::string("material.").append(name), number);
+		glBindTexture(GL_TEXTURE_2D, texture.textureName);
 	}
 
 	shader.SetFloat("material.shininess", mesh.specularExponent);
-	shader.SetBool("enableNormalMap", normalNr > 1);
+	shader.SetUInt("usedMaps", usedMaps);
 	glActiveTexture(GL_TEXTURE0);
 	glCheckError();
 }
@@ -277,7 +282,34 @@ ModelId ModelManager::LoadModel(std::string_view path)
 
 	modelLoaders_.push(ModelLoader(path, modelId));
 	modelLoaders_.back().Start();
+	modelPathMap_.emplace(path, modelId);
 	return modelId;
+}
+
+std::string ModelManager::GetModelName(ModelId modelId)
+{
+	for (auto& it : modelPathMap_)
+	{
+		if (it.second == modelId)
+		{
+			std::size_t startName         = it.first.find_last_of('/') + 1;
+			std::size_t endName           = it.first.find_first_of('.');
+			std::size_t size              = endName - startName;
+			std::string name              = it.first.substr(startName, size);
+			return name;
+		}
+	}
+
+	return "";
+}
+
+std::string_view ModelManager::GetModelPath(ModelId modelId)
+{
+	for (auto& it : modelPathMap_)
+		if (it.second == modelId)
+			return it.first;
+
+	return "";
 }
 
 ModelLoader::ModelLoader(std::string_view path, ModelId modelId)
