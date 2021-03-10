@@ -21,20 +21,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <sstream>
-#include <mathematics/vector.h>
-#include "sdl_engine/sdl_engine.h"
-#include "engine/log.h"
-
-#include "imgui.h"
 #include "imgui_impl_sdl.h"
-
-#include <fmt/format.h>
+#include "imgui_internal.h"
 
 #include "utils/file_utility.h"
 
 #ifdef NEKO_GLES3
 #include "gl/gles3_window.h"
+#else
+#include "vk/graphics.h"
 #endif
 
 #ifdef EASY_PROFILE_USE
@@ -76,18 +71,17 @@ void SdlEngine::ManageEvent()
     inputManager_.OnPreUserInput();
     SDL_Event event;
     while (SDL_PollEvent(&event))
-    {
-#ifndef NEKO_VULKAN
-        ImGui_ImplSDL2_ProcessEvent(&event);
-#endif
-        if (event.type == SDL_QUIT)
-        {
-            isRunning_ = false;
-        }
+	{
+#ifdef NEKO_VULKAN
 
-        if (event.type == SDL_WINDOWEVENT)
-        {
-            if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+	    if (ImGui::GetCurrentContext()) ImGui_ImplSDL2_ProcessEvent(&event);
+#else
+		ImGui_ImplSDL2_ProcessEvent(&event);
+#endif
+		if (event.type == SDL_QUIT) isRunning_ = false;
+		if (event.type == SDL_WINDOWEVENT)
+		{
+			if (event.window.event == SDL_WINDOWEVENT_RESIZED)
             {
                 logDebug(fmt::format("Windows resized with new size: ({},{})", 
                     event.window.data1, event.window.data2));
@@ -95,9 +89,12 @@ void SdlEngine::ManageEvent()
                 window_->OnResize(config_.windowSize);
             }
         }
+
         inputManager_.OnEvent(event);
         onEventAction_.Execute(event);
     }
+
+	if (ImGui::GetCurrentContext()) ImGui::GetIO().KeyMods = ImGui::GetMergedKeyModFlags();
 }
 
 void SdlEngine::GenerateUiFrame()

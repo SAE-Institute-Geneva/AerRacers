@@ -67,7 +67,7 @@ IncludeBlocks: Preserve
 IndentCaseBlocks: false
 IndentCaseLabels: true
 IndentGotoLabels: false
-IndentPPDirectives: BeforeHash
+IndentPPDirectives: None
 IndentWrappedFunctionNames: false
 KeepEmptyLinesAtTheStartOfBlocks: false
 MaxEmptyLinesToKeep: 1

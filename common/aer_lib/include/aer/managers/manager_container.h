@@ -1,14 +1,17 @@
 #pragma once
 #include "px/physics_engine.h"
+#include "px/rigidbody.h"
+#include "px/physics_engine.h"
+#ifdef NEKO_VULKAN
+#include "vk/material/material_manager.h"
+#endif
 
 #include "aer/managers/player_manager.h"
 #include "aer/managers/render_manager.h"
-#include "engine/transform.h"
-#include "px/rigidbody.h"
-#include "px/physics_engine.h"
 #include "aer/managers/ship_controller_manager.h"
 #include "aer/managers/camera_controller_manager.h"
 #include "aer/scene.h"
+#include "engine/transform.h"
 
 namespace neko::aer
 {
@@ -35,6 +38,10 @@ struct ResourceManagerContainer : public SystemInterface
 #ifdef NEKO_GLES3
 	gl::TextureManager textureManager;
 	gl::ModelManager modelManager;
+#else
+	vk::TextureManager textureManager;
+	vk::ModelManager modelManager;
+	vk::MaterialManager materialManager;
 #endif
 };
 
@@ -43,44 +50,44 @@ struct ComponentManagerContainer : public SystemInterface
     ComponentManagerContainer(AerEngine& engine, ResourceManagerContainer& rContainer,
         physics::PhysicsEngine& physicsEngine)
         : transform3dManager(entityManager),
-          renderManager(
-              entityManager,
-              rContainer.modelManager,
-              transform3dManager,
-              rendererViewer),
-          rigidDynamicManager(entityManager, transform3dManager, physicsEngine),
-          rigidStaticManager(entityManager, transform3dManager, physicsEngine),
-          playerManager(*this),
-          shipInputManager(playerManager),
-          shipControllerManager(
-              entityManager,
-              transform3dManager,
-              rigidDynamicManager,
-              rigidStaticManager,
-              physicsEngine,
-              shipInputManager,
-              playerManager),
-          cameraControllerManager(
-              entityManager,
-              transform3dManager,
-              rigidDynamicManager,
-              physicsEngine,
-              playerManager, engine),
-          transform3dViewer(entityManager, transform3dManager),
-          rendererViewer(entityManager, renderManager),
-          rigidDynamicViewer(
-              transform3dManager,
-              entityManager,
-              physicsEngine,
-              rigidDynamicManager),
-          rigidStaticViewer(
-              transform3dManager,
-              entityManager,
-              physicsEngine,
-              rigidStaticManager),
-          shipControllerViewer(entityManager, playerManager, shipControllerManager),
-          cameraControllerViewer(entityManager, playerManager, cameraControllerManager),
-          sceneManager(entityManager, *this)
+        renderManager(
+            entityManager,
+            rContainer.modelManager,
+            transform3dManager,
+            rendererViewer),
+        rigidDynamicManager(entityManager, transform3dManager, physicsEngine),
+        rigidStaticManager(entityManager, transform3dManager, physicsEngine),
+        playerManager(*this),
+        shipInputManager(playerManager),
+        shipControllerManager(
+            entityManager,
+            transform3dManager,
+            rigidDynamicManager,
+            rigidStaticManager,
+            physicsEngine,
+            shipInputManager,
+            playerManager),
+        cameraControllerManager(
+            entityManager,
+            transform3dManager,
+            rigidDynamicManager,
+            physicsEngine,
+            playerManager, engine),
+        transform3dViewer(entityManager, transform3dManager),
+        rendererViewer(entityManager, renderManager),
+        rigidDynamicViewer(
+            transform3dManager,
+            entityManager,
+            physicsEngine,
+            rigidDynamicManager),
+        rigidStaticViewer(
+            transform3dManager,
+            entityManager,
+            physicsEngine,
+            rigidStaticManager),
+        shipControllerViewer(entityManager, playerManager, shipControllerManager),
+        cameraControllerViewer(entityManager, playerManager, cameraControllerManager),
+        sceneManager(entityManager, *this)
     {
         physicsEngine.RegisterCollisionListener(shipControllerManager);
         physicsEngine.RegisterFixedUpdateListener(rigidDynamicManager);
@@ -91,41 +98,41 @@ struct ComponentManagerContainer : public SystemInterface
         physicsEngine.RegisterFixedUpdateListener(cameraControllerManager);
     }
 
-	void Init() override
-	{
-		transform3dManager.Init();
-		renderManager.Init();
-		shipControllerManager.Init();
-	}
+    void Init() override
+    {
+        transform3dManager.Init();
+        renderManager.Init();
+        shipControllerManager.Init();
+    }
 
-	void Update(seconds dt) override
-	{
-		transform3dManager.Update();
-		renderManager.Update(dt);
+    void Update(seconds dt) override
+    {
+        transform3dManager.Update();
+        renderManager.Update(dt);
         playerManager.Update(dt);
         shipControllerManager.Update(dt);
-		cameraControllerManager.Update(dt);
+        cameraControllerManager.Update(dt);
         shipInputManager.Update(dt);
-	}
+    }
 
-	void Destroy() override { renderManager.Destroy(); }
+    void Destroy() override { renderManager.Destroy(); }
 
-	EntityManager entityManager;
-	Transform3dManager transform3dManager;
+    EntityManager entityManager;
+    Transform3dManager transform3dManager;
     RenderManager renderManager;
     physics::RigidDynamicManager rigidDynamicManager;
     physics::RigidStaticManager rigidStaticManager;
     PlayerManager playerManager;
     ShipInputManager shipInputManager;
     ShipControllerManager shipControllerManager;
-	CameraControllerManager cameraControllerManager;
+    CameraControllerManager cameraControllerManager;
 
-	Transform3dViewer transform3dViewer;
+    Transform3dViewer transform3dViewer;
     RendererViewer rendererViewer;
     physics::RigidDynamicViewer rigidDynamicViewer;
     physics::RigidStaticViewer rigidStaticViewer;
-	ShipControllerViewer shipControllerViewer;
-	CameraControllerViewer cameraControllerViewer;
-	SceneManager sceneManager;
+    ShipControllerViewer shipControllerViewer;
+    CameraControllerViewer cameraControllerViewer;
+    SceneManager sceneManager;
 };
 }

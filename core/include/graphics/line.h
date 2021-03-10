@@ -27,6 +27,7 @@
 #include "color.h"
 #include "graphics.h"
 #include "shape.h"
+#include "engine/component.h"
 #include "graphics/line.h"
 #include "mathematics/vector.h"
 #include "graphics/graphics.h"

@@ -22,20 +22,18 @@
  SOFTWARE.
  */
 
-#include "gl/texture.h"
-#include "gl/gles3_include.h"
-
-#include "utils/file_utility.h"
-
 #include <sstream>
-#include <engine/log.h>
-#include <graphics/texture.h>
-#include <engine/engine.h>
-
-#include "ktx.h"
 
 #include <fmt/format.h>
+#include <ktx.h>
 
+#include "engine/engine.h"
+#include "engine/log.h"
+#include "graphics/texture.h"
+#include "utils/file_utility.h"
+
+#include "gl/gles3_include.h"
+#include "gl/texture.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"

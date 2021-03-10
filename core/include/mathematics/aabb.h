@@ -23,6 +23,8 @@
  SOFTWARE.
  */
 
+#include <array>
+
 #include "mathematics/vector.h"
 #include "matrix.h"
 #include "const.h"
@@ -445,7 +447,7 @@ struct Aabb2d
 
 	[[nodiscard]] bool DoIntersectRay(const Vec2f& dirRay, const Vec2f& origin) const
 	{
-		neko_assert(Vec2f(0, 0) != dirRay, "Null Ray Direction")
+		neko_assert(Vec2f(0, 0) != dirRay, "Null Ray Direction");
 
 		if (DoContainPoint(origin)) return true;
 		std::array<float, 4> touch {
@@ -562,7 +564,7 @@ struct Aabb3d
 
 	[[nodiscard]] bool DoIntersectRay(const Vec3f& dirRay, const Vec3f& origin) const
 	{
-		neko_assert(Vec3f(0, 0, 0) != dirRay, "Null Ray Direction")
+		neko_assert(Vec3f(0, 0, 0) != dirRay, "Null Ray Direction");;
 		if (DoContainPoint(origin)) return true;
 		std::array<float, 6> touch {
 			(lowerLeftBound.x - origin.x) / dirRay.x,

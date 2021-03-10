@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <sdl_engine/sdl_engine.h>
 #include <sdl_engine/sdl_input.h>
+#ifdef NEKO_GLES3
 #include <gl/gles3_window.h>
 #include <gl/graphics.h>
 
@@ -115,3 +116,4 @@ TEST(Tool, TestHierarchy)
 
 	simulateHierarchy.HasSucceed();
 }
+#endif
