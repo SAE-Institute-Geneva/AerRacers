@@ -14,8 +14,9 @@ void LightManager::SetShaderValues(gl::Shader& shader)
 {
 	std::uint64_t curOffset = 0;
 	const auto lights = entityManager_.get().FilterEntities(EntityMask(ComponentType::LIGHT));
-	const std::size_t lightNum = lights.size();
+	ResizeIfNecessary(components_, lights.back(), {});
 
+	const std::size_t lightNum = lights.size();
 	shader.SetUbo(sizeof(unsigned), curOffset, &lightNum, gl::kUboLightsBinding);
 	curOffset += sizeof(Vec4f); // OpenGL Uniform Blocks are spaced by multiple of 16 bytes
 	for (std::size_t i = 0; i < lightNum; ++i)
