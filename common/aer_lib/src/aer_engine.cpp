@@ -72,11 +72,11 @@ void AerEngine::Init()
 		} else {
 			cContainer_.sceneManager.LoadScene(
 				GetConfig().dataRootPath +
-					"scenes/test_leveldesign.aerscene");
-			cContainer_.playerManager.CreatePlayer(Vec3f(202.0f, 84.0f, 56.0f));
-			cContainer_.playerManager.CreatePlayer(Vec3f(192.0f, 84.0f, 56.0f));
-			cContainer_.playerManager.CreatePlayer(Vec3f(182.0f, 84.0f, 56.0f));
-			cContainer_.playerManager.CreatePlayer(Vec3f(172.0f, 84.0f, 56.0f));
+					"scenes/test_leveldesign_cube.aerscene");
+			cContainer_.playerManager.CreatePlayer(Vec3f(222.0f, 84.0f, 56.0f), EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
+			cContainer_.playerManager.CreatePlayer(Vec3f(202.0f, 84.0f, 56.0f), EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
+			cContainer_.playerManager.CreatePlayer(Vec3f(182.0f, 84.0f, 56.0f), EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
+			cContainer_.playerManager.CreatePlayer(Vec3f(162.0f, 84.0f, 56.0f), EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
 		}
 	}
 }

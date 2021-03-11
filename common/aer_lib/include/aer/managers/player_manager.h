@@ -63,8 +63,7 @@ using PlayerId = uint8_t;
 
 		virtual ~PlayerManager() = default;
 
-		PlayerId CreatePlayer(Vec3f pos);
-		PlayerId CreatePlayer(Vec3f pos, Vec3f spawnPos);
+		PlayerId CreatePlayer(Vec3f pos, EulerAngles euler = EulerAngles(degree_t(0.0f), degree_t(0.0f), degree_t(0.0f)));
 
 		PlayerComponent GetPlayerComponent(PlayerId playerId);
 		Entity GetShipEntity(PlayerId playerId);
