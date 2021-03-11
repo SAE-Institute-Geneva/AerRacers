@@ -44,8 +44,8 @@ public:
 	~VkResources();
 
 	/// Add a new material pipeline to the render queue
-	[[nodiscard]] MaterialPipeline& AddMaterialPipeline(const PipelineStage& pipelineStage,
-		const GraphicsPipelineCreateInfo& pipelineCreate) const;
+	[[nodiscard]] MaterialPipeline& AddMaterialPipeline(
+		const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate);
 
 	[[nodiscard]] RenderStage& GetRenderStage() const;
 	[[nodiscard]] const RenderPass& GetRenderPass() const;
@@ -54,14 +54,14 @@ public:
 
 	static VkResources* Inst;
 
-	sdl::VulkanWindow* vkWindow = nullptr;
+	std::unique_ptr<sdl::VulkanWindow> vkWindow = nullptr;
 
 	Instance instance;
 	Surface surface;
 	PhysicalDevice gpu;
 	LogicalDevice device;
 
-	std::unique_ptr<Swapchain> swapchain {};
+	Swapchain swapchain {};
 
 	ModelCommandBuffer modelCommandBuffer;
 
@@ -71,8 +71,8 @@ protected:
 	bool isFramebufferResized_ = false;
 
 	std::unique_ptr<IRenderer> renderer_ {};
-	std::vector<std::unique_ptr<CommandBuffer>> commandBuffers_ {};
-	std::map<std::thread::id, std::unique_ptr<CommandPool>> commandPools_ {};
+	std::vector<CommandBuffer> commandBuffers_ {};
+	std::map<std::thread::id, CommandPool> commandPools_ {};
 
 	std::uint32_t currentFrame_ = 0;
 	std::vector<VkFence> inFlightFences_ {};
@@ -81,10 +81,9 @@ protected:
 
 	std::map<StringHash, const IDescriptor&> attachments_ {};
 
-	std::unique_ptr<MaterialPipelineContainer> materialPipelineContainer_ =
-		std::make_unique<MaterialPipelineContainer>();
+	MaterialPipelineContainer materialPipelineContainer_ {};
 
-	std::unique_ptr<VkImGui> imgui_;
+	VkImGui imgui_;
 };
 
 inline VkResources* VkResources::Inst = nullptr;

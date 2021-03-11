@@ -41,12 +41,11 @@ VkRenderer::VkRenderer(sdl::VulkanWindow* window) : Renderer(), VkResources(wind
 	surface.SetFormat();
 	device.Init();
 
-	commandPools_.emplace(std::this_thread::get_id(), std::make_unique<CommandPool>());
+	commandPools_.emplace(std::this_thread::get_id(), CommandPool());
 
 	CreatePipelineCache();
 
-	if (!swapchain) swapchain = std::make_unique<Swapchain>();
-	swapchain->Init(*swapchain);
+	swapchain.Init(swapchain);
 }
 
 void VkRenderer::ClearScreen()
@@ -69,10 +68,10 @@ void VkRenderer::AfterRenderLoop()
 	{
 		ResetRenderStages();
 		renderer_->Start();
-		imgui_ = std::make_unique<VkImGui>();
+		imgui_.Init();
 	}
 
-	const VkResult res = swapchain->AcquireNextImage(
+	const VkResult res = swapchain.AcquireNextImage(
 		availableSemaphores_[currentFrame_], inFlightFences_[currentFrame_]);
 	if (res == VK_ERROR_OUT_OF_DATE_KHR)
 	{
@@ -99,7 +98,7 @@ void VkRenderer::AfterRenderLoop()
 			vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
 	}
 
-	imgui_->Render(commandBuffer);
+	imgui_.Render(commandBuffer);
 
 	EndRenderPass(renderStage);
 	stage.renderPassId++;
@@ -121,7 +120,7 @@ bool VkRenderer::StartRenderPass(RenderStage& renderStage)
 			&inFlightFences_[currentFrame_],
 			VK_TRUE,
 			std::numeric_limits<uint64_t>::max());
-		commandBuffers_[swapchain->GetCurrentImageIndex()]->Begin(
+		commandBuffers_[swapchain.GetCurrentImageIndex()].Begin(
 			VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
 	}
 
@@ -149,7 +148,7 @@ bool VkRenderer::StartRenderPass(RenderStage& renderStage)
 	renderPassInfo.sType                 = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass            = renderStage.GetRenderPass();
 	renderPassInfo.framebuffer =
-		renderStage.GetActiveFramebuffer(swapchain->GetCurrentImageIndex());
+		renderStage.GetActiveFramebuffer(swapchain.GetCurrentImageIndex());
 	renderPassInfo.renderArea      = renderArea;
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 	renderPassInfo.pClearValues    = clearValues.data();
@@ -171,20 +170,20 @@ void VkRenderer::EndRenderPass(const RenderStage& renderStage)
 		finishedSemaphores_[currentFrame_],
 		inFlightFences_[currentFrame_]);
 
-	const VkResult res = swapchain->QueuePresent(presentQueue, finishedSemaphores_[currentFrame_]);
+	const VkResult res = swapchain.QueuePresent(presentQueue, finishedSemaphores_[currentFrame_]);
 	vkCheckError(res, "Failed to presents swapchain image");
 
 	if (res == VK_ERROR_OUT_OF_DATE_KHR || res == VK_SUBOPTIMAL_KHR) isFramebufferResized_ = true;
-	currentFrame_ = (currentFrame_ + 1) % swapchain->GetImageCount();
+	currentFrame_ = (currentFrame_ + 1) % swapchain.GetImageCount();
 }
 
 void VkRenderer::ResetRenderStages()
 {
 	RecreateSwapChain();
 
-	if (inFlightFences_.size() != swapchain->GetImageCount()) RecreateCommandBuffers();
+	if (inFlightFences_.size() != swapchain.GetImageCount()) RecreateCommandBuffers();
 
-	renderer_->GetRenderStage().Rebuild(*swapchain);
+	renderer_->GetRenderStage().Rebuild(swapchain);
 
 	RecreateAttachments();
 }
@@ -195,12 +194,11 @@ void VkRenderer::RecreateSwapChain()
 
 	vkDeviceWaitIdle(VkDevice(device));
 
-	if (!swapchain) swapchain = std::make_unique<Swapchain>();
-	swapchain->Init(*swapchain);
+	swapchain.Init(swapchain);
 
 	RecreateCommandBuffers();
 
-	if (imgui_) imgui_->OnWindowResize();
+	if (ImGui::GetCurrentContext()) imgui_.OnWindowResize();
 }
 
 void VkRenderer::RecreateCommandBuffers()
@@ -212,12 +210,12 @@ void VkRenderer::RecreateCommandBuffers()
 		vkDestroySemaphore(device, finishedSemaphores_[i], nullptr);
 	}
 
-	const std::size_t imageCount = swapchain->GetImageCount();
+	const std::size_t imageCount = swapchain.GetImageCount();
 	availableSemaphores_.resize(imageCount);
 	finishedSemaphores_.resize(imageCount);
 	inFlightFences_.resize(imageCount);
 	commandBuffers_.clear();
-	commandBuffers_.resize(imageCount);
+	commandBuffers_.reserve(imageCount);
 
 	VkSemaphoreCreateInfo semaphoreInfo {};
 	semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -236,7 +234,7 @@ void VkRenderer::RecreateCommandBuffers()
 		res = vkCreateFence(device, &fenceInfo, nullptr, &inFlightFences_[i]);
 		vkCheckError(res, "Could not create fence!");
 
-		commandBuffers_[i] = std::make_unique<CommandBuffer>(false);
+		commandBuffers_.emplace_back(false);
 	}
 }
 
@@ -249,12 +247,12 @@ void VkRenderer::RecreatePass(RenderStage& renderStage)
 	vkQueueWaitIdle(graphicQueue);
 
 	if (renderStage.HasSwapchain() &&
-		(isFramebufferResized_ || !swapchain->CompareExtent(displayExtent)))
+		(isFramebufferResized_ || !swapchain.CompareExtent(displayExtent)))
 	{
 		RecreateSwapChain();
 	}
 
-	renderStage.Rebuild(*swapchain);
+	renderStage.Rebuild(swapchain);
 	RecreateAttachments();
 }
 
@@ -283,7 +281,10 @@ void VkRenderer::RenderAll()
 	AfterRenderLoop();
 }
 
-void VkRenderer::SetWindow(sdl::VulkanWindow* window) { vkWindow = window; }
+void VkRenderer::SetWindow(std::unique_ptr<sdl::VulkanWindow> window)
+{
+	vkWindow = std::move(window);
+}
 
 void VkRenderer::SetRenderer(std::unique_ptr<IRenderer>&& newRenderer)
 {

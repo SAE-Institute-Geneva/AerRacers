@@ -6,8 +6,7 @@ MaterialPipeline::MaterialPipeline(
 	PipelineStage pipelineStage, GraphicsPipelineCreateInfo pipelineCreate)
    : pipelineStage_(pipelineStage),
 	 pipelineGraphicsCreate_(std::move(pipelineCreate)),
-	 renderStage_(std::nullopt),
-	 pipeline_(nullptr)
+	 renderStage_(std::nullopt)
 {}
 
 MaterialPipeline& MaterialPipeline::CreateMaterialPipeline(
@@ -23,10 +22,10 @@ bool MaterialPipeline::BindPipeline(const CommandBuffer& commandBuffer)
 	{
 		renderStage_.emplace(renderStage);
 
-		pipeline_ = std::make_unique<GraphicsPipeline>(pipelineStage_, pipelineGraphicsCreate_);
+		pipeline_ = GraphicsPipeline(pipelineStage_, pipelineGraphicsCreate_);
 	}
 
-	pipeline_->BindPipeline(commandBuffer);
+	pipeline_.BindPipeline(commandBuffer);
 	return true;
 }
 }    // namespace neko::vk
