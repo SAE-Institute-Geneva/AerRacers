@@ -55,6 +55,7 @@ public:
 		READ_WRITE = READ | WRITE
 	};
 
+	GraphicsPipeline() = default;
 	GraphicsPipeline(const PipelineStage& stage, const GraphicsPipelineCreateInfo& createInfo);
 	GraphicsPipeline(const PipelineStage& stage,
 		std::string_view shaderPath,
@@ -138,7 +139,8 @@ private:
 
 struct GraphicsPipelineCreateInfo
 {
-	explicit GraphicsPipelineCreateInfo(std::string_view shaderPath,
+	GraphicsPipelineCreateInfo() = default;
+	GraphicsPipelineCreateInfo(std::string_view shaderPath,
 		std::vector<VertexInput> vertexInputs = {},
 		GraphicsPipeline::Mode mode           = GraphicsPipeline::POLYGON,
 		GraphicsPipeline::Depth depth         = GraphicsPipeline::READ_WRITE,
@@ -157,18 +159,18 @@ struct GraphicsPipelineCreateInfo
 
 	bool operator!=(const GraphicsPipelineCreateInfo& other) const { return !(*this == other); }
 
-	std::vector<std::string> shaderStages;
-	std::vector<VertexInput> vertexInputs;
+	std::vector<std::string> shaderStages {};
+	std::vector<VertexInput> vertexInputs {};
 
-	bool isPushDescriptor;
+	bool isPushDescriptor {};
 
-	GraphicsPipeline::Mode mode;
-	GraphicsPipeline::Depth depth;
-	VkPrimitiveTopology topology;
-	VkPolygonMode polygonMode;
-	VkCullModeFlags cullMode;
-	VkFrontFace frontFace;
+	GraphicsPipeline::Mode mode {};
+	GraphicsPipeline::Depth depth {};
+	VkPrimitiveTopology topology {};
+	VkPolygonMode polygonMode {};
+	VkCullModeFlags cullMode {};
+	VkFrontFace frontFace {};
 
-	ordered_json shaderJson;
+	ordered_json shaderJson {};
 };
 }    // namespace neko::vk

@@ -1,3 +1,6 @@
+
+#include <vk/vk_imgui.h>
+
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_vulkan.h"
 
@@ -5,7 +8,7 @@
 
 namespace neko::vk
 {
-VkImGui::VkImGui()
+void VkImGui::Init()
 {
 	const VkResources* vkObj = VkResources::Inst;
 
@@ -61,7 +64,7 @@ VkImGui::VkImGui()
 	initInfo.DescriptorPool            = descriptorPool_;
 	initInfo.Allocator                 = nullptr;
 	initInfo.MinImageCount             = surfaceCapabilities.minImageCount;
-	initInfo.ImageCount                = vkObj->swapchain->GetImageCount();
+	initInfo.ImageCount                = vkObj->swapchain.GetImageCount();
 	initInfo.CheckVkResultFn           = nullptr;
 	ImGui_ImplVulkan_Init(&initInfo, vkObj->GetRenderPass());
 
@@ -91,8 +94,6 @@ VkImGui::VkImGui()
 	ImGui_ImplSDL2_NewFrame(vkObj->vkWindow->GetWindow());
 	ImGui::NewFrame();
 }
-
-VkImGui::~VkImGui() { Destroy(); }
 
 void VkImGui::Destroy() const
 {
