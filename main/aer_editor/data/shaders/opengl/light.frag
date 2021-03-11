@@ -28,15 +28,14 @@ struct Material
 };
 uniform Material material;
 
-struct Light 
+struct Light
 {
-    vec3 position;
-    vec3 diffuse;
-    vec3 ambient;
-    
-    float intensity;
-    float radius;
-    float specular;
+	vec3 position;
+	vec3 diffuse;
+
+	float specular;
+	float intensity;
+	float radius;
 };
 
 layout (std140, binding = 1) uniform Lights
@@ -129,7 +128,7 @@ vec3 CalcPointLight(int index)
     	
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
-	vec3 specular = vec3(lights[index].specular) * spec;
+	vec3 specular = lights[index].diffuse * lights[index].specular * spec;
  	if (bool(usedMaps & Specular)) specular *= vec3(texture(material.specular, fs1_in.TexCoords).r);
  
     float attenuation = clamp(lights[index].radius / distance, 0.0, 1.0) * lights[index].intensity;
@@ -161,7 +160,7 @@ void main()
 	//    break;
 	//}
 
-	vec3 lighting = lights[0].ambient * texture(material.diffuse, fs1_in.TexCoords).rgb;
+	vec3 lighting = 0.2 * texture(material.diffuse, fs1_in.TexCoords).rgb;
 	vec3 viewDir = normalize(viewPos - fs2_in.TangentFragPos);
 	if (lightNum != 0u)
 	{

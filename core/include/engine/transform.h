@@ -64,6 +64,7 @@ class Scale3dManager : public ComponentManager<Vec3f, EntityMask(ComponentType::
 {
 public:
 	using ComponentManager::ComponentManager;
+
 	void AddComponent(Entity entity) override;
 };
 
@@ -167,28 +168,29 @@ protected:
 class Transform3dViewer : public ComponentViewer
 {
 public:
-    explicit Transform3dViewer(
-        EntityManager& entityManager, Transform3dManager& transform3dManager);
+	explicit Transform3dViewer(
+		EntityManager& entityManager, Transform3dManager& transform3dManager);
 
-    virtual ~Transform3dViewer() = default;
+	virtual ~Transform3dViewer() = default;
 
-    /**
+	/**
      * \brief Get a json object of the component of an entity
      * \return json object with component parameter
      */
-    json GetJsonFromComponent(Entity entity) const override;
+	json GetJsonFromComponent(Entity entity) const override;
 
-    /**
+	/**
      * \brief Set a component of an entity from a json of the component
      * \componentJson json object with component parameter
      */
-    void SetComponentFromJson(Entity entity, const json& jsonComponent) override;
+	void SetComponentFromJson(Entity entity, const json& jsonComponent) override;
 
-    /**
+	/**
      * \brief Draw the Imgui with the component parameter of an entity
      */
-    void DrawImGui(Entity entity) override;
-private :
-    Transform3dManager& transform3dManager_;
+	void DrawImGui(Entity entity) override;
+
+private:
+	Transform3dManager& transform3dManager_;
 };
 }    // namespace neko

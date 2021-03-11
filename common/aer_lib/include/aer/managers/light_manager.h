@@ -42,13 +42,11 @@ public:
 #endif
 
 	[[nodiscard]] float GetRadius(Entity e) const { return components_[e].radius; }
-	[[nodiscard]] const Vec3f& GetAmbient(Entity e) const { return components_[e].ambient; }
 	[[nodiscard]] const Vec3f& GetDiffuse(Entity e) const { return components_[e].diffuse; }
 	[[nodiscard]] float GetSpecular(Entity e) const { return components_[e].specular; }
 	[[nodiscard]] float GetIntensity(Entity e) const { return components_[e].intensity; }
 
 	void SetRadius(Entity e, float radius) { components_[e].radius = radius; }
-	void SetAmbient(Entity e, Vec3f ambient) { components_[e].ambient = ambient; }
 	void SetDiffuse(Entity e, Vec3f diffuse) { components_[e].diffuse = diffuse; }
 	void SetSpecular(Entity e, float specular) { components_[e].specular = specular; }
 	void SetIntensity(Entity e, float intensity) { components_[e].intensity = intensity; }

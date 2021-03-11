@@ -37,11 +37,10 @@ struct Light
 {
     vec3 position;
     vec3 diffuse;
-    vec3 ambient;
 
+    float specular;
     float intensity;
     float radius;
-    float specular;
 };
 
 layout (std140, binding = 1) uniform Lights

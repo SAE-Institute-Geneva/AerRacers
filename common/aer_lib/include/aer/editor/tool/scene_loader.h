@@ -38,8 +38,10 @@ class SceneLoader final : public EditorToolInterface, public physics::FixedUpdat
 {
 public:
 	explicit SceneLoader(AerEngine& engine, ToolType type, int id, std::string_view name);
+
 	void Init() override;
 	void Update(seconds dt) override;
+
 	void DrawImGui() override;
 	void LoadSceneFiles();
 	void Destroy() override;
