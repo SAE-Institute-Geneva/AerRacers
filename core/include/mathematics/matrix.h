@@ -22,9 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+#include <array>
 
 #include "basic.h"
-#include "engine/assert.h"
 #include "engine/intrinsincs.h"
 #include "mathematics/angle.h"
 #include "mathematics/trigo.h"

@@ -95,7 +95,7 @@ void ModelObj::ProcessModel()
 		if (it != meshes_.end()) mesh.name_ = it->name_ + "_0";
 		else mesh.name_ = meshName;
 
-		if (!shape.mesh.material_ids.empty())
+		if (!shape.mesh.material_ids.empty() && shape.mesh.material_ids[0] != -1)
 		{
 			const tinyobj::material_t mat = materials[shape.mesh.material_ids[0]];
 			mesh.diffuse_ = {mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]};
@@ -119,6 +119,8 @@ void ModelObj::ProcessModel()
 		auto maxExtents = Vec3f(std::numeric_limits<float>::min(),
 			std::numeric_limits<float>::min(),
 			std::numeric_limits<float>::min());
+
+		std::vector<VertexObj> vertices(attrib.vertices.size() / 3);
 		std::unordered_map<VertexObj, std::size_t> uniqueVertices;
 		for (const auto& index : shape.mesh.indices)
 		{
@@ -156,25 +158,30 @@ void ModelObj::ProcessModel()
 
 		mesh.aabb_.lowerLeftBound  = minExtents;
 		mesh.aabb_.upperRightBound = maxExtents;
-		for(std::size_t i = 0; i < mesh.vertices_.size(); i+=3)
+		for(std::size_t i = 0; i < mesh.indices_.size(); i+=3)
 		{
-			const Vec3f edge1    = mesh.vertices_[i + 1].position - mesh.vertices_[i].position;
-			const Vec3f edge2    = mesh.vertices_[i + 2].position - mesh.vertices_[i].position;
-			const Vec2f deltaUv1 = mesh.vertices_[i + 1].texCoords - mesh.vertices_[i].texCoords;
-			const Vec2f deltaUv2 = mesh.vertices_[i + 2].texCoords - mesh.vertices_[i].texCoords;
+			if (i + 2 >= mesh.indices_.size()) break;
+
+			const unsigned index  = mesh.indices_[i];
+			const unsigned index1 = mesh.indices_[i + 1];
+			const unsigned index2 = mesh.indices_[i + 2];
+			const Vec3f edge1    = mesh.vertices_[index1].position -  mesh.vertices_[index].position;
+			const Vec3f edge2    = mesh.vertices_[index2].position -  mesh.vertices_[index].position;
+			const Vec2f deltaUv1 = mesh.vertices_[index1].texCoords - mesh.vertices_[index].texCoords;
+			const Vec2f deltaUv2 = mesh.vertices_[index2].texCoords - mesh.vertices_[index].texCoords;
 
 			const float f = 1.0f / (deltaUv1.u * deltaUv2.v - deltaUv2.u * deltaUv1.v);
-			mesh.vertices_[i].tangent.x   = f * (deltaUv2.v * edge1.x - deltaUv1.v * edge2.x);
-			mesh.vertices_[i].tangent.y   = f * (deltaUv2.v * edge1.y - deltaUv1.v * edge2.y);
-			mesh.vertices_[i].tangent.z   = f * (deltaUv2.v * edge1.z - deltaUv1.v * edge2.z);
-			mesh.vertices_[i + 1].tangent = mesh.vertices_[i].tangent;
-			mesh.vertices_[i + 2].tangent = mesh.vertices_[i].tangent;
+			mesh.vertices_[index].tangent.x   = f * (deltaUv2.v * edge1.x - deltaUv1.v * edge2.x);
+			mesh.vertices_[index].tangent.y   = f * (deltaUv2.v * edge1.y - deltaUv1.v * edge2.y);
+			mesh.vertices_[index].tangent.z   = f * (deltaUv2.v * edge1.z - deltaUv1.v * edge2.z);
+			mesh.vertices_[index1].tangent = mesh.vertices_[index].tangent;
+			mesh.vertices_[index2].tangent = mesh.vertices_[index].tangent;
 
-			mesh.vertices_[i].bitangent.x   = f * (-deltaUv2.x * edge1.x + deltaUv1.x * edge2.x);
-			mesh.vertices_[i].bitangent.y   = f * (-deltaUv2.x * edge1.y + deltaUv1.x * edge2.y);
-			mesh.vertices_[i].bitangent.z   = f * (-deltaUv2.x * edge1.z + deltaUv1.x * edge2.z);
-			mesh.vertices_[i + 1].bitangent = mesh.vertices_[i].bitangent;
-			mesh.vertices_[i + 2].bitangent = mesh.vertices_[i].bitangent;
+			mesh.vertices_[index].bitangent.x   = f * (-deltaUv2.x * edge1.x + deltaUv1.x * edge2.x);
+			mesh.vertices_[index].bitangent.y   = f * (-deltaUv2.x * edge1.y + deltaUv1.x * edge2.y);
+			mesh.vertices_[index].bitangent.z   = f * (-deltaUv2.x * edge1.z + deltaUv1.x * edge2.z);
+			mesh.vertices_[index1].bitangent = mesh.vertices_[index].bitangent;
+			mesh.vertices_[index2].bitangent = mesh.vertices_[index].bitangent;
 		}
 	}
 
@@ -189,7 +196,7 @@ void ModelObj::LoadMaterialTextures(
 	texture.type         = textureType;
 	texture.sName        = matName;
 
-	texture.textureId = textureManager.LoadTexture(directory_ + matName.data());
+    texture.textureId = textureManager.LoadTexture(directory_ + matName.data());
 }
 
 size_t ModelObj::GetMeshId(const MeshObj& mesh) const

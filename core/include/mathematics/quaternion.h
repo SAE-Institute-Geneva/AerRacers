@@ -22,12 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <engine/component.h>
-
+#include "engine/component.h"
 #include "mathematics/matrix.h"
 #include "mathematics/trigo.h"
+#include "mathematics/const.h"
 #include "mathematics/vector.h"
-#include <engine/log.h>
+#include "engine/log.h"
 
 namespace neko
 {
@@ -186,7 +186,7 @@ struct Quaternion
         // pitch (y-axis rotation)
         float sinp = 2.0f * (q.w * q.y - q.z * q.x);
         if (std::abs(sinp) >= 1)
-            angles.y = radian_t(std::copysign(M_PI / 2, sinp));    // use 90 degrees if out of range
+            angles.y = radian_t(std::copysign(PI / 2, sinp));    // use 90 degrees if out of range
         else
             angles.y = Asin(sinp);
 
