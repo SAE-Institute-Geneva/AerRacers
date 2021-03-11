@@ -79,10 +79,11 @@ template<typename T, EntityMask componentType>
 class ComponentManager
 {
 public:
-	explicit ComponentManager(EntityManager& entityManager) : entityManager_(entityManager)
+	explicit ComponentManager(EntityManager& entityManager, const T& defaultValue = T {})
+	   : entityManager_(entityManager)
 	{
 		entityManager_.get().RegisterComponentManager(*this);
-		ResizeIfNecessary(components_, INIT_ENTITY_NMB - 1, T {});
+		ResizeIfNecessary(components_, INIT_ENTITY_NMB - 1, defaultValue);
 	}
 
 	virtual ~ComponentManager() = default;

@@ -28,6 +28,7 @@ SceneManager::SceneManager(
 
 void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 {
+	// Transform
 	if (CheckJsonParameter(componentJson, "transform", json::value_t::object))
 	{
 		if (CheckJsonParameter(componentJson["transform"], "exist", json::value_t::boolean))
@@ -41,6 +42,7 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 		}
 	}
 
+	// Rigidbody
 	if (CheckJsonParameter(componentJson, "rigidbody", json::value_t::object))
 	{
 		if (CheckJsonParameter(componentJson["rigidbody"], "exist", json::value_t::boolean))
@@ -65,18 +67,7 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 		}
 	}
 
-	if (CheckJsonParameter(componentJson, "shipControl", json::value_t::object))
-	{
-		if (CheckJsonParameter(componentJson["shipControl"], "exist", json::value_t::boolean))
-		{
-			if (componentJson["shipControl"]["exist"])
-			{
-				//transformManager_.AddComponent(entity);
-				//transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
-			}
-		}
-	}
-
+	// Model
 	if (CheckJsonParameter(componentJson, "modelRenderer", json::value_t::object))
 	{
 		if (CheckJsonParameter(componentJson["modelRenderer"], "exist", json::value_t::boolean))
@@ -89,10 +80,38 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 			}
 		}
 	}
+
+	// Light
+	if (CheckJsonParameter(componentJson, "light", json::value_t::object))
+	{
+		if (CheckJsonParameter(componentJson["light"], "exist", json::value_t::boolean))
+		{
+			if (componentJson["light"]["exist"])
+			{
+				componentManagerContainer_.lightManager.AddComponent(entity);
+				componentManagerContainer_.lightViewer.SetComponentFromJson(
+					entity, componentJson["light"]);
+			}
+		}
+	}
+
+	// Ship Values
+	if (CheckJsonParameter(componentJson, "shipControl", json::value_t::object))
+	{
+		if (CheckJsonParameter(componentJson["shipControl"], "exist", json::value_t::boolean))
+		{
+			if (componentJson["shipControl"]["exist"])
+			{
+				//transformManager_.AddComponent(entity);
+				//transformManager_.SetComponentFromJson(entity, componentJson["transform"]);
+			}
+		}
+	}
 }
 
 void SceneManager::ParseEntityJson(const json& entityJson)
 {
+	// Entity values
 	Entity entity = entityManager_.CreateEntity();
 	if (CheckJsonParameter(entityJson, "name", json::value_t::string))
 	{
@@ -134,33 +153,21 @@ void SceneManager::ParseEntityJson(const json& entityJson)
 void SceneManager::ParseSceneJson(const json& sceneJson)
 {
 	if (CheckJsonParameter(sceneJson, "name", json::value_t::string))
-	{
 		currentScene_.sceneName = sceneJson["name"];
-	}
 	else
-	{
 		currentScene_.sceneName = "New Scene";
-	}
 
 	if (CheckJsonParameter(sceneJson, "tags", json::value_t::array))
-	{
 		for (auto& tag : sceneJson["tags"])
-		{
-			if (!TagExist(tag)) { AddTag(tag); }
-		}
-	}
+			if (!TagExist(tag)) AddTag(tag);
 
 	if (CheckJsonParameter(sceneJson, "layers", json::value_t::array))
-	{
 		for (auto& layer : sceneJson["layers"])
-		{
-			if (!LayerExist(layer)) { AddLayer(layer); }
-		}
-	}
+			if (!LayerExist(layer)) AddLayer(layer);
 
 	if (CheckJsonParameter(sceneJson, "objects", json::value_t::array))
 	{
-		for (auto& entityJson : sceneJson["objects"]) { ParseEntityJson(entityJson); }
+		for (auto& entityJson : sceneJson["objects"]) ParseEntityJson(entityJson);
 		for (Entity entity = 0; entity < entityInstanceIdArray_.size(); ++entity)
 		{
 			InstanceId parentInstanceId = entityParentInstanceIdArray_[entity];
@@ -213,6 +220,7 @@ void SceneManager::SaveCurrentScene()
 
 json SceneManager::WriteEntityJson(Entity entity) const
 {
+	// Entity information
 	json entityJson = json::object();
 	//entity["name"] = TODO(@Luca) Implement name
 	entityJson["tag"]        = TagLocator::get().GetEntityTag(entity);
@@ -220,36 +228,49 @@ json SceneManager::WriteEntityJson(Entity entity) const
 	entityJson["parent"]     = entityManager_.GetEntityParent(entity);
 	entityJson["layer"]      = TagLocator::get().GetEntityLayer(entity);
 	//entityJson["isActive"] = TagLocator::get().GetEntityTag(entity);  //TODO (@Luca) Set active
+
+	// Transform
 	entityJson["transform"] = json::object();
 	entityJson["transform"] =
 		componentManagerContainer_.transform3dViewer.GetJsonFromComponent(entity);
 	entityJson["transform"]["exist"] =
 		entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
+
+	// Rigidbodies
 	entityJson["rigidbody"] = json::object();
 	if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC)))
-	{
 		entityJson["rigidbody"] =
 			componentManagerContainer_.rigidStaticViewer.GetJsonFromComponent(entity);
-	}
 	else if (entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC)))
-	{
 		entityJson["rigidbody"] =
 			componentManagerContainer_.rigidDynamicViewer.GetJsonFromComponent(entity);
-	}
+
 	entityJson["rigidbody"]["exist"] =
 		entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC)) ||
 		entityManager_.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC));
+
+	// Models
+	entityJson["modelRenderer"] = json::object();
+	entityJson["modelRenderer"] =
+		componentManagerContainer_.rendererViewer.GetJsonFromComponent(entity);
+	entityJson["modelRenderer"]["exist"] =
+		entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL));
+
+	// Lights
+	entityJson["light"] = json::object();
+	entityJson["light"] =
+		componentManagerContainer_.lightViewer.GetJsonFromComponent(entity);
+	entityJson["light"]["exist"] =
+		entityManager_.HasComponent(entity, EntityMask(ComponentType::LIGHT));
+
+	// Ship Variables
 	//entityJson["shipControl"] = json::object();
 	//entityJson["shipControl"] = transformManager_.GetJsonFromComponent(entity);
 	//entityJson["shipControl"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
 	//entityJson["shipRotation"] = json::object();
 	//entityJson["shipRotation"] = transformManager_.GetJsonFromComponent(entity);
 	//entityJson["shipRotation"]["exist"] = entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D));
-	entityJson["modelRenderer"] = json::object();
-	entityJson["modelRenderer"] =
-		componentManagerContainer_.rendererViewer.GetJsonFromComponent(entity);
-	entityJson["modelRenderer"]["exist"] =
-		entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL));
+
 	return entityJson;
 }
 

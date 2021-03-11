@@ -89,14 +89,13 @@ void Inspector::DisplayComponentViewer(ComponentViewer& viewer, Entity entity, C
 
 void Inspector::DisplayLayersAndTags(Entity selectedEntity)
 {
-	const auto& tagManager = TagLocator::get();
-
 	//Tags
+	auto& tagManager = TagLocator::get();
 	currentTag_ = tagManager.GetEntityTagIndex(selectedEntity);
 	std::vector<std::string> tags = engine_.GetComponentManagerContainer().sceneManager.GetTags();
 	if (ImGui::Combo("Tag", &currentTag_, &tags))
 	{
-		TagLocator::get().SetEntityTag(selectedEntity, tags[currentTag_]);
+		tagManager.SetEntityTag(selectedEntity, tags[currentTag_]);
 	}
 
 	// Context Menu
@@ -122,7 +121,7 @@ void Inspector::DisplayLayersAndTags(Entity selectedEntity)
 		engine_.GetComponentManagerContainer().sceneManager.GetLayers();
 	if (ImGui::Combo("Layer", &currentLayer_, &layers))
 	{
-		TagLocator::get().SetEntityLayer(selectedEntity, layers[currentLayer_]);
+		tagManager.SetEntityLayer(selectedEntity, layers[currentLayer_]);
 	}
 
 	// Context Menu
@@ -164,11 +163,21 @@ void Inspector::DisplayNewComponentButtons(Entity selectedEntity)
 			if (ImGui::MenuItem(componentName))
 			{
 				if (component == ComponentType::RIGID_DYNAMIC)
+				{
 					rigidDynamicManager_.AddRigidDynamic(selectedEntity, {});
+				}
 				else if (component == ComponentType::RIGID_STATIC)
+				{
 					rigidStaticManager_.AddRigidStatic(selectedEntity, {});
+				}
 				else
+				{
 					entityManager_.AddComponentType(selectedEntity, (EntityMask) component);
+
+					auto& tagManager = TagLocator::get();
+					tagManager.SetEntityTag(selectedEntity, 0);
+					tagManager.SetEntityLayer(selectedEntity, 0);
+				}
 			}
 		}
 

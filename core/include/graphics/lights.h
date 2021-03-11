@@ -31,14 +31,17 @@
 namespace neko
 {
 constexpr std::uint8_t kMaxLights = 32;
+
+/// An interface for each light type <br>
+/// Is useless on its own
 struct Light
 {
-	Vec3f ambient   = Vec3f(0.2f);
 	Vec3f diffuse   = Vec3f::one;
 	float specular  = 1.0f;
 	float intensity = 1.0f;
 };
 
+/// A basic light with infinite radius
 struct BasicLight : Light
 {
 	BasicLight() = default;
@@ -47,6 +50,7 @@ struct BasicLight : Light
 	Vec3f position = Vec3f::zero;
 };
 
+/// A point light with finite radius
 struct PointLight : BasicLight
 {
 	PointLight() = default;
@@ -55,14 +59,21 @@ struct PointLight : BasicLight
 	float radius = 10.0f;
 };
 
+/// A directional light with infinite range <br>
+/// Represents the sun in most use cases
 struct DirectionalLight : Light
 {
+	static DirectionalLight* Instance; // We only want one directional light in the scene
+
 	DirectionalLight() = default;
-	explicit DirectionalLight(const Vec3f& dir) : direction(dir) {}
+	explicit DirectionalLight(const Vec3f& dir) : direction(dir) { Instance = this; }
 
 	Vec3f direction = Vec3f::down;
 };
+inline DirectionalLight* DirectionalLight::Instance = nullptr;
 
+/// A spot light with finite range <br>
+/// Only lights object in a certain area
 struct SpotLight : PointLight
 {
 	SpotLight() = default;

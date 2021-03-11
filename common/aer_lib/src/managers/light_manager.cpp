@@ -27,18 +27,15 @@ void LightManager::SetShaderValues(gl::Shader& shader)
 		curOffset += sizeof(Vec4f);
 
 		shader.SetUbo(sizeof(Vec3f), curOffset, &components_[e].diffuse, gl::kUboLightsBinding);
-		curOffset += sizeof(Vec4f);
-
-		shader.SetUbo(sizeof(Vec3f), curOffset, &components_[e].ambient, gl::kUboLightsBinding);
 		curOffset += sizeof(Vec3f);
+
+		shader.SetUbo(sizeof(float), curOffset, &components_[e].specular, gl::kUboLightsBinding);
+		curOffset += sizeof(float);
 
 		shader.SetUbo(sizeof(float), curOffset, &components_[e].intensity, gl::kUboLightsBinding);
 		curOffset += sizeof(float);
 
 		shader.SetUbo(sizeof(float), curOffset, &components_[e].radius, gl::kUboLightsBinding);
-		curOffset += sizeof(float);
-
-		shader.SetUbo(sizeof(float), curOffset, &components_[e].specular, gl::kUboLightsBinding);
 		curOffset += sizeof(float);
 
 		const std::uint8_t mod = curOffset % 16;
@@ -61,11 +58,10 @@ void LightViewer::DrawImGui(Entity entity)
 		{
 			PointLight light = lightManager_.GetComponent(entity);
 			DragFloat3("Diffuse", &light.diffuse[0], LabelPos::LEFT, 0.05f, 0.0f, 1.0f);
-			DragFloat3("Ambient", &light.ambient[0], LabelPos::LEFT, 0.05f, 0.0f, 1.0f);
 
+			DragFloat("Specular", &light.specular, LabelPos::LEFT, 0.05f, 0.0f, 1.0f);
 			DragFloat("Intensity", &light.intensity, LabelPos::LEFT, 0.05f, 0.0f, 1000.0f);
 			DragFloat("Radius", &light.radius, LabelPos::LEFT, 0.05f, 0.0f, 1000.0f);
-			DragFloat("Specular", &light.specular, LabelPos::LEFT, 0.05f, 0.0f, 1.0f);
 
 			lightManager_.SetComponent(entity, light);
 			TreePop();
@@ -81,11 +77,10 @@ json LightViewer::GetJsonFromComponent(Entity entity) const
 		if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
 		{
 			component["diffuse"] = GetJsonFromVector3(lightManager_.GetDiffuse(entity));
-			component["ambient"] = GetJsonFromVector3(lightManager_.GetAmbient(entity));
 
+			component["specular"]  = lightManager_.GetSpecular(entity);
 			component["intensity"] = lightManager_.GetIntensity(entity);
 			component["radius"]    = lightManager_.GetRadius(entity);
-			component["specular"]  = lightManager_.GetSpecular(entity);
 		}
 	}
 
@@ -96,11 +91,10 @@ void LightViewer::SetComponentFromJson(Entity entity, const json& jsonComponent)
 {
 	PointLight light;
 	light.diffuse = GetVector3FromJson(jsonComponent, "diffuse");
-	light.ambient = GetVector3FromJson(jsonComponent, "ambient");
 
+	light.specular  = jsonComponent["specular"];
 	light.intensity = jsonComponent["intensity"];
 	light.radius    = jsonComponent["radius"];
-	light.specular  = jsonComponent["specular"];
 
 	lightManager_.SetComponent(entity, light);
 }
