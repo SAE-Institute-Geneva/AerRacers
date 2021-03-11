@@ -39,12 +39,6 @@ public:
 	explicit DescriptorHandle(const Pipeline& pipeline);
 	void Destroy() const;
 
-	DescriptorHandle(const DescriptorHandle& other);
-	DescriptorHandle(DescriptorHandle&& other) noexcept;
-
-	DescriptorHandle& operator=(const DescriptorHandle& other);
-	DescriptorHandle& operator=(DescriptorHandle&& other) noexcept;
-
 	template <typename T>
     static T* AsPtr(T& obj) { return &obj; }
 
@@ -124,9 +118,7 @@ private:
     bool pushDescriptor_ = false;
     bool changed_ = false;
 
-    //TODO Remove the unique_ptr
-    std::unique_ptr<DescriptorSet> descriptorSet_ = nullptr;
-
+    std::optional<DescriptorSet> descriptorSet_ = std::nullopt;
     std::map<StringHash, DescriptorValue> descriptor_;
     std::vector<VkWriteDescriptorSet> writeDescriptorSets_;
 };

@@ -86,8 +86,7 @@ void ModelLoader::Update()
 
 void ModelLoader::LoadModel()
 {
-	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
-	std::uint32_t sceneFlags    = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
+	std::uint32_t sceneFlags = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
 	                           aiProcess_CalcTangentSpace | aiProcess_GenBoundingBoxes;
 	scene_ = importer_.ReadFile(path_, sceneFlags);
 	if (!scene_ || scene_->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene_->mRootNode)
@@ -210,7 +209,6 @@ void ModelLoader::LoadMaterialTextures(
 			startPos += 1;
 		}
 
-		const Configuration& config  = BasicEngine::GetInstance()->GetConfig();
 		const ResourceHash textureId = textureManager.AddTexture(
 			fmt::format("{}/{}.ktx", directory.data(), textureNameStr));
 		switch (textureType)

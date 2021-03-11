@@ -26,14 +26,17 @@
 
 #include "engine/globals.h"
 
+namespace neko
+{
 template<typename T>
-void ResizeIfNecessary(std::vector<T>& vector, size_t index, T default_value)
+void ResizeIfNecessary(std::vector<T>& vector, size_t index, T defaultValue)
 {
 	if (vector.size() <= index)
 	{
 		size_t futureSize = vector.size();
-		if (futureSize == 0u) { futureSize = neko::INIT_ENTITY_NMB; }
-		while (futureSize <= index) { futureSize += futureSize / 2; }
-		vector.resize(futureSize, default_value);
+		if (futureSize == 0u) futureSize = neko::INIT_ENTITY_NMB;
+		while (futureSize <= index) futureSize += futureSize / 2;
+		vector.resize(futureSize, defaultValue);
 	}
 }
+}    // namespace neko

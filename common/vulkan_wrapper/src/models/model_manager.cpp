@@ -50,7 +50,6 @@ ModelId ModelManager::LoadModel(std::string_view path)
 	}
 
 	logDebug(fmt::format("[Debug] Loading model: {}", path));
-	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
 	const std::string metaPath  = fmt::format("{}.meta", path);
 	const json metaJson         = LoadJson(metaPath);
 	ModelId modelId             = INVALID_MODEL_ID;

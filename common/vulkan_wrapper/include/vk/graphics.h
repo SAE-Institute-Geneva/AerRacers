@@ -41,7 +41,7 @@ public:
     void BeforeRenderLoop() override;
     void AfterRenderLoop() override;
 
-    void SetWindow(sdl::VulkanWindow* window);
+    void SetWindow(std::unique_ptr<sdl::VulkanWindow> window);
     void SetRenderer(std::unique_ptr<IRenderer>&& newRenderer);
 
 private:

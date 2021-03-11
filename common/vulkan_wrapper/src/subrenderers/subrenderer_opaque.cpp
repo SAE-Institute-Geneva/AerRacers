@@ -53,8 +53,8 @@ void SubrendererOpaque::Render(const CommandBuffer& commandBuffer)
 	}
 
 	//GPU Instancing
-	for (auto& meshInstance : modelCmdBuffer_.GetMeshInstances())
-		meshInstance->CmdRender(commandBuffer, uniformScene_);
+	for (auto&& meshInstance : modelCmdBuffer_.GetModelInstances())
+		meshInstance.CmdRender(commandBuffer, uniformScene_);
 }
 
 bool SubrendererOpaque::CmdRender(const CommandBuffer& commandBuffer,

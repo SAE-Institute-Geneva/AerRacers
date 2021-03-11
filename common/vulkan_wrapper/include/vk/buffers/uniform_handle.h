@@ -39,12 +39,6 @@ public:
 
 	void Destroy() const;
 
-	UniformHandle(const UniformHandle& other);
-	UniformHandle(UniformHandle&& other) noexcept;
-
-	UniformHandle& operator=(const UniformHandle& other);
-	UniformHandle& operator=(UniformHandle&& other) noexcept;
-
 	void PushUniformData(const Material::PushDataContainer& dataContainer);
 
 	template<typename T>
@@ -81,7 +75,7 @@ private:
 	std::vector<char> arbitraryUniformData_ {};
 
 	std::optional_const_ref<UniformBlock> uniformBlock_ = std::nullopt;
-	std::unique_ptr<UniformBuffer> uniformBuffer_       = nullptr;
+	std::optional<UniformBuffer> uniformBuffer_         = std::nullopt;
 
 	Buffer::Status handleStatus_ = Buffer::Status::NORMAL;
 };
