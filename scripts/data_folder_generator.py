@@ -5,6 +5,10 @@ import shutil
 import json
 from pathlib import Path
 
+font_extensions = [
+    ".ttf"
+]
+
 img_extensions = [
     ".jpg",
     ".jpeg",
@@ -14,14 +18,18 @@ img_extensions = [
     ".ktx"
 ]
 
-txt_extensions = [
-    ".json",
-    ".txt"
+material_extensions = [
+    ".mat",
+    ".mtl"
 ]
 
 model_extensions = [
     ".obj",
     ".fbx"
+]
+
+package_extensions = [
+    ".pkg_json"
 ]
 
 shader_extensions = [
@@ -43,17 +51,13 @@ snd_extensions = [
     ".ogg"
 ]
 
-font_extensions = [
-    ".ttf"
+txt_extensions = [
+    ".json",
+    ".txt"
 ]
 
-material_extensions = [
-    ".mat",
-    ".mtl"
-]
-
-package_extensions = [
-    ".pkg_json"
+vk_shader_extensions = [
+    ".vk"
 ]
 
 def iterate_over_type(extensions):
@@ -90,12 +94,13 @@ if __name__ == "__main__":
         env_path = "../tmp/env.json"
     print("Data In: {}, Data Output: {}".format(data_dir, data_out_dir))
     load_env_variables()
+    iterate_over_type(font_extensions)
+    iterate_over_type(img_extensions)
+    iterate_over_type(material_extensions)
+    iterate_over_type(model_extensions)
+    iterate_over_type(package_extensions)
     iterate_over_type(shader_extensions)
     iterate_over_type(skybox_extensions)
-    iterate_over_type(img_extensions)
     iterate_over_type(txt_extensions)
-    iterate_over_type(model_extensions)
-    iterate_over_type(material_extensions)
-    iterate_over_type(font_extensions)
-    iterate_over_type(package_extensions)
+    iterate_over_type(vk_shader_extensions)
 

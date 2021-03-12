@@ -21,18 +21,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <algorithm>
 #include <sstream>
 
-#include <fmt/format.h>
-#include "imgui.h"
-
-#include "engine/entity.h"
+#include <imgui.h>
 
 #include "engine/component.h"
-#include "engine/globals.h"
 #include "engine/log.h"
-#include "utils/vector_utility.h"
 
 namespace neko
 {
@@ -88,20 +82,16 @@ void EntityManager::DestroyEntity(Entity entity, bool children)
     entityHashArray_[entity] = INVALID_ENTITY_HASH;
     if (children)
     {
-        for (Entity childEntity = 0; childEntity < parentEntities_.size(); ++childEntity)
-        {
-            if (parentEntities_[childEntity] == entity) { DestroyEntity(childEntity, true); }
-        }
-    }
-    else
-    {
-        for (Entity childEntity = 0; childEntity < parentEntities_.size(); ++childEntity)
-        {
-            if (parentEntities_[childEntity] == entity)
-            { parentEntities_[childEntity] = parentEntities_[entity]; }
-        }
-    }
-    parentEntities_[entity] = INVALID_ENTITY;
+		for (Entity childEntity = 0; childEntity < parentEntities_.size(); ++childEntity)
+			if (parentEntities_[childEntity] == entity) DestroyEntity(childEntity, true);
+	}
+	else
+	{
+		for (auto&& parentEntity : parentEntities_)
+			if (parentEntity == entity) parentEntity = parentEntities_[entity];
+	}
+
+	parentEntities_[entity] = INVALID_ENTITY;
     onDestroyEntity.Execute(entity);
 }
 
@@ -150,11 +140,7 @@ Entity EntityManager::FindEntityByName(const std::string& entityName)
 
 EntityHash EntityManager::HashEntityName(const std::string& entityName)
 {
-	XXH64_state_t* hashStream = XXH64_createState();
-	XXH64_reset(hashStream, 0);
-	XXH64_update(hashStream, entityName.data(), entityName.size());
-	const EntityHash entityHash = XXH64_digest(hashStream);
-	return entityHash;
+	return HashString(entityName);
 }
 
 DirtyManager::DirtyManager(EntityManager& entityManager) : entityManager_(entityManager) {}

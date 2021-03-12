@@ -52,15 +52,23 @@ public:
 		return static_cast<int>(SubrendererIndex::OPAQUE_S);
 	}
 
-	void SetUniformBlock(const UniformBlock& uniformBlock);
-
 private:
+	static void ChooseViewport(const CommandBuffer& cmdBuffer,
+		const VkRect2D& renderArea,
+		std::uint8_t viewportCount,
+		std::uint8_t viewportIndex) ;
+
 	bool CmdRender(const CommandBuffer& commandBuffer,
 		ForwardDrawCmd& modelDrawCommand,
+		UniformHandle& uniformScene,
 		const Mesh& mesh,
 		const Material& mat);
-	UniformHandle uniformScene_;
 
-	ModelCommandBuffer& modelCmdBuffer_;
+	std::array<UniformHandle, 4> uniformScenes_ {
+		UniformHandle(true),
+		UniformHandle(true),
+		UniformHandle(true),
+		UniformHandle(true),
+	};
 };
 }    // namespace neko::vk

@@ -52,6 +52,9 @@ public:
 	[[nodiscard]] CommandBuffer& GetCurrentCmdBuffer();
 	[[nodiscard]] const CommandPool& GetCurrentCmdPool();
 
+	[[nodiscard]] std::uint8_t GetViewportCount() const { return viewportCount_; }
+	void SetViewportCount(std::uint8_t count) { viewportCount_ = count; }
+
 	static VkResources* Inst;
 
 	std::unique_ptr<sdl::VulkanWindow> vkWindow = nullptr;
@@ -63,13 +66,14 @@ public:
 
 	Swapchain swapchain {};
 
-	ModelCommandBuffer modelCommandBuffer;
+	std::array<ModelCommandBuffer, 4> modelCommandBuffers;
 
 	VkPipelineCache pipelineCache {};
 
 protected:
 	bool isFramebufferResized_ = false;
 
+	std::uint8_t viewportCount_ = 1;
 	std::unique_ptr<IRenderer> renderer_ {};
 	std::vector<CommandBuffer> commandBuffers_ {};
 	std::map<std::thread::id, CommandPool> commandPools_ {};

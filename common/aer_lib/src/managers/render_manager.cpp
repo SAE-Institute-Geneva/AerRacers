@@ -90,13 +90,14 @@ void RenderManager::Render()
 		}
 	}
 #elif NEKO_VULKAN
-	vk::VkResources* vkObj = vk::VkResources::Inst;
+	auto& modelCommandBuffers = vk::VkResources::Inst->modelCommandBuffers;
 	for (auto& entity : entities)
 	{
 		if (!modelManager_.IsLoaded(components_[entity].modelId)) continue;
 
 		const Mat4f& modelMat = transformManager_.GetComponent(entity);
-		vkObj->modelCommandBuffer.AddMatrix(components_[entity].modelInstanceIndex, modelMat);
+		for (auto& modelCommandBuffer : modelCommandBuffers)
+			modelCommandBuffer.AddMatrix(components_[entity].modelInstanceIndex, modelMat);
 	}
 #endif
 }
@@ -106,7 +107,8 @@ void RenderManager::Destroy()
 #ifdef NEKO_GLES3
 	shader_.Destroy();
 #else
-	vk::VkResources::Inst->modelCommandBuffer.Destroy();
+	for (auto& modelCommandBuffer : vk::VkResources::Inst->modelCommandBuffers)
+		modelCommandBuffer.Destroy();
 #endif
 }
 
@@ -156,14 +158,15 @@ void RenderManager::SetModel(Entity entity, vk::ModelId modelId)
 	const Mat4f& modelMat = transformManager_.GetComponent(entity);
 	if (components_[entity].modelInstanceIndex == INVALID_INDEX)
 	{
-		components_[entity].modelInstanceIndex =
-			vk::VkResources::Inst->modelCommandBuffer.AddModelInstanceIndex(
-				components_[entity].modelId, modelMat);
+		for (auto& modelCommandBuffer : vk::VkResources::Inst->modelCommandBuffers)
+			components_[entity].modelInstanceIndex =
+				modelCommandBuffer.AddModelInstanceIndex(components_[entity].modelId, modelMat);
 	}
 	else
 	{
-		vk::VkResources::Inst->modelCommandBuffer.SetModelId(
-			components_[entity].modelInstanceIndex, components_[entity].modelId);
+		for (auto& modelCommandBuffer : vk::VkResources::Inst->modelCommandBuffers)
+			modelCommandBuffer.SetModelId(
+				components_[entity].modelInstanceIndex, components_[entity].modelId);
 	}
 }
 #endif

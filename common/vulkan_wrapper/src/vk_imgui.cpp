@@ -69,23 +69,24 @@ void VkImGui::Init()
 	ImGui_ImplVulkan_Init(&initInfo, vkObj->GetRenderPass());
 
 	// Create font texture
-	unsigned char* fontData;
-	int texWidth, texHeight;
-
 	ImFontConfig fontConfig;
 	fontConfig.OversampleH = 2;
 	fontConfig.OversampleV = 2;
 	fontConfig.PixelSnapH  = true;
-	io.Fonts->GetTexDataAsRGBA32(&fontData, &texWidth, &texHeight);
+
+	const float fontSizeInPixels = 16.0f;
+	const std::string path =
+		BasicEngine::GetInstance()->GetConfig().dataRootPath + "fonts/droid_sans.ttf";
+	io.Fonts->AddFontFromFileTTF(path.c_str(), fontSizeInPixels, &fontConfig);
 
 	// Upload Fonts
 	{
 		// Use any command queue
 		CommandBuffer commandBuffer(true);
-		ImGui_ImplVulkan_CreateFontsTexture(VkCommandBuffer(commandBuffer));
+		ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
 		commandBuffer.SubmitIdle();
 
-		vkDeviceWaitIdle(VkDevice(vkObj->device));
+		vkDeviceWaitIdle(vkObj->device);
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
 

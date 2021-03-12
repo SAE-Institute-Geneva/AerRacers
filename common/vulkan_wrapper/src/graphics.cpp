@@ -84,23 +84,25 @@ void VkRenderer::AfterRenderLoop()
 	PipelineStage stage;
 	RenderStage& renderStage = renderer_->GetRenderStage();
 	renderStage.Update();
-	if (!StartRenderPass(renderStage)) return;
 
 	CommandBuffer& commandBuffer = GetCurrentCmdBuffer();
-	for (const auto& subpass : renderStage.GetSubpasses())
+	if (!StartRenderPass(renderStage)) return;
 	{
-		stage.subPassId = subpass.binding;
+		for (const auto& subpass : renderStage.GetSubpasses())
+		{
+			stage.subPassId = subpass.binding;
 
-		// Renders subpass subrender pipelines.
-		renderer_->GetRendererContainer().RenderStage(stage, commandBuffer);
+			// Renders subpass subrender pipelines.
+			renderer_->GetRendererContainer().RenderStage(stage, commandBuffer);
 
-		if (subpass.binding != renderStage.GetSubpasses().back().binding)
-			vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
+			if (subpass.binding != renderStage.GetSubpasses().back().binding)
+				vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
+		}
+
+		VkImGui::Render(commandBuffer);
 	}
-
-	imgui_.Render(commandBuffer);
-
 	EndRenderPass(renderStage);
+
 	stage.renderPassId++;
 }
 
@@ -115,28 +117,18 @@ bool VkRenderer::StartRenderPass(RenderStage& renderStage)
 	CommandBuffer& currentCmdBuffer = GetCurrentCmdBuffer();
 	if (!currentCmdBuffer.IsRunning())
 	{
-		vkWaitForFences(VkDevice(device),
+		vkWaitForFences(device,
 			1,
 			&inFlightFences_[currentFrame_],
 			VK_TRUE,
 			std::numeric_limits<uint64_t>::max());
-		commandBuffers_[swapchain.GetCurrentImageIndex()].Begin(
-			VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+		currentCmdBuffer.Begin(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
 	}
 
 	VkRect2D renderArea;
 	renderArea.offset = {0, 0};
 	renderArea.extent = {static_cast<uint32_t>(renderStage.GetSize().x),
 		static_cast<uint32_t>(renderStage.GetSize().y)};
-
-	VkViewport viewport;
-	viewport.x        = 0.0f;
-	viewport.y        = 0.0f;
-	viewport.width    = static_cast<float>(renderArea.extent.width);
-	viewport.height   = static_cast<float>(renderArea.extent.height);
-	viewport.minDepth = 0.0f;
-	viewport.maxDepth = 1.0f;
-	vkCmdSetViewport(currentCmdBuffer, 0, 1, &viewport);
 
 	VkRect2D scissor;
 	scissor.offset = {0, 0};
@@ -155,6 +147,63 @@ bool VkRenderer::StartRenderPass(RenderStage& renderStage)
 	vkCmdBeginRenderPass(currentCmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 	return true;
+}
+
+void VkRenderer::ChooseViewport(const CommandBuffer& cmdBuffer,
+	const VkRect2D& renderArea,
+	const std::uint8_t viewportIndex) const
+{
+	switch (viewportCount_)
+	{
+		case 1:
+		{
+			VkViewport viewport;
+			viewport.x        = 0.0f;
+			viewport.y        = 0.0f;
+			viewport.width    = static_cast<float>(renderArea.extent.width);
+			viewport.height   = static_cast<float>(renderArea.extent.height);
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
+			break;
+		}
+		case 2:
+		{
+			const auto width = static_cast<float>(renderArea.extent.width) / 2.0f;
+			const auto height = static_cast<float>(renderArea.extent.height);
+			const auto indexX = static_cast<float>(viewportIndex);
+
+			VkViewport viewport;
+			viewport.x        = width * indexX;
+			viewport.y        = 0.0f;
+			viewport.width    = width;
+			viewport.height   = height;
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
+			break;
+		}
+		case 3:
+		case 4:
+		{
+			const auto width = static_cast<float>(renderArea.extent.width) / 2.0f;
+			const auto height = static_cast<float>(renderArea.extent.height) / 2.0f;
+			const auto indexX = static_cast<float>(viewportIndex % 2);
+			const auto indexY = static_cast<float>(viewportIndex / 2 % 2);
+
+			VkViewport viewport;
+			viewport.x        = width * indexX;
+			viewport.y        = height * indexY;
+			viewport.width    = width;
+			viewport.height   = height;
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
+			break;
+		}
+		case 0:
+		default: neko_assert(false, "Invalid Viewport number!!");
+	}
 }
 
 void VkRenderer::EndRenderPass(const RenderStage& renderStage)
@@ -192,13 +241,13 @@ void VkRenderer::RecreateSwapChain()
 {
 	vkWindow->MinimizedLoop();
 
-	vkDeviceWaitIdle(VkDevice(device));
+	vkDeviceWaitIdle(device);
 
 	swapchain.Init(swapchain);
 
 	RecreateCommandBuffers();
 
-	if (ImGui::GetCurrentContext()) imgui_.OnWindowResize();
+	if (ImGui::GetCurrentContext()) VkImGui::OnWindowResize();
 }
 
 void VkRenderer::RecreateCommandBuffers()

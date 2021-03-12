@@ -22,15 +22,10 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-
-#include <unordered_map>
-#include <string>
-#include <vector>
-#include <xxhash.h>
-#include <engine/globals.h>
-#include "utils/action_utility.h"
 #include "engine/globals.h"
 #include "engine/system.h"
+#include "mathematics/hash.h"
+#include "utils/action_utility.h"
 
 namespace neko
 {
@@ -44,7 +39,7 @@ using Entity = Index;
 /**
  * Use to find a specific entity
  */
-using EntityHash = XXH64_hash_t;
+using EntityHash = StringHash;
 
 /**
  * \brief EntityMask is a bitmask representation of the activated components
