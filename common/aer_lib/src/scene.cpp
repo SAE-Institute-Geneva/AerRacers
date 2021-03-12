@@ -152,6 +152,7 @@ void SceneManager::ParseEntityJson(const json& entityJson)
 
 void SceneManager::ParseSceneJson(const json& sceneJson)
 {
+	// Scene information
 	if (CheckJsonParameter(sceneJson, "name", json::value_t::string))
 		currentScene_.sceneName = sceneJson["name"];
 	else
@@ -165,6 +166,11 @@ void SceneManager::ParseSceneJson(const json& sceneJson)
 		for (auto& layer : sceneJson["layers"])
 			if (!LayerExist(layer)) AddLayer(layer);
 
+	// Directional Light
+	if (CheckJsonParameter(sceneJson, "dirLight", json::value_t::object))
+		DirectionalLight::Instance->FromJson(sceneJson["dirLight"]);
+
+	// Components
 	if (CheckJsonParameter(sceneJson, "objects", json::value_t::array))
 	{
 		for (auto& entityJson : sceneJson["objects"]) ParseEntityJson(entityJson);
@@ -276,15 +282,22 @@ json SceneManager::WriteEntityJson(Entity entity) const
 
 json SceneManager::WriteSceneJson()
 {
+	// Scene data
 	json scene       = json::object();
 	scene["name"]    = currentScene_.sceneName;
 	scene["tags"]    = currentScene_.tags;
 	scene["layers"]  = currentScene_.layers;
+
+	// Directional Light
+	scene["dirLight"] = DirectionalLight::Instance->ToJson();
+
+	// Components
 	scene["objects"] = json::array_t();
 	for (size_t i = 0; i < entityManager_.GetEntitiesNmb(); ++i)
 	{
 		scene["objects"][i] = WriteEntityJson(i);
 	}
+
 	return scene;
 }
 
@@ -304,7 +317,7 @@ bool SceneManager::TagExist(const std::string& newTagName)
 {
 	const auto entityTagIt = std::find_if(currentScene_.tags.begin(),
 		currentScene_.tags.end(),
-		[newTagName](std::string tagName) { return newTagName == tagName; });
+		[newTagName](std::string_view tagName) { return newTagName == tagName; });
 	if (entityTagIt == currentScene_.tags.end()) { return false; }
 	return true;
 }
@@ -313,12 +326,12 @@ bool SceneManager::LayerExist(const std::string& newLayerName)
 {
 	const auto entityLayerIt = std::find_if(currentScene_.layers.begin(),
 		currentScene_.layers.end(),
-		[newLayerName](std::string layerName) { return newLayerName == layerName; });
+		[newLayerName](std::string_view layerName) { return newLayerName == layerName; });
 	if (entityLayerIt == currentScene_.layers.end()) { return false; }
 	return true;
 }
 
-const std::vector<std::string> SceneManager::GetTags() const { return currentScene_.tags; }
+const std::vector<std::string>& SceneManager::GetTags() const { return currentScene_.tags; }
 
-const std::vector<std::string> SceneManager::GetLayers() const { return currentScene_.layers; }
+const std::vector<std::string>& SceneManager::GetLayers() const { return currentScene_.layers; }
 }    // namespace neko::aer

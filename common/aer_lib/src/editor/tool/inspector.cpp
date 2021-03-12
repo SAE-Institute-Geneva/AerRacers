@@ -4,8 +4,8 @@
 
 namespace neko::aer
 {
-Inspector::Inspector(AerEngine& engine, ToolType type, int id, std::string_view name)
-   : EditorToolInterface(engine, type, id, name),
+Inspector::Inspector(AerEngine& engine)
+   : EditorToolInterface(engine),
 	 editorToolManager_(engine.GetEditorToolManager()),
 	 entityManager_(engine.GetComponentManagerContainer().entityManager),
 	 transform3dManager_(engine.GetComponentManagerContainer().transform3dManager),
@@ -20,54 +20,35 @@ Inspector::Inspector(AerEngine& engine, ToolType type, int id, std::string_view 
 	 rigidStaticViewer_(engine.GetComponentManagerContainer().rigidStaticViewer)
 {}
 
-void Inspector::Init() {}
-
-void Inspector::Update(seconds) {}
-
-void Inspector::Destroy() {}
-
 void Inspector::DrawImGui()
 {
-	if (isVisible)
+	//Get selected entity
+	Entity entity = editorToolManager_.GetSelectedEntity();
+	if (entity == INVALID_ENTITY)
 	{
-		// Display window
-		const std::string winName = std::string(GetName()) + "##" + std::to_string(GetId());
-		if (ImGui::Begin(winName, &isVisible))
-		{
-			//Get selected entity
-			Entity entity = editorToolManager_.GetSelectedEntity();
-			if (entity == INVALID_ENTITY)
-			{
-				//Display message if no entity selected
-				ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "No Entity selected");
-				ImGui::End();
-				return;
-			}
-
-			// Display entity name
-			std::string name = "Entity " + std::to_string(entity);
-			ImGui::Text(name);
-
-			ImGui::Separator();
-			DisplayLayersAndTags(entity);
-			ImGui::Separator();
-
-			// Display Component Viewers
-			DisplayComponentViewer(transform3dViewer_, entity, ComponentType::TRANSFORM3D);
-			DisplayComponentViewer(rendererViewer_, entity, ComponentType::MODEL);
-			DisplayComponentViewer(lightViewer_, entity, ComponentType::LIGHT);
-			DisplayComponentViewer(rigidStaticViewer_, entity, ComponentType::RIGID_STATIC);
-			DisplayComponentViewer(rigidDynamicViewer_, entity, ComponentType::RIGID_DYNAMIC);
-
-			ImGui::Separator();
-			DisplayNewComponentButtons(entity);
-		}
-
-		ImGui::End();
+		//Display message if no entity selected
+		ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "No Entity selected");
+		return;
 	}
-}
 
-void Inspector::OnEvent(const SDL_Event&) {}
+	// Display entity name
+	std::string name = "Entity " + std::to_string(entity);
+	ImGui::Text(name);
+
+	ImGui::Separator();
+	DisplayLayersAndTags(entity);
+	ImGui::Separator();
+
+	// Display Component Viewers
+	DisplayComponentViewer(transform3dViewer_, entity, ComponentType::TRANSFORM3D);
+	DisplayComponentViewer(rendererViewer_, entity, ComponentType::MODEL);
+	DisplayComponentViewer(lightViewer_, entity, ComponentType::LIGHT);
+	DisplayComponentViewer(rigidStaticViewer_, entity, ComponentType::RIGID_STATIC);
+	DisplayComponentViewer(rigidDynamicViewer_, entity, ComponentType::RIGID_DYNAMIC);
+
+	ImGui::Separator();
+	DisplayNewComponentButtons(entity);
+}
 
 void Inspector::DisplayComponentViewer(ComponentViewer& viewer, Entity entity, ComponentType type)
 {

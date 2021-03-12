@@ -12,16 +12,42 @@ LightManager::LightManager(EntityManager& entityManager, Transform3dManager& tra
 #ifdef NEKO_GLES3
 void LightManager::SetShaderValues(gl::Shader& shader)
 {
+	// OpenGL Uniform Blocks are spaced by multiple of 16 bytes
 	std::uint64_t curOffset = 0;
 	const auto lights = entityManager_.get().FilterEntities(EntityMask(ComponentType::LIGHT));
 	ResizeIfNecessary(components_, lights.back(), {});
 
-	const std::size_t lightNum = lights.size();
+	const DirectionalLight* dirLight = DirectionalLight::Instance;
+	const std::size_t lightNum = lights.size() + (dirLight ? 1 : 0);
 	shader.SetUbo(sizeof(unsigned), curOffset, &lightNum, gl::kUboLightsBinding);
-	curOffset += sizeof(Vec4f); // OpenGL Uniform Blocks are spaced by multiple of 16 bytes
-	for (std::size_t i = 0; i < lightNum; ++i)
+	curOffset += sizeof(Vec4f);
+
+	if (dirLight)
 	{
-		const Entity e = lights[i];
+		shader.SetUbo(sizeof(Vec3f), curOffset, &dirLight->diffuse, gl::kUboLightsBinding);
+		curOffset += sizeof(Vec4f);
+
+		shader.SetUbo(sizeof(Vec3f), curOffset, &dirLight->ambient, gl::kUboLightsBinding);
+		curOffset += sizeof(Vec4f);
+
+		shader.SetUbo(sizeof(Vec3f), curOffset, &dirLight->direction, gl::kUboLightsBinding);
+		curOffset += sizeof(Vec3f);
+
+		shader.SetUbo(sizeof(float), curOffset, &dirLight->specular, gl::kUboLightsBinding);
+		curOffset += sizeof(float);
+
+		shader.SetUbo(sizeof(float), curOffset, &dirLight->intensity, gl::kUboLightsBinding);
+		curOffset += sizeof(float);
+	}
+	else
+	{
+		curOffset += sizeof(Vec4f) * 2 + sizeof(Vec3f) + sizeof(float) * 2;
+	}
+
+	std::uint8_t mod = curOffset % 16;
+	curOffset = curOffset + (mod == 0 ? 0 : 16 - mod);
+	for (auto&& e : lights)
+	{
 		const Vec3f position = transformManager_.GetGlobalPosition(e);
 		shader.SetUbo(sizeof(Vec3f), curOffset, &position, gl::kUboLightsBinding);
 		curOffset += sizeof(Vec4f);
@@ -38,7 +64,7 @@ void LightManager::SetShaderValues(gl::Shader& shader)
 		shader.SetUbo(sizeof(float), curOffset, &components_[e].radius, gl::kUboLightsBinding);
 		curOffset += sizeof(float);
 
-		const std::uint8_t mod = curOffset % 16;
+		mod = curOffset % 16;
 		curOffset = curOffset + (mod == 0 ? 0 : 16 - mod);
 	}
 }
@@ -57,7 +83,7 @@ void LightViewer::DrawImGui(Entity entity)
 		if (TreeNode("Light"))
 		{
 			PointLight light = lightManager_.GetComponent(entity);
-			DragFloat3("Diffuse", &light.diffuse[0], LabelPos::LEFT, 0.05f, 0.0f, 1.0f);
+			ColorEdit3("Diffuse", &light.diffuse[0], LabelPos::LEFT);
 
 			DragFloat("Specular", &light.specular, LabelPos::LEFT, 0.05f, 0.0f, 1.0f);
 			DragFloat("Intensity", &light.intensity, LabelPos::LEFT, 0.05f, 0.0f, 1000.0f);

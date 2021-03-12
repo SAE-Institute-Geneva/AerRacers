@@ -1,27 +1,36 @@
-#include "aer/editor/editor_tool_manager.h"
+#include <imgui_internal.h>
+#include <aer/editor/editor_tool_manager.h>
+
 
 #include "aer/aer_engine.h"
 #include "aer/editor/tool/hierarchy.h"
 #include "aer/editor/tool/inspector.h"
+#include "aer/editor/tool/light_controller.h"
 #include "aer/editor/tool/logger.h"
 #include "aer/editor/tool/scene_loader.h"
 
 namespace neko::aer
 {
 EditorToolManager::EditorToolManager(AerEngine& engine)
-   : engine_(engine), cContainer_(engine.GetComponentManagerContainer())
-{}
+	: engine_(engine), cContainer_(engine.GetComponentManagerContainer())
+{
+	const ModeEnum mode = engine_.GetMode();
+	if (mode == ModeEnum::EDITOR)
+	{
+		AddEditorTool<Logger>();
+		AddEditorTool<Hierarchy>();
+		AddEditorTool<Inspector>();
+		AddEditorTool<SceneLoader>();
+		AddEditorTool<LightController>();
+	}
+}
 
 void EditorToolManager::Init()
 {
-    const ModeEnum mode = engine_.GetMode();
-	if (mode == ModeEnum::EDITOR)
-	{
-		AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
-		AddEditorTool<Hierarchy, EditorToolInterface::ToolType::HIERARCHY>();
-		AddEditorTool<Inspector, EditorToolInterface::ToolType::INSPECTOR>();
-		AddEditorTool<SceneLoader, EditorToolInterface::ToolType::SCENE_LOADER>();
-	}
+	const float fontSizeInPixels = 16.0f;
+	const std::string path =
+		BasicEngine::GetInstance()->GetConfig().dataRootPath + "fonts/droid_sans.ttf";
+	ImGui::GetIO().Fonts->AddFontFromFileTTF(path.c_str(), fontSizeInPixels);
 }
 
 void EditorToolManager::Update(const seconds dt)
@@ -34,7 +43,7 @@ void EditorToolManager::Update(const seconds dt)
 	EntityManager& entityManager                      = cContainer_.entityManager;
 	physics::RigidDynamicManager& rigidDynamicManager = cContainer_.rigidDynamicManager;
 	physics::RigidStaticManager& rigidStaticManager   = cContainer_.rigidStaticManager;
-	IGizmoRenderer& gizmosLocator               = GizmosLocator::get();
+	IGizmoRenderer& gizmosLocator                     = GizmosLocator::get();
 	if (selectedEntity_ != INVALID_ENTITY)
 	{
 		gizmosLocator.DrawCube(transform3dManager.GetGlobalPosition(selectedEntity_),
@@ -47,52 +56,44 @@ void EditorToolManager::Update(const seconds dt)
 	//Display Gizmo
 	for (Entity entity = 0.0f; entity < entityManager.GetEntitiesSize(); entity++)
 	{
-		const physics::RigidActor* rigidActor = nullptr;
-		if (entityManager.HasComponent(
-				entity, EntityMask(ComponentType::RIGID_DYNAMIC)))
-		{
+		const physics::RigidActor* rigidActor;
+		if (entityManager.HasComponent(entity, EntityMask(ComponentType::RIGID_DYNAMIC)))
 			rigidActor = &rigidDynamicManager.GetComponent(entity);
-		}
-		else if (entityManager.HasComponent(
-					 entity, EntityMask(ComponentType::RIGID_STATIC)))
-		{
+		else if (entityManager.HasComponent(entity, EntityMask(ComponentType::RIGID_STATIC)))
 			rigidActor = &rigidStaticManager.GetComponent(entity);
-		}
 		else
-		{
 			continue;
-		}
 
-        const physics::ColliderType colliderType = rigidActor->GetColliderType();
-        switch (colliderType)
-        {
-            case physics::ColliderType::INVALID: break;
-            case physics::ColliderType::BOX:
-                {
-                    physics::BoxColliderData boxColliderData = rigidActor->GetBoxColliderData();
-                    gizmosLocator.DrawCube(
-                        transform3dManager.GetGlobalPosition(entity) + boxColliderData.offset,
-                        boxColliderData.size,
-                        transform3dManager.GetGlobalRotation(entity),
-                        boxColliderData.isTrigger ? Color::yellow : Color::green,
-                        2.0f);
-                }
-                break;
-            case physics::ColliderType::SPHERE:
-                {
-                    physics::SphereColliderData sphereColliderData =
-                        rigidActor->GetSphereColliderData();
-                    gizmosLocator.DrawSphere(
-                        transform3dManager.GetGlobalPosition(entity) + sphereColliderData.offset,
-                        sphereColliderData.radius,
-                        transform3dManager.GetGlobalRotation(entity),
-                        sphereColliderData.isTrigger ? Color::yellow : Color::green,
-                        2.0f);
-                    break;
-                }
-            default: break;
-        }
-    }
+		const physics::ColliderType colliderType = rigidActor->GetColliderType();
+		switch (colliderType)
+		{
+			case physics::ColliderType::INVALID: break;
+			case physics::ColliderType::BOX:
+			{
+				physics::BoxColliderData boxColliderData = rigidActor->GetBoxColliderData();
+				gizmosLocator.DrawCube(
+					transform3dManager.GetGlobalPosition(entity) + boxColliderData.offset,
+					boxColliderData.size,
+					transform3dManager.GetGlobalRotation(entity),
+					boxColliderData.isTrigger ? Color::yellow : Color::green,
+					2.0f);
+			}
+			break;
+			case physics::ColliderType::SPHERE:
+			{
+				physics::SphereColliderData sphereColliderData =
+					rigidActor->GetSphereColliderData();
+				gizmosLocator.DrawSphere(
+					transform3dManager.GetGlobalPosition(entity) + sphereColliderData.offset,
+					sphereColliderData.radius,
+					transform3dManager.GetGlobalRotation(entity),
+					sphereColliderData.isTrigger ? Color::yellow : Color::green,
+					2.0f);
+				break;
+			}
+			default: break;
+		}
+	}
 }
 
 void EditorToolManager::Destroy()
@@ -134,7 +135,6 @@ void EditorToolManager::DrawImGui()
 		{
 			if (BeginMenu("Settings"))
 			{
-				if (MenuItem("Show Demo")) showDemo_ = true;
 				ImGui::EndMenu();
 			}
 
@@ -175,17 +175,37 @@ void EditorToolManager::DrawImGui()
 		End();
 	}
 
-	if (showDemo_) ShowDemoWindow(&showDemo_);
+	for (auto& tool : tools_)
+	{
+		if (!tool->isVisible) continue;
+		const std::string id      = std::string(tool->GetName()) + std::to_string(tool->GetId());
+		const std::string winName = std::string(tool->GetName()) + "###" + id;
+		if (ImGui::Begin(winName, &tool->isVisible))
+		{
+			// Window Label
+			if (ImGui::IsWindowDocked())
+			{
+				ImGui::Text(tool->GetName());
+				ImGui::Separator();
+			}
 
-	for (auto& tool : tools_) tool->DrawImGui();
+			tool->DrawImGui();
+		}
+		ImGui::End();
+	}
 }
 
 void EditorToolManager::DrawList()
 {
 	for (auto& tool : tools_)
 	{
-		std::string name = std::string(tool->GetName()) + " " + std::to_string(tool->GetId());
-		if (ImGui::MenuItem((name).c_str())) tool->isVisible = true;
+		if (tool->isVisible) ImGui::Text("ø");
+		else ImGui::Text("o");
+
+		const auto test = ImGui::GetCurrentContext()->SettingsHandlers;
+
+		ImGui::SameLine();
+		if (ImGui::MenuItem(tool->GetName())) tool->isVisible = !tool->isVisible;
 	}
 }
 
@@ -194,13 +214,13 @@ void EditorToolManager::OnEvent(const SDL_Event& event)
 	for (auto& tool : tools_) tool->OnEvent(event);
 }
 
-template<typename T, EditorToolInterface::ToolType Type>
+template<typename T>
 void EditorToolManager::AddEditorTool()
 {
-	auto newTool =
-		std::make_unique<T>(engine_, Type, tools_.size(), toolNames_[static_cast<int>(Type)]);
-	newTool->Init();
-	tools_.push_back(std::move(newTool));
+	static_assert(std::is_base_of<EditorToolInterface, T>::value,
+		"Tool must derive from EditorToolInterface");
+
+	tools_.emplace_back(std::make_unique<T>(engine_));
 }
 
 int EditorToolManager::GetNumberTools() const { return tools_.size(); }
@@ -211,4 +231,4 @@ void EditorToolManager::SetSelectedEntity(const Entity selectedEntity)
 {
 	selectedEntity_ = selectedEntity;
 }
-}    // namespace aer
+}    // namespace neko::aer

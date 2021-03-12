@@ -35,7 +35,8 @@ constexpr GLuint INVALID_SHADER            = 0;
 constexpr std::uint8_t kUboMatricesBinding = 0;
 constexpr std::uint8_t kUboLightsBinding   = 1;
 constexpr std::size_t kUboMatricesSize     = 2 * sizeof(Mat4f);
-constexpr std::size_t kUboLightsSize       = sizeof(PointLight) * kMaxLights;
+constexpr std::size_t kUboLightsSize =
+	sizeof(unsigned) + sizeof(DirectionalLight) + sizeof(PointLight) * kMaxLights;
 
 /**
  * Load shader with given shader type

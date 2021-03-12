@@ -21,30 +21,31 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
- 
- Author : Dylan von Arx
- Co-Author : 
- Date : 13.10.2020
+
+ Author : Floreau Luca
+ Co-Author :
+ Date : 22.01.2021
 ---------------------------------------------------------- */
 #include "aer/editor/editor_tool_interface.h"
 
 namespace neko::aer
 {
-class Logger final : public EditorToolInterface
+class LightController final : public EditorToolInterface
 {
 public:
-	explicit Logger(AerEngine& engine);
+	explicit LightController(AerEngine& engine);
 
 	void DrawImGui() override;
 
-	[[nodiscard]] std::string_view GetName() const override { return "Logger"; }
-	[[nodiscard]] ToolType GetType() const override { return LOGGER; }
+	[[nodiscard]] std::string_view GetName() const override { return "Light Controller"; }
+	[[nodiscard]] ToolType GetType() const override { return LIGHT_CONTROLLER; }
 
-	static void ClearLogs();
+	// Not defined
+	void Init() override {}
+	void Update(seconds) override {}
+	void Destroy() override {}
+	void OnEvent(const SDL_Event&) override {}
 
 private:
-	int posY_        = 0;
-	bool autoScroll_ = true;
 };
-
 }    // namespace neko::aer

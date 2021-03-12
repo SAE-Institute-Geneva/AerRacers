@@ -27,10 +27,11 @@
  Date :
 ---------------------------------------------------------- */
 #include "mathematics/vector.h"
+#include "utils/json_utility.h"
 
 namespace neko
 {
-constexpr std::uint8_t kMaxLights = 32;
+constexpr std::uint8_t kMaxLights = 16;
 
 /// An interface for each light type <br>
 /// Is useless on its own
@@ -66,9 +67,32 @@ struct DirectionalLight : Light
 	static DirectionalLight* Instance; // We only want one directional light in the scene
 
 	DirectionalLight() = default;
-	explicit DirectionalLight(const Vec3f& dir) : direction(dir) { Instance = this; }
+	explicit DirectionalLight(const Vec3f& dir) : direction(dir) {}
 
-	Vec3f direction = Vec3f::down;
+	[[nodiscard]] json ToJson() const
+	{
+		json out         = json::object();
+		out["diffuse"]   = GetJsonFromVector3(diffuse);
+		out["ambient"]   = GetJsonFromVector3(ambient);
+		out["direction"] = GetJsonFromVector3(direction);
+
+		out["specular"]  = specular;
+		out["intensity"] = intensity;
+		return out;
+	}
+
+	void FromJson(const json& other)
+	{
+		diffuse   = GetVector3FromJson(other, "diffuse");
+		ambient   = GetVector3FromJson(other, "ambient");
+		direction = GetVector3FromJson(other, "direction");
+
+		specular  = other["specular"].get<float>();
+		intensity = other["intensity"].get<float>();
+	}
+
+	Vec3f ambient   = Vec3f::one * 0.1f;
+	Vec3f direction = -Vec3f::one;
 };
 inline DirectionalLight* DirectionalLight::Instance = nullptr;
 

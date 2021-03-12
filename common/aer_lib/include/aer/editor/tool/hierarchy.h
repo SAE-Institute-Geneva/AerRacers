@@ -37,15 +37,18 @@ namespace neko::aer
 class Hierarchy final : public EditorToolInterface
 {
 public:
-	Hierarchy(AerEngine& engine, ToolType type, int id, std::string_view name);
-
-	void Init() override;
-	void Update(seconds dt) override;
-	void Destroy() override;
+	explicit Hierarchy(AerEngine& engine);
 
 	void DrawImGui() override;
 
-	void OnEvent(const SDL_Event& event) override;
+	[[nodiscard]] std::string_view GetName() const override { return "Hierarchy"; }
+	[[nodiscard]] ToolType GetType() const override { return HIERARCHY; }
+
+	// Not defined
+	void Init() override {}
+	void Update(seconds) override {}
+	void Destroy() override {}
+	void OnEvent(const SDL_Event&) override {}
 
 private:
 	/**

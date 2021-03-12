@@ -46,13 +46,11 @@ public:
     }
     */
 
-    void Execute(Ts ... args)
-    {
-	for(auto& callback : callbacks_)
+	void Execute(Ts... args)
 	{
-	    callback(args...);
+		for (auto& callback : callbacks_)
+			callback(args...);
 	}
-    }
 
 private:
 	std::vector<std::function<void(Ts...)>> callbacks_;

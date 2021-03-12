@@ -86,6 +86,18 @@ bool DragFloat4(std::string_view label,
 	const char* format     = "%.3f",
 	ImGuiSliderFlags flags = 0);
 
+/// A special DragBox with a color picker with no alpha channel
+bool ColorEdit3(std::string_view label,
+	float* col,
+	LabelPos labelPos         = LabelPos::RIGHT,
+	ImGuiColorEditFlags flags = 0);
+
+/// A special DragBox with a color picker with an alpha channel
+bool ColorEdit4(std::string_view label,
+	float* col,
+	LabelPos labelPos         = LabelPos::RIGHT,
+	ImGuiColorEditFlags flags = 0);
+
 /// Draws a button that's centered independently of the current indentation
 bool ButtonCentered(std::string_view label, const ImVec2& size = ImVec2(0.0f, 0.0f));
 
@@ -113,6 +125,14 @@ bool InputText(
 /// Allows for more flexible combo size and labels
 bool Combo(std::string_view label,
 	int* currentItem,
+	const std::vector<std::string>* items,
+	int heightInItems = -1);
+
+/// A combo box that takes a vector of strings as argument <br>
+/// Allows for more flexible combo size and labels <br>
+/// Supports unsigned types
+bool Combo(std::string_view label,
+	unsigned* currentItem,
 	const std::vector<std::string>* items,
 	int heightInItems = -1);
 

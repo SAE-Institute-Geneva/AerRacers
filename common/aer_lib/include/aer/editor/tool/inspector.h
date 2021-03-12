@@ -32,17 +32,21 @@
 
 namespace neko::aer
 {
-constexpr std::uint8_t MaxTagSize = 128;
-
 class Inspector final : public EditorToolInterface
 {
 public:
-	Inspector(AerEngine& engine, ToolType type, int id, std::string_view name);
-	void Init() override;
-	void Update(seconds dt) override;
+	explicit Inspector(AerEngine& engine);
+
 	void DrawImGui() override;
-	void Destroy() override;
-	void OnEvent(const SDL_Event& event) override;
+
+	[[nodiscard]] std::string_view GetName() const override { return "Inspector"; }
+	[[nodiscard]] ToolType GetType() const override { return INSPECTOR; }
+
+	// Not defined
+	void Init() override {}
+	void Update(seconds) override {}
+	void Destroy() override {}
+	void OnEvent(const SDL_Event&) override {}
 
 private:
 	void DisplayComponentViewer(ComponentViewer& viewer, Entity entity, ComponentType type);
