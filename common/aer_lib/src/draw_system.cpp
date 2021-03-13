@@ -4,6 +4,9 @@
 	#include <easy/profiler.h>
 #endif
 
+#include "aer/aer_engine.h"
+
+
 namespace neko::aer
 {
 DrawSystem::DrawSystem(AerEngine& engine)
@@ -17,6 +20,9 @@ DrawSystem::DrawSystem(AerEngine& engine)
 	gizmosRenderer_ = std::make_unique<GizmoRenderer>(&camera_.GetCamera(0));
 	engine.RegisterSystem(*gizmosRenderer_);
 #endif
+	uiManager_ = std::make_unique<UiManager>(engine_);
+	engine.RegisterSystem(*uiManager_);
+	engine.RegisterOnEvent(*uiManager_);
 }
 
 void DrawSystem::Init()
@@ -151,6 +157,7 @@ void DrawSystem::RenderScene(const std::size_t playerNum)
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(playerNum));
 	gizmosRenderer_->Render();
 #endif
+	uiManager_->Render();
 }
 
 void DrawSystem::Destroy() {}

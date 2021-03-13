@@ -64,8 +64,6 @@ class UiManager final : public RenderCommandInterface,
 public:
 	explicit UiManager(AerEngine& aerEngine);
 
-	void InitRender();
-
 	void Init() override;
 
 	void Update(seconds dt) override;
@@ -82,6 +80,7 @@ private:
 	gl::Shader uiShader_;
 	std::vector<UiElement*> uiElements_{};
 	AerEngine& aerEngine_;
+    Job preRender_;
 };
 
 using UiManagerLocator = Locator<IUiManager, NullUiManager>;

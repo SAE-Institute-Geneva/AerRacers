@@ -55,9 +55,8 @@ class TestUiManager : public SystemInterface, public RenderCommandInterface, pub
 {
 public:
     TestUiManager(
-        AerEngine& engine, UiManager& uiManager)
+        AerEngine& engine)
         : engine_(engine),
-          uiManager_(uiManager),
           rContainer_(engine.GetResourceManagerContainer()),
           cContainer_(engine.GetComponentManagerContainer()) { }
     void Init() override
@@ -74,12 +73,21 @@ public:
         ui_.crossHair.texturePath = config.dataRootPath + "sprites/grass.png";
         ui_.hotBar.texturePath = config.dataRootPath + "sprites/grass.png";
         ui_.blockSelect.texturePath = config.dataRootPath + "sprites/grass.png";
+
+
+        Entity testEntity = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(testEntity);
+        cContainer_.transform3dManager.SetRelativePosition(testEntity, Vec3f(0.0f, 0.0f, 0.0f));
+        cContainer_.renderManager.AddComponent(testEntity);
+        cContainer_.renderManager.SetModel(
+            testEntity, config.dataRootPath + "models/cube/cube.obj");
     }
 
     void InitRender()
     {
-        uiManager_.AddUiElement(&ui_.crossHair);
-        uiManager_.AddUiElement(&ui_.hotBar);
+        UiManagerLocator::get().AddUiElement(&ui_.crossHair);
+        UiManagerLocator::get().AddUiElement(&ui_.hotBar);
+        UiManagerLocator::get().AddUiElement(&ui_.blockSelect);
         //for (int i = 0; i < ui_.hotBarPreviews.size(); ++i)
         //{
         //    ui_.hotBarPreviews[i].position.x = ui_.hotBar.position.x + (i - 4) * tileSize.x;
@@ -93,7 +101,6 @@ public:
 
         //    uiManager_.AddUiElement(&ui_.hotBarPreviews[i]);
         //}
-        uiManager_.AddUiElement(&ui_.blockSelect);
     }
 
     void Update(seconds dt) override
@@ -118,14 +125,13 @@ private:
     const float kEngineDuration_ = 0.5f;
 
     AerEngine& engine_;
-    UiManager& uiManager_;
     PlayerUi ui_;
 
     ResourceManagerContainer& rContainer_;
     ComponentManagerContainer& cContainer_;
 };
 
-TEST(UIManager, TestWithoutEngine)
+TEST(UIManager, TestWithEngine)
 {
     //Travis Fix because Windows can't open a window
     char* env = getenv("TRAVIS_DEACTIVATE_GUI");
@@ -147,16 +153,11 @@ TEST(UIManager, TestWithoutEngine)
 
     engine.SetWindowAndRenderer(&window, &renderer);
 
-    UiManager uiManager(engine);
-    TestUiManager testUiManager(engine, uiManager);
+    TestUiManager testUiManager(engine);
 
-    engine.RegisterSystem(uiManager);
-    engine.RegisterOnEvent(uiManager);
     engine.RegisterSystem(testUiManager);
     engine.RegisterOnDrawUi(testUiManager);
     engine.Init();
-    Job initJob{ [&uiManager]() { uiManager.InitRender(); } };
-    BasicEngine::GetInstance()->ScheduleJob(&initJob, JobThreadType::RENDER_THREAD);
     Job initTestJob{ [&testUiManager]() { testUiManager.InitRender(); } };
     BasicEngine::GetInstance()->ScheduleJob(&initTestJob, JobThreadType::RENDER_THREAD);
     engine.EngineLoop();

@@ -29,6 +29,7 @@
 #include "aer/editor/editor_tool_manager.h"
 #include "aer/game/game_camera.h"
 #include "aer/gizmos_renderer.h"
+#include "aer/ui/ui_manager.h"
 
 namespace neko::aer
 {
@@ -66,6 +67,7 @@ private:
 #ifdef NEKO_GLES3
 	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
 #endif
+	std::unique_ptr <UiManager> uiManager_;
 
 	std::uint8_t playerNum_ = 1;
 };

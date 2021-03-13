@@ -7,27 +7,25 @@ namespace neko::aer
 UiManager::UiManager(AerEngine& aerEngine) : aerEngine_(aerEngine)
 {
 }
-
-void UiManager::InitRender()
-{
-	RendererLocator::get().Render(this);
-	
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	const auto& config = aerEngine_.GetConfig();
-	uiShader_.LoadFromFile(
-		config.dataRootPath + "shaders/opengl/base_ui.vert",
-		config.dataRootPath + "shaders/opengl/base.frag");
-
+void UiManager::Init() {
+	UiManagerLocator::provide(this);
 	uiElements_.reserve(kMaxUiElements);
-}
+	const auto& config = aerEngine_.GetConfig();
+	preRender_ = Job{ [this, config]()
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-void UiManager::Init() {}
+			uiShader_.LoadFromFile(
+				config.dataRootPath + "shaders/opengl/base_ui.vert",
+				config.dataRootPath + "shaders/opengl/base.frag");
+		} };
+
+	RendererLocator::get().AddPreRenderJob(&preRender_);
+}
 
 void UiManager::Update(seconds dt)
 {
-	RendererLocator::get().Render(this);
 }
 
 void UiManager::AddUiElement(UiElement* uiElement)
@@ -42,6 +40,7 @@ void UiManager::AddUiElement(UiElement* uiElement)
 
 void UiManager::Render()
 {
+	if (uiShader_.GetProgram() == 0) return;
 	uiShader_.Bind();
 	uiShader_.SetInt("tex", 0);
 	glDisable(GL_DEPTH_TEST);
