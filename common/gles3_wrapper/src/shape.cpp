@@ -32,6 +32,7 @@ namespace neko::gl
 
 void RenderQuad::Init()
 {
+	glCheckError();
 	Vec2f vertices[4] = {
 			Vec2f(0.5f, 0.5f) * size_ + Vec2f(offset_),  // top right
 			Vec2f(0.5f, -0.5f) * size_ + Vec2f(offset_),  // bottom right
@@ -85,21 +86,25 @@ void RenderQuad::Init()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vec2f), (void*)0);
 	glEnableVertexAttribArray(0);
+	glCheckError();
 	//bind texture coords data
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(texCoords), texCoords, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(1);
+	glCheckError();
 	// bind normals data
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), (void*)0);
 	glEnableVertexAttribArray(2);
+	glCheckError();
 	// bind tangent data
 	glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(tangent), &tangent[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vec3f), (void*)0);
 	glEnableVertexAttribArray(3);
+	glCheckError();
 	//bind EBO
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -118,7 +123,52 @@ void RenderQuad::Destroy()
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(4, &VBO[0]);
 	glDeleteBuffers(1, &EBO);
+}
 
+void RenderQuad::SetValues(const Vec2f& newSize, const Vec3f& newOffset)
+{
+	size_ = newSize;
+	offset_ = newOffset;
+
+	Vec2f vertices[4] = {
+		Vec2f(0.5f, 0.5f) * size_ + Vec2f(offset_), // top right
+		Vec2f(0.5f, -0.5f) * size_ + Vec2f(offset_), // bottom right
+		Vec2f(-0.5f, -0.5f) * size_ + Vec2f(offset_), // bottom left
+		Vec2f(-0.5f, 0.5f) * size_ + Vec2f(offset_) // top left
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+}
+
+void RenderQuad::SetSize(const Vec2f& newSize)
+{
+	size_ = newSize;
+
+	Vec2f vertices[4] = {
+		Vec2f(0.5f, 0.5f) * size_ + Vec2f(offset_), // top right
+		Vec2f(0.5f, -0.5f) * size_ + Vec2f(offset_), // bottom right
+		Vec2f(-0.5f, -0.5f) * size_ + Vec2f(offset_), // bottom left
+		Vec2f(-0.5f, 0.5f) * size_ + Vec2f(offset_) // top left
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+}
+
+void RenderQuad::SetOffset(const Vec3f& newOffset)
+{
+	offset_ = newOffset;
+
+	Vec2f vertices[4] = {
+		Vec2f(0.5f, 0.5f) * size_ + Vec2f(offset_), // top right
+		Vec2f(0.5f, -0.5f) * size_ + Vec2f(offset_), // bottom right
+		Vec2f(-0.5f, -0.5f) * size_ + Vec2f(offset_), // bottom left
+		Vec2f(-0.5f, 0.5f) * size_ + Vec2f(offset_) // top left
+	};
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
 }
 
 void RenderCuboid::Init()

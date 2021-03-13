@@ -54,6 +54,10 @@ public:
     void Draw() const override;
 
     void Destroy() override;
+
+    void SetValues(const Vec2f& newSize, const Vec3f& newOffset);
+    void SetSize(const Vec2f& newSize);
+    void SetOffset(const Vec3f& newOffset);
 };
 
 class RenderCuboid : public neko::RenderCuboid, public VertexArrayObject
