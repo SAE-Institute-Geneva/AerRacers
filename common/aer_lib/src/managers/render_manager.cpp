@@ -73,40 +73,43 @@ void RenderManager::Render()
 		entityManager_.get().FilterEntities(static_cast<EntityMask>(ComponentType::MODEL));
 
 #ifdef NEKO_GLES3
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	shader_.Bind();
-
-	const auto& camera = CameraLocator::get();
-	shader_.SetVec3("viewPos", camera.position);
-
-	//TODO find a way to cleanly implement lighting
-	/*shader_.SetUInt("lightType", lightType_);
-
-	shader_.SetVec3("light.position", pointLight_.position);
-	shader_.SetVec3("light.direction", directionalLight_.direction.Normalized());
-	shader_.SetVec3("light.ambient", pointLight_.ambient);
-	shader_.SetVec3("light.diffuse", pointLight_.diffuse);
-	shader_.SetFloat("light.specular", pointLight_.specular);
-	shader_.SetFloat("light.intensity", pointLight_.intensity);
-
-	shader_.SetFloat("sLight.blend", Cos(spotLight_.angle * spotLight_.blend));
-	shader_.SetFloat("sLight.angle", Cos(spotLight_.angle));
-	shader_.SetFloat("sLight.radius", spotLight_.radius);*/
-
-	auto& modelManager = gl::ModelManagerLocator::get();
-	for (auto& entity : entities)
+	if (shader_.GetProgram() != 0)
 	{
-		if (components_[entity].isVisible && components_[entity].modelId != gl::INVALID_MODEL_ID &&
-			modelManager.IsLoaded(components_[entity].modelId))
-		{
-			const Mat4f& modelMat = transformManager_.GetComponent(entity);
-			shader_.SetMat4("model", modelMat);
-			shader_.SetMat3("normalMatrix", Mat3f(modelMat).Inverse().Transpose());
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE);
+		shader_.Bind();
+		const auto& camera = CameraLocator::get();
+		shader_.SetVec3("viewPos", camera.position);
 
-			const auto& model = modelManager.GetModel(components_[entity].modelId);
-			model->Draw(shader_);
+		//TODO find a way to cleanly implement lighting
+		/*shader_.SetUInt("lightType", lightType_);
+
+		shader_.SetVec3("light.position", pointLight_.position);
+		shader_.SetVec3("light.direction", directionalLight_.direction.Normalized());
+		shader_.SetVec3("light.ambient", pointLight_.ambient);
+		shader_.SetVec3("light.diffuse", pointLight_.diffuse);
+		shader_.SetFloat("light.specular", pointLight_.specular);
+		shader_.SetFloat("light.intensity", pointLight_.intensity);
+
+		shader_.SetFloat("sLight.blend", Cos(spotLight_.angle * spotLight_.blend));
+		shader_.SetFloat("sLight.angle", Cos(spotLight_.angle));
+		shader_.SetFloat("sLight.radius", spotLight_.radius);*/
+
+		auto& modelManager = gl::ModelManagerLocator::get();
+		for (auto& entity : entities)
+		{
+			if (components_[entity].isVisible && components_[entity].modelId != gl::INVALID_MODEL_ID &&
+				modelManager.IsLoaded(components_[entity].modelId))
+			{
+				const Mat4f& modelMat = transformManager_.GetComponent(entity);
+				shader_.SetMat4("model", modelMat);
+				shader_.SetMat3("normalMatrix", Mat3f(modelMat).Inverse().Transpose());
+
+				const auto& model = modelManager.GetModel(components_[entity].modelId);
+				model->Draw(shader_);
+			}
 		}
+		glCheckError();
 	}
 #elif NEKO_VULKAN
 	vk::VkResources* vkObj = vk::VkResources::Inst;

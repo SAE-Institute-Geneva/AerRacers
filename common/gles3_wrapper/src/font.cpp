@@ -43,7 +43,7 @@ void FontManager::Init()
     const auto& config = BasicEngine::GetInstance()->GetConfig();
     textShader_.LoadFromFile(config.dataRootPath + "shaders/engine/text.vert",
                              config.dataRootPath + "shaders/engine/text.frag");
-
+    glCheckError();
     // configure VAO/VBO for texture quads
     // -----------------------------------
     glGenVertexArrays(1, &textureQuad_.VAO);
@@ -55,6 +55,7 @@ void FontManager::Init()
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
+    glCheckError();
 }
 
 FontId FontManager::LoadFont(std::string_view fontName, int pixelHeight)
@@ -194,6 +195,8 @@ void FontManager::Render()
         auto& font = fonts_[command.font];
         // activate corresponding render state
 
+        //textShader_.Bind();
+        //textShader_.SetMat4("projection", projection_);
         textShader_.SetVec4("textColor", command.color);
         glActiveTexture(GL_TEXTURE0);
         glBindVertexArray(textureQuad_.VAO);
@@ -278,7 +281,7 @@ Vec2f FontManager::CalculateTextPosition(Vec2f position, TextAnchor anchor)
 
 void FontManager::SetWindowSize(const Vec2f& windowSize)
 {
-    windowSize_ = windowSize;
+    windowSize_ = windowSize / Vec2f(2, 1);
     projection_ = Transform3d::Orthographic(0.0f, windowSize.x, 0.0f, windowSize.y);
 }
 
