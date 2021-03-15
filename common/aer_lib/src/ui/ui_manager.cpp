@@ -24,7 +24,7 @@ void UiManager::Init() {
 				config.dataRootPath + "shaders/opengl/base_ui.vert",
 				config.dataRootPath + "shaders/opengl/base.frag");
 			fontManager_.Init();
-			fontId_ = fontManager_.LoadFont(config.dataRootPath + "font/8-bit-hud.ttf", 36);
+			fontId_ = fontManager_.LoadFont(config.dataRootPath + "font/Lobster-Regular.ttf", 36);
 
 			const auto& config = aerEngine_.GetConfig();
 			//const Vec2u windowSize = config.windowSize / Vec2u(2, 1);
@@ -55,7 +55,6 @@ void UiManager::AddUiElement(UiElement* uiElement)
 void UiManager::Render()
 {
 	if (uiShader_.GetProgram() == 0) return;
-	fontManager_.Render();
 	uiShader_.Bind();
 	uiShader_.SetInt("tex", 0);
 	glDisable(GL_DEPTH_TEST);
@@ -72,6 +71,7 @@ void UiManager::Render()
 		element->Draw(aerEngine_.GetResourceManagerContainer().textureManager, config.windowSize);
 	}
 	glCullFace(GL_BACK);
+	fontManager_.Render();
 	glEnable(GL_DEPTH_TEST);
 }
 
