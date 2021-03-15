@@ -25,7 +25,6 @@ uniform mat4 view;
 uniform mat4 proj;
 uniform mat4 model;
 uniform mat3 normalMatrix;
-uniform bool doInverseNormals;
 uniform vec3 viewPos;
 
 struct Light 
@@ -44,11 +43,11 @@ void main()
 {
     vs1_out.FragPos = vec3(model * vec4(aPos, 1.0));
     vs1_out.TexCoords = aTexCoords;
-    vs1_out.Normal = normalize(normalMatrix * (doInverseNormals ? -aNormal : aNormal));
+    vs1_out.Normal = normalize(normalMatrix * aNormal);
 	
-    vec3 T = normalize(mat3(model) * aTangent);
-    vec3 B = normalize(mat3(model) * aBitangent);
-    vec3 N = normalize(mat3(model) * aNormal);
+    vec3 T = normalize(normalMatrix * aTangent);
+    vec3 B = normalize(normalMatrix * aBitangent);
+    vec3 N = normalize(normalMatrix * aNormal);
     mat3 TBN = transpose(mat3(T, B, N));
 	
     vs2_out.TangentLightPos = TBN * light.position;

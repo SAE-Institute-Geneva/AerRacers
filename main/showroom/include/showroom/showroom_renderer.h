@@ -27,7 +27,6 @@
 #include "graphics/lights.h"
 #include "showroom/camera.h"
 #include "showroom/gizmos_renderer.h"
-#include "showroom/model/model.h"
 #include "showroom/model/model_obj.h"
 #include "showroom/mouse_events.h"
 
@@ -186,7 +185,6 @@ private:
     bool isResized_ = false;
 
     Mat4f modelMat_;
-    sr::Model model_;
     sr::ModelObj modelObj_;
     gl::Shader shader_;
     bool isModelLoading_ = false;

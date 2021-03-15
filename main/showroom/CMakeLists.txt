@@ -4,7 +4,7 @@ if (Neko_GLES3 AND NOT Neko_VULKAN)
     file(GLOB_RECURSE showroom_src include/*.h src/*.cpp)
 
     add_executable(showroom ${showroom_src})
-    target_link_libraries(showroom PUBLIC Neko_Core sdl_engine gles3_wrapper assimp ImGuizmo)
+    target_link_libraries(showroom PUBLIC Neko_Core sdl_engine gles3_wrapper ImGuizmo)
     neko_bin_config(showroom)
     data_generate(showroom)
     set_target_properties(showroom PROPERTIES FOLDER Showroom)

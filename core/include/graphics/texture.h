@@ -94,7 +94,7 @@ struct Texture
         GAMMA_CORRECTION = 1u << 5u,
         FLIP_Y = 1u << 6u,
         HDR = 1u << 7u,
-        DEFAULT = REPEAT_WRAP | SMOOTH_TEXTURE | MIPMAPS_TEXTURE,
+        DEFAULT = REPEAT_WRAP | SMOOTH_TEXTURE | MIPMAPS_TEXTURE | FLIP_Y,
 
     };
     TextureName name = INVALID_TEXTURE_NAME;

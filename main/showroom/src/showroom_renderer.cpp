@@ -235,7 +235,7 @@ void ShowRoomRenderer::UpdateShader(const gl::Shader& shader) const
 	shader.SetMat4("view", camView);
 	shader.SetMat4("proj", camProj);
 	shader.SetMat4("model", modelMat_);
-	shader.SetMat3("normalMatrix", Mat3f(modelMat_).Inverse().Transpose());
+	shader.SetMat3("normalMatrix", Mat3f(modelMat_).Inverse());
 
 	shader.SetVec3("outlineCol", Color3(Color::orange) * 0.5f);
 	shader.SetVec3("viewPos", camera_.position);
@@ -869,6 +869,10 @@ void ShowRoomRenderer::DrawLightTransform()
 	DragFloat("Z##lightScale_", &lightScale_.z, 0.1f, kSmallFloat);
 	PopItemWidth();
 	PopItemWidth();
+
+	lightScale_.x = lightScale_.x >= kSmallFloat ? lightScale_.x : kSmallFloat;
+	lightScale_.y = lightScale_.x >= kSmallFloat ? lightScale_.x : kSmallFloat;
+	lightScale_.z = lightScale_.x >= kSmallFloat ? lightScale_.x : kSmallFloat;
 }
 
 void ShowRoomRenderer::DrawModelTransform()
@@ -913,6 +917,10 @@ void ShowRoomRenderer::DrawModelTransform()
 	DragFloat("Z##scale", &scale.z, 0.1f, kSmallFloat);
 	PopItemWidth();
 	PopItemWidth();
+
+	scale.x = scale.x >= kSmallFloat ? scale.x : kSmallFloat;
+	scale.y = scale.x >= kSmallFloat ? scale.x : kSmallFloat;
+	scale.z = scale.x >= kSmallFloat ? scale.x : kSmallFloat;
 
 	modelMat_ = Transform3d::Transform(pos, angles, scale);
 }
@@ -960,6 +968,10 @@ void ShowRoomRenderer::DrawMeshTransform(sr::MeshObj& mesh)
     DragFloat("Z##scale", &scale.z, 0.1f, kSmallFloat);
     PopItemWidth();
     PopItemWidth();
+
+	scale.x = scale.x >= kSmallFloat ? scale.x : kSmallFloat;
+	scale.y = scale.x >= kSmallFloat ? scale.x : kSmallFloat;
+	scale.z = scale.x >= kSmallFloat ? scale.x : kSmallFloat;
 
     mesh.SetModelMatrix(Transform3d::Transform(pos, angles, scale));
 }

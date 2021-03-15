@@ -55,15 +55,14 @@ void Gles3Window::Init()
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	// Set our OpenGL version.
 #ifdef WIN32
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 6);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 #else
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 #endif
-
 
 	// Turn on double buffering with a 24bit Z buffer.
 	// You may need to change this to 16 or 32 for your system
@@ -85,11 +84,16 @@ void Gles3Window::Init()
 #endif
 
 	glRenderContext_ = SDL_GL_CreateContext(window_);
+
 	MakeCurrentContext();
 #ifndef __EMSCRIPTEN__
 	SDL_GL_SetSwapInterval(config.flags & Configuration::VSYNC ? 1 : 0);
 
-	if (!gladLoadGLES2Loader(static_cast<GLADloadproc>(SDL_GL_GetProcAddress)))
+	bool res                = gladLoadGLES2Loader(static_cast<GLADloadproc>(SDL_GL_GetProcAddress));
+	const GLubyte* renderer = glGetString(GL_VERSION);
+	std::cout << renderer << '\n';
+
+	if (!res)
 	{
 		logDebug("Failed to initialize OpenGL context\n");
 		assert(false);
@@ -97,11 +101,12 @@ void Gles3Window::Init()
 #else
 	SDL_GL_SetSwapInterval(false);
 #endif
-        glCheckError();
-        InitImGui();
-        glCheckError();
-        LeaveCurrentContext();
-	
+
+	glCheckError();
+	InitImGui();
+	glCheckError();
+	LeaveCurrentContext();
+
 	Job initRenderJob([this] { MakeCurrentContext(); });
 	auto* engine = BasicEngine::GetInstance();
 	engine->ScheduleJob(&initRenderJob, JobThreadType::RENDER_THREAD);

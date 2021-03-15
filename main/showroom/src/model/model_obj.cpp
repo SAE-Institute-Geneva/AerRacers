@@ -65,6 +65,9 @@ void ModelObj::LoadModel(std::string_view path)
 	name_ = path.substr(path.find_last_of('/') + 1, path.size());
 #endif
 	logDebug(fmt::format("ASSIMP: Loading model: {}", path_));
+
+	processModelJob_.Reset();
+	processModelJob_ = Job([this] { ProcessModel(); });
 	BasicEngine::GetInstance()->ScheduleJob(&processModelJob_, JobThreadType::RESOURCE_THREAD);
 }
 
@@ -185,6 +188,8 @@ void ModelObj::ProcessModel()
 		}
 	}
 
+	initModelJob_.Reset();
+	initModelJob_ = Job([this]{ for (auto& mesh : meshes_) mesh.Init(); });
 	BasicEngine::GetInstance()->ScheduleJob(&initModelJob_, JobThreadType::OTHER_THREAD);
 }
 

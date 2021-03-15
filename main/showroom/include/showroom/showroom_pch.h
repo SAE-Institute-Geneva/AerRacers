@@ -33,7 +33,7 @@
 	#include "gl/shape.h"
 	#include "mathematics/matrix.h"
 	#include "sdl_engine/sdl_camera.h"
-	#include "showroom/model/model.h"
+	#include "showroom/model/model_obj.h"
 #endif
 
 #ifdef EASY_PROFILE_USE
