@@ -58,12 +58,12 @@ void FontManager::Init()
     glCheckError();
 }
 
-FontId FontManager::LoadFont(std::string_view fontName, int pixelHeight)
+FontId FontManager::LoadFont(std::string_view fontPath, int pixelHeight)
 {
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Load Font");
 #endif
-    const std::string metaPath = std::string(fontName) + ".meta";
+    const std::string metaPath = std::string(fontPath) + ".meta";
     auto metaJson = LoadJson(metaPath);
     FontId fontId = INVALID_FONT_ID;
     if (CheckJsonExists(metaJson, "uuid"))
@@ -95,7 +95,7 @@ FontId FontManager::LoadFont(std::string_view fontName, int pixelHeight)
         return INVALID_FONT_ID;
     }
     FT_Face face;
-    BufferFile fontFile = filesystem_.LoadFile(fontName);
+    BufferFile fontFile = filesystem_.LoadFile(fontPath);
     if (FT_New_Memory_Face(ft,
                            fontFile.dataBuffer,
                            fontFile.dataLength,
@@ -281,7 +281,7 @@ Vec2f FontManager::CalculateTextPosition(Vec2f position, TextAnchor anchor)
 
 void FontManager::SetWindowSize(const Vec2f& windowSize)
 {
-    windowSize_ = windowSize / Vec2f(2, 1);
+    windowSize_ = windowSize;
     projection_ = Transform3d::Orthographic(0.0f, windowSize.x, 0.0f, windowSize.y);
 }
 

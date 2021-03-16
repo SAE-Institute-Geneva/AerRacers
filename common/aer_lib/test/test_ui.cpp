@@ -36,21 +36,6 @@ namespace neko::aer
 const static uint8_t kHotBarSize = 9;
 const static Vec2u kTileSize = Vec2u(80u);
 
-struct PlayerUi
-{
-    //Crosshair
-    UiElement crossHair{ Vec3f::zero, Vec2u(64, 64) };
-
-    //HotBar
-    UiElement hotBar{ Vec3f::zero, Vec2u(728, 88) };
-    std::array<size_t, kHotBarSize> hotBarBlocks{};
-    std::array<UiElement, kHotBarSize> hotBarPreviews{};
-
-    //Block Select
-    UiElement blockSelect{ Vec3f::zero, Vec2u(96, 96) };
-    short selectIndex = 0;
-};
-
 class TestUiManager : public SystemInterface, public RenderCommandInterface, public DrawImGuiInterface
 {
 public:
@@ -62,18 +47,6 @@ public:
     void Init() override
     {
         const auto& config = BasicEngine::GetInstance()->GetConfig();
-        const Vec2f toolBarSize = Vec2f(ui_.hotBar.size) / Vec2f(config.windowSize);
-        ui_.hotBar.position.y = toolBarSize.y / 2 - 1.0;
-
-        const Vec2f tileSize = Vec2f(kTileSize) / Vec2f(config.windowSize);
-
-        ui_.blockSelect.position.y = ui_.hotBar.position.y;
-        ui_.blockSelect.position.x = ui_.hotBar.position.x + (ui_.selectIndex - 4) * tileSize.x;
-
-        ui_.crossHair.texturePath = config.dataRootPath + "sprites/grass.png";
-        ui_.hotBar.texturePath = config.dataRootPath + "sprites/grass.png";
-        ui_.blockSelect.texturePath = config.dataRootPath + "sprites/grass.png";
-
 
         Entity testEntity = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(testEntity);
@@ -81,32 +54,32 @@ public:
         cContainer_.renderManager.AddComponent(testEntity);
         cContainer_.renderManager.SetModel(
             testEntity, config.dataRootPath + "models/cube/cube.obj");
-    }
 
-    void InitRender()
-    {
-        UiManagerLocator::get().AddUiElement(&ui_.crossHair);
-        UiManagerLocator::get().AddUiElement(&ui_.hotBar);
-        UiManagerLocator::get().AddUiElement(&ui_.blockSelect);
-        //for (int i = 0; i < ui_.hotBarPreviews.size(); ++i)
-        //{
-        //    ui_.hotBarPreviews[i].position.x = ui_.hotBar.position.x + (i - 4) * tileSize.x;
-        //    ui_.hotBarPreviews[i].position.y = ui_.hotBar.position.y;
-        //    ui_.hotBarPreviews[i].size = kTileSize;
+        anchorTR = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::TOP_RIGHT };
+        anchorTL = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::TOP_LEFT };
+        anchorBL = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::BOTTOM_LEFT };
+        anchorBR = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::BOTTOM_RIGHT };
+        movingImage = UiImage{ config.dataRootPath + "sprites/wall.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::CENTER };
 
-        //    if (ui_.hotBarBlocks[i] > 0)
-        //        ui_.hotBarPreviews[i].textureId = blockManager_.GetBlock(ui_.hotBarBlocks[i]).previewTexture;
-        //    else
-        //        ui_.hotBarPreviews[i].texturePath = config.dataRootPath + "sprites/empty.png";
-
-        //    uiManager_.AddUiElement(&ui_.hotBarPreviews[i]);
-        //}
     }
 
     void Update(seconds dt) override
     {
-        //updateCount_ += dt.count();
-        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+        UiManagerLocator::get().RenderUiImage(&anchorTR);
+        UiManagerLocator::get().RenderUiImage(&anchorTL);
+        UiManagerLocator::get().RenderUiImage(&anchorBL);
+        UiManagerLocator::get().RenderUiImage(&anchorBR);
+        UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, "TL", Vec2f::zero, UiAnchor::TOP_LEFT, 1.0f, Color::red);
+        UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, "TR", Vec2f::zero, UiAnchor::TOP_RIGHT, 1.0f, Color::green);
+        UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, "BL", Vec2f::zero, UiAnchor::BOTTOM_LEFT, 1.0f, Color::blue);
+        UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, "BR", Vec2f::zero, UiAnchor::BOTTOM_RIGHT, 1.0f, Color::yellow);
+
+        const auto& config = BasicEngine::GetInstance()->GetConfig();
+        UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, "Moving.txt", (Vec2f::one * 100.0f).Rotate(radian_t(updateCount_)), UiAnchor::CENTER, Abs(Sin(radian_t(updateCount_)))*10.0f, Color::cyan);
+        movingImage.SetPosition(Vec3f((Vec2f::one * 0.1f).Rotate(radian_t(updateCount_))));
+        UiManagerLocator::get().RenderUiImage(&movingImage);
+        updateCount_ += dt.count();
+        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Render() override
@@ -125,10 +98,17 @@ private:
     const float kEngineDuration_ = 0.5f;
 
     AerEngine& engine_;
-    PlayerUi ui_;
 
     ResourceManagerContainer& rContainer_;
     ComponentManagerContainer& cContainer_;
+
+    //Test anchor
+
+    UiImage anchorBL;
+    UiImage anchorBR;
+    UiImage anchorTL;
+    UiImage anchorTR;
+    UiImage movingImage;
 };
 
 TEST(UIManager, TestWithEngine)
@@ -158,11 +138,9 @@ TEST(UIManager, TestWithEngine)
     engine.RegisterSystem(testUiManager);
     engine.RegisterOnDrawUi(testUiManager);
     engine.Init();
-    Job initTestJob{ [&testUiManager]() { testUiManager.InitRender(); } };
-    BasicEngine::GetInstance()->ScheduleJob(&initTestJob, JobThreadType::RENDER_THREAD);
     engine.EngineLoop();
     #ifdef EASY_PROFILE_USE
-    profiler::dumpBlocksToFile("Renderer_Neko_Profile.prof");
+    profiler::dumpBlocksToFile("UiManager_Neko_Profile.prof");
     #endif
 }
 }    // namespace neko::aer

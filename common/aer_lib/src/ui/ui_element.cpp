@@ -2,34 +2,39 @@
 
 namespace neko::aer
 {
-void UiElement::Init(const Vec2u& screenSize)
+UiElement::UiElement(const Vec3f& pos, const Vec2u& size, UiAnchor uiAnchor)
+    : position_(pos),
+      size_(size),
+    uiAnchor_(uiAnchor)
 {
-	const Vec2f normalSpaceSize = Vec2f(size) / Vec2f(screenSize);
-	quad = gl::RenderQuad(position, normalSpaceSize);
-	quad.Init();
-}
-
-void UiElement::Draw(gl::TextureManager& textureManager, const Vec2u& screenSize)
-{
-	glActiveTexture(GL_TEXTURE0);
-	if (textureName == INVALID_TEXTURE_NAME)
-	{
-		textureName = textureManager.GetTextureName(textureId);
-		return;
-	}
-	glBindTexture(GL_TEXTURE_2D, textureName);
-	quad.Draw();
-}
-
-void UiElement::Update(const Vec2u& screenSize)
-{
-	const Vec2f normalSpaceSize = Vec2f(size) / Vec2f(screenSize);
-	quad.SetValues(normalSpaceSize, position);
 }
 
 void UiElement::Destroy()
 {
-	quad.Destroy();
-	gl::DestroyTexture(textureName);
+}
+Vec2f UiElement::CalculateUiElementPosition(Vec2f position, Vec2f windowSize, UiAnchor anchor)
+{
+    switch (anchor)
+    {
+    case UiAnchor::TOP_LEFT:
+        return position + Vec2f{ -1, 1 };
+    case UiAnchor::TOP:
+        return position + Vec2f::up;
+    case UiAnchor::TOP_RIGHT:
+        return position + Vec2f::one;
+    case UiAnchor::CENTER_LEFT:
+        return position + Vec2f::left;
+    case UiAnchor::CENTER:
+        return position + Vec2f::zero;
+    case UiAnchor::CENTER_RIGHT:
+        return position + Vec2f::right;
+    case UiAnchor::BOTTOM_LEFT:
+        return position + Vec2f::one * -1.0f;
+    case UiAnchor::BOTTOM:
+        return position + Vec2f::down;
+    case UiAnchor::BOTTOM_RIGHT:
+        return position + Vec2f{1, -1};
+    }
+    return position;
 }
 }

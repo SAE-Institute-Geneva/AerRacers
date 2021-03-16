@@ -1,19 +1,15 @@
 #pragma once
-/*
+/* ----------------------------------------------------
  MIT License
-
  Copyright (c) 2020 SAE Institute Switzerland AG
-
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
  in the Software without restriction, including without limitation the rights
  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  copies of the Software, and to permit persons to whom the Software is
  furnished to do so, subject to the following conditions:
-
  The above copyright notice and this permission notice shall be included in all
  copies or substantial portions of the Software.
-
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -21,41 +17,40 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
- */
-#include "graphics.h"
-#include "graphics/color.h"
-#include "mathematics/vector.h"
+ Author : Canas Simon
+ Co-Author : Floreau Luca
+ Date : 13.03.2021
+---------------------------------------------------------- */
+#include <utility>
 
-#include <string_view>
-namespace neko
+
+#include "ui_element.h"
+#include "gl/texture.h"
+#include "gl/shape.h"
+
+namespace neko::aer
 {
-
-using FontId = sole::uuid;
-const FontId INVALID_FONT_ID = sole::uuid();
-
-enum class TextAnchor
-{
-    TOP_LEFT,
-    TOP,
-    TOP_RIGHT,
-    CENTER_LEFT,
-    CENTER,
-    CENTER_RIGHT,
-    BOTTOM_LEFT,
-    BOTTOM,
-    BOTTOM_RIGHT
-};
-
-class FontManager : public RenderCommandInterface
+class UiImage : public UiElement
 {
 public:
-  virtual ~FontManager() = default;
-  virtual void Init() = 0;
-  virtual FontId LoadFont(std::string_view fontPath, int pixelHeight) = 0;
-  virtual void
-  RenderText(FontId font, std::string_view text, Vec2f position, TextAnchor anchor, float scale, Color4 color) = 0;
-  virtual void SetWindowSize(const Vec2f& windowSize) = 0;
-  virtual void DestroyFont(FontId font) = 0;
-  virtual void Destroy() = 0;
+    explicit UiImage(const std::string_view& texturePath = "",
+        const Vec3f& position = Vec3f::zero,
+        const Vec2u& size     = Vec2u::one,
+        UiAnchor anchor       = UiAnchor::CENTER);
+
+	void Init(gl::TextureManager& textureManager);
+	void Draw(gl::TextureManager& textureManager, const Vec2u& screenSize);
+
+	void Destroy() override;
+
+	void SetTexturePath(const std::string& texturePath);
+
+protected:
+
+	std::string texturePath_ = "";
+	TextureId textureId_ = INVALID_TEXTURE_ID;
+	TextureName textureName_ = INVALID_TEXTURE_NAME;
+	gl::RenderQuad quad_{Vec3f::zero, Vec2f::one};
+
 };
 }

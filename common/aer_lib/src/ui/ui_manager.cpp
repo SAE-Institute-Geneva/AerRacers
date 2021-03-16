@@ -11,7 +11,7 @@ UiManager::UiManager(AerEngine& aerEngine) :
 }
 void UiManager::Init() {
 	UiManagerLocator::provide(this);
-	uiElements_.reserve(kMaxUiElements);
+	uiImages_.reserve(kMaxUiElements);
 	const auto& config = aerEngine_.GetConfig();
 
 
@@ -20,11 +20,12 @@ void UiManager::Init() {
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			uiShader_.LoadFromFile(
+			uiImageShader_.LoadFromFile(
 				config.dataRootPath + "shaders/opengl/base_ui.vert",
 				config.dataRootPath + "shaders/opengl/base.frag");
 			fontManager_.Init();
-			fontId_ = fontManager_.LoadFont(config.dataRootPath + "font/Lobster-Regular.ttf", 36);
+			lobsterId_ = fontManager_.LoadFont(config.dataRootPath + kLobsterPath_, 36);
+			robotoId_ = fontManager_.LoadFont(config.dataRootPath + kRobotoPath_, 36);
 
 			const auto& config = aerEngine_.GetConfig();
 			//const Vec2u windowSize = config.windowSize / Vec2u(2, 1);
@@ -37,49 +38,38 @@ void UiManager::Init() {
 
 void UiManager::Update(seconds dt)
 {
-	const auto& config = aerEngine_.GetConfig();
-	fontManager_.SetWindowSize(Vec2f(config.windowSize));
-	fontManager_.RenderText(fontId_, "winnerText", Vec2f::zero, TextAnchor::CENTER, 1.0f, Color::red);
-}
-
-void UiManager::AddUiElement(UiElement* uiElement)
-{
-	const auto& config = aerEngine_.GetConfig();
-	if (uiElement->textureId == INVALID_TEXTURE_ID)
-		uiElement->textureId = aerEngine_.GetResourceManagerContainer().textureManager.LoadTexture(
-			uiElement->texturePath, Texture::DEFAULT);
-	uiElement->Init(config.windowSize);
-	uiElements_.push_back(uiElement);
 }
 
 void UiManager::Render()
 {
-	if (uiShader_.GetProgram() == 0) return;
-	uiShader_.Bind();
-	uiShader_.SetInt("tex", 0);
+	if (uiImageShader_.GetProgram() == 0) return;
+	uiImageShader_.Bind();
+	uiImageShader_.SetInt("tex", 0);
 	glDisable(GL_DEPTH_TEST);
 	glCullFace(GL_FRONT);
 
 	const auto& config = aerEngine_.GetConfig();
-	for (auto& element : uiElements_)
+	for (auto& image : uiImages_)
 	{
-		if (element->flags & UiElement::DIRTY)
-		{
-			element->Update(config.windowSize);
-			element->flags &= ~UiElement::DIRTY;
+		if (!(image->flags & UiElement::INIT)) {
+			image->Init(aerEngine_.GetResourceManagerContainer().textureManager);
+			image->flags |= UiElement::INIT;
 		}
-		element->Draw(aerEngine_.GetResourceManagerContainer().textureManager, config.windowSize);
+		image->Draw(aerEngine_.GetResourceManagerContainer().textureManager, config.windowSize);
 	}
 	glCullFace(GL_BACK);
 	fontManager_.Render();
 	glEnable(GL_DEPTH_TEST);
+	uiImages_.clear();
 }
 
 void UiManager::OnEvent(const SDL_Event& event)
 {
 	if(event.window.event == SDL_WINDOWEVENT_RESIZED)
 	{
-		for (auto& element : uiElements_)
+		const auto& config = aerEngine_.GetConfig();
+		fontManager_.SetWindowSize(Vec2f(config.windowSize));
+		for (auto& element : uiImages_)
 		{
 			element->flags |= UiElement::DIRTY;
 		}
@@ -88,7 +78,26 @@ void UiManager::OnEvent(const SDL_Event& event)
 
 void UiManager::Destroy()
 {
-	uiElements_.clear();
+	uiImages_.clear();
 	fontManager_.Destroy();
+}
+
+void UiManager::RenderUiImage(UiImage* image) {
+	uiImages_.push_back(image);
+}
+
+void UiManager::RenderUiText(FontLoaded fontLoaded,
+    const std::string_view& text,
+    const Vec2f& position,
+    UiAnchor anchor,
+    float scale,
+    const Color4& color) {
+    switch (fontLoaded) {
+        case FontLoaded::LOBSTER:
+			fontManager_.RenderText(lobsterId_, text, position, TextAnchor(anchor), scale, color); break;
+        case FontLoaded::ROBOTO:
+			fontManager_.RenderText(robotoId_, text, position, TextAnchor(anchor), scale, color); break;
+        default: ;
+    }
 }
 }

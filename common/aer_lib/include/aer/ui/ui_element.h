@@ -28,39 +28,43 @@
 
 namespace neko::aer
 {
-struct UiElement
+	enum class UiAnchor
+	{
+		TOP_LEFT,
+		TOP,
+		TOP_RIGHT,
+		CENTER_LEFT,
+		CENTER,
+		CENTER_RIGHT,
+		BOTTOM_LEFT,
+		BOTTOM,
+		BOTTOM_RIGHT
+	};
+class UiElement
 {
+public : 
 	enum UiFlags : uint8_t
 	{
-		DIRTY = 1u << 0u,
+		INIT = 1u << 0u,
+		DIRTY = 1u << 1u
 	};
-	
-	explicit UiElement(const Vec3f& pos = Vec3f::zero,
-	                   const Vec2u& newSize = Vec2u::one)
-		: position(pos), size(newSize) {}
-	
-	explicit UiElement(std::string texPath, 
-	                   const Vec3f& pos = Vec3f::zero,
-	                   const Vec2u& newSize = Vec2u::one)
-		: position(pos), size(newSize), texturePath(std::move(texPath)) {}
 
-	void Init(const Vec2u& screenSize);
-	
-	void Draw(gl::TextureManager& textureManager, const Vec2u& screenSize);
-	void Update(const Vec2u& screenSize);
+    explicit UiElement(const Vec3f& pos = Vec3f::zero,
+        const Vec2u& size               = Vec2u::one,
+        UiAnchor uiAnchor               = UiAnchor::CENTER);
+	virtual void Destroy();
 
-	void Destroy();
-	
-	Vec3f position = Vec3f::zero; //In percent
-	Vec2u size = Vec2u(100u); //In pixel
-
-	std::string texturePath = "";
-	TextureId textureId = INVALID_TEXTURE_ID;
-	TextureName textureName = INVALID_TEXTURE_NAME;
+	void SetPosition(const Vec3f& pos) { position_ = pos; }
+	void SetSize(const Vec2u& size) { size_ = size; }
+	void SetAnchor(UiAnchor uiAnchor) { uiAnchor_ = uiAnchor; }
 
 	uint8_t flags = 0;
+protected :
+    Vec2f CalculateUiElementPosition(Vec2f position, Vec2f windowSize, UiAnchor anchor);
+	Vec3f position_ = Vec3f::zero; //In percent
+	Vec2u size_ = Vec2u(100u); //In pixel
+	UiAnchor uiAnchor_ = UiAnchor::CENTER;
 
-	gl::RenderQuad quad{Vec3f::zero, Vec2f::one};
 
 };
 }

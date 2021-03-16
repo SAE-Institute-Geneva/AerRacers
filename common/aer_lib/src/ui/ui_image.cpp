@@ -1,0 +1,49 @@
+#include "aer/ui/ui_image.h"
+
+#include "aer/ui/ui_element.h"
+
+namespace neko::aer
+{
+UiImage::UiImage(const std::string_view& texturePath,
+    const Vec3f& position,
+    const Vec2u& size,
+    UiAnchor anchor)
+    : UiElement(position, size, anchor),
+      texturePath_(std::move(texturePath))
+{
+    
+}
+
+void UiImage::Init(gl::TextureManager& textureManager)
+{
+	textureId_ = textureManager.LoadTexture(texturePath_, Texture::DEFAULT);
+	textureName_ = textureManager.GetTextureName(textureId_);
+	quad_ = gl::RenderQuad(Vec3f::zero, Vec2f::one);
+	quad_.Init();
+}
+
+void UiImage::Draw(gl::TextureManager& textureManager, const Vec2u& screenSize)
+{
+	const Vec2f normalSpaceSize = Vec2f(size_) / Vec2f(screenSize);
+	const Vec3f anchoredPosition = Vec3f(CalculateUiElementPosition(Vec2f(position_), Vec2f(screenSize), uiAnchor_));
+	quad_.SetValues(normalSpaceSize, anchoredPosition);
+	glActiveTexture(GL_TEXTURE0);
+	if (textureName_ == INVALID_TEXTURE_NAME) {
+	    textureName_ = textureManager.GetTextureName(textureId_);
+		return;
+	}
+	glBindTexture(GL_TEXTURE_2D, textureName_);
+	quad_.Draw();
+}
+
+void UiImage::Destroy()
+{
+	quad_.Destroy();
+	gl::DestroyTexture(textureName_);
+}
+
+void UiImage::SetTexturePath(const std::string& texturePath)
+{
+	texturePath_ = texturePath;
+}
+}
