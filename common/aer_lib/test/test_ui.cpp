@@ -53,29 +53,48 @@ public:
         cContainer_.renderManager.SetModel(
             testEntity, config.dataRootPath + "models/cube/cube.obj");
 
-        anchorTR = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::TOP_RIGHT, Color::white };
-        anchorTL = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::TOP_LEFT , Color::white };
-        anchorBL = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::BOTTOM_LEFT, Color::white };
-        anchorBR = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::BOTTOM_RIGHT, Color::white };
-        movingImage = UiImage{ config.dataRootPath + "sprites/wall.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::CENTER, Color::white };
+        anchorTR = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg",Vec3f::zero , Vec2u::one * 150.0f, UiAnchor::TOP_RIGHT, 0, Color::white };
+        anchorTL = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg",Vec3f::zero , Vec2u::one * 150.0f, UiAnchor::TOP_LEFT , 0, Color::white };
+        anchorBL = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg",Vec3f::zero , Vec2u::one * 150.0f, UiAnchor::BOTTOM_LEFT, 0, Color::white };
+        anchorBR = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg",Vec3f::zero , Vec2u::one * 150.0f, UiAnchor::BOTTOM_RIGHT, 0, Color::white };
+        movingImage = UiImage{ config.dataRootPath + "sprites/wall.jpg", Vec3f::zero, Vec2u{2, 1} *150.0f, UiAnchor::CENTER, 0, Color::white };
+        auto& uiManager = UiManagerLocator::get();
+        textBL = UiText{ FontLoaded::LOBSTER, "BL", Vec3f(1.0f, 1.0f, 0.0f) * 0.1f, UiAnchor::BOTTOM_LEFT, 0, 1.0f, Color::cyan };
+        textBR = UiText{ FontLoaded::LOBSTER, "BR", Vec3f(-1.0f, 1.0f, 0.0f) * 0.1f, UiAnchor::BOTTOM_RIGHT, 0, 1.0f, Color::yellow };
+        textTL = UiText{ FontLoaded::LOBSTER, "TL", Vec3f(1.0f, -1.0f, 0.0f) * 0.1f, UiAnchor::TOP_LEFT, 0, 1.0f, Color::red };
+        textTR = UiText{ FontLoaded::LOBSTER, "TR", Vec3f(-1.0f, -1.0f, 0.0f) * 0.1f, UiAnchor::TOP_RIGHT, 0, 1.0f, Color::green };
+        movingText = UiText{ FontLoaded::LOBSTER, std::to_string(updateCount_), (Vec3f::up * 0.5f), UiAnchor::CENTER, 0, 1.0f, Color::blue };
+        uiManager.AddUiImage(&anchorTR);
+        uiManager.AddUiImage(&anchorTL);
+        uiManager.AddUiImage(&anchorBL);
+        uiManager.AddUiImage(&anchorBR);
+        uiManager.AddUiImage(&movingImage);
+        uiManager.AddUiText(&textBL);
+        uiManager.AddUiText(&textBR);
+        uiManager.AddUiText(&textTL);
+        uiManager.AddUiText(&textTR);
+        uiManager.AddUiText(&movingText);
 
     }
 
     void Update(seconds dt) override
     {
-        UiManagerLocator::get().RenderUiImage(&anchorTR);
-        UiManagerLocator::get().RenderUiImage(&anchorTL);
-        UiManagerLocator::get().RenderUiImage(&anchorBL);
-        UiManagerLocator::get().RenderUiImage(&anchorBR);
-        UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, "TL", Vec2f::zero, UiAnchor::TOP_LEFT, 1.0f, Color::red);
-        UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, "TR", Vec2f::zero, UiAnchor::TOP_RIGHT, 1.0f, Color::green);
-        UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, "BL", Vec2f::zero, UiAnchor::BOTTOM_LEFT, 1.0f, Color::blue);
-        UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, "BR", Vec2f::zero, UiAnchor::BOTTOM_RIGHT, 1.0f, Color::yellow);
 
         const auto& config = BasicEngine::GetInstance()->GetConfig();
-        UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, std::to_string(updateCount_), (Vec2f::up * 0.5f).Rotate(radian_t(updateCount_)), UiAnchor::CENTER, 1.0f, Color::cyan);
+        movingText.SetPosition(Vec3f((Vec2f::up * 0.5f).Rotate(radian_t(updateCount_))));
+        movingText.SetText(std::to_string(updateCount_));
         movingImage.SetPosition(Vec3f((Vec2f::up * 0.5f).Rotate(radian_t(updateCount_))));
-        UiManagerLocator::get().RenderUiImage(&movingImage);
+        uint8_t screen = (static_cast<int>(updateCount_) / 2) % 5;
+        movingText.SetScreenId(screen);
+        movingImage.SetScreenId(screen);
+        anchorTR.SetScreenId(screen);
+        anchorTL.SetScreenId(screen);
+        anchorBL.SetScreenId(screen);
+        anchorBR.SetScreenId(screen);
+        textBL.SetScreenId(screen);
+        textBR.SetScreenId(screen);
+        textTL.SetScreenId(screen);
+        textTR.SetScreenId(screen);
         updateCount_ += dt.count();
         //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
@@ -107,6 +126,11 @@ private:
     UiImage anchorTL;
     UiImage anchorTR;
     UiImage movingImage;
+    UiText textBL;
+    UiText textBR;
+    UiText textTL;
+    UiText textTR;
+    UiText movingText;
 };
 
 TEST(UIManager, TestWithEngine)

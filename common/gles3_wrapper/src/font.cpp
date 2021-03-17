@@ -159,12 +159,65 @@ FontId FontManager::LoadFont(std::string_view fontPath, int pixelHeight)
     return fontId;
 }
 
-void FontManager::RenderText(FontId font, std::string_view text, Vec2f position, TextAnchor anchor, float scale,
-                             Color4 color)
+void FontManager::RenderText(const FontId fontId, const std::string text, const Vec2f& position, const TextAnchor anchor, const float scale,
+                             const Color4& color)
 {
-    commands_.push_back(
-            {font, text.data(), position, anchor, scale, color}
-            );
+    textShader_.Bind();
+    textShader_.SetMat4("projection", projection_);
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("Render Text");
+#endif
+    auto& font = fonts_[fontId];
+    // activate corresponding render state
+
+    //textShader_.Bind();
+    //textShader_.SetMat4("projection", projection_);
+    textShader_.SetVec4("textColor", color);
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(textureQuad_.VAO);
+
+    Vec2f textPosition = CalculateTextPosition(position, anchor);
+    const Character ch = font.characters[*text.c_str()];
+    float x            = textPosition.x;
+    if (true) {
+        x = textPosition.x - (ch.size.x * scale * (text.size() - 1)) / 2.0f;
+    }
+    float y = textPosition.y - (ch.size.y * scale) / 2;
+    // iterate through all characters
+    for (const auto* c = text.c_str(); *c != 0; c++) {
+        const Character ch = font.characters[*c];
+
+        const float xpos = x + ch.bearing.x * scale;
+        const float ypos = y - (ch.size.y - ch.bearing.y) * scale;
+
+        const float w = ch.size.x * scale;
+        const float h = ch.size.y * scale;
+        // update VBO for each character
+        const float vertices[6][4] = {
+            {xpos, ypos + h, 0.0f, 0.0f},
+            {xpos, ypos, 0.0f, 1.0f},
+            {xpos + w, ypos, 1.0f, 1.0f},
+
+            {xpos, ypos + h, 0.0f, 0.0f},
+            {xpos + w, ypos, 1.0f, 1.0f},
+            {xpos + w, ypos + h, 1.0f, 0.0f}
+        };
+        // render glyph texture over quad
+        glBindTexture(GL_TEXTURE_2D, ch.textureID);
+        // update content of VBO memory
+        glBindBuffer(GL_ARRAY_BUFFER, textureQuad_.VBO[0]);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+        // be sure to use glBufferSubData and not glBufferData
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+        // render quad
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+        x += (ch.advance >> 6) * scale;
+        // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+    }
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void FontManager::Destroy()
@@ -185,66 +238,10 @@ void FontManager::Render()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Render Font Manager");
 #endif
-    textShader_.Bind();
-    textShader_.SetMat4("projection", projection_);
-    for(auto& command : commands_)
-    {
-#ifdef EASY_PROFILE_USE
-        EASY_BLOCK("Render Text");
-#endif
-        auto& font = fonts_[command.font];
-        // activate corresponding render state
+    //for(auto& command : commands_)
+    //{
 
-        //textShader_.Bind();
-        //textShader_.SetMat4("projection", projection_);
-        textShader_.SetVec4("textColor", command.color);
-        glActiveTexture(GL_TEXTURE0);
-        glBindVertexArray(textureQuad_.VAO);
-
-        Vec2f textPosition = CalculateTextPosition(command.position, command.anchor);
-        const Character ch = font.characters[*command.text.c_str()];
-        float x = textPosition.x;
-        if (true)
-        {
-            x = textPosition.x - (ch.size.x * command.scale * (command.text.size() - 1))/2.0f;
-        }
-        float y = textPosition.y - (ch.size.y * command.scale)/2;
-        // iterate through all characters
-        for (const auto* c = command.text.c_str(); *c != 0; c++)
-        {
-            const Character ch = font.characters[*c];
-
-            const float xpos = x + ch.bearing.x * command.scale;
-            const float ypos = y - (ch.size.y - ch.bearing.y) * command.scale;
-
-            const float w = ch.size.x * command.scale;
-            const float h = ch.size.y * command.scale;
-            // update VBO for each character
-            const float vertices[6][4] = {
-                    { xpos,     ypos + h,   0.0f, 0.0f },
-                    { xpos,     ypos,       0.0f, 1.0f },
-                    { xpos + w, ypos,       1.0f, 1.0f },
-
-                    { xpos,     ypos + h,   0.0f, 0.0f },
-                    { xpos + w, ypos,       1.0f, 1.0f },
-                    { xpos + w, ypos + h,   1.0f, 0.0f }
-            };
-            // render glyph texture over quad
-            glBindTexture(GL_TEXTURE_2D, ch.textureID);
-            // update content of VBO memory
-            glBindBuffer(GL_ARRAY_BUFFER, textureQuad_.VBO[0]);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // be sure to use glBufferSubData and not glBufferData
-
-            glBindBuffer(GL_ARRAY_BUFFER, 0);
-            // render quad
-            glDrawArrays(GL_TRIANGLES, 0, 6);
-            // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-            x += (ch.advance >> 6) * command.scale; // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
-        }
-        glBindVertexArray(0);
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-    commands_.clear();
+    //commands_.clear();
 }
 
 void FontManager::DestroyFont(FontId font)

@@ -52,10 +52,12 @@ public:
     void Init() override;
 
     FontId LoadFont(std::string_view fontPath, int pixelHeight) override;
-
-    void RenderText(FontId font, std::string_view text, Vec2f position, TextAnchor anchor, float scale,
-                    Color4 color) override;
-
+    void RenderText(FontId fontId,
+        std::string text,
+        const Vec2f& position,
+        TextAnchor anchor,
+        float scale,
+        const Color4& color)override;
     void Destroy() override;
 
     void Render() override;

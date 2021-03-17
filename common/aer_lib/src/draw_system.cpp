@@ -136,7 +136,7 @@ void DrawSystem::Render()
 		case 0:
 		default: LogError("Invalid Player number!!"); break;
 	}
-
+	uiManager_->Render(playerNum_);
 	gizmosRenderer_->Clear();
 #elif NEKO_VULKAN
 	CameraLocator::provide(&camera_.GetCamera(0));
@@ -157,7 +157,6 @@ void DrawSystem::RenderScene(const std::size_t playerNum)
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(playerNum));
 	gizmosRenderer_->Render();
 #endif
-	uiManager_->Render();
 }
 
 void DrawSystem::Destroy() {}

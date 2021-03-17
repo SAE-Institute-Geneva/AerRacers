@@ -39,6 +39,7 @@ public:
         const Vec3f& position = Vec3f::zero,
         const Vec2u& size     = Vec2u::one,
         UiAnchor anchor       = UiAnchor::CENTER,
+		uint8_t screenId = 0,
 		const Color4& color = Color::white);
 
 	void Init(gl::TextureManager& textureManager);
@@ -46,9 +47,12 @@ public:
 
 	void Destroy() override;
 
-	void SetTexturePath(const std::string& texturePath);
+	void SetTexturePath(const std::string& texturePath) { texturePath_ = texturePath; }
+	void SetSize(const Vec2u& size) { size_ = size; }
+	void SetColor(const Color4& color) { color_ = color; }
 
 protected:
+	Vec2u size_ = Vec2u(100u); //In pixel
 
 	std::string texturePath_ = "";
 	TextureId textureId_ = INVALID_TEXTURE_ID;

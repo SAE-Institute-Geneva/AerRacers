@@ -31,12 +31,7 @@
 namespace neko::aer
 {
 class AerEngine;
-const static size_t kMaxUiElements = 16;
-
-enum class FontLoaded {
-    LOBSTER,
-    ROBOTO
-};
+const static size_t MAX_UI_ELEMENTS = 16;
 
 //-----------------------------------------------------------------------------
 // UiManagerInterface
@@ -45,13 +40,8 @@ enum class FontLoaded {
 class IUiManager
 {
 public:
-	virtual void RenderUiImage(UiImage* image) = 0;
-	virtual void RenderUiText(FontLoaded fontPath,
-        const std::string_view& text,
-        const Vec2f& position = Vec2f::zero,
-        UiAnchor anchor = UiAnchor::CENTER,
-        float scale = 1.0f,
-        const Color4& color = Color::white) = 0;
+	virtual void AddUiImage(UiImage* image) = 0;
+	virtual void AddUiText(UiText* text) = 0;
 protected:
 	~IUiManager() = default;
 };
@@ -63,21 +53,15 @@ protected:
 class NullUiManager final : public IUiManager
 {
 public:
-    void RenderUiImage(UiImage*) override {}
-    void RenderUiText(FontLoaded,
-        const std::string_view&,
-        const Vec2f&,
-        UiAnchor,
-        float,
-        const Color4&) override {}
+    void AddUiImage(UiImage*) override {}
+    void AddUiText(UiText* text) override {}
 };
 
 //-----------------------------------------------------------------------------
 // UiManager
 //-----------------------------------------------------------------------------
 /// \brief Draw gizmos
-class UiManager final : public RenderCommandInterface,
-                        public SystemInterface,
+class UiManager final : public SystemInterface,
                         public sdl::SdlEventSystemInterface,
                         public IUiManager
 {
@@ -88,21 +72,19 @@ public:
 
 	void Update(seconds dt) override;
 
-	void Render() override;
+    void Render(uint8_t playerNmb);
 
 	void OnEvent(const SDL_Event& event) override;
 
 	void Destroy() override;
 
-    void RenderUiImage(UiImage*) override;
+    void AddUiImage(UiImage*) override;
     
-    void RenderUiText(FontLoaded fontPath,
-        const std::string_view& text,
-        const Vec2f& position = Vec2f::zero,
-        UiAnchor anchor = UiAnchor::CENTER,
-        float scale = 1.0f,
-        const Color4& color = Color::white) override;
+    void AddUiText(UiText* text) override;
 private:
+    FontId GetFontId(FontLoaded fontLoaded) const;
+    void ChangeViewport(uint8_t screenId, uint8_t playerNmb, const Vec2u& windowSize);
+
     AerEngine& aerEngine_;
     Job preRender_;
     //Font 
@@ -115,6 +97,7 @@ private:
     //UiImage
     gl::Shader uiImageShader_;
     std::vector<UiImage*> uiImages_{};
+    std::vector<UiText*> uiTexts_{};
 };
 
 using UiManagerLocator = Locator<IUiManager, NullUiManager>;

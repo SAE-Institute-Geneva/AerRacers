@@ -52,8 +52,12 @@ public:
   virtual ~FontManager() = default;
   virtual void Init() = 0;
   virtual FontId LoadFont(std::string_view fontPath, int pixelHeight) = 0;
-  virtual void
-  RenderText(FontId font, std::string_view text, Vec2f position, TextAnchor anchor, float scale, Color4 color) = 0;
+  virtual void RenderText(FontId fontId,
+      std::string text,
+      const Vec2f& position,
+      TextAnchor anchor,
+      float scale,
+      const Color4& color) = 0;
   virtual void SetWindowSize(const Vec2f& windowSize) = 0;
   virtual void DestroyFont(FontId font) = 0;
   virtual void Destroy() = 0;

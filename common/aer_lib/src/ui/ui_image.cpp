@@ -8,8 +8,10 @@ UiImage::UiImage(const std::string_view& texturePath,
     const Vec3f& position,
     const Vec2u& size,
     UiAnchor anchor,
+	uint8_t screenId,
 	const Color4& color)
-    : UiElement(position, size, anchor),
+    : UiElement(position, anchor, screenId),
+	  size_(size),
       texturePath_(std::move(texturePath)),
 	  color_(color)
 {
@@ -43,10 +45,5 @@ void UiImage::Destroy()
 {
 	quad_.Destroy();
 	gl::DestroyTexture(textureName_);
-}
-
-void UiImage::SetTexturePath(const std::string& texturePath)
-{
-	texturePath_ = texturePath;
 }
 }

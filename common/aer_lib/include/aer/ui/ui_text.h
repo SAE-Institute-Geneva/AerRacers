@@ -24,30 +24,47 @@
 #include <utility>
 
 #include "ui_element.h"
+#include "gl/font.h"
 #include "graphics/font.h"
 
 namespace neko::aer
 {
+    enum class FontLoaded : uint8_t {
+        LOBSTER,
+        ROBOTO
+    };
 class UiText : public UiElement
 {
 public:
-	enum UiFlags : uint8_t
-	{
-		DIRTY = 1u << 0u,
-	};
+    explicit UiText(FontLoaded font = FontLoaded::LOBSTER,
+        const std::string_view& text = "",
+        const Vec3f& position = Vec3f::zero,
+        UiAnchor anchor = UiAnchor::CENTER,
+        uint8_t screenId = 0,
+        float scale = 1.0f,
+        const Color4& color = Color::white)
+        : UiElement(position, anchor, screenId),
+        font_(font),
+        text_(text),
+        scale_(scale),
+        color_(color)
+    {}
 
-    explicit UiText(
-        std::string text,
-        const Vec3f& pos     = Vec3f::zero,
-        const Vec2u& newSize = Vec2u::one)
-        : UiElement(pos, newSize),
-          text_(text){}
-
-	void Init();
+    void Draw(gl::FontManager& fontManager, const FontId& fontId) const;
 	void Destroy() override;
+
+    void SetFont(const FontLoaded& font) { font_ = font; }
+    FontLoaded GetFont() const { return font_; }
+    void SetText(const std::string& text) { text_ = text; }
+    void SetScale(const float& scale) { scale_ = scale; }
+    void SetColor(const Color4& color) { color_ = color; }
+
 protected:
-	std::string text_ = "";
 	Job preRender_;
+    FontLoaded font_;
+    std::string text_;
+    float scale_;
+    Color4 color_;
 
 };
 }

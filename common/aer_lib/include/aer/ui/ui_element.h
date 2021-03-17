@@ -28,42 +28,49 @@
 
 namespace neko::aer
 {
-	enum class UiAnchor
-	{
-		TOP_LEFT,
-		TOP,
-		TOP_RIGHT,
-		CENTER_LEFT,
-		CENTER,
-		CENTER_RIGHT,
-		BOTTOM_LEFT,
-		BOTTOM,
-		BOTTOM_RIGHT
-	};
+enum class UiAnchor {
+    TOP_LEFT,
+    TOP,
+    TOP_RIGHT,
+    CENTER_LEFT,
+    CENTER,
+    CENTER_RIGHT,
+    BOTTOM_LEFT,
+    BOTTOM,
+    BOTTOM_RIGHT
+};
+
+struct UiFlag {
+    enum Enum : uint8_t {
+        ENABLE = 1u << 0u,
+        INIT = 1u << 1u,
+        DIRTY = 1u << 2u,
+    };
+};
 class UiElement
 {
-public : 
-	enum UiFlags : uint8_t
-	{
-		INIT = 1u << 0u,
-		DIRTY = 1u << 1u
-	};
+public :
 
     explicit UiElement(const Vec3f& pos = Vec3f::zero,
-        const Vec2u& size               = Vec2u::one,
-        UiAnchor uiAnchor               = UiAnchor::CENTER);
+        UiAnchor uiAnchor               = UiAnchor::CENTER,
+        uint8_t screenId = 0);
 	virtual void Destroy();
 
 	void SetPosition(const Vec3f& pos) { position_ = pos; }
-	void SetSize(const Vec2u& size) { size_ = size; }
 	void SetAnchor(UiAnchor uiAnchor) { uiAnchor_ = uiAnchor; }
+    void SetScreenId(uint8_t screenId) { screenId_ = screenId; }
+    void SetEnable(bool enable);
+    void AddFlag(UiFlag::Enum flag);
+    void RemoveFlag(UiFlag::Enum flag);
+    uint8_t GetFlags() const { return flags_; }
+    uint8_t GetScreenId() const { return screenId_; }
 
-	uint8_t flags = 0;
 protected :
     Vec2f CalculateUiElementPosition(Vec2f position, Vec2f windowSize, UiAnchor anchor);
 	Vec3f position_ = Vec3f::zero; //In percent
-	Vec2u size_ = Vec2u(100u); //In pixel
 	UiAnchor uiAnchor_ = UiAnchor::CENTER;
+	uint8_t flags_ = UiFlag::ENABLE;
+    uint8_t screenId_ = 0;
 
 
 };
