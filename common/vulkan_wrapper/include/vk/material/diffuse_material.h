@@ -29,9 +29,9 @@
 
 namespace neko::vk
 {
-constexpr std::string_view kDiffuseName  = ("diffuse");
-constexpr std::string_view kSpecularName = ("specular");
-constexpr std::string_view kNormalName   = ("normal");
+constexpr std::string_view kDiffuseName  = ("diffuseMap");
+constexpr std::string_view kSpecularName = ("specularMap");
+constexpr std::string_view kNormalName   = ("normalMap");
 constexpr std::string_view kColorName    = ("color");
 constexpr std::string_view kUsedMapsName = ("usedMaps");
 constexpr StringHash kDiffuseHash        = HashString(kDiffuseName);

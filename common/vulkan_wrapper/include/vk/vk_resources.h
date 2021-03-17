@@ -26,14 +26,15 @@
  Date:
 ---------------------------------------------------------- */
 #include "vk/commands/command_pool.h"
+#include "vk/commands/light_command_buffer.h"
 #include "vk/commands/model_command_buffer.h"
 #include "vk/core/instance.h"
 #include "vk/core/logical_device.h"
 #include "vk/core/physical_device.h"
 #include "vk/pipelines/material_pipeline_container.h"
 #include "vk/renderers/renderer.h"
+#include "vk/vk_imgui.h"
 #include "vk/vulkan_window.h"
-#include "vk_imgui.h"
 
 namespace neko::vk
 {
@@ -67,6 +68,7 @@ public:
 	Swapchain swapchain {};
 
 	std::array<ModelCommandBuffer, 4> modelCommandBuffers;
+	LightCommandBuffer lightCommandBuffer;
 
 	VkPipelineCache pipelineCache {};
 

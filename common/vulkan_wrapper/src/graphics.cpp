@@ -27,6 +27,8 @@
 ---------------------------------------------------------- */
 #include "vk/graphics.h"
 
+#include "vk/subrenderers/subrenderer_opaque.h"
+
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
 #endif
@@ -55,12 +57,8 @@ void VkRenderer::ClearScreen()
 #endif
 }
 
-void VkRenderer::BeforeRenderLoop() { Renderer::BeforeRenderLoop(); }
-
-void VkRenderer::AfterRenderLoop()
+void VkRenderer::BeforeRenderLoop()
 {
-	Renderer::AfterRenderLoop();
-
 	const std::uint32_t windowFlags = SDL_GetWindowFlags(vkWindow->GetWindow());
 	if (renderer_ == nullptr || windowFlags & SDL_WINDOW_MINIMIZED) return;
 
@@ -81,28 +79,39 @@ void VkRenderer::AfterRenderLoop()
 
 	if (res != VK_SUCCESS && res != VK_SUBOPTIMAL_KHR) return;
 
-	PipelineStage stage;
 	RenderStage& renderStage = renderer_->GetRenderStage();
 	renderStage.Update();
 
-	CommandBuffer& commandBuffer = GetCurrentCmdBuffer();
+	renderer_->GetRendererContainer().Get<SubrendererOpaque>().GetUniformScene(0).Push(
+		kProjHash, Mat4f::Identity);
+
 	if (!StartRenderPass(renderStage)) return;
+
+	Renderer::BeforeRenderLoop();
+}
+
+void VkRenderer::AfterRenderLoop()
+{
+	Renderer::AfterRenderLoop();
+
+	PipelineStage stage;
+	RenderStage& renderStage = renderer_->GetRenderStage();
+	CommandBuffer& commandBuffer = GetCurrentCmdBuffer();
+	for (const auto& subpass : renderStage.GetSubpasses())
 	{
-		for (const auto& subpass : renderStage.GetSubpasses())
-		{
-			stage.subPassId = subpass.binding;
+		stage.subPassId = subpass.binding;
 
-			// Renders subpass subrender pipelines.
-			renderer_->GetRendererContainer().RenderStage(stage, commandBuffer);
+		// Renders subpass subrender pipelines.
+		renderer_->GetRendererContainer().RenderStage(stage, commandBuffer);
 
-			if (subpass.binding != renderStage.GetSubpasses().back().binding)
-				vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
-		}
-
-		VkImGui::Render(commandBuffer);
+		if (subpass.binding != renderStage.GetSubpasses().back().binding)
+			vkCmdNextSubpass(commandBuffer, VK_SUBPASS_CONTENTS_INLINE);
 	}
+
+	VkImGui::Render(commandBuffer);
 	EndRenderPass(renderStage);
 
+	lightCommandBuffer.Clear();
 	stage.renderPassId++;
 }
 
@@ -147,63 +156,6 @@ bool VkRenderer::StartRenderPass(RenderStage& renderStage)
 	vkCmdBeginRenderPass(currentCmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 	return true;
-}
-
-void VkRenderer::ChooseViewport(const CommandBuffer& cmdBuffer,
-	const VkRect2D& renderArea,
-	const std::uint8_t viewportIndex) const
-{
-	switch (viewportCount_)
-	{
-		case 1:
-		{
-			VkViewport viewport;
-			viewport.x        = 0.0f;
-			viewport.y        = 0.0f;
-			viewport.width    = static_cast<float>(renderArea.extent.width);
-			viewport.height   = static_cast<float>(renderArea.extent.height);
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
-			vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
-			break;
-		}
-		case 2:
-		{
-			const auto width = static_cast<float>(renderArea.extent.width) / 2.0f;
-			const auto height = static_cast<float>(renderArea.extent.height);
-			const auto indexX = static_cast<float>(viewportIndex);
-
-			VkViewport viewport;
-			viewport.x        = width * indexX;
-			viewport.y        = 0.0f;
-			viewport.width    = width;
-			viewport.height   = height;
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
-			vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
-			break;
-		}
-		case 3:
-		case 4:
-		{
-			const auto width = static_cast<float>(renderArea.extent.width) / 2.0f;
-			const auto height = static_cast<float>(renderArea.extent.height) / 2.0f;
-			const auto indexX = static_cast<float>(viewportIndex % 2);
-			const auto indexY = static_cast<float>(viewportIndex / 2 % 2);
-
-			VkViewport viewport;
-			viewport.x        = width * indexX;
-			viewport.y        = height * indexY;
-			viewport.width    = width;
-			viewport.height   = height;
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
-			vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
-			break;
-		}
-		case 0:
-		default: neko_assert(false, "Invalid Viewport number!!");
-	}
 }
 
 void VkRenderer::EndRenderPass(const RenderStage& renderStage)

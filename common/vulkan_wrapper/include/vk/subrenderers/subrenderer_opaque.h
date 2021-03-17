@@ -30,14 +30,23 @@
 
 namespace neko::vk
 {
+// UboScene
 constexpr std::string_view kProjName    = "proj";
 constexpr std::string_view kViewName    = "view";
-constexpr std::string_view kModelName   = "model";
 constexpr std::string_view kViewPosName = "viewPos";
 constexpr StringHash kProjHash          = HashString(kProjName);
 constexpr StringHash kViewHash          = HashString(kViewName);
-constexpr StringHash kModelHash         = HashString(kModelName);
 constexpr StringHash kViewPosHash       = HashString(kViewPosName);
+
+// UboObject
+constexpr std::string_view kModelName   = "model";
+constexpr StringHash kModelHash         = HashString(kModelName);
+
+// Lights
+constexpr std::string_view kLightNumName   = "lightNum";
+constexpr std::string_view kDirLightName   = "dirLight";
+constexpr StringHash kLightNumHash         = HashString(kLightNumName);
+constexpr StringHash kDirLightHash         = HashString(kDirLightName);
 
 class SubrendererOpaque final : public RenderPipeline
 {
@@ -52,11 +61,17 @@ public:
 		return static_cast<int>(SubrendererIndex::OPAQUE_S);
 	}
 
+	UniformHandle& GetUniformScene(std::uint8_t viewportIndex)
+	{ return uniformScenes_[viewportIndex]; }
+
+	UniformHandle& GetUniformLight(std::uint8_t viewportIndex)
+	{ return uniformLights_[viewportIndex]; }
+
 private:
 	static void ChooseViewport(const CommandBuffer& cmdBuffer,
 		const VkRect2D& renderArea,
 		std::uint8_t viewportCount,
-		std::uint8_t viewportIndex) ;
+		std::uint8_t viewportIndex);
 
 	bool CmdRender(const CommandBuffer& commandBuffer,
 		ForwardDrawCmd& modelDrawCommand,
@@ -64,11 +79,7 @@ private:
 		const Mesh& mesh,
 		const Material& mat);
 
-	std::array<UniformHandle, 4> uniformScenes_ {
-		UniformHandle(true),
-		UniformHandle(true),
-		UniformHandle(true),
-		UniformHandle(true),
-	};
+	std::array<UniformHandle, 4> uniformScenes_ { true, true, true, true };
+	std::array<UniformHandle, 4> uniformLights_ { true, true, true, true };
 };
 }    // namespace neko::vk

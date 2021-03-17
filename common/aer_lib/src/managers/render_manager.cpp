@@ -90,14 +90,16 @@ void RenderManager::Render()
 		}
 	}
 #elif NEKO_VULKAN
-	auto& modelCommandBuffers = vk::VkResources::Inst->modelCommandBuffers;
+	lightManager_.SetShaderValues();
+
+	auto& cmdBuffers = vk::VkResources::Inst->modelCommandBuffers;
 	for (auto& entity : entities)
 	{
 		if (!modelManager_.IsLoaded(components_[entity].modelId)) continue;
 
 		const Mat4f& modelMat = transformManager_.GetComponent(entity);
-		for (auto& modelCommandBuffer : modelCommandBuffers)
-			modelCommandBuffer.AddMatrix(components_[entity].modelInstanceIndex, modelMat);
+		for (std::size_t i = 0; i < vk::VkResources::Inst->GetViewportCount(); ++i)
+			cmdBuffers[i].AddMatrix(components_[entity].modelInstanceIndex, modelMat);
 	}
 #endif
 }
@@ -107,8 +109,9 @@ void RenderManager::Destroy()
 #ifdef NEKO_GLES3
 	shader_.Destroy();
 #else
-	for (auto& modelCommandBuffer : vk::VkResources::Inst->modelCommandBuffers)
-		modelCommandBuffer.Destroy();
+	auto& cmdBuffers = vk::VkResources::Inst->modelCommandBuffers;
+	for (std::size_t i = 0; i < vk::VkResources::Inst->GetViewportCount(); ++i)
+		cmdBuffers[i].Destroy();
 #endif
 }
 
@@ -155,17 +158,18 @@ void RenderManager::SetModel(Entity entity, vk::ModelId modelId)
 {
 	components_[entity].modelId = modelId;
 
+	auto& cmdBuffers = vk::VkResources::Inst->modelCommandBuffers;
 	const Mat4f& modelMat = transformManager_.GetComponent(entity);
 	if (components_[entity].modelInstanceIndex == INVALID_INDEX)
 	{
-		for (auto& modelCommandBuffer : vk::VkResources::Inst->modelCommandBuffers)
+		for (std::size_t i = 0; i < vk::VkResources::Inst->GetViewportCount(); ++i)
 			components_[entity].modelInstanceIndex =
-				modelCommandBuffer.AddModelInstanceIndex(components_[entity].modelId, modelMat);
+				cmdBuffers[i].AddModelInstanceIndex(components_[entity].modelId, modelMat);
 	}
 	else
 	{
-		for (auto& modelCommandBuffer : vk::VkResources::Inst->modelCommandBuffers)
-			modelCommandBuffer.SetModelId(
+		for (std::size_t i = 0; i < vk::VkResources::Inst->GetViewportCount(); ++i)
+			cmdBuffers[i].SetModelId(
 				components_[entity].modelInstanceIndex, components_[entity].modelId);
 	}
 }

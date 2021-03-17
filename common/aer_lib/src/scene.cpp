@@ -203,8 +203,9 @@ bool SceneManager::LoadScene(const std::string_view& jsonPath)
 		json scene              = neko::LoadJson(jsonPath);
 		currentScene_.scenePath = jsonPath;
 #ifdef NEKO_VULKAN
-		for (auto& modelCommandBuffer : vk::VkResources::Inst->modelCommandBuffers)
-			modelCommandBuffer.Destroy();
+		auto& cmdBuffers = vk::VkResources::Inst->modelCommandBuffers;
+		for (std::size_t i = 0; i < vk::VkResources::Inst->GetViewportCount(); ++i)
+			cmdBuffers[i].Destroy();
 #endif
 		entityManager_.CleanEntity();
 		ParseSceneJson(scene);

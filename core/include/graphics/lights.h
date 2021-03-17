@@ -26,7 +26,6 @@
  Co-Author :
  Date :
 ---------------------------------------------------------- */
-#include "mathematics/vector.h"
 #include "utils/json_utility.h"
 
 namespace neko
@@ -37,9 +36,9 @@ constexpr std::uint8_t kMaxLights = 16;
 /// Is useless on its own
 struct Light
 {
-	Vec3f diffuse   = Vec3f::one;
-	float specular  = 1.0f;
-	float intensity = 1.0f;
+	alignas(16) Vec3f diffuse   = Vec3f::one;
+	alignas(4) float specular  = 1.0f;
+	alignas(4) float intensity = 1.0f;
 };
 
 /// A basic light with infinite radius
@@ -48,7 +47,7 @@ struct BasicLight : Light
 	BasicLight() = default;
 	explicit BasicLight(const Vec3f& pos) : position(pos) {}
 
-	Vec3f position = Vec3f::zero;
+	alignas(16) Vec3f position = Vec3f::zero;
 };
 
 /// A point light with finite radius
@@ -57,7 +56,7 @@ struct PointLight : BasicLight
 	PointLight() = default;
 	explicit PointLight(const Vec3f& pos, const float rad) : BasicLight(pos), radius(rad) {}
 
-	float radius = 10.0f;
+	alignas(4) float radius = 10.0f;
 };
 
 /// A directional light with infinite range <br>
@@ -91,8 +90,8 @@ struct DirectionalLight : Light
 		intensity = other["intensity"].get<float>();
 	}
 
-	Vec3f ambient   = Vec3f::one * 0.1f;
-	Vec3f direction = -Vec3f::one;
+	alignas(16) Vec3f ambient   = Vec3f::one * 0.1f;
+	alignas(16) Vec3f direction = -Vec3f::one;
 };
 inline DirectionalLight* DirectionalLight::Instance = nullptr;
 
@@ -109,8 +108,8 @@ struct SpotLight : PointLight
 	   : PointLight(pos, radius), direction(dir), blend(blend), angle(angle)
 	{}
 
-	Vec3f direction = Vec3f::down;
-	float blend     = 0.8f;
+	alignas(16) Vec3f direction = Vec3f::down;
+	alignas(4) float blend     = 0.8f;
 	degree_t angle  = degree_t(25.0f);
 };
 }    // namespace neko
