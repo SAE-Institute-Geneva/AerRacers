@@ -21,8 +21,8 @@ void UiManager::Init() {
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 			uiImageShader_.LoadFromFile(
-				config.dataRootPath + "shaders/opengl/base_ui.vert",
-				config.dataRootPath + "shaders/opengl/base.frag");
+				config.dataRootPath + "shaders/opengl/ui_image.vert",
+				config.dataRootPath + "shaders/opengl/ui_image.frag");
 			fontManager_.Init();
 			lobsterId_ = fontManager_.LoadFont(config.dataRootPath + kLobsterPath_, 36);
 			robotoId_ = fontManager_.LoadFont(config.dataRootPath + kRobotoPath_, 36);
@@ -38,6 +38,8 @@ void UiManager::Init() {
 
 void UiManager::Update(seconds dt)
 {
+	auto& inputManager = sdl::InputLocator::get();
+	uiImages_.clear();
 }
 
 void UiManager::Render()
@@ -55,12 +57,11 @@ void UiManager::Render()
 			image->Init(aerEngine_.GetResourceManagerContainer().textureManager);
 			image->flags |= UiElement::INIT;
 		}
-		image->Draw(aerEngine_.GetResourceManagerContainer().textureManager, config.windowSize);
+		image->Draw(aerEngine_.GetResourceManagerContainer().textureManager, config.windowSize, uiImageShader_);
 	}
 	glCullFace(GL_BACK);
 	fontManager_.Render();
 	glEnable(GL_DEPTH_TEST);
-	uiImages_.clear();
 }
 
 void UiManager::OnEvent(const SDL_Event& event)

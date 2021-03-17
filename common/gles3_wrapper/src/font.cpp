@@ -202,8 +202,13 @@ void FontManager::Render()
         glBindVertexArray(textureQuad_.VAO);
 
         Vec2f textPosition = CalculateTextPosition(command.position, command.anchor);
+        const Character ch = font.characters[*command.text.c_str()];
         float x = textPosition.x;
-        float y = textPosition.y;
+        if (true)
+        {
+            x = textPosition.x - (ch.size.x * command.scale * (command.text.size() - 1))/2.0f;
+        }
+        float y = textPosition.y - (ch.size.y * command.scale)/2;
         // iterate through all characters
         for (const auto* c = command.text.c_str(); *c != 0; c++)
         {
@@ -259,23 +264,23 @@ Vec2f FontManager::CalculateTextPosition(Vec2f position, TextAnchor anchor)
     switch (anchor)
     {
         case TextAnchor::TOP_LEFT:
-            return position + windowSize_ * Vec2f::up;
+            return position * windowSize_ / 2.0f + windowSize_ * Vec2f::up;
         case TextAnchor::TOP:
-            return position + windowSize_ * Vec2f(0.5f, 1.0f);
+            return position * windowSize_ / 2.0f + windowSize_ * Vec2f(0.5f, 1.0f);
         case TextAnchor::TOP_RIGHT:
-            return position + windowSize_;
+            return position * windowSize_ / 2.0f + windowSize_;
         case TextAnchor::CENTER_LEFT:
-            return position + windowSize_ * (Vec2f::up/2.0f);
+            return position * windowSize_ / 2.0f + windowSize_ * (Vec2f::up/2.0f);
         case TextAnchor::CENTER:
-            return position + windowSize_ /2.0f;
+            return position * windowSize_ / 2.0f + windowSize_ /2.0f;
         case TextAnchor::CENTER_RIGHT:
-            return position + windowSize_ * Vec2f(1.0f, 0.5f);
+            return position * windowSize_ / 2.0f + windowSize_ * Vec2f(1.0f, 0.5f);
         case TextAnchor::BOTTOM_LEFT:
-            return position;
+            return position * windowSize_ / 2.0f;
         case TextAnchor::BOTTOM:
-            return position + windowSize_ * (Vec2f::right/2.0f);
+            return position * windowSize_ / 2.0f + windowSize_ * (Vec2f::right/2.0f);
         case TextAnchor::BOTTOM_RIGHT:
-            return position + windowSize_ * Vec2f::right;
+            return position * windowSize_ / 2.0f + windowSize_ * Vec2f::right;
     }
 }
 

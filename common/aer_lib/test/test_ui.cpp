@@ -22,6 +22,7 @@
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
 
+#include "graphics/color.h"
 
 #include "aer/ui/ui_element.h"
 #include "aer/ui/ui_manager.h"
@@ -33,9 +34,6 @@
 
 namespace neko::aer
 {
-const static uint8_t kHotBarSize = 9;
-const static Vec2u kTileSize = Vec2u(80u);
-
 class TestUiManager : public SystemInterface, public RenderCommandInterface, public DrawImGuiInterface
 {
 public:
@@ -55,11 +53,11 @@ public:
         cContainer_.renderManager.SetModel(
             testEntity, config.dataRootPath + "models/cube/cube.obj");
 
-        anchorTR = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::TOP_RIGHT };
-        anchorTL = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::TOP_LEFT };
-        anchorBL = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::BOTTOM_LEFT };
-        anchorBR = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::BOTTOM_RIGHT };
-        movingImage = UiImage{ config.dataRootPath + "sprites/wall.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::CENTER };
+        anchorTR = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::TOP_RIGHT, Color::white };
+        anchorTL = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::TOP_LEFT , Color::white };
+        anchorBL = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::BOTTOM_LEFT, Color::white };
+        anchorBR = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::BOTTOM_RIGHT, Color::white };
+        movingImage = UiImage{ config.dataRootPath + "sprites/wall.jpg", Vec3f::zero, Vec2u::one * 150.0f, UiAnchor::CENTER, Color::white };
 
     }
 
@@ -75,8 +73,8 @@ public:
         UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, "BR", Vec2f::zero, UiAnchor::BOTTOM_RIGHT, 1.0f, Color::yellow);
 
         const auto& config = BasicEngine::GetInstance()->GetConfig();
-        UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, "Moving.txt", (Vec2f::one * 100.0f).Rotate(radian_t(updateCount_)), UiAnchor::CENTER, Abs(Sin(radian_t(updateCount_)))*10.0f, Color::cyan);
-        movingImage.SetPosition(Vec3f((Vec2f::one * 0.1f).Rotate(radian_t(updateCount_))));
+        UiManagerLocator::get().RenderUiText(FontLoaded::LOBSTER, std::to_string(updateCount_), (Vec2f::up * 0.5f).Rotate(radian_t(updateCount_)), UiAnchor::CENTER, 1.0f, Color::cyan);
+        movingImage.SetPosition(Vec3f((Vec2f::up * 0.5f).Rotate(radian_t(updateCount_))));
         UiManagerLocator::get().RenderUiImage(&movingImage);
         updateCount_ += dt.count();
         //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
@@ -142,6 +140,108 @@ TEST(UIManager, TestWithEngine)
     #ifdef EASY_PROFILE_USE
     profiler::dumpBlocksToFile("UiManager_Neko_Profile.prof");
     #endif
+}
+
+class TestUiMenu : public SystemInterface, public RenderCommandInterface, public DrawImGuiInterface
+{
+public:
+    TestUiMenu(
+        AerEngine& engine)
+        : engine_(engine),
+        rContainer_(engine.GetResourceManagerContainer()),
+        cContainer_(engine.GetComponentManagerContainer()) { }
+    void Init() override
+    {
+        const auto& config = BasicEngine::GetInstance()->GetConfig();
+
+        Entity testEntity = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(testEntity);
+        cContainer_.transform3dManager.SetRelativePosition(testEntity, Vec3f(0.0f, 0.0f, 0.0f));
+        cContainer_.renderManager.AddComponent(testEntity);
+        cContainer_.renderManager.SetModel(
+            testEntity, config.dataRootPath + "models/cube/cube.obj");
+
+    }
+
+    void Update(seconds dt) override
+    {
+        updateCount_ += dt.count();
+        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+    }
+
+    void Render() override
+    {
+    }
+
+    void Destroy() override
+    {
+
+    }
+
+    void DrawImGui() override {}
+
+private:
+    float updateCount_ = 0;
+    const float kEngineDuration_ = 0.5f;
+
+    AerEngine& engine_;
+
+    ResourceManagerContainer& rContainer_;
+    ComponentManagerContainer& cContainer_;
+
+    enum Menu {
+        MENUA,
+        MENUB,
+        MENUC
+    };
+
+    Menu currentMenu_;
+
+    //Menu A
+    UiImage backGroundA_;
+    UiImage buttonPrevA_;
+    UiImage buttonNextA_;
+
+    UiImage backGroundB_;
+    UiImage buttonPrevB_;
+    UiImage buttonNextB_;
+
+    UiImage backGroundC_;
+    UiImage buttonPrevC_;
+    UiImage buttonNextC_;
+};
+
+TEST(UIManager, TestMenu)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr)
+    {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    Configuration config;
+    // config.dataRootPath = "../data/";
+    config.windowName = "AerEditor";
+    config.windowSize = Vec2u(1400, 900);
+
+    sdl::Gles3Window window;
+    gl::Gles3Renderer renderer;
+    Filesystem filesystem;
+    AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+
+    TestUiMenu testUiMenu(engine);
+
+    engine.RegisterSystem(testUiMenu);
+    engine.RegisterOnDrawUi(testUiMenu);
+    engine.Init();
+    engine.EngineLoop();
+#ifdef EASY_PROFILE_USE
+    profiler::dumpBlocksToFile("UiManager_Neko_Profile.prof");
+#endif
 }
 }    // namespace neko::aer
 #endif

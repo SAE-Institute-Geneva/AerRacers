@@ -7,9 +7,11 @@ namespace neko::aer
 UiImage::UiImage(const std::string_view& texturePath,
     const Vec3f& position,
     const Vec2u& size,
-    UiAnchor anchor)
+    UiAnchor anchor,
+	const Color4& color)
     : UiElement(position, size, anchor),
-      texturePath_(std::move(texturePath))
+      texturePath_(std::move(texturePath)),
+	  color_(color)
 {
     
 }
@@ -22,7 +24,7 @@ void UiImage::Init(gl::TextureManager& textureManager)
 	quad_.Init();
 }
 
-void UiImage::Draw(gl::TextureManager& textureManager, const Vec2u& screenSize)
+void UiImage::Draw(gl::TextureManager& textureManager, const Vec2u& screenSize, const gl::Shader& uiImageShader)
 {
 	const Vec2f normalSpaceSize = Vec2f(size_) / Vec2f(screenSize);
 	const Vec3f anchoredPosition = Vec3f(CalculateUiElementPosition(Vec2f(position_), Vec2f(screenSize), uiAnchor_));
@@ -33,6 +35,7 @@ void UiImage::Draw(gl::TextureManager& textureManager, const Vec2u& screenSize)
 		return;
 	}
 	glBindTexture(GL_TEXTURE_2D, textureName_);
+	uiImageShader.SetVec4("imageColor", Color::white);
 	quad_.Draw();
 }
 

@@ -25,8 +25,10 @@
 
 
 #include "ui_element.h"
+#include "gl/shader.h"
 #include "gl/texture.h"
 #include "gl/shape.h"
+#include "graphics/color.h"
 
 namespace neko::aer
 {
@@ -36,10 +38,11 @@ public:
     explicit UiImage(const std::string_view& texturePath = "",
         const Vec3f& position = Vec3f::zero,
         const Vec2u& size     = Vec2u::one,
-        UiAnchor anchor       = UiAnchor::CENTER);
+        UiAnchor anchor       = UiAnchor::CENTER,
+		const Color4& color = Color::white);
 
 	void Init(gl::TextureManager& textureManager);
-	void Draw(gl::TextureManager& textureManager, const Vec2u& screenSize);
+	void Draw(gl::TextureManager& textureManager, const Vec2u& screenSize, const gl::Shader& uiImageShader);
 
 	void Destroy() override;
 
@@ -51,6 +54,8 @@ protected:
 	TextureId textureId_ = INVALID_TEXTURE_ID;
 	TextureName textureName_ = INVALID_TEXTURE_NAME;
 	gl::RenderQuad quad_{Vec3f::zero, Vec2f::one};
+
+	Color4 color_ = Color::white;
 
 };
 }
