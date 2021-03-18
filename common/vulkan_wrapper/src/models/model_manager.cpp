@@ -1,7 +1,4 @@
-#include "vk/models/model_manager.h"
-
 #include "vk/material/material_manager.h"
-#include "vk/models/io_system.h"
 #include "vk/vk_resources.h"
 
 namespace neko::vk

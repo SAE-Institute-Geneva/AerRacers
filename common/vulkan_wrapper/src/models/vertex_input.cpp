@@ -16,6 +16,12 @@ Vertex::Vertex(const Vec3f& pos, const Vec3f& norm, const Vec2f& uv)
    : position(pos), normal(norm), texCoords(uv)
 {}
 
+bool Vertex::operator==(const Vertex& other) const
+{
+	return position == other.position && normal == other.normal && texCoords == other.texCoords &&
+	       tangent == other.tangent && bitangent == other.bitangent;
+}
+
 VertexInput Vertex::GetVertexInput(std::uint32_t binding)
 {
 	VkVertexInputBindingDescription bindingDescription;
