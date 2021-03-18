@@ -62,20 +62,15 @@ namespace neko::aer {
 
         void Update(neko::seconds dt) override {
 
-            if (testFinish_ == true) {
-                engine_.Stop();
-            }
         }
 
         void Destroy() override {
         }
 
         void HasSucceed() const {
-            EXPECT_TRUE(testFinish_);
         }
 
     private:
-        bool testFinish_ = false;
 
         ResourceManagerContainer& rContainer_;
         ComponentManagerContainer& cContainer_;
