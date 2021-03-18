@@ -65,6 +65,8 @@ struct Vertex
 	Vertex() = default;
 	Vertex(const Vec3f& pos, const Vec3f& norm, const Vec2f& uv);
 
+	bool operator==(const Vertex& other) const;
+
 	static VertexInput GetVertexInput(std::uint32_t binding = 0);
 
 	Vec3f position  = Vec3f::zero;

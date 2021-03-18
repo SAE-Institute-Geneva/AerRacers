@@ -1,10 +1,4 @@
-#include "assimp/postprocess.h"
-
-#include "mathematics/quaternion.h"
-#include "utils/file_utility.h"
-
 #include "vk/material/material_manager.h"
-#include "vk/models/io_system.h"
 #include "vk/vk_resources.h"
 
 namespace neko::vk
@@ -15,9 +9,7 @@ ModelLoader::ModelLoader(std::string_view path, ModelId modelId)
 	 loadModelJob_([this]() { LoadModel(); }),
 	 processModelJob_([this]() { ProcessModel(); }),
 	 uploadJob_([this]() { UploadMeshesToVk(); })
-{
-	importer_.SetIOHandler(new VkIoSystem(BasicEngine::GetInstance()->GetFilesystem()));
-}
+{}
 
 ModelLoader::ModelLoader(ModelLoader&& other) noexcept
    : path_(std::move(other.path_)),
@@ -29,7 +21,7 @@ ModelLoader::ModelLoader(ModelLoader&& other) noexcept
 
 void ModelLoader::Start()
 {
-	directoryPath_ = path_.substr(0, path_.find_last_of('/'));
+	directory_ = path_.substr(0, path_.find_last_of('/'));
 	BasicEngine::GetInstance()->ScheduleJob(&loadModelJob_, JobThreadType::RESOURCE_THREAD);
 }
 
@@ -86,163 +78,154 @@ void ModelLoader::Update()
 
 void ModelLoader::LoadModel()
 {
-	std::uint32_t sceneFlags = aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
-	                           aiProcess_CalcTangentSpace | aiProcess_GenBoundingBoxes;
-	scene_ = importer_.ReadFile(path_, sceneFlags);
-	if (!scene_ || scene_->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene_->mRootNode)
-	{
-		flags_ = ERROR_LOADING;
-		logDebug(fmt::format("[ERROR] ASSIMP {}", importer_.GetErrorString()));
-		return;
-	}
+	std::string war, err;
+	tinyobj::LoadObj(&attrib_, &shapes_, &materials_, &war, &err, path_.c_str(), directory_.c_str());
+	if (!war.empty()) logDebug(war);
+	if (!err.empty()) logDebug(err);
 
 	BasicEngine::GetInstance()->ScheduleJob(&processModelJob_, JobThreadType::OTHER_THREAD);
 }
 
 void ModelLoader::ProcessModel()
 {
-	model_.meshes_.reserve(scene_->mNumMeshes);
 #ifdef EASY_PROFILE_USE
-	EASY_BLOCK("Process Nodes");
+	EASY_BLOCK("vk::Process Model");
 #endif
-	ProcessNode(scene_->mRootNode);
+	model_.meshes_.reserve(shapes_.size());
+	for (const auto& shape : shapes_)
+	{
+		auto& mesh = model_.meshes_.emplace_back();
+		if (!shape.mesh.material_ids.empty() && shape.mesh.material_ids[0] != -1)
+		{
+			const tinyobj::material_t mat = materials_[shape.mesh.material_ids[0]];
+			if (!mat.diffuse_texname.empty())
+				LoadMaterialTextures(mat, mesh, DiffuseMaterial::DIFFUSE, mat.diffuse_texname);
+			if (!mat.specular_texname.empty())
+				LoadMaterialTextures(mat, mesh, DiffuseMaterial::SPECULAR, mat.specular_texname);
+			if (!mat.bump_texname.empty())
+				LoadMaterialTextures(mat, mesh, DiffuseMaterial::NORMAL, mat.bump_texname);
+			if (!mat.emissive_texname.empty())
+				LoadMaterialTextures(mat, mesh, DiffuseMaterial::EMISSIVE, mat.emissive_texname);
+		}
+
+		std::vector<Vertex> vertices;
+		vertices.reserve(shape.mesh.indices.size());
+
+		std::vector<std::uint32_t> indices;
+		indices.reserve(shape.mesh.indices.size());
+
+		std::unordered_map<Vertex, std::size_t> uniqueVertices;
+		for (const auto& index : shape.mesh.indices)
+		{
+			Vertex vertex{};
+			vertex.position = {
+				attrib_.vertices[3 * index.vertex_index + 0],
+				attrib_.vertices[3 * index.vertex_index + 1],
+				attrib_.vertices[3 * index.vertex_index + 2]
+			};
+			vertex.normal = {
+				attrib_.normals[3 * index.normal_index + 0],
+				attrib_.normals[3 * index.normal_index + 1],
+				attrib_.normals[3 * index.normal_index + 2]
+			};
+
+			// Y coordinates are inverted in Vulkan
+			vertex.texCoords = {
+				attrib_.texcoords[2 * index.texcoord_index + 0],
+				-attrib_.texcoords[2 * index.texcoord_index + 1]
+			};
+
+			if (uniqueVertices.count(vertex) == 0)
+			{
+				uniqueVertices[vertex] = vertices.size();
+				vertices.emplace_back(vertex);
+			}
+
+			indices.emplace_back(static_cast<std::uint32_t>(uniqueVertices[vertex]));
+		}
+
+		for (std::size_t i = 0; i < indices.size(); i += 3)
+		{
+			if (i + 2 >= indices.size()) break;
+
+			const unsigned index  = indices[i];
+			const unsigned index1 = indices[i + 1];
+			const unsigned index2 = indices[i + 2];
+			const Vec3f edge1     = vertices[index1].position - vertices[index].position;
+			const Vec3f edge2     = vertices[index2].position - vertices[index].position;
+			const Vec2f deltaUv1  = vertices[index1].texCoords - vertices[index].texCoords;
+			const Vec2f deltaUv2  = vertices[index2].texCoords - vertices[index].texCoords;
+
+			const float f             = 1.0f / (deltaUv1.u * deltaUv2.v - deltaUv2.u * deltaUv1.v);
+			vertices[index].tangent.x = f * (deltaUv2.v * edge1.x - deltaUv1.v * edge2.x);
+			vertices[index].tangent.y = f * (deltaUv2.v * edge1.y - deltaUv1.v * edge2.y);
+			vertices[index].tangent.z = f * (deltaUv2.v * edge1.z - deltaUv1.v * edge2.z);
+			vertices[index1].tangent  = vertices[index].tangent;
+			vertices[index2].tangent  = vertices[index].tangent;
+
+			vertices[index].bitangent.x = f * (-deltaUv2.x * edge1.x + deltaUv1.x * edge2.x);
+			vertices[index].bitangent.y = f * (-deltaUv2.x * edge1.y + deltaUv1.x * edge2.y);
+			vertices[index].bitangent.z = f * (-deltaUv2.x * edge1.z + deltaUv1.x * edge2.z);
+			vertices[index1].bitangent  = vertices[index].bitangent;
+			vertices[index2].bitangent  = vertices[index].bitangent;
+		}
+
+		mesh.InitData(vertices, indices);
+	}
+
+#ifdef EASY_PROFILE_USE
+	EASY_END_BLOCK
+#endif
 
 	RendererLocator::get().AddPreRenderJob(&uploadJob_);
 }
 
-void ModelLoader::ProcessNode(aiNode* node)
+void ModelLoader::UploadMeshesToVk() {}
+
+void ModelLoader::LoadMaterialTextures(const tinyobj::material_t& mat,
+	Mesh& mesh,
+	DiffuseMaterial::TextureMaps textureType,
+	std::string_view texName)
 {
-	// process all the node's meshes (if any)
-	for (std::uint32_t i = 0; i < node->mNumMeshes; i++)
+	auto& textureManager = TextureManagerLocator::get();
+	auto& materialManager = MaterialManagerLocator::get();
 	{
-		auto& mesh = model_.meshes_.emplace_back();
-		ProcessMesh(mesh, scene_->mMeshes[node->mMeshes[i]]);
-	}
-
-	// then do the same for each of its children
-	for (unsigned int i = 0; i < node->mNumChildren; i++) ProcessNode(node->mChildren[i]);
-}
-
-void ModelLoader::ProcessMesh(Mesh& mesh, const aiMesh* aMesh)
-{
-	mesh.minExtents_ = Vec3f(aMesh->mAABB.mMin);
-	mesh.maxExtents_ = Vec3f(aMesh->mAABB.mMax);
-
-	std::vector<Vertex> vertices(aMesh->mNumVertices);
-	for (unsigned int i = 0; i < aMesh->mNumVertices; i++)
-	{
-		Vertex vertex;
-
-		// process vertex positions, normals and texture coordinates
-		vertex.position = Vec3f(aMesh->mVertices[i]);
-		if (GetFilenameExtension(path_) == ".fbx")
-			vertex.position = Quaternion::AngleAxis(degree_t(90.0f), Vec3f::left) * vertex.position;
-		vertex.normal = Vec3f(aMesh->mNormals[i]);
-
-		if (aMesh->mTangents)
+		if (materialManager.IsMaterialLoaded(mat.name))
 		{
-			vertex.tangent   = Vec3f(aMesh->mTangents[i]);
-			vertex.bitangent = Vec3f(aMesh->mBitangents[i]);
-		}
-
-		if (aMesh->mTextureCoords[0])
-			vertex.texCoords = Vec2f(aMesh->mTextureCoords[0][i].x, aMesh->mTextureCoords[0][i].y);
-		else
-			vertex.texCoords = Vec2f(0.0f, 0.0f);
-
-		vertices[i] = vertex;
-	}
-	mesh.SetVertices(vertices);
-
-	std::vector<std::uint32_t> indices;
-	for (unsigned int i = 0; i < aMesh->mNumFaces; i++)
-	{
-		// process indices
-		const aiFace face = aMesh->mFaces[i];
-		for (std::uint32_t j = 0; j < face.mNumIndices; j++) indices.push_back(face.mIndices[j]);
-	}
-	mesh.SetIndices(indices);
-
-	if (aMesh->mMaterialIndex >= 0)
-	{
-		// process material
-		const aiMaterial* material = scene_->mMaterials[aMesh->mMaterialIndex];
-		float specularExp;
-		aiColor4D diffuse;
-		material->Get(AI_MATKEY_SHININESS, specularExp);
-		material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
-		Color4 col = Color4(diffuse.r, diffuse.g, diffuse.b, diffuse.a);
-
-		auto& materialManager = MaterialManagerLocator::get();
-		const std::string matName = GetFilename(path_) + std::to_string(aMesh->mMaterialIndex);
-		if (materialManager.IsMaterialLoaded(matName))
-		{
-			mesh.materialId_ = HashString(matName);
+			mesh.materialId_ = HashString(mat.name);
 			return;
 		}
 
-		mesh.materialId_ = materialManager.AddNewMaterial(matName, MaterialType::DIFFUSE);
-		materialManager.GetDiffuseMaterial(mesh.materialId_).SetSpecularExponent(specularExp);
-		materialManager.GetDiffuseMaterial(mesh.materialId_).SetColor(col);
-		for (int i = 0; i < AI_TEXTURE_TYPE_MAX; i++)
-			LoadMaterialTextures(material, static_cast<aiTextureType>(i), directoryPath_);
-	}
-}
+		const Vec3f diffuseCol = {mat.diffuse[0], mat.diffuse[1], mat.diffuse[2]};
+		mesh.materialId_       = materialManager.AddNewMaterial(mat.name, MaterialType::DIFFUSE);
+		materialManager.GetDiffuseMaterial(mesh.materialId_).SetShininess(mat.shininess);
+		materialManager.GetDiffuseMaterial(mesh.materialId_).SetColor(Vec4f(diffuseCol, 1.0f));
 
-void ModelLoader::UploadMeshesToVk() {}
-
-void ModelLoader::LoadMaterialTextures(
-	const aiMaterial* material, aiTextureType textureType, std::string_view directory)
-{
-	auto& textureManager = TextureManagerLocator::get();
-	const unsigned count = material->GetTextureCount(textureType);
-	for (std::uint32_t i = 0; i < count; i++)
-	{
-		aiString textureName;
-		material->GetTexture(textureType, i, &textureName);
-
-		std::size_t startPos       = 0;
-		std::string textureNameStr = textureName.C_Str();
-		while ((startPos = textureNameStr.find('\\', startPos)) != std::string::npos)
-		{
-			textureNameStr.replace(startPos, 1, "/");
-			startPos += 1;
-		}
-
-		const ResourceHash textureId = textureManager.AddTexture(
-			fmt::format("{}/{}.ktx", directory.data(), textureNameStr));
+		const ResourceHash textureId =
+			textureManager.AddTexture(fmt::format("{}/{}.ktx", directory_, texName));
 		switch (textureType)
 		{
-			case aiTextureType_DIFFUSE:
+			case DiffuseMaterial::DIFFUSE:
 				textureMaps_ |= DiffuseMaterial::DIFFUSE;
 				diffuseId_ = textureId;
 				break;
-			case aiTextureType_SPECULAR:
+			case DiffuseMaterial::SPECULAR:
 				textureMaps_ |= DiffuseMaterial::SPECULAR;
 				specularId_ = textureId;
 				break;
-			case aiTextureType_EMISSIVE: break;
-			case aiTextureType_HEIGHT:
-			case aiTextureType_NORMALS:
+			case DiffuseMaterial::NORMAL:
 				textureMaps_ |= DiffuseMaterial::NORMAL;
 				normalId_ = textureId;
 				break;
-			case aiTextureType_NONE:
-			case aiTextureType_UNKNOWN:
-			case aiTextureType_AMBIENT:
-			case aiTextureType_SHININESS:
-			case aiTextureType_OPACITY:
-			case aiTextureType_DISPLACEMENT:
-			case aiTextureType_LIGHTMAP:
-			case aiTextureType_REFLECTION:
-			case aiTextureType_BASE_COLOR:
-			case aiTextureType_NORMAL_CAMERA:
-			case aiTextureType_EMISSION_COLOR:
-			case aiTextureType_METALNESS:
-			case aiTextureType_DIFFUSE_ROUGHNESS:
-			case aiTextureType_AMBIENT_OCCLUSION:
-			case _aiTextureType_Force32Bit: logDebug("Unsupported texture type"); break;
+			case DiffuseMaterial::EMISSIVE: break;
+			default: logDebug("Unsupported texture type"); break;
 		}
 	}
+
+	/*auto& texture        = mesh.textures_.emplace_back();
+	texture.type         = textureType;
+	texture.sName        = matName;
+
+	texture.textureId = textureManager.LoadTexture(directory_ + matName.data());*/
 }
 }    // namespace neko::vk

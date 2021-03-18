@@ -125,6 +125,9 @@ set(ASSIMP_BUILD_GLTF_IMPORTER OFF CACHE BOOL "" FORCE)
 add_subdirectory("${ASSIMP_DIR}")
 set_target_properties(assimp IrrXML PROPERTIES FOLDER Externals)
 
+# Tiny obj loader
+add_compile_definitions("TINYOBJLOADER_IMPLEMENTATION=1")
+
 # Enables the Render Engine
 if (Neko_GLES3 AND NOT Neko_VULKAN)
     add_compile_definitions("NEKO_GLES3=1")
