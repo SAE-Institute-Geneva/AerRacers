@@ -60,7 +60,7 @@ void AerEngine::Init()
 #endif
 
 	if (mode_ == ModeEnum::GAME) {
-		if (false)
+		if (true)
 		{
 			cContainer_.sceneManager.LoadScene(
 				GetConfig().dataRootPath +

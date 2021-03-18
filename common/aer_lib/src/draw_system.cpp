@@ -4,6 +4,9 @@
 	#include <easy/profiler.h>
 #endif
 
+#include "aer/aer_engine.h"
+
+
 namespace neko::aer
 {
 DrawSystem::DrawSystem(AerEngine& engine)
@@ -17,6 +20,9 @@ DrawSystem::DrawSystem(AerEngine& engine)
 	gizmosRenderer_ = std::make_unique<GizmoRenderer>(&camera_.GetCamera(0));
 	engine.RegisterSystem(*gizmosRenderer_);
 #endif
+	uiManager_ = std::make_unique<UiManager>(engine_);
+	engine.RegisterSystem(*uiManager_);
+	engine.RegisterOnEvent(*uiManager_);
 }
 
 void DrawSystem::Init()
@@ -132,7 +138,7 @@ void DrawSystem::Render()
 		}
 		default: LogError("Invalid Player number!!"); break;
 	}
-
+	uiManager_->Render(cContainer_.playerManager.GetPlayerCount());
 	gizmosRenderer_->Clear();
 #elif NEKO_VULKAN
 	CameraLocator::provide(&camera_.GetCamera(0));
