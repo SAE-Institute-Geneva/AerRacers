@@ -84,7 +84,7 @@ public:
         movingText.SetPosition(Vec3f((Vec2f::up * 0.5f).Rotate(radian_t(updateCount_))));
         movingText.SetText(std::to_string(updateCount_));
         movingImage.SetPosition(Vec3f((Vec2f::up * 0.5f).Rotate(radian_t(updateCount_))));
-        uint8_t screen = (static_cast<int>(updateCount_) / 2) % 5;
+        uint8_t screen = (static_cast<int>(updateCount_) / 1) % 5;
         movingText.SetScreenId(screen);
         movingImage.SetScreenId(screen);
         anchorTR.SetScreenId(screen);
@@ -96,7 +96,7 @@ public:
         textTL.SetScreenId(screen);
         textTR.SetScreenId(screen);
         updateCount_ += dt.count();
-        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Render() override
@@ -112,7 +112,7 @@ public:
 
 private:
     float updateCount_           = 0;
-    const float kEngineDuration_ = 0.5f;
+    const float kEngineDuration_ = 2.0f;
 
     AerEngine& engine_;
 
@@ -223,7 +223,7 @@ public:
     void Update(seconds dt) override
     {
         updateCount_ += dt.count();
-        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Render() override
