@@ -21,57 +21,71 @@
  Co-Author : Floreau Luca
  Date : 13.03.2021
 ---------------------------------------------------------- */
-#include <utility>
-
-#include "gl/texture.h"
-#include "gl/shape.h"
+#include "mathematics/vector.h"
 
 namespace neko::aer
 {
-enum class UiAnchor {
-    TOP_LEFT,
-    TOP,
-    TOP_RIGHT,
-    CENTER_LEFT,
-    CENTER,
-    CENTER_RIGHT,
-    BOTTOM_LEFT,
-    BOTTOM,
-    BOTTOM_RIGHT
+/**
+ * \brief Anchor from screen corner
+ */
+enum class UiAnchor
+{
+	TOP_LEFT,
+	TOP,
+	TOP_RIGHT,
+
+	CENTER_LEFT,
+	CENTER,
+	CENTER_RIGHT,
+
+	BOTTOM_LEFT,
+	BOTTOM,
+	BOTTOM_RIGHT
 };
 
-struct UiFlag {
-    enum Enum : uint8_t {
-        ENABLE = 1u << 0u,
-        INIT = 1u << 1u,
-        DIRTY = 1u << 2u,
-    };
+/**
+ * \brief Flag for UiElement state
+ */
+struct UiFlag
+{
+	enum Enum : std::uint8_t
+	{
+		ENABLED     = 1u << 0u,
+		INITIALIZED = 1u << 1u,
+		DIRTY       = 1u << 2u,
+	};
 };
+
+/**
+ * \brief Class based of UiElements
+ */
 class UiElement
 {
-public :
-
-    explicit UiElement(const Vec3f& pos = Vec3f::zero,
-        UiAnchor uiAnchor               = UiAnchor::CENTER,
-        uint8_t screenId = 0);
+public:
+	explicit UiElement(const Vec3f& pos = Vec3f::zero,
+		UiAnchor uiAnchor               = UiAnchor::CENTER,
+		std::uint8_t screenId           = 0);
 	virtual void Destroy();
+
+	[[nodiscard]] std::uint8_t GetFlags() const { return flags_; }
+	[[nodiscard]] std::uint8_t GetScreenId() const { return screenId_; }
 
 	void SetPosition(const Vec3f& pos) { position_ = pos; }
 	void SetAnchor(UiAnchor uiAnchor) { uiAnchor_ = uiAnchor; }
-    void SetScreenId(uint8_t screenId) { screenId_ = screenId; }
-    void SetEnable(bool enable);
-    void AddFlag(UiFlag::Enum flag);
-    void RemoveFlag(UiFlag::Enum flag);
-    uint8_t GetFlags() const { return flags_; }
-    uint8_t GetScreenId() const { return screenId_; }
+	void SetScreenId(std::uint8_t screenId) { screenId_ = screenId; }
+	void SetEnable(bool enable);
 
-protected :
-    Vec2f CalculateUiElementPosition(Vec2f position, Vec2f windowSize, UiAnchor anchor);
-	Vec3f position_ = Vec3f::zero; //In percent
+	void AddFlag(UiFlag::Enum flag);
+	void RemoveFlag(UiFlag::Enum flag);
+
+protected:
+    virtual ~UiElement() = default;
+    
+	static Vec2f CalculateUiElementPosition(Vec2f position, UiAnchor anchor);
+
+	Vec3f position_    = Vec3f::zero;    //In percent
 	UiAnchor uiAnchor_ = UiAnchor::CENTER;
-	uint8_t flags_ = UiFlag::ENABLE;
-    uint8_t screenId_ = 0;
-
-
+	std::uint8_t flags_     = UiFlag::ENABLED;
+	std::uint8_t screenId_  = 0;
 };
-}
+}    // namespace neko::aer

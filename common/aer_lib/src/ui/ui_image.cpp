@@ -1,23 +1,17 @@
 #include "aer/ui/ui_image.h"
 
-#include "aer/ui/ui_element.h"
-
 namespace neko::aer
 {
-UiImage::UiImage(const std::string_view& texturePath,
-    const Vec3f& position,
-    const Vec2u& size,
-    UiAnchor anchor,
-	uint8_t screenId,
+UiImage::UiImage(std::string_view texturePath,
+	const Vec3f& position,
+	const Vec2u& size,
+	UiAnchor anchor,
+	std::uint8_t screenId,
 	const Color4& color)
-    : UiElement(position, anchor, screenId),
-	  size_(size),
-      texturePath_(std::move(texturePath)),
-	  color_(color)
-{
-    
-}
+   : UiElement(position, anchor, screenId), size_(size), texturePath_(texturePath), color_(color)
+{}
 
+#ifdef NEKO_GLES3
 void UiImage::Init(gl::TextureManager& textureManager)
 {
 	textureId_ = textureManager.LoadTexture(texturePath_, Texture::DEFAULT);
@@ -37,13 +31,28 @@ void UiImage::Draw(gl::TextureManager& textureManager, const Vec2u& screenSize, 
 		return;
 	}
 	glBindTexture(GL_TEXTURE_2D, textureName_);
-	uiImageShader.SetVec4("imageColor", Color::white);
+	uiImageShader.SetVec4("imageColor", color_);
 	quad_.Draw();
 }
+#else
+void UiImage::Init() {}
+
+void UiImage::Draw(const Vec2u&) {}
+#endif
 
 void UiImage::Destroy()
 {
+#ifdef NEKO_GLES3
 	quad_.Destroy();
 	gl::DestroyTexture(textureName_);
+#else
+#endif
+}
+
+void UiImage::ChangeTexture(gl::TextureManager& textureManager, const std::string& texturePath)
+{
+    texturePath_ = texturePath;
+    textureId_   = textureManager.LoadTexture(texturePath_, Texture::DEFAULT);
+    textureName_ = textureManager.GetTextureName(textureId_);
 }
 }

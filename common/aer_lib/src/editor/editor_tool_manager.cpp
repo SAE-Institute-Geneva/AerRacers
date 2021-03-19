@@ -67,60 +67,65 @@ void EditorToolManager::Update(const seconds dt)
 			continue;
 
         const physics::ColliderType colliderType = rigidActor->GetColliderType();
-        switch (colliderType)
-        {
-            case physics::ColliderType::INVALID: break;
-            case physics::ColliderType::BOX:
-                {
-                    physics::BoxColliderData boxColliderData = rigidActor->GetBoxColliderData();
-                    gizmosLocator.DrawCube(
-                        transform3dManager.GetGlobalPosition(entity) + boxColliderData.offset,
-                        boxColliderData.size,
-                        transform3dManager.GetGlobalRotation(entity),
-                        boxColliderData.isTrigger ? Color::yellow : Color::green,
-                        2.0f);
-                }
-                break;
-            case physics::ColliderType::SPHERE:
-                {
-                    physics::SphereColliderData sphereColliderData =
-                        rigidActor->GetSphereColliderData();
-                    gizmosLocator.DrawSphere(
-                        transform3dManager.GetGlobalPosition(entity) + sphereColliderData.offset,
-                        sphereColliderData.radius,
-                        transform3dManager.GetGlobalRotation(entity),
-                        sphereColliderData.isTrigger ? Color::yellow : Color::green,
-                        2.0f);
-                    break;
-                }
+		switch (colliderType)
+		{
+			case physics::ColliderType::INVALID: break;
+			case physics::ColliderType::BOX:
+			{
+				physics::BoxColliderData boxColliderData = rigidActor->GetBoxColliderData();
+				gizmosLocator.DrawCube(
+					transform3dManager.GetGlobalPosition(entity) + boxColliderData.offset,
+					boxColliderData.size,
+					transform3dManager.GetGlobalRotation(entity),
+					boxColliderData.isTrigger ? Color::yellow : Color::green,
+					2.0f);
+			}
+			break;
+			case physics::ColliderType::SPHERE:
+			{
+				physics::SphereColliderData sphereColliderData =
+					rigidActor->GetSphereColliderData();
+				gizmosLocator.DrawSphere(
+					transform3dManager.GetGlobalPosition(entity) + sphereColliderData.offset,
+					sphereColliderData.radius,
+					transform3dManager.GetGlobalRotation(entity),
+					sphereColliderData.isTrigger ? Color::yellow : Color::green,
+					2.0f);
+				break;
+			}
 			case physics::ColliderType::CAPSULE:
 			{
 				physics::CapsuleColliderData capsuleColliderData =
 					rigidActor->GetCapsuleColliderData();
-				Quaternion rot = Quaternion::FromEuler(transform3dManager.GetGlobalRotation(entity));
+				Quaternion rot =
+					Quaternion::FromEuler(transform3dManager.GetGlobalRotation(entity));
 				gizmosLocator.DrawSphere(
-					transform3dManager.GetGlobalPosition(entity) + capsuleColliderData.offset + (capsuleColliderData.height / 2.0f) * (rot * Vec3f::right),
+					transform3dManager.GetGlobalPosition(entity) + capsuleColliderData.offset +
+						(capsuleColliderData.height / 2.0f) * (rot * Vec3f::right),
 					capsuleColliderData.radius,
 					transform3dManager.GetGlobalRotation(entity),
 					capsuleColliderData.isTrigger ? Color::yellow : Color::green,
 					2.0f);
 				gizmosLocator.DrawSphere(
-					transform3dManager.GetGlobalPosition(entity) + capsuleColliderData.offset + (capsuleColliderData.height/2.0f) * (rot * Vec3f::left),
+					transform3dManager.GetGlobalPosition(entity) + capsuleColliderData.offset +
+						(capsuleColliderData.height / 2.0f) * (rot * Vec3f::left),
 					capsuleColliderData.radius,
 					transform3dManager.GetGlobalRotation(entity),
 					capsuleColliderData.isTrigger ? Color::yellow : Color::green,
 					2.0f);
 				gizmosLocator.DrawCube(
 					transform3dManager.GetGlobalPosition(entity) + capsuleColliderData.offset,
-					Vec3f(capsuleColliderData.height, capsuleColliderData.radius*1.5f, capsuleColliderData.radius*1.5f),
+					Vec3f(capsuleColliderData.height,
+						capsuleColliderData.radius * 1.5f,
+						capsuleColliderData.radius * 1.5f),
 					transform3dManager.GetGlobalRotation(entity),
 					capsuleColliderData.isTrigger ? Color::yellow : Color::green,
 					2.0f);
 				break;
 			}
-            default: break;
-        }
-    }
+			default: break;
+		}
+	}
 }
 
 void EditorToolManager::Destroy()

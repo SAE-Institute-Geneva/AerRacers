@@ -102,7 +102,7 @@ std::string_view ModelManager::GetModelPath(ModelId modelId)
 	return "";
 }
 
-bool ModelManager::IsLoaded(ModelId modelId)
+bool ModelManager::IsLoaded(ModelId modelId) const
 {
 	const auto* model = GetModel(modelId);
 	if (!model) return false;

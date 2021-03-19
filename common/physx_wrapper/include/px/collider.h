@@ -52,7 +52,7 @@ enum class ColliderType {
 struct PhysicsMaterial {
     float dynamicFriction = 0.6f;
     float staticFriction  = 0.6f;
-    float bounciness       = 0.0f;
+    float bounciness      = 0.0f;
 };
 
 struct ColliderData {

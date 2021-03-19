@@ -110,6 +110,7 @@ public:
 
     void DrawImGui() override {}
 
+    ~TestUiManager() override = default;
 private:
     float updateCount_           = 0;
     const float kEngineDuration_ = 0.5f;
@@ -185,6 +186,17 @@ public:
         cContainer_.renderManager.SetModel(
             testEntity, config.dataRootPath + "models/cube/cube.obj");
 
+        auto& uiManager = UiManagerLocator::get();
+
+        backGroundA_ = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg",Vec3f::zero , config.windowSize - Vec2u::one * 50.0f, UiAnchor::CENTER, 0, Color::white };
+        buttonPrevA_ = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg",Vec3f(-0.1f, -0.1f,0.0f) , Vec2u(2,1) * 150.0f, UiAnchor::BOTTOM_LEFT, 0, Color::white };
+        buttonNextA_ = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg",Vec3f(-0.1f, -0.1f,0.0f) , Vec2u(2,1) * 150.0f, UiAnchor::BOTTOM_RIGHT, 0, Color::white };
+        textA_ = UiText{ FontLoaded::LOBSTER, "MenuA", Vec3f(0.0f, -1.0f, 0.0f) * 0.1f, UiAnchor::TOP, 0, 1.0f, Color::red };
+        uiManager.AddUiImage(&backGroundA_);
+        uiManager.AddUiImage(&buttonPrevA_);
+        uiManager.AddUiImage(&buttonNextA_);
+        uiManager.AddUiText(&textA_);
+
     }
 
     void Update(seconds dt) override
@@ -225,14 +237,17 @@ private:
     UiImage backGroundA_;
     UiImage buttonPrevA_;
     UiImage buttonNextA_;
+    UiText textA_;
 
     UiImage backGroundB_;
     UiImage buttonPrevB_;
     UiImage buttonNextB_;
+    UiText textB_;
 
     UiImage backGroundC_;
     UiImage buttonPrevC_;
     UiImage buttonNextC_;
+    UiText textC_;
 };
 
 TEST(UIManager, TestMenu)

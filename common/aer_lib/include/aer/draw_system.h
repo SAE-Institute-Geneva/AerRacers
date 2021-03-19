@@ -72,7 +72,8 @@ private:
 #ifdef NEKO_GLES3
 	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
 #endif
-	std::unique_ptr <UiManager> uiManager_;
+
+	std::unique_ptr<UiManager> uiManager_;
 
 	std::uint8_t playerNum_ = 4;
 };
