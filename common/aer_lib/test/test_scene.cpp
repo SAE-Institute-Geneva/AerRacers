@@ -300,15 +300,15 @@ public:
         EXPECT_TRUE(cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().colliderType ==
                     physics::ColliderType::BOX);
         EXPECT_NEAR(
-            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness,
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bounciness,
             0.5f,
             0.01f);
         EXPECT_NEAR(
-            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness,
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bounciness,
             0.5f,
             0.01f);
         EXPECT_NEAR(
-            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness,
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bounciness,
             0.5f,
             0.01f);
         EXPECT_FALSE(cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::RIGID_DYNAMIC)));

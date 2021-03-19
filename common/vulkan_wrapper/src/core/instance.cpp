@@ -41,7 +41,7 @@ void Instance::Init()
 	std::array<const char*, 1> switchLayers = {"VK_LAYER_NN_vi_swapchain"};
 	createInfo.enabledLayerCount   = static_cast<std::uint32_t>(switchLayers.size());
 	createInfo.ppEnabledLayerNames = switchLayers.data();
-#elif VALIDATION_LAYERS
+#elif defined(VALIDATION_LAYERS)
 	createInfo.enabledLayerCount   = static_cast<std::uint32_t>(kValidationLayers.size());
 	createInfo.ppEnabledLayerNames = kValidationLayers.data();
 

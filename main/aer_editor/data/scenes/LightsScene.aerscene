@@ -42,7 +42,7 @@
                 "linearDamping": 0.0,
                 "mass": 1.0,
                 "physicsMaterial": {
-                    "bouciness": 1.0,
+                    "bounciness": 1.0,
                     "dynamicFriction": 0.6000000238418579,
                     "exist": true,
                     "staticFriction": 0.6000000238418579
@@ -157,7 +157,7 @@
                 "linearDamping": 0.0,
                 "mass": 1.0,
                 "physicsMaterial": {
-                    "bouciness": 0.0,
+                    "bounciness": 0.0,
                     "dynamicFriction": 0.6000000238418579,
                     "exist": true,
                     "staticFriction": 0.6000000238418579
@@ -238,7 +238,7 @@
                 "linearDamping": 0.0,
                 "mass": 1.0,
                 "physicsMaterial": {
-                    "bouciness": 0.25,
+                    "bounciness": 0.25,
                     "dynamicFriction": 0.6000000238418579,
                     "exist": true,
                     "staticFriction": 0.6000000238418579
@@ -319,7 +319,7 @@
                 "linearDamping": 0.0,
                 "mass": 1.0,
                 "physicsMaterial": {
-                    "bouciness": 0.5,
+                    "bounciness": 0.5,
                     "dynamicFriction": 0.6000000238418579,
                     "exist": true,
                     "staticFriction": 0.6000000238418579
@@ -400,7 +400,7 @@
                 "linearDamping": 0.0,
                 "mass": 1.0,
                 "physicsMaterial": {
-                    "bouciness": 0.75,
+                    "bounciness": 0.75,
                     "dynamicFriction": 0.6000000238418579,
                     "exist": true,
                     "staticFriction": 0.6000000238418579
@@ -481,7 +481,7 @@
                 "linearDamping": 0.0,
                 "mass": 1.0,
                 "physicsMaterial": {
-                    "bouciness": 1.0,
+                    "bounciness": 1.0,
                     "dynamicFriction": 0.6000000238418579,
                     "exist": true,
                     "staticFriction": 0.6000000238418579
@@ -596,7 +596,7 @@
                 "linearDamping": 0.0,
                 "mass": 1.0,
                 "physicsMaterial": {
-                    "bouciness": 0.0,
+                    "bounciness": 0.0,
                     "dynamicFriction": 0.6000000238418579,
                     "exist": true,
                     "staticFriction": 0.6000000238418579
@@ -677,7 +677,7 @@
                 "linearDamping": 0.0,
                 "mass": 1.0,
                 "physicsMaterial": {
-                    "bouciness": 0.25,
+                    "bounciness": 0.25,
                     "dynamicFriction": 0.6000000238418579,
                     "exist": true,
                     "staticFriction": 0.6000000238418579
@@ -758,7 +758,7 @@
                 "linearDamping": 0.0,
                 "mass": 1.0,
                 "physicsMaterial": {
-                    "bouciness": 0.5,
+                    "bounciness": 0.5,
                     "dynamicFriction": 0.6000000238418579,
                     "exist": true,
                     "staticFriction": 0.6000000238418579
@@ -839,7 +839,7 @@
                 "linearDamping": 0.0,
                 "mass": 1.0,
                 "physicsMaterial": {
-                    "bouciness": 0.75,
+                    "bounciness": 0.75,
                     "dynamicFriction": 0.6000000238418579,
                     "exist": true,
                     "staticFriction": 0.6000000238418579
@@ -920,7 +920,7 @@
                 "linearDamping": 0.0,
                 "mass": 1.0,
                 "physicsMaterial": {
-                    "bouciness": 1.0,
+                    "bounciness": 1.0,
                     "dynamicFriction": 0.6000000238418579,
                     "exist": true,
                     "staticFriction": 0.6000000238418579
