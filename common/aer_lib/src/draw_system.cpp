@@ -171,6 +171,8 @@ void DrawSystem::RenderScene(const std::size_t playerNum)
 
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(playerNum));
 	gizmosRenderer_->Render();
+	
+	uiManager_->Render();
 }
 #endif
 
