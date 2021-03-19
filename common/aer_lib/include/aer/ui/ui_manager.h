@@ -21,8 +21,9 @@
  Co-Author : Floreau Luca
  Date : 13.03.2021
 ---------------------------------------------------------- */
+#include "ui_text.h"
 #include "graphics/graphics.h"
-#include "aer/ui/ui_element.h"
+#include "aer/ui/ui_image.h"
 #include "gl/font.h"
 #include "gl/shader.h"
 #include "sdl_engine/sdl_engine.h"
@@ -30,7 +31,7 @@
 namespace neko::aer
 {
 class AerEngine;
-const static size_t kMaxUiElements = 16;
+const static size_t MAX_UI_ELEMENTS = 16;
 
 //-----------------------------------------------------------------------------
 // UiManagerInterface
@@ -39,7 +40,8 @@ const static size_t kMaxUiElements = 16;
 class IUiManager
 {
 public:
-	virtual void AddUiElement(UiElement* uiElement) = 0;
+	virtual void AddUiImage(UiImage* image) = 0;
+	virtual void AddUiText(UiText* text) = 0;
 protected:
 	~IUiManager() = default;
 };
@@ -50,15 +52,16 @@ protected:
 /// \brief Used for the service locator
 class NullUiManager final : public IUiManager
 {
-	void AddUiElement([[maybe_unused]] UiElement* uiElement) override {}
+public:
+    void AddUiImage(UiImage*) override {}
+    void AddUiText(UiText* text) override {}
 };
 
 //-----------------------------------------------------------------------------
 // UiManager
 //-----------------------------------------------------------------------------
 /// \brief Draw gizmos
-class UiManager final : public RenderCommandInterface,
-                        public SystemInterface,
+class UiManager final : public SystemInterface,
                         public sdl::SdlEventSystemInterface,
                         public IUiManager
 {
@@ -69,21 +72,32 @@ public:
 
 	void Update(seconds dt) override;
 
-	void AddUiElement(UiElement* uiElement) override;
-
-	void Render() override;
+    void Render(uint8_t playerNmb);
 
 	void OnEvent(const SDL_Event& event) override;
 
 	void Destroy() override;
 
+    void AddUiImage(UiImage*) override;
+    
+    void AddUiText(UiText* text) override;
 private:
-	gl::FontManager fontManager_;
-	FontId fontId_ = INVALID_FONT_ID;
-	gl::Shader uiShader_;
-	std::vector<UiElement*> uiElements_{};
-	AerEngine& aerEngine_;
+    FontId GetFontId(FontLoaded fontLoaded) const;
+    void ChangeViewport(uint8_t screenId, uint8_t playerNmb, const Vec2u& windowSize);
+
+    AerEngine& aerEngine_;
     Job preRender_;
+    //Font 
+    gl::FontManager fontManager_;
+    const std::string kRobotoPath_ = "font/Lobster-Regular.ttf";
+    const std::string kLobsterPath_ = "font/Lobster-Regular.ttf";
+    FontId robotoId_ = INVALID_FONT_ID;
+    FontId lobsterId_ = INVALID_FONT_ID;
+
+    //UiImage
+    gl::Shader uiImageShader_;
+    std::vector<UiImage*> uiImages_{};
+    std::vector<UiText*> uiTexts_{};
 };
 
 using UiManagerLocator = Locator<IUiManager, NullUiManager>;
