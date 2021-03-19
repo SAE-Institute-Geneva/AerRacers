@@ -21,19 +21,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-
 #include "gl/model.h"
 
 #include <assimp/postprocess.h>
-#include <assimp/scene.h>
-#include <fmt/format.h>
-#include <assimp/Importer.hpp>
 
 #include "engine/engine.h"
-#include "engine/log.h"
-#include "gl/texture.h"
+#include "graphics/graphics.h"
+
 #include "io_system.h"
-#include "utils/json_utility.h"
 
 #ifdef EASY_PROFILE_USE
 	#include "easy/profiler.h"
@@ -208,9 +203,10 @@ void Model::Draw(const Shader& shader) const
 	{
 		BindTextures(meshIndex, shader);
 		const auto& mesh = meshes_[meshIndex];
+
 		// draw mesh
 		glBindVertexArray(mesh.VAO);
-		glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, mesh.indices.size(), GL_UNSIGNED_INT, nullptr);
 		glBindVertexArray(0);
 	}
 }
@@ -249,16 +245,15 @@ void ModelManager::Update(seconds)
 
 void ModelManager::Destroy()
 {
-	// TODO delete mesh VAO
-	for (auto& model : modelMap_) { model.second.Destroy(); }
+	for (auto& model : modelMap_) model.second.Destroy();
 }
 
-const Model* ModelManager::GetModel(ModelId modelId)
+const Model* ModelManager::GetModel(ModelId modelId) const
 {
 	if (modelId == INVALID_MODEL_ID) return nullptr;
 
 	const auto it = modelMap_.find(modelId);
-	if (it != modelMap_.end()) { return &it->second; }
+	if (it != modelMap_.end()) return &it->second;
 	return nullptr;
 }
 
@@ -317,15 +312,15 @@ ModelLoader::ModelLoader(std::string_view path, ModelId modelId)
 	 modelId_(modelId),
 	 loadModelJob_([this]() { LoadModel(); }),
 	 processModelJob_([this]() { ProcessModel(); }),
-	 uploadMeshesToGLJob_([this]() { UploadMeshesToGL(); })
+	 uploadJob_([this]() { UploadMeshesToGl(); })
 {}
 
 ModelLoader::ModelLoader(ModelLoader&& modelLoader) noexcept
-   : path_(modelLoader.path_),
+   : path_(std::move(modelLoader.path_)),
 	 modelId_(modelLoader.modelId_),
 	 loadModelJob_([this]() { LoadModel(); }),
 	 processModelJob_([this]() { ProcessModel(); }),
-	 uploadMeshesToGLJob_([this]() { UploadMeshesToGL(); })
+	 uploadJob_([this]() { UploadMeshesToGl(); })
 {}
 
 void ModelLoader::Start()
@@ -367,17 +362,17 @@ void ModelLoader::Update()
 			if (loadedTextureCount < mesh.textures.size()) { isLoaded = false; }
 		}
 
-		if (isLoaded && uploadMeshesToGLJob_.IsDone()) { flags_ = flags_ | LOADED; }
+		if (isLoaded && uploadJob_.IsDone()) { flags_ = flags_ | LOADED; }
 	}
 }
 
 void ModelLoader::LoadModel()
 {
-	scene = importer_.ReadFile(path_.data(),
+	scene_ = importer_.ReadFile(path_.data(),
 		aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenNormals |
 			aiProcess_CalcTangentSpace | aiProcess_GenBoundingBoxes);
 
-	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
+	if (!scene_ || scene_->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene_->mRootNode)
 	{
 		flags_ = ERROR_LOADING;
 		logDebug(fmt::format("[ERROR] ASSIMP {}", importer_.GetErrorString()));
@@ -389,12 +384,12 @@ void ModelLoader::LoadModel()
 
 void ModelLoader::ProcessModel()
 {
-	model_.meshes_.reserve(scene->mNumMeshes);
+	model_.meshes_.reserve(scene_->mNumMeshes);
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("Process Nodes");
 #endif
-	ProcessNode(scene->mRootNode);
-	RendererLocator::get().AddPreRenderJob(&uploadMeshesToGLJob_);
+	ProcessNode(scene_->mRootNode);
+	RendererLocator::get().AddPreRenderJob(&uploadJob_);
 }
 
 void ModelLoader::ProcessNode(aiNode* node)
@@ -404,7 +399,7 @@ void ModelLoader::ProcessNode(aiNode* node)
 	{
 		model_.meshes_.push_back({});
 		auto& mesh = model_.meshes_.back();
-		ProcessMesh(mesh, scene->mMeshes[node->mMeshes[i]]);
+		ProcessMesh(mesh, scene_->mMeshes[node->mMeshes[i]]);
 	}
 
 	// then do the same for each of its children
@@ -447,7 +442,7 @@ void ModelLoader::ProcessMesh(assimp::Mesh& mesh, const aiMesh* aMesh)
 	// process material
 	if (aMesh->mMaterialIndex >= 0)
 	{
-		const aiMaterial* material = scene->mMaterials[aMesh->mMaterialIndex];
+		const aiMaterial* material = scene_->mMaterials[aMesh->mMaterialIndex];
 		material->Get(AI_MATKEY_SHININESS, mesh.specularExponent);
 		for (int i = 0; i < AI_TEXTURE_TYPE_MAX; i++)
 		{
@@ -475,7 +470,7 @@ void ModelLoader::LoadMaterialTextures(const aiMaterial* material,
 	}
 }
 
-void ModelLoader::UploadMeshesToGL()
+void ModelLoader::UploadMeshesToGl()
 {
 	for (auto& mesh : model_.meshes_)
 	{
@@ -493,8 +488,8 @@ void ModelLoader::UploadMeshesToGL()
 		glGenBuffers(1, &mesh.VBO);
 		glCheckError();
 #ifdef EASY_PROFILE_USE
-        EASY_END_BLOCK;
-        EASY_BLOCK("Generate EBO");
+		EASY_END_BLOCK;
+		EASY_BLOCK("Generate EBO");
 #endif
 		glGenBuffers(1, &mesh.EBO);
 		glCheckError();
@@ -518,8 +513,8 @@ void ModelLoader::UploadMeshesToGL()
 			GL_STATIC_DRAW);
 		glCheckError();
 #ifdef EASY_PROFILE_USE
-        EASY_END_BLOCK;
-        EASY_BLOCK("Vertex Attrib");
+		EASY_END_BLOCK;
+		EASY_BLOCK("Vertex Attrib");
 #endif
 		// vertex positions
 		glEnableVertexAttribArray(0);

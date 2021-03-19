@@ -66,7 +66,7 @@ class NullUiManager final : public IUiManager
 {
 public:
 	void AddUiImage(UiImage*) override {}
-	void AddUiText(UiText* text) override {}
+	void AddUiText(UiText*) override {}
 };
 
 //-----------------------------------------------------------------------------
@@ -95,14 +95,16 @@ private:
      * \brief Return the fontId of one of the loaded font
      */
 	FontId GetFontId(FontLoaded fontLoaded) const;
-	
+
+#ifdef NEKO_GLES3
     /**
      * \brief Change the viewport of the ui to display
      * \param screenId Id of the screen to display
      * \param playerNmb Current player number
      * \param windowSize Size of the window
      */
-	void ChangeViewport(uint8_t screenId, uint8_t playerNmb, const Vec2u& windowSize);
+	static void ChangeViewport(uint8_t screenId, uint8_t playerNmb, const Vec2u& windowSize);
+#endif
 
 	AerEngine& aerEngine_;
 	Job preRender_;
@@ -111,8 +113,8 @@ private:
 #ifdef NEKO_GLES3
 	gl::FontManager fontManager_;
 #endif
-	const std::string kRobotoPath_  = "font/Lobster-Regular.ttf";
-	const std::string kLobsterPath_ = "font/Roboto-Medium.ttf";
+	const std::string kRobotoPath_  = "fonts/Lobster-Regular.ttf";
+	const std::string kLobsterPath_ = "fonts/Roboto-Medium.ttf";
 	FontId robotoId_                = INVALID_FONT_ID;
 	FontId lobsterId_               = INVALID_FONT_ID;
 

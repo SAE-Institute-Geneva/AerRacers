@@ -27,13 +27,11 @@
 #include <assimp/Importer.hpp>
 
 #include "gl/mesh.h"
-#include "gl/shader.h"
-#include "graphics/graphics.h"
 
 namespace neko::gl
 {
-using ModelId                  = sole::uuid;
-const ModelId INVALID_MODEL_ID = ModelId();
+using ModelId                      = sole::uuid;
+constexpr ModelId INVALID_MODEL_ID = {};
 
 class Model
 {
@@ -88,7 +86,7 @@ private:
 	void ProcessModel();
 	void ProcessNode(aiNode* node);
 	void ProcessMesh(assimp::Mesh&, const aiMesh* aMesh);
-	void LoadMaterialTextures(const aiMaterial* material,
+	static void LoadMaterialTextures(const aiMaterial* material,
 		aiTextureType textureType,
 		std::string_view directory,
 		assimp::Mesh& mesh);
@@ -96,7 +94,7 @@ private:
 	/**
      * \brief method called on the Render thread to create the VAOs of the meshes
      */
-	void UploadMeshesToGL();
+	void UploadMeshesToGl();
 
 	std::string path_;
 	std::string directoryPath_;
@@ -104,12 +102,12 @@ private:
 	ModelId modelId_ = INVALID_MODEL_ID;
 
 	Assimp::Importer importer_;
-	const aiScene* scene = nullptr;
+	const aiScene* scene_ = nullptr;
 	Model model_;
 
 	Job loadModelJob_;
 	Job processModelJob_;
-	Job uploadMeshesToGLJob_;
+	Job uploadJob_;
 
 	std::uint8_t flags_ = NONE;
 };
@@ -117,11 +115,11 @@ private:
 class IModelManager
 {
 public:
-	[[nodiscard]] virtual const Model* GetModel(ModelId) = 0;
+	[[nodiscard]] virtual const Model* GetModel(ModelId) const = 0;
 	[[nodiscard]] virtual std::string GetModelName(ModelId modelId) = 0;
 	[[nodiscard]] virtual std::string_view GetModelPath(ModelId modelId) = 0;
 
-	[[nodiscard]] virtual bool IsLoaded(ModelId) = 0;
+	[[nodiscard]] virtual bool IsLoaded(ModelId) const = 0;
 
 	virtual ModelId LoadModel(std::string_view) = 0;
 };
@@ -129,28 +127,29 @@ public:
 class NullModelManager : public IModelManager
 {
 public:
-	[[nodiscard]] const Model* GetModel(ModelId) override { return nullptr; }
+	[[nodiscard]] const Model* GetModel(ModelId) const override { return nullptr; }
 	[[nodiscard]] std::string GetModelName(ModelId) override { return "";};
 	[[nodiscard]] std::string_view GetModelPath(ModelId) override { return "";};
 
-	[[nodiscard]] bool IsLoaded(ModelId) override { return false; }
+	[[nodiscard]] bool IsLoaded(ModelId) const override { return false; }
 	ModelId LoadModel(std::string_view) override { return INVALID_MODEL_ID; }
 };
 
 class ModelManager : public IModelManager, public SystemInterface
 {
 public:
-	explicit ModelManager();
+	ModelManager();
 
 	void Init() override;
 	void Update(seconds dt) override;
 	void Destroy() override;
 
-	[[nodiscard]] const Model* GetModel(ModelId) override;
+	[[nodiscard]] const Model* GetModel(ModelId modelId) const override;
 	[[nodiscard]] std::string GetModelName(ModelId modelId) override;
 	[[nodiscard]] std::string_view GetModelPath(ModelId modelId) override;
 
-	[[nodiscard]] bool IsLoaded(ModelId modelId) override { return GetModel(modelId) != nullptr; }
+	[[nodiscard]] bool IsLoaded(ModelId modelId) const override
+	{ return GetModel(modelId) != nullptr; }
 
 	ModelId LoadModel(std::string_view path) override;
 

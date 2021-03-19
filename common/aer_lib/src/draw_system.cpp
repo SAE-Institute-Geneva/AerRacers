@@ -1,11 +1,8 @@
-#include "aer/draw_system.h"
-
-#ifdef EASY_PROFILE_USE
-	#include <easy/profiler.h>
-#endif
-
 #include "aer/aer_engine.h"
 
+#ifdef EASY_PROFILE_USE
+#include <easy/profiler.h>
+#endif
 
 namespace neko::aer
 {
@@ -171,8 +168,8 @@ void DrawSystem::RenderScene(const std::size_t playerNum)
 
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(playerNum));
 	gizmosRenderer_->Render();
-	
-	uiManager_->Render();
+
+	uiManager_->Render(playerNum);
 }
 #endif
 
@@ -180,9 +177,5 @@ void DrawSystem::Destroy() {}
 
 void DrawSystem::DrawImGui() {}
 
-void DrawSystem::OnEvent(const SDL_Event& event)
-{
-	camera_.OnEvent(event);
-}
+void DrawSystem::OnEvent(const SDL_Event& event) { camera_.OnEvent(event); }
 }    // namespace neko::aer
- 

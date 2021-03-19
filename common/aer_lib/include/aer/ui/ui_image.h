@@ -30,6 +30,7 @@
 #include "gl/shape.h"
 #include "gl/texture.h"
 #else
+#include "vk/images/texture_manager.h"
 #endif
 
 namespace neko::aer
@@ -72,7 +73,12 @@ public:
      * \brief Change the texture of the image
      * \param texturePath TexturePath of the new texture
      */
+#ifdef NEKO_GLES3
     void ChangeTexture(gl::TextureManager& textureManager, const std::string& texturePath);
+#else
+	void ChangeTexture(const std::string& texturePath);
+#endif
+
 	void SetSize(const Vec2u& size) { size_ = size; }
 	void SetColor(const Color4& color) { color_ = color; }
 
@@ -80,11 +86,13 @@ protected:
 	Vec2u size_ = Vec2u(100u);    //In pixel
 
 	std::string texturePath_;
-	TextureId textureId_     = INVALID_TEXTURE_ID;
-	TextureName textureName_ = INVALID_TEXTURE_NAME;
 
 #ifdef NEKO_GLES3
+	TextureId textureId_     = INVALID_TEXTURE_ID;
+	TextureName textureName_ = INVALID_TEXTURE_NAME;
 	gl::RenderQuad quad_ {Vec3f::zero, Vec2f::one};
+#else
+	vk::ResourceHash textureId_ = vk::INVALID_TEXTURE_ID;
 #endif
 
 	Color4 color_ = Color::white;

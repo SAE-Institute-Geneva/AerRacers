@@ -22,11 +22,7 @@
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
 
-#include "graphics/color.h"
-
-#include "aer/ui/ui_element.h"
-#include "aer/ui/ui_manager.h"
-#include <aer\aer_engine.h>
+#include "aer/aer_engine.h"
 
 #ifdef NEKO_GLES3
 #include <gl/gles3_window.h>

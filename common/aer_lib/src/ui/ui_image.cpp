@@ -23,7 +23,7 @@ void UiImage::Init(gl::TextureManager& textureManager)
 void UiImage::Draw(gl::TextureManager& textureManager, const Vec2u& screenSize, const gl::Shader& uiImageShader)
 {
 	const Vec2f normalSpaceSize = Vec2f(size_) / Vec2f(screenSize);
-	const Vec3f anchoredPosition = Vec3f(CalculateUiElementPosition(Vec2f(position_), Vec2f(screenSize), uiAnchor_));
+	const Vec3f anchoredPosition = Vec3f(CalculateUiElementPosition(Vec2f(position_), uiAnchor_));
 	quad_.SetValues(normalSpaceSize, anchoredPosition);
 	glActiveTexture(GL_TEXTURE0);
 	if (textureName_ == INVALID_TEXTURE_NAME) {
@@ -49,10 +49,18 @@ void UiImage::Destroy()
 #endif
 }
 
+#ifdef NEKO_GLES3
 void UiImage::ChangeTexture(gl::TextureManager& textureManager, const std::string& texturePath)
 {
     texturePath_ = texturePath;
     textureId_   = textureManager.LoadTexture(texturePath_, Texture::DEFAULT);
     textureName_ = textureManager.GetTextureName(textureId_);
 }
+#else
+void UiImage::ChangeTexture(const std::string& texturePath)
+{
+	texturePath_ = texturePath;
+	textureId_   = vk::TextureManagerLocator::get().AddTexture(texturePath_, Texture::DEFAULT);
+}
+#endif
 }
