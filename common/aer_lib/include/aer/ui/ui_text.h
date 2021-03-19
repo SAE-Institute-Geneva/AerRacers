@@ -31,15 +31,31 @@
 
 namespace neko::aer
 {
+/**
+ * \brief Enum of loaded font
+ */
 enum class FontLoaded : std::uint8_t
 {
 	LOBSTER,
 	ROBOTO
 };
 
+/**
+ * \brief  UiText use to display text on screen
+ */
 class UiText : public UiElement
 {
 public:
+    /**
+     * \brief Create an UiText
+     * \param font Font to use
+     * \param text Text to display
+     * \param position Position on view scale (bottom_left:-1,-1; top_right:1,1)
+     * \param anchor Anchor from screen corner
+     * \param screenId On which screen are based the anchor
+     * \param scale Scale of the text
+     * \param color Color of the text
+     */
 	UiText(FontLoaded font    = FontLoaded::LOBSTER,
 		std::string_view text = "",
 		const Vec3f& position = Vec3f::zero,

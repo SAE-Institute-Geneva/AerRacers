@@ -34,10 +34,22 @@
 
 namespace neko::aer
 {
+/**
+ * \brief UiImage use to display sprites on screen
+ */
 class UiImage : public UiElement
 {
 public:
-	explicit UiImage(std::string_view texturePath = "",
+    /**
+     * \brief Create a UiImage
+     * \param texturePath path of the texture to display
+     * \param position Position on view scale (bottom_left:-1,-1; top_right:1,1)
+     * \param size Size in pixel 
+     * \param anchor Anchor from screen corner
+     * \param screenId On which screen are based the anchor
+     * \param color Color add to the texture
+     */
+    UiImage(std::string_view texturePath = "",
 		const Vec3f& position                     = Vec3f::zero,
 		const Vec2u& size                         = Vec2u::one,
 		UiAnchor anchor                           = UiAnchor::CENTER,
@@ -56,7 +68,11 @@ public:
 
 	void Destroy() override;
 
-	void SetTexturePath(const std::string& texturePath) { texturePath_ = texturePath; }
+    /**
+     * \brief Change the texture of the image
+     * \param texturePath TexturePath of the new texture
+     */
+    void ChangeTexture(gl::TextureManager& textureManager, const std::string& texturePath);
 	void SetSize(const Vec2u& size) { size_ = size; }
 	void SetColor(const Color4& color) { color_ = color; }
 

@@ -334,12 +334,12 @@ json RigidActorViewer::GetJsonFromSphereCollider(const RigidActorData& rigidActo
 
 json RigidActorViewer::GetJsonFromMaterial(const RigidActorData& rigidActorData)
 {
-    json materialJson               = json::object();
-	materialJson["exist"]     = rigidActorData.colliderType != ColliderType::INVALID;
-	materialJson["bounciness"] = rigidActorData.material.bounciness;
+	json materialJson               = json::object();
+	materialJson["exist"]           = rigidActorData.colliderType != ColliderType::INVALID;
+	materialJson["bounciness"]      = rigidActorData.material.bounciness;
 	materialJson["staticFriction"]  = rigidActorData.material.staticFriction;
 	materialJson["dynamicFriction"] = rigidActorData.material.dynamicFriction;
-    return materialJson;
+	return materialJson;
 }
 
 RigidActorData RigidActorViewer::GetRigidActorFromJson(const json& rigidActorJson)

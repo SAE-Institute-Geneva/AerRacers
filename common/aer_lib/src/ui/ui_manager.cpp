@@ -16,6 +16,7 @@ void UiManager::Init()
 {
 	UiManagerLocator::provide(this);
 	uiImages_.reserve(MAX_UI_ELEMENTS);
+	uiTexts_.reserve(MAX_UI_ELEMENTS);
 
 #ifdef NEKO_GLES3
 	const auto& config = aerEngine_.GetConfig();
@@ -202,7 +203,7 @@ void UiManager::ChangeViewport(
 				glViewport(windowSize.x / 2, 0, windowSize.x / 2, windowSize.y / 2);
 			}
 			break;
-			default:;
+			default: break;
 		}
 	}
 #endif

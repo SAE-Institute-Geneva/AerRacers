@@ -25,6 +25,9 @@
 
 namespace neko::aer
 {
+/**
+ * \brief Anchor from screen corner
+ */
 enum class UiAnchor
 {
 	TOP_LEFT,
@@ -40,6 +43,9 @@ enum class UiAnchor
 	BOTTOM_RIGHT
 };
 
+/**
+ * \brief Flag for UiElement state
+ */
 struct UiFlag
 {
 	enum Enum : std::uint8_t
@@ -50,6 +56,9 @@ struct UiFlag
 	};
 };
 
+/**
+ * \brief Class based of UiElements
+ */
 class UiElement
 {
 public:
@@ -70,6 +79,8 @@ public:
 	void RemoveFlag(UiFlag::Enum flag);
 
 protected:
+    virtual ~UiElement() = default;
+    
 	static Vec2f CalculateUiElementPosition(Vec2f position, UiAnchor anchor);
 
 	Vec3f position_    = Vec3f::zero;    //In percent
