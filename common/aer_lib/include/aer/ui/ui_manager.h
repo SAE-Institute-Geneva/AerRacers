@@ -21,18 +21,20 @@
  Co-Author : Floreau Luca
  Date : 13.03.2021
 ---------------------------------------------------------- */
-#include "ui_text.h"
-#include "graphics/graphics.h"
+#include "sdl_engine/sdl_engine.h"
+
 #include "aer/ui/ui_image.h"
+#include "aer/ui/ui_text.h"
+
+#ifdef NEKO_GLES3
 #include "gl/font.h"
 #include "gl/shader.h"
-#include "sdl_engine/sdl_engine.h"
+#endif
 
 namespace neko::aer
 {
 class AerEngine;
-const static size_t MAX_UI_ELEMENTS = 16;
-
+const static std::size_t MAX_UI_ELEMENTS = 16;
 //-----------------------------------------------------------------------------
 // UiManagerInterface
 //-----------------------------------------------------------------------------
@@ -41,7 +43,8 @@ class IUiManager
 {
 public:
 	virtual void AddUiImage(UiImage* image) = 0;
-	virtual void AddUiText(UiText* text) = 0;
+	virtual void AddUiText(UiText* text)    = 0;
+
 protected:
 	~IUiManager() = default;
 };
@@ -53,8 +56,8 @@ protected:
 class NullUiManager final : public IUiManager
 {
 public:
-    void AddUiImage(UiImage*) override {}
-    void AddUiText(UiText* text) override {}
+	void AddUiImage(UiImage*) override {}
+	void AddUiText(UiText* text) override {}
 };
 
 //-----------------------------------------------------------------------------
@@ -62,42 +65,44 @@ public:
 //-----------------------------------------------------------------------------
 /// \brief Draw gizmos
 class UiManager final : public SystemInterface,
-                        public sdl::SdlEventSystemInterface,
-                        public IUiManager
+						public sdl::SdlEventSystemInterface,
+						public IUiManager
 {
 public:
 	explicit UiManager(AerEngine& aerEngine);
 
 	void Init() override;
-
 	void Update(seconds dt) override;
-
-    void Render(uint8_t playerNmb);
+	void Render(uint8_t playerNmb);
+	void Destroy() override;
 
 	void OnEvent(const SDL_Event& event) override;
 
-	void Destroy() override;
+	void AddUiImage(UiImage*) override;
+	void AddUiText(UiText* text) override;
 
-    void AddUiImage(UiImage*) override;
-    
-    void AddUiText(UiText* text) override;
 private:
-    FontId GetFontId(FontLoaded fontLoaded) const;
-    void ChangeViewport(uint8_t screenId, uint8_t playerNmb, const Vec2u& windowSize);
+	FontId GetFontId(FontLoaded fontLoaded) const;
+	void ChangeViewport(uint8_t screenId, uint8_t playerNmb, const Vec2u& windowSize);
 
-    AerEngine& aerEngine_;
-    Job preRender_;
-    //Font 
-    gl::FontManager fontManager_;
-    const std::string kRobotoPath_ = "font/Lobster-Regular.ttf";
-    const std::string kLobsterPath_ = "font/Lobster-Regular.ttf";
-    FontId robotoId_ = INVALID_FONT_ID;
-    FontId lobsterId_ = INVALID_FONT_ID;
+	AerEngine& aerEngine_;
+	Job preRender_;
 
-    //UiImage
-    gl::Shader uiImageShader_;
-    std::vector<UiImage*> uiImages_{};
-    std::vector<UiText*> uiTexts_{};
+	//Font
+#ifdef NEKO_GLES3
+	gl::FontManager fontManager_;
+#endif
+	const std::string kRobotoPath_  = "font/Lobster-Regular.ttf";
+	const std::string kLobsterPath_ = "font/Lobster-Regular.ttf";
+	FontId robotoId_                = INVALID_FONT_ID;
+	FontId lobsterId_               = INVALID_FONT_ID;
+
+	//UiImage
+#ifdef NEKO_GLES3
+	gl::Shader uiImageShader_;
+#endif
+	std::vector<UiImage*> uiImages_ {};
+	std::vector<UiText*> uiTexts_ {};
 };
 
 using UiManagerLocator = Locator<IUiManager, NullUiManager>;

@@ -21,19 +21,13 @@ RenderManager::RenderManager(EntityManager& entityManager,
 	vk::ModelManager& modelManager,
 #endif
 	Transform3dManager& transform3DManager,
-	RendererViewer& rendererViewer)
-#ifdef NEKO_GLES3
+	LightManager& lightManager)
    : ComponentManager<DrawCmd, EntityMask(ComponentType::MODEL)>(entityManager),
-#else
-   : ComponentManager<DrawCmd, EntityMask(ComponentType::MODEL)>(entityManager),
-#endif
 	 modelManager_(modelManager),
 	 transformManager_(transform3DManager),
-	 dirtyManager_(entityManager),
-	 rendererViewer_(rendererViewer)
+	 lightManager_(lightManager)
 {
-	entityManager_.get().RegisterOnChangeParent(this);
-	dirtyManager_.RegisterComponentManager(this);
+	DirectionalLight::Instance = &dirLight_;
 }
 
 void RenderManager::Init()
@@ -48,7 +42,8 @@ void RenderManager::Init()
 		{
 			shader_.LoadFromFile(config.dataRootPath + "shaders/opengl/light.vert",
 				config.dataRootPath + "shaders/opengl/light.frag");
-			shader_.BindUbo(2 * sizeof (Mat4f));
+			shader_.BindUbo(gl::kUboMatricesSize, gl::kUboMatricesBinding);
+			shader_.BindUbo(gl::kUboLightsSize, gl::kUboLightsBinding);
 		}};
 
 	RendererLocator::get().AddPreRenderJob(&preRender_);
@@ -61,7 +56,6 @@ void RenderManager::Update(seconds)
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("RenderManager::Update", profiler::colors::Brown);
 #endif
-	dirtyManager_.UpdateDirtyEntities();
 }
 
 void RenderManager::Render()
@@ -73,52 +67,39 @@ void RenderManager::Render()
 		entityManager_.get().FilterEntities(static_cast<EntityMask>(ComponentType::MODEL));
 
 #ifdef NEKO_GLES3
-	if (shader_.GetProgram() != 0)
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	shader_.Bind();
+
+	const auto& camera = CameraLocator::get();
+	shader_.SetVec3("viewPos", camera.position);
+	lightManager_.SetShaderValues(shader_);
+
+	auto& modelManager = gl::ModelManagerLocator::get();
+	for (auto& entity : entities)
 	{
-		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
-		shader_.Bind();
-		const auto& camera = CameraLocator::get();
-		shader_.SetVec3("viewPos", camera.position);
-
-		//TODO find a way to cleanly implement lighting
-		/*shader_.SetUInt("lightType", lightType_);
-
-		shader_.SetVec3("light.position", pointLight_.position);
-		shader_.SetVec3("light.direction", directionalLight_.direction.Normalized());
-		shader_.SetVec3("light.ambient", pointLight_.ambient);
-		shader_.SetVec3("light.diffuse", pointLight_.diffuse);
-		shader_.SetFloat("light.specular", pointLight_.specular);
-		shader_.SetFloat("light.intensity", pointLight_.intensity);
-
-		shader_.SetFloat("sLight.blend", Cos(spotLight_.angle * spotLight_.blend));
-		shader_.SetFloat("sLight.angle", Cos(spotLight_.angle));
-		shader_.SetFloat("sLight.radius", spotLight_.radius);*/
-
-		auto& modelManager = gl::ModelManagerLocator::get();
-		for (auto& entity : entities)
+		if (components_[entity].isVisible && components_[entity].modelId != gl::INVALID_MODEL_ID &&
+			modelManager.IsLoaded(components_[entity].modelId))
 		{
-			if (components_[entity].isVisible && components_[entity].modelId != gl::INVALID_MODEL_ID &&
-				modelManager.IsLoaded(components_[entity].modelId))
-			{
-				const Mat4f& modelMat = transformManager_.GetComponent(entity);
-				shader_.SetMat4("model", modelMat);
-				shader_.SetMat3("normalMatrix", Mat3f(modelMat).Inverse().Transpose());
+			const Mat4f& modelMat = transformManager_.GetComponent(entity);
+			shader_.SetMat4("model", modelMat);
+			shader_.SetMat3("normalMatrix", Mat3f(modelMat)/*.Inverse().Transpose()*/);
 
-				const auto& model = modelManager.GetModel(components_[entity].modelId);
-				model->Draw(shader_);
-			}
+			const auto& model = modelManager.GetModel(components_[entity].modelId);
+			model->Draw(shader_);
 		}
-		glCheckError();
 	}
 #elif NEKO_VULKAN
-	vk::VkResources* vkObj = vk::VkResources::Inst;
+	lightManager_.SetShaderValues();
+
+	auto& cmdBuffers = vk::VkResources::Inst->modelCommandBuffers;
 	for (auto& entity : entities)
 	{
 		if (!modelManager_.IsLoaded(components_[entity].modelId)) continue;
 
 		const Mat4f& modelMat = transformManager_.GetComponent(entity);
-		vkObj->modelCommandBuffer.AddMatrix(components_[entity].modelInstanceIndex, modelMat);
+		for (std::size_t i = 0; i < vk::VkResources::Inst->GetViewportCount(); ++i)
+			cmdBuffers[i].AddMatrix(components_[entity].modelInstanceIndex, modelMat);
 	}
 #endif
 }
@@ -128,8 +109,20 @@ void RenderManager::Destroy()
 #ifdef NEKO_GLES3
 	shader_.Destroy();
 #else
-	vk::VkResources::Inst->modelCommandBuffer.Destroy();
+	auto& cmdBuffers = vk::VkResources::Inst->modelCommandBuffers;
+	for (std::size_t i = 0; i < vk::VkResources::Inst->GetViewportCount(); ++i)
+		cmdBuffers[i].Destroy();
 #endif
+}
+
+std::string RenderManager::GetModelName(Entity entity)
+{
+	return modelManager_.GetModelName(components_[entity].modelId);
+}
+
+std::string_view RenderManager::GetModelPath(Entity entity)
+{
+	return modelManager_.GetModelPath(components_[entity].modelId);
 }
 
 void RenderManager::SetModel(Entity entity, const std::string& modelPath)
@@ -143,8 +136,6 @@ void RenderManager::SetModel(Entity entity, const std::string& modelPath)
 
 	SetModel(entity, modelId);
 #endif
-    rendererViewer_.SetMeshName(entity, modelPath);
-	dirtyManager_.SetDirty(entity);
 }
 
 #ifdef NEKO_GLES3
@@ -167,17 +158,19 @@ void RenderManager::SetModel(Entity entity, vk::ModelId modelId)
 {
 	components_[entity].modelId = modelId;
 
+	auto& cmdBuffers = vk::VkResources::Inst->modelCommandBuffers;
 	const Mat4f& modelMat = transformManager_.GetComponent(entity);
 	if (components_[entity].modelInstanceIndex == INVALID_INDEX)
 	{
-		components_[entity].modelInstanceIndex =
-			vk::VkResources::Inst->modelCommandBuffer.AddModelInstanceIndex(
-				components_[entity].modelId, modelMat);
+		for (std::size_t i = 0; i < vk::VkResources::Inst->GetViewportCount(); ++i)
+			components_[entity].modelInstanceIndex =
+				cmdBuffers[i].AddModelInstanceIndex(components_[entity].modelId, modelMat);
 	}
 	else
 	{
-		vk::VkResources::Inst->modelCommandBuffer.SetModelId(
-			components_[entity].modelInstanceIndex, components_[entity].modelId);
+		for (std::size_t i = 0; i < vk::VkResources::Inst->GetViewportCount(); ++i)
+			cmdBuffers[i].SetModelId(
+				components_[entity].modelInstanceIndex, components_[entity].modelId);
 	}
 }
 #endif
@@ -187,13 +180,9 @@ void RenderManager::UpdateDirtyComponent(Entity entity)
 	ComponentManager::UpdateDirtyComponent(entity);
 }
 
-void RenderManager::OnChangeParent(Entity, Entity, Entity) {}
-
-RendererViewer::RendererViewer(EntityManager& entityManager, RenderManager& renderManager)
-   : ComponentViewer(entityManager), rendererManager_(renderManager)
-{
-	ResizeIfNecessary(meshNames_, INIT_ENTITY_NMB - 1, std::string());
-}
+RendererViewer::RendererViewer(EntityManager& entityManager, RenderManager& rendererManager)
+   : ComponentViewer(entityManager), rendererManager_(rendererManager)
+{}
 
 void RendererViewer::DrawImGui(Entity entity)
 {
@@ -202,43 +191,20 @@ void RendererViewer::DrawImGui(Entity entity)
 	{
 		if (ImGui::TreeNode("Renderer"))
 		{
-			ResizeIfNecessary(meshNames_, entity, std::string());
-			std::string meshName = "MeshName : " + meshNames_[entity];
+			std::string meshName = "ModelName: " + rendererManager_.GetModelName(entity);
 			ImGui::Text("%s", meshName.c_str());
 			ImGui::TreePop();
 		}
 	}
 }
 
-void RendererViewer::SetMeshName(Entity entity, std::string_view meshName)
-{
-	if (entity == INVALID_ENTITY) return;
-
-	ResizeIfNecessary(meshNames_, entity, std::string());
-	std::size_t startName = meshName.find_last_of('/') + 1;
-	std::size_t endName   = meshName.find_first_of('.');
-	std::size_t size      = endName - startName;
-	std::string_view name = meshName.substr(startName, size);
-	meshNames_[entity]    = name;
-}
-
-std::string_view RendererViewer::GetMeshName(Entity entity) const
-{
-	if (entity == INVALID_ENTITY && entity >= meshNames_.size()) return "";
-	return meshNames_[entity];
-}
-
 json RendererViewer::GetJsonFromComponent(Entity entity) const
 {
 	json rendererComponent = json::object();
 	if (entityManager_.HasComponent(entity, EntityMask(ComponentType::MODEL)))
-	{
 		if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
-		{
-			Configuration config          = BasicEngine::GetInstance()->GetConfig();
-			rendererComponent["meshName"] = meshNames_[entity];
-		}
-	}
+			rendererComponent["meshName"] = rendererManager_.GetModelName(entity);
+
 	return rendererComponent;
 }
 

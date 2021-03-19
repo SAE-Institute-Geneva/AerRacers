@@ -118,6 +118,8 @@ class IModelManager
 {
 public:
 	[[nodiscard]] virtual const Model* GetModel(ModelId) = 0;
+	[[nodiscard]] virtual std::string GetModelName(ModelId modelId) = 0;
+	[[nodiscard]] virtual std::string_view GetModelPath(ModelId modelId) = 0;
 
 	[[nodiscard]] virtual bool IsLoaded(ModelId) = 0;
 
@@ -128,6 +130,9 @@ class NullModelManager : public IModelManager
 {
 public:
 	[[nodiscard]] const Model* GetModel(ModelId) override { return nullptr; }
+	[[nodiscard]] std::string GetModelName(ModelId) override { return "";};
+	[[nodiscard]] std::string_view GetModelPath(ModelId) override { return "";};
+
 	[[nodiscard]] bool IsLoaded(ModelId) override { return false; }
 	ModelId LoadModel(std::string_view) override { return INVALID_MODEL_ID; }
 };
@@ -142,6 +147,8 @@ public:
 	void Destroy() override;
 
 	[[nodiscard]] const Model* GetModel(ModelId) override;
+	[[nodiscard]] std::string GetModelName(ModelId modelId) override;
+	[[nodiscard]] std::string_view GetModelPath(ModelId modelId) override;
 
 	[[nodiscard]] bool IsLoaded(ModelId modelId) override { return GetModel(modelId) != nullptr; }
 

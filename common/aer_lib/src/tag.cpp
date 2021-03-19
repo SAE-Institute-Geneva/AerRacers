@@ -1,5 +1,7 @@
 #include "aer/tag.h"
 
+#include "utils/vector_utility.h"
+
 #include "aer/log.h"
 #include "aer/scene.h"
 

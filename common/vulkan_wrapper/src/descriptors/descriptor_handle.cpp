@@ -6,61 +6,13 @@ DescriptorHandle::DescriptorHandle(const Pipeline& pipeline)
    : shader_(pipeline.GetShader()),
 	 pushDescriptor_(pipeline.IsPushDescriptor()),
 	 changed_(true),
-	 descriptorSet_(std::make_unique<DescriptorSet>(pipeline))
+	 descriptorSet_(pipeline)
 {}
 
 void DescriptorHandle::Destroy() const
 {
 	for (auto& descriptor : descriptor_) descriptor.second.descriptor->Destroy();
 	if (descriptorSet_) descriptorSet_->Destroy();
-}
-
-DescriptorHandle::DescriptorHandle(const DescriptorHandle& other)
-   : shader_(other.shader_),
-	 pushDescriptor_(other.pushDescriptor_),
-	 changed_(other.changed_),
-	 descriptor_(other.descriptor_),
-	 writeDescriptorSets_(other.writeDescriptorSets_)
-{
-	if (other.descriptorSet_)
-		descriptorSet_ = std::make_unique<DescriptorSet>(*other.descriptorSet_);
-}
-
-DescriptorHandle::DescriptorHandle(DescriptorHandle&& other) noexcept
-   : shader_(other.shader_),
-	 pushDescriptor_(other.pushDescriptor_),
-	 changed_(other.changed_),
-	 descriptorSet_(std::move(other.descriptorSet_)),
-	 descriptor_(std::move(other.descriptor_)),
-	 writeDescriptorSets_(std::move(other.writeDescriptorSets_))
-{}
-
-DescriptorHandle& DescriptorHandle::operator=(const DescriptorHandle& other)
-{
-	if (this == &other) return *this;
-
-	shader_         = other.shader_;
-	pushDescriptor_ = other.pushDescriptor_;
-	changed_        = other.changed_;
-	if (other.descriptorSet_)
-		descriptorSet_ = std::make_unique<DescriptorSet>(*other.descriptorSet_);
-
-	descriptor_          = other.descriptor_;
-	writeDescriptorSets_ = other.writeDescriptorSets_;
-	return *this;
-}
-
-DescriptorHandle& DescriptorHandle::operator=(DescriptorHandle&& other) noexcept
-{
-	if (this == &other) return *this;
-
-	shader_              = other.shader_;
-	pushDescriptor_      = other.pushDescriptor_;
-	changed_             = other.changed_;
-	descriptorSet_       = std::move(other.descriptorSet_);
-	descriptor_          = std::move(other.descriptor_);
-	writeDescriptorSets_ = std::move(other.writeDescriptorSets_);
-	return *this;
 }
 
 void DescriptorHandle::PushDescriptorData(const Material::PushDataContainer& dataContainer)
@@ -108,7 +60,7 @@ bool DescriptorHandle::Update(const Pipeline& pipeline)
 		descriptor_.clear();
 		writeDescriptorSets_.clear();
 
-		if (!pushDescriptor_) descriptorSet_ = std::make_unique<DescriptorSet>(pipeline);
+		if (!pushDescriptor_) descriptorSet_.emplace(pipeline);
 
 		changed_ = false;
 		return false;

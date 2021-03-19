@@ -6,39 +6,36 @@ namespace neko
 {
 struct Camera
 {
-    Vec3f position = Vec3f::back;
-    Vec3f reverseDirection = Vec3f::back;
+	Vec3f position         = Vec3f::back;
+	Vec3f reverseDirection = Vec3f::back;
 
-    float nearPlane = 0.1f;
-    float farPlane = 10'000.0f;
+	float nearPlane = 0.1f;
+	float farPlane  = 10'000.0f;
 
 	virtual void Init();
 
-    void WorldLookAt(const Vec3f& target);
+	void WorldLookAt(const Vec3f& target);
 
-    [[nodiscard]] Vec3f GetRight() const;
-    [[nodiscard]] Vec3f GetUp() const;
+	[[nodiscard]] Vec3f GetRight() const;
+	[[nodiscard]] Vec3f GetUp() const;
 
-    [[nodiscard]] EulerAngles GetRotation() const;
-    [[nodiscard]] Mat4f GetRotationMat() const;
+	[[nodiscard]] EulerAngles GetRotation() const;
+	[[nodiscard]] Mat4f GetRotationMat() const;
 
-    [[nodiscard]] Mat4f GenerateViewMatrix() const;
+	[[nodiscard]] Mat4f GenerateViewMatrix() const;
 
-    void SetDirectionFromEuler(const EulerAngles& angles);
+	void SetDirectionFromEuler(const EulerAngles& angles);
 
-    void Rotate(const EulerAngles& angles);
+	void Rotate(const EulerAngles& angles);
 
-    [[nodiscard]] float GetAspect() const { return aspect_; }
+	[[nodiscard]] float GetAspect() const { return aspect_; }
+	void SetAspect(const float aspect) { aspect_ = aspect; }
+	void SetAspect(const float width, const float height) { aspect_ = width / height; }
 
-    void SetAspect(const float aspect) { aspect_ = aspect; }
-
-    void SetAspect(const int width, const int height)
-    { aspect_ = static_cast<float>(width) / static_cast<float>(height); }
-
-    [[nodiscard]] virtual Mat4f GenerateProjectionMatrix() const = 0;
+	[[nodiscard]] virtual Mat4f GenerateProjectionMatrix() const {}
 
 protected:
-    float aspect_ = 1.0f;
+	float aspect_ = 1.0f;
 };
 
 struct Camera2D : Camera

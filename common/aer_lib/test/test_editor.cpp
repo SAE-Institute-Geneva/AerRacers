@@ -66,12 +66,19 @@ public:
 		if (isVisible)
 		{
 			// Beginning of the Test window
-			if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(), &isVisible))
+			if (!ImGui::Begin((std::string(GetName()) + "##" + std::to_string(GetId())).c_str(), &isVisible))
 			{
 				ImGui::End();
 			}
 			else
 			{
+				// Window Label
+				if (ImGui::IsWindowDocked())
+				{
+					ImGui::Text(GetName());
+					ImGui::Separator();
+				}
+
 				ImGui::End();
 			}
 		}

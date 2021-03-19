@@ -27,41 +27,45 @@ void PhysicsSimulationEventCallback::onSleep(
     //logDebug("onSleep");
 }
 
-void PhysicsSimulationEventCallback::onContact(
-    const physx::PxContactPairHeader& pairHeader,
-    const physx::PxContactPair* pairs,
-    physx::PxU32 nbPairs)
+void PhysicsSimulationEventCallback::onContact(const physx::PxContactPairHeader& pairHeader,
+	const physx::PxContactPair* pairs,
+	physx::PxU32 nbPairs)
 {
-    for (physx::PxU32 i = 0; i < nbPairs; i++) {
-        const physx::PxContactPair& cp = pairs[i];
+	for (physx::PxU32 i = 0; i < nbPairs; i++)
+	{
+		const physx::PxContactPair& cp = pairs[i];
+		if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
+		{
+			//logDebug("onContactEnter");
+			onCollisionEnterAction.Execute(pairHeader);
+		}
 
-        if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
-            //logDebug("onContactEnter");
-            onCollisionEnterAction.Execute(pairHeader);
-        }
-        if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS) {
-            //logDebug("onContactStay");
-            onCollisionStayAction.Execute(pairHeader);
-        }
-        if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_LOST) {
-            //logDebug("onContactExit");
-            onCollisionExitAction.Execute(pairHeader);
-        }
-    }
+		if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_PERSISTS)
+		{
+			//logDebug("onContactStay");
+			onCollisionStayAction.Execute(pairHeader);
+		}
+
+		if (cp.events & physx::PxPairFlag::eNOTIFY_TOUCH_LOST)
+		{
+			//logDebug("onContactExit");
+			onCollisionExitAction.Execute(pairHeader);
+		}
+	}
 }
 
-void PhysicsSimulationEventCallback::onTrigger(
-    physx::PxTriggerPair* pairs,
-    physx::PxU32 count)
+void PhysicsSimulationEventCallback::onTrigger(physx::PxTriggerPair* pairs, physx::PxU32 count)
 {
-    if (pairs->status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND) {
-        //logDebug("onTriggerEnter");
-        onTriggerEnterAction.Execute(pairs);
-    }
-    if (pairs->status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST) {
-        //logDebug("onTriggerExit");
-        onTriggerExitAction.Execute(pairs);
-    }
+	if (pairs->status & physx::PxPairFlag::eNOTIFY_TOUCH_FOUND)
+	{
+		//logDebug("onTriggerEnter");
+		onTriggerEnterAction.Execute(pairs);
+	}
+	if (pairs->status & physx::PxPairFlag::eNOTIFY_TOUCH_LOST)
+	{
+		//logDebug("onTriggerExit");
+		onTriggerExitAction.Execute(pairs);
+	}
 }
 
 void PhysicsSimulationEventCallback::onAdvance(

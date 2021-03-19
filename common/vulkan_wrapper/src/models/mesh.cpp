@@ -12,24 +12,24 @@ void Mesh::InitData(const std::vector<Vertex>& vertices, const std::vector<std::
 	SetVertices(vertices);
 	SetIndices(indices);
 
-	minExtents_ = Vec3f(std::numeric_limits<float>::max(),
-		std::numeric_limits<float>::max(),
-		std::numeric_limits<float>::max());
-	maxExtents_ = Vec3f(std::numeric_limits<float>::min(),
+	aabb_.lowerLeftBound  = Vec3f(std::numeric_limits<float>::max(),
+        std::numeric_limits<float>::max(),
+        std::numeric_limits<float>::max());
+	aabb_.upperRightBound = Vec3f(std::numeric_limits<float>::min(),
 		std::numeric_limits<float>::min(),
 		std::numeric_limits<float>::min());
 
 	for (const auto& vertex : vertices)
 	{
-		minExtents_ = Vec3f(std::min(minExtents_.x, vertex.position.x),
-			std::min(minExtents_.y, vertex.position.y),
-			std::min(minExtents_.z, vertex.position.z));
-		maxExtents_ = Vec3f(std::max(maxExtents_.x, vertex.position.x),
-			std::max(maxExtents_.y, vertex.position.y),
-			std::max(maxExtents_.z, vertex.position.z));
+		aabb_.lowerLeftBound  = Vec3f(std::min(aabb_.lowerLeftBound.x, vertex.position.x),
+            std::min(aabb_.lowerLeftBound.y, vertex.position.y),
+            std::min(aabb_.lowerLeftBound.z, vertex.position.z));
+		aabb_.upperRightBound = Vec3f(std::max(aabb_.upperRightBound.x, vertex.position.x),
+			std::max(aabb_.upperRightBound.y, vertex.position.y),
+			std::max(aabb_.upperRightBound.z, vertex.position.z));
 	}
 
-	radius_ = std::max(minExtents_.Magnitude(), maxExtents_.Magnitude());
+	radius_ = std::max(aabb_.lowerLeftBound.Magnitude(), aabb_.upperRightBound.Magnitude());
 }
 
 void Mesh::Destroy() const
@@ -166,10 +166,6 @@ void Mesh::SetIndices(const std::vector<std::uint32_t>& indices)
 
 Vec3f Mesh::GetExtent() const
 {
-	const Vec3f extent = {abs(maxExtents_.x) + abs(minExtents_.x),
-		abs(maxExtents_.y) + abs(minExtents_.y),
-		abs(maxExtents_.z) + abs(minExtents_.z)};
-
-	return extent;
+	return aabb_.CalculateExtends();
 }
 }    // namespace neko::vk

@@ -194,7 +194,6 @@ bool PhysicalDevice::IsDeviceSuitable(VkSurfaceKHR surface) const
 	vkGetPhysicalDeviceFeatures(gpu_, &deviceFeatures);
 
 	const bool extensionsSupported = CheckDeviceExtensionSupport();
-
 	bool swapChainAdequate = false;
 	if (extensionsSupported)
 	{

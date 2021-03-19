@@ -25,6 +25,8 @@
  Author: Canas Simon
  Date:
 ---------------------------------------------------------- */
+#include "mathematics/aabb.h"
+
 #include "vk/buffers/buffer.h"
 #include "vk/commands/command_buffer.h"
 #include "vk/images/texture_manager.h"
@@ -75,11 +77,10 @@ protected:
 
 	Vec3f positionOffset_ = Vec3f::zero;
 
-	Vec3f minExtents_;
 	std::uint32_t vertexCount_ = 0;
-
-	Vec3f maxExtents_;
 	std::uint32_t indexCount_ = 0;
+
+	Aabb3d aabb_;
 
 	float radius_ = 0.0f;
 };

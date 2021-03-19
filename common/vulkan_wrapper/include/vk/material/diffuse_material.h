@@ -29,9 +29,9 @@
 
 namespace neko::vk
 {
-constexpr std::string_view kDiffuseName  = ("diffuse");
-constexpr std::string_view kSpecularName = ("specular");
-constexpr std::string_view kNormalName   = ("normal");
+constexpr std::string_view kDiffuseName  = ("diffuseMap");
+constexpr std::string_view kSpecularName = ("specularMap");
+constexpr std::string_view kNormalName   = ("normalMap");
 constexpr std::string_view kColorName    = ("color");
 constexpr std::string_view kUsedMapsName = ("usedMaps");
 constexpr StringHash kDiffuseHash        = HashString(kDiffuseName);
@@ -78,8 +78,8 @@ public:
 	[[nodiscard]] std::optional_const_ref<Image2d> GetNormal() const { return normal_; }
 	void ResetNormal();
 
-	void SetSpecularExponent(const float specularExp) { specularExp_ = specularExp; }
-	[[nodiscard]] float GetSpecularExponent() const { return specularExp_; }
+	void SetShininess(const float shininess) { shininess_ = shininess; }
+	[[nodiscard]] float GetShininess() const { return shininess_; }
 
 	void SetRenderMode(RenderMode renderMode) override;
 	[[nodiscard]] RenderMode GetRenderMode() const override { return renderMode_; }
@@ -99,6 +99,6 @@ private:
 
 	std::uint8_t usedMaps_ = 0;
 
-	float specularExp_ = 32.0f;
+	float shininess_ = 32.0f;
 };
 }    // namespace neko::vk

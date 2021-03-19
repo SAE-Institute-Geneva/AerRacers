@@ -25,4 +25,41 @@
 
 namespace neko
 {
+std::string ComponentTypeToString(ComponentType type)
+{
+	switch (type)
+	{
+		case ComponentType::EMPTY: return "Empty";
+
+			// Transform 2D
+		case ComponentType::POSITION2D:  return "Position 2D";
+		case ComponentType::SCALE2D:     return "Scale 2D";
+		case ComponentType::ROTATION2D:  return "Rotation 2D";
+		case ComponentType::TRANSFORM2D: return "Transform 2D";
+
+			// Transform 3D
+		case ComponentType::POSITION3D:  return "Position";
+		case ComponentType::SCALE3D:     return "Scale";
+		case ComponentType::ROTATION3D:  return "Rotation";
+		case ComponentType::TRANSFORM3D: return "Transform";
+
+			// Graphics
+		case ComponentType::SPRITE2D: return "Sprite";
+		case ComponentType::MODEL:    return "Model";
+		case ComponentType::LIGHT:    return "Light";
+
+			// Physics
+		case ComponentType::BODY2D:             return "Body 2D";
+		case ComponentType::BOX_COLLIDER2D:     return "Box Collider 2D";
+		case ComponentType::CIRCLE_COLLIDER2D:  return "Circle Collider 2D";
+		case ComponentType::POLYGON_COLLIDER2D: return "Polygon Collider 2D";
+		case ComponentType::CONVEX_SHAPE2D:     return "Convex Shape 2D";
+		case ComponentType::RIGID_STATIC:       return "Rigid Body Static";
+		case ComponentType::RIGID_DYNAMIC:      return "Rigid Body Dynamic";
+
+			// Miscellaneous
+		case ComponentType::PREFAB:     return "Prefab";
+		case ComponentType::OTHER_TYPE: return "Other";
+	}
+}
 }
