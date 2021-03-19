@@ -541,6 +541,9 @@ public:
             .value(),
             cubeRotation_.x.value(),
             precision);
+        EXPECT_NEAR(transform3dManager_->GetRelativePosition(cubeMoveRotationEntity_).x,
+            cubeNewPosition_.x,
+            precision);
         //Cube Force At Position
         //EXPECT_NEAR(transform3dManager_->GetRelativeRotation(cubeAngularVelocityEntity_).z.value(),
         //    cubeAngularVelocity_.z * kPhysicsDuration_,
@@ -553,6 +556,8 @@ public:
         rigidDynamicManager_->SetLinearVelocity(sphereVelocityEntity_, sphereVelocity_);
         rigidDynamicManager_->MoveRotation(
             cubeMoveRotationEntity_, neko::Quaternion::FromEuler(cubeRotation_));
+        rigidDynamicManager_->MovePosition(
+            cubeMoveRotationEntity_, cubeNewPosition_);
         if (physicsTimer_ >= kPhysicsDuration_) {
             physicsEngine_->StopPhysic();
             PostHasSucceed();
@@ -575,6 +580,7 @@ private:
     neko::Vec3f cubeTorque_ = neko::Vec3f(100.0f, 0.0f, 0.0f);
     neko::EulerAngles cubeRotation_ =
         neko::EulerAngles(neko::degree_t(100.0f), neko::degree_t(0.0f), neko::degree_t(0.0f));
+    neko::Vec3f cubeNewPosition_ = neko::Vec3f(5.0f, 0.0f, 0.0f);
     neko::Vec3f cubeAngularVelocity_ = neko::Vec3f(0.0f, 0.0f, 1.0f);
 
     neko::Entity sphereVelocityEntity_;
