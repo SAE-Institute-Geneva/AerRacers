@@ -23,6 +23,7 @@
 ---------------------------------------------------------- */
 #include "graphics/graphics.h"
 #include "aer/ui/ui_element.h"
+#include "gl/font.h"
 #include "gl/shader.h"
 #include "sdl_engine/sdl_engine.h"
 
@@ -77,6 +78,8 @@ public:
 	void Destroy() override;
 
 private:
+	gl::FontManager fontManager_;
+	FontId fontId_ = INVALID_FONT_ID;
 	gl::Shader uiShader_;
 	std::vector<UiElement*> uiElements_{};
 	AerEngine& aerEngine_;

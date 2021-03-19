@@ -4,13 +4,17 @@
 
 namespace neko::aer
 {
-UiManager::UiManager(AerEngine& aerEngine) : aerEngine_(aerEngine)
+UiManager::UiManager(AerEngine& aerEngine) :
+	fontManager_(aerEngine.GetFilesystem()),
+	aerEngine_(aerEngine)
 {
 }
 void UiManager::Init() {
 	UiManagerLocator::provide(this);
 	uiElements_.reserve(kMaxUiElements);
 	const auto& config = aerEngine_.GetConfig();
+
+
 	preRender_ = Job{ [this, config]()
 		{
 			glEnable(GL_BLEND);
@@ -19,6 +23,13 @@ void UiManager::Init() {
 			uiShader_.LoadFromFile(
 				config.dataRootPath + "shaders/opengl/base_ui.vert",
 				config.dataRootPath + "shaders/opengl/base.frag");
+			fontManager_.Init();
+			fontId_ = fontManager_.LoadFont(config.dataRootPath + "font/8-bit-hud.ttf", 36);
+
+			const auto& config = aerEngine_.GetConfig();
+			//const Vec2u windowSize = config.windowSize / Vec2u(2, 1);
+			fontManager_.SetWindowSize(Vec2f(config.windowSize));
+			glCheckError();
 		} };
 
 	RendererLocator::get().AddPreRenderJob(&preRender_);
@@ -26,6 +37,9 @@ void UiManager::Init() {
 
 void UiManager::Update(seconds dt)
 {
+	const auto& config = aerEngine_.GetConfig();
+	fontManager_.SetWindowSize(Vec2f(config.windowSize));
+	fontManager_.RenderText(fontId_, "winnerText", Vec2f::zero, TextAnchor::CENTER, 1.0f, Color::red);
 }
 
 void UiManager::AddUiElement(UiElement* uiElement)
@@ -41,6 +55,7 @@ void UiManager::AddUiElement(UiElement* uiElement)
 void UiManager::Render()
 {
 	if (uiShader_.GetProgram() == 0) return;
+	fontManager_.Render();
 	uiShader_.Bind();
 	uiShader_.SetInt("tex", 0);
 	glDisable(GL_DEPTH_TEST);
@@ -74,5 +89,6 @@ void UiManager::OnEvent(const SDL_Event& event)
 void UiManager::Destroy()
 {
 	uiElements_.clear();
+	fontManager_.Destroy();
 }
 }
