@@ -1,13 +1,13 @@
 #include <imgui_internal.h>
 #include <aer/editor/editor_tool_manager.h>
 
-
 #include "aer/aer_engine.h"
 #include "aer/editor/tool/hierarchy.h"
 #include "aer/editor/tool/inspector.h"
 #include "aer/editor/tool/light_controller.h"
 #include "aer/editor/tool/logger.h"
 #include "aer/editor/tool/scene_loader.h"
+#include "aer/gizmos_renderer.h"
 
 namespace neko::aer
 {
@@ -27,10 +27,12 @@ EditorToolManager::EditorToolManager(AerEngine& engine)
 
 void EditorToolManager::Init()
 {
+#ifdef NEKO_GLES3
 	const float fontSizeInPixels = 16.0f;
 	const std::string path =
 		BasicEngine::GetInstance()->GetConfig().dataRootPath + "fonts/droid_sans.ttf";
 	ImGui::GetIO().Fonts->AddFontFromFileTTF(path.c_str(), fontSizeInPixels);
+#endif
 }
 
 void EditorToolManager::Update(const seconds dt)
@@ -39,11 +41,11 @@ void EditorToolManager::Update(const seconds dt)
 
 	for (auto& tool : tools_) tool->Update(dt);
 
-	Transform3dManager& transform3dManager            = cContainer_.transform3dManager;
-	EntityManager& entityManager                      = cContainer_.entityManager;
-	physics::RigidDynamicManager& rigidDynamicManager = cContainer_.rigidDynamicManager;
-	physics::RigidStaticManager& rigidStaticManager   = cContainer_.rigidStaticManager;
-	IGizmoRenderer& gizmosLocator                     = GizmosLocator::get();
+	auto& gizmosLocator             = GizmosLocator::get();
+	const auto& transform3dManager  = cContainer_.transform3dManager;
+	const auto& entityManager       = cContainer_.entityManager;
+	const auto& rigidDynamicManager = cContainer_.rigidDynamicManager;
+	const auto& rigidStaticManager  = cContainer_.rigidStaticManager;
 	if (selectedEntity_ != INVALID_ENTITY)
 	{
 		gizmosLocator.DrawCube(transform3dManager.GetGlobalPosition(selectedEntity_),

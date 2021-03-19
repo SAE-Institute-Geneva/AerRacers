@@ -33,7 +33,7 @@ namespace neko::vk
 class UniformHandle
 {
 public:
-	explicit UniformHandle(bool multiPipeline = false);
+	UniformHandle(bool multiPipeline = false);
 	UniformHandle(const UniformBlock& uniformBlock, bool multiPipeline = false);
 	~UniformHandle();
 

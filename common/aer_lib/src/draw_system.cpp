@@ -37,6 +37,7 @@ void DrawSystem::Init()
 	camera.nearPlane        = 0.1f;
 	camera.farPlane         = 10000.0f;
 	camera_.SetCameras(camera);
+	sdl::MultiCameraLocator::provide(&camera_);
 
 #ifdef NEKO_GLES3
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(0));
@@ -140,11 +141,25 @@ void DrawSystem::Render()
 	uiManager_->Render(playerNum_);
 	gizmosRenderer_->Clear();
 #elif NEKO_VULKAN
-	CameraLocator::provide(&camera_.GetCamera(0));
-	RenderScene(0);
+	vk::VkResources::Inst->SetViewportCount(playerNum_);
+	const Vec2f size = Vec2f(BasicEngine::GetInstance()->GetConfig().windowSize);
+	switch (playerNum_)
+	{
+		case 1: camera_.SetAspects(size.x, size.y); break;
+		case 2: camera_.SetAspects(size.x / 2.0f, size.y); break;
+
+		case 3:
+		case 4: camera_.SetAspects(size.x / 2.0f, size.y / 2.0f); break;
+
+		case 0:
+		default: LogError("Invalid Player number!!"); break;
+	}
+
+	engine_.GetComponentManagerContainer().renderManager.Render();
 #endif
 }
 
+#ifdef NEKO_GLES3
 void DrawSystem::RenderScene(const std::size_t playerNum)
 {
 #ifdef EASY_PROFILE_USE
@@ -154,11 +169,10 @@ void DrawSystem::RenderScene(const std::size_t playerNum)
 	auto& cManagerContainer = engine_.GetComponentManagerContainer();
 	cManagerContainer.renderManager.Render();
 
-#ifdef NEKO_GLES3
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(playerNum));
 	gizmosRenderer_->Render();
-#endif
 }
+#endif
 
 void DrawSystem::Destroy() {}
 

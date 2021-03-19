@@ -79,6 +79,32 @@ const Model* ModelManager::GetModel(ModelId modelId) const
 	return nullptr;
 }
 
+std::string ModelManager::GetModelName(ModelId modelId)
+{
+	for (auto& it : modelPathMap_)
+	{
+		if (it.second == modelId)
+		{
+			std::size_t startName         = it.first.find_last_of('/') + 1;
+			std::size_t endName           = it.first.find_first_of('.');
+			std::size_t size              = endName - startName;
+			std::string name              = it.first.substr(startName, size);
+			return name;
+		}
+	}
+
+	return "";
+}
+
+std::string_view ModelManager::GetModelPath(ModelId modelId)
+{
+	for (auto& it : modelPathMap_)
+		if (it.second == modelId)
+			return it.first;
+
+	return "";
+}
+
 bool ModelManager::IsLoaded(ModelId modelId)
 {
 	const auto* model = GetModel(modelId);

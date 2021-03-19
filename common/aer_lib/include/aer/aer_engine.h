@@ -25,14 +25,10 @@
  Author : Floreau Luca
  Co-Author : Canas Simon
  Date : 29.09.2020 
-Last Modif: 26.01.2021
+ Last Modif: 26.01.2021
 ---------------------------------------------------------- */
-
-#include "log.h"
-#include "px/physics_engine.h"
-#include "sdl_engine/sdl_engine.h"
-
 #include "aer/draw_system.h"
+#include "aer/log.h"
 #include "aer/managers/manager_container.h"
 
 namespace neko::aer

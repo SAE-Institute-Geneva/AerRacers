@@ -3,62 +3,133 @@
 #include "graphics/camera.h"
 
 #include "vk/material/material_manager.h"
-#include "vk/models/model_manager.h"
 #include "vk/vk_resources.h"
 
 namespace neko::vk
 {
-SubrendererOpaque::SubrendererOpaque(PipelineStage stage)
-   : RenderPipeline(stage),
-	 uniformScene_(true),
-	 modelCmdBuffer_(VkResources::Inst->modelCommandBuffer)
-{}
+SubrendererOpaque::SubrendererOpaque(PipelineStage stage) : RenderPipeline(stage) {}
 
 void SubrendererOpaque::Destroy() const
 {
-	uniformScene_.Destroy();
-	modelCmdBuffer_.Destroy();
+	for (auto& uniformScene : uniformScenes_) uniformScene.Destroy();
+	for (auto& modelCommandBuffer : VkResources::Inst->modelCommandBuffers)
+		modelCommandBuffer.Destroy();
 }
 
 void SubrendererOpaque::Render(const CommandBuffer& commandBuffer)
 {
-	const Camera& camera = CameraLocator::get();
-	const Mat4f view     = camera.GenerateViewMatrix();
-	Mat4f proj           = camera.GenerateProjectionMatrix();
-	proj[1][1] *= -1.0f;
+	const auto& cameras              = sdl::MultiCameraLocator::get();
+	VkResources* vkObj               = VkResources::Inst;
+	const RenderStage& renderStage   = vkObj->GetRenderStage();
+	const std::uint8_t viewportCount = vkObj->GetViewportCount();
 
-	uniformScene_.Push(kProjHash, proj);
-	uniformScene_.Push(kViewHash, view);
-	uniformScene_.Push(kViewPosHash, camera.position);
+	VkRect2D renderArea;
+	renderArea.offset = {0, 0};
+	renderArea.extent = {static_cast<uint32_t>(renderStage.GetSize().x),
+		static_cast<uint32_t>(renderStage.GetSize().y)};
 
-	modelCmdBuffer_.PrepareData();
-
-	//Single Draw
-	auto& modelManager    = ModelManagerLocator::get();
-	auto& materialManager = MaterialManagerLocator::get();
-	for (auto& modelDrawCommand : modelCmdBuffer_.GetForwardModels())
+	for (std::size_t i = 0; i < viewportCount; ++i)
 	{
-		const auto& model = modelManager.GetModel(modelDrawCommand.modelId);
-		for (std::size_t i = 0; i < model->GetMeshCount(); ++i)
+		ModelCommandBuffer& cmdBuffer = vkObj->modelCommandBuffers[i];
+		cmdBuffer.PrepareData();
+
+		ChooseViewport(commandBuffer, renderArea, viewportCount, i);
+
+		const Mat4f view = cameras.GenerateViewMatrix(i);
+		Mat4f proj       = cameras.GenerateProjectionMatrix(i);
+		proj[1][1] *= -1.0f;
+
+		uniformScenes_[i].Push(kProjHash, proj);
+		uniformScenes_[i].Push(kViewHash, view);
+		uniformScenes_[i].Push(kViewPosHash, cameras.GetPosition(i));
+
+		//Single Draw
+		auto& modelManager    = ModelManagerLocator::get();
+		auto& materialManager = MaterialManagerLocator::get();
+		for (auto& modelDrawCommand : cmdBuffer.GetForwardModels())
 		{
-			const auto& mesh         = model->GetMesh(i);
-			const ResourceHash matId = mesh.GetMaterialId();
-			if (matId != 0 && matId != 1)
+			const auto& model = modelManager.GetModel(modelDrawCommand.modelId);
+			for (std::size_t j = 0; j < model->GetMeshCount(); ++j)
 			{
-				const auto& material = materialManager.GetMaterial(matId);
-				if (material.GetRenderMode() == Material::RenderMode::VK_OPAQUE)
-					CmdRender(commandBuffer, modelDrawCommand, mesh, material);
+				const auto& mesh         = model->GetMesh(j);
+				const ResourceHash matId = mesh.GetMaterialId();
+				if (matId != 0 && matId != 1)
+				{
+					const auto& material = materialManager.GetMaterial(matId);
+					if (material.GetRenderMode() == Material::RenderMode::VK_OPAQUE)
+						CmdRender(
+							commandBuffer, modelDrawCommand, uniformScenes_[i], mesh, material);
+				}
 			}
 		}
-	}
 
-	//GPU Instancing
-	for (auto&& meshInstance : modelCmdBuffer_.GetModelInstances())
-		meshInstance.CmdRender(commandBuffer, uniformScene_);
+		//GPU Instancing
+		for (auto&& meshInstance : cmdBuffer.GetModelInstances())
+			meshInstance.CmdRender(commandBuffer, uniformScenes_[i]);
+	}
+}
+
+void SubrendererOpaque::ChooseViewport(const CommandBuffer& cmdBuffer,
+	const VkRect2D& renderArea,
+	std::uint8_t viewportCount,
+	std::uint8_t viewportIndex)
+{
+	switch (viewportCount)
+	{
+		case 1:
+		{
+			VkViewport viewport;
+			viewport.x        = 0.0f;
+			viewport.y        = 0.0f;
+			viewport.width    = static_cast<float>(renderArea.extent.width);
+			viewport.height   = static_cast<float>(renderArea.extent.height);
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
+			break;
+		}
+		case 2:
+		{
+			const auto width = static_cast<float>(renderArea.extent.width) / 2.0f;
+			const auto height = static_cast<float>(renderArea.extent.height);
+			const auto indexX = static_cast<float>(viewportIndex);
+
+			VkViewport viewport;
+			viewport.x        = width * indexX;
+			viewport.y        = 0.0f;
+			viewport.width    = width;
+			viewport.height   = height;
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
+			break;
+		}
+		case 3:
+		case 4:
+		{
+			const auto width = static_cast<float>(renderArea.extent.width) / 2.0f;
+			const auto height = static_cast<float>(renderArea.extent.height) / 2.0f;
+			const auto indexX = static_cast<float>(viewportIndex % 2);
+			const auto indexY = static_cast<float>(viewportIndex / 2 % 2);
+
+			VkViewport viewport;
+			viewport.x        = width * indexX;
+			viewport.y        = height * indexY;
+			viewport.width    = width;
+			viewport.height   = height;
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			vkCmdSetViewport(cmdBuffer, 0, 1, &viewport);
+			break;
+		}
+		case 0:
+		default: neko_assert(false, "Invalid Viewport number!!");
+	}
 }
 
 bool SubrendererOpaque::CmdRender(const CommandBuffer& commandBuffer,
 	ForwardDrawCmd& modelDrawCommand,
+	UniformHandle& uniformScene,
 	const Mesh& mesh,
 	const Material& mat)
 {
@@ -75,7 +146,7 @@ bool SubrendererOpaque::CmdRender(const CommandBuffer& commandBuffer,
 	const auto& pipeline = materialPipeline.GetPipeline();
 
 	// Updates descriptors.
-	modelDrawCommand.descriptorHandle.Push(kUboSceneHash, uniformScene_);
+	modelDrawCommand.descriptorHandle.Push(kUboSceneHash, uniformScene);
 	modelDrawCommand.descriptorHandle.Push(kUboObjectHash, modelDrawCommand.uniformHandle);
 	modelDrawCommand.descriptorHandle.PushDescriptorData(mat.ExportDescriptorData());
 	if (!modelDrawCommand.descriptorHandle.Update(pipeline)) return false;
@@ -83,10 +154,5 @@ bool SubrendererOpaque::CmdRender(const CommandBuffer& commandBuffer,
 	// Draws the object.
 	modelDrawCommand.descriptorHandle.BindDescriptor(commandBuffer, pipeline);
 	return mesh.DrawCmd(commandBuffer);
-}
-
-void SubrendererOpaque::SetUniformBlock(const UniformBlock& uniformBlock)
-{
-	uniformScene_.Update(uniformBlock);
 }
 }    // namespace neko::vk

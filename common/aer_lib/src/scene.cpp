@@ -1,16 +1,16 @@
-#include "aer/scene.h"
-
-#include <fmt/format.h>
-#ifdef EASY_PROFILE_USE
-    #include "easy/profiler.h"
-#endif
-
-#include "aer/log.h"
-#include "aer/tag.h"
-#include "aer/managers/manager_container.h"
-#include "engine/configuration.h"
 #include "engine/engine.h"
 #include "utils/file_utility.h"
+
+#include "aer/log.h"
+#include "aer/managers/manager_container.h"
+
+#ifdef NEKO_VULKAN
+#include "vk/vk_resources.h"
+#endif
+
+#ifdef EASY_PROFILE_USE
+#include "easy/profiler.h"
+#endif
 
 namespace neko::aer
 {
@@ -203,7 +203,8 @@ bool SceneManager::LoadScene(const std::string_view& jsonPath)
 		json scene              = neko::LoadJson(jsonPath);
 		currentScene_.scenePath = jsonPath;
 #ifdef NEKO_VULKAN
-		vk::VkResources::Inst->modelCommandBuffer.Destroy();
+		for (auto& modelCommandBuffer : vk::VkResources::Inst->modelCommandBuffers)
+			modelCommandBuffer.Destroy();
 #endif
 		entityManager_.CleanEntity();
 		ParseSceneJson(scene);

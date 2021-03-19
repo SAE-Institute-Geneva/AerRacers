@@ -22,19 +22,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <queue>
-#include <map>
-
-#include "engine/assert.h"
-#include <engine/log.h>
-#include <xxhash.h>
 #include <sole.hpp>
 
-#include <engine/assert.h>
-#include <engine/log.h>
-#include <utils/service_locator.h>
-#include <mathematics/vector.h>
-#include <engine/filesystem.h>
+#include "engine/assert.h"
+#include "engine/filesystem.h"
+#include "engine/log.h"
+#include "mathematics/hash.h"
+#include "mathematics/vector.h"
+#include "utils/service_locator.h"
 
 namespace neko
 {
@@ -49,27 +44,28 @@ const TextureName INVALID_TEXTURE_NAME = 0;
  */
 using TextureId = sole::uuid;
 const TextureId INVALID_TEXTURE_ID = sole::uuid();
-using TexturePathHash = XXH32_hash_t;
+using TexturePathHash              = StringHash32;
+
 /**
  * \brief Image stores the data from a image file.
  * Used for PNG JPG and other basic image format.
  */
 struct Image
 {
-    Image() = default;
-    ~Image();
-    Image(Image&& image) noexcept;
+	Image() = default;
+	~Image();
+	Image(Image&& image) noexcept;
 
-    Image& operator=(Image&& image) noexcept;
-    Image(const Image&) = delete;
-    Image& operator= (const Image&) = delete;
+	Image& operator     =(Image&& image) noexcept;
+	Image(const Image&) = delete;
+	Image& operator=(const Image&) = delete;
 
-
-    unsigned char* data = nullptr;
-    int width = -1, height = -1;
-    int nbChannels = 0;
-    void Destroy();
+	unsigned char* data = nullptr;
+	int width = -1, height = -1;
+	int nbChannels = 0;
+	void Destroy();
 };
+
 /**
  * \brief Simple function decompressing an image for disk to an Image
  * @param imageFile
@@ -77,56 +73,60 @@ struct Image
  * @param hdr
  * @return
  */
-Image StbImageConvert(const BufferFile& imageFile, bool flipY=false, bool hdr = false);
+Image StbImageConvert(const BufferFile& imageFile, bool flipY = false, bool hdr = false);
 
 /**
  * \brief Result from Texture Manager functions: LoadTexture and GetTexture
  */
 struct Texture
 {
-    enum TextureFlags : unsigned
-    {
-        SMOOTH_TEXTURE = 1u << 0u,
-        MIPMAPS_TEXTURE = 1u << 1u,
-        CLAMP_WRAP = 1u << 2u,
-        REPEAT_WRAP = 1u << 3u,
-        MIRROR_REPEAT_WRAP = 1u << 4u,
-        GAMMA_CORRECTION = 1u << 5u,
-        FLIP_Y = 1u << 6u,
-        HDR = 1u << 7u,
-        DEFAULT = REPEAT_WRAP | SMOOTH_TEXTURE | MIPMAPS_TEXTURE,
+	enum TextureFlags : unsigned
+	{
+		SMOOTH_TEXTURE     = 1u << 0u,
+		MIPMAPS_TEXTURE    = 1u << 1u,
+		CLAMP_WRAP         = 1u << 2u,
+		REPEAT_WRAP        = 1u << 3u,
+		MIRROR_REPEAT_WRAP = 1u << 4u,
+		GAMMA_CORRECTION   = 1u << 5u,
+		FLIP_Y             = 1u << 6u,
+		HDR                = 1u << 7u,
+		DEFAULT            = REPEAT_WRAP | SMOOTH_TEXTURE | MIPMAPS_TEXTURE,
 
-    };
-    TextureName name = INVALID_TEXTURE_NAME;
-    Vec2i size;
+	};
+
+	TextureName name = INVALID_TEXTURE_NAME;
+	Vec2i size;
 };
 
 class TextureManagerInterface
 {
 public:
 	virtual ~TextureManagerInterface() = default;
-	virtual TextureId LoadTexture(std::string_view path, Texture::TextureFlags flags = Texture::DEFAULT) = 0;
-    [[nodiscard]] virtual const Texture* GetTexture(TextureId index) const = 0;
-    [[nodiscard]] virtual bool IsTextureLoaded(TextureId textureId) const = 0;
+	virtual TextureId LoadTexture(
+		std::string_view path, Texture::TextureFlags flags = Texture::DEFAULT) = 0;
+	[[nodiscard]] virtual const Texture* GetTexture(TextureId index) const     = 0;
+	[[nodiscard]] virtual bool IsTextureLoaded(TextureId textureId) const      = 0;
 };
 
 class NullTextureManager : public TextureManagerInterface
 {
 public:
-    TextureId LoadTexture([[maybe_unused]] std::string_view path, [[maybe_unused]] Texture::TextureFlags flags = Texture::DEFAULT) override
-    {
-        neko_assert(false, "[Warning] Using NullTextureManager to Init Texture");
-        logDebug("[Warning] Using NullTextureManager to Init Texture");
-	    return INVALID_TEXTURE_ID;
-    }
-    [[nodiscard]] const Texture* GetTexture([[maybe_unused]] TextureId index) const override
-    {
-        neko_assert(false, "[Warning] Using NullTextureManager to Get Texture Id");
-        logDebug("[Warning] Using NullTextureManager to Get Texture Id");
-	    return {};
-    }
-    [[nodiscard]] bool IsTextureLoaded([[maybe_unused]] TextureId textureId) const override  { return false; }
-};
-using TextureManagerLocator = Locator<TextureManagerInterface, NullTextureManager>;
+	TextureId LoadTexture([[maybe_unused]] std::string_view path,
+		[[maybe_unused]] Texture::TextureFlags flags = Texture::DEFAULT) override
+	{
+		neko_assert(false, "[Warning] Using NullTextureManager to Init Texture");
+	}
 
-}
+	[[nodiscard]] const Texture* GetTexture([[maybe_unused]] TextureId index) const override
+	{
+		neko_assert(false, "[Warning] Using NullTextureManager to Get Texture Id");
+	}
+
+	[[nodiscard]] bool IsTextureLoaded([[maybe_unused]] TextureId textureId) const override
+	{
+		return false;
+	}
+};
+
+using TextureManagerLocator = Locator<TextureManagerInterface, NullTextureManager>;
+}    // namespace neko

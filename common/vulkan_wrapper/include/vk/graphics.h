@@ -45,7 +45,10 @@ public:
     void SetRenderer(std::unique_ptr<IRenderer>&& newRenderer);
 
 private:
-    bool StartRenderPass(RenderStage& renderStage);
+	bool StartRenderPass(RenderStage& renderStage);
+	void ChooseViewport(const CommandBuffer& cmdBuffer,
+		const VkRect2D& renderArea,
+		std::uint8_t viewportIndex) const;
     void EndRenderPass(const RenderStage& renderStage);
 
     void ResetRenderStages();
