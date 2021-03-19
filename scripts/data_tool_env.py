@@ -3,11 +3,12 @@ import os
 from pathlib import Path
 
 env_var = [
-    "SRC_FOLDER",
     "BASISU_EXE",
+    "GLSLANG_VALIDATOR_EXE",
     "IMAGE_FORMAT_EXE",
-    "VALIDATOR_FOLDER",
-    "VALIDATE_JSON_EXE"
+    "SRC_FOLDER",
+    "VALIDATE_JSON_EXE",
+    "VALIDATOR_FOLDER"
 ]
 
 

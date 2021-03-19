@@ -21,13 +21,16 @@
  Co-Author : Floreau Luca
  Date : 13.03.2021
 ---------------------------------------------------------- */
+#include "graphics/color.h"
 
+#include "aer/ui/ui_element.h"
+
+#ifdef NEKO_GLES3
 #include "gl/shader.h"
 #include "gl/shape.h"
 #include "gl/texture.h"
-
-#include "ui_element.h"
-#include "graphics/color.h"
+#else
+#endif
 
 namespace neko::aer
 {
@@ -47,14 +50,21 @@ public:
      * \param color Color add to the texture
      */
     explicit UiImage(const std::string_view& texturePath = "",
-        const Vec2f& position = Vec2f::zero,
-        const Vec2u& size     = Vec2u(100u),
-        UiAnchor anchor       = UiAnchor::CENTER,
-		uint8_t screenId = 0,
-		const Color4& color = Color::white);
+		const Vec2f & position                     = Vec2f::zero,
+		const Vec2u& size                         = Vec2u::one,
+		UiAnchor anchor                           = UiAnchor::CENTER,
+		std::uint8_t screenId                     = 0,
+		const Color4& color                       = Color::white);
 
+#ifdef NEKO_GLES3
 	void Init(gl::TextureManager& textureManager);
-	void Draw(gl::TextureManager& textureManager, const Vec2u& screenSize, const gl::Shader& uiImageShader);
+	void Draw(gl::TextureManager& textureManager,
+		const Vec2u& screenSize,
+		const gl::Shader& uiImageShader);
+#else
+	void Init();
+	void Draw(const Vec2u& screenSize);
+#endif
 
 	void Destroy() override;
 
@@ -67,15 +77,16 @@ public:
 	void SetColor(const Color4& color) { color_ = color; }
 
 protected:
-    Vec2u size_ = Vec2u(100u); //In pixel
+	Vec2u size_ = Vec2u(100u);    //In pixel
 
-	std::string texturePath_ = "";
-	TextureId textureId_ = INVALID_TEXTURE_ID;
+	std::string texturePath_;
+	TextureId textureId_     = INVALID_TEXTURE_ID;
 	TextureName textureName_ = INVALID_TEXTURE_NAME;
 
-	gl::RenderQuad quad_{Vec3f::zero, Vec2f::one};
+#ifdef NEKO_GLES3
+	gl::RenderQuad quad_ {Vec3f::zero, Vec2f::one};
+#endif
 
 	Color4 color_ = Color::white;
-
 };
-} // namespace neko::aer
+}    // namespace neko::aer

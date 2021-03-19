@@ -62,14 +62,11 @@ void DiffuseMaterial::CreatePipeline(const VertexInput&)
 std::string DiffuseMaterial::GetShaderPath() const
 {
 	std::string directory = "shaders/vulkan/";
-	directory += "no_light/"; //TODO put a check for light type
-	std::string shaderName = "instancing_color";
-	if (diffuse_ && !specular_ && !normal_)
-		shaderName = "instancing_diffuse";
-	else if (diffuse_ && specular_ && !normal_)
-		shaderName = "instancing_specular";
-	else if (diffuse_ && specular_ && normal_)
-		shaderName = "instancing_light";
+	/*directory += "no_light/"; //TODO put a check for light type*/
+	std::string shaderName = "lights";
+	if (diffuse_) shaderName += "_d";
+	if (specular_) shaderName += "_s";
+	if (normal_) shaderName = "_n";
 
 	return directory + shaderName + ".aershader";
 }

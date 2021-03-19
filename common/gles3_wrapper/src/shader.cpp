@@ -22,10 +22,7 @@
  SOFTWARE.
  */
 #include "gl/shader.h"
-#include <utils/file_utility.h>
-#include <sstream>
-#include <engine/log.h>
-#include <fmt/format.h>
+
 namespace neko::gl
 {
 Shader::Shader() : filesystem_(BasicEngine::GetInstance()->GetFilesystem()) {}
@@ -70,8 +67,11 @@ void Shader::LoadFromFile(const std::string_view vertexShaderPath, const std::st
 			vertexShaderPath,
 			fragmentShaderPath));
 	}
+
 	DeleteShader(vertexShader);
 	DeleteShader(fragmentShader);
+
+	glGenBuffers(3, ubos_);
 }
 
 void Shader::Bind() const
@@ -80,16 +80,15 @@ void Shader::Bind() const
 	glCheckError();
 }
 
-void Shader::BindUbo(const uint64_t& size)
+void Shader::BindUbo(const uint64_t& size, std::uint8_t binding)
 {
-	const unsigned uniformSun = glGetUniformBlockIndex(shaderProgram_, "Matrices");
-	glUniformBlockBinding(shaderProgram_, uniformSun, 0);
+	//const unsigned uniform = glGetUniformBlockIndex(shaderProgram_, uboName.data());
+	//glUniformBlockBinding(shaderProgram_, uniform, binding);
 
-	glGenBuffers(1, &ubo_);
-	glBindBuffer(GL_UNIFORM_BUFFER, ubo_);
-	glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STATIC_DRAW);
+	glBindBuffer(GL_UNIFORM_BUFFER, ubos_[binding]);
+	glBufferData(GL_UNIFORM_BUFFER, size, nullptr, GL_STATIC_DRAW);
 	glBindBuffer(GL_UNIFORM_BUFFER, 0);
-	glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo_, 0, size);
+	glBindBufferBase(GL_UNIFORM_BUFFER, binding, ubos_[binding]);
 }
 
 GLuint Shader::GetProgram() const { return shaderProgram_; }
@@ -195,9 +194,15 @@ void Shader::SetCubemap(const std::string_view name, TextureName texture, unsign
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture);
 }
 
-void Shader::SetUbo(const uint64_t& size, const uint64_t& offset, const void* data)
+void Shader::SetUbo(const std::uint32_t size,
+	const std::uint32_t offset,
+	const void* data,
+	std::uint8_t binding) const
 {
+	glBindBuffer(GL_UNIFORM_BUFFER, ubos_[binding]);
 	glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	glCheckError();
 }
 
 GLuint LoadShader(const BufferFile& shaderfile, GLenum shaderType)

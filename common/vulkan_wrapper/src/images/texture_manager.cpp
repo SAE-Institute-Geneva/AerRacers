@@ -67,7 +67,6 @@ ResourceHash TextureManager::AddTexture(std::string_view path, Texture::TextureF
 		return textureId;
 	}
 
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	textureLoaders_.push({path, textureId, flags});
 	textureLoaders_.back().Start();
 	return textureId;

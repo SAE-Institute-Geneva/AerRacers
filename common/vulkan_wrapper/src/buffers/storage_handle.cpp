@@ -6,10 +6,10 @@ StorageHandle::StorageHandle(const bool multiPipeline) : multiPipeline_(multiPip
 
 StorageHandle::StorageHandle(const UniformBlock& uniformBlock, bool multiPipeline)
    : multiPipeline_(multiPipeline),
-	 uniformBlock_(uniformBlock),
-	 size_(static_cast<std::uint32_t>(uniformBlock_->get().GetSize())),
-	 arbitraryStorageData_(std::vector<char>(size_)),
-	 storageBuffer_(std::make_unique<StorageBuffer>(static_cast<VkDeviceSize>(size_)))
+     uniformBlock_(uniformBlock),
+     size_(static_cast<std::uint32_t>(uniformBlock_->get().GetSize())),
+     storageBuffer_(static_cast<VkDeviceSize>(size_)),
+	 arbitraryStorageData_(std::vector<char>(size_))
 {}
 
 void StorageHandle::Destroy() const
@@ -49,7 +49,7 @@ bool StorageHandle::Update(const UniformBlock& uniformBlock)
 		uniformBlock_.emplace(uniformBlock);
 		arbitraryStorageData_ = std::vector<char>(size_);
 
-		storageBuffer_ = std::make_unique<StorageBuffer>(size_);
+		storageBuffer_.emplace(size_);
 
 		handleStatus_ = Buffer::Status::CHANGED;
 

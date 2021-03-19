@@ -1,6 +1,7 @@
-#version 330 core
+#version 450 core
+#define MAX_LIGHTS 16
 precision mediump float;
-out vec4 FragColor; 
+out vec4 FragColor;
 
 in Regular
 {
@@ -11,7 +12,7 @@ in Regular
 
 in NormalMap
 {
-    vec3 TangentLightPos;
+	vec3 TangentLightPos[MAX_LIGHTS];
     vec3 TangentLightDir;
     vec3 TangentViewPos;
     vec3 TangentFragPos;
@@ -27,25 +28,33 @@ struct Material
 };
 uniform Material material;
 
-struct Light 
+struct Light
 {
-    vec3 position;
-    vec3 direction;
+	vec3 position;
+	vec3 diffuse;
 
-    vec3 ambient;
-    vec3 diffuse;
-    float specular;
-    float intensity;
+	float specular;
+	float intensity;
+	float radius;
 };
-uniform Light light;
 
-struct SpotLight 
+struct DirLight
 {
-    float blend;
-    float angle;
-    float radius;
+	vec3 diffuse;
+	vec3 ambient;
+
+	vec3 direction;
+
+	float specular;
+	float intensity;
 };
-uniform SpotLight sLight;
+
+layout (std140, binding = 1) uniform Lights
+{
+    uint lightNum;
+	DirLight dirLight;
+    Light lights[MAX_LIGHTS];
+};
 
 uniform vec3 viewPos;
 uniform uint usedMaps;
@@ -59,7 +68,6 @@ const uint Emissive = 0x00000008u;
 const uint NoLight = 0u;
 const uint Point   = 1u;
 const uint Sun	   = 2u;
-const uint Spot    = 3u;
 
 vec3 CalcNoLight()
 {
@@ -70,144 +78,73 @@ vec3 CalcNoLight()
     return result;
 }
 
-vec3 CalcDirLight()
+vec3 CalcDirLight(vec3 viewDir)
 {
-	vec3 normal, lightDir, viewDir;
- 	vec3 ambient = light.ambient * texture(material.diffuse, fs1_in.TexCoords).rgb;
- 	
+	vec3 normal, lightDir;
+	vec3 ambient = dirLight.ambient * texture(material.diffuse, fs1_in.TexCoords).rgb;
 	if (bool(usedMaps & Normal))
 	{
  		normal = texture(material.normal, fs1_in.TexCoords).rgb;
     	normal = normalize(normal * 2.0 - 1.0);
     	lightDir = normalize(-fs2_in.TangentLightDir);
-    	viewDir = normalize(fs2_in.TangentViewPos - fs2_in.TangentFragPos);
 	}
 	else
 	{
     	normal = normalize(fs1_in.Normal);
-    	lightDir = normalize(-light.direction);
-    	viewDir = normalize(viewPos - fs1_in.FragPos);
+    	lightDir = normalize(-dirLight.direction);
 	}
-	
+
 	float diff = max(dot(normal, lightDir), 0.0);
- 	vec3 diffuse = light.diffuse * diff * texture(material.diffuse, fs1_in.TexCoords).rgb;
-    	
+ 	vec3 diffuse = dirLight.diffuse * diff * texture(material.diffuse, fs1_in.TexCoords).rgb;
+
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
-	vec3 specular = vec3(light.specular) * spec;
+	vec3 specular = dirLight.diffuse * dirLight.specular * spec;
  	if (bool(usedMaps & Specular)) specular *= vec3(texture(material.specular, fs1_in.TexCoords).r);
- 
-    diffuse *= light.intensity;
-    specular *= light.intensity;
-    
+
+    diffuse *= dirLight.intensity;
+    specular *= dirLight.intensity;
+
     vec3 result = ambient + diffuse + specular;
-    if (bool(usedMaps & Emissive)) 
+    if (bool(usedMaps & Emissive))
     {
     	result += texture(material.emissive, fs1_in.TexCoords).rgb;
     }
-	
+
 	return result;
 }
 
-vec3 CalcPointLight()
+vec3 CalcPointLight(int index, vec3 viewDir)
 {
-	vec3 normal, lightDir, viewDir;
 	float distance;
- 	vec3 ambient = light.ambient * texture(material.diffuse, fs1_in.TexCoords).rgb;
-	
+	vec3 normal, lightDir;
 	if (bool(usedMaps & Normal))
 	{
  		normal = texture(material.normal, fs1_in.TexCoords).rgb;
     	normal = normalize(normal * 2.0 - 1.0);
-    	lightDir = normalize(fs2_in.TangentLightPos - fs2_in.TangentFragPos);
-    	viewDir = normalize(fs2_in.TangentViewPos - fs2_in.TangentFragPos);
-    	distance = length(light.position - fs2_in.TangentFragPos);
+    	lightDir = normalize(fs2_in.TangentLightPos[index] - fs2_in.TangentFragPos);
+    	distance = length(lights[index].position - fs2_in.TangentFragPos);
 	}
 	else
 	{
     	normal = normalize(fs1_in.Normal);
-    	lightDir = normalize(light.position - fs1_in.FragPos);
-    	viewDir = normalize(viewPos - fs1_in.FragPos);
-    	distance = length(light.position - fs1_in.FragPos);
+    	lightDir = normalize(lights[index].position - fs1_in.FragPos);
+    	distance = length(lights[index].position - fs1_in.FragPos);
 	}
 	
 	float diff = max(dot(lightDir, normal), 0.0);
- 	vec3 diffuse = light.diffuse * diff * texture(material.diffuse, fs1_in.TexCoords).rgb;
+ 	vec3 diffuse = lights[index].diffuse * diff * texture(material.diffuse, fs1_in.TexCoords).rgb;
     	
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
-	vec3 specular = vec3(light.specular) * spec;
+	vec3 specular = lights[index].diffuse * lights[index].specular * spec;
  	if (bool(usedMaps & Specular)) specular *= vec3(texture(material.specular, fs1_in.TexCoords).r);
  
-    float attenuation = clamp(sLight.radius / distance, 0.0, 1.0) * light.intensity;
+    float attenuation = clamp(lights[index].radius / distance, 0.0, 1.0) * lights[index].intensity;
     diffuse *= attenuation;
     specular *= attenuation;
     
-    vec3 result = ambient + diffuse + specular;
-    if (bool(usedMaps & Emissive)) 
-    {
-    	result += texture(material.emissive, fs1_in.TexCoords).rgb;
-    }
-	
-	return result;
-}
-
-vec3 CalcSpotLight()
-{
-	vec3 normal, lightDir, viewDir;
-	float distance, theta;
- 	vec3 ambient = light.ambient * texture(material.diffuse, fs1_in.TexCoords).rgb;
-	
-	if (bool(usedMaps & Normal))
-	{
-    	lightDir = normalize(fs2_in.TangentLightPos - fs2_in.TangentFragPos);
-    	theta = dot(lightDir, -fs2_in.TangentLightDir);
-    	
-    	if(theta > sLight.angle)
-    	{
- 			normal = texture(material.normal, fs1_in.TexCoords).rgb;
-    		normal = normalize(normal * 2.0 - 1.0);
-    		viewDir = normalize(fs2_in.TangentViewPos - fs2_in.TangentFragPos);
-    		distance = length(light.position - fs2_in.TangentFragPos);
-    	}
-    	else
-    	{
-    		return ambient;
-    	}
-	}
-	else
-	{
-    	lightDir = normalize(light.position - fs1_in.FragPos);
-    	theta = dot(lightDir, normalize(-light.direction));
-    	
-    	if(theta > sLight.angle)
-    	{
-    		normal = normalize(fs1_in.Normal);
-    		viewDir = normalize(viewPos - fs1_in.FragPos);
-    		distance = length(light.position - fs1_in.FragPos);
-    	}
-    	else
-    	{
-    		return ambient;
-    	}
-	}
-	
-	float diff = max(dot(lightDir, normal), 0.0);
- 	vec3 diffuse = light.diffuse * diff * texture(material.diffuse, fs1_in.TexCoords).rgb;
-    	
-	vec3 halfwayDir = normalize(lightDir + viewDir);
-  	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
-	vec3 specular = vec3(light.specular) * spec;
- 	if (bool(usedMaps & Specular)) specular *= vec3(texture(material.specular, fs1_in.TexCoords).r);
- 
-    float attenuation = clamp(sLight.radius / distance, 0.0, 1.0) * light.intensity;
-    	
-	float epsilon   = sLight.blend - sLight.angle;
-	float intensity = clamp((theta - sLight.angle) / epsilon, 0.0, 1.0) * attenuation;
-    diffuse  *= intensity;
-    specular *= intensity;
-    
-    vec3 result = ambient + diffuse + specular;
+    vec3 result = diffuse + specular;
     if (bool(usedMaps & Emissive)) 
     {
     	result += texture(material.emissive, fs1_in.TexCoords).rgb;
@@ -218,22 +155,21 @@ vec3 CalcSpotLight()
 
 void main()
 {
-	vec3 result;
-	switch (lightType) 
+	vec3 lighting, viewDir;
+	if (bool(usedMaps & Normal)) viewDir = normalize(fs2_in.TangentViewPos - fs2_in.TangentFragPos);
+	else viewDir = normalize(viewPos - fs1_in.FragPos);
+	if (lightNum != 0u)
 	{
-	case NoLight:
-	    result = CalcNoLight();
-	    break;
-	case Point:
-	    result = CalcPointLight();
-	    break;
-	case Sun:
-	    result = CalcDirLight();
-	    break;
-	case Spot:
-	    result = CalcSpotLight();
-	    break;
+		lighting += CalcDirLight(viewDir);
+		for(int i = 0; i < lightNum; ++i)
+		{
+			lighting += CalcPointLight(i, viewDir);
+		}
 	}
-	
-	FragColor = vec4(result, 1.0);
+	else
+	{
+		lighting = CalcNoLight();
+	}
+
+	FragColor = vec4(lighting, 1.0);
 }

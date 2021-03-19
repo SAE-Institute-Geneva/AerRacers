@@ -33,27 +33,33 @@
 namespace neko::aer
 {
 class SceneManager;
-
 class SceneLoader final : public EditorToolInterface, public physics::FixedUpdateInterface
 {
 public:
-	explicit SceneLoader(AerEngine& engine, ToolType type, int id, std::string name);
+	explicit SceneLoader(AerEngine& engine);
+
 	void Init() override;
-	void Update(seconds dt) override;
+
 	void DrawImGui() override;
 	void LoadSceneFiles();
-	void Destroy() override;
-	void OnEvent(const SDL_Event& event) override;
 
 	void FixedUpdate(seconds dt) override;
+
+	[[nodiscard]] std::string_view GetName() const override { return "Scene Loader"; }
+	[[nodiscard]] ToolType GetType() const override { return SCENE_LOADER; }
 
 private:
 	SceneManager& sceneManager_;
 
-	std::string filepath_ = "";
+	std::string filepath_;
 
 	std::vector<std::string> scenesPaths_;
 	unsigned selectedSceneIndex_ = 0;
 	bool toSave_                 = false;
+
+	// Not defined
+	void Update(seconds) override {}
+	void Destroy() override {}
+	void OnEvent(const SDL_Event&) override {}
 };
 }    // namespace neko::aer

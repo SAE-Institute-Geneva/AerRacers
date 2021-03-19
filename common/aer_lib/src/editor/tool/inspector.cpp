@@ -1,240 +1,168 @@
 #include "aer/editor/tool/inspector.h"
+
 #include "aer/aer_engine.h"
 
 namespace neko::aer
 {
-Inspector::Inspector(AerEngine& engine, ToolType type, int id, std::string name)
-   : EditorToolInterface(engine, type, id, name),
+Inspector::Inspector(AerEngine& engine)
+   : EditorToolInterface(engine),
 	 editorToolManager_(engine.GetEditorToolManager()),
 	 entityManager_(engine.GetComponentManagerContainer().entityManager),
 	 transform3dManager_(engine.GetComponentManagerContainer().transform3dManager),
 	 renderManager_(engine.GetComponentManagerContainer().renderManager),
+	 lightManager_(engine.GetComponentManagerContainer().lightManager),
 	 rigidDynamicManager_(engine.GetComponentManagerContainer().rigidDynamicManager),
 	 rigidStaticManager_(engine.GetComponentManagerContainer().rigidStaticManager),
 	 transform3dViewer_(engine.GetComponentManagerContainer().transform3dViewer),
 	 rendererViewer_(engine.GetComponentManagerContainer().rendererViewer),
+	 lightViewer_(engine.GetComponentManagerContainer().lightViewer),
 	 rigidDynamicViewer_(engine.GetComponentManagerContainer().rigidDynamicViewer),
 	 rigidStaticViewer_(engine.GetComponentManagerContainer().rigidStaticViewer)
 {}
 
-void Inspector::Init() {}
-
-void Inspector::Update(seconds) {}
-
-void Inspector::Destroy() {}
-
 void Inspector::DrawImGui()
 {
-	//If is True Display Window
-	if (isVisible)
+	//Get selected entity
+	Entity entity = editorToolManager_.GetSelectedEntity();
+	if (entity == INVALID_ENTITY)
 	{
-		//Display window
-		if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(), &isVisible))
+		//Display message if no entity selected
+		ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "No Entity selected");
+		return;
+	}
+
+	// Display entity name
+	std::string name = "Entity " + std::to_string(entity);
+	ImGui::Text(name);
+
+	ImGui::Separator();
+	DisplayLayersAndTags(entity);
+	ImGui::Separator();
+
+	// Display Component Viewers
+	DisplayComponentViewer(transform3dViewer_, entity, ComponentType::TRANSFORM3D);
+	DisplayComponentViewer(rendererViewer_, entity, ComponentType::MODEL);
+	DisplayComponentViewer(lightViewer_, entity, ComponentType::LIGHT);
+	DisplayComponentViewer(rigidStaticViewer_, entity, ComponentType::RIGID_STATIC);
+	DisplayComponentViewer(rigidDynamicViewer_, entity, ComponentType::RIGID_DYNAMIC);
+
+	ImGui::Separator();
+	DisplayNewComponentButtons(entity);
+}
+
+void Inspector::DisplayComponentViewer(ComponentViewer& viewer, Entity entity, ComponentType type)
+{
+	if (!entityManager_.HasComponent(entity, EntityMask(type))) return;
+
+	viewer.DrawImGui(entity);
+	const std::string componentName = ComponentTypeToString(type);
+	if (ImGui::BeginPopupContextItem(componentName))
+	{
+		if (ImGui::Button("Delete " + componentName))
 		{
-			ImGui::End();
+			entityManager_.RemoveComponentType(entity, EntityMask(type));
+			ImGui::CloseCurrentPopup();
 		}
-		else
-		{
-			//Get selected entity
-			Entity selectedEntity = editorToolManager_.GetSelectedEntity();
-			if (selectedEntity == INVALID_ENTITY)
-			{
-				//Display message if no entity selected
-				ImGui::TextColored(ImVec4(1.0f, 0.0f, 0.0f, 1.0f), "No Entity selected");
-				ImGui::End();
-				return;
-			}
-			//Dispay entity name
-			std::string name = "Entity " + std::to_string(selectedEntity);
-			ImGui::Text("%s", name.c_str());
 
-			DisplayLayersAndTags(selectedEntity);
-
-			//Display Component
-			//Ask component how to display their information
-			transform3dViewer_.DrawImGui(selectedEntity);
-			rendererViewer_.DrawImGui(selectedEntity);
-			rigidStaticViewer_.DrawImGui(selectedEntity);
-			rigidDynamicViewer_.DrawImGui(selectedEntity);
-
-			DisplayNewComponentButtons(selectedEntity);
-
-			ImGui::End();
-		}
+		ImGui::EndPopup();
 	}
 }
 
-void Inspector::OnEvent(const SDL_Event&) {}
-
 void Inspector::DisplayLayersAndTags(Entity selectedEntity)
 {
-	const char* tags[]   = {"Untagged", "", "", "", "", "", "", "", "", ""};
-	const char* layers[] = {"Default", "", "", "", "", "", "", "", "", ""};
-
-	std::vector<std::string> strings =
-		engine_.GetComponentManagerContainer().sceneManager.GetTags();
-	std::vector<char*> cstrings;
-	cstrings.reserve(strings.size());
-
-	for (size_t i = 0; i < strings.size(); ++i)
-	{
-		cstrings.push_back(const_cast<char*>(strings[i].c_str()));
-		tags[i] = cstrings[i];
-	}
-
-	std::vector<std::string> stringsBis =
-		engine_.GetComponentManagerContainer().sceneManager.GetLayers();
-	std::vector<char*> cstringsBis;
-
-	for (size_t i = 0; i < stringsBis.size(); ++i)
-	{
-		cstringsBis.push_back(const_cast<char*>(stringsBis[i].c_str()));
-		layers[i] = cstringsBis[i];
-	}
-
 	//Tags
-	tag_ = TagLocator::get().GetEntityTag(selectedEntity);
-	if (ImGui::BeginCombo("Tag", tag_.c_str()))
+	auto& tagManager = TagLocator::get();
+	currentTag_ = tagManager.GetEntityTagIndex(selectedEntity);
+	std::vector<std::string> tags = engine_.GetComponentManagerContainer().sceneManager.GetTags();
+	if (ImGui::Combo("Tag", &currentTag_, &tags))
 	{
-		for (int n = 0; n < IM_ARRAYSIZE(tags); n++)
-		{
-			const bool isSelected = currentItem_ == tags[n];
-			if (ImGui::Selectable(tags[n], isSelected))
-			{
-				currentItem_ = tags[n];
-				TagLocator::get().SetEntityTag(selectedEntity, currentItem_);
-			}
-
-			if (isSelected) ImGui::SetItemDefaultFocus();
-		}
-		ImGui::EndCombo();
+		tagManager.SetEntityTag(selectedEntity, tags[currentTag_]);
 	}
 
-	layer_ = TagLocator::get().GetEntityLayer(selectedEntity);
-	if (ImGui::BeginCombo("Layer", layer_.c_str()))
+	// Context Menu
+	if (ImGui::BeginPopupContextItem("Create New Tag"))
 	{
-		for (int n = 0; n < IM_ARRAYSIZE(layers); n++)
-		{
-			const bool isSelected = currentItem_ == layers[n];
-			if (ImGui::Selectable(layers[n], isSelected))
-			{
-				currentItem_ = layers[n];
-				TagLocator::get().SetEntityLayer(selectedEntity, currentItem_);
-			}
-
-			if (isSelected) ImGui::SetItemDefaultFocus();
-		}
-		ImGui::EndCombo();
-	}
-
-	if (ImGui::TreeNode("New Tag & Layer"))
-	{
-		ImGui::InputText("New tag", &newTag_, ImGuiInputTextFlags_None);
-		ImGui::SameLine();
+		ImGui::Text("Add New Tag"); ImGui::Separator();
+		ImGui::SetNextItemWidth(ImGui::CalcTextSize("Add New Tag").x * 2.0f);
+		ImGui::InputText("##newTag", &newStr_); ImGui::SameLine();
 		if (ImGui::Button("Add Tag"))
 		{
-			if (!newTag_.empty())
-				engine_.GetComponentManagerContainer().sceneManager.AddTag(newTag_);
+			if (!newStr_.empty())
+				engine_.GetComponentManagerContainer().sceneManager.AddTag(newStr_);
+
+			newStr_ = "";
+			ImGui::CloseCurrentPopup();
 		}
+		ImGui::EndPopup();
+	}
 
-		//Layers
+	//Layers
+	currentLayer_ = tagManager.GetEntityLayerIndex(selectedEntity);
+	std::vector<std::string> layers =
+		engine_.GetComponentManagerContainer().sceneManager.GetLayers();
+	if (ImGui::Combo("Layer", &currentLayer_, &layers))
+	{
+		tagManager.SetEntityLayer(selectedEntity, layers[currentLayer_]);
+	}
 
-		ImGui::InputText("New layer", &newLayer_, ImGuiInputTextFlags_None);
-		ImGui::SameLine();
+	// Context Menu
+	if (ImGui::BeginPopupContextItem("Create New Layer"))
+	{
+		ImGui::Text("Add New Layer"); ImGui::Separator();
+		ImGui::SetNextItemWidth(ImGui::CalcTextSize("Add New Layer").x * 2.0f);
+		ImGui::InputText("##newLayer", &newStr_); ImGui::SameLine();
 		if (ImGui::Button("Add Layer"))
 		{
-			if (!newLayer_.empty())
-				engine_.GetComponentManagerContainer().sceneManager.AddLayer(newLayer_);
+			if (!newStr_.empty())
+				engine_.GetComponentManagerContainer().sceneManager.AddLayer(newStr_);
+
+			newStr_ = "";
+			ImGui::CloseCurrentPopup();
 		}
-		ImGui::TreePop();
+		ImGui::EndPopup();
 	}
 }
 
 void Inspector::DisplayNewComponentButtons(Entity selectedEntity)
 {
-	if (ImGui::TreeNode("Components"))
+	if (ImGui::ButtonCentered("Add Component...##button"))
+		ImGui::OpenPopup("Add Component##popup");
+
+	if (ImGui::BeginPopup("Add Component##popup"))
 	{
-		//Add Buttons
+		searchFilter_.Draw("##searchFilter");
+		ImGui::Separator();
 
-		if (entityManager_.HasComponent(selectedEntity, EntityMask(ComponentType::TRANSFORM3D)))
+		// Miscellaneous
+		for (const auto& component : componentTypes_)
 		{
-			if (ImGui::Button("Delete Transform3D"))
-			{
-				transform3dManager_.DestroyComponent(selectedEntity);
-			}
-		}
-		else
-		{
-			if (ImGui::Button("Add Transform3D"))
-			{
-				transform3dManager_.AddComponent(selectedEntity);
-			}
-		}
-		if (entityManager_.HasComponent(selectedEntity, EntityMask(ComponentType::MODEL)))
-		{
-			if (ImGui::Button("Delete Model")) { renderManager_.DestroyComponent(selectedEntity); }
-		}
-		else
-		{
-			if (ImGui::Button("Add Model")) { renderManager_.AddComponent(selectedEntity); }
-		}
+			if (entityManager_.HasComponent(selectedEntity, (EntityMask) component)) continue;
 
-		if (entityManager_.HasComponent(selectedEntity, EntityMask(ComponentType::RIGID_DYNAMIC)))
-		{
-			if (ImGui::Button("Delete RigidDynamic"))
+			const std::string componentName = ComponentTypeToString(component) + "##component";
+			if (!searchFilter_.PassFilter(componentName)) continue;
+
+			if (ImGui::MenuItem(componentName))
 			{
-				rigidDynamicManager_.DestroyComponent(selectedEntity);
-			}
-		}
-		else
-		{
-			if (ImGui::Button("Add RigidDynamic"))
-			{
-				rigidDynamicManager_.AddRigidDynamic(selectedEntity, physics::RigidDynamicData());
+				if (component == ComponentType::RIGID_DYNAMIC)
+				{
+					rigidDynamicManager_.AddRigidDynamic(selectedEntity, {});
+				}
+				else if (component == ComponentType::RIGID_STATIC)
+				{
+					rigidStaticManager_.AddRigidStatic(selectedEntity, {});
+				}
+				else
+				{
+					entityManager_.AddComponentType(selectedEntity, (EntityMask) component);
+
+					auto& tagManager = TagLocator::get();
+					tagManager.SetEntityTag(selectedEntity, 0);
+					tagManager.SetEntityLayer(selectedEntity, 0);
+				}
 			}
 		}
 
-		if (entityManager_.HasComponent(selectedEntity, EntityMask(ComponentType::RIGID_STATIC)))
-		{
-			if (ImGui::Button("Delete RigidStatic"))
-			{
-				rigidStaticManager_.DestroyComponent(selectedEntity);
-			}
-		}
-		else
-		{
-			if (ImGui::Button("Add RigidStatic"))
-			{
-				rigidStaticManager_.AddRigidStatic(selectedEntity, physics::RigidStaticData());
-			}
-		}
-
-		ImGui::TreePop();
+		ImGui::EndPopup();
 	}
 }
 }    // namespace neko::aer
-
-int ImGui::InputTextCallback(ImGuiInputTextCallbackData* data)
-{
-	if (data->EventFlag == ImGuiInputTextFlags_CallbackResize)
-	{
-		// Resize string callback
-		auto* str = static_cast<std::string*>(data->UserData);
-		IM_ASSERT(data->Buf == str->c_str());
-		str->resize(data->BufTextLen);
-		data->Buf = const_cast<char*>(str->c_str());
-	}
-
-	return 0;
-}
-
-bool ImGui::InputText(const char* label, std::string* str, ImGuiInputTextFlags flags)
-{
-	flags |= ImGuiInputTextFlags_CallbackResize;
-	return InputText(label,
-		const_cast<char*>(str->c_str()),
-		str->capacity() + 1,
-		flags,
-		InputTextCallback,
-		static_cast<void*>(str));
-}

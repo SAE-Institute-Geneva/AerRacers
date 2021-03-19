@@ -25,6 +25,9 @@
  Author: Canas Simon
  Date:
 ---------------------------------------------------------- */
+#include <map>
+#include <queue>
+
 #include "mathematics/hash.h"
 
 #include "vk/images/texture_loader.h"
