@@ -29,18 +29,19 @@
 #include "PxPhysicsAPI.h"
 #include "PxConfig.h"
 
+#ifdef EASY_PROFILE_USE
+#include "easy/profiler.h"
+#endif
+#include "px/physics_engine.h"
+#include "px/physics_callbacks.h"
 
 #include "aer/aer_engine.h"
 #include "aer/log.h"
 #include "aer/gizmos_renderer.h"
 #include "aer/managers/render_manager.h"
-#include "px/physics_engine.h"
-#include "px/physics_callbacks.h"
 #include "engine/engine.h"
 #include "engine/system.h"
 #include "engine/transform.h"
-#include "gl/gles3_window.h"
-#include "gl/graphics.h"
 
 #pragma region Interface
 class SceneInterface :
@@ -144,6 +145,9 @@ private:
 };
 #pragma endregion 
 
+#ifdef NEKO_GLES3
+#include "gl/gles3_window.h"
+#include "gl/graphics.h"
 #pragma region CubeFall
 class SceneCubeFall final : public SceneInterface {
 public:
@@ -1154,7 +1158,7 @@ public:
     explicit SceneGroundMeshCollider(neko::aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
     void InitActors(neko::physics::PhysicsEngine& physicsEngine) override
     {
-        engineDuration = 5.0f;
+        engineDuration = 10.0f;
         entityManager_ = &aerEngine_.GetComponentManagerContainer().entityManager;
         transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
         renderManager_ = &aerEngine_.GetComponentManagerContainer().renderManager;
@@ -1172,7 +1176,7 @@ public:
                 planePosition_);
             renderManager_->AddComponent(planeEntity_);
             renderManager_->SetModel(planeEntity_,
-                aerEngine_.GetConfig().dataRootPath + "models/leveldesign/big_terrain_04.obj");
+                aerEngine_.GetConfig().dataRootPath + "models/leveldesign/big_terrain_03.obj");
         }
         {
             sphereEntity_ = entityManager_->CreateEntity();
@@ -1197,8 +1201,17 @@ public:
 
     void Update(neko::seconds dt) override
     {
-        if (neko::gl::ModelManagerLocator::get().IsLoaded(renderManager_->GetComponent(planeEntity_).modelId) && !entityManager_->HasComponent(planeEntity_, neko::EntityMask(neko::ComponentType::RIGID_STATIC))) {
+        neko::Camera3D* camera = neko::GizmosLocator::get().GetCamera();
+        camera->WorldLookAt(transform3dManager_->GetRelativePosition(sphereEntity_));
+    }
 
+    void FixedUpdate(neko::seconds dt) override {
+        if (neko::gl::ModelManagerLocator::get().IsLoaded(renderManager_->GetComponent(planeEntity_).modelId) &&
+            !entityManager_->HasComponent(planeEntity_, neko::EntityMask(neko::ComponentType::RIGID_STATIC)) && 
+            neko::gl::ModelManagerLocator::get().IsLoaded(renderManager_->GetComponent(sphereEntity_).modelId)) {
+#ifdef EASY_PROFILE_USE
+            EASY_BLOCK("Load Mesh Collider", profiler::colors::Green);
+#endif
             neko::physics::RigidStaticData rigidStatic;
             rigidStatic.colliderType = neko::physics::ColliderType::MESH;
             rigidStatic.meshColliderData.modelId = renderManager_->GetComponent(planeEntity_).modelId;
@@ -1206,11 +1219,7 @@ public:
             rigidStaticManager_->AddRigidStatic(
                 planeEntity_, rigidStatic);
         }
-        neko::Camera3D* camera = neko::GizmosLocator::get().GetCamera();
-        camera->WorldLookAt(transform3dManager_->GetRelativePosition(sphereEntity_));
     }
-
-    void FixedUpdate(neko::seconds dt) override { }
 
     void DrawImGui() override { }
 private:
@@ -1489,4 +1498,121 @@ namespace neko::aer
 }    // namespace neko::aer
 #pragma endregion
 #pragma endregion
+
+#elif NEKO_VULKAN
+#include "vk/graphics.h"
+#include "vk/vulkan_window.h"
+#include "vk/renderers/renderer_editor.h"
+#pragma region GroundMeshCollider
+class SceneGroundMeshCollider final : public SceneInterface {
+public:
+    explicit SceneGroundMeshCollider(neko::aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
+    void InitActors(neko::physics::PhysicsEngine& physicsEngine) override
+    {
+        engineDuration = 5.0f;
+        entityManager_ = &aerEngine_.GetComponentManagerContainer().entityManager;
+        transform3dManager_ = &aerEngine_.GetComponentManagerContainer().transform3dManager;
+        renderManager_ = &aerEngine_.GetComponentManagerContainer().renderManager;
+        rigidStaticManager_ = &aerEngine_.GetComponentManagerContainer().rigidStaticManager;
+        rigidDynamicManager_ = &aerEngine_.GetComponentManagerContainer().rigidDynamicManager;
+        physicsEngine_ = &physicsEngine;
+        neko::Camera3D* camera = neko::GizmosLocator::get().GetCamera();
+        camera->position = cameraPosition_;
+        //Plane
+        {
+            planeEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(planeEntity_);
+            transform3dManager_->SetRelativePosition(
+                planeEntity_,
+                planePosition_);
+            renderManager_->AddComponent(planeEntity_);
+            renderManager_->SetModel(planeEntity_,
+                aerEngine_.GetConfig().dataRootPath + "models/leveldesign/big_terrain_03.obj");
+        }
+        {
+            sphereEntity_ = entityManager_->CreateEntity();
+            transform3dManager_->AddComponent(sphereEntity_);
+            transform3dManager_->SetRelativePosition(
+                sphereEntity_,
+                objPosition_);
+            renderManager_->AddComponent(sphereEntity_);
+            renderManager_->SetModel(sphereEntity_,
+                aerEngine_.GetConfig().dataRootPath + "models/sphere/sphere.obj");
+            neko::physics::RigidDynamicData rigidDynamic;
+            rigidDynamic.colliderType = neko::physics::ColliderType::SPHERE;
+            rigidDynamicManager_->AddRigidDynamic(
+                sphereEntity_, rigidDynamic);
+        }
+        viewedEntity = sphereEntity_;
+    }
+
+    void HasSucceed() override
+    {
+    }
+
+    void Update(neko::seconds dt) override
+    {
+        neko::Camera3D* camera = neko::GizmosLocator::get().GetCamera();
+        camera->WorldLookAt(transform3dManager_->GetRelativePosition(sphereEntity_));
+    }
+
+    void FixedUpdate(neko::seconds dt) override {
+        if (neko::vk::ModelManagerLocator::get().IsLoaded(renderManager_->GetComponent(planeEntity_).modelId) && !entityManager_->HasComponent(planeEntity_, neko::EntityMask(neko::ComponentType::RIGID_STATIC))) {
+
+            neko::physics::RigidStaticData rigidStatic;
+            rigidStatic.colliderType = neko::physics::ColliderType::MESH;
+            rigidStatic.meshColliderData.modelId = renderManager_->GetComponent(planeEntity_).modelId;
+            rigidStatic.meshColliderData.size = 1.0f;
+            rigidStaticManager_->AddRigidStatic(
+                planeEntity_, rigidStatic);
+        }
+    }
+
+    void DrawImGui() override { }
+private:
+    const static size_t kCubeNumbers = 25;
+    //neko::Vec3f objPosition_ = neko::Vec3f(1300.0f, 150.0f, -1135.0f);
+    //neko::Vec3f cameraPosition_ = neko::Vec3f(1300.0f, 157.0f, -1145.0f);
+    neko::Vec3f objPosition_ = neko::Vec3f(60.0f, 10.0f, 15.0f);
+    neko::Vec3f cameraPosition_ = neko::Vec3f(45.0f, 10.0f, 12.0f);
+    neko::Vec3f planePosition_ = neko::Vec3f(0.0f, 0.0f, -5.0f);
+
+    neko::Entity sphereEntity_ = neko::INVALID_ENTITY;
+
+    neko::Entity planeEntity_ = neko::INVALID_ENTITY;
+
+};
+TEST(PhysX, TestGroundMeshCollider)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr) {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    neko::Configuration config;
+    //config.dataRootPath = "../data/";
+    config.windowName = "AerEditor";
+    config.windowSize = neko::Vec2u(1400, 900);
+
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
+    neko::sdl::VulkanWindow window;
+    neko::vk::VkRenderer renderer(&window);
+    renderer.SetRenderer(std::make_unique<neko::vk::RendererEditor>());
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+
+    SceneGroundMeshCollider sceneMeshCollider = SceneGroundMeshCollider(engine);
+    TestPhysX testPhysX(engine, sceneMeshCollider);
+
+    engine.RegisterOnDrawUi(testPhysX);
+    engine.Init();
+    testPhysX.Init();
+    engine.RegisterSystem(testPhysX);
+    engine.EngineLoop();
+}
+#pragma endregion
+#endif
 

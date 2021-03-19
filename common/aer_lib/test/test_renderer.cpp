@@ -299,7 +299,8 @@ public:
         cContainer_.transform3dManager.AddComponent(testEntity_);
         cContainer_.renderManager.AddComponent(testEntity_);
         cContainer_.renderManager.SetModel(
-            testEntity_, config.dataRootPath + "models/leveldesign/big_terrain_01.obj");
+            //testEntity_, config.dataRootPath + "models/leveldesign/big_terrain_01.obj");
+            testEntity_, config.dataRootPath + "models/leveldesign/aer_racer_circuit_v37.obj");
     }
 
     void Update(seconds dt) override
@@ -312,7 +313,7 @@ public:
         if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
         {
             loaded_ = rContainer_.modelManager.IsLoaded(modelId);
-            //engine_.Stop();
+            engine_.Stop();
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
 
@@ -335,7 +336,7 @@ public:
 
 private:
     float updateCount_ = 0;
-    const float kEngineDuration_ = 100.0f;
+    const float kEngineDuration_ = 20.0f;
     bool loaded_ = false;
     AerEngine& engine_;
     sdl::MovableCamera3D camera_;
