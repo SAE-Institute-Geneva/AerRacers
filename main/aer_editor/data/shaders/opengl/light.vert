@@ -64,11 +64,11 @@ void main()
 {
     vs1_out.FragPos = vec3(model * vec4(aPos, 1.0));
     vs1_out.TexCoords = aTexCoords;
-    vs1_out.Normal = normalize(mat3(model) * aNormal);
-	
-    vec3 T = normalize(mat3(model) * aTangent);
-    vec3 B = normalize(mat3(model) * aBitangent);
-    vec3 N = normalize(mat3(model) * aNormal);
+    vs1_out.Normal = normalize(normalMatrix * aNormal);
+
+    vec3 T = normalize(normalMatrix * aTangent);
+    vec3 B = normalize(normalMatrix * aBitangent);
+    vec3 N = normalize(normalMatrix * aNormal);
     mat3 TBN = transpose(mat3(T, B, N));
 
     for(int i = 0; i < lightNum; ++i)

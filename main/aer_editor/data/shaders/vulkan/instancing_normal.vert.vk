@@ -40,7 +40,7 @@ layout(binding = 2) uniform Lights
 
 void main() 
 {
-	mat3 normalMatrix = inverse(mat3(inModelMatrix));
+	mat3 normalMatrix = transpose(inverse(mat3(inModelMatrix)));
 	vec3 fragPos = vec3(inModelMatrix * vec4(inPosition, 1.0));
 	TexCoords = inTexCoords;
 	

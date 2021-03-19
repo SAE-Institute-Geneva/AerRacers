@@ -18,7 +18,7 @@ layout(binding = 0) uniform UboScene
 
 void main() 
 {
-	mat3 normalMatrix = inverse(mat3(inModelMatrix));
+	mat3 normalMatrix = transpose(inverse(mat3(inModelMatrix)));
 	FragPos = vec3(inModelMatrix * vec4(inPosition, 1.0));
 	TexCoords = inTexCoords;
 	Normal = normalize(normalMatrix * inNormal);

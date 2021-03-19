@@ -83,7 +83,7 @@ void RenderManager::Render()
 		{
 			const Mat4f& modelMat = transformManager_.GetComponent(entity);
 			shader_.SetMat4("model", modelMat);
-			shader_.SetMat3("normalMatrix", Mat3f(modelMat).Inverse() /*.Transpose()*/);
+			shader_.SetMat3("normalMatrix", Mat3f(modelMat).Inverse().Transpose());
 
 			const auto& model = modelManager.GetModel(components_[entity].modelId);
 			model->Draw(shader_);
