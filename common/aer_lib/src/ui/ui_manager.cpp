@@ -12,6 +12,7 @@ UiManager::UiManager(AerEngine& aerEngine) :
 void UiManager::Init() {
 	UiManagerLocator::provide(this);
 	uiImages_.reserve(MAX_UI_ELEMENTS);
+	uiTexts_.reserve(MAX_UI_ELEMENTS);
 	const auto& config = aerEngine_.GetConfig();
 
 

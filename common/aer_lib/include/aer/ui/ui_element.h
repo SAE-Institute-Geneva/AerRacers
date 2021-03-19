@@ -21,13 +21,15 @@
  Co-Author : Floreau Luca
  Date : 13.03.2021
 ---------------------------------------------------------- */
-#include <utility>
+#include <cstdint>
 
-#include "gl/texture.h"
-#include "gl/shape.h"
+#include <mathematics\vector.h>
 
 namespace neko::aer
 {
+/**
+ * \brief Anchor from screen corner
+ */
 enum class UiAnchor {
     TOP_LEFT,
     TOP,
@@ -40,6 +42,9 @@ enum class UiAnchor {
     BOTTOM_RIGHT
 };
 
+/**
+ * \brief Flag for UiElement state
+ */
 struct UiFlag {
     enum Enum : uint8_t {
         ENABLE = 1u << 0u,
@@ -47,10 +52,12 @@ struct UiFlag {
         DIRTY = 1u << 2u,
     };
 };
+/**
+ * \brief Class based of UiElements
+ */
 class UiElement
 {
 public :
-
     explicit UiElement(const Vec3f& pos = Vec3f::zero,
         UiAnchor uiAnchor               = UiAnchor::CENTER,
         uint8_t screenId = 0);
@@ -66,6 +73,7 @@ public :
     uint8_t GetScreenId() const { return screenId_; }
 
 protected :
+    ~UiElement() = default;
     Vec2f CalculateUiElementPosition(Vec2f position, Vec2f windowSize, UiAnchor anchor);
 	Vec3f position_ = Vec3f::zero; //In percent
 	UiAnchor uiAnchor_ = UiAnchor::CENTER;
@@ -74,4 +82,4 @@ protected :
 
 
 };
-}
+} // namespace neko::aerS

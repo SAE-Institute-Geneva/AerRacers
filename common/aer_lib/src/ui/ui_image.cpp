@@ -37,7 +37,7 @@ void UiImage::Draw(gl::TextureManager& textureManager, const Vec2u& screenSize, 
 		return;
 	}
 	glBindTexture(GL_TEXTURE_2D, textureName_);
-	uiImageShader.SetVec4("imageColor", Color::white);
+	uiImageShader.SetVec4("imageColor", color_);
 	quad_.Draw();
 }
 
@@ -45,5 +45,12 @@ void UiImage::Destroy()
 {
 	quad_.Destroy();
 	gl::DestroyTexture(textureName_);
+}
+
+void UiImage::ChangeTexture(gl::TextureManager& textureManager, const std::string& texturePath)
+{
+    texturePath_ = texturePath;
+    textureId_   = textureManager.LoadTexture(texturePath_, Texture::DEFAULT);
+    textureName_ = textureManager.GetTextureName(textureId_);
 }
 }

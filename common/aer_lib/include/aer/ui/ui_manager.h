@@ -22,11 +22,12 @@
  Date : 13.03.2021
 ---------------------------------------------------------- */
 #include "ui_text.h"
-#include "graphics/graphics.h"
-#include "aer/ui/ui_image.h"
+
 #include "gl/font.h"
 #include "gl/shader.h"
 #include "sdl_engine/sdl_engine.h"
+
+#include "aer/ui/ui_image.h"
 
 namespace neko::aer
 {
@@ -34,13 +35,21 @@ class AerEngine;
 const static size_t MAX_UI_ELEMENTS = 16;
 
 //-----------------------------------------------------------------------------
-// UiManagerInterface
+// IUiManager
 //-----------------------------------------------------------------------------
-/// \brief Used for the service locator
+/// \brief Manage Uis Elements
 class IUiManager
 {
 public:
+    /**
+	 * \brief Add an Ui Image to draw
+	 * \param image Pointer of an UiImage
+	 */
 	virtual void AddUiImage(UiImage* image) = 0;
+    /**
+	 * \brief Add an Ui Text to draw
+	 * \param text pointer of an uiText
+	 */
 	virtual void AddUiText(UiText* text) = 0;
 protected:
 	~IUiManager() = default;
@@ -60,7 +69,7 @@ public:
 //-----------------------------------------------------------------------------
 // UiManager
 //-----------------------------------------------------------------------------
-/// \brief Draw gizmos
+/// \brief Manage UiElement
 class UiManager final : public SystemInterface,
                         public sdl::SdlEventSystemInterface,
                         public IUiManager
@@ -82,7 +91,16 @@ public:
     
     void AddUiText(UiText* text) override;
 private:
+    /**
+     * \brief Return the fontId of one of the loaded font
+     */
     FontId GetFontId(FontLoaded fontLoaded) const;
+    /**
+     * \brief Change the viewport of the ui to display
+     * \param screenId Id of the screen to display
+     * \param playerNmb Current player number
+     * \param windowSize Size of the window
+     */
     void ChangeViewport(uint8_t screenId, uint8_t playerNmb, const Vec2u& windowSize);
 
     AerEngine& aerEngine_;
@@ -90,7 +108,7 @@ private:
     //Font 
     gl::FontManager fontManager_;
     const std::string kRobotoPath_ = "font/Lobster-Regular.ttf";
-    const std::string kLobsterPath_ = "font/Lobster-Regular.ttf";
+    const std::string kLobsterPath_ = "font/Roboto-Medium.ttf";
     FontId robotoId_ = INVALID_FONT_ID;
     FontId lobsterId_ = INVALID_FONT_ID;
 
@@ -101,4 +119,4 @@ private:
 };
 
 using UiManagerLocator = Locator<IUiManager, NullUiManager>;
-}
+} // namespace neko::aer

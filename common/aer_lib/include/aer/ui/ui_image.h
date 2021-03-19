@@ -21,23 +21,34 @@
  Co-Author : Floreau Luca
  Date : 13.03.2021
 ---------------------------------------------------------- */
-#include <utility>
 
+#include "gl/shader.h"
+#include "gl/shape.h"
+#include "gl/texture.h"
 
 #include "ui_element.h"
-#include "gl/shader.h"
-#include "gl/texture.h"
-#include "gl/shape.h"
 #include "graphics/color.h"
 
 namespace neko::aer
 {
+/**
+ * \brief UiImage use to display sprites on screen
+ */
 class UiImage : public UiElement
 {
 public:
+    /**
+     * \brief Create a UiImage
+     * \param texturePath path of the texture to display
+     * \param position Position on view scale (bottom_left:-1,-1; top_right:1,1)
+     * \param size Size in pixel 
+     * \param anchor Anchor from screen corner
+     * \param screenId On which screen are based the anchor
+     * \param color Color add to the texture
+     */
     explicit UiImage(const std::string_view& texturePath = "",
         const Vec3f& position = Vec3f::zero,
-        const Vec2u& size     = Vec2u::one,
+        const Vec2u& size     = Vec2u(100u),
         UiAnchor anchor       = UiAnchor::CENTER,
 		uint8_t screenId = 0,
 		const Color4& color = Color::white);
@@ -47,19 +58,24 @@ public:
 
 	void Destroy() override;
 
-	void SetTexturePath(const std::string& texturePath) { texturePath_ = texturePath; }
+    /**
+     * \brief Change the texture of the image
+     * \param texturePath TexturePath of the new texture
+     */
+    void ChangeTexture(gl::TextureManager& textureManager, const std::string& texturePath);
 	void SetSize(const Vec2u& size) { size_ = size; }
 	void SetColor(const Color4& color) { color_ = color; }
 
 protected:
-	Vec2u size_ = Vec2u(100u); //In pixel
+    Vec2u size_ = Vec2u(100u); //In pixel
 
 	std::string texturePath_ = "";
 	TextureId textureId_ = INVALID_TEXTURE_ID;
 	TextureName textureName_ = INVALID_TEXTURE_NAME;
+
 	gl::RenderQuad quad_{Vec3f::zero, Vec2f::one};
 
 	Color4 color_ = Color::white;
 
 };
-}
+} // namespace neko::aer

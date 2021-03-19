@@ -21,21 +21,37 @@
  Co-Author : Floreau Luca
  Date : 13.03.2021
 ---------------------------------------------------------- */
-#include <utility>
+
+#include "gl/font.h"
 
 #include "ui_element.h"
-#include "gl/font.h"
 #include "graphics/font.h"
 
 namespace neko::aer
 {
-    enum class FontLoaded : uint8_t {
-        LOBSTER,
-        ROBOTO
-    };
+/**
+ * \brief Enum of loaded font
+ */
+enum class FontLoaded : uint8_t {
+    LOBSTER,
+    ROBOTO
+};
+/**
+ * \brief  UiText use to display text on screen
+ */
 class UiText : public UiElement
 {
 public:
+    /**
+     * \brief Create an UiText
+     * \param font Font to use
+     * \param text Text to display
+     * \param position Position on view scale (bottom_left:-1,-1; top_right:1,1)
+     * \param anchor Anchor from screen corner
+     * \param screenId On which screen are based the anchor
+     * \param scale Scale of the text
+     * \param color Color of the text
+     */
     explicit UiText(FontLoaded font = FontLoaded::LOBSTER,
         const std::string_view& text = "",
         const Vec3f& position = Vec3f::zero,
@@ -60,11 +76,11 @@ public:
     void SetColor(const Color4& color) { color_ = color; }
 
 protected:
-	Job preRender_;
+    Job preRender_;
     FontLoaded font_;
     std::string text_;
     float scale_;
     Color4 color_;
 
 };
-}
+}// namespace neko::aer
