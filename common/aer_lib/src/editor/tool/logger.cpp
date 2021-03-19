@@ -1,12 +1,10 @@
 #include "aer/editor/tool/logger.h"
 
 #include "aer/aer_engine.h"
-#include "aer/log.h"
-#include "utils/file_utility.h"
 
 namespace neko::aer
 {
-Logger::Logger(AerEngine& engine, ToolType type, int id, std::string name)
+Logger::Logger(AerEngine& engine, ToolType type, int id, std::string_view name)
    : EditorToolInterface(engine, type, id, name)
 {}
 
@@ -22,11 +20,12 @@ void Logger::DrawImGui()
 	{
 		// nbrLogs contains the quantity of logs
 		int nbrLog = Log::get().GetLogs().size();
-		const int nbrLogDisplayMax =
-			ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing();
+		const int nbrLogDisplayMax = static_cast<const int>(
+			ImGui::GetWindowHeight() / ImGui::GetTextLineHeightWithSpacing());
 
 		// Beginning of the Logger window
-		if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(), &isVisible))
+		const std::string name = std::string(GetName()) + "##" + std::to_string(GetId());
+		if (!ImGui::Begin(name.c_str(), &isVisible))
 		{
 			ImGui::End();
 		}
@@ -53,8 +52,10 @@ void Logger::DrawImGui()
 			}
 			else
 			{
-				posY_ = ImGui::GetScrollY() / ImGui::GetTextLineHeightWithSpacing();
-				ImGui::SetCursorPos({0, posY_ * ImGui::GetTextLineHeightWithSpacing()});
+				posY_ =
+					static_cast<int>(ImGui::GetScrollY() / ImGui::GetTextLineHeightWithSpacing());
+				ImGui::SetCursorPos(
+					{0.0f, static_cast<float>(posY_) * ImGui::GetTextLineHeightWithSpacing()});
 			}
 
 			// Displays logs by severity
@@ -87,13 +88,14 @@ void Logger::DrawImGui()
 			}
 			else
 			{
-				ImGui::SetScrollY(0);
+				ImGui::SetScrollY(0.0f);
 			}
 
 			if (!autoScroll_)
 			{
 				// Scroll Space
-				ImGui::SetCursorPos({0, nbrLog * ImGui::GetTextLineHeightWithSpacing()});
+				ImGui::SetCursorPos(
+					{0.0f, static_cast<float>(nbrLog) * ImGui::GetTextLineHeightWithSpacing()});
 				ImGui::Text("");
 			}
 			ImGui::EndChild();

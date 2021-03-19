@@ -26,6 +26,7 @@
  Co-Author :
  Date : 16.02.2021
 ---------------------------------------------------------- */
+#include <gl/font.h>
 #include "sdl_engine/sdl_camera.h"
 
 #include "graphics/camera.h"
@@ -50,7 +51,11 @@ public:
 	[[nodiscard]] Mat4f GenerateProjectionMatrix(std::size_t playerNum) const
 	{ return cameras_[playerNum].GenerateProjectionMatrix(); }
 
+#ifdef NEKO_GLES3
+	void Bind(std::size_t playerNum, gl::Shader& shader);
+#else
 	void Bind(std::size_t playerNum);
+#endif
 
 	/// Returns the specified camera
 	Camera3D& GetCamera(std::size_t playerNum) { return cameras_[playerNum]; }
@@ -71,7 +76,7 @@ public:
 	void SetAspects(float aspect);
 
 	/// Sets the aspect ratio for all cameras
-	void SetAspects(int windowSizeX, int windowSize);
+	void SetAspects(const float windowSizeX, const float windowSize);
 
 	/// Sets the aspect ratio for all cameras
 	void SetAspects(Vec2u windowSize);

@@ -103,16 +103,21 @@ void GameCamera::OnEvent(const SDL_Event& event)
 		mouseMotion_ = Vec2f(-event.motion.xrel, -event.motion.yrel) * cameras_[0].mouseSensitivity;
 }
 
-void GameCamera::Bind(std::size_t playerNum)
-{
 #ifdef NEKO_GLES3
+void GameCamera::Bind(std::size_t playerNum, gl::Shader& shader)
+{
 	Mat4f camProj = GenerateProjectionMatrix(playerNum);
 	Mat4f camView = GenerateViewMatrix(playerNum);
-	gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-	gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
-#endif
+	shader.SetUbo(sizeof(Mat4f), 0, &camProj, gl::kUboMatricesBinding);
+	shader.SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView, gl::kUboMatricesBinding);
 	CameraLocator::provide(&cameras_[playerNum]);
 }
+#else
+void GameCamera::Bind(std::size_t playerNum)
+{
+	CameraLocator::provide(&cameras_[playerNum]);
+}
+#endif
 
 void GameCamera::SetCameras(const Camera3D& newCam)
 {
@@ -137,7 +142,7 @@ void GameCamera::SetAspects(float aspect)
 		camera.SetAspect(aspect);
 }
 
-void GameCamera::SetAspects(int windowSizeX, int windowSize)
+void GameCamera::SetAspects(const float windowSizeX, const float windowSize)
 {
 	for (auto& camera : cameras_)
 		camera.SetAspect(windowSizeX, windowSize);

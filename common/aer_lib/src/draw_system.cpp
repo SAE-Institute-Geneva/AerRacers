@@ -59,6 +59,7 @@ void DrawSystem::Render()
 #endif
 
 #ifdef NEKO_GLES3
+	gl::Shader& shader = cContainer_.renderManager.GetShader();
 	const Vec2u size = BasicEngine::GetInstance()->GetConfig().windowSize;
 	switch (playerNum_)
 	{
@@ -66,7 +67,7 @@ void DrawSystem::Render()
 		{
 			camera_.SetAspects(static_cast<float>(size.x), static_cast<float>(size.y));
 
-			camera_.Bind(0);
+			camera_.Bind(0, shader);
 			glViewport(0, 0, size.x, size.y);
 			RenderScene(0);
 			break;
@@ -76,12 +77,12 @@ void DrawSystem::Render()
 			camera_.SetAspects(static_cast<float>(size.x) / 2.0f, static_cast<float>(size.y));
 
 			// Left
-			camera_.Bind(0);
+			camera_.Bind(0, shader);
 			glViewport(0, 0, size.x / 2, size.y);
 			RenderScene(0);
 
 			// Right
-			camera_.Bind(1);
+			camera_.Bind(1, shader);
 			glViewport(size.x / 2, 0, size.x / 2, size.y);
 			RenderScene(1);
 			break;
@@ -92,17 +93,17 @@ void DrawSystem::Render()
 				static_cast<float>(size.x) / 2.0f, static_cast<float>(size.y) / 2.0f);
 
 			// Top Left
-			camera_.Bind(0);
+			camera_.Bind(0, shader);
 			glViewport(0, size.y / 2, size.x / 2, size.y / 2);
 			RenderScene(0);
 
 			// Top Right
-			camera_.Bind(1);
+			camera_.Bind(1, shader);
 			glViewport(size.x / 2, size.y / 2, size.x / 2, size.y / 2);
 			RenderScene(1);
 
 			// Bottom Left
-			camera_.Bind(2);
+			camera_.Bind(2, shader);
 			glViewport(0, 0, size.x / 2, size.y / 2);
 			RenderScene(2);
 			break;
@@ -113,22 +114,22 @@ void DrawSystem::Render()
 				static_cast<float>(size.x) / 2.0f, static_cast<float>(size.y) / 2.0f);
 
 			// Top Left
-			camera_.Bind(0);
+			camera_.Bind(0, shader);
 			glViewport(0, size.y / 2, size.x / 2, size.y / 2);
 			RenderScene(0);
 
 			// Top Right
-			camera_.Bind(1);
+			camera_.Bind(1, shader);
 			glViewport(size.x / 2, size.y / 2, size.x / 2, size.y / 2);
 			RenderScene(1);
 
 			// Bottom Left
-			camera_.Bind(2);
+			camera_.Bind(2, shader);
 			glViewport(0, 0, size.x / 2, size.y / 2);
 			RenderScene(2);
 
 			// Bottom Right
-			camera_.Bind(3);
+			camera_.Bind(3, shader);
 			glViewport(size.x / 2, 0, size.x / 2, size.y / 2);
 			RenderScene(3);
 			break;

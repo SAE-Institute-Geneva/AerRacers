@@ -27,11 +27,9 @@
  Co-Author :
  Date : 02.02.2021
 ---------------------------------------------------------- */
-#include "aer/editor/editor_tool_interface.h"
-
-#include <string>
-
 #include "engine/entity.h"
+
+#include "aer/editor/editor_tool_interface.h"
 
 namespace neko::aer
 {
@@ -39,7 +37,7 @@ namespace neko::aer
 class Hierarchy final : public EditorToolInterface
 {
 public:
-	Hierarchy(AerEngine& engine, ToolType type, int id, std::string name);
+	Hierarchy(AerEngine& engine, ToolType type, int id, std::string_view name);
 
 	void Init() override;
 	void Update(seconds dt) override;
@@ -54,7 +52,7 @@ private:
     * \brief Display an entity and their children
     * \param entityIndex entity to display
     */
-	void DisplayEntity(Entity entityParent);
+	void DisplayEntity(Entity entity);
 
 	EditorToolManager& editorToolManager_;
 	EntityManager& entityManager_;
@@ -63,6 +61,7 @@ private:
 	                                                      ImGuiTreeNodeFlags_OpenOnDoubleClick |
 	                                                      ImGuiTreeNodeFlags_SpanAvailWidth;
 	const ImGuiTreeNodeFlags kNodeTreeSelectedFlags_ =
-		kNodeTreeNotSelectedFlags_ | ImGuiTreeNodeFlags_Selected;    // Add flag to node flags to show it's selected
+		kNodeTreeNotSelectedFlags_ |
+		ImGuiTreeNodeFlags_Selected;    // Add flag to node flags to show it's selected
 };
-}
+}    // namespace neko::aer

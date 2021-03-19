@@ -209,7 +209,7 @@ void EditorToolManager::DrawList()
 {
 	for (auto& tool : tools_)
 	{
-		std::string name = tool->GetName() + " " + std::to_string(tool->GetId());
+		std::string name = std::string(tool->GetName()) + " " + std::to_string(tool->GetId());
 		if (ImGui::MenuItem((name).c_str())) tool->isVisible = true;
 	}
 }
