@@ -29,6 +29,10 @@
 #include "engine/transform.h"
 #include "graphics/lights.h"
 
+#ifdef NEKO_GLES3
+#include "gl/shader.h"
+#endif
+
 namespace neko::aer
 {
 class LightManager : public ComponentManager<PointLight, EntityMask(ComponentType::LIGHT)>

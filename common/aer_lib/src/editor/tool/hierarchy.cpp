@@ -4,50 +4,33 @@
 
 namespace neko::aer
 {
-Hierarchy::Hierarchy(AerEngine& engine, ToolType type, int id, std::string_view name)
-   : EditorToolInterface(engine, type, id, name),
+Hierarchy::Hierarchy(AerEngine& engine)
+   : EditorToolInterface(engine),
 	 editorToolManager_(engine.GetEditorToolManager()),
 	 entityManager_(engine.GetComponentManagerContainer().entityManager)
 {}
 
-void Hierarchy::Init() {}
-
-void Hierarchy::Update(seconds) {}
-
-void Hierarchy::Destroy() {}
-
 void Hierarchy::DrawImGui()
 {
-	if (isVisible)
+	if (ImGui::BeginPopupContextWindow())
 	{
-		//Open window
-		const std::string name = std::string(GetName()) + "##" + std::to_string(GetId());
-		if (ImGui::Begin(name.c_str(), &isVisible))
+		if (ImGui::MenuItem("Add Entity"))
 		{
-			if (ImGui::BeginPopupContextWindow())
-			{
-				if (ImGui::MenuItem("Add Entity"))
-				{
-					const Entity newEntity = entityManager_.CreateEntity();
-					entityManager_.AddComponentType(
-						newEntity, EntityMask(ComponentType::TRANSFORM3D));
-				}
-
-				ImGui::EndPopup();
-			}
-
-			for (Entity entityIndex = 0; entityIndex < entityManager_.GetEntitiesSize();
-				 entityIndex++)
-			{
-				//Display each entity without parent
-				if (entityManager_.GetEntityParent(entityIndex) == INVALID_ENTITY &&
-					entityManager_.EntityExists(entityIndex))
-				{
-					DisplayEntity(entityIndex);
-				}
-			}
+			const Entity newEntity = entityManager_.CreateEntity();
+			entityManager_.AddComponentType(newEntity, EntityMask(ComponentType::TRANSFORM3D));
 		}
-		ImGui::End();
+
+		ImGui::EndPopup();
+	}
+
+	for (Entity entityIndex = 0; entityIndex < entityManager_.GetEntitiesSize(); entityIndex++)
+	{
+		//Display each entity without parent
+		if (entityManager_.GetEntityParent(entityIndex) == INVALID_ENTITY &&
+			entityManager_.EntityExists(entityIndex))
+		{
+			DisplayEntity(entityIndex);
+		}
 	}
 }
 
@@ -130,6 +113,4 @@ void Hierarchy::DisplayEntity(Entity entity)
 		ImGui::TreePop();
 	}
 }
-
-void Hierarchy::OnEvent(const SDL_Event&) {}
 }

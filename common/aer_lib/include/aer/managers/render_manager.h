@@ -68,6 +68,8 @@ protected:
 	Transform3dManager& transformManager_;
 	LightManager& lightManager_;
 
+	DirectionalLight dirLight_ {};
+
 	Job preRender_;
 };
 
