@@ -47,7 +47,7 @@ public:
      * \param color Color add to the texture
      */
     explicit UiImage(const std::string_view& texturePath = "",
-        const Vec3f& position = Vec3f::zero,
+        const Vec2f& position = Vec2f::zero,
         const Vec2u& size     = Vec2u(100u),
         UiAnchor anchor       = UiAnchor::CENTER,
 		uint8_t screenId = 0,

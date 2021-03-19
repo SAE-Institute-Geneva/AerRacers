@@ -2,7 +2,7 @@
 
 namespace neko::aer
 {
-UiElement::UiElement(const Vec3f& pos,UiAnchor uiAnchor, uint8_t screenId)
+UiElement::UiElement(const Vec2f& pos,UiAnchor uiAnchor, uint8_t screenId)
     : position_(pos),
     uiAnchor_(uiAnchor),
     screenId_(screenId)
