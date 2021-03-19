@@ -2,6 +2,10 @@
 
 #include "utils/imgui_utility.h"
 
+#ifdef NEKO_VULKAN
+#include "vk/vk_resources.h"
+#endif
+
 namespace neko::aer
 {
 LightManager::LightManager(EntityManager& entityManager, Transform3dManager& transformManager)
@@ -68,6 +72,18 @@ void LightManager::SetShaderValues(gl::Shader& shader)
 		curOffset = curOffset + (mod == 0 ? 0 : 16 - mod);
 	}
 }
+#else
+void LightManager::SetShaderValues()
+{
+	const auto lights = entityManager_.get().FilterEntities(EntityMask(ComponentType::LIGHT));
+	for (const auto& light : lights)
+	{
+		const Vec3f position = transformManager_.GetGlobalPosition(light);
+
+		components_[light].position = position;
+		vk::VkResources::Inst->lightCommandBuffer.Draw(components_[light]);
+	}
+}
 #endif
 
 LightViewer::LightViewer(EntityManager& entityManager, LightManager& lightManager)
@@ -83,7 +99,7 @@ void LightViewer::DrawImGui(Entity entity)
 		if (TreeNode("Light"))
 		{
 			PointLight light = lightManager_.GetComponent(entity);
-			ColorEdit3("Diffuse", &light.diffuse[0], LabelPos::LEFT);
+			ColorEdit4("Diffuse", &light.diffuse[0], LabelPos::LEFT);
 
 			DragFloat("Specular", &light.specular, LabelPos::LEFT, 0.05f, 0.0f, 1.0f);
 			DragFloat("Intensity", &light.intensity, LabelPos::LEFT, 0.05f, 0.0f, 1000.0f);

@@ -363,7 +363,7 @@ Mat4f MultiCamera::GenerateProjectionMatrix(std::size_t index) const
 }
 
 #ifdef NEKO_GLES3
-void GameCamera::Bind(std::size_t index, gl::Shader& shader)
+void MultiCamera::Bind(std::size_t index, gl::Shader& shader)
 {
 	Mat4f camProj = GenerateProjectionMatrix(index);
 	Mat4f camView = GenerateViewMatrix(index);

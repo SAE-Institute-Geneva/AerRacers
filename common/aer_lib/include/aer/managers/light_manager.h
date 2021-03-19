@@ -43,6 +43,8 @@ public:
 
 #ifdef NEKO_GLES3
 	void SetShaderValues(gl::Shader& shader);
+#else
+	void SetShaderValues();
 #endif
 
 	[[nodiscard]] float GetRadius(Entity e) const { return components_[e].radius; }

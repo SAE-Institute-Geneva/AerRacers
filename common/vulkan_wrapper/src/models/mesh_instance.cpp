@@ -54,7 +54,8 @@ void ModelInstance::Update(std::vector<Mat4f>& modelMatrices)
 	instanceBuffer_.UnmapMemory();
 }
 
-bool ModelInstance::CmdRender(const CommandBuffer& commandBuffer, UniformHandle& uniformScene)
+bool ModelInstance::CmdRender(
+	const CommandBuffer& commandBuffer, UniformHandle& uniformScene, UniformHandle& uniformLight)
 {
 	if (instances_ == 0) return false;    //No instances
 
@@ -71,7 +72,8 @@ bool ModelInstance::CmdRender(const CommandBuffer& commandBuffer, UniformHandle&
 		switch (material.GetRenderMode())
 		{
 			case Material::RenderMode::VK_OPAQUE:
-				if (!CmdRenderOpaque(commandBuffer, uniformScene, mesh, material)) return false;
+				if (!CmdRenderOpaque(commandBuffer, uniformScene, uniformLight, mesh, material))
+					return false;
 				break;
 			case Material::RenderMode::VK_TRANSPARENT: break;
 		}
@@ -82,6 +84,7 @@ bool ModelInstance::CmdRender(const CommandBuffer& commandBuffer, UniformHandle&
 
 bool ModelInstance::CmdRenderOpaque(const CommandBuffer& commandBuffer,
 	UniformHandle& uniformScene,
+	UniformHandle& uniformLight,
 	const Mesh& mesh,
 	const Material& material)
 {
@@ -94,8 +97,9 @@ bool ModelInstance::CmdRenderOpaque(const CommandBuffer& commandBuffer,
 	uniformObject_.PushUniformData(material.ExportUniformData());
 
 	//Push texture to shader
-	descriptorSet_.Push(kUboObjectHash, uniformObject_);
 	descriptorSet_.Push(kUboSceneHash, uniformScene);
+	descriptorSet_.Push(kUboObjectHash, uniformObject_);
+	descriptorSet_.Push(kLightsHash, uniformLight);
 	descriptorSet_.PushDescriptorData(material.ExportDescriptorData());
 	if (!descriptorSet_.Update(pipeline)) return false;
 

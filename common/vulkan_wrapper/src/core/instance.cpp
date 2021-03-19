@@ -97,12 +97,12 @@ std::vector<const char*> Instance::GetRequiredInstanceExtensions()
 	SDL_Window* window = VkResources::Inst->vkWindow->GetWindow();
 
 	std::uint32_t sdlExtCount = 0;
-	SDL_bool res              = SDL_Vulkan_GetInstanceExtensions(window, &sdlExtCount, nullptr);
+	SDL_bool res              = SDL_Vulkan_GetInstanceExtensions(nullptr, &sdlExtCount, nullptr);
 	neko_assert(res, "Unable to query the number of Vulkan instance extensions!");
 
 	// Use the amount of extensions queried before to retrieve the names of the extensions
 	std::vector<const char*> sdlExtensions(sdlExtCount);
-	res = SDL_Vulkan_GetInstanceExtensions(window, &sdlExtCount, sdlExtensions.data());
+	res = SDL_Vulkan_GetInstanceExtensions(nullptr, &sdlExtCount, sdlExtensions.data());
 	neko_assert(res, "Unable to query the number of Vulkan instance extension names!");
 
 #ifdef VALIDATION_LAYERS

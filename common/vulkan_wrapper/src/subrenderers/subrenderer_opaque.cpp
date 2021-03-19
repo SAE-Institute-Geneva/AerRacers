@@ -12,8 +12,11 @@ SubrendererOpaque::SubrendererOpaque(PipelineStage stage) : RenderPipeline(stage
 void SubrendererOpaque::Destroy() const
 {
 	for (auto& uniformScene : uniformScenes_) uniformScene.Destroy();
-	for (auto& modelCommandBuffer : VkResources::Inst->modelCommandBuffers)
-		modelCommandBuffer.Destroy();
+	for (auto& uniformLight : uniformLights_) uniformLight.Destroy();
+
+	auto& cmdBuffers = vk::VkResources::Inst->modelCommandBuffers;
+	for (std::size_t i = 0; i < vk::VkResources::Inst->GetViewportCount(); ++i)
+		cmdBuffers[i].Destroy();
 }
 
 void SubrendererOpaque::Render(const CommandBuffer& commandBuffer)
@@ -22,6 +25,7 @@ void SubrendererOpaque::Render(const CommandBuffer& commandBuffer)
 	VkResources* vkObj               = VkResources::Inst;
 	const RenderStage& renderStage   = vkObj->GetRenderStage();
 	const std::uint8_t viewportCount = vkObj->GetViewportCount();
+	const LightCommandBuffer& lightCmd = vkObj->lightCommandBuffer;
 
 	VkRect2D renderArea;
 	renderArea.offset = {0, 0};
@@ -42,6 +46,10 @@ void SubrendererOpaque::Render(const CommandBuffer& commandBuffer)
 		uniformScenes_[i].Push(kProjHash, proj);
 		uniformScenes_[i].Push(kViewHash, view);
 		uniformScenes_[i].Push(kViewPosHash, cameras.GetPosition(i));
+
+		const std::size_t lightNum = lightCmd.GetLightNum();
+		uniformLights_[i].Push(kLightNumHash, &lightNum);
+		uniformLights_[i].Push(kDirLightHash, *DirectionalLight::Instance);
 
 		//Single Draw
 		auto& modelManager    = ModelManagerLocator::get();
@@ -65,7 +73,7 @@ void SubrendererOpaque::Render(const CommandBuffer& commandBuffer)
 
 		//GPU Instancing
 		for (auto&& meshInstance : cmdBuffer.GetModelInstances())
-			meshInstance.CmdRender(commandBuffer, uniformScenes_[i]);
+			meshInstance.CmdRender(commandBuffer, uniformScenes_[i], uniformLights_[i]);
 	}
 }
 
