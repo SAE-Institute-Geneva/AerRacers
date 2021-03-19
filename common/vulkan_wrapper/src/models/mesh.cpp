@@ -168,4 +168,5 @@ Vec3f Mesh::GetExtent() const
 {
 	return aabb_.CalculateExtends();
 }
-}    // namespace neko::vk
+}
+// namespace neko::vk

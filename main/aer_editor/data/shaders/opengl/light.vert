@@ -64,17 +64,17 @@ void main()
 {
     vs1_out.FragPos = vec3(model * vec4(aPos, 1.0));
     vs1_out.TexCoords = aTexCoords;
-    vs1_out.Normal = normalize(normalMatrix * aNormal);
+    vs1_out.Normal = normalize(mat3(model) * aNormal);
 	
-    vec3 T = normalize(normalMatrix * aTangent);
-    vec3 B = normalize(normalMatrix * aBitangent);
-    vec3 N = normalize(normalMatrix * aNormal);
+    vec3 T = normalize(mat3(model) * aTangent);
+    vec3 B = normalize(mat3(model) * aBitangent);
+    vec3 N = normalize(mat3(model) * aNormal);
     mat3 TBN = transpose(mat3(T, B, N));
 
     for(int i = 0; i < lightNum; ++i)
         vs2_out.TangentLightPos[i] = TBN * lights[i].position;
 
-    vs2_out.TangentLightDir = TBN * dirLight.direction;
+    vs2_out.TangentLightDir = normalize(TBN * dirLight.direction);
     vs2_out.TangentViewPos  = TBN * viewPos;
     vs2_out.TangentFragPos  = TBN * vs1_out.FragPos;
 	

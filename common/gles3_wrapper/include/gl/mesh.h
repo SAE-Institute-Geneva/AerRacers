@@ -23,46 +23,69 @@
  SOFTWARE.
  */
 #ifdef NEKO_GLES3
-#include <vector>
+#include "engine/globals.h"
+#include "mathematics/aabb.h"
 
-#include "assimp/material.h"
 #include "gl/mesh.h"
 #include "gl/shader.h"
-#include "gl/texture.h"
-#include "mathematics/aabb.h"
-#include "mathematics/circle.h"
-#include "mathematics/vector.h"
 
-struct aiMesh;
-struct aiScene;
-
-namespace neko::assimp
+namespace neko::gl
 {
 struct Vertex
 {
-	Vec3f position;
-	Vec3f normal;
-	Vec2f texCoords;
-	Vec3f tangent;
-	Vec3f bitangent;
+	Vertex() = default;
+	Vertex(const Vec3f& pos, const Vec3f& norm, const Vec2f& uv);
+
+	bool operator==(const Vertex& other) const;
+
+	Vec3f position  = Vec3f::zero;
+	Vec3f normal    = Vec3f::zero;
+	Vec2f texCoords = Vec2f::zero;
+	Vec3f tangent   = Vec3f::zero;
+	Vec3f bitangent = Vec3f::zero;
 };
 
-struct Texture
+class Mesh
 {
-	TextureId textureId     = INVALID_TEXTURE_ID;
-	TextureName textureName = INVALID_TEXTURE_NAME;
+public:
+	struct Texture
+	{
+		enum Type : std::uint8_t
+		{
+			NONE     = 0u,
+			DIFFUSE  = 1u << 0u,
+			SPECULAR = 1u << 1u,
+			NORMAL   = 1u << 2u,
+			EMISSIVE = 1u << 3u,
+		};
 
-	aiTextureType type = aiTextureType_NONE;
-};
+		TextureId textureId     = INVALID_TEXTURE_ID;
+		TextureName textureName = INVALID_TEXTURE_NAME;
 
-struct Mesh
-{
-	std::vector<Vertex> vertices;
-	std::vector<unsigned int> indices;
-	std::vector<Texture> textures;
-	float specularExponent = 0.0f;
-	unsigned int VAO = 0, VBO = 0, EBO = 0;
-	Aabb3d aabb;
+		Type type = NONE;
+	};
+
+	void Init();
+	void Draw(const Shader& shader) const;
+	void Destroy();
+
+	[[nodiscard]] const std::vector<Vertex>& GetVertices() const { return vertices_; }
+	[[nodiscard]] const std::vector<Index>& GetIndices() const { return indices_; }
+
+private:
+	friend class Model;
+	friend class ModelLoader;
+	void BindTextures(const Shader& shader) const;
+
+	std::vector<Vertex> vertices_;
+	std::vector<Index> indices_;
+	std::vector<Texture> textures_;
+
+	float shininess_ = 0.0f;
+	Vec3f color_     = Vec3f::one;
+	Aabb3d aabb_ {};
+
+	GLuint vao_ = 0, vbo_ = 0, ebo_ = 0;
 };
-}    // namespace neko::assimp
+}    // namespace neko::gl
 #endif

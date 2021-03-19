@@ -32,6 +32,12 @@
 #include "px/filter_group.h"
 #include "px/physics_callbacks.h"
 
+#ifdef NEKO_GLES3
+#include "gl/model_manager.h"
+#else
+#include "vk/models/model_manager.h"
+#endif
+
 namespace neko::physics
 {
 class PhysicsEngine;
@@ -115,7 +121,7 @@ public:
 	 * \brief Use to get parameter of an actor
 	 * Warning must be call in FixedUpdate or if physics is not running
 	 */
-	void SetMeshColliderData(const physics::MeshColliderData& meshColliderData) const;
+	void SetMeshColliderData(const MeshColliderData& meshColliderData) const;
 
 	/**
 	 * \brief Use to get parameter of an actor
@@ -138,8 +144,8 @@ protected:
 	static physx::PxShape* InitMeshCollider(const PhysicsEngine& physics,
 		physx::PxMaterial* material,
 #ifdef NEKO_GLES3
-		const assimp::Mesh& mesh,
-#elif NEKO_VULKAN
+		const gl::Mesh& mesh,
+#else
 		const vk::Mesh& mesh,
 #endif
 		const physx::PxMeshScale& scale) ;
@@ -214,7 +220,7 @@ struct RigidStatic : RigidActor
 	 * \param eulerAngle initial rotation of the actor
 	 */
 	void Init(const PhysicsEngine& physics,
-		const physics::RigidStaticData& rigidStatic,
+		const RigidStaticData& rigidStatic,
 		const Vec3f& position,
 		const EulerAngles& eulerAngle);
 
@@ -363,7 +369,7 @@ public:
 	 * \param eulerAngle initial rotation of the actor
 	 */
 	void Init(const PhysicsEngine& physics,
-		const physics::RigidDynamicData& rigidDynamic,
+		const RigidDynamicData& rigidDynamic,
 		const Vec3f& position,
 		const EulerAngles& eulerAngle);
 
@@ -407,18 +413,18 @@ public:
 	 * Warning must be call in FixedUpdate or if physics is not running
 	 * \param rigidDynamicData parameter to update
 	 */
-	void SetRigidDynamicData(const physics::RigidDynamicData& rigidDynamicData) const;
+	void SetRigidDynamicData(const RigidDynamicData& rigidDynamicData) const;
 
 	/**
 	 * \brief Use to get parameter of an actor
 	 * Warning must be call in FixedUpdate or if physics is not running
 	 */
-	physics::RigidDynamicData GetRigidDynamicData() const;
+	[[nodiscard]] RigidDynamicData GetRigidDynamicData() const;
 
 	/**
 	 * \brief Use to get dynamic parameter of an actor
 	 */
-	[[nodiscard]] physics::DynamicData GetDynamicData() const;
+	[[nodiscard]] DynamicData GetDynamicData() const;
 
 	[[nodiscard]] physx::PxRigidDynamic* GetPxRigidDynamic() const { return rigidActor_; }
 

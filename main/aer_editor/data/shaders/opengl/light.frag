@@ -25,6 +25,7 @@ struct Material
     sampler2D normal;
     sampler2D emissive;
     float shininess;
+    vec3 color;
 };
 uniform Material material;
 
@@ -58,60 +59,63 @@ layout (std140, binding = 1) uniform Lights
 
 uniform vec3 viewPos;
 uniform uint usedMaps;
-uniform uint lightType;
 
 const uint Diffuse  = 0x00000001u;
 const uint Specular = 0x00000002u;
 const uint Normal   = 0x00000004u;
 const uint Emissive = 0x00000008u;
 
-const uint NoLight = 0u;
-const uint Point   = 1u;
-const uint Sun	   = 2u;
+vec3 GetDiffuse()
+{
+	vec3 diffuse = material.color;
+	if (bool(usedMaps & Diffuse)) diffuse *= texture(material.diffuse, fs1_in.TexCoords).rgb;
+
+	return diffuse;
+}
+
+float GetSpecular()
+{
+	if (bool(usedMaps & Specular)) return texture(material.specular, fs1_in.TexCoords).r;
+	else return 1.0;
+}
+
+vec3 GetEmissive()
+{
+	if (bool(usedMaps & Emissive)) return texture(material.emissive, fs1_in.TexCoords).rgb;
+	else return vec3(0.0);
+}
 
 vec3 CalcNoLight()
 {
-	vec3 result;
-    result = texture(material.diffuse, fs1_in.TexCoords).rgb;
-    if (bool(usedMaps & Emissive)) result += texture(material.emissive, fs1_in.TexCoords).rgb;
-    
-    return result;
+    return GetDiffuse() + GetEmissive();
 }
 
 vec3 CalcDirLight(vec3 viewDir)
 {
 	vec3 normal, lightDir;
-	vec3 ambient = dirLight.ambient * texture(material.diffuse, fs1_in.TexCoords).rgb;
+	vec3 ambient = dirLight.ambient * GetDiffuse();
 	if (bool(usedMaps & Normal))
 	{
  		normal = texture(material.normal, fs1_in.TexCoords).rgb;
     	normal = normalize(normal * 2.0 - 1.0);
-    	lightDir = normalize(-fs2_in.TangentLightDir);
+    	lightDir = -fs2_in.TangentLightDir;
 	}
 	else
 	{
-    	normal = normalize(fs1_in.Normal);
+    	normal = fs1_in.Normal;
     	lightDir = normalize(-dirLight.direction);
 	}
 
 	float diff = max(dot(normal, lightDir), 0.0);
- 	vec3 diffuse = dirLight.diffuse * diff * texture(material.diffuse, fs1_in.TexCoords).rgb;
+ 	vec3 diffuse = dirLight.diffuse * diff * GetDiffuse();
 
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
-	vec3 specular = dirLight.diffuse * dirLight.specular * spec;
- 	if (bool(usedMaps & Specular)) specular *= vec3(texture(material.specular, fs1_in.TexCoords).r);
-
+	vec3 specular = dirLight.diffuse * dirLight.specular * spec * GetSpecular();
     diffuse *= dirLight.intensity;
     specular *= dirLight.intensity;
 
-    vec3 result = ambient + diffuse + specular;
-    if (bool(usedMaps & Emissive))
-    {
-    	result += texture(material.emissive, fs1_in.TexCoords).rgb;
-    }
-
-	return result;
+	return ambient + diffuse + specular;
 }
 
 vec3 CalcPointLight(int index, vec3 viewDir)
@@ -133,24 +137,17 @@ vec3 CalcPointLight(int index, vec3 viewDir)
 	}
 	
 	float diff = max(dot(lightDir, normal), 0.0);
- 	vec3 diffuse = lights[index].diffuse * diff * texture(material.diffuse, fs1_in.TexCoords).rgb;
+ 	vec3 diffuse = lights[index].diffuse * diff * GetDiffuse();
     	
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
-	vec3 specular = lights[index].diffuse * lights[index].specular * spec;
- 	if (bool(usedMaps & Specular)) specular *= vec3(texture(material.specular, fs1_in.TexCoords).r);
+	vec3 specular = lights[index].diffuse * lights[index].specular * spec * GetSpecular();
  
     float attenuation = clamp(lights[index].radius / distance, 0.0, 1.0) * lights[index].intensity;
     diffuse *= attenuation;
     specular *= attenuation;
-    
-    vec3 result = diffuse + specular;
-    if (bool(usedMaps & Emissive)) 
-    {
-    	result += texture(material.emissive, fs1_in.TexCoords).rgb;
-    }
-	
-	return result;
+
+	return diffuse + specular;
 }
 
 void main()
@@ -165,6 +162,7 @@ void main()
 		{
 			lighting += CalcPointLight(i, viewDir);
 		}
+		lighting += GetEmissive();
 	}
 	else
 	{

@@ -5,15 +5,11 @@
 #include "px/physics_engine.h"
 #include "px/physx_utility.h"
 
-#ifdef NEKO_VULKAN
-#include "vk/models/model_manager.h"
-#endif
-
 namespace neko::physics
 {
 ColliderType RigidActor::GetColliderType() const
 {
-	if (shape_ == nullptr) { return ColliderType::INVALID; }
+	if (shape_ == nullptr) return ColliderType::INVALID;
 	switch (shape_->getGeometryType())
 	{
 		case physx::PxGeometryType::eBOX: return ColliderType::BOX;
@@ -234,21 +230,21 @@ physx::PxShape* RigidActor::InitCapsuleShape(physx::PxPhysics* physics,
 physx::PxShape* RigidActor::InitMeshCollider(const PhysicsEngine& physics,
 	physx::PxMaterial* material,
 #ifdef NEKO_GLES3
-	const assimp::Mesh& mesh,
-#elif NEKO_VULKAN
+	const gl::Mesh& mesh,
+#else
 	const vk::Mesh& mesh,
 #endif
 	const physx::PxMeshScale& scale)
 {
 #ifdef NEKO_GLES3
-	std::vector<assimp::Vertex> vertices = mesh.vertices;
-	std::vector<std::uint32_t> indices   = mesh.indices;
+	std::vector<gl::Vertex> vertices   = mesh.GetVertices();
+	std::vector<std::uint32_t> indices = mesh.GetIndices();
 	std::vector<physx::PxVec3> pxVertices;
 	pxVertices.resize(vertices.size());
 	std::transform(vertices.begin(),
 		vertices.end(),
 		pxVertices.begin(),
-		[](assimp::Vertex vert) -> physx::PxVec3 { return ConvertToPxVec(vert.position); });
+		[](gl::Vertex vert) -> physx::PxVec3 { return ConvertToPxVec(vert.position); });
 #elif NEKO_VULKAN
 	std::vector<vk::Vertex> vertices = mesh.GetVertices(0);
 	std::vector<unsigned> indices    = mesh.GetIndices(0);

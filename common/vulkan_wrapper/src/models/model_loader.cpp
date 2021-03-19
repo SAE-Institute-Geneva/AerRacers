@@ -7,16 +7,14 @@ ModelLoader::ModelLoader(std::string_view path, ModelId modelId)
    : path_(path),
 	 modelId_(modelId),
 	 loadModelJob_([this]() { LoadModel(); }),
-	 processModelJob_([this]() { ProcessModel(); }),
-	 uploadJob_([this]() { UploadMeshesToVk(); })
+	 processModelJob_([this]() { ProcessModel(); })
 {}
 
 ModelLoader::ModelLoader(ModelLoader&& other) noexcept
    : path_(std::move(other.path_)),
 	 modelId_(other.modelId_),
 	 loadModelJob_([this]() { LoadModel(); }),
-	 processModelJob_([this]() { ProcessModel(); }),
-	 uploadJob_([this]() { UploadMeshesToVk(); })
+	 processModelJob_([this]() { ProcessModel(); })
 {}
 
 void ModelLoader::Start()
@@ -72,7 +70,7 @@ void ModelLoader::Update()
 			if (loadedTextures == textureMaps_) isLoaded = true;
 		}
 
-		if (isLoaded && uploadJob_.IsDone()) flags_ |= LOADED;
+		if (isLoaded) flags_ |= LOADED;
 	}
 }
 
@@ -176,11 +174,7 @@ void ModelLoader::ProcessModel()
 #ifdef EASY_PROFILE_USE
 	EASY_END_BLOCK
 #endif
-
-	RendererLocator::get().AddPreRenderJob(&uploadJob_);
 }
-
-void ModelLoader::UploadMeshesToVk() {}
 
 void ModelLoader::LoadMaterialTextures(const tinyobj::material_t& mat,
 	Mesh& mesh,

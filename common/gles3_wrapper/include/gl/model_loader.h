@@ -1,5 +1,5 @@
 #pragma once
-/* ----------------------------------------------------
+/*
  MIT License
 
  Copyright (c) 2020 SAE Institute Switzerland AG
@@ -21,20 +21,11 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
+ */
+#include "gl/model.h"
 
- Author: Canas Simon
- Date:
----------------------------------------------------------- */
-#include "graphics/tinyobj_loader.h"
-
-#include "vk/material/diffuse_material.h"
-#include "vk/models/model.h"
-
-namespace neko::vk
+namespace neko::gl
 {
-using ModelId                      = sole::uuid;
-constexpr ModelId INVALID_MODEL_ID = sole::uuid();
-
 class ModelLoader
 {
 public:
@@ -47,9 +38,10 @@ public:
 
 	ModelLoader(std::string_view path, ModelId modelId);
 
-	ModelLoader(ModelLoader&& other) noexcept;
-	ModelLoader(const ModelLoader& other) = delete;
-	ModelLoader& operator=(const ModelLoader& other) = delete;
+	ModelLoader(ModelLoader&&) noexcept;
+	ModelLoader(const ModelLoader&) = delete;
+
+	ModelLoader& operator=(const ModelLoader&) = delete;
 
 	void Start();
 	void Update();
@@ -64,14 +56,17 @@ private:
 	/// Uses tinyobj to load model from disk
 	void LoadModel();
 
-	/// Process all the shapes in the model, aka the meshes
+	/// Process all the node of the aiScene, aka the meshes
 	void ProcessModel();
+	void ProcessShape(const tinyobj::shape_t& shape);
 	void LoadMaterialTextures(const tinyobj::material_t& mat,
-		Mesh& mesh,
-		DiffuseMaterial::TextureMaps textureType,
-		std::string_view texName);
+	                          Mesh& mesh,
+	                          Mesh::Texture::Type textureType,
+	                          std::string_view textureName) const;
 
-	friend class ModelManager;
+	/// method called on the Render thread to create the VAOs of the meshes
+	void UploadMeshesToGl();
+
 	std::string path_;
 	std::string directory_;
 
@@ -83,16 +78,8 @@ private:
 
 	Job loadModelJob_;
 	Job processModelJob_;
+	Job uploadJob_;
 
-	std::uint8_t flags_       = NONE;
-	std::uint8_t textureMaps_ = 0;
-
-	ResourceHash diffuseId_  = 0;
-	ResourceHash specularId_ = 0;
-	ResourceHash normalId_   = 0;
+	std::uint8_t flags_ = NONE;
 };
-}    // namespace neko::vk
-
-MAKE_HASHABLE(neko::Vec2f, t.x, t.y)
-MAKE_HASHABLE(neko::Vec3f, t.x, t.y, t.z)
-MAKE_HASHABLE(neko::vk::Vertex, t.position, t.normal, t.texCoords, t.tangent, t.bitangent)
+}
