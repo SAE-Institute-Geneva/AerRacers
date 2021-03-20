@@ -138,7 +138,7 @@ FontId UiManager::GetFontId(FontLoaded fontLoaded) const
 
 #ifdef NEKO_GLES3
 void UiManager::ChangeViewport(
-	const uint8_t screenId, const uint8_t playerNmb, const Vec2u& windowSize)
+	const std::uint8_t screenId, const std::uint8_t playerNmb, const Vec2u& windowSize)
 {
 	if (screenId > playerNmb || screenId == 0) {
 	    glViewport(0, 0, windowSize.x, windowSize.y);

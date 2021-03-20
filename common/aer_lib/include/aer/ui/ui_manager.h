@@ -82,7 +82,7 @@ public:
 
 	void Init() override;
 	void Update(seconds dt) override;
-	void Render(uint8_t playerNmb);
+	void Render(std::uint8_t playerNmb);
 	void Destroy() override;
 
 	void OnEvent(const SDL_Event& event) override;
@@ -103,9 +103,8 @@ private:
      * \param playerNmb Current player number
      * \param windowSize Size of the window
      */
-	static void ChangeViewport(uint8_t screenId, uint8_t playerNmb, const Vec2u& windowSize);
+	void ChangeViewport(std::uint8_t screenId, std::uint8_t playerNmb, const Vec2u& windowSize);
 #endif
-
 	AerEngine& aerEngine_;
 	Job preRender_;
 

@@ -62,7 +62,7 @@ struct UiFlag
 class UiElement
 {
 public:
-	explicit UiElement(const Vec3f& pos = Vec3f::zero,
+	explicit UiElement(const Vec2f & pos = Vec2f::zero,
 		UiAnchor uiAnchor               = UiAnchor::CENTER,
 		std::uint8_t screenId           = 0);
 	virtual void Destroy();
@@ -70,7 +70,7 @@ public:
 	[[nodiscard]] std::uint8_t GetFlags() const { return flags_; }
 	[[nodiscard]] std::uint8_t GetScreenId() const { return screenId_; }
 
-	void SetPosition(const Vec3f& pos) { position_ = pos; }
+	void SetPosition(const Vec2f& pos) { position_ = pos; }
 	void SetAnchor(UiAnchor uiAnchor) { uiAnchor_ = uiAnchor; }
 	void SetScreenId(std::uint8_t screenId) { screenId_ = screenId; }
 	void SetEnable(bool enable);
@@ -83,7 +83,7 @@ protected:
     
 	static Vec2f CalculateUiElementPosition(Vec2f position, UiAnchor anchor);
 
-	Vec3f position_    = Vec3f::zero;    //In percent
+	Vec2f position_    = Vec2f::zero;    //In percent
 	UiAnchor uiAnchor_ = UiAnchor::CENTER;
 	std::uint8_t flags_     = UiFlag::ENABLED;
 	std::uint8_t screenId_  = 0;

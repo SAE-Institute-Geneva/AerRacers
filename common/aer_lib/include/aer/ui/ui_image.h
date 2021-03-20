@@ -50,8 +50,8 @@ public:
      * \param screenId On which screen are based the anchor
      * \param color Color add to the texture
      */
-    UiImage(std::string_view texturePath = "",
-		const Vec3f& position                     = Vec3f::zero,
+    explicit UiImage(const std::string_view& texturePath = "",
+		const Vec2f & position                     = Vec2f::zero,
 		const Vec2u& size                         = Vec2u::one,
 		UiAnchor anchor                           = UiAnchor::CENTER,
 		std::uint8_t screenId                     = 0,
