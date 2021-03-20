@@ -28,22 +28,20 @@
 #include <gtest/gtest.h>
 
 #ifdef NEKO_GLES3
-	#include <gl/gles3_window.h>
-	#include <gl/graphics.h>
-	#include <sdl_engine/sdl_engine.h>
-	#include <sdl_engine/sdl_input.h>
+#include "utils/imgui_utility.h"
 
-	#include "aer/aer_engine.h"
-	#include "aer/editor/tool/logger.h"
+#include "gl/gles3_window.h"
+#include "gl/graphics.h"
+
+#include "aer/aer_engine.h"
+#include "aer/editor/tool/logger.h"
 
 namespace neko::aer
 {
 class TestToolInterface : public EditorToolInterface
 {
 public:
-	explicit TestToolInterface(
-		AerEngine& engine, ToolType type, int id, std::string name)
-	   : EditorToolInterface(engine, type, id, name)
+	explicit TestToolInterface(AerEngine& engine) : EditorToolInterface(engine)
 	{
 		color_       = ImVec4(std::rand() % 2, std::rand() % 2, std::rand() % 2, 1);
 		counterTime_ = -std::rand() % 2;
@@ -66,12 +64,19 @@ public:
 		if (isVisible)
 		{
 			// Beginning of the Test window
-			if (!ImGui::Begin((GetName() + "##" + std::to_string(GetId())).c_str(), &isVisible))
+			if (!ImGui::Begin((std::string(GetName()) + "##" + std::to_string(GetId())).c_str(), &isVisible))
 			{
 				ImGui::End();
 			}
 			else
 			{
+				// Window Label
+				if (ImGui::IsWindowDocked())
+				{
+					ImGui::Text(GetName());
+					ImGui::Separator();
+				}
+
 				ImGui::End();
 			}
 		}
@@ -80,6 +85,10 @@ public:
 	void OnEvent(const SDL_Event&) override {}
 
 	void Destroy() override {}
+
+	std::string_view GetName() const override { return "Test Tool"; }
+
+	ToolType GetType() const override { return NONE; }
 
 private:
 	ImVec4 color_;
@@ -97,32 +106,22 @@ public:
 		engine_.RegisterOnDrawUi(*toolManager_);
 		engine_.RegisterOnEvent(*toolManager_);
 
-		toolManager_
-			->AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
-		toolManager_
-			->AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
+		toolManager_->AddEditorTool<Logger>();
+		toolManager_->AddEditorTool<Logger>();
 
-		toolManager_
-			->AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
-		toolManager_
-			->AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
+		toolManager_->AddEditorTool<Logger>();
+		toolManager_->AddEditorTool<Logger>();
 
-		toolManager_
-			->AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
-		toolManager_
-			->AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
+		toolManager_->AddEditorTool<Logger>();
+		toolManager_->AddEditorTool<Logger>();
 
-		toolManager_
-			->AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
-		toolManager_
-			->AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
+		toolManager_->AddEditorTool<Logger>();
+		toolManager_->AddEditorTool<Logger>();
 
-		toolManager_
-			->AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
-		toolManager_
-			->AddEditorTool<Logger, EditorToolInterface::ToolType::LOGGER>();
+		toolManager_->AddEditorTool<Logger>();
+		toolManager_->AddEditorTool<Logger>();
 
-		if (toolManager_->GetNumberTools() == kNbrTool_) { allToolInit_ = true; }
+		if (toolManager_->GetNumberTools() == kNbrTool_) allToolInit_ = true;
 	}
 
 	void Init() override {}

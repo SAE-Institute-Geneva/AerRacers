@@ -1,16 +1,10 @@
 #!/usr/bin/env python3
-
 import platform
 import subprocess
 import os
+from os import environ
 from enum import Enum
 from pathlib import Path
-
-if platform.system() == 'Windows':
-    vulkan_path = os.getenv("VULKAN_SDK")
-    program = '{}\\Bin\\glslangValidator.exe'.format(vulkan_path)
-else:
-    program = 'glslangValidator'
 
 
 class ShaderType(Enum):
@@ -30,7 +24,13 @@ class UniformObject:
 
 
 def validate_shader(data_src, data_out, meta_content):
-    status = subprocess.run([program, data_src])
+    global glslang_exe
+    glslang_exe = environ.get("GLSLANG_VALIDATOR_EXE")
+    if glslang_exe is None:
+        sys.stderr.write("Could not find glslangValidator executable\n")
+        exit(1)
+        
+    status = subprocess.run([glslang_exe, data_src])
     if status.returncode != 0:
         exit(1)
     path = Path(data_out)

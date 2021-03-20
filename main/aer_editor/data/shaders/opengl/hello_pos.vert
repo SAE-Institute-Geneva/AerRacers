@@ -1,4 +1,4 @@
-#version 300 es
+#version 450 core
 precision mediump float;
 
 layout (location = 0) in vec3 aPos;

@@ -1,50 +1,90 @@
 #pragma once
-#include "mathematics/hash.h"
-#include "utils/json_utility.h"
+/* ----------------------------------------------------
+ MIT License
+
+ Copyright (c) 2020 SAE Institute Switzerland AG
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+
+ Author: Canas Simon
+ Date:
+---------------------------------------------------------- */
 #include "vk/material/material.h"
-#include "vk/images/image2d.h"
 
 namespace neko::vk
 {
+constexpr std::string_view kDiffuseName  = ("diffuseMap");
+constexpr std::string_view kSpecularName = ("specularMap");
+constexpr std::string_view kNormalName   = ("normalMap");
+constexpr std::string_view kColorName    = ("color");
+constexpr std::string_view kUsedMapsName = ("usedMaps");
+constexpr StringHash kDiffuseHash        = HashString(kDiffuseName);
+constexpr StringHash kSpecularHash       = HashString(kSpecularName);
+constexpr StringHash kNormalHash         = HashString(kNormalName);
+constexpr StringHash kColorHash          = HashString(kColorName);
+constexpr StringHash kUsedMapsHash       = HashString(kUsedMapsName);
+
 class DiffuseMaterial : public Material
 {
 public:
-	explicit DiffuseMaterial(
-			const std::string& name = "",
-			Color4 color = Color4(Color::white, 1.0f),
-			const std::neko::optional<const Image2d&>& textureAlbedo = std::neko::nullopt,
-			const std::neko::optional<const Image2d&>& textureSpecular = std::neko::nullopt,
-			const std::neko::optional<const Image2d&>& textureNormal = std::neko::nullopt);
+	enum TextureMaps : std::uint8_t
+	{
+		DIFFUSE  = 1u << 0u,
+		SPECULAR = 1u << 1u,
+		NORMAL   = 1u << 2u,
+		EMISSIVE = 1u << 3u,
+	};
+
+	DiffuseMaterial(std::string_view name                       = "",
+		Color4 color                                            = Color::white,
+		const std::optional_const_ref<Image2d>& textureAlbedo   = std::nullopt,
+		const std::optional_const_ref<Image2d>& textureSpecular = std::nullopt,
+		const std::optional_const_ref<Image2d>& textureNormal   = std::nullopt);
 
 	bool operator==(const DiffuseMaterial& other) const;
 	bool operator!=(const DiffuseMaterial& other) const { return !(*this == other); }
 
-	void CreatePipeline(const VertexInput& vertexInput) override;
-
-	void SetShaderPath(const std::string& shaderPath) { shaderPath_ = shaderPath; }
-	[[nodiscard]] std::string GetShaderPath() const { return shaderPath_; }
+	[[nodiscard]] std::string GetShaderPath() const override;
 	[[nodiscard]] MaterialType GetType() const override { return MaterialType::DIFFUSE; }
 
 	void SetColor(const Color4& color);
 	[[nodiscard]] Color4 GetColor() const { return color_; }
 
 	void SetDiffuse(const Image2d& textureDiffuse);
-	[[nodiscard]] std::neko::optional<const Image2d&> GetDiffuse() const { return diffuse_; }
+	[[nodiscard]] std::optional_const_ref<Image2d> GetDiffuse() const { return diffuse_; }
 	void ResetDiffuse();
 
 	void SetSpecular(const Image2d& textureSpecular);
-	[[nodiscard]] std::neko::optional<const Image2d&> GetSpecular() const { return specular_; }
+	[[nodiscard]] std::optional_const_ref<Image2d> GetSpecular() const { return specular_; }
 	void ResetSpecular();
 
 	void SetNormal(const Image2d& textureNormal);
-	[[nodiscard]] std::neko::optional<const Image2d&> GetNormal() const { return normal_; }
+	[[nodiscard]] std::optional_const_ref<Image2d> GetNormal() const { return normal_; }
 	void ResetNormal();
 
-	void SetSpecularExponent(const float specularExp) { specularExp_ = specularExp; }
-	[[nodiscard]] float GetSpecularExponent() const { return specularExp_; }
+	void SetShininess(const float shininess) { shininess_ = shininess; }
+	[[nodiscard]] float GetShininess() const { return shininess_; }
 
 	void SetRenderMode(RenderMode renderMode) override;
 	[[nodiscard]] RenderMode GetRenderMode() const override { return renderMode_; }
+
+	void CreatePipeline(const VertexInput& vertexInput) override;
 
 	[[nodiscard]] ordered_json ToJson() const override;
 	void FromJson(const json& materialJson) override;
@@ -52,18 +92,13 @@ public:
 private:
 	void ResetPipeline();
 
-	std::string shaderPath_ = "shaders/quad_color_instancing.aershader";
-
 	Color4 color_;
-	std::neko::optional<const Image2d&> diffuse_;
-	std::neko::optional<const Image2d&> specular_;
-	std::neko::optional<const Image2d&> normal_;
+	std::optional_const_ref<Image2d> diffuse_;
+	std::optional_const_ref<Image2d> specular_;
+	std::optional_const_ref<Image2d> normal_;
 
-	float specularExp_ = 32.0f;
+	std::uint8_t usedMaps_ = 0;
 
-	inline static const StringHash kDiffuseHash = HashString("diffuse");
-	inline static const StringHash kSpecularHash = HashString("specular");
-	inline static const StringHash kNormalHash = HashString("normal");
-	inline static const StringHash kColorHash = HashString("color");
+	float shininess_ = 32.0f;
 };
-}
+}    // namespace neko::vk

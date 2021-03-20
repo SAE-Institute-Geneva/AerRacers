@@ -28,45 +28,71 @@
 ---------------------------------------------------------- */
 #include "aer/editor/editor_tool_interface.h"
 
+#include "utils/imgui_utility.h"
+
 namespace neko::aer
 {
-constexpr std::uint8_t MaxTagSize = 128;
-
 class Inspector final : public EditorToolInterface
 {
 public:
-	explicit Inspector(AerEngine& engine, ToolType type, int id, std::string name);
-	void Init() override;
-	void Update(seconds dt) override;
+	explicit Inspector(AerEngine& engine);
+
 	void DrawImGui() override;
-	void Destroy() override;
-	void OnEvent(const SDL_Event& event) override;
+
+	[[nodiscard]] std::string_view GetName() const override { return "Inspector"; }
+	[[nodiscard]] ToolType GetType() const override { return INSPECTOR; }
+
+	// Not defined
+	void Init() override {}
+	void Update(seconds) override {}
+	void Destroy() override {}
+	void OnEvent(const SDL_Event&) override {}
 
 private:
+	void DisplayComponentViewer(ComponentViewer& viewer, Entity entity, ComponentType type);
 	void DisplayLayersAndTags(Entity selectedEntity);
 	void DisplayNewComponentButtons(Entity selectedEntity);
 
+	// Component Managers
 	EditorToolManager& editorToolManager_;
 	EntityManager& entityManager_;
 	Transform3dManager& transform3dManager_;
 	RenderManager& renderManager_;
+	LightManager& lightManager_;
 	physics::RigidDynamicManager& rigidDynamicManager_;
 	physics::RigidStaticManager& rigidStaticManager_;
+
+	// Component Viewers
 	Transform3dViewer& transform3dViewer_;
 	RendererViewer& rendererViewer_;
+	LightViewer& lightViewer_;
 	physics::RigidDynamicViewer& rigidDynamicViewer_;
 	physics::RigidStaticViewer& rigidStaticViewer_;
 
-	std::string layer_;
-	std::string tag_;
-	std::string newLayer_    = "";
-	std::string newTag_      = "";
-	const char* currentItem_ = NULL;
+	// ImGui Variables
+	ImGui::ImGuiTextFilter searchFilter_;
+	std::string newStr_;
+	int currentTag_ = 0;
+	int currentLayer_ = 0;
+
+	static constexpr std::array<ComponentType, 19> componentTypes_ {
+		ComponentType::TRANSFORM2D,
+		ComponentType::TRANSFORM3D,
+
+		// Graphics
+		ComponentType::SPRITE2D,
+		ComponentType::MODEL,
+		ComponentType::LIGHT,
+
+		// Physics
+		ComponentType::BODY2D,
+		ComponentType::BOX_COLLIDER2D,
+		ComponentType::CIRCLE_COLLIDER2D,
+		ComponentType::POLYGON_COLLIDER2D,
+		ComponentType::CONVEX_SHAPE2D,
+		ComponentType::RIGID_STATIC,
+		ComponentType::RIGID_DYNAMIC,
+
+		ComponentType::PREFAB};
 };
 }    // namespace neko::aer
-
-namespace ImGui
-{
-static int InputTextCallback(ImGuiInputTextCallbackData* data);
-bool InputText(const char* label, std::string* str, ImGuiInputTextFlags flags);
-}

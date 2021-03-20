@@ -28,14 +28,11 @@
 #include <gtest/gtest.h>
 
 #ifdef NEKO_GLES3
-	#include <gl/gles3_window.h>
-	#include <gl/graphics.h>
-	#include <sdl_engine/sdl_engine.h>
-	#include <sdl_engine/sdl_input.h>
+#include <gl/gles3_window.h>
+#include <gl/graphics.h>
 
-	#include "aer/aer_engine.h"
-	#include "aer/editor/tool/logger.h"
-	#include "aer/log.h"
+#include "aer/aer_engine.h"
+#include "aer/editor/tool/logger.h"
 
 namespace neko::aer
 {
@@ -50,14 +47,13 @@ public:
 			engine_.RegisterSystem(*toolManager_);
 			engine_.RegisterOnDrawUi(*toolManager_);
 			engine_.RegisterOnEvent(*toolManager_);
-			toolManager_->AddEditorTool<Logger,
-				EditorToolInterface::ToolType::LOGGER>();
+			toolManager_->AddEditorTool<Logger>();
 		}
 	}
 
 	void Init() override {}
 
-	void Update(seconds dt) override
+	void Update(seconds) override
 	{
 		if (!testSuccess_)
 		{

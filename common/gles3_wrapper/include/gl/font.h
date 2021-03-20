@@ -51,17 +51,19 @@ public:
     explicit FontManager(const FilesystemInterface&);
     void Init() override;
 
-    FontId LoadFont(std::string_view fontName, int pixelHeight) override;
-
-    void RenderText(FontId font, std::string_view text, Vec2f position, TextAnchor anchor, float scale,
-                    Color4 color) override;
-
+    FontId LoadFont(std::string_view fontPath, int pixelHeight) override;
+    void RenderText(FontId fontId,
+        std::string text,
+        const Vec2f& position,
+        TextAnchor anchor,
+        float scale,
+        const Color4& color)override;
     void Destroy() override;
 
     void Render() override;
 
     void DestroyFont(FontId font) override;
-    void SetWindowSize(const Vec2f& windowSize);
+    void SetWindowSize(const Vec2f& windowSize) override;
 
 protected:
     struct FontRenderingCommand

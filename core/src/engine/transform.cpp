@@ -22,11 +22,9 @@
  SOFTWARE.
  */
 
-#include "imgui.h"
-
 #include "engine/transform.h"
-#include "graphics/graphics.h"
 #include "mathematics/transform.h"
+#include "utils/imgui_utility.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -49,7 +47,7 @@ void Scale3dManager::AddComponent(Entity entity)
 Transform2dManager::Transform2dManager(EntityManager& entityManager)
    : ComponentManager<Mat4f, EntityMask(ComponentType::TRANSFORM2D)>(entityManager),
 	 positionManager_(entityManager),
-	 scaleManager_(entityManager),
+	 scaleManager_(entityManager, Vec2f::one),
 	 rotationManager_(entityManager),
 	 dirtyManager_(entityManager)
 {
@@ -134,7 +132,7 @@ void Transform2dManager::UpdateTransform(Entity entity)
 Transform3dManager::Transform3dManager(EntityManager& entityManager)
    : DoubleBufferComponentManager(entityManager),
 	 position3DManager_(entityManager),
-	 scale3DManager_(entityManager),
+	 scale3DManager_(entityManager, Vec3f::one),
 	 rotation3DManager_(entityManager),
 	 dirtyManager_(entityManager)
 {
@@ -270,14 +268,15 @@ void Transform3dManager::SetGlobalRotation(Entity entity, const EulerAngles& ang
 {
     //SetRelativeRotation(entity, angles);
     //return;
-    Mat4f transform = Transform3d::Transform(
-        Transform3d::GetPosition(GetComponent(entity)), angles, Transform3d::GetScale(GetComponent(entity)));
-    const auto parent = entityManager_.get().GetEntityParent(entity);
-    SetComponent(entity, transform);
-    if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
+	Mat4f transform   = Transform3d::Transform(Transform3d::GetPosition(GetComponent(entity)),
+        angles,
+        Transform3d::GetScale(GetComponent(entity)));
+	const auto parent = entityManager_.get().GetEntityParent(entity);
+	SetComponent(entity, transform);
+	if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
 
-    rotation3DManager_.SetComponent(entity, Transform3d::GetRotation(transform));
-    dirtyManager_.SetDirty(entity);
+	rotation3DManager_.SetComponent(entity, Transform3d::GetRotation(transform));
+	dirtyManager_.SetDirty(entity);
 }
 
 void Transform3dManager::SetGlobalScale(Entity entity, const Vec3f& scale)
@@ -301,7 +300,7 @@ void Transform3dManager::AddComponent(Entity entity)
     return DoubleBufferComponentManager::AddComponent(entity);
 }
 
-void Transform3dManager::OnChangeParent(Entity entity, Entity newParent, Entity oldParent)
+void Transform3dManager::OnChangeParent(Entity entity, Entity, Entity)
 {
     Mat4f transform = GetComponent(entity);
     SetGlobalScale(entity, Transform3d::GetScale(transform));
@@ -316,20 +315,20 @@ Transform3dViewer::Transform3dViewer(
 
 json Transform3dViewer::GetJsonFromComponent(Entity entity) const
 {
-    json transformComponent = json::object();
-    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D)))
-    {
-        if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
-        {
-            transformComponent["position"] =
-                GetJsonFromVector3(transform3dManager_.GetGlobalPosition(entity));
-            transformComponent["rotation"] = GetJsonFromVector4(
-                Vec4f(Quaternion::FromEuler(transform3dManager_.GetGlobalRotation(entity))));
-            transformComponent["scale"] =
-                GetJsonFromVector3(transform3dManager_.GetGlobalScale(entity));
-        }
-    }    // namespace neko
-    return transformComponent;
+	json transformComponent = json::object();
+	if (entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D)))
+	{
+		if (entity != INVALID_ENTITY && entityManager_.GetEntitiesSize() > entity)
+		{
+			transformComponent["position"] =
+				GetJsonFromVector3(transform3dManager_.GetGlobalPosition(entity));
+			transformComponent["rotation"] = GetJsonFromVector4(
+				Vec4f(Quaternion::FromEuler(transform3dManager_.GetGlobalRotation(entity))));
+			transformComponent["scale"] =
+				GetJsonFromVector3(transform3dManager_.GetGlobalScale(entity));
+		}
+	}
+	return transformComponent;
 }
 
 void Transform3dViewer::SetComponentFromJson(Entity entity, const json& jsonComponent)
@@ -350,38 +349,35 @@ void Transform3dViewer::SetComponentFromJson(Entity entity, const json& jsonComp
 
 void Transform3dViewer::DrawImGui(Entity entity)
 {
-    if (entity == INVALID_ENTITY) return;
-    if (entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D)))
-    {
-        if (ImGui::TreeNode("Transform"))
-        {
-        static bool globalPos;
-        ImGui::Checkbox("GlobalPos", &globalPos);
+	if (entity == INVALID_ENTITY) return;
+	if (entityManager_.HasComponent(entity, EntityMask(ComponentType::TRANSFORM3D)))
+	{
+		if (ImGui::TreeNode("Transform"))
+		{
+			static bool globalPos;
+			ImGui::Checkbox("GlobalPos", &globalPos);
 
-        Vec3f position;
-        if (globalPos) { position = transform3dManager_.GetGlobalPosition(entity); } else {
-            position = transform3dManager_.GetRelativePosition(entity);
-        }
-        if (ImGui::DragFloat3("Position", position.coord)) {
-            transform3dManager_.SetRelativePosition(entity, position);
-        }
-        Vec3f rotation;
-        if (globalPos) { rotation = Vec3f(transform3dManager_.GetGlobalRotation(entity)); } else {
-            rotation = Vec3f(transform3dManager_.GetRelativeRotation(entity));
-        }
-        if (ImGui::DragFloat3("Rotation", rotation.coord)) {
-            transform3dManager_.SetRelativeRotation(
-                entity,
-                EulerAngles(rotation.x, rotation.y, rotation.z));
-        }
-        Vec3f scale;
-        if (globalPos) { scale = transform3dManager_.GetGlobalScale(entity); } else {
-            scale = transform3dManager_.GetRelativeScale(entity);
-        }
-        if (ImGui::DragFloat3("Scale", scale.coord)) {
-            transform3dManager_.SetRelativeScale(entity, scale); }
-        ImGui::TreePop();
-        }
-    }
+			Vec3f position;
+			if (globalPos) position = transform3dManager_.GetGlobalPosition(entity);
+			else position = transform3dManager_.GetRelativePosition(entity);
+			if (ImGui::DragFloat3("Position", position.coord, ImGui::LabelPos::LEFT, 0.05f))
+				transform3dManager_.SetRelativePosition(entity, position);
+
+			Vec3f rotation;
+			if (globalPos) rotation = Vec3f(transform3dManager_.GetGlobalRotation(entity));
+			else rotation = Vec3f(transform3dManager_.GetRelativeRotation(entity));
+			if (ImGui::DragFloat3("Rotation", rotation.coord, ImGui::LabelPos::LEFT, 0.05f))
+				transform3dManager_.SetRelativeRotation(
+					entity, EulerAngles(rotation.x, rotation.y, rotation.z));
+
+			Vec3f scale;
+			if (globalPos) scale = transform3dManager_.GetGlobalScale(entity);
+			else scale = transform3dManager_.GetRelativeScale(entity);
+			if (ImGui::DragFloat3("Scale", scale.coord, ImGui::LabelPos::LEFT, 0.05f))
+				transform3dManager_.SetRelativeScale(entity, scale);
+			ImGui::TreePop();
+		}
+	}
 }
 }// namespace neko
+ 

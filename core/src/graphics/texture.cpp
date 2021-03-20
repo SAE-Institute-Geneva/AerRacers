@@ -44,7 +44,6 @@ Image StbImageConvert(const BufferFile& imageFile, bool flipY, bool hdr)
     EASY_BLOCK("Convert Image");
 #endif
     Image image;
-	
     stbi_set_flip_vertically_on_load(flipY);
     if (hdr)
     {

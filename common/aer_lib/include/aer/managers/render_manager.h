@@ -1,68 +1,74 @@
 #pragma once
-#include "engine/component.h"
 #include "engine/transform.h"
+
+#ifdef NEKO_GLES3
 #include "gl/model.h"
-#include "mathematics/matrix.h"
+#else
+#include "vk/commands/model_command_buffer.h"
+#endif
+
+#include "aer/managers/light_manager.h"
 
 namespace neko::aer
 {
-class RendererViewer;
-
-#ifdef NEKO_GLES3
 struct DrawCmd
 {
+#ifdef NEKO_GLES3
 	gl::ModelId modelId = gl::INVALID_MODEL_ID;
+#else
+	vk::ModelId modelId = vk::INVALID_MODEL_ID;
+	vk::ModelInstanceIndex modelInstanceIndex = INVALID_INDEX;
+#endif
 
 	bool isVisible = true;
 };
-#endif
 
-class IRenderManager : public OnChangeParentInterface
+class RenderManager final : public SystemInterface,
+							public RenderCommandInterface,
+							public ComponentManager<DrawCmd, EntityMask(ComponentType::MODEL)>
 {
 public:
-	virtual void UpdateDirtyComponent(Entity entity) = 0;
-};
-
-class RenderManager : public IRenderManager,
-					  public SystemInterface,
-					  public RenderCommandInterface,
-#ifdef NEKO_GLES3
-                      public ComponentManager<DrawCmd, EntityMask(ComponentType::MODEL)>
-#endif
-{
-public:
-	explicit RenderManager(
-		EntityManager& entityManager,
+	RenderManager(EntityManager& entityManager,
 #ifdef NEKO_GLES3
 		gl::ModelManager& modelManager,
+#else
+		vk::ModelManager& modelManager,
 #endif
 		Transform3dManager& transform3DManager,
-        RendererViewer& rendererViewer);
+		LightManager& lightManager);
 
 	void Init() override;
 	void Update(seconds) override;
 	void Render() override;
 	void Destroy() override;
 
+	[[nodiscard]] std::string GetModelName(Entity entity);
+	[[nodiscard]] std::string_view GetModelPath(Entity entity);
+
 	void SetModel(Entity entity, const std::string& modelPath);
 #ifdef NEKO_GLES3
 	void SetModel(Entity entity, gl::ModelId modelId);
+	gl::Shader& GetShader() { return shader_; }
+#else
+	void DestroyComponent(Entity entity) override;
+
+	void SetModel(Entity entity, vk::ModelId modelId);
 #endif
 
 	void UpdateDirtyComponent(Entity entity) override;
-	void OnChangeParent(Entity entity, Entity newParent, Entity oldParent) override;
 
 protected:
 #ifdef NEKO_GLES3
 	gl::Shader shader_;
 	gl::ModelManager& modelManager_;
+#else
+	vk::ModelManager& modelManager_;
 #endif
 
 	Transform3dManager& transformManager_;
+	LightManager& lightManager_;
 
-	DirtyManager dirtyManager_;
-
-	RendererViewer& rendererViewer_;
+	DirectionalLight dirLight_ {};
 
 	Job preRender_;
 };
@@ -70,46 +76,30 @@ protected:
 /**
  * \brief The Component Manager use to serialize to json and imgui components
  */
-class RendererViewer : public ComponentViewer
+class RendererViewer final : public ComponentViewer
 {
 public:
-    explicit RendererViewer(EntityManager& entityManager, RenderManager& renderManager);
+	RendererViewer(EntityManager& entityManager, RenderManager& rendererManager);
+	~RendererViewer() override = default;
 
-    virtual ~RendererViewer() = default;
-
-    /**
-     * \brief Get a json object of the component of an entity
-     * \return json object with component parameter
-     */
-    json GetJsonFromComponent(Entity entity) const override;
-
-    /**
-     * \brief Set a component of an entity from a json of the component
-     * \componentJson json object with component parameter
-     */
-    void SetComponentFromJson(Entity entity, const json& componentJson) override;
-
-    /**
+	/**
      * \brief Draw the Imgui with the component parameter of an entity
      */
-    void DrawImGui(Entity entity) override;
+	void DrawImGui(Entity entity) override;
 
-    /**
-     * \brief Use to store the meshName 
-     * \param meshName meshName of the model
-     */
-    void SetMeshName(Entity entity, const std::string& meshName);
-    /**
-     * \brief Return the mesh name of a model
-     */
-    std::string GetMeshName(Entity entity) const;
+	/**
+	 * \brief Set a component of an entity from a json of the component
+	 * \componentJson json object with component parameter
+	 */
+	void SetComponentFromJson(Entity entity, const json& componentJson) override;
+
+	/**
+	 * \brief Get a json object of the component of an entity
+	 * \return json object with component parameter
+	 */
+	[[nodiscard]] json GetJsonFromComponent(Entity entity) const override;
 
 private:
-    RenderManager& rendererManager_;
-
-    /**
-     * \brief Vector of meshName only use for serialization
-     */
-    std::vector<std::string> meshNames_;
+	RenderManager& rendererManager_;
 };
 }

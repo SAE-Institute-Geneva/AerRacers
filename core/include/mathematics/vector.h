@@ -22,13 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-
-#include <ostream>
-#include <array>
-
-#include "engine/intrinsincs.h"
-#include "mathematics/const.h"
-#include "mathematics/angle.h"
 #include "mathematics/trigo.h"
 
 #include <fmt/format.h>
@@ -137,6 +130,12 @@ struct Vec2
 		return *this;
 	}
 
+	Vec2<T> operator/(const Vec2<T>& rhs) const
+	{
+		const T xx = x / rhs.x;
+		return Vec2<T>(x / rhs.x, y / rhs.y);
+	}
+
 	Vec2<T> operator/(T rhs) const
 	{ return (*this) * (1.0f / rhs); }
 
@@ -207,7 +206,7 @@ struct Vec2
 	{
 		const float mag1 = v1.Magnitude();
 		const float mag2 = v2.Magnitude();
-		if (mag1 == 0 || mag2 == 0) return neko::radian_t(0.0f);
+		if (mag1 == 0.0f || mag2 == 0.0f) return neko::radian_t(0.0f);
 
 		const float dot      = Vec2<T>::Dot(v1, v2) / mag1 / mag2;
 		const float det      = v1.x * v2.y - v1.y * v2.x;
@@ -281,7 +280,7 @@ public:
 	//-----------------------------------------------------------------------------
 	Vec3() noexcept = default;
 	explicit Vec3(T same) noexcept : x(same), y(same), z(same) {}
-	Vec3(T X, T Y, T Z) noexcept : x(X), y(Y), z(Z) {}
+	Vec3(T x, T y, T z) noexcept : x(x), y(y), z(z) {}
 	explicit Vec3(Vec2<T> v, T z = 0) noexcept : x(v.x), y(v.y), z(z) {}
 	explicit Vec3(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]), z(ptr[2]) {}
 
@@ -289,7 +288,7 @@ public:
 	explicit Vec3(U u) noexcept : x(T(u.x)), y(T(u.y)), z(T(u.z))  {}
 
 	template<class U>
-	Vec3(U X, U Y, U Z) noexcept : x(T(X)), y(T(Y)), z(T(Z)) {}
+	Vec3(U x, U y, U z) noexcept : x(T(x)), y(T(y)), z(T(z)) {}
 
 	explicit Vec3(std::array<T, 3> v) noexcept
 	{
@@ -390,7 +389,7 @@ public:
 	}
 
 	/// \brief Calculates the square magnitude.
-	T SquareMagnitude() const { return Dot(*this, *this); }
+	[[nodiscard]] T SquareMagnitude() const { return Dot(*this, *this); }
 
 	/// \brief Calculates the magnitude.
 	template<typename ReturnT = float>
@@ -398,7 +397,7 @@ public:
 	{ return std::sqrt(SquareMagnitude()); }
 
 	/// \brief Calculates the normalized vector.
-	Vec3<T> Normalized() const
+	[[nodiscard]] Vec3<T> Normalized() const
 	{ return (*this) / (*this).Magnitude(); }
 
 	/// \brief Interpolate between two vectors.
@@ -417,11 +416,11 @@ public:
 
 	static Vec3<T> Refract(const Vec3<T>& inVec, const Vec3<T>& normal, const T eta)
 	{
-		Vec3<T> N = normal.Normalized();
-		const T k = 1 - eta * eta * (1.0 - Dot(N, inVec) * Dot(N, inVec));
+		Vec3<T> n = normal.Normalized();
+		const T k = 1 - eta * eta * (1.0 - Dot(n, inVec) * Dot(n, inVec));
 		return k < 0 ?
 		       Vec3<T>::zero :
-		       eta * inVec - (eta * Dot(N, inVec) + std::sqrt(k)) * N;
+		       eta * inVec - (eta * Dot(n, inVec) + std::sqrt(k)) * n;
 	}
 
 	/// \brief Project v1 on v2 (doesn't need to be normalized).
@@ -494,7 +493,7 @@ public:
 		// sqrt(a) * sqrt(b) = sqrt(a * b) -- valid for real numbers
 		float denominator = sqrt(from.SquareMagnitude() * to.SquareMagnitude());
 		if (denominator <= 0.0f)
-			return radian_t(0);
+			return radian_t(0.0f);
 
 		float dot = Dot(from, to) / denominator;
 		if (dot < -1.0f) {

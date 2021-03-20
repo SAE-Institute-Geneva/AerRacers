@@ -2,46 +2,88 @@
 
 namespace neko::vk
 {
-TextureManager::TextureManager()
-{
-	TextureManagerLocator::provide(this);
-}
+TextureManager::TextureManager() { TextureManagerLocator::provide(this); }
 
-ResourceHash TextureManager::AddTexture2d(const std::string& texturePath)
-{
-	const ResourceHash resourceId = HashString(texturePath);
-	textures2d_.emplace(
-			resourceId,
-			std::make_unique<Image2d>(
-				texturePath,
-				VK_FORMAT_R8G8B8A8_UNORM,
-				VK_FILTER_LINEAR,
-				VK_SAMPLER_ADDRESS_MODE_REPEAT,
-				true,
-				false,
-				false
-			));
-	textures2d_[resourceId]->Load();
-	return resourceId;
-}
+void TextureManager::Init() {}
 
-const Image2d& TextureManager::GetImage2d(const std::string& texturePath) const
+void TextureManager::Update(seconds)
 {
-	return GetImage2d(HashString(texturePath));
-}
-
-const Image2d& TextureManager::GetImage2d(ResourceHash resourceID) const
-{
-	const auto it = textures2d_.find(resourceID);
-	if(it != textures2d_.end())
+	while (!textureLoaders_.empty())
 	{
-		return *it->second;
+		auto& textureLoader = textureLoaders_.front();
+		if (textureLoader.HasErrors())
+		{
+			switch (textureLoader.error_)
+			{
+				case TextureLoader::TextureLoaderError::ASSET_LOADING_ERROR:
+					logDebug(fmt::format(
+						"[Error] Could not load texture {} from disk", textureLoader.path_));
+					break;
+				case TextureLoader::TextureLoaderError::DECOMPRESS_ERROR:
+					logDebug(fmt::format(
+						"[Error] Could not decompress texture {} from disk", textureLoader.path_));
+					break;
+				case TextureLoader::TextureLoaderError::UPLOAD_TO_GPU_ERROR:
+					logDebug(fmt::format(
+						"[Error] Could not upload texture {} from disk", textureLoader.path_));
+					break;
+				default: break;
+			}
+			textureLoaders_.pop();
+		}
+		else if (textureLoader.IsDone())
+		{
+			textureMap_[textureLoader.textureId_] = textureLoader.texture_;
+			textureLoaders_.pop();
+		}
+		else
+		{
+			break;
+		}
 	}
-	return Image2d("");
 }
 
-void TextureManager::Clear()
+void TextureManager::Destroy()
 {
-	textures2d_.clear();
+	for (auto& textureName : textureMap_) textureName.second.Destroy();
 }
+
+ResourceHash TextureManager::AddTexture(std::string_view path)
+{
+	return AddTexture(path, Texture::DEFAULT);
 }
+
+ResourceHash TextureManager::AddTexture(std::string_view path, Texture::TextureFlags flags)
+{
+	const ResourceHash textureId = HashString(path);
+	const auto it                = textureMap_.find(textureId);
+	if (it != textureMap_.end()) return it->first;
+
+	//const std::string metaPath = fmt::format("{}.meta", path.substr(0, path.size() - 4));
+	//const json metaJson = LoadJson(metaPath);
+	if (textureId == kInvalidTextureId)
+	{
+		logDebug("[Error] Invalid texture id on texture load");
+		return textureId;
+	}
+
+	textureLoaders_.push({path, textureId, flags});
+	textureLoaders_.back().Start();
+	return textureId;
+}
+
+const Image2d* TextureManager::GetTexture(std::string_view texturePath) const
+{
+	return GetTexture(HashString(texturePath));
+}
+
+const Image2d* TextureManager::GetTexture(ResourceHash resourceId) const
+{
+	const auto it = textureMap_.find(resourceId);
+	if (it != textureMap_.end()) { return &it->second; }
+;
+	return nullptr;
+}
+
+void TextureManager::Clear() { textureMap_.clear(); }
+}    // namespace neko::vk

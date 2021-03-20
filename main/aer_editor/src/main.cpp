@@ -25,9 +25,13 @@
  Co-Author :
  Date : 29.09.2020
 ---------------------------------------------------------- */
-
+#ifdef NEKO_GLES3
 #include "gl/graphics.h"
 #include "gl/gles3_window.h"
+#elif NEKO_VULKAN
+#include "vk/graphics.h"
+#include "vk/renderers/renderer_editor.h"
+#endif
 
 #include "aer/aer_engine.h"
 
@@ -39,10 +43,16 @@ int main(int, char**)
 	config.flags   = neko::Configuration::NONE;
 	config.windowSize   = neko::Vec2u(1280, 720);
 
+	neko::Filesystem filesystem;
+	neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
+#ifdef NEKO_GLES3
     neko::sdl::Gles3Window window;
     neko::gl::Gles3Renderer renderer;
-    neko::Filesystem filesystem;
-	neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
+#elif NEKO_VULKAN
+	neko::sdl::VulkanWindow window;
+	neko::vk::VkRenderer renderer(&window);
+	renderer.SetRenderer(std::make_unique<neko::vk::RendererEditor>());
+#endif
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 
