@@ -213,12 +213,12 @@ public:
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
 
-        const auto& model = rContainer_.modelManager.GetModel(modelId);
-        for (size_t i = 0; i < model->GetMeshCount(); ++i)
-        {
-        	const auto& meshAabb = model->GetMesh(i).aabb;
-        	gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
-        }
+        //const auto& model = rContainer_.modelManager.GetModel(modelId);
+        //for (size_t i = 0; i < model->GetMeshCount(); ++i)
+        //{
+        //	const auto& meshAabb = model->GetMesh(i).aabb;
+        //	gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
+        //}
     }
 
     void Render() override {}
@@ -317,12 +317,12 @@ public:
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
 
-        const auto& model = rContainer_.modelManager.GetModel(modelId);
-        for (size_t i = 0; i < model->GetMeshCount(); ++i)
-        {
-            const auto& meshAabb = model->GetMesh(i).aabb;
-            gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
-        }
+        //const auto& model = rContainer_.modelManager.GetModel(modelId);
+        //for (size_t i = 0; i < model->GetMeshCount(); ++i)
+        //{
+        //    const auto& meshAabb = model->GetMesh(i).aabb;
+        //    gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
+        //}
     }
 
     void Render() override {}

@@ -113,8 +113,8 @@ private:
 #ifdef NEKO_GLES3
 	gl::FontManager fontManager_;
 #endif
-	const std::string kRobotoPath_  = "fonts/Lobster-Regular.ttf";
-	const std::string kLobsterPath_ = "fonts/Roboto-Medium.ttf";
+	const std::string kLobsterPath_ = "fonts/Lobster-Regular.ttf";
+	const std::string kRobotoPath_ = "fonts/Roboto-Medium.ttf";
 	FontId robotoId_                = INVALID_FONT_ID;
 	FontId lobsterId_               = INVALID_FONT_ID;
 

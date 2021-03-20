@@ -218,7 +218,9 @@ void BasicEngine::RegisterSystem(SystemInterface& system)
 {
     initAction_.RegisterCallback([&system] { system.Init(); });
     updateAction_.RegisterCallback([&system](seconds dt) { system.Update(dt); });
-    destroyAction_.RegisterCallback([&system] { system.Destroy(); });
+    destroyAction_.RegisterCallback([&system] {
+        system.Destroy();
+    });
 }
 
 void BasicEngine::RegisterOnDrawUi(DrawImGuiInterface& drawUi)

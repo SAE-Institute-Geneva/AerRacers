@@ -33,7 +33,7 @@ void Inspector::DrawImGui()
 
 	// Display entity name
 	std::string name = "Entity " + std::to_string(entity);
-	ImGui::Text(name);
+	ImGui::Text(name.c_str());
 
 	ImGui::Separator();
 	DisplayLayersAndTags(entity);
@@ -130,7 +130,7 @@ void Inspector::DisplayNewComponentButtons(Entity selectedEntity)
 
 	if (ImGui::BeginPopup("Add Component##popup"))
 	{
-		searchFilter_.Draw("##searchFilter");
+		//searchFilter_.Draw("##searchFilter");
 		ImGui::Separator();
 
 		// Miscellaneous
@@ -139,7 +139,7 @@ void Inspector::DisplayNewComponentButtons(Entity selectedEntity)
 			if (entityManager_.HasComponent(selectedEntity, (EntityMask) component)) continue;
 
 			const std::string componentName = ComponentTypeToString(component) + "##component";
-			if (!searchFilter_.PassFilter(componentName)) continue;
+			//if (!searchFilter_.PassFilter(componentName)) continue;
 
 			if (ImGui::MenuItem(componentName))
 			{

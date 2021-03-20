@@ -75,14 +75,10 @@ void AerEngine::GenerateUiFrame()
     EASY_BLOCK("AerEngine::GenerateUiFrame");
 #endif
 
-	if (mode_ == ModeEnum::EDITOR)
-	{
 #ifdef NEKO_GLES3
-		window_->GenerateUiFrame();
 		drawImGuiAction_.Execute();
 #elif NEKO_VULKAN
 		if (ImGui::GetCurrentContext()) drawImGuiAction_.Execute();
 #endif
-	}
 }
 }    // namespace neko::aer

@@ -31,7 +31,7 @@ using Color4 = Vec4f;
 
 namespace Color
 {
-	const static Color4 white = Color4::one;
+	const static Color4 white = Color4(1.0f, 1.0f, 1.0f, 1.0f);
 	const static Color4 grey = Color4(0.5f, 0.5f, 0.5f, 1.0f);
 	const static Color4 gray = grey;
 	const static Color4 black = Color4(0.0f, 0.0f, 0.0f, 1.0f);

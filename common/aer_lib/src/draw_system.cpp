@@ -11,15 +11,18 @@ DrawSystem::DrawSystem(AerEngine& engine)
 	 rContainer_(engine.GetResourceManagerContainer()),
 	 cContainer_(engine.GetComponentManagerContainer())
 {
-	engine.RegisterSystem(camera_);
+	if (engine.GetMode() != ModeEnum::TEST)
+	{
+		engine.RegisterSystem(camera_);
 
 #ifdef NEKO_GLES3
-	gizmosRenderer_ = std::make_unique<GizmoRenderer>(&camera_.GetCamera(0));
-	engine.RegisterSystem(*gizmosRenderer_);
+		gizmosRenderer_ = std::make_unique<GizmoRenderer>(&camera_.GetCamera(0));
+		engine.RegisterSystem(*gizmosRenderer_);
 #endif
-	uiManager_ = std::make_unique<UiManager>(engine_);
-	engine.RegisterSystem(*uiManager_);
-	engine.RegisterOnEvent(*uiManager_);
+		uiManager_ = std::make_unique<UiManager>(engine_);
+		engine.RegisterSystem(*uiManager_);
+		engine.RegisterOnEvent(*uiManager_);
+	}
 }
 
 void DrawSystem::Init()
@@ -168,8 +171,6 @@ void DrawSystem::RenderScene(const std::size_t playerNum)
 
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(playerNum));
 	gizmosRenderer_->Render();
-
-	uiManager_->Render(playerNum);
 }
 #endif
 

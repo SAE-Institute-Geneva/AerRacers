@@ -27,6 +27,8 @@
 #include "mathematics/basic.h"
 #include "mathematics/vector.h"
 
+#include <array>
+
 namespace neko
 {
 template<typename T>
@@ -612,6 +614,7 @@ inline Mat4<T> Mat4<T>::MultiplyAoSoA(const Mat4<T>& rhs) const noexcept
 	return Mat4f(v);
 }
 
+
 #if defined(__SSE__) && !defined(__ANDROID__)
 template<>
 inline Mat4f Mat4f::Transpose() const
@@ -695,6 +698,12 @@ inline Mat4f Mat4f::MultiplyIntrinsincs(const Mat4f& rhs) const noexcept
 		*(v4f*) (&v[column][0]) = x;
 	}
 	return Mat4f(v);
+}
+#else
+template<typename T>
+Mat4<T> Mat4<T>::MultiplyIntrinsics(const Mat4<T>& rhs) const noexcept
+{
+	return this->MultiplyNaive(rhs);
 }
 #endif
 } // namespace neko

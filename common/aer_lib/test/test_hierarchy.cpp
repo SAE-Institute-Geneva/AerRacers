@@ -15,7 +15,7 @@ class SimulateHierarchy : public SystemInterface
 public:
 	SimulateHierarchy(AerEngine& engine) : engine_(engine)
 	{
-		if (engine.GetMode() != ModeEnum::GAME)    // If engine mode is not game (to not have tools in game)
+		if (engine_.GetMode() != ModeEnum::GAME)    // If engine mode is not game (to not have tools in game)
 		{
 			toolManager_ = std::make_unique<EditorToolManager>(engine_);    // Create tool manager
 			engine_.RegisterSystem(*toolManager_);                          // Register in system
@@ -59,7 +59,10 @@ public:
 		if (updateCount_ == kEngineDuration_) { engine_.Stop(); }
 	}
 
-	void Destroy() override {}
+	void Destroy() override
+	{
+	    
+	}
 
 	void HasSucceed() const
 	{
@@ -78,7 +81,7 @@ private:
 	AerEngine& engine_;
 };
 
-TEST(Tool, TestHierarchy)
+TEST(Editor, TestHierarchy)
 {
 	//Travis Fix because Windows can't open a window
 	char* env = getenv("TRAVIS_DEACTIVATE_GUI");

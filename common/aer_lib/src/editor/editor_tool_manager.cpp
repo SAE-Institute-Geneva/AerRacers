@@ -33,6 +33,8 @@ void EditorToolManager::Init()
 		BasicEngine::GetInstance()->GetConfig().dataRootPath + "fonts/droid_sans.ttf";
 	ImGui::GetIO().Fonts->AddFontFromFileTTF(path.c_str(), fontSizeInPixels);
 #endif
+
+	for (auto& tool : tools_) tool->Init();
 }
 
 void EditorToolManager::Update(const seconds dt)
@@ -137,40 +139,39 @@ void EditorToolManager::Destroy()
 
 void EditorToolManager::DrawImGui()
 {
-	using namespace ImGui;
-	ImGuiIO io = GetIO();
+	ImGuiIO io = ImGui::GetIO();
 
 	ImGuiWindowFlags windowFlags =
 		ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBackground;
 
-	ImGuiViewport* viewport = GetMainViewport();
-	SetNextWindowPos(viewport->GetWorkPos());
-	SetNextWindowSize(viewport->GetWorkSize());
-	SetNextWindowViewport(viewport->ID);
-	PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-	PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(viewport->GetWorkPos());
+	ImGui::SetNextWindowSize(viewport->GetWorkSize());
+	ImGui::SetNextWindowViewport(viewport->ID);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 	windowFlags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse |
 	               ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
-	Begin("Showroom", reinterpret_cast<bool*>(true), windowFlags);
+	ImGui::Begin("Showroom", reinterpret_cast<bool*>(true), windowFlags);
 	{
-		PopStyleVar();
-		PopStyleVar(2);
+		ImGui::PopStyleVar();
+		ImGui::PopStyleVar(2);
 
-        const ImGuiID dockspaceId = GetID("ShowroomDockSpace");
-		DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), kDockspaceFlags);
+        const ImGuiID dockspaceId = ImGui::GetID("ShowroomDockSpace");
+		ImGui::DockSpace(dockspaceId, ImVec2(0.0f, 0.0f), kDockspaceFlags);
 
 		//Editor Menu
-		BeginMenuBar();
+		ImGui::BeginMenuBar();
 		{
-			if (BeginMenu("Settings"))
+			if (ImGui::BeginMenu("Settings"))
 			{
 				ImGui::EndMenu();
 			}
 
-			if (BeginMenu("Tools"))
+			if (ImGui::BeginMenu("Tools"))
 			{
 				DrawList();
 				ImGui::EndMenu();
@@ -179,32 +180,32 @@ void EditorToolManager::DrawImGui()
 			SceneManager& sceneManager = engine_.GetComponentManagerContainer().sceneManager;
 			std::string sceneName      = sceneManager.GetCurrentScene().sceneName;
 			if (!sceneManager.GetCurrentScene().saved) { sceneName += "*"; }
-			Text("%s", sceneName.c_str());
+			ImGui::Text("%s", sceneName.c_str());
 
 			if (engine_.GetPhysicsEngine().IsPhysicRunning())
 			{
-				PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 1.0f, 0.0f, 0.5f));
-				if (Button("Physics active")) engine_.GetPhysicsEngine().StopPhysic();
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 1.0f, 0.0f, 0.5f));
+				if (ImGui::Button("Physics active")) engine_.GetPhysicsEngine().StopPhysic();
 			}
 			else
 			{
-				PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.0f, 0.0f, 0.5f));
-				if (Button("Physics inactive")) engine_.GetPhysicsEngine().StartPhysic();
+				ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 0.0f, 0.0f, 0.5f));
+				if (ImGui::Button("Physics inactive")) engine_.GetPhysicsEngine().StartPhysic();
 			}
-			PopStyleColor();
+			ImGui::PopStyleColor();
 			
             const auto fpsText = fmt::format("{:.0f} FPS", 1.0f / dt_.count());
-			const float spacing = GetStyle().ItemSpacing.x + GetStyle().FramePadding.x;
-			const float nextPos = GetWindowWidth() - CalcTextSize(fpsText.c_str()).x - spacing;
-			SetCursorPosX(nextPos);
-			Text("%s", fpsText.c_str());
+			const float spacing = ImGui::GetStyle().ItemSpacing.x + ImGui::GetStyle().FramePadding.x;
+			const float nextPos = ImGui::GetWindowWidth() - ImGui::CalcTextSize(fpsText.c_str()).x - spacing;
+			ImGui::SetCursorPosX(nextPos);
+			ImGui::Text("%s", fpsText.c_str());
 
-			EndMenuBar();
+			ImGui::EndMenuBar();
 		}
 
 		//ImGuizmo::SetDrawlist();
 
-		End();
+		ImGui::End();
 	}
 
 	for (auto& tool : tools_)
@@ -217,7 +218,7 @@ void EditorToolManager::DrawImGui()
 			// Window Label
 			if (ImGui::IsWindowDocked())
 			{
-				ImGui::Text(tool->GetName());
+				ImGui::Text(tool->GetName().data());
 				ImGui::Separator();
 			}
 

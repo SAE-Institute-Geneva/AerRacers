@@ -230,37 +230,37 @@ bool ButtonCentered(std::string_view label, const ImVec2& size)
 	return Button(label.data(), size);
 }
 
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wvarargs"
-void Text(std::string_view text, ...)
-{
-	va_list args;
-	va_start(args, text.data());
-	TextV(text.data(), args);
-	va_end(args);
-}
-
-void TextColored(const ImVec4& col, std::string_view text, ...)
-{
-	va_list args;
-	va_start(args, text.data());
-	TextColoredV(col, text.data(), args);
-	va_end(args);
-}
-
-void TextCentered(std::string_view text, ...)
-{
-	const float textSize   = CalcTextSize(text.data()).x;
-	const float cursorPos  = GetCursorPosX();
-	const float availWidth = GetContentRegionAvailWidth() - cursorPos;
-	SetCursorPosX(cursorPos + (availWidth / 2.0f) - textSize + (textSize / 2.0f));
-
-	va_list args;
-	va_start(args, text.data());
-	TextV(text.data(), args);
-	va_end(args);
-}
-#pragma clang diagnostic pop
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wvarargs"
+//void Text(std::string_view text, ...)
+//{
+//	va_list args;
+//	va_start(args, text.data());
+//	TextV(text.data(), args);
+//	va_end(args);
+//}
+//
+//void TextColored(const ImVec4& col, std::string_view text, ...)
+//{
+//	va_list args;
+//	va_start(args, text.data());
+//	TextColoredV(col, text.data(), args);
+//	va_end(args);
+//}
+//
+//void TextCentered(std::string_view text, ...)
+//{
+//	const float textSize   = CalcTextSize(text.data()).x;
+//	const float cursorPos  = GetCursorPosX();
+//	const float availWidth = GetContentRegionAvailWidth() - cursorPos;
+//	SetCursorPosX(cursorPos + (availWidth / 2.0f) - textSize + (textSize / 2.0f));
+//
+//	va_list args;
+//	va_start(args, text.data());
+//	TextV(text.data(), args);
+//	va_end(args);
+//}
+//#pragma clang diagnostic pop
 
 bool Button(std::string_view label, const ImVec2& size)
 {

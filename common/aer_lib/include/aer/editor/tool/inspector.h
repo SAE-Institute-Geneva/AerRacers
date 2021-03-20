@@ -70,7 +70,7 @@ private:
 	physics::RigidStaticViewer& rigidStaticViewer_;
 
 	// ImGui Variables
-	ImGui::ImGuiTextFilter searchFilter_;
+	//ImGui::ImGuiTextFilter searchFilter_;
 	std::string newStr_;
 	int currentTag_ = 0;
 	int currentLayer_ = 0;

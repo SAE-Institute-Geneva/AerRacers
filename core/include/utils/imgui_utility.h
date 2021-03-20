@@ -101,17 +101,17 @@ bool ColorEdit4(std::string_view label,
 /// Draws a button that's centered independently of the current indentation
 bool ButtonCentered(std::string_view label, const ImVec2& size = ImVec2(0.0f, 0.0f));
 
-/// Draws text using strings <br>
-/// Using invisible characters such as '#' can allow for extra padding
-void Text(std::string_view text, ...);
-
-/// Draws colored text using strings <br>
-/// Using invisible characters such as '#' can allow for extra padding
-void TextColored(const ImVec4& col, std::string_view text, ...);
-
-/// Draws text that's centered independently of the current indentation <br>
-/// Using invisible characters such as '#' can allow for extra padding
-void TextCentered(std::string_view text, ...);
+///// Draws text using strings <br>
+///// Using invisible characters such as '#' can allow for extra padding
+//void Text(std::string_view text, ...);
+//
+///// Draws colored text using strings <br>
+///// Using invisible characters such as '#' can allow for extra padding
+//void TextColored(const ImVec4& col, std::string_view text, ...);
+//
+///// Draws text that's centered independently of the current indentation <br>
+///// Using invisible characters such as '#' can allow for extra padding
+//void TextCentered(std::string_view text, ...);
 
 /// Draws button with a certain size using strings
 bool Button(std::string_view label, const ImVec2& size = ImVec2(0, 0));

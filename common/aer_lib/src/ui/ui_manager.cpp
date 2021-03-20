@@ -140,7 +140,9 @@ FontId UiManager::GetFontId(FontLoaded fontLoaded) const
 void UiManager::ChangeViewport(
 	const uint8_t screenId, const uint8_t playerNmb, const Vec2u& windowSize)
 {
-	if (screenId > playerNmb || screenId == 0) { glViewport(0, 0, windowSize.x, windowSize.y); }
+	if (screenId > playerNmb || screenId == 0) {
+	    glViewport(0, 0, windowSize.x, windowSize.y);
+	}
 	else
 	{
 		switch (screenId)
@@ -154,7 +156,7 @@ void UiManager::ChangeViewport(
 					case 4:
 						glViewport(0, windowSize.y / 2, windowSize.x / 2, windowSize.y / 2);
 						break;
-					default: break;
+					default:  glViewport(0, 0, windowSize.x, windowSize.y);  break;
 				}
 			}
 			break;
@@ -168,13 +170,13 @@ void UiManager::ChangeViewport(
 						glViewport(
 							windowSize.x / 2, windowSize.y / 2, windowSize.x / 2, windowSize.y / 2);
 						break;
-					default: break;
+					default:  glViewport(0, 0, windowSize.x, windowSize.y);  break;
 				}
 			}
 			break;
 			case 3: glViewport(0, 0, windowSize.x / 2, windowSize.y / 2); break;
 			case 4: glViewport(windowSize.x / 2, 0, windowSize.x / 2, windowSize.y / 2); break;
-			default: break;
+			default:  glViewport(0, 0, windowSize.x, windowSize.y);  break;
 		}
 	}
 }

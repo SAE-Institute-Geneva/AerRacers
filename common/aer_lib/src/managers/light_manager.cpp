@@ -19,7 +19,10 @@ void LightManager::SetShaderValues(gl::Shader& shader)
 	// OpenGL Uniform Blocks are spaced by multiple of 16 bytes
 	std::uint64_t curOffset = 0;
 	const auto lights = entityManager_.get().FilterEntities(EntityMask(ComponentType::LIGHT));
-	ResizeIfNecessary(components_, lights.back(), {});
+	if (!lights.empty())
+	{
+		ResizeIfNecessary(components_, lights.back(), {});
+	}
 
 	const DirectionalLight* dirLight = DirectionalLight::Instance;
 	const std::size_t lightNum = lights.size() + (dirLight ? 1 : 0);
