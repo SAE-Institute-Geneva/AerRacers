@@ -22,6 +22,7 @@
  SOFTWARE.
  */
 
+#include "engine/assert.h"
 #include "mathematics/transform.h"
 
 namespace neko::Transform3d
