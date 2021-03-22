@@ -6,8 +6,10 @@ VkResources::VkResources(sdl::VulkanWindow* window) : vkWindow(window) { Inst = 
 
 VkResources::~VkResources()
 {
+}
+void VkResources::DestroyResources()
+{
 	vkDeviceWaitIdle(VkDevice(device));
-	imgui_.Destroy();
 
 	const auto& graphicsQueue = device.GetGraphicsQueue();
 	vkQueueWaitIdle(graphicsQueue);
@@ -20,19 +22,28 @@ VkResources::~VkResources()
 		vkDestroySemaphore(VkDevice(device), finishedSemaphores_[i], nullptr);
 	}
 
-	renderer_->Destroy();
-
 	for (auto& commandBuffer : commandBuffers_)
 		commandBuffer.Destroy();
 
 	for (const auto& commandPool : commandPools_)
 		commandPool.second.Destroy();
 
+	renderer_->Destroy();
+
+
 	swapchain.Destroy();
 
+	imgui_.Destroy();
 	device.Destroy();
 	surface.Destroy();
 	instance.Destroy();
+	commandBuffers_.clear();
+	commandPools_.clear();
+	inFlightFences_.clear();
+	availableSemaphores_.clear();
+	finishedSemaphores_.clear();
+	attachments_.clear();
+	//renderer_.release();
 }
 
 MaterialPipeline& VkResources::AddMaterialPipeline(

@@ -24,6 +24,8 @@
 
 #include "mathematics/transform.h"
 
+#include "engine/assert.h"
+
 namespace neko::Transform3d
 {
 Mat4f Translate(const Mat4f& transform, const Vec3f& translation)

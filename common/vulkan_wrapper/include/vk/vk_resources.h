@@ -43,6 +43,7 @@ class VkResources
 public:
 	explicit VkResources(sdl::VulkanWindow* window);
 	~VkResources();
+	void DestroyResources();
 
 	/// Add a new material pipeline to the render queue
 	[[nodiscard]] MaterialPipeline& AddMaterialPipeline(
@@ -76,7 +77,6 @@ protected:
 	bool isFramebufferResized_ = false;
 
 	std::uint8_t viewportCount_ = 1;
-	std::unique_ptr<IRenderer> renderer_ {};
 	std::vector<CommandBuffer> commandBuffers_ {};
 	std::map<std::thread::id, CommandPool> commandPools_ {};
 
@@ -90,6 +90,7 @@ protected:
 	MaterialPipelineContainer materialPipelineContainer_ {};
 
 	VkImGui imgui_;
+	std::unique_ptr<IRenderer> renderer_{};
 };
 
 inline VkResources* VkResources::Inst = nullptr;

@@ -25,27 +25,38 @@
  Co-Author :
  Date : 29.09.2020
 ---------------------------------------------------------- */
-
+#ifdef NEKO_GLES3
 #include "gl/graphics.h"
 #include "gl/gles3_window.h"
+#elif NEKO_VULKAN
+#include "vk/graphics.h"
+#include "vk/renderers/renderer_editor.h"
+#endif
 
 #include "aer/aer_engine.h"
 
 
-int main(int argc, char** argv)
+int main(int, char**)
 {
-    neko::Configuration config;
-    config.windowName = "AerRacers Game";
-    config.windowSize = neko::Vec2u(1400, 900);
+	neko::Configuration config;
+	config.windowName = "AerEditor Version 0.01";
+	config.flags = neko::Configuration::NONE;
+	config.windowSize = neko::Vec2u(1280, 720);
 
-    neko::sdl::Gles3Window window;    //TODO(Luca@Simon) Move to Vulkan
-    neko::gl::Gles3Renderer renderer; //TODO(Luca@Simon) Move to Vulkan
-    neko::Filesystem filesystem;
-    neko::aer::AerEngine engine(filesystem, &config,
-        neko::aer::ModeEnum::GAME);
-    engine.SetWindowAndRenderer(&window, &renderer);
+	neko::Filesystem filesystem;
+	neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::GAME);
+#ifdef NEKO_GLES3
+	neko::sdl::Gles3Window window;
+	neko::gl::Gles3Renderer renderer;
+#elif NEKO_VULKAN
+	neko::sdl::VulkanWindow window;
+	neko::vk::VkRenderer renderer(&window);
+	renderer.SetRenderer(std::make_unique<neko::vk::RendererEditor>());
+#endif
 
-    engine.Init();
-    engine.EngineLoop();
-    return 0;
+	engine.SetWindowAndRenderer(&window, &renderer);
+
+	engine.Init();
+	engine.EngineLoop();
+	return 0;
 }

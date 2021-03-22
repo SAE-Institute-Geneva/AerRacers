@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+#include "engine/assert.h"
 #include "graphics/camera.h"
 
 #include "sdl_engine/sdl_engine.h"

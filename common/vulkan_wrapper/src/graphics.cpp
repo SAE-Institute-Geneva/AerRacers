@@ -292,4 +292,10 @@ void VkRenderer::SetRenderer(std::unique_ptr<IRenderer>&& newRenderer)
 	renderer_ = std::move(newRenderer);
 	renderer_->Init();
 }
+
+void VkRenderer::Destroy()
+{
+	Renderer::Destroy();
+	DestroyResources();
+}
 }    // namespace neko::vk

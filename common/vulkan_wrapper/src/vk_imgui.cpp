@@ -102,8 +102,7 @@ void VkImGui::Destroy() const
 	ImGui_ImplSDL2_Shutdown();
 	ImGui::DestroyContext();
 
-	const auto& device = VkDevice(VkResources::Inst);
-	vkDestroyDescriptorPool(device, descriptorPool_, nullptr);
+	vkDestroyDescriptorPool(VkResources::Inst->device, descriptorPool_, nullptr);
 }
 
 void VkImGui::Render(const CommandBuffer& commandBuffer)

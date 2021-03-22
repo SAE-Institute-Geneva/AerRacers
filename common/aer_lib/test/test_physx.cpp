@@ -44,6 +44,15 @@
 #include "engine/system.h"
 #include "engine/transform.h"
 
+#ifdef NEKO_GLES3
+#include "gl/graphics.h"
+#include "gl/gles3_window.h"
+#elif NEKO_VULKAN
+#include "vk/graphics.h"
+#include "vk/renderers/renderer_editor.h"
+#endif
+
+
 namespace neko::physics
 {
 #pragma region Interface
@@ -1179,6 +1188,7 @@ TEST(PhysX, TestGroundMeshCollider)
 	engine.EngineLoop();
 }
 #pragma endregion
+#endif
 #pragma region SceneTest
 #pragma region InterfaceScene
 namespace aer
@@ -1227,14 +1237,17 @@ public:
 	void DrawImGui() override
 	{
 		Camera3D* camera = GizmosLocator::get().GetCamera();
-		ImGui::Begin("Camera");
+		if (camera)
 		{
-			std::string position = camera->position.ToString();
-			ImGui::Text(position.c_str());
-			std::string rotation = camera->reverseDirection.ToString();
-			ImGui::Text(rotation.c_str());
+			ImGui::Begin("Camera");
+			{
+				std::string position = camera->position.ToString();
+				ImGui::Text(position.c_str());
+				std::string rotation = camera->reverseDirection.ToString();
+				ImGui::Text(rotation.c_str());
+			}
+			ImGui::End();
 		}
-		ImGui::End();
 		ImGui::Begin("Physics");
 		ImGui::Text("RigidBody");
 		if (engine_.GetPhysicsEngine().IsPhysicRunning())
@@ -1260,59 +1273,6 @@ private:
 };
 
 #pragma endregion
-#pragma region ExampleScene
-class TestPhysXExampleScene : public TestSceneInterface
-{
-public:
-	explicit TestPhysXExampleScene()
-	{
-		sceneName = "scenes/PlaygroundTest2021-02-03-11-20-04.aerscene";
-	}
-
-	void HasSucceed(neko::aer::ComponentManagerContainer& cContainer) override {}
-
-	void Init(neko::aer::AerEngine& aerengine) override
-	{
-		Camera3D* camera = GizmosLocator::get().GetCamera();
-		camera->position = Vec3f(7.0f, 45.0f, 0.0f);
-		camera->Rotate(EulerAngles(degree_t(90.0f), degree_t(-90.0f), degree_t(0.0f)));
-		//aerengine.GetPhysicsEngine().StopPhysic();
-		engineDuration = 1.0f;
-	}
-};
-TEST(PhysX, TestExampleSceneImporteur)
-{
-	//Travis Fix because Windows can't open a window
-	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
-	if (env != nullptr)
-	{
-		std::cout << "Test skip for travis windows" << std::endl;
-		return;
-	}
-
-	Configuration config;
-	config.windowName = "AerEditor";
-	config.windowSize = Vec2u(1400, 900);
-
-	sdl::Gles3Window window;
-	gl::Gles3Renderer renderer;
-	Filesystem filesystem;
-	neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
-
-	engine.SetWindowAndRenderer(&window, &renderer);
-	TestPhysXExampleScene testExample;
-	PhysXSceneImporterTester testSceneImporteur(engine, testExample);
-	engine.RegisterSystem(testSceneImporteur);
-	engine.RegisterOnDrawUi(testSceneImporteur);
-
-	engine.Init();
-
-	engine.EngineLoop();
-
-	testSceneImporteur.HasSucceed();
-}
-
-#pragma endregion
 #pragma region BounceScene
 class TestPhysXBounceScene : public TestSceneInterface
 {
@@ -1323,30 +1283,32 @@ public:
 	void Init(neko::aer::AerEngine& aerengine) override
 	{
 		Camera3D* camera = GizmosLocator::get().GetCamera();
-		camera->position = Vec3f(0.0f, 3.0f, 10.0f);
-		camera->fovY     = degree_t(60);
+		if (camera)
+		{
+			camera->position = Vec3f(0.0f, 3.0f, 10.0f);
+			camera->fovY = degree_t(60);
+		}
 		engineDuration   = 5.0f;
 		//aerengine.GetPhysicsEngine().StopPhysic();
 	}
 };
 TEST(PhysX, TestPhysXBounceScene)
 {
-	//Travis Fix because Windows can't open a window
-	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
-	if (env != nullptr)
-	{
-		std::cout << "Test skip for travis windows" << std::endl;
-		return;
-	}
+	neko::Configuration config;
+	config.windowName = "AerEditor Version 0.01";
+	config.flags = neko::Configuration::NONE;
+	config.windowSize = neko::Vec2u(1280, 720);
 
-	Configuration config;
-	config.windowName = "AerEditor";
-	config.windowSize = Vec2u(1400, 900);
-
-	sdl::Gles3Window window;
-	gl::Gles3Renderer renderer;
-	Filesystem filesystem;
+	neko::Filesystem filesystem;
 	neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
+#ifdef NEKO_GLES3
+	neko::sdl::Gles3Window window;
+	neko::gl::Gles3Renderer renderer;
+#elif NEKO_VULKAN
+	neko::sdl::VulkanWindow window;
+	neko::vk::VkRenderer renderer(&window);
+	renderer.SetRenderer(std::make_unique<neko::vk::RendererEditor>());
+#endif
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 	TestPhysXBounceScene testExample;
@@ -1372,30 +1334,32 @@ public:
 	void Init(neko::aer::AerEngine& aerengine) override
 	{
 		Camera3D* camera = GizmosLocator::get().GetCamera();
-		camera->position = Vec3f(0.0f, 1.0f, -10.0f);
-		camera->Rotate(EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
+		if (camera)
+		{
+			camera->position = Vec3f(0.0f, 1.0f, -10.0f);
+			camera->Rotate(EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
+		}
 		engineDuration = 7.0f;
 		//aerengine.GetPhysicsEngine().StopPhysic();
 	}
 };
 TEST(PhysX, TestPhysXColliderScene)
 {
-	//Travis Fix because Windows can't open a window
-	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
-	if (env != nullptr)
-	{
-		std::cout << "Test skip for travis windows" << std::endl;
-		return;
-	}
+	neko::Configuration config;
+	config.windowName = "AerEditor Version 0.01";
+	config.flags = neko::Configuration::NONE;
+	config.windowSize = neko::Vec2u(1280, 720);
 
-	Configuration config;
-	config.windowName = "AerEditor";
-	config.windowSize = Vec2u(1400, 900);
-
-	sdl::Gles3Window window;
-	gl::Gles3Renderer renderer;
-	Filesystem filesystem;
+	neko::Filesystem filesystem;
 	neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
+#ifdef NEKO_GLES3
+	neko::sdl::Gles3Window window;
+	neko::gl::Gles3Renderer renderer;
+#elif NEKO_VULKAN
+	neko::sdl::VulkanWindow window;
+	neko::vk::VkRenderer renderer(&window);
+	renderer.SetRenderer(std::make_unique<neko::vk::RendererEditor>());
+#endif
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 	TestPhysXColliderScene testExample;
@@ -1413,7 +1377,7 @@ TEST(PhysX, TestPhysXColliderScene)
 #pragma endregion
 #pragma endregion
 
-#elif NEKO_VULKAN
+#ifdef NEKO_VULKAN
 #include "vk/graphics.h"
 #include "vk/renderers/renderer_editor.h"
 #include "vk/vulkan_window.h"
@@ -1421,7 +1385,7 @@ TEST(PhysX, TestPhysXColliderScene)
 class SceneGroundMeshCollider final : public SceneInterface
 {
 public:
-	explicit SceneGroundMeshCollider(aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
+	explicit SceneGroundMeshCollider(neko::aer::AerEngine& aerEngine) : SceneInterface(aerEngine) {}
 	void InitActors(PhysicsEngine& physicsEngine) override
 	{
 		engineDuration       = 5.0f;
@@ -1432,7 +1396,10 @@ public:
 		rigidDynamicManager_ = &aerEngine_.GetComponentManagerContainer().rigidDynamicManager;
 		physicsEngine_       = &physicsEngine;
 		Camera3D* camera     = GizmosLocator::get().GetCamera();
-		camera->position     = cameraPosition_;
+		if (camera)
+		{
+			camera->position = cameraPosition_;
+		}
 		//Plane
 		{
 			planeEntity_ = entityManager_->CreateEntity();
@@ -1461,7 +1428,10 @@ public:
 	void Update(seconds dt) override
 	{
 		Camera3D* camera = GizmosLocator::get().GetCamera();
-		camera->WorldLookAt(transform3dManager_->GetRelativePosition(sphereEntity_));
+		if (camera)
+		{
+			camera->WorldLookAt(transform3dManager_->GetRelativePosition(sphereEntity_));
+		}
 	}
 
 	void FixedUpdate(seconds dt) override
@@ -1495,24 +1465,21 @@ private:
 };
 TEST(PhysX, TestGroundMeshCollider)
 {
-	//Travis Fix because Windows can't open a window
-	char* env = getenv("TRAVIS_DEACTIVATE_GUI");
-	if (env != nullptr)
-	{
-		std::cout << "Test skip for travis windows" << std::endl;
-		return;
-	}
+	neko::Configuration config;
+	config.windowName = "AerEditor Version 0.01";
+	config.flags = neko::Configuration::NONE;
+	config.windowSize = neko::Vec2u(1280, 720);
 
-	Configuration config;
-	//config.dataRootPath = "../data/";
-	config.windowName = "AerEditor";
-	config.windowSize = Vec2u(1400, 900);
-
-	Filesystem filesystem;
-	aer::AerEngine engine(filesystem, &config, aer::ModeEnum::EDITOR);
-	sdl::VulkanWindow window;
-	vk::VkRenderer renderer(&window);
-	renderer.SetRenderer(std::make_unique<vk::RendererEditor>());
+	neko::Filesystem filesystem;
+	neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
+#ifdef NEKO_GLES3
+	neko::sdl::Gles3Window window;
+	neko::gl::Gles3Renderer renderer;
+#elif NEKO_VULKAN
+	neko::sdl::VulkanWindow window;
+	neko::vk::VkRenderer renderer(&window);
+	renderer.SetRenderer(std::make_unique<neko::vk::RendererEditor>());
+#endif
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 

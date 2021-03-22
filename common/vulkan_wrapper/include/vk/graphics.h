@@ -53,6 +53,7 @@ public:
 	/// Sets the renderer to use
     void SetRenderer(std::unique_ptr<IRenderer>&& newRenderer);
 
+	void Destroy() override;
 private:
 	/// Recreates the render pass if needed and starts it
 	bool StartRenderPass(RenderStage& renderStage);
