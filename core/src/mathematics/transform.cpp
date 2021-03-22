@@ -24,6 +24,8 @@
 
 #include "mathematics/transform.h"
 
+#include "engine/assert.h"
+
 namespace neko::Transform3d
 {
 Mat4f Translate(const Mat4f& transform, const Vec3f& translation)
@@ -196,7 +198,7 @@ Mat4f Perspective(radian_t fovY, float aspect, float nearPlane, float farPlane)
 	neko_assert(
 		fabsf(aspect - std::numeric_limits<float>::epsilon()) > 0.0f, "Aspect should not be zero");
 
-		const float tanHalfFovY = Tan(fovY / 2.0f);
+	const float tanHalfFovY = Tan(fovY / 2.0f);
 
 	Mat4f perspective {Mat4f::Zero};
 	perspective[0][0] = 1.0f / (aspect * tanHalfFovY);

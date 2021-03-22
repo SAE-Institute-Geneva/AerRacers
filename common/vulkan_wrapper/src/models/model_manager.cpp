@@ -1,7 +1,4 @@
-#include "vk/models/model_manager.h"
-
 #include "vk/material/material_manager.h"
-#include "vk/models/io_system.h"
 #include "vk/vk_resources.h"
 
 namespace neko::vk
@@ -50,7 +47,6 @@ ModelId ModelManager::LoadModel(std::string_view path)
 	}
 
 	logDebug(fmt::format("[Debug] Loading model: {}", path));
-	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
 	const std::string metaPath  = fmt::format("{}.meta", path);
 	const json metaJson         = LoadJson(metaPath);
 	ModelId modelId             = INVALID_MODEL_ID;
@@ -80,7 +76,33 @@ const Model* ModelManager::GetModel(ModelId modelId) const
 	return nullptr;
 }
 
-bool ModelManager::IsLoaded(ModelId modelId)
+std::string ModelManager::GetModelName(ModelId modelId)
+{
+	for (auto& it : modelPathMap_)
+	{
+		if (it.second == modelId)
+		{
+			std::size_t startName         = it.first.find_last_of('/') + 1;
+			std::size_t endName           = it.first.find_first_of('.');
+			std::size_t size              = endName - startName;
+			std::string name              = it.first.substr(startName, size);
+			return name;
+		}
+	}
+
+	return "";
+}
+
+std::string_view ModelManager::GetModelPath(ModelId modelId)
+{
+	for (auto& it : modelPathMap_)
+		if (it.second == modelId)
+			return it.first;
+
+	return "";
+}
+
+bool ModelManager::IsLoaded(ModelId modelId) const
 {
 	const auto* model = GetModel(modelId);
 	if (!model) return false;

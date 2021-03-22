@@ -45,6 +45,7 @@ class EditorToolManager : public SystemInterface,
 {
 public:
 	explicit EditorToolManager(AerEngine& engine);
+
 	void Init() override;
 	void Update(seconds dt) override;
 	void Destroy() override;
@@ -53,14 +54,14 @@ public:
 	void OnEvent(const SDL_Event& event) override;
 
 	// Adds a tool in the EditorToolManager and instantiates it
-	template<typename T, EditorToolInterface::ToolType Type>
+	template<typename T>
 	void AddEditorTool();
 
 	// Get the number of tool
-	int GetNumberTools() const;
+	[[nodiscard]] int GetNumberTools() const;
 
-	Entity GetSelectedEntity() const;
-	void SetSelectedEntity(const Entity selectedEntity);
+	[[nodiscard]] Entity GetSelectedEntity() const;
+	void SetSelectedEntity(Entity selectedEntity);
 
 private:
 	// Displays the list of tools in the main menu
@@ -69,19 +70,9 @@ private:
 	AerEngine& engine_;
 	ComponentManagerContainer& cContainer_;
 
-	seconds dt_;
+	seconds dt_ {};
 
 	Entity selectedEntity_ = INVALID_ENTITY;
-	bool showDemo_         = false;
-
 	std::vector<std::unique_ptr<EditorToolInterface>> tools_;
-
-	std::string toolNames_[5] {
-		"Tool",
-		"Logger",
-		"Hierarchy",
-		"Inspector",
-		"Scene Loader",
-	};
 };
 }    // namespace neko::aer

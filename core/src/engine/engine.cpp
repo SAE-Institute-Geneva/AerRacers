@@ -157,13 +157,17 @@ void BasicEngine::Update(seconds dt)
 void BasicEngine::Destroy()
 {
     destroyAction_.Execute();
-    if (renderer_)
-    {
-        renderer_->Destroy();
-    }
     if (window_)
     {
         window_->Destroy();
+    }
+    if (renderer_)
+    {
+        Job destroyJob([this] {renderer_->Destroy(); });
+        jobSystem_.ScheduleJob(&destroyJob, JobThreadType::RENDER_THREAD);
+        while (!destroyJob.IsDone()) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        }
     }
     jobSystem_.Destroy();
     instance_ = nullptr;
@@ -218,7 +222,9 @@ void BasicEngine::RegisterSystem(SystemInterface& system)
 {
     initAction_.RegisterCallback([&system] { system.Init(); });
     updateAction_.RegisterCallback([&system](seconds dt) { system.Update(dt); });
-    destroyAction_.RegisterCallback([&system] { system.Destroy(); });
+    destroyAction_.RegisterCallback([&system] {
+        system.Destroy();
+    });
 }
 
 void BasicEngine::RegisterOnDrawUi(DrawImGuiInterface& drawUi)

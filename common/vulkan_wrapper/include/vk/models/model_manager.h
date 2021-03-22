@@ -32,9 +32,11 @@ namespace neko::vk
 class IModelManager : public SystemInterface
 {
 public:
-	virtual ModelId LoadModel(std::string_view)              = 0;
-	[[nodiscard]] virtual const Model* GetModel(ModelId) const = 0;
-	[[nodiscard]] virtual bool IsLoaded(ModelId)               = 0;
+	virtual ModelId LoadModel(std::string_view)                          = 0;
+	[[nodiscard]] virtual const Model* GetModel(ModelId) const           = 0;
+	[[nodiscard]] virtual std::string GetModelName(ModelId modelId)      = 0;
+	[[nodiscard]] virtual std::string_view GetModelPath(ModelId modelId) = 0;
+	[[nodiscard]] virtual bool IsLoaded(ModelId) const                   = 0;
 };
 
 class NullModelManager : public IModelManager
@@ -46,7 +48,9 @@ public:
 
 	ModelId LoadModel(std::string_view) override { return sole::uuid(); }
 	[[nodiscard]] const Model* GetModel(ModelId) const override { return nullptr; }
-	[[nodiscard]] bool IsLoaded(ModelId) override { return false; }
+	[[nodiscard]] std::string GetModelName(ModelId) override { return ""; };
+	[[nodiscard]] std::string_view GetModelPath(ModelId) override { return ""; };
+	[[nodiscard]] bool IsLoaded(ModelId) const override { return false; }
 };
 
 class ModelManager : public IModelManager
@@ -60,7 +64,9 @@ public:
 
 	ModelId LoadModel(std::string_view path) override;
 	[[nodiscard]] const Model* GetModel(ModelId) const override;
-	[[nodiscard]] bool IsLoaded(ModelId) override;
+	[[nodiscard]] std::string GetModelName(ModelId modelId) override;
+	[[nodiscard]] std::string_view GetModelPath(ModelId modelId) override;
+	[[nodiscard]] bool IsLoaded(ModelId) const override;
 
 private:
 	std::map<std::string, ModelId> modelPathMap_;

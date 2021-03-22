@@ -45,6 +45,8 @@
 							"properties": { 
 								"name": { "type": "string" },
 								"offset": { "type": "number" },
+								"isArray": { "type": "boolean" },
+								"arraySize": { "type": "number" },
 								"size": { "type": "number" },
 								"writeOnly": { "type": "boolean" }
 							},
@@ -53,6 +55,29 @@
 					}
 				},
 				"required": ["name", "binding", "size", "stageFlags", "type", "uniforms"]
+			}
+		},
+		"structs": {
+			"type": "array", 
+			"items": { 
+				"properties": { 
+					"name": { "type": "string" },
+					"size": { "type": "number" },
+					"parameters": { 
+						"type": "array",
+						"items": { 
+							"properties": { 
+								"name": { "type": "string" },
+								"isArray": { "type": "boolean" },
+								"arraySize": { "type": "number" },
+								"offset": { "type": "number" },
+								"size": { "type": "number" }
+							},
+							"required": ["name", "isArray", "offset", "size"]
+						}
+					}
+				},
+				"required": ["name", "size", "parameters"]
 			}
 		},
 		"uuid": {"type":"string"}

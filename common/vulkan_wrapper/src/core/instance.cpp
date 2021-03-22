@@ -37,7 +37,11 @@ void Instance::Init()
 	createInfo.enabledExtensionCount    = static_cast<std::uint32_t>(extensions.size());
 	createInfo.ppEnabledExtensionNames  = extensions.data();
 
-#ifdef VALIDATION_LAYERS
+#ifdef NN_NINTENDO_SDK
+	std::array<const char*, 1> switchLayers = {"VK_LAYER_NN_vi_swapchain"};
+	createInfo.enabledLayerCount   = static_cast<std::uint32_t>(switchLayers.size());
+	createInfo.ppEnabledLayerNames = switchLayers.data();
+#elif defined(VALIDATION_LAYERS)
 	createInfo.enabledLayerCount   = static_cast<std::uint32_t>(kValidationLayers.size());
 	createInfo.ppEnabledLayerNames = kValidationLayers.data();
 
@@ -94,15 +98,14 @@ void Instance::DestroyDebugUtilsMessengerExt(const VkAllocationCallbacks* pAlloc
 
 std::vector<const char*> Instance::GetRequiredInstanceExtensions()
 {
-	SDL_Window* window = VkResources::Inst->vkWindow->GetWindow();
-
+#ifndef NN_NINTENDO_SDK
 	std::uint32_t sdlExtCount = 0;
-	SDL_bool res              = SDL_Vulkan_GetInstanceExtensions(window, &sdlExtCount, nullptr);
+	SDL_bool res              = SDL_Vulkan_GetInstanceExtensions(nullptr, &sdlExtCount, nullptr);
 	neko_assert(res, "Unable to query the number of Vulkan instance extensions!");
 
 	// Use the amount of extensions queried before to retrieve the names of the extensions
 	std::vector<const char*> sdlExtensions(sdlExtCount);
-	res = SDL_Vulkan_GetInstanceExtensions(window, &sdlExtCount, sdlExtensions.data());
+	res = SDL_Vulkan_GetInstanceExtensions(nullptr, &sdlExtCount, sdlExtensions.data());
 	neko_assert(res, "Unable to query the number of Vulkan instance extension names!");
 
 #ifdef VALIDATION_LAYERS
@@ -113,6 +116,14 @@ std::vector<const char*> Instance::GetRequiredInstanceExtensions()
 	neko_assert(res, "Required instance extensions not available!");
 
 	return sdlExtensions;
+#else
+	std::vector<const char*> sdlExtensions;
+    sdlExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+    sdlExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+    sdlExtensions.push_back(VK_NN_VI_SURFACE_EXTENSION_NAME);
+
+	return sdlExtensions;
+#endif
 }
 
 static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(

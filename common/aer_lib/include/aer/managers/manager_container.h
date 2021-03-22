@@ -2,17 +2,20 @@
 #include "px/physics_engine.h"
 #include "px/rigidbody.h"
 #include "px/physics_engine.h"
-#ifdef NEKO_VULKAN
+#ifdef NEKO_GLES3
+#include "gl/texture.h"
+#include "gl/model.h"
+#elif NEKO_VULKAN
 #include "vk/material/material_manager.h"
 #endif
 
+#include "aer/managers/light_manager.h"
 #include "aer/managers/player_manager.h"
 #include "aer/managers/render_manager.h"
 #include "aer/managers/ship_controller_manager.h"
 #include "aer/managers/camera_controller_manager.h"
 #include "aer/scene.h"
 #include "engine/transform.h"
-
 namespace neko::aer
 {
 struct ResourceManagerContainer : public SystemInterface
@@ -47,19 +50,16 @@ struct ResourceManagerContainer : public SystemInterface
 
 struct ComponentManagerContainer : public SystemInterface
 {
-    ComponentManagerContainer(AerEngine& engine, ResourceManagerContainer& rContainer,
-        physics::PhysicsEngine& physicsEngine)
-        : transform3dManager(entityManager),
-        renderManager(
-            entityManager,
-            rContainer.modelManager,
-            transform3dManager,
-            rendererViewer),
-        rigidDynamicManager(entityManager, transform3dManager, physicsEngine),
-        rigidStaticManager(entityManager, transform3dManager, physicsEngine),
-        playerManager(*this),
-        shipInputManager(playerManager),
-        shipControllerManager(
+	ComponentManagerContainer(AerEngine& engine,
+		ResourceManagerContainer& rContainer, physics::PhysicsEngine& physicsEngine)
+	   : transform3dManager(entityManager),
+		 renderManager(entityManager, rContainer.modelManager, transform3dManager, lightManager),
+		 lightManager(entityManager, transform3dManager),
+		 rigidDynamicManager(entityManager, transform3dManager, physicsEngine),
+		 rigidStaticManager(entityManager, transform3dManager, physicsEngine),
+         playerManager(*this),
+         shipInputManager(playerManager),
+         shipControllerManager(
             entityManager,
             transform3dManager,
             rigidDynamicManager,
@@ -67,28 +67,22 @@ struct ComponentManagerContainer : public SystemInterface
             physicsEngine,
             shipInputManager,
             playerManager),
-        cameraControllerManager(
+         cameraControllerManager(
             entityManager,
             transform3dManager,
             rigidDynamicManager,
             physicsEngine,
-            playerManager, engine),
-        transform3dViewer(entityManager, transform3dManager),
-        rendererViewer(entityManager, renderManager),
-        rigidDynamicViewer(
-            transform3dManager,
-            entityManager,
-            physicsEngine,
-            rigidDynamicManager),
-        rigidStaticViewer(
-            transform3dManager,
-            entityManager,
-            physicsEngine,
-            rigidStaticManager),
-        shipControllerViewer(entityManager, playerManager, shipControllerManager),
-        cameraControllerViewer(entityManager, playerManager, cameraControllerManager),
-        sceneManager(entityManager, *this)
-    {
+            playerManager, 
+            engine),
+		 transform3dViewer(entityManager, transform3dManager),
+		 rendererViewer(entityManager, renderManager),
+		 lightViewer(entityManager, lightManager),
+		 rigidDynamicViewer(transform3dManager, entityManager, physicsEngine, rigidDynamicManager),
+		 rigidStaticViewer(transform3dManager, entityManager, physicsEngine, rigidStaticManager),
+         shipControllerViewer(entityManager, playerManager, shipControllerManager),
+         cameraControllerViewer(entityManager, playerManager, cameraControllerManager),
+		 sceneManager(entityManager, *this)
+	{
         physicsEngine.RegisterCollisionListener(shipControllerManager);
         physicsEngine.RegisterFixedUpdateListener(rigidDynamicManager);
         physicsEngine.RegisterFixedUpdateListener(rigidStaticManager);
@@ -96,7 +90,7 @@ struct ComponentManagerContainer : public SystemInterface
         physicsEngine.RegisterFixedUpdateListener(rigidDynamicViewer);
         physicsEngine.RegisterFixedUpdateListener(shipControllerManager);
         physicsEngine.RegisterFixedUpdateListener(cameraControllerManager);
-    }
+	}
 
     void Init() override
     {
@@ -117,11 +111,12 @@ struct ComponentManagerContainer : public SystemInterface
 
     void Destroy() override { renderManager.Destroy(); }
 
-    EntityManager entityManager;
-    Transform3dManager transform3dManager;
-    RenderManager renderManager;
-    physics::RigidDynamicManager rigidDynamicManager;
-    physics::RigidStaticManager rigidStaticManager;
+	EntityManager entityManager;
+	Transform3dManager transform3dManager;
+	RenderManager renderManager;
+	LightManager lightManager;
+	physics::RigidDynamicManager rigidDynamicManager;
+	physics::RigidStaticManager rigidStaticManager;
     PlayerManager playerManager;
     ShipInputManager shipInputManager;
     ShipControllerManager shipControllerManager;
@@ -129,10 +124,11 @@ struct ComponentManagerContainer : public SystemInterface
 
     Transform3dViewer transform3dViewer;
     RendererViewer rendererViewer;
+    LightViewer lightViewer;
     physics::RigidDynamicViewer rigidDynamicViewer;
     physics::RigidStaticViewer rigidStaticViewer;
     ShipControllerViewer shipControllerViewer;
     CameraControllerViewer cameraControllerViewer;
     SceneManager sceneManager;
 };
-}
+}    // namespace neko::aer

@@ -281,9 +281,9 @@ public:
 		//Test Renderer
         EXPECT_TRUE(
             cContainer.entityManager.HasComponent(2, EntityMask(ComponentType::MODEL)));
-        EXPECT_TRUE(cContainer.rendererViewer.GetMeshName(2) == "sphere");
+        EXPECT_TRUE(cContainer.renderManager.GetModelName(2) == "sphere");
         EXPECT_TRUE(cContainer.entityManager.HasComponent(3, EntityMask(ComponentType::MODEL)));
-        EXPECT_TRUE(cContainer.rendererViewer.GetMeshName(3) == "cube");
+        EXPECT_TRUE(cContainer.renderManager.GetModelName(3) == "cube");
         EXPECT_FALSE(cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::MODEL)));
 		//Test Rigidbody
         EXPECT_TRUE(
@@ -300,15 +300,15 @@ public:
         EXPECT_TRUE(cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().colliderType ==
                     physics::ColliderType::BOX);
         EXPECT_NEAR(
-            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness,
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bounciness,
             0.5f,
             0.01f);
         EXPECT_NEAR(
-            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness,
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bounciness,
             0.5f,
             0.01f);
         EXPECT_NEAR(
-            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness,
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bounciness,
             0.5f,
             0.01f);
         EXPECT_FALSE(cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::RIGID_DYNAMIC)));

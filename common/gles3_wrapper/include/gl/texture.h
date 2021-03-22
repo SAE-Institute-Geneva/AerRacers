@@ -22,8 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+#include <map>
+#include <queue>
 #include <string_view>
-#include <graphics/texture.h>
+
+#include "graphics/texture.h"
+
 #include "gl/gles3_include.h"
 
 struct ktxTexture;
@@ -77,9 +81,9 @@ public:
     explicit TextureManager();
     TextureId LoadTexture(std::string_view path, Texture::TextureFlags flags) override;
 
-    const Texture* GetTexture(TextureId index) const override;
+    [[nodiscard]] const Texture* GetTexture(TextureId index) const override;
     [[nodiscard]] TextureName GetTextureName(TextureId textureId) const;
-    bool IsTextureLoaded(TextureId textureId) const override;
+    [[nodiscard]] bool IsTextureLoaded(TextureId textureId) const override;
 
     void Init() override;
 
@@ -94,9 +98,9 @@ private:
     std::queue<TextureLoader> textureLoaders_;
 };
 
-TextureName StbCreateTexture(const std::string_view filename, const FilesystemInterface& filesystem,
+TextureName StbCreateTexture(std::string_view filename, const FilesystemInterface& filesystem,
                              Texture::TextureFlags flags = Texture::DEFAULT);
-TextureName CreateTextureFromKTX(const std::string_view filename, const FilesystemInterface& filesystem);
+TextureName CreateTextureFromKTX(std::string_view filename, const FilesystemInterface& filesystem);
 TextureName LoadCubemap(std::vector<std::string> facesFilename, const FilesystemInterface& filesystem);
 void DestroyTexture(TextureName);
 

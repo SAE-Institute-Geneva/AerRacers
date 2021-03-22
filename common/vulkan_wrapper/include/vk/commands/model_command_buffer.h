@@ -47,7 +47,7 @@ using ModelForwardIndex  = int;
 class ModelCommandBuffer
 {
 public:
-	explicit ModelCommandBuffer();
+	ModelCommandBuffer() = default;
 
 	//void InitData();
 	void Destroy();
@@ -64,7 +64,7 @@ public:
 
 	void Clear();
 
-	std::vector<std::unique_ptr<ModelInstance>>& GetMeshInstances() { return modelInstances_; }
+	std::vector<ModelInstance>& GetModelInstances() { return modelInstances_; }
 	std::vector<ForwardDrawCmd>& GetForwardModels() { return forwardDrawingCmd_; }
 
 	void AddMatrix(ModelInstanceIndex index, const Mat4f& matrix);
@@ -77,6 +77,6 @@ private:
 
 	//Data for gpu instancing
 	std::vector<std::vector<Mat4f>> instanceMatrices_ {};
-	std::vector<std::unique_ptr<ModelInstance>> modelInstances_ {};
+	std::vector<ModelInstance> modelInstances_ {};
 };
 }    // namespace neko::vk

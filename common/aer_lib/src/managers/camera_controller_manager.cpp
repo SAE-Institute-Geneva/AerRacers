@@ -2,11 +2,8 @@
 
 #include <imgui.h>
 
-#include "aer/tag.h"
 #include "aer/managers/player_manager.h"
-#include "aer/game/game_camera.h"
 #include "aer/aer_engine.h"
-#include "px/raycast.h"
 
 namespace neko::aer
 {

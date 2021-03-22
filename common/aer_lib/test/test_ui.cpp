@@ -22,11 +22,7 @@
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
 
-#include "graphics/color.h"
-
-#include "aer/ui/ui_element.h"
-#include "aer/ui/ui_manager.h"
-#include <aer\aer_engine.h>
+#include "aer/aer_engine.h"
 
 #ifdef NEKO_GLES3
 #include <gl/gles3_window.h>
@@ -53,17 +49,17 @@ public:
         cContainer_.renderManager.SetModel(
             testEntity, config.dataRootPath + "models/cube/cube.obj");
 
-        anchorTR = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg",Vec3f::zero , Vec2u::one * 150.0f, UiAnchor::TOP_RIGHT, 0, Color::white };
-        anchorTL = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg",Vec3f::zero , Vec2u::one * 150.0f, UiAnchor::TOP_LEFT , 0, Color::white };
-        anchorBL = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg",Vec3f::zero , Vec2u::one * 150.0f, UiAnchor::BOTTOM_LEFT, 0, Color::white };
-        anchorBR = UiImage{ config.dataRootPath + "sprites/water/Water01.jpg",Vec3f::zero , Vec2u::one * 150.0f, UiAnchor::BOTTOM_RIGHT, 0, Color::white };
-        movingImage = UiImage{ config.dataRootPath + "sprites/wall.jpg", Vec3f::zero, Vec2u{2, 1} *150.0f, UiAnchor::CENTER, 0, Color::white };
+        anchorTR = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::TOP_RIGHT, 0, Color::white);
+        anchorTL = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::TOP_LEFT , 0, Color::white);
+        anchorBL = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::BOTTOM_LEFT, 0, Color::white);
+        anchorBR = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::BOTTOM_RIGHT, 0, Color::white);
+        movingImage = UiImage{ config.dataRootPath + "sprites/wall.jpg", Vec2f::zero, Vec2u{2, 1} *150.0f, UiAnchor::CENTER, 0, Color::white };
         auto& uiManager = UiManagerLocator::get();
-        textBL = UiText{ FontLoaded::LOBSTER, "BL", Vec3f(1.0f, 1.0f, 0.0f) * 0.1f, UiAnchor::BOTTOM_LEFT, 0, 1.0f, Color::cyan };
-        textBR = UiText{ FontLoaded::LOBSTER, "BR", Vec3f(-1.0f, 1.0f, 0.0f) * 0.1f, UiAnchor::BOTTOM_RIGHT, 0, 1.0f, Color::yellow };
-        textTL = UiText{ FontLoaded::LOBSTER, "TL", Vec3f(1.0f, -1.0f, 0.0f) * 0.1f, UiAnchor::TOP_LEFT, 0, 1.0f, Color::red };
-        textTR = UiText{ FontLoaded::LOBSTER, "TR", Vec3f(-1.0f, -1.0f, 0.0f) * 0.1f, UiAnchor::TOP_RIGHT, 0, 1.0f, Color::green };
-        movingText = UiText{ FontLoaded::LOBSTER, std::to_string(updateCount_), (Vec3f::up * 0.5f), UiAnchor::CENTER, 0, 1.0f, Color::blue };
+        textBL = UiText(FontLoaded::LOBSTER, "BL", Vec2f(1.0f, 1.0f) * 0.1f, UiAnchor::BOTTOM_LEFT, 0, 1.0f, Color::cyan);
+        textBR = UiText(FontLoaded::LOBSTER, "BR", Vec2f(-1.0f, 1.0f) * 0.1f, UiAnchor::BOTTOM_RIGHT, 0, 1.0f, Color::yellow);
+        textTL = UiText(FontLoaded::LOBSTER, "TL", Vec2f(1.0f, -1.0f) * 0.1f, UiAnchor::TOP_LEFT, 0, 1.0f, Color::red);
+        textTR = UiText(FontLoaded::LOBSTER, "TR", Vec2f(-1.0f, -1.0f) * 0.1f, UiAnchor::TOP_RIGHT, 0, 1.0f, Color::green);
+        movingText = UiText{ FontLoaded::LOBSTER, std::to_string(updateCount_), (Vec2f::up * 0.5f), UiAnchor::CENTER, 0, 1.0f, Color::blue };
         uiManager.AddUiImage(&anchorTR);
         uiManager.AddUiImage(&anchorTL);
         uiManager.AddUiImage(&anchorBL);
@@ -81,9 +77,9 @@ public:
     {
 
         const auto& config = BasicEngine::GetInstance()->GetConfig();
-        movingText.SetPosition(Vec3f((Vec2f::up * 0.5f).Rotate(radian_t(updateCount_))));
+        movingText.SetPosition((Vec2f::up * 0.5f).Rotate(radian_t(updateCount_)));
         movingText.SetText(std::to_string(updateCount_));
-        movingImage.SetPosition(Vec3f((Vec2f::up * 0.5f).Rotate(radian_t(updateCount_))));
+        movingImage.SetPosition((Vec2f::up * 0.5f).Rotate(radian_t(updateCount_)));
         uint8_t screen = (static_cast<int>(updateCount_) / 1) % 5;
         movingText.SetScreenId(screen);
         movingImage.SetScreenId(screen);
@@ -110,9 +106,10 @@ public:
 
     void DrawImGui() override {}
 
+    ~TestUiManager() override = default;
 private:
     float updateCount_           = 0;
-    const float kEngineDuration_ = 2.0f;
+    const float kEngineDuration_ = 0.5f;
 
     AerEngine& engine_;
 
@@ -199,30 +196,152 @@ TEST(UIManager, TestInGame)
 #endif
 }
 
+struct Menu {
+    UiImage backGround;
+    UiImage buttonPrev;
+    UiImage buttonNext;
+    UiText text;
+    UiText textNext;
+    UiText textPrevious;
+    void SetEnable(bool enable)
+    {
+        backGround.SetEnable(enable);
+        buttonPrev.SetEnable(enable);
+        buttonNext.SetEnable(enable);
+        text.SetEnable(enable);
+        textNext.SetEnable(enable);
+        textPrevious.SetEnable(enable);
+    }
+};
+
 class TestUiMenu : public SystemInterface, public RenderCommandInterface, public DrawImGuiInterface
 {
 public:
-    TestUiMenu(
+    explicit TestUiMenu(
         AerEngine& engine)
         : engine_(engine),
-        rContainer_(engine.GetResourceManagerContainer()),
-        cContainer_(engine.GetComponentManagerContainer()) { }
+          rContainer_(engine.GetResourceManagerContainer()),
+          cContainer_(engine.GetComponentManagerContainer()),
+          currentMenu_(&menuA_) { }
+
     void Init() override
     {
         const auto& config = BasicEngine::GetInstance()->GetConfig();
+        auto& uiManager = UiManagerLocator::get();
 
-        Entity testEntity = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(testEntity);
-        cContainer_.transform3dManager.SetRelativePosition(testEntity, Vec3f(0.0f, 0.0f, 0.0f));
-        cContainer_.renderManager.AddComponent(testEntity);
-        cContainer_.renderManager.SetModel(
-            testEntity, config.dataRootPath + "models/cube/cube.obj");
+        menuA_.buttonPrev = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f(0.3f, 0.3f) , Vec2u(2,1) * 100.0f, UiAnchor::BOTTOM_LEFT, 0, Color::white);
+        menuA_.buttonNext = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f(-0.3f, 0.3f) , Vec2u(2,1) * 100.0f, UiAnchor::BOTTOM_RIGHT, 0, Color::white);
+        menuA_.backGround = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero, config.windowSize * 0.9f, UiAnchor::CENTER, 0, Color::red);
+        menuA_.text = UiText(FontLoaded::LOBSTER, "MenuA", Vec2f(0.0f, -1.0f) * 0.3f, UiAnchor::TOP, 0, 1.0f, Color::white);
+        menuA_.textNext = UiText(FontLoaded::LOBSTER, "Next", Vec2f(-0.3f, 0.3f), UiAnchor::BOTTOM_RIGHT, 0, 1.0f, Color::white);
+        menuA_.textPrevious = UiText(FontLoaded::LOBSTER, "Previous", Vec2f(0.3f, 0.3f), UiAnchor::BOTTOM_LEFT, 0, 1.0f, Color::white);
+        uiManager.AddUiImage(&menuA_.backGround);
+        uiManager.AddUiImage(&menuA_.buttonPrev);
+        uiManager.AddUiImage(&menuA_.buttonNext);
+        uiManager.AddUiText(&menuA_.text);
+        uiManager.AddUiText(&menuA_.textNext);
+        uiManager.AddUiText(&menuA_.textPrevious);
 
+        menuB_.buttonPrev = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f(0.3f, 0.3f), Vec2u(2, 1) * 100.0f, UiAnchor::BOTTOM_LEFT, 0, Color::white);
+        menuB_.buttonNext = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f(-0.3f, 0.3f), Vec2u(2, 1) * 100.0f, UiAnchor::BOTTOM_RIGHT, 0, Color::white);
+        menuB_.backGround = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero, config.windowSize * 0.9f, UiAnchor::CENTER, 0, Color::blue);
+        menuB_.text = UiText(FontLoaded::LOBSTER, "MenuB", Vec2f(0.0f, -1.0f) * 0.3f, UiAnchor::TOP, 0, 1.0f, Color::white);
+        menuB_.textNext = UiText(FontLoaded::LOBSTER, "Next", Vec2f(-0.3f, 0.3f), UiAnchor::BOTTOM_RIGHT, 0, 1.0f, Color::white);
+        menuB_.textPrevious = UiText(FontLoaded::LOBSTER, "Previous", Vec2f(0.3f, 0.3f), UiAnchor::BOTTOM_LEFT, 0, 1.0f, Color::white);
+        uiManager.AddUiImage(&menuB_.backGround);
+        uiManager.AddUiImage(&menuB_.buttonPrev);
+        uiManager.AddUiImage(&menuB_.buttonNext);
+        uiManager.AddUiText(&menuB_.text);
+        uiManager.AddUiText(&menuB_.textNext);
+        uiManager.AddUiText(&menuB_.textPrevious);
+
+        menuC_.buttonPrev = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f(0.3f, 0.3f), Vec2u(2, 1) * 100.0f, UiAnchor::BOTTOM_LEFT, 0, Color::white);
+        menuC_.buttonNext = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f(-0.3f, 0.3f), Vec2u(2, 1) * 100.0f, UiAnchor::BOTTOM_RIGHT, 0, Color::white);
+        menuC_.backGround = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero, config.windowSize * 0.9f, UiAnchor::CENTER, 0, Color::green);
+        menuC_.text = UiText(FontLoaded::LOBSTER, "MenuC", Vec2f(0.0f, -1.0f) * 0.3f, UiAnchor::TOP, 0, 1.0f, Color::white);
+        menuC_.textNext = UiText(FontLoaded::LOBSTER, "Next", Vec2f(-0.3f, 0.3f), UiAnchor::BOTTOM_RIGHT, 0, 1.0f, Color::white);
+        menuC_.textPrevious = UiText(FontLoaded::LOBSTER, "Previous", Vec2f(0.3f, 0.3f), UiAnchor::BOTTOM_LEFT, 0, 1.0f, Color::white);
+        uiManager.AddUiImage(&menuC_.backGround);
+        uiManager.AddUiImage(&menuC_.buttonPrev);
+        uiManager.AddUiImage(&menuC_.buttonNext);
+        uiManager.AddUiText(&menuC_.text);
+        uiManager.AddUiText(&menuC_.textNext);
+        uiManager.AddUiText(&menuC_.textPrevious);
+
+        currentMenu_ = &menuA_;
     }
 
     void Update(seconds dt) override
     {
         updateCount_ += dt.count();
+        switch (currentMenuState_) {
+            case MENUA: {
+                currentMenu_ = &menuA_;
+                currentMenu_->SetEnable(true);
+                menuB_.SetEnable(false);
+                menuC_.SetEnable(false);
+                if (sdl::InputLocator::get().GetKeyState(sdl::KeyCodeType::SPACE) == sdl::ButtonState::DOWN) {
+                    if (left_) {
+                        currentMenuState_ = MENUC;
+                    } else {
+                        currentMenuState_ = MENUB;
+                    }
+                }
+            }
+            break;
+            case MENUB: {
+                currentMenu_ = &menuB_;
+                currentMenu_->SetEnable(true);
+                menuA_.SetEnable(false);
+                menuC_.SetEnable(false);
+                if (sdl::InputLocator::get().GetKeyState(sdl::KeyCodeType::SPACE) == sdl::ButtonState::DOWN) {
+                    if (left_) {
+                        currentMenuState_ = MENUA;
+                    }
+                    else {
+                        currentMenuState_ = MENUC;
+                    }
+                }
+            }
+            break;
+            case MENUC: {
+                currentMenu_ = &menuC_;
+                currentMenu_->SetEnable(true);
+                menuB_.SetEnable(false);
+                menuA_.SetEnable(false);
+                if (sdl::InputLocator::get().GetKeyState(sdl::KeyCodeType::SPACE) == sdl::ButtonState::DOWN) {
+                    if (left_) {
+                        currentMenuState_ = MENUB;
+                    }
+                    else {
+                        currentMenuState_ = MENUA;
+                    }
+                }
+            }
+            break;
+            default: ;
+        }
+        if (left_) {
+            currentMenu_->buttonPrev.SetColor(Color::gray);
+            currentMenu_->textPrevious.SetColor(Color::gray);
+            currentMenu_->buttonNext.SetColor(Color::white);
+            currentMenu_->textNext.SetColor(Color::white);
+            if (sdl::InputLocator::get().GetKeyState(sdl::KeyCodeType::RIGHT) == sdl::ButtonState::DOWN) {
+                left_ = false;
+            }
+        }
+        else {
+            currentMenu_->buttonPrev.SetColor(Color::white);
+            currentMenu_->textPrevious.SetColor(Color::white);
+            currentMenu_->buttonNext.SetColor(Color::gray);
+            currentMenu_->textNext.SetColor(Color::gray);
+            if (sdl::InputLocator::get().GetKeyState(sdl::KeyCodeType::LEFT) == sdl::ButtonState::DOWN) {
+                left_ = true;
+            }
+        }
+        const auto& config = BasicEngine::GetInstance()->GetConfig();
+        currentMenu_->backGround.SetSize(Vec2u(Vec2f(config.windowSize) * 0.9f));
+
         if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
@@ -239,33 +358,26 @@ public:
 
 private:
     float updateCount_ = 0;
-    const float kEngineDuration_ = 0.5f;
+    const float kEngineDuration_ = 2.0f;
 
     AerEngine& engine_;
 
     ResourceManagerContainer& rContainer_;
     ComponentManagerContainer& cContainer_;
 
-    enum Menu {
+    enum MenuState {
         MENUA,
         MENUB,
         MENUC
     };
 
-    Menu currentMenu_;
+    MenuState currentMenuState_ = MENUA;
+    Menu menuA_;
+    Menu menuB_;
+    Menu menuC_;
+    Menu* currentMenu_;
 
-    //Menu A
-    UiImage backGroundA_;
-    UiImage buttonPrevA_;
-    UiImage buttonNextA_;
-
-    UiImage backGroundB_;
-    UiImage buttonPrevB_;
-    UiImage buttonNextB_;
-
-    UiImage backGroundC_;
-    UiImage buttonPrevC_;
-    UiImage buttonNextC_;
+    bool left_ = true;
 };
 
 TEST(UIManager, TestMenu)

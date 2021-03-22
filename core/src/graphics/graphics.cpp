@@ -46,6 +46,7 @@ Renderer::Renderer() :
             auto* engine = BasicEngine::GetInstance();
             PreRender();
             ClearScreen();
+            window_->GenerateUiFrame();
             engine->GenerateUiFrame();
             RenderAll();
             window_->RenderUi();

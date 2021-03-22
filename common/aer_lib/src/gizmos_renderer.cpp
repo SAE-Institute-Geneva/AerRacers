@@ -31,9 +31,9 @@ void GizmoRenderer::Init()
             shaderSphere_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoSphere.vert",
                 config.dataRootPath + "shaders/opengl/gizmoSphere.frag");
 
-            shaderCube_.BindUbo(2 * sizeof(Mat4f));
-            shaderLine_.BindUbo(2 * sizeof(Mat4f));
-            shaderSphere_.BindUbo(2 * sizeof(Mat4f));
+			shaderCube_.BindUbo(2 * sizeof(Mat4f), gl::kUboMatricesBinding);
+			shaderLine_.BindUbo(2 * sizeof(Mat4f), gl::kUboMatricesBinding);
+			shaderSphere_.BindUbo(2 * sizeof(Mat4f), gl::kUboMatricesBinding);
 
             cube_.Init();
             sphere_.Init();
@@ -53,9 +53,9 @@ void GizmoRenderer::Update(seconds)
 
 void GizmoRenderer::Render()
 {
-    #ifdef EASY_PROFILE_USE
-    EASY_BLOCK("GizmoRenderer::Render");
-    #endif
+#ifdef EASY_PROFILE_USE
+	EASY_BLOCK("GizmoRenderer::Render");
+#endif
 	if (isRunning_)
 	{
 		for (auto gizmo : gizmosQueue_)

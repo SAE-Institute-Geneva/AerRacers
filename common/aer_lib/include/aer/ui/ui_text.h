@@ -21,50 +21,75 @@
  Co-Author : Floreau Luca
  Date : 13.03.2021
 ---------------------------------------------------------- */
-#include <utility>
-
-#include "ui_element.h"
-#include "gl/font.h"
 #include "graphics/font.h"
+
+#include "aer/ui/ui_element.h"
+
+#ifdef NEKO_GLES3
+#include "gl/font.h"
+#endif
 
 namespace neko::aer
 {
-    enum class FontLoaded : uint8_t {
-        LOBSTER,
-        ROBOTO
-    };
+/**
+ * \brief Enum of loaded font
+ */
+enum class FontLoaded : std::uint8_t
+{
+	LOBSTER,
+	ROBOTO
+};
+
+/**
+ * \brief  UiText use to display text on screen
+ */
 class UiText : public UiElement
 {
 public:
-    explicit UiText(FontLoaded font = FontLoaded::LOBSTER,
-        const std::string_view& text = "",
-        const Vec3f& position = Vec3f::zero,
-        UiAnchor anchor = UiAnchor::CENTER,
-        uint8_t screenId = 0,
-        float scale = 1.0f,
-        const Color4& color = Color::white)
-        : UiElement(position, anchor, screenId),
-        font_(font),
-        text_(text),
-        scale_(scale),
-        color_(color)
-    {}
+    /**
+     * \brief Create an UiText
+     * \param font Font to use
+     * \param text Text to display
+     * \param position Position on view scale (bottom_left:-1,-1; top_right:1,1)
+     * \param anchor Anchor from screen corner
+     * \param screenId On which screen are based the anchor
+     * \param scale Scale of the text
+     * \param color Color of the text
+     */
+	UiText(FontLoaded font    = FontLoaded::LOBSTER,
+		std::string_view text = "",
+		const Vec2f & position = Vec2f::zero,
+		UiAnchor anchor       = UiAnchor::CENTER,
+		std::uint8_t screenId = 0,
+		float scale           = 1.0f,
+		const Color4& color   = Color::white)
+	   : UiElement(position, anchor, screenId),
+		 font_(font),
+		 text_(text),
+		 scale_(scale),
+		 color_(color)
+	{}
 
-    void Draw(gl::FontManager& fontManager, const FontId& fontId) const;
+#ifdef NEKO_GLES3
+	void Draw(gl::FontManager& fontManager, const FontId& fontId) const;
+#else
+#endif
+
 	void Destroy() override;
 
-    void SetFont(const FontLoaded& font) { font_ = font; }
-    FontLoaded GetFont() const { return font_; }
-    void SetText(const std::string& text) { text_ = text; }
-    void SetScale(const float& scale) { scale_ = scale; }
-    void SetColor(const Color4& color) { color_ = color; }
+	FontLoaded GetFont() const { return font_; }
+
+	void SetFont(const FontLoaded& font) { font_ = font; }
+	void SetText(const std::string& text) { text_ = text; }
+	void SetScale(const float& scale) { scale_ = scale; }
+	void SetColor(const Color4& color) { color_ = color; }
 
 protected:
-	Job preRender_;
-    FontLoaded font_;
-    std::string text_;
-    float scale_;
-    Color4 color_;
+	FontLoaded font_ {};
+	std::string text_ {};
+	float scale_ {};
+	Color4 color_ {};
 
+	Job preRender_;
 };
-}
+}    // namespace neko::aer

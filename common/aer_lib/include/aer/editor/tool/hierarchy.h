@@ -27,11 +27,9 @@
  Co-Author :
  Date : 02.02.2021
 ---------------------------------------------------------- */
-#include "aer/editor/editor_tool_interface.h"
-
-#include <string>
-
 #include "engine/entity.h"
+
+#include "aer/editor/editor_tool_interface.h"
 
 namespace neko::aer
 {
@@ -39,22 +37,25 @@ namespace neko::aer
 class Hierarchy final : public EditorToolInterface
 {
 public:
-	Hierarchy(AerEngine& engine, ToolType type, int id, std::string name);
-
-	void Init() override;
-	void Update(seconds dt) override;
-	void Destroy() override;
+	explicit Hierarchy(AerEngine& engine);
 
 	void DrawImGui() override;
 
-	void OnEvent(const SDL_Event& event) override;
+	[[nodiscard]] std::string_view GetName() const override { return "Hierarchy"; }
+	[[nodiscard]] ToolType GetType() const override { return HIERARCHY; }
+
+	// Not defined
+	void Init() override {}
+	void Update(seconds) override {}
+	void Destroy() override {}
+	void OnEvent(const SDL_Event&) override {}
 
 private:
 	/**
     * \brief Display an entity and their children
     * \param entityIndex entity to display
     */
-	void DisplayEntity(Entity entityParent);
+	void DisplayEntity(Entity entity);
 
 	EditorToolManager& editorToolManager_;
 	EntityManager& entityManager_;
@@ -63,6 +64,7 @@ private:
 	                                                      ImGuiTreeNodeFlags_OpenOnDoubleClick |
 	                                                      ImGuiTreeNodeFlags_SpanAvailWidth;
 	const ImGuiTreeNodeFlags kNodeTreeSelectedFlags_ =
-		kNodeTreeNotSelectedFlags_ | ImGuiTreeNodeFlags_Selected;    // Add flag to node flags to show it's selected
+		kNodeTreeNotSelectedFlags_ |
+		ImGuiTreeNodeFlags_Selected;    // Add flag to node flags to show it's selected
 };
-}
+}    // namespace neko::aer

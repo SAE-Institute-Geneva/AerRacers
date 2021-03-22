@@ -28,6 +28,8 @@
 ---------------------------------------------------------- */
 #include <sdl_engine/sdl_engine.h>
 
+#include "mathematics/hash.h"
+
 namespace neko::aer
 {
 class AerEngine;
@@ -36,27 +38,31 @@ class EditorToolInterface : public SystemInterface,
 							public sdl::SdlEventSystemInterface
 {
 public:
-	enum class ToolType
+	enum ToolType : std::uint8_t
 	{
 		NONE = 0,
 		LOGGER,
         HIERARCHY,
     	INSPECTOR,
-		SCENE_LOADER
+		SCENE_LOADER,
+		LIGHT_CONTROLLER
 	};
 
-	explicit EditorToolInterface(AerEngine& engine, ToolType type, int id, std::string name);
+	explicit EditorToolInterface(AerEngine& engine);
 
-	int GetId() const;
-	ToolType GetType() const;
-	std::string GetName() const;
+	void Init() override {}
+	void Update(seconds) override {}
+	void Destroy() override {}
+
+	void OnEvent(const SDL_Event&) override {}
+
+	[[nodiscard]] virtual StringHash GetId() const { return HashString(GetName()); }
+	[[nodiscard]] virtual ToolType GetType() const = 0;
+	[[nodiscard]] virtual std::string_view GetName() const = 0;
 
 	bool isVisible = true;
 
 protected:
-	const int kId_;
-	std::string name_ = "";
-	ToolType type_    = ToolType::NONE;
 	AerEngine& engine_;
 };
 }

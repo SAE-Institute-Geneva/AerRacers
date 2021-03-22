@@ -41,45 +41,44 @@ const size_t INIT_PLAYER_NMB = 4;
 
 using PlayerId = uint8_t;
 
-	struct PlayerComponent
-	{
-		Entity shipEntity = INVALID_ENTITY;
-		Entity shipModelEntity = INVALID_ENTITY;
+struct PlayerComponent {
+    Entity shipEntity      = INVALID_ENTITY;
+    Entity shipModelEntity = INVALID_ENTITY;
 
-		PlayerId playerNumber = 0;
-		sdl::ControllerId linkedJoystick = 0;
-		Vec3f playerSpawn = Vec3f(0, 0, 0);
+    PlayerId playerNumber            = 0;
+    sdl::ControllerId linkedJoystick = 0;
+    Vec3f playerSpawn                = Vec3f(0, 0, 0);
 
-		//TODO texture
-	};
+    //TODO texture
+};
 
-	/**
-	 * \brief PlayerManager use to store player data
-	 */
-	class PlayerManager final : public SystemInterface
-	{
-	public:
-		explicit PlayerManager(ComponentManagerContainer& cContainer);
+/**
+ * \brief PlayerManager use to store player data
+ */
+class PlayerManager final : public SystemInterface {
+public:
+    explicit PlayerManager(ComponentManagerContainer& cContainer);
 
-		virtual ~PlayerManager() = default;
+    virtual ~PlayerManager() = default;
 
-		PlayerId CreatePlayer(Vec3f pos, EulerAngles euler = EulerAngles(degree_t(0.0f), degree_t(0.0f), degree_t(0.0f)));
+    PlayerId CreatePlayer(Vec3f pos,
+        EulerAngles euler = EulerAngles(degree_t(0.0f), degree_t(0.0f), degree_t(0.0f)));
 
-		PlayerComponent GetPlayerComponent(PlayerId playerId);
-		Entity GetShipEntity(PlayerId playerId);
-		size_t GetPlayerCount() const { return playerCount_; }
+    PlayerComponent GetPlayerComponent(PlayerId playerId);
+    Entity GetShipEntity(PlayerId playerId);
+    size_t GetPlayerCount() const { return playerCount_; }
 
-        void Init() override;
-        void Update(seconds dt) override;
-        void Destroy() override;
-	private:
-		size_t playerCount_ = 0;
-		std::vector<PlayerComponent> playerComponents_;
-		ComponentManagerContainer& cContainer_;
-		CameraControllerManager& cameraControllerManager_;
-		ShipControllerManager& shipControllerManager_;
-		ShipInputManager& shipInputManager_;
+    void Init() override;
+    void Update(seconds dt) override;
+    void Destroy() override;
+private:
+    size_t playerCount_ = 0;
+    std::vector<PlayerComponent> playerComponents_;
+    ComponentManagerContainer& cContainer_;
+    CameraControllerManager& cameraControllerManager_;
+    ShipControllerManager& shipControllerManager_;
+    ShipInputManager& shipInputManager_;
 
-		const float yDespawnPosition = -50.0f;
-	};
+    const float yDespawnPosition = -50.0f;
+};
 }

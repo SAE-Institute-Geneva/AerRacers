@@ -21,45 +21,80 @@
  Co-Author : Floreau Luca
  Date : 13.03.2021
 ---------------------------------------------------------- */
-#include <utility>
-
-
-#include "ui_element.h"
-#include "gl/shader.h"
-#include "gl/texture.h"
-#include "gl/shape.h"
 #include "graphics/color.h"
+
+#include "aer/ui/ui_element.h"
+
+#ifdef NEKO_GLES3
+#include "gl/shader.h"
+#include "gl/shape.h"
+#include "gl/texture.h"
+#else
+#include "vk/images/texture_manager.h"
+#endif
 
 namespace neko::aer
 {
+/**
+ * \brief UiImage use to display sprites on screen
+ */
 class UiImage : public UiElement
 {
 public:
+    /**
+     * \brief Create a UiImage
+     * \param texturePath path of the texture to display
+     * \param position Position on view scale (bottom_left:-1,-1; top_right:1,1)
+     * \param size Size in pixel 
+     * \param anchor Anchor from screen corner
+     * \param screenId On which screen are based the anchor
+     * \param color Color add to the texture
+     */
     explicit UiImage(const std::string_view& texturePath = "",
-        const Vec3f& position = Vec3f::zero,
-        const Vec2u& size     = Vec2u::one,
-        UiAnchor anchor       = UiAnchor::CENTER,
-		uint8_t screenId = 0,
-		const Color4& color = Color::white);
+		const Vec2f & position                     = Vec2f::zero,
+		const Vec2u& size                         = Vec2u::one,
+		UiAnchor anchor                           = UiAnchor::CENTER,
+		std::uint8_t screenId                     = 0,
+		const Color4& color                       = Color::white);
 
+#ifdef NEKO_GLES3
 	void Init(gl::TextureManager& textureManager);
-	void Draw(gl::TextureManager& textureManager, const Vec2u& screenSize, const gl::Shader& uiImageShader);
+	void Draw(gl::TextureManager& textureManager,
+		const Vec2u& screenSize,
+		const gl::Shader& uiImageShader);
+#else
+	void Init();
+	void Draw(const Vec2u& screenSize);
+#endif
 
 	void Destroy() override;
 
-	void SetTexturePath(const std::string& texturePath) { texturePath_ = texturePath; }
+    /**
+     * \brief Change the texture of the image
+     * \param texturePath TexturePath of the new texture
+     */
+#ifdef NEKO_GLES3
+    void ChangeTexture(gl::TextureManager& textureManager, const std::string& texturePath);
+#else
+	void ChangeTexture(const std::string& texturePath);
+#endif
+
 	void SetSize(const Vec2u& size) { size_ = size; }
 	void SetColor(const Color4& color) { color_ = color; }
 
 protected:
-	Vec2u size_ = Vec2u(100u); //In pixel
+	Vec2u size_ = Vec2u(100u);    //In pixel
 
-	std::string texturePath_ = "";
-	TextureId textureId_ = INVALID_TEXTURE_ID;
+	std::string texturePath_;
+
+#ifdef NEKO_GLES3
+	TextureId textureId_     = INVALID_TEXTURE_ID;
 	TextureName textureName_ = INVALID_TEXTURE_NAME;
-	gl::RenderQuad quad_{Vec3f::zero, Vec2f::one};
+	gl::RenderQuad quad_ {Vec3f::zero, Vec2f::one};
+#else
+	vk::ResourceHash textureId_ = vk::INVALID_TEXTURE_ID;
+#endif
 
 	Color4 color_ = Color::white;
-
 };
-}
+}    // namespace neko::aer
