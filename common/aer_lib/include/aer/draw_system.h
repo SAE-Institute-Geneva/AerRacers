@@ -58,6 +58,8 @@ public:
 
 	void OnEvent(const SDL_Event& event) override;
 
+	sdl::MultiCamera& GetCameras() { return camera_; }
+
 private:
 #ifdef NEKO_GLES3
 	void RenderScene(std::size_t playerNum);
@@ -75,6 +77,6 @@ private:
 
 	std::unique_ptr<UiManager> uiManager_;
 
-	std::uint8_t playerNum_ = 4;
+	std::uint8_t playerNum_ = 1;
 };
 }    // namespace neko::aer
