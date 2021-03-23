@@ -1,5 +1,7 @@
 #include <imgui_internal.h>
 
+#include "engine/resource_locations.h"
+
 #include "aer/aer_engine.h"
 #include "aer/editor/tool/hierarchy.h"
 #include "aer/editor/tool/inspector.h"
@@ -27,8 +29,7 @@ void EditorToolManager::Init()
 {
 #ifdef NEKO_GLES3
 	const float fontSizeInPixels = 16.0f;
-	const std::string path =
-		BasicEngine::GetInstance()->GetConfig().dataRootPath + "fonts/droid_sans.ttf";
+	const std::string path       = GetFontsFolderPath() + "droid_sans.ttf";
 	ImGui::GetIO().Fonts->AddFontFromFileTTF(path.c_str(), fontSizeInPixels);
 #endif
 }
@@ -40,15 +41,15 @@ void EditorToolManager::Update(const seconds dt)
 	for (auto& tool : tools_) tool->Update(dt);
 
 	auto& gizmosLocator             = GizmosLocator::get();
-	const auto& transform3dManager  = cContainer_.transform3dManager;
+	const auto& transform3DManager  = cContainer_.transform3dManager;
 	const auto& entityManager       = cContainer_.entityManager;
 	const auto& rigidDynamicManager = cContainer_.rigidDynamicManager;
 	const auto& rigidStaticManager  = cContainer_.rigidStaticManager;
 	if (selectedEntity_ != INVALID_ENTITY)
 	{
-		gizmosLocator.DrawCube(transform3dManager.GetGlobalPosition(selectedEntity_),
-			transform3dManager.GetGlobalScale(selectedEntity_),
-			transform3dManager.GetGlobalRotation(selectedEntity_),
+		gizmosLocator.DrawCube(transform3DManager.GetGlobalPosition(selectedEntity_),
+			transform3DManager.GetGlobalScale(selectedEntity_),
+			transform3DManager.GetGlobalRotation(selectedEntity_),
 			Color::blue,
 			5.0f);
 	}
@@ -64,7 +65,7 @@ void EditorToolManager::Update(const seconds dt)
 		else
 			continue;
 
-        const physics::ColliderType colliderType = rigidActor->GetColliderType();
+		const physics::ColliderType colliderType = rigidActor->GetColliderType();
 		switch (colliderType)
 		{
 			case physics::ColliderType::INVALID: break;
@@ -72,9 +73,9 @@ void EditorToolManager::Update(const seconds dt)
 			{
 				physics::BoxColliderData boxColliderData = rigidActor->GetBoxColliderData();
 				gizmosLocator.DrawCube(
-					transform3dManager.GetGlobalPosition(entity) + boxColliderData.offset,
+					transform3DManager.GetGlobalPosition(entity) + boxColliderData.offset,
 					boxColliderData.size,
-					transform3dManager.GetGlobalRotation(entity),
+					transform3DManager.GetGlobalRotation(entity),
 					boxColliderData.isTrigger ? Color::yellow : Color::green,
 					2.0f);
 			}
@@ -84,9 +85,9 @@ void EditorToolManager::Update(const seconds dt)
 				physics::SphereColliderData sphereColliderData =
 					rigidActor->GetSphereColliderData();
 				gizmosLocator.DrawSphere(
-					transform3dManager.GetGlobalPosition(entity) + sphereColliderData.offset,
+					transform3DManager.GetGlobalPosition(entity) + sphereColliderData.offset,
 					sphereColliderData.radius,
-					transform3dManager.GetGlobalRotation(entity),
+					transform3DManager.GetGlobalRotation(entity),
 					sphereColliderData.isTrigger ? Color::yellow : Color::green,
 					2.0f);
 				break;
@@ -96,27 +97,27 @@ void EditorToolManager::Update(const seconds dt)
 				physics::CapsuleColliderData capsuleColliderData =
 					rigidActor->GetCapsuleColliderData();
 				Quaternion rot =
-					Quaternion::FromEuler(transform3dManager.GetGlobalRotation(entity));
+					Quaternion::FromEuler(transform3DManager.GetGlobalRotation(entity));
 				gizmosLocator.DrawSphere(
-					transform3dManager.GetGlobalPosition(entity) + capsuleColliderData.offset +
+					transform3DManager.GetGlobalPosition(entity) + capsuleColliderData.offset +
 						(capsuleColliderData.height / 2.0f) * (rot * Vec3f::right),
 					capsuleColliderData.radius,
-					transform3dManager.GetGlobalRotation(entity),
+					transform3DManager.GetGlobalRotation(entity),
 					capsuleColliderData.isTrigger ? Color::yellow : Color::green,
 					2.0f);
 				gizmosLocator.DrawSphere(
-					transform3dManager.GetGlobalPosition(entity) + capsuleColliderData.offset +
+					transform3DManager.GetGlobalPosition(entity) + capsuleColliderData.offset +
 						(capsuleColliderData.height / 2.0f) * (rot * Vec3f::left),
 					capsuleColliderData.radius,
-					transform3dManager.GetGlobalRotation(entity),
+					transform3DManager.GetGlobalRotation(entity),
 					capsuleColliderData.isTrigger ? Color::yellow : Color::green,
 					2.0f);
 				gizmosLocator.DrawCube(
-					transform3dManager.GetGlobalPosition(entity) + capsuleColliderData.offset,
+					transform3DManager.GetGlobalPosition(entity) + capsuleColliderData.offset,
 					Vec3f(capsuleColliderData.height,
 						capsuleColliderData.radius * 1.5f,
 						capsuleColliderData.radius * 1.5f),
-					transform3dManager.GetGlobalRotation(entity),
+					transform3DManager.GetGlobalRotation(entity),
 					capsuleColliderData.isTrigger ? Color::yellow : Color::green,
 					2.0f);
 				break;
@@ -137,7 +138,6 @@ void EditorToolManager::DrawImGui()
 {
 	using namespace ImGui;
 	ImGuiIO io = GetIO();
-
 	ImGuiWindowFlags windowFlags =
 		ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBackground;
 
@@ -153,7 +153,7 @@ void EditorToolManager::DrawImGui()
 	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
 
-	Begin("Showroom", reinterpret_cast<bool*>(true), windowFlags);
+	Begin("Editor", reinterpret_cast<bool*>(true), windowFlags);
 	{
 		PopStyleVar();
 		PopStyleVar(2);

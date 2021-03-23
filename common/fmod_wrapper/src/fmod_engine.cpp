@@ -108,9 +108,9 @@ void FmodEngine::LoadEventNames()
 // ----------
 
 // ---------- Audio Playing
-FMOD::Studio::EventInstance* FmodEngine::PlayEvent(const AudioSource& audioSource, const Vec3f& pos)
+FmodInstance* FmodEngine::PlayEvent(const AudioSource& audioSource, const Vec3f& pos)
 {
-	FMOD::Studio::EventInstance* instance = nullptr;
+	FmodInstance* instance = nullptr;
 	if (!audioSource.instance_)
 	{
 		FMOD::Studio::EventDescription* description = nullptr;
@@ -151,17 +151,17 @@ void FmodEngine::PlayEventOnce(const AudioSource& audioSource, const Vec3f& pos)
 		instance->setCallback(EventInstanceStopped, FMOD_STUDIO_EVENT_CALLBACK_SOUND_STOPPED));
 }
 
-void FmodEngine::PauseEvent(FMOD::Studio::EventInstance* instance)
+void FmodEngine::PauseEvent(FmodInstance* instance)
 {
 	fmodCheckError(instance->setPaused(true));
 }
 
-void FmodEngine::ResumeEvent(FMOD::Studio::EventInstance* instance)
+void FmodEngine::ResumeEvent(FmodInstance* instance)
 {
 	fmodCheckError(instance->setPaused(false));
 }
 
-void FmodEngine::StopEvent(FMOD::Studio::EventInstance* instance, bool isStoppingImmediate)
+void FmodEngine::StopEvent(FmodInstance* instance, bool isStoppingImmediate)
 {
 	const auto mode =
 		isStoppingImmediate ? FMOD_STUDIO_STOP_IMMEDIATE : FMOD_STUDIO_STOP_ALLOWFADEOUT;
@@ -177,12 +177,19 @@ float FmodEngine::GetEventParameter(std::string_view eventName, std::string_view
 	FMOD::Studio::EventDescription* description = nullptr;
 	studioSystem_->getEvent((kEventPrefix + std::string(eventName)).c_str(), &description);
 
-	FMOD::Studio::EventInstance* instance = nullptr;
+	FmodInstance* instance = nullptr;
 	fmodCheckError(description->createInstance(&instance));
 
 	float value = 0;
 	fmodCheckError(instance->getParameterByName(eventParameterName.data(), &value));
 	return value;
+}
+
+FMOD_3D_ATTRIBUTES FmodEngine::GetEvent3DAttributes(FmodInstance* instance) const
+{
+	FMOD_3D_ATTRIBUTES attributes;
+	fmodCheckError(instance->get3DAttributes(&attributes));
+	return attributes;
 }
 
 void FmodEngine::SetEventParameter(
@@ -191,23 +198,28 @@ void FmodEngine::SetEventParameter(
 	FMOD::Studio::EventDescription* description = nullptr;
 	studioSystem_->getEvent((kEventPrefix + std::string(eventName)).c_str(), &description);
 
-	FMOD::Studio::EventInstance* instance = nullptr;
+	FmodInstance* instance = nullptr;
 	fmodCheckError(description->createInstance(&instance));
 
 	fmodCheckError(instance->setParameterByName(eventParameterName.data(), parameterValue));
 }
 
-void FmodEngine::SetEventVolume(FMOD::Studio::EventInstance* instance, float volumeDb)
+void FmodEngine::SetEventVolume(FmodInstance* instance, float volumeDb)
 {
 	instance->setVolume(volumeDb / kMaxVolume);
 }
 
-void FmodEngine::SetEventPitch(FMOD::Studio::EventInstance* instance, float pitch)
+void FmodEngine::SetEventPitch(FmodInstance* instance, float pitch)
 {
 	instance->setPitch(pitch);
 }
 
-void FmodEngine::SetEvent3DAttributes(FMOD::Studio::EventInstance* instance,
+void FmodEngine::SetEvent3DAttributes(FmodInstance* instance, const FMOD_3D_ATTRIBUTES& attributes)
+{
+	fmodCheckError(instance->set3DAttributes(&attributes));
+}
+
+void FmodEngine::SetEvent3DAttributes(FmodInstance* instance,
 	const Vec3f& position,
 	const Vec3f& velocity,
 	const Vec3f& forward,
@@ -221,19 +233,17 @@ void FmodEngine::SetEvent3DAttributes(FMOD::Studio::EventInstance* instance,
 	fmodCheckError(instance->set3DAttributes(&attributes));
 }
 
-void FmodEngine::SetEventSpatialBlend(FMOD::Studio::EventInstance*, float) {}
-
-void FmodEngine::SetEventMinDistance(FMOD::Studio::EventInstance* instance, float minDistance)
+void FmodEngine::SetEventMinDistance(FmodInstance* instance, float minDistance)
 {
 	fmodCheckError(instance->setProperty(FMOD_STUDIO_EVENT_PROPERTY_MINIMUM_DISTANCE, minDistance));
 }
 
-void FmodEngine::SetEventMaxDistance(FMOD::Studio::EventInstance* instance, float maxDistance)
+void FmodEngine::SetEventMaxDistance(FmodInstance* instance, float maxDistance)
 {
 	fmodCheckError(instance->setProperty(FMOD_STUDIO_EVENT_PROPERTY_MAXIMUM_DISTANCE, maxDistance));
 }
 
-bool FmodEngine::IsPlaying(const FMOD::Studio::EventInstance* instance) const
+bool FmodEngine::IsPlaying(const FmodInstance* instance) const
 {
 	if (!instance) return false;
 
@@ -242,13 +252,25 @@ bool FmodEngine::IsPlaying(const FMOD::Studio::EventInstance* instance) const
 	return state == FMOD_STUDIO_PLAYBACK_PLAYING;
 }
 
-bool FmodEngine::IsPaused(const FMOD::Studio::EventInstance* instance) const
+bool FmodEngine::IsPaused(const FmodInstance* instance) const
 {
 	if (!instance) return false;
 
 	bool isPaused = false;
 	instance->getPaused(&isPaused);
 	return isPaused;
+}
+
+FMOD_3D_ATTRIBUTES FmodEngine::GetAudioListener() const
+{
+	FMOD_3D_ATTRIBUTES attributes;
+	fmodCheckError(studioSystem_->getListenerAttributes(0, &attributes));
+	return attributes;
+}
+
+void FmodEngine::SetAudioListener(const FMOD_3D_ATTRIBUTES& attributes)
+{
+	studioSystem_->setListenerAttributes(0, &attributes);
 }
 
 void FmodEngine::SetAudioListener(
@@ -267,7 +289,7 @@ void FmodEngine::SetAudioListener(
 FMOD_RESULT FmodEngine::EventInstanceStopped(
 	FMOD_STUDIO_EVENT_CALLBACK_TYPE, FMOD_STUDIO_EVENTINSTANCE* instance, void*)
 {
-	auto eventInstance = reinterpret_cast<FMOD::Studio::EventInstance*>(instance);
+	auto eventInstance = reinterpret_cast<FmodInstance*>(instance);
 	return eventInstance->release();
 }
 }    // namespace neko::fmod

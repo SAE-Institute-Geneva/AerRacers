@@ -27,6 +27,7 @@
  Date : 03.11.2020
 ---------------------------------------------------------- */
 #include "engine/entity.h"
+#include "utils/imgui_utility.h"
 
 #include "aer/editor/editor_tool_interface.h"
 

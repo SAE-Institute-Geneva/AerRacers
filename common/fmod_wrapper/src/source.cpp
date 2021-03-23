@@ -64,6 +64,12 @@ bool AudioSource::IsPaused()
 	return isPaused;
 }
 
+void AudioSource::Update3DAttributes(const FMOD_3D_ATTRIBUTES& attributes)
+{
+	if (state_ != State::PLAYING) return;
+	if (instance_) FmodLocator::get().SetEvent3DAttributes(instance_, attributes);
+}
+
 void AudioSource::Update3DAttributes(
 	const Vec3f& position, const Vec3f& velocity, const Vec3f& forward, const Vec3f& up)
 {
@@ -72,6 +78,13 @@ void AudioSource::Update3DAttributes(
 	{
 		FmodLocator::get().SetEvent3DAttributes(instance_, position, velocity, forward, up);
 	}
+}
+
+FMOD_3D_ATTRIBUTES AudioSource::Get3DAttributes() const
+{
+	if (instance_) return FmodLocator::get().GetEvent3DAttributes(instance_);
+
+	return {};
 }
 
 void AudioSource::SetVolume(float volumeDb)
@@ -86,12 +99,6 @@ void AudioSource::SetPitch(float pitch)
 	pitch_ = pitch;
 	if (state_ != State::PLAYING) return;
 	if (instance_) FmodLocator::get().SetEventPitch(instance_, pitch_);
-}
-
-void AudioSource::SetSpatialBlend(float spatialBlend)
-{
-	spatialBlend_ = spatialBlend;
-	if (instance_) FmodLocator::get().SetEventSpatialBlend(instance_, spatialBlend);
 }
 
 void AudioSource::SetMinDistance(float minDistance)

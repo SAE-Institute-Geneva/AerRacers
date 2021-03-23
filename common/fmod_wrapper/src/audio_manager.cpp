@@ -20,14 +20,27 @@ void AudioManager::Init()
 	}
 }
 
+void AudioManager::Update(seconds)
+{
+	const auto audioSources =
+		entityManager_.get().FilterEntities(EntityMask(ComponentType::AUDIO_SOURCE));
+	ResizeIfNecessary(components_, audioSources.back(), {});
+	for (auto& entity : audioSources)
+	{
+		if (!IsPlaying(entity)) continue;
+
+		const Vec3f position               = transformManager_.GetGlobalPosition(entity);
+		const fmod::AudioSource& component = components_[entity];
+		FMOD_3D_ATTRIBUTES attributes      = component.Get3DAttributes();
+
+		attributes.position = fmod::Vec3ToFmod(position);
+		Update3DAttributes(entity, attributes);
+	}
+}
+
 void AudioManager::Destroy()
 {
 	for (auto& component : components_) component.Stop();
-}
-
-void AudioManager::SetComponent(Entity entity, const fmod::AudioSource& component)
-{
-	ComponentManager::SetComponent(entity, component);
 }
 
 void AudioManager::Play(Entity e)
@@ -48,6 +61,17 @@ void AudioManager::Resume(Entity e) { components_[e].Resume(); }
 
 void AudioManager::Stop(Entity e) { components_[e].Stop(); }
 
+void AudioManager::Update3DAttributes(Entity e, const FMOD_3D_ATTRIBUTES& attributes)
+{
+	components_[e].Update3DAttributes(attributes);
+}
+
+void AudioManager::Update3DAttributes(
+	Entity e, const Vec3f& position, const Vec3f& velocity, const Vec3f& forward, const Vec3f& up)
+{
+	components_[e].Update3DAttributes(position, velocity, forward, up);
+}
+
 AudioViewer::AudioViewer(EntityManager& entityManager, AudioManager& audioManager)
    : ComponentViewer(entityManager), audioManager_(audioManager)
 {}
@@ -60,25 +84,25 @@ void AudioViewer::DrawImGui(Entity entity)
 		using namespace ImGui;
 		if (TreeNode("Audio Source"))
 		{
-			PushItemWidth(-1);
+			const ImVec2 buttonSize =
+				ImVec2((GetContentRegionAvailWidth() - GetStyle().ItemSpacing.x) / 2.0f , 0.0f);
 			if (!audioManager_.IsPlaying(entity))
 			{
-				if (Button("Play")) audioManager_.Play(entity);
+				if (Button("Play", buttonSize)) audioManager_.Play(entity);
 			}
 			else
 			{
 				if (!audioManager_.IsPaused(entity))
 				{
-					if (Button("Pause")) audioManager_.Pause(entity);
+					if (Button("Pause", buttonSize)) audioManager_.Pause(entity);
 				}
 				else
 				{
-					if (Button("Resume")) audioManager_.Resume(entity);
+					if (Button("Resume", buttonSize)) audioManager_.Resume(entity);
 				}
 			}
 			SameLine();
-			if (Button("Stop")) audioManager_.Stop(entity);
-			PopItemWidth();
+			if (Button("Stop", buttonSize)) audioManager_.Stop(entity);
 
 			fmod::AudioSource audioSource = audioManager_.GetComponent(entity);
 			const auto eventName          = audioManager_.GetEventName(entity);
@@ -99,10 +123,6 @@ void AudioViewer::DrawImGui(Entity entity)
 			float pitch = audioSource.GetPitch();
 			if (SliderFloat("Pitch", &pitch, 0.1f, 2.0f, LabelPos::LEFT))
 				audioSource.SetPitch(pitch);
-
-			float spatialBlend = audioSource.GetSpatialBlend();
-			if (SliderFloat("Spatial Blend", &spatialBlend, 0.0f, 1.0f, LabelPos::LEFT))
-				audioSource.SetSpatialBlend(spatialBlend);
 
 			float minDistance = audioSource.GetMinDistance();
 			if (DragFloat("Min Distance", &minDistance, LabelPos::LEFT, 0.1f, 0.0f, FLT_MAX))
@@ -126,7 +146,6 @@ json AudioViewer::GetJsonFromComponent(Entity entity) const
 
 	component["volume"]       = audioManager_.GetVolume(entity);
 	component["pitch"]        = audioManager_.GetPitch(entity);
-	component["spatialBlend"] = audioManager_.GetSpatialBlend(entity);
 	component["minDistance"]  = audioManager_.GetMinDistance(entity);
 	component["maxDistance"]  = audioManager_.GetMaxDistance(entity);
 
@@ -140,7 +159,6 @@ void AudioViewer::SetComponentFromJson(Entity entity, const json& component)
 
 	audioManager_.SetVolume(entity, component["volume"].get<float>());
 	audioManager_.SetPitch(entity, component["pitch"].get<float>());
-	audioManager_.SetSpatialBlend(entity, component["spatialBlend"].get<float>());
 	audioManager_.SetMinDistance(entity, component["minDistance"].get<float>());
 	audioManager_.SetMaxDistance(entity, component["maxDistance"].get<float>());
 }

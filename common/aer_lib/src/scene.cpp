@@ -1,4 +1,5 @@
 #include "engine/engine.h"
+#include "engine/resource_locations.h"
 #include "utils/file_utility.h"
 
 #include "aer/log.h"
@@ -14,8 +15,6 @@
 
 namespace neko::aer
 {
-constexpr std::string_view SceneExtension = ".scene";
-
 SceneManager::SceneManager(
 	EntityManager& entityManager, ComponentManagerContainer& componentManagerContainer)
    : filesystem_(BasicEngine::GetInstance()->GetFilesystem()),
@@ -220,9 +219,8 @@ bool SceneManager::LoadScene(const std::string_view& jsonPath)
 
 void SceneManager::SaveCurrentScene()
 {
-	const neko::Configuration config = neko::BasicEngine::GetInstance()->GetConfig();
-	WriteStringToFile(config.dataRootPath + "scenes/" + currentScene_.sceneName + ".aerscene",
-		WriteSceneJson().dump(4));
+	WriteStringToFile(
+		GetScenesFolderPath() + currentScene_.sceneName + ".aerscene", WriteSceneJson().dump(4));
 	currentScene_.saved = true;
 }
 

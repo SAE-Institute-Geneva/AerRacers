@@ -46,15 +46,20 @@ void DrawSystem::Init()
 #endif
 }
 
-void DrawSystem::Update(seconds)
+void DrawSystem::Update(seconds dt)
 {
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("DrawSystem::Update");
 #endif
 
 	const Camera3D& camera = camera_.GetCamera(0);
-	engine_.GetFmodEngine().SetAudioListener(
-		camera.position, Vec3f::zero, -camera.reverseDirection, -camera.GetUp());
+	const Vec3f position   = camera.position;
+
+	FMOD_3D_ATTRIBUTES attributes;
+	attributes.position = fmod::Vec3ToFmod(position);
+	attributes.forward  = fmod::Vec3ToFmod(-camera.reverseDirection);
+	attributes.up       = fmod::Vec3ToFmod(camera.GetUp());
+	engine_.GetFmodEngine().SetAudioListener(attributes);
 
 	RendererLocator::get().Render(this);
 }

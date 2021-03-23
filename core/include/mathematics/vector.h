@@ -22,9 +22,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include "mathematics/trigo.h"
-
 #include <fmt/format.h>
+
+#include "mathematics/trigo.h"
 
 namespace neko
 {
@@ -85,8 +85,8 @@ struct Vec2
 		for (int i = 0; i < 2; i++) coord[i] = v[i];
 	}
 
-	const T& operator[](size_t p_axis) const { return coord[p_axis]; }
-	T& operator[](size_t p_axis) { return coord[p_axis]; }
+	const T& operator[](size_t pAxis) const { return coord[pAxis]; }
+	T& operator[](size_t pAxis) { return coord[pAxis]; }
 
 	//-----------------------------------------------------------------------------
 	// Operators
@@ -279,24 +279,24 @@ public:
 	// Constructors
 	//-----------------------------------------------------------------------------
 	Vec3() noexcept = default;
-	explicit Vec3(T same) noexcept : x(same), y(same), z(same) {}
-	Vec3(T x, T y, T z) noexcept : x(x), y(y), z(z) {}
-	explicit Vec3(Vec2<T> v, T z = 0) noexcept : x(v.x), y(v.y), z(z) {}
+	explicit Vec3(const T same) noexcept : x(same), y(same), z(same) {}
+	Vec3(const T x, const T y, const T z) noexcept : x(x), y(y), z(z) {}
+	explicit Vec3(const Vec2<T> v, const T z = 0) noexcept : x(v.x), y(v.y), z(z) {}
 	explicit Vec3(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]), z(ptr[2]) {}
 
 	template<class U>
-	explicit Vec3(U u) noexcept : x(T(u.x)), y(T(u.y)), z(T(u.z))  {}
+	explicit Vec3(const U& u) noexcept : x(T(u.x)), y(T(u.y)), z(T(u.z))  {}
 
 	template<class U>
-	Vec3(U x, U y, U z) noexcept : x(T(x)), y(T(y)), z(T(z)) {}
+	Vec3(const U x, const U y, const U z) noexcept : x(T(x)), y(T(y)), z(T(z)) {}
 
-	explicit Vec3(std::array<T, 3> v) noexcept
+	explicit Vec3(const std::array<T, 3>& v) noexcept
 	{
 		for (int i = 0; i < 3; i++) coord[i] = v[i];
 	}
 
-	const T& operator[](size_t p_axis) const { return coord[p_axis]; }
-	T& operator[](size_t p_axis) { return coord[p_axis]; }
+	const T& operator[](const std::size_t pAxis) const { return coord[pAxis]; }
+	T& operator[](const std::size_t pAxis) { return coord[pAxis]; }
 
 	//-----------------------------------------------------------------------------
 	// Operators
@@ -326,20 +326,20 @@ public:
 		return *this;
 	}
 
-	Vec3<T> operator*(T rhs) const
+	Vec3<T> operator*(const T rhs) const
 	{ return Vec3<T>(x * rhs, y * rhs, z * rhs); }
 
 	Vec3<T> operator*(const Vec3<T>& rhs) const
 	{ return Vec3<T>(x * rhs.x, y * rhs.y, z * rhs.z); }
 
-	friend Vec3<T> operator*(T lhs, const Vec3<T>& rhs)
+	friend Vec3<T> operator*(const T lhs, const Vec3<T>& rhs)
 	{
 		return Vec3<T>(rhs.x * lhs,
 		               rhs.y * lhs,
 		               rhs.z * lhs);
 	}
 
-	Vec3<T>& operator*=(T rhs)
+	Vec3<T>& operator*=(const T rhs)
 	{
 		this->x *= rhs;
 		this->y *= rhs;
@@ -347,10 +347,10 @@ public:
 		return *this;
 	}
 
-	Vec3<T> operator/(T rhs) const
+	Vec3<T> operator/(const T rhs) const
 	{ return (*this) * (1.0f / rhs); }
 
-	Vec3<T>& operator/=(T rhs)
+	Vec3<T>& operator/=(const T rhs)
 	{
 		*this = *this / rhs;
 		return *this;
@@ -368,20 +368,20 @@ public:
 		return os;
 	}
 
-	std::string ToString() const
+	[[nodiscard]] std::string ToString() const
 	{ return fmt::format("Vec3({}, {}, {})", x, y, z); }
 
 	//-----------------------------------------------------------------------------
 	// Formulas
 	//-----------------------------------------------------------------------------
 	/// \brief Calculates the dot product from two vectors.
-	static T Dot(const Vec3<T> v1, const Vec3<T> v2)
+	static T Dot(const Vec3<T>& v1, const Vec3<T>& v2)
 	{
 		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	}
 
 	/// \brief Calculates the cross product from two Vec3.
-	static Vec3<T> Cross(const Vec3<T> v1, const Vec3<T> v2)
+	static Vec3<T> Cross(const Vec3<T>& v1, const Vec3<T>& v2)
 	{
 		return Vec3<T>(v1.y * v2.z - v1.z * v2.y,
 		               v1.z * v2.x - v1.x * v2.z,
@@ -398,7 +398,10 @@ public:
 
 	/// \brief Calculates the normalized vector.
 	[[nodiscard]] Vec3<T> Normalized() const
-	{ return (*this) / (*this).Magnitude(); }
+	{
+		if (*this == Vec3<T>::zero) return Vec3<T>::zero;
+		return (*this) / (*this).Magnitude();
+	}
 
 	/// \brief Interpolate between two vectors.
 	/// \param t the interpolation amount.
@@ -435,7 +438,7 @@ public:
 		        (dot / mag) * v2.z};
 	}
 
-	static neko::radian_t AngleBetween(const Vec3& v1, const Vec3& v2)
+	static neko::radian_t AngleBetween(const Vec3<T>& v1, const Vec3<T>& v2)
 	{
 		const float mag1 = v1.Magnitude();
 		const float mag2 = v2.Magnitude();
@@ -447,61 +450,53 @@ public:
 		return angle;
 	}
 
-
-    /**
+	/**
 	 * \brief Makes vectors normalized and orthogonal to each other.
 	 * \param normal ref from the normal
 	 * \param tangent ref from the tangent
 	 */
 	//from https://en.wikipedia.org/wiki/Gram%E2%80%93Schmidt_process
-	static void OrthoNormalize(Vec3& normal, Vec3& tangent)
+	static Vec3<T> OrthoNormalize(const Vec3<T>& normal, const Vec3<T>& tangent)
 	{
-		tangent = tangent - Project(tangent, normal);
+		return tangent - Project(tangent, normal);
 	}
 
-
-    /**
+	/**
 	 * \brief Projects a vector onto a plane defined by a normal orthogonal to the plane.
 	 * \param vector The direction from the vector towards the plane.
 	 * \param planeNormal The location of the vector above the plane.
 	 * \return Vec3 The location of the vector on the plane.
 	 */
 	//from https://github.com/Unity-Technologies/UnityCsReference/blob/master/Runtime/Export/Math/Vector3.cs
-	static Vec3<T> ProjectOnPlane(const Vec3& vector, const Vec3& planeNormal)
+	static Vec3<T> ProjectOnPlane(const Vec3<T>& vector, const Vec3<T>& planeNormal)
 	{
 		float sqrMag = Dot(planeNormal, planeNormal);
-		if (sqrMag < 0.0f)
-			return vector;
+		if (sqrMag < 0.0f) return vector;
 		else
 		{
 			const auto dot = Dot(vector, planeNormal);
-			return { vector.x - planeNormal.x * dot / sqrMag,
+			return {vector.x - planeNormal.x * dot / sqrMag,
 				vector.y - planeNormal.y * dot / sqrMag,
-				vector.z - planeNormal.z * dot / sqrMag };
+				vector.z - planeNormal.z * dot / sqrMag};
 		}
 	}
 
-    /**
+	/**
 	 * \brief Returns the angle between from and to.
 	 * \param from The vector from which the angular difference is measured.
 	 * \param to The vector to which the angular difference is measured.
 	 * \return The angle between the two vectors.
 	 */
 	//https://github.com/Unity-Technologies/UnityCsReference/blob/master/Runtime/Export/Math/Vector3.cs
-	static radian_t Angle(const Vec3& from, const Vec3& to)
+	static radian_t Angle(const Vec3<T>& from, const Vec3<T>& to)
 	{
 		// sqrt(a) * sqrt(b) = sqrt(a * b) -- valid for real numbers
 		float denominator = sqrt(from.SquareMagnitude() * to.SquareMagnitude());
-		if (denominator <= 0.0f)
-			return radian_t(0.0f);
+		if (denominator <= 0.0f) return radian_t(0.0f);
 
 		float dot = Dot(from, to) / denominator;
-		if (dot < -1.0f) {
-			dot = -1.0f;
-		}
-		if (dot > 1.0f) {
-			dot = 1.0f;
-		}
+		if (dot < -1.0f) dot = -1.0f;
+		if (dot > 1.0f) dot = 1.0f;
 		return Acos(dot);
 	}
 };
@@ -531,42 +526,6 @@ inline const Vec3<T> Vec3<T>::forward = Vec3<T>(T(0), T(0), T(1));
 template<typename T>
 inline const Vec3<T> Vec3<T>::back = Vec3<T>(T(0), T(0), T(-1));
 
-inline EulerAngles ConvertVec3fToEulerAngles(const Vec3f& vector)
-{
-	EulerAngles euler;
-	euler.x = degree_t(vector.x);
-	euler.y = degree_t(vector.y);
-	euler.z = degree_t(vector.z);
-	return euler;
-}
-
-inline RadianAngles ConvertVec3fToRadianAngles(const Vec3f& vector)
-{
-	RadianAngles radianAngles;
-	radianAngles.x = radian_t(vector.x);
-	radianAngles.y = radian_t(vector.y);
-	radianAngles.z = radian_t(vector.z);
-	return radianAngles;
-}
-
-inline Vec3f ConvertEulerAnglesToVec3f(const EulerAngles& euler)
-{
-	Vec3f vector;
-	vector.x = euler.x.value();
-	vector.y = euler.y.value();
-	vector.z = euler.z.value();
-	return vector;
-}
-
-inline Vec3f ConvertRadianAnglesToVec3f(const RadianAngles& radian)
-{
-	Vec3f vector;
-	vector.x = radian.x.value();
-	vector.y = radian.y.value();
-	vector.z = radian.z.value();
-	return vector;
-}
-
 //-----------------------------------------------------------------------------
 // Vec4
 //-----------------------------------------------------------------------------
@@ -594,28 +553,27 @@ public:
 	// Constructors
 	//-----------------------------------------------------------------------------
 	Vec4() noexcept = default;
-
-	explicit Vec4(T same) noexcept : x(same), y(same), z(same), w(same) {}
-	Vec4(T X, T Y, T Z, T W) noexcept : x(X), y(Y), z(Z), w(W) {}
-	explicit Vec4(Vec2<T> v, T z = 0, T w = 0) noexcept : x(v.x), y(v.y), z(z), w(w) {}
-	explicit Vec4(Vec3<T> v, T w = 0) noexcept : x(v.x), y(v.y), z(v.z), w(w) {}
+	explicit Vec4(const T same) noexcept : x(same), y(same), z(same), w(same) {}
+	Vec4(const T x, const T y, const T z, const T w) noexcept : x(x), y(y), z(z), w(w) {}
+	explicit Vec4(Vec2<T> v, const T z = 0, const T w = 0) noexcept : x(v.x), y(v.y), z(z), w(w) {}
+	explicit Vec4(const Vec3<T>& v, const T w = 0) noexcept : x(v.x), y(v.y), z(v.z), w(w) {}
 	explicit Vec4(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]), z(ptr[2]), w(ptr[3]) {}
 
 	template<class U>
-	explicit Vec4(U u) noexcept : x(T(u.x)), y(T(u.y)), z(T(u.z)), w(T(u.w))
+	explicit Vec4(const U& u) noexcept : x(T(u.x)), y(T(u.y)), z(T(u.z)), w(T(u.w))
 	{}
 
 	template<class U>
-	Vec4(U X, U Y, U Z, U W) noexcept : x(T(X)), y(T(Y)), z(T(Z)), w(T(W))
+	Vec4(const U x, const U y, const U z, const U w) noexcept : x(T(x)), y(T(y)), z(T(z)), w(T(w))
 	{}
 
-	explicit Vec4(std::array<T, 4> v) noexcept
+	explicit Vec4(const std::array<T, 4>& v) noexcept
 	{
 		for (int i = 0; i < 4; i++) coord[i] = v[i];
 	}
 
-	const T& operator[](size_t p_axis) const { return coord[p_axis]; }
-	T& operator[](size_t p_axis) { return coord[p_axis]; }
+	const T& operator[](const std::size_t pAxis) const { return coord[pAxis]; }
+	T& operator[](const std::size_t pAxis) { return coord[pAxis]; }
 
 	//-----------------------------------------------------------------------------
 	// Operators
@@ -650,19 +608,19 @@ public:
 		return *this;
 	}
 
-	Vec4<T> operator*(T rhs) const { return Vec4<T>(x * rhs, y * rhs, z * rhs, w * rhs); }
+	Vec4<T> operator*(const T rhs) const { return Vec4<T>(x * rhs, y * rhs, z * rhs, w * rhs); }
 
 	Vec4<T> operator*(const Vec4<T>& rhs) const
 	{
 		return Vec4<T>(x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w);
 	}
 
-	friend Vec4<T> operator*(T lhs, const Vec4<T>& rhs)
+	friend Vec4<T> operator*(const T lhs, const Vec4<T>& rhs)
 	{
 		return Vec4<T>(rhs.x * lhs, rhs.y * lhs, rhs.z * lhs, rhs.w * lhs);
 	}
 
-	Vec4<T>& operator*=(T rhs)
+	Vec4<T>& operator*=(const T rhs)
 	{
 		this->x *= rhs;
 		this->y *= rhs;
@@ -671,9 +629,9 @@ public:
 		return *this;
 	}
 
-	Vec4<T> operator/(T rhs) const { return (*this) * (1.0f / rhs); }
+	Vec4<T> operator/(const T rhs) const { return (*this) * (1.0f / rhs); }
 
-	Vec4<T>& operator/=(T rhs)
+	Vec4<T>& operator/=(const T rhs)
 	{
 		*this = *this / rhs;
 		return *this;
@@ -701,13 +659,13 @@ public:
 	// Formulas
 	//-----------------------------------------------------------------------------
 	/// \brief Calculates the dot product from two vectors.
-	static inline T Dot(const Vec4<T> v1, const Vec4<T> v2)
+	static inline T Dot(const Vec4<T>& v1, const Vec4<T>& v2)
 	{
 		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z + v1.w * v2.w;
 	}
 
 	/// \brief Calculates the 3D dot product from two vectors.
-	static T Dot3(const Vec4<T> v1, const Vec4<T> v2)
+	static T Dot3(const Vec4<T>& v1, const Vec4<T>& v2)
 	{
 		return v1.x * v2.x + v1.y * v2.y + v1.z * v2.z;
 	}
@@ -727,7 +685,8 @@ public:
 
 	/// \brief Interpolate between two vectors.
 	/// \param t the interpolation amount.
-	static Vec4<T> Lerp(const Vec4<T>& v1, const Vec4<T>& v2, T t) { return v1 + (v2 - v1) * t; }
+	static Vec4<T> Lerp(const Vec4<T>& v1, const Vec4<T>& v2, const T t)
+	{ return v1 + (v2 - v1) * t; }
 
 	/// \brief Project v1 on v2 (doesn't need to be normalized).
 	/// \param v1 the vector to project.
@@ -757,4 +716,3 @@ inline const Vec4<T> Vec4<T>::zero = Vec4<T>(T(0));
 template<typename T>
 inline const Vec4<T> Vec4<T>::one = Vec4<T>(T(1));
 }
- 

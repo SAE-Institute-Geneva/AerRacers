@@ -6,6 +6,7 @@
 
 #ifdef NEKO_GLES3
 #include "engine/engine.h"
+#include "engine/resource_locations.h"
 #include "mathematics/transform.h"
 
 namespace neko
@@ -18,27 +19,27 @@ GizmoRenderer::GizmoRenderer(Camera3D* camera) : camera_(camera)
 
 void GizmoRenderer::Init()
 {
-	#ifdef EASY_PROFILE_USE
+#ifdef EASY_PROFILE_USE
 	EASY_BLOCK("GizmoRenderer::Init");
-	#endif
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
-	preRender_         = Job {[this, config]()
-        {
-            shaderCube_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoCube.vert",
-                config.dataRootPath + "shaders/opengl/gizmoCube.frag");
-            shaderLine_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoLine.vert",
-                config.dataRootPath + "shaders/opengl/gizmoLine.frag");
-            shaderSphere_.LoadFromFile(config.dataRootPath + "shaders/opengl/gizmoSphere.vert",
-                config.dataRootPath + "shaders/opengl/gizmoSphere.frag");
+#endif
+
+	preRender_ = Job {[this]()
+		{
+			shaderCube_.LoadFromFile(GetGlShadersFolderPath() + "gizmoCube.vert",
+				GetGlShadersFolderPath() + "gizmoCube.frag");
+			shaderLine_.LoadFromFile(GetGlShadersFolderPath() + "gizmoLine.vert",
+				GetGlShadersFolderPath() + "gizmoLine.frag");
+			shaderSphere_.LoadFromFile(GetGlShadersFolderPath() + "gizmoSphere.vert",
+				GetGlShadersFolderPath() + "gizmoSphere.frag");
 
 			shaderCube_.BindUbo(2 * sizeof(Mat4f), gl::kUboMatricesBinding);
 			shaderLine_.BindUbo(2 * sizeof(Mat4f), gl::kUboMatricesBinding);
 			shaderSphere_.BindUbo(2 * sizeof(Mat4f), gl::kUboMatricesBinding);
 
-            cube_.Init();
-            sphere_.Init();
-            line_.Init();
-        }};
+			cube_.Init();
+			sphere_.Init();
+			line_.Init();
+		}};
 
 	gizmosQueue_.reserve(kGizmoReserveSize);
 	RendererLocator::get().AddPreRenderJob(&preRender_);
