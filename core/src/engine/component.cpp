@@ -58,7 +58,8 @@ std::string ComponentTypeToString(ComponentType type)
 		case ComponentType::RIGID_DYNAMIC:      return "Rigid Body Dynamic";
 
 			// Miscellaneous
-		case ComponentType::PREFAB:     return "Prefab";
+		case ComponentType::PREFAB: return "Prefab";
+		case ComponentType::AUDIO_SOURCE: return "Audio Source";
 		case ComponentType::OTHER_TYPE: return "Other";
 	}
 }

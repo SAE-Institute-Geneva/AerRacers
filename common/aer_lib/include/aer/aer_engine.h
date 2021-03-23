@@ -27,6 +27,8 @@
  Date : 29.09.2020 
  Last Modif: 26.01.2021
 ---------------------------------------------------------- */
+#include "fmod/fmod_engine.h"
+
 #include "aer/draw_system.h"
 #include "aer/log.h"
 #include "aer/managers/manager_container.h"
@@ -64,12 +66,14 @@ public:
 
 	EditorToolManager& GetEditorToolManager() { return toolManager_; }
     physics::PhysicsEngine& GetPhysicsEngine() { return physicsEngine_; }
+	fmod::FmodEngine& GetFmodEngine() { return fmodEngine_; }
 
 private:
 	ModeEnum mode_;
 
 	DrawSystem drawSystem_;
 
+	fmod::FmodEngine fmodEngine_;
     physics::PhysicsEngine physicsEngine_;
 
 	ResourceManagerContainer rContainer_;

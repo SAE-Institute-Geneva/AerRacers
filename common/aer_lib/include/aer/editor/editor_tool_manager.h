@@ -74,5 +74,7 @@ private:
 
 	Entity selectedEntity_ = INVALID_ENTITY;
 	std::vector<std::unique_ptr<EditorToolInterface>> tools_;
+
+	bool hasInit_ = false;
 };
 }    // namespace neko::aer

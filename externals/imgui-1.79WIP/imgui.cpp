@@ -5187,6 +5187,7 @@ static void ApplyWindowSettings(ImGuiWindow* window, ImGuiWindowSettings* settin
     if (settings->Size.x > 0 && settings->Size.y > 0)
         window->Size = window->SizeFull = ImFloor(ImVec2(settings->Size.x, settings->Size.y));
     window->Collapsed = settings->Collapsed;
+    window->Active = settings->IsOpen;
     window->DockId = settings->DockId;
     window->DockOrder = settings->DockOrder;
 }
@@ -10803,6 +10804,7 @@ static void WindowSettingsHandler_ReadLine(ImGuiContext*, ImGuiSettingsHandler*,
     else if (sscanf(line, "ViewportId=0x%08X", &u1) == 1)   { settings->ViewportId = u1; }
     else if (sscanf(line, "ViewportPos=%i,%i", &x, &y) == 2){ settings->ViewportPos = ImVec2ih((short)x, (short)y); }
     else if (sscanf(line, "Collapsed=%d", &i) == 1)         { settings->Collapsed = (i != 0); }
+    else if (sscanf(line, "IsOpen=%d", &i) == 1)            { settings->IsOpen = (i != 0); }
     else if (sscanf(line, "DockId=0x%X,%d", &u1, &i) == 2)  { settings->DockId = u1; settings->DockOrder = (short)i; }
     else if (sscanf(line, "DockId=0x%X", &u1) == 1)         { settings->DockId = u1; settings->DockOrder = -1; }
     else if (sscanf(line, "ClassId=0x%X", &u1) == 1)        { settings->ClassId = u1; }
@@ -10848,6 +10850,7 @@ static void WindowSettingsHandler_WriteAll(ImGuiContext* ctx, ImGuiSettingsHandl
         settings->ClassId = window->WindowClass.ClassId;
         settings->DockOrder = window->DockOrder;
         settings->Collapsed = window->Collapsed;
+        settings->IsOpen = window->Active;
     }
 
     // Write to text buffer
@@ -10866,6 +10869,7 @@ static void WindowSettingsHandler_WriteAll(ImGuiContext* ctx, ImGuiSettingsHandl
         if (settings->Size.x != 0 || settings->Size.y != 0)
             buf->appendf("Size=%d,%d\n", settings->Size.x, settings->Size.y);
         buf->appendf("Collapsed=%d\n", settings->Collapsed);
+        buf->appendf("IsOpen=%d\n", settings->IsOpen);
         if (settings->DockId != 0)
         {
             // Write DockId as 4 digits if possible. Automatic DockId are small numbers, but full explicit DockSpace() are full ImGuiID range.
@@ -14643,6 +14647,7 @@ void ImGui::DockBuilderCopyWindowSettings(const char* src_name, const char* dst_
         }
         dst_settings->Size = ImVec2ih(src_window->SizeFull);
         dst_settings->Collapsed = src_window->Collapsed;
+        dst_settings->IsOpen = src_window->Active;
     }
 }
 
@@ -15709,8 +15714,8 @@ void ImGui::ShowMetricsWindow(bool* p_open)
 
         static void NodeWindowSettings(ImGuiWindowSettings* settings)
         {
-            ImGui::Text("0x%08X \"%s\" Pos (%d,%d) Size (%d,%d) Collapsed=%d",
-                settings->ID, settings->GetName(), settings->Pos.x, settings->Pos.y, settings->Size.x, settings->Size.y, settings->Collapsed);
+            ImGui::Text("0x%08X \"%s\" Pos (%d,%d) Size (%d,%d) Collapsed=%d IsOpen=%d",
+                settings->ID, settings->GetName(), settings->Pos.x, settings->Pos.y, settings->Size.x, settings->Size.y, settings->Collapsed, settings->IsOpen);
         }
 
         static void NodeViewport(ImGuiViewportP* viewport)

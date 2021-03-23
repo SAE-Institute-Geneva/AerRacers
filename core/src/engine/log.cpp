@@ -21,23 +21,28 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <engine/log.h>
 #include <iostream>
+
+#include "engine/log.h"
+
 #if defined(__ANDROID__)
 #include <android/log.h>
 #endif
-static std::vector<std::string> logs;
+
 void logDebug(const std::string& msg)
 {
 #if defined(__ANDROID__)
     __android_log_print(ANDROID_LOG_INFO, "NekoEngine", "%s", msg.c_str());
 #else
-	std::cout << msg << "\n";
-	//logs.push_back(msg);
+	std::cout << "[Debug] " << msg << "\n";
 #endif
 }
 
-const std::vector<std::string>& getLog()
+void logError(const std::string& msg)
 {
-    return logs;
+#if defined(__ANDROID__)
+    __android_log_print(ANDROID_LOG_ERROR, "NekoEngine", "%s", msg.c_str());
+#else
+	std::cerr << "[ERROR] " << msg << "\n";
+#endif
 }

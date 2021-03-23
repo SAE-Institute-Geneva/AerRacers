@@ -76,6 +76,8 @@ void LightManager::SetShaderValues(gl::Shader& shader)
 void LightManager::SetShaderValues()
 {
 	const auto lights = entityManager_.get().FilterEntities(EntityMask(ComponentType::LIGHT));
+	ResizeIfNecessary(components_, lights.back(), {});
+
 	for (const auto& light : lights)
 	{
 		const Vec3f position = transformManager_.GetGlobalPosition(light);
@@ -99,7 +101,7 @@ void LightViewer::DrawImGui(Entity entity)
 		if (TreeNode("Light"))
 		{
 			PointLight light = lightManager_.GetComponent(entity);
-			ColorEdit4("Diffuse", &light.diffuse[0], LabelPos::LEFT);
+			ColorEdit3("Diffuse", &light.diffuse[0], LabelPos::LEFT);
 
 			DragFloat("Specular", &light.specular, LabelPos::LEFT, 0.05f, 0.0f, 1.0f);
 			DragFloat("Intensity", &light.intensity, LabelPos::LEFT, 0.05f, 0.0f, 1000.0f);

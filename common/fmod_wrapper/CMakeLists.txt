@@ -1,4 +1,4 @@
-LIST(APPEND FMOD_WRAPPER_LIBS Neko_Core fmod)
+LIST(APPEND FMOD_WRAPPER_LIBS Neko_Core fmod sdl_engine)
 
 file(GLOB_RECURSE fmod_wrapper_src include/*.h src/*.cpp)
 add_library(fmod_wrapper STATIC ${fmod_wrapper_src})

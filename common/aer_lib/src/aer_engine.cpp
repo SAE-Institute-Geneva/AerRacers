@@ -1,9 +1,5 @@
 #include "aer/aer_engine.h"
 
-#ifdef NEKO_VULKAN
-#include "vk/vk_resources.h"
-#endif
-
 #ifdef EASY_PROFILE_USE
     #include <easy/profiler.h>
 #endif
@@ -40,6 +36,7 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 		tagManager_        = std::make_unique<TagManager>(cContainer_.sceneManager);
 
         physicsEngine_.InitPhysics();
+		RegisterSystem(fmodEngine_);
 		RegisterSystem(rContainer_);
         RegisterSystem(cContainer_);
         RegisterSystem(physicsEngine_);

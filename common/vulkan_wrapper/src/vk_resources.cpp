@@ -7,7 +7,6 @@ VkResources::VkResources(sdl::VulkanWindow* window) : vkWindow(window) { Inst = 
 VkResources::~VkResources()
 {
 	vkDeviceWaitIdle(VkDevice(device));
-	imgui_.Destroy();
 
 	const auto& graphicsQueue = device.GetGraphicsQueue();
 	vkQueueWaitIdle(graphicsQueue);
@@ -20,6 +19,7 @@ VkResources::~VkResources()
 		vkDestroySemaphore(VkDevice(device), finishedSemaphores_[i], nullptr);
 	}
 
+	imgui_.Destroy();
 	renderer_->Destroy();
 
 	for (auto& commandBuffer : commandBuffers_)

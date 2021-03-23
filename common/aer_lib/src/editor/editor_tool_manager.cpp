@@ -1,5 +1,4 @@
 #include <imgui_internal.h>
-#include <aer/editor/editor_tool_manager.h>
 
 #include "aer/aer_engine.h"
 #include "aer/editor/tool/hierarchy.h"
@@ -7,7 +6,6 @@
 #include "aer/editor/tool/light_controller.h"
 #include "aer/editor/tool/logger.h"
 #include "aer/editor/tool/scene_loader.h"
-#include "aer/gizmos_renderer.h"
 
 namespace neko::aer
 {
@@ -154,6 +152,7 @@ void EditorToolManager::DrawImGui()
 	windowFlags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 	PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
+
 	Begin("Showroom", reinterpret_cast<bool*>(true), windowFlags);
 	{
 		PopStyleVar();
@@ -209,9 +208,15 @@ void EditorToolManager::DrawImGui()
 
 	for (auto& tool : tools_)
 	{
+		const std::string id = fmt::format("###{}{}", tool->GetName(), tool->GetId());
+		if (!hasInit_)
+		{
+			const auto* winSettings = ImGui::FindOrCreateWindowSettings(id.c_str());
+			tool->isVisible         = winSettings->IsOpen;
+		}
+
 		if (!tool->isVisible) continue;
-		const std::string id      = std::string(tool->GetName()) + std::to_string(tool->GetId());
-		const std::string winName = std::string(tool->GetName()) + "###" + id;
+		const std::string winName = std::string(tool->GetName()) + id;
 		if (ImGui::Begin(winName, &tool->isVisible))
 		{
 			// Window Label
@@ -225,6 +230,8 @@ void EditorToolManager::DrawImGui()
 		}
 		ImGui::End();
 	}
+
+	hasInit_ = true;
 }
 
 void EditorToolManager::DrawList()

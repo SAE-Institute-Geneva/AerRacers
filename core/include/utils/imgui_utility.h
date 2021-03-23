@@ -43,6 +43,10 @@ enum class LabelPos
 	LEFT
 };
 
+/// An internal command to correctly draw the label
+void DrawLabel(std::string_view label, LabelPos labelPos = LabelPos::RIGHT);
+void EndDrawLabel(LabelPos labelPos = LabelPos::RIGHT);
+
 /// Begin an ImGui window using strings
 bool Begin(std::string_view name, bool* isOpen = nullptr, ImGuiWindowFlags flags = 0);
 
@@ -86,6 +90,42 @@ bool DragFloat4(std::string_view label,
 	const char* format     = "%.3f",
 	ImGuiSliderFlags flags = 0);
 
+/// A SliderFloat with more flexible and better handling of labels
+bool SliderFloat(const char* label,
+	float* v,
+	float vMin,
+	float vMax,
+	LabelPos labelPos      = LabelPos::RIGHT,
+	const char* format     = "%.3f",
+	ImGuiSliderFlags flags = 0);
+
+/// A SliderFloat2 with more flexible and better handling of labels
+bool SliderFloat2(const char* label,
+	float v[2],
+	float vMin,
+	float vMax,
+	LabelPos labelPos      = LabelPos::RIGHT,
+	const char* format     = "%.3f",
+	ImGuiSliderFlags flags = 0);
+
+/// A SliderFloat3 with more flexible and better handling of labels
+bool SliderFloat3(const char* label,
+	float v[3],
+	float vMin,
+	float vMax,
+	LabelPos labelPos      = LabelPos::RIGHT,
+	const char* format     = "%.3f",
+	ImGuiSliderFlags flags = 0);
+
+/// A SliderFloat4 with more flexible and better handling of labels
+bool SliderFloat4(const char* label,
+	float v[4],
+	float vMin,
+	float vMax,
+	LabelPos labelPos      = LabelPos::RIGHT,
+	const char* format     = "%.3f",
+	ImGuiSliderFlags flags = 0);
+
 /// A special DragBox with a color picker with no alpha channel
 bool ColorEdit3(std::string_view label,
 	float* col,
@@ -97,9 +137,6 @@ bool ColorEdit4(std::string_view label,
 	float* col,
 	LabelPos labelPos         = LabelPos::RIGHT,
 	ImGuiColorEditFlags flags = 0);
-
-/// Draws a button that's centered independently of the current indentation
-bool ButtonCentered(std::string_view label, const ImVec2& size = ImVec2(0.0f, 0.0f));
 
 /// Draws text using strings <br>
 /// Using invisible characters such as '#' can allow for extra padding
@@ -113,19 +150,25 @@ void TextColored(const ImVec4& col, std::string_view text, ...);
 /// Using invisible characters such as '#' can allow for extra padding
 void TextCentered(std::string_view text, ...);
 
+/// Draws a button that's centered independently of the current indentation
+bool ButtonCentered(std::string_view label, const ImVec2& size = ImVec2(0.0f, 0.0f));
+
 /// Draws button with a certain size using strings
 bool Button(std::string_view label, const ImVec2& size = ImVec2(0, 0));
 
 /// An InputText that takes a string as argument <br>
 /// Allows for dynamic input size
-bool InputText(
-	std::string_view label, std::string* str, ImGuiInputTextFlags flags = ImGuiInputTextFlags_None);
+bool InputText(std::string_view label,
+	std::string* str,
+	LabelPos labelPos         = LabelPos::RIGHT,
+	ImGuiInputTextFlags flags = ImGuiInputTextFlags_None);
 
 /// A combo box that takes a vector of strings as argument <br>
 /// Allows for more flexible combo size and labels
 bool Combo(std::string_view label,
 	int* currentItem,
 	const std::vector<std::string>* items,
+	LabelPos labelPos = LabelPos::RIGHT,
 	int heightInItems = -1);
 
 /// A combo box that takes a vector of strings as argument <br>
@@ -134,19 +177,23 @@ bool Combo(std::string_view label,
 bool Combo(std::string_view label,
 	unsigned* currentItem,
 	const std::vector<std::string>* items,
+	LabelPos labelPos = LabelPos::RIGHT,
 	int heightInItems = -1);
+
+/// A Checkbox with more flexible labels
+bool Checkbox(std::string_view label, bool* v, LabelPos labelPos = LabelPos::RIGHT);
 
 #ifdef NEKO_GLES3
 /// A button that contains an image <br>
 /// Since the current ImageButton from ImGui doesn't work yet, we need to create it ourselves
 bool ImageButton(std::string_view itemId,
-                 neko::TextureName userTextureId,
-                 const ImVec2& size,
-                 const ImVec2& uv0     = ImVec2(neko::Vec2f::zero),
-                 const ImVec2& uv1     = ImVec2(neko::Vec2f::one),
-                 int framePadding      = -1,
-                 const ImVec4& bgCol   = ImVec4(neko::Color::clear),
-                 const ImVec4& tintCol = ImVec4(neko::Color::white));
+	neko::TextureName userTextureId,
+	const ImVec2& size,
+	const ImVec2& uv0     = ImVec2(neko::Vec2f::zero),
+	const ImVec2& uv1     = ImVec2(neko::Vec2f::one),
+	int framePadding      = -1,
+	const ImVec4& bgCol   = ImVec4(neko::Color::clear),
+	const ImVec4& tintCol = ImVec4(neko::Color::white));
 #endif
 
 /// Draws a menu item using strings
