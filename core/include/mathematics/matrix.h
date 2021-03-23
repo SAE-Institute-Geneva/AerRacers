@@ -569,7 +569,9 @@ public:
 	// Intrinsics
 	//-----------------------------------------------------------------------------
 	[[nodiscard]] Mat4<T> MultiplyAoSoA(const Mat4<T>& rhs) const noexcept;
+#if defined(__SSE__) && !defined(__ANDROID__) || defined(EMSCRIPTEN) || defined(__arm__) || defined(__ANDROID__) || defined(__aarch64__)
 	[[nodiscard]] Mat4<T> MultiplyIntrinsics(const Mat4<T>& rhs) const noexcept;
+#endif
 
 private:
 	std::array<Vec4<T>, 4> columns_;
