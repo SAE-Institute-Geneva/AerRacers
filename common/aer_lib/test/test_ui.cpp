@@ -53,7 +53,7 @@ public:
         anchorTL = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::TOP_LEFT , 0, Color::white);
         anchorBL = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::BOTTOM_LEFT, 0, Color::white);
         anchorBR = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::BOTTOM_RIGHT, 0, Color::white);
-        movingImage = UiImage{ config.dataRootPath + "sprites/wall.jpg", Vec2f::zero, Vec2u{2, 1} *150.0f, UiAnchor::CENTER, 0, Color::white };
+        movingImage = UiImage{ config.dataRootPath + "sprites/wall.jpg", Vec2f::zero, Vec2u{5, 2} * 50.0f, UiAnchor::CENTER, 0, Color::white };
         auto& uiManager = UiManagerLocator::get();
         textBL = UiText(FontLoaded::LOBSTER, "BL", Vec2f(1.0f, 1.0f) * 0.1f, UiAnchor::BOTTOM_LEFT, 0, 1.0f, Color::cyan);
         textBR = UiText(FontLoaded::LOBSTER, "BR", Vec2f(-1.0f, 1.0f) * 0.1f, UiAnchor::BOTTOM_RIGHT, 0, 1.0f, Color::yellow);
@@ -81,8 +81,8 @@ public:
         movingText.SetText(std::to_string(updateCount_));
         movingImage.SetPosition((Vec2f::up * 0.5f).Rotate(radian_t(updateCount_)));
         uint8_t screen = (static_cast<int>(updateCount_) / 1) % 5;
-        movingText.SetScreenId(screen);
-        movingImage.SetScreenId(screen);
+        //movingText.SetScreenId(screen);
+        //movingImage.SetScreenId(screen);
         anchorTR.SetScreenId(screen);
         anchorTL.SetScreenId(screen);
         anchorBL.SetScreenId(screen);
@@ -91,8 +91,9 @@ public:
         textBR.SetScreenId(screen);
         textTL.SetScreenId(screen);
         textTR.SetScreenId(screen);
+        movingImage.SetCropping(Vec2f(Abs(Sin(radian_t(updateCount_))), 1.0f));
         updateCount_ += dt.count();
-        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Render() override
@@ -342,7 +343,7 @@ public:
         const auto& config = BasicEngine::GetInstance()->GetConfig();
         currentMenu_->backGround.SetSize(Vec2u(Vec2f(config.windowSize) * 0.9f));
 
-        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Render() override

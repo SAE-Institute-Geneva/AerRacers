@@ -82,6 +82,12 @@ public:
 	void SetSize(const Vec2u& size) { size_ = size; }
 	void SetColor(const Color4& color) { color_ = color; }
 
+    /**
+	 * \brief Crop the image
+	 * \param slidingCrop Percent of the image in x and y to crop
+	 */
+	void SetCropping(const Vec2f& slidingCrop) { slidingCrop_ = slidingCrop; }
+
 protected:
 	Vec2u size_ = Vec2u(100u);    //In pixel
 
@@ -96,5 +102,7 @@ protected:
 #endif
 
 	Color4 color_ = Color::white;
+
+	Vec2f slidingCrop_ = Vec2f::one;
 };
 }    // namespace neko::aer

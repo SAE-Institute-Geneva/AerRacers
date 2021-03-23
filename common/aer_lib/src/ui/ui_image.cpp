@@ -26,8 +26,9 @@ void UiImage::Init(gl::TextureManager& textureManager)
 
 void UiImage::Draw(gl::TextureManager& textureManager, const Vec2u& screenSize, const gl::Shader& uiImageShader)
 {
-	const Vec2f normalSpaceSize = Vec2f(size_ * 2.0f) / Vec2f(screenSize);
-	const Vec3f anchoredPosition = Vec3f(CalculateUiElementPosition(position_, uiAnchor_));
+	Vec2f normalSpaceSize = Vec2f(size_ * 2.0f) / Vec2f(screenSize);
+	const Vec3f anchoredPosition = Vec3f(CalculateUiElementPosition(position_, uiAnchor_)) + Vec3f(normalSpaceSize.x * (1.0f - slidingCrop_.x), normalSpaceSize.y * (1.0f - slidingCrop_.y), 1.0f) * -0.5f;
+	normalSpaceSize = Vec2f(normalSpaceSize.x * slidingCrop_.x, normalSpaceSize.y * slidingCrop_.y);
 	quad_.SetValues(normalSpaceSize, anchoredPosition);
 	glActiveTexture(GL_TEXTURE0);
 	if (textureName_ == INVALID_TEXTURE_NAME) {
@@ -36,6 +37,7 @@ void UiImage::Draw(gl::TextureManager& textureManager, const Vec2u& screenSize, 
 	}
 	glBindTexture(GL_TEXTURE_2D, textureName_);
 	uiImageShader.SetVec4("imageColor", color_);
+	uiImageShader.SetVec2("slidingCrop", slidingCrop_);
 	quad_.Draw();
 }
 #else
