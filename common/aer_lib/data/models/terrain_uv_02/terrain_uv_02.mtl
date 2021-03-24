@@ -1,0 +1,50 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 22.03.2021 14:50:30
+
+newmtl Material__14
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.317647 0.458824 0.180392
+	Kd 0.317647 0.458824 0.180392
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka grass_basecolor.png
+	map_Kd grass_basecolor.png
+	map_bump grass_normal.png
+	bump grass_normal.png
+
+newmtl Material__38
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.345098 0.341176 0.254902
+	Kd 0.345098 0.341176 0.254902
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka mur_basecolor.png
+	map_Kd mur_basecolor.png
+	map_bump mur_normal.png
+	bump mur_normal.png
+
+newmtl Material__26
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.317647 0.458824 0.180392
+	Kd 0.317647 0.458824 0.180392
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka grass_basecolor.png
+	map_Kd grass_basecolor.png
+	map_bump grass_normal.png
+	bump grass_normal.png

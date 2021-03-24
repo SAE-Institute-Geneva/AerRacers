@@ -81,6 +81,18 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 		}
 	}
 
+	// MeshCollider
+	if (CheckJsonParameter(componentJson, "meshCollider", json::value_t::object))
+	{
+		if (CheckJsonParameter(componentJson["meshCollider"], "exist", json::value_t::boolean))
+		{
+			if (componentJson["meshCollider"]["exist"])
+			{
+				componentManagerContainer_.rigidStaticManager.AddMeshColliderStatic(entity, componentJson["meshCollider"]["meshColliderName"]);
+			}
+		}
+	}
+
 	// Light
 	if (CheckJsonParameter(componentJson, "light", json::value_t::object))
 	{
