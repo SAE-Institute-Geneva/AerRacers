@@ -25,7 +25,7 @@
             "instanceId": -8726,
             "parent": -1,
             "layer": "Ground",
-            "isActive": true,
+            "isActive": false,
             "transform": {
                 "exist": true,
                 "position": {
@@ -121,7 +121,7 @@
             "instanceId": -8724,
             "parent": -8726,
             "layer": "Ground",
-            "isActive": true,
+            "isActive": false,
             "transform": {
                 "exist": true,
                 "position": {
@@ -313,7 +313,7 @@
             "instanceId": 24800,
             "parent": 24764,
             "layer": "Ground",
-            "isActive": true,
+            "isActive": false,
             "transform": {
                 "exist": true,
                 "position": {
