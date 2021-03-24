@@ -1,3 +1,4 @@
+#pragma once
 /*
  MIT License
 
@@ -27,7 +28,8 @@
 ---------------------------------------------------------- */
 #include <engine\entity.h>
 #include <mathematics/vector.h>
-#include <aer/aer_engine.h>
+#include <array>
+#include <utils/json_utility.h>
 //#include <aer/managers/player_manager.h>
 
 
@@ -38,10 +40,15 @@ namespace neko::aer
     using PlayerId = uint8_t;
     using WaypointsCount = uint8_t;
 
+    class AerEngine;
+
     struct Waypoint
     {
+        WaypointIndex index;
+
         Vec2f position;
         Vec2f normalizedNextVector;
+        Vec2f normalizedNextVector2;
 
         WaypointIndex previousWaypoint;
         WaypointIndex nextWaypoint;
@@ -50,6 +57,8 @@ namespace neko::aer
         WaypointIndex nextWaypoint2;
 
         float lengthNext;
+        float lengthNext2;
+
         bool hasTwoPrevious = false;
         bool hasTwoNext = false;
     };
@@ -68,12 +77,13 @@ namespace neko::aer
     {
     public:
         WaypointManager(AerEngine& engine);
-        void Init();
-        void Update();
+        void Init() override;
+        void Update(seconds dt) override;
         void AddWaypointFromJson(Entity entity, const json& jsonComponent);
         void CalculatePlayerPosition(Vec3f playerPosition, PlayerId playerId);
         void CalculatePlayerPlacement();
-        void Destroy();
+        PlayerPositionData* GetPlayerPositionData();
+        void Destroy() override;
     private:
         std::vector<Waypoint> waypoints_;
         AerEngine& engine_;

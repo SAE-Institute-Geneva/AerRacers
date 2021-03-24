@@ -11,6 +11,7 @@
 #include "aer/managers/ship_controller_manager.h"
 #include "aer/managers/camera_controller_manager.h"
 #include "aer/managers/waypoint_manager.h"
+#include "aer/managers/game_manager.h"
 #include "aer/scene.h"
 #include "engine/transform.h"
 
@@ -88,7 +89,7 @@ struct ComponentManagerContainer : public SystemInterface
             rigidStaticManager),
         shipControllerViewer(entityManager, playerManager, shipControllerManager),
         cameraControllerViewer(entityManager, playerManager, cameraControllerManager),
-        sceneManager(entityManager, *this), waypointManager(engine)
+        sceneManager(entityManager, *this), waypointManager(engine), gameManager(engine)
     {
         physicsEngine.RegisterCollisionListener(shipControllerManager);
         physicsEngine.RegisterFixedUpdateListener(rigidDynamicManager);
@@ -128,6 +129,7 @@ struct ComponentManagerContainer : public SystemInterface
     ShipControllerManager shipControllerManager;
     CameraControllerManager cameraControllerManager;
     WaypointManager waypointManager;
+    GameManager gameManager;
 
     Transform3dViewer transform3dViewer;
     RendererViewer rendererViewer;

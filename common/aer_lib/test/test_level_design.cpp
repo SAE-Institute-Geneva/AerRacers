@@ -56,12 +56,13 @@ namespace neko::aer {
             const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
             engine_.GetComponentManagerContainer().sceneManager.LoadScene(
                 config.dataRootPath +
-                "scenes/test_leveldesign.aerscene");
+                "scenes/WaypointTest.aerscene");
             cContainer_.playerManager.CreatePlayer(Vec3f(192.0f, 84.0f, 56.0f));
+            cContainer_.waypointManager.Init();
         }
 
         void Update(neko::seconds dt) override {
-
+            cContainer_.waypointManager.Update(dt);
             if (testFinish_ == true) {
                 engine_.Stop();
             }

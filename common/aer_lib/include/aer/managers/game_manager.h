@@ -1,3 +1,4 @@
+#pragma once
 /*
  MIT License
 
@@ -26,7 +27,33 @@
  Date : 24.03.21
 ---------------------------------------------------------- */
 
-class GameManager
+#include <engine\entity.h>
+#include <mathematics/vector.h>
+#include <aer/aer_engine.h>
+
+namespace neko::aer
 {
-    
-};
+    class AerEngine;
+    struct PlayerPositionData;
+
+    enum GameState
+    {
+        WATING,
+        RACING,
+        END
+    };
+
+    class GameManager : public SystemInterface
+    {
+    public:
+        GameManager(AerEngine& engine);
+        void Init() override;
+        void Update(seconds dt) override;
+        void Destroy() override;
+    private:
+        AerEngine& engine_;
+        const uint8_t waypointsToWin = 108;
+        GameState game_state_;
+        PlayerPositionData* playerPositionData;
+    };
+}
