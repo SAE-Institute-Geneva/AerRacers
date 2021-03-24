@@ -55,6 +55,26 @@ namespace neko::aer
         playerComponent.shipModelEntity = shipModelEntity;
         playerComponent.playerNumber = playerComponents_.size();
         playerComponent.playerSpawn = pos;
+
+        Entity shipRightRotor = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(shipRightRotor);
+        cContainer_.entityManager.SetEntityParent(shipRightRotor, shipModelEntity);
+        cContainer_.transform3dManager.SetGlobalScale(shipRightRotor, Vec3f::one);
+        cContainer_.renderManager.AddComponent(shipRightRotor);
+        cContainer_.renderManager.SetModel(shipRightRotor, config.dataRootPath + "models/cube/cube.obj");
+        cContainer_.transform3dManager.SetRelativePosition(shipRightRotor, Vec3f(1,1,1));
+
+        Entity shipLeftRotor = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(shipLeftRotor);
+        cContainer_.entityManager.SetEntityParent(shipLeftRotor, shipModelEntity);
+        cContainer_.transform3dManager.SetGlobalScale(shipLeftRotor, Vec3f::one);
+        cContainer_.renderManager.AddComponent(shipLeftRotor);
+        cContainer_.renderManager.SetModel(shipLeftRotor, config.dataRootPath + "models/cube/cube.obj");
+        cContainer_.transform3dManager.SetRelativePosition(shipRightRotor, Vec3f(-1,1,1));
+
+        shipControllerManager_.AssignRotors(playerCount_, shipRightRotor, shipLeftRotor);
+
+
         std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
         if (controllers.size() > playerCount_)
             playerComponent.linkedJoystick = controllers[playerCount_];
