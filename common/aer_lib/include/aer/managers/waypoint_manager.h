@@ -27,26 +27,57 @@
 ---------------------------------------------------------- */
 #include <engine\entity.h>
 #include <mathematics/vector.h>
-#include <sdl_engine/sdl_input.h>
+#include <aer/aer_engine.h>
+//#include <aer/managers/player_manager.h>
+
 
 namespace neko::aer
 {
+    using WaypointIndex = uint8_t;
+    using RacePlacement = uint8_t;
+    using PlayerId = uint8_t;
+    using WaypointsCount = uint8_t;
+
     struct Waypoint
     {
         Vec2f position;
-        Waypoint* previousWaypoint;
-        Waypoint* nextWaypoint;
+        Vec2f normalizedNextVector;
+
+        WaypointIndex previousWaypoint;
+        WaypointIndex nextWaypoint;
+
+        WaypointIndex previousWaypoint2;
+        WaypointIndex nextWaypoint2;
+
         float lengthNext;
+        bool hasTwoPrevious = false;
+        bool hasTwoNext = false;
     };
 
-    class WaypointManager
+    struct PlayerPositionData
+    {
+        std::array<RacePlacement, 4> racePlacement;
+        std::array<float, 4> positionInWaypoint;
+        std::array<WaypointIndex, 4> waypoints;
+        std::array<WaypointsCount, 4> waypointsCount;
+    };
+
+    //class AerEngine;
+
+    class WaypointManager : public SystemInterface
     {
     public:
+        WaypointManager(AerEngine& engine);
         void Init();
         void Update();
+        void AddWaypointFromJson(Entity entity, const json& jsonComponent);
+        void CalculatePlayerPosition(Vec3f playerPosition, PlayerId playerId);
+        void CalculatePlayerPlacement();
         void Destroy();
     private:
-        std::vector<Waypoint*> waypoints_;
+        std::vector<Waypoint> waypoints_;
+        AerEngine& engine_;
+        PlayerPositionData playerPositionData_;
     };
 }
 

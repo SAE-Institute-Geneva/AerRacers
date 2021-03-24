@@ -79,6 +79,7 @@ private:
 
 	ResourceManagerContainer rContainer_;
 	ComponentManagerContainer cContainer_;
+	 
 
 	EditorToolManager toolManager_;
 

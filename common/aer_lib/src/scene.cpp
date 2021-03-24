@@ -41,6 +41,17 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 		}
 	}
 
+	if (CheckJsonParameter(componentJson, "waypoint", json::value_t::object))
+	{
+		if (CheckJsonParameter(componentJson["waypoint"], "exist", json::value_t::boolean))
+		{
+			if (componentJson["waypoint"]["exist"])
+			{
+				componentManagerContainer_.waypointManager.AddWaypointFromJson(entity, componentJson["waypoint"]);
+			}
+		}
+	}
+
 	if (CheckJsonParameter(componentJson, "rigidbody", json::value_t::object))
 	{
 		if (CheckJsonParameter(componentJson["rigidbody"], "exist", json::value_t::boolean))

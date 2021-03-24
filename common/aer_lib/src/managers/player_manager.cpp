@@ -69,6 +69,7 @@ namespace neko::aer
         return playerComponents_[playerId];
     }
 
+
     Entity PlayerManager::GetShipEntity(PlayerId playerId)
     {
         return playerComponents_[playerId].shipEntity;
@@ -99,6 +100,12 @@ namespace neko::aer
             }
         }
     }
+
+Vec3f PlayerManager::GetPlayerPosition(PlayerId playerId)
+{
+    return cContainer_.transform3dManager.GetGlobalPosition(playerComponents_[playerId].shipEntity);
+}
+
 
     void PlayerManager::Destroy()
     {

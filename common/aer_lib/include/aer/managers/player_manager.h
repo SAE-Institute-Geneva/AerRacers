@@ -68,6 +68,7 @@ using PlayerId = uint8_t;
 		PlayerComponent GetPlayerComponent(PlayerId playerId);
 		Entity GetShipEntity(PlayerId playerId);
 		size_t GetPlayerCount() const { return playerCount_; }
+		Vec3f GetPlayerPosition(PlayerId playerId);
 
         void Init() override;
         void Update(seconds dt) override;
