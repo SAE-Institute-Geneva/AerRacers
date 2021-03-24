@@ -110,7 +110,7 @@ public:
 
 private:
     float updateCount_ = 0;
-    const float kEngineDuration_ = 20.0f;
+    const float kEngineDuration_ = 30.0f;
     bool loaded_ = false;
     AerEngine& engine_;
 
@@ -215,7 +215,7 @@ public:
 
 private:
     float updateCount_ = 0;
-    const float kEngineDuration_ = 20.0f;
+    const float kEngineDuration_ = 30.0f;
     bool loaded_ = false;
     AerEngine& engine_;
 
