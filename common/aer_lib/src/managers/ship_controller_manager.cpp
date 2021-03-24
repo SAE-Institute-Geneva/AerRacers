@@ -193,8 +193,8 @@ void ShipControllerManager::RotorMovement(PlayerId playerId) {
     leftRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
     leftRotation.z = -shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
 
-    transformManager_.SetGlobalRotation(shipController.rightRotor, ConvertVec3fToEulerAngles(rightRotation));
-    transformManager_.SetGlobalRotation(shipController.leftRotor, ConvertVec3fToEulerAngles(leftRotation));
+    transformManager_.SetRelativeRotation(shipController.rightRotor, ConvertVec3fToEulerAngles(rightRotation));
+    transformManager_.SetRelativeRotation(shipController.leftRotor, ConvertVec3fToEulerAngles(leftRotation));
 }
 
 
