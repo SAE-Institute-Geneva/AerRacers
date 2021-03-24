@@ -64,9 +64,9 @@ public:
 		EXPECT_TRUE(
 			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
 		EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
-		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).x,Vec3f(1.0, 3.0, 5.0).x,0.1f);
-		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).y,Vec3f(1.0, 3.0, 5.0).y,0.1f);
-		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).z,Vec3f(1.0, 3.0, 5.0).z,0.1f);
+		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).x,Vec3f(-1.0, 3.0, 5.0).x,0.1f);
+		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).y,Vec3f(-1.0, 3.0, 5.0).y,0.1f);
+		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).z,Vec3f(-1.0, 3.0, 5.0).z,0.1f);
 
 	}
 };
@@ -84,7 +84,7 @@ public:
 		EXPECT_TRUE(
 			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
 		EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
-		EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(960, 540, 0));
+		EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(-960, 540, 0));
 	}
 };
 
@@ -275,7 +275,7 @@ public:
 		//Test Transform
 		EXPECT_TRUE(
 			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
-        EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(1.0, 3.0, 5.0));
+        EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(-1.0, 3.0, 5.0));
         EXPECT_FALSE(
             cContainer.entityManager.HasComponent(1, EntityMask(ComponentType::TRANSFORM3D)));
 		//Test Renderer

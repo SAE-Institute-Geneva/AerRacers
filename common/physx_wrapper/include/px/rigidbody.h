@@ -26,6 +26,7 @@
  Co-Author :
  Date : 22.11.2020
 ---------------------------------------------------------- */
+#include "aer/managers/render_manager.h"
 #include "engine/transform.h"
 
 #include "px/collider.h"
@@ -254,6 +255,7 @@ class RigidStaticManager final
 public:
 	RigidStaticManager(EntityManager& entityManager,
 		Transform3dManager& transform3dManager,
+		aer::RenderManager& renderManager,
 		PhysicsEngine& physicsEngine);
 
 	void FixedUpdate(seconds dt) override;
@@ -263,6 +265,12 @@ public:
 	 * \param body initial rigidstatic data
 	 */
 	void AddRigidStatic(Entity entity, const RigidStaticData& body);
+
+	/**
+	 * \brief Create a meshCollider rigidStatic Actor in the PxScene
+	 * \param modelName of the meshCollider
+	 */
+	void AddMeshColliderStatic(Entity entity, const std::string& modelName);
 
 	/**
 	 * \brief Use to get parameter of an actor
@@ -290,6 +298,8 @@ public:
 protected:
 	Transform3dManager& transform3dManager_;
 	PhysicsEngine& physicsEngine_;
+	aer::RenderManager& renderManager_;
+	std::vector<std::pair<Entity, gl::ModelId>> meshColliderToCreate_;
 };
 
 /**

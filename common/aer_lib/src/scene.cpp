@@ -91,6 +91,18 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 		}
 	}
 
+	// MeshCollider
+	if (CheckJsonParameter(componentJson, "meshCollider", json::value_t::object))
+	{
+		if (CheckJsonParameter(componentJson["meshCollider"], "exist", json::value_t::boolean))
+		{
+			if (componentJson["meshCollider"]["exist"])
+			{
+				componentManagerContainer_.rigidStaticManager.AddMeshColliderStatic(entity, componentJson["meshCollider"]["meshColliderName"]);
+			}
+		}
+	}
+
 	// Light
 	if (CheckJsonParameter(componentJson, "light", json::value_t::object))
 	{
@@ -206,6 +218,11 @@ bool SceneManager::LoadScene(const std::string_view& jsonPath)
 	if (filesystem_.FileExists(jsonPath))
 	{
 		json scene              = neko::LoadJson(jsonPath);
+		if (!scene.is_object())
+		{
+			LogError(fmt::format("Scene reading failed {}", jsonPath));
+			return false;
+		}
 		currentScene_.scenePath = jsonPath;
 #ifdef NEKO_VULKAN
 		auto& cmdBuffers = vk::VkResources::Inst->modelCommandBuffers;
@@ -218,7 +235,7 @@ bool SceneManager::LoadScene(const std::string_view& jsonPath)
 	}
 	else
 	{
-		LogDebug(fmt::format("Scene not found", currentScene_.sceneName));
+		LogError(fmt::format("Scene not found {}", jsonPath));
 		return false;
 	}
 }

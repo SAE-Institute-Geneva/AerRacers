@@ -3,6 +3,7 @@
 
 #ifdef NEKO_GLES3
 #include "gl/model.h"
+#include "gl/model_manager.h"
 #else
 #include "vk/commands/model_command_buffer.h"
 #endif

@@ -1,5 +1,9 @@
 #include <imgui.h>
 
+#include "aer/tag.h"
+#include "engine/configuration.h"
+#include "engine/engine.h"
+
 #include "px/physics_engine.h"
 #include "px/physx_utility.h"
 
@@ -874,13 +878,26 @@ void RigidDynamic::MovePosition(const Vec3f& pos) const
 
 RigidStaticManager::RigidStaticManager(EntityManager& entityManager,
 	Transform3dManager& transform3dManager,
+    aer::RenderManager& renderManager,
 	PhysicsEngine& physicsEngine)
-   : ComponentManager<RigidStatic, EntityMask(ComponentType::RIGID_STATIC)>(entityManager),
-	 transform3dManager_(transform3dManager),
-	 physicsEngine_(physicsEngine)
-{}
+    : ComponentManager<RigidStatic, EntityMask(ComponentType::RIGID_STATIC)>(entityManager),
+      transform3dManager_(transform3dManager),
+      physicsEngine_(physicsEngine),
+      renderManager_(renderManager) {}
 
-void RigidStaticManager::FixedUpdate(seconds dt) {}
+void RigidStaticManager::FixedUpdate(seconds dt) {
+	for (size_t index = 0; index < meshColliderToCreate_.size(); ++index) {
+		if (gl::ModelManagerLocator::get().IsLoaded(meshColliderToCreate_[index].second))
+		{
+			RigidStaticData rigidStatic;
+			rigidStatic.colliderType = ColliderType::MESH;
+			rigidStatic.meshColliderData.modelId = meshColliderToCreate_[index].second;
+			rigidStatic.meshColliderData.size = 100.0f;
+			AddRigidStatic(meshColliderToCreate_[index].first, rigidStatic);
+			meshColliderToCreate_.erase(meshColliderToCreate_.begin() + index);
+		}
+	}
+}
 
 void RigidStaticManager::AddRigidStatic(Entity entity, const RigidStaticData& rigidStaticData)
 {
@@ -899,11 +916,35 @@ void RigidStaticManager::AddRigidStatic(Entity entity, const RigidStaticData& ri
 		newRigidStaticData.capsuleColliderData.height * scale.x;
 	newRigidStaticData.capsuleColliderData.radius =
 		newRigidStaticData.capsuleColliderData.radius * scale.z;
+	newRigidStaticData.capsuleColliderData.offset = newRigidStaticData.capsuleColliderData.offset * scale;
+	newRigidStaticData.sphereColliderData.offset = newRigidStaticData.sphereColliderData.offset * scale;
+	newRigidStaticData.boxColliderData.offset = newRigidStaticData.boxColliderData.offset * scale;
 	newRigidStaticData.meshColliderData.size = newRigidStaticData.meshColliderData.size * scale.x;
 	RigidStatic rigidStatic                  = GetComponent(entity);
 	rigidStatic.Init(physicsEngine_, newRigidStaticData, position, euler);
 	physicsEngine_.GetScene()->addActor(*rigidStatic.GetPxRigidStatic());
 	SetComponent(entity, rigidStatic);
+}
+
+void RigidStaticManager::AddMeshColliderStatic(Entity entity, const std::string& modelName)
+{
+
+	Configuration config = BasicEngine::GetInstance()->GetConfig();
+	const std::string modelPath =
+		config.dataRootPath + "models/" + modelName + "/" + modelName + ".obj";
+    gl::ModelId modelId = gl::ModelManagerLocator::get().LoadModel(modelPath);
+	if (gl::ModelManagerLocator::get().IsLoaded(modelId))
+	{
+		RigidStaticData rigidStatic;
+		rigidStatic.colliderType = ColliderType::MESH;
+		rigidStatic.meshColliderData.modelId = modelId;
+		rigidStatic.meshColliderData.size = 100.0f;
+		AddRigidStatic(entity, rigidStatic);
+	}
+	else
+	{
+		meshColliderToCreate_.push_back(std::pair<Entity, gl::ModelId>(entity, modelId));
+	}
 }
 
 const RigidStaticData& RigidStaticManager::GetRigidStaticData(Entity entity) const

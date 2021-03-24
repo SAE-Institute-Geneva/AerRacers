@@ -169,7 +169,7 @@ public:
 struct MultiCamera : IMultiCamera
 {
 public:
-	float moveSpeed = 5.0f;
+	float moveSpeed = 500.0f;
 	float mouseSpeed = 0.5f;
 	float mouseSensitivity = 0.25f;
 

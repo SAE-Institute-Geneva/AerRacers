@@ -65,7 +65,7 @@ public:
 	EditorToolManager& GetEditorToolManager() { return toolManager_; }
     physics::PhysicsEngine& GetPhysicsEngine() { return physicsEngine_; }
 
-	sdl::MultiCamera& GetGameCamera() { return drawSystem_.GetGameCamera(); }
+	sdl::MultiCamera& GetCameras() { return drawSystem_.GetCameras(); }
 private:
 	ModeEnum mode_;
 

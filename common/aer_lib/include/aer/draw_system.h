@@ -57,7 +57,8 @@ public:
 	void Destroy() override;
 
 	void OnEvent(const SDL_Event& event) override;
-	sdl::MultiCamera& GetGameCamera() { return camera_; }
+
+	sdl::MultiCamera& GetCameras() { return camera_; }
 private:
 #ifdef NEKO_GLES3
 	void RenderScene(std::size_t playerNum);
@@ -74,6 +75,8 @@ private:
 #endif
 
 	std::unique_ptr<UiManager> uiManager_;
+
+	std::uint8_t playerNum_ = 1;
 
 	//For Test
 	Entity shipEntity_;
