@@ -62,7 +62,7 @@ namespace neko::aer
         Entity shipRightRotor = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(shipRightRotor);
         cContainer_.entityManager.SetEntityParent(shipRightRotor, shipModelEntity);
-        cContainer_.transform3dManager.SetRelativePosition(shipRightRotor, pos + Vec3f::right * 7);
+        cContainer_.transform3dManager.SetRelativePosition(shipRightRotor, pos + Vec3f::left * 7);
         cContainer_.transform3dManager.SetGlobalScale(shipRightRotor, Vec3f(2, 1, 2));
         cContainer_.renderManager.AddComponent(shipRightRotor);
         cContainer_.renderManager.SetModel(shipRightRotor, config.dataRootPath + "models/cube/cube.obj");
@@ -70,7 +70,7 @@ namespace neko::aer
         Entity shipLeftRotor = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(shipLeftRotor);
         cContainer_.entityManager.SetEntityParent(shipLeftRotor, shipModelEntity);
-        cContainer_.transform3dManager.SetRelativePosition(shipLeftRotor, pos + Vec3f::left * 7);
+        cContainer_.transform3dManager.SetRelativePosition(shipLeftRotor, pos + Vec3f::right * 7);
         cContainer_.transform3dManager.SetGlobalScale(shipLeftRotor, Vec3f(2, 1, 2));
         cContainer_.renderManager.AddComponent(shipLeftRotor);
         cContainer_.renderManager.SetModel(shipLeftRotor, config.dataRootPath + "models/cube/cube.obj");
