@@ -49,7 +49,7 @@ struct ComponentManagerContainer : public SystemInterface
 		 renderManager(entityManager, rContainer.modelManager, transform3dManager, lightManager),
 		 lightManager(entityManager, transform3dManager),
 		 rigidDynamicManager(entityManager, transform3dManager, physicsEngine),
-		 rigidStaticManager(entityManager, transform3dManager, physicsEngine),
+		 rigidStaticManager(entityManager, transform3dManager, renderManager, physicsEngine),
 		 transform3dViewer(entityManager, transform3dManager),
 		 rendererViewer(entityManager, renderManager),
 		 lightViewer(entityManager, lightManager),

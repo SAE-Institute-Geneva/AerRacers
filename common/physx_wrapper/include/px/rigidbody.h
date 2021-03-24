@@ -268,9 +268,9 @@ public:
 
 	/**
 	 * \brief Create a meshCollider rigidStatic Actor in the PxScene
-	 * \param modelPath of the meshCollider
+	 * \param modelName of the meshCollider
 	 */
-	void AddMeshColliderStatic(Entity entity, const std::string_view& modelPath);
+	void AddMeshColliderStatic(Entity entity, const std::string& modelName);
 
 	/**
 	 * \brief Use to get parameter of an actor

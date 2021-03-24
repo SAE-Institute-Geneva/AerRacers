@@ -93,7 +93,7 @@ public:
         textTR.SetScreenId(screen);
         movingImage.SetCropping(Vec2f(Abs(Sin(radian_t(updateCount_))), 1.0f));
         updateCount_ += dt.count();
-        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Render() override
@@ -110,7 +110,7 @@ public:
     ~TestUiManager() override = default;
 private:
     float updateCount_           = 0;
-    const float kEngineDuration_ = 0.5f;
+    const float kEngineDuration_ = 3.0f;
 
     AerEngine& engine_;
 
@@ -310,7 +310,7 @@ public:
         const auto& config = BasicEngine::GetInstance()->GetConfig();
         currentMenu_->backGround.SetSize(Vec2u(Vec2f(config.windowSize) * 0.9f));
 
-        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Render() override

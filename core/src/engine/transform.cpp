@@ -334,9 +334,12 @@ json Transform3dViewer::GetJsonFromComponent(Entity entity) const
 void Transform3dViewer::SetComponentFromJson(Entity entity, const json& jsonComponent)
 {
     if (CheckJsonParameter(jsonComponent, "position", json::object())) {
+		Vec3f position = GetVector3FromJson(jsonComponent, "position");
+		//Fix for Unity Export
+		position = Vec3f(-position.x, position.y, position.z);
         transform3dManager_.SetRelativePosition(
             entity,
-            GetVector3FromJson(jsonComponent, "position"));
+			position);
     }
     if (CheckJsonParameter(jsonComponent, "rotation", json::object())) {
         transform3dManager_.SetRelativeRotation(entity,
