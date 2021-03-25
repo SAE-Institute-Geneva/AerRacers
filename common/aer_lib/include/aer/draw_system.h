@@ -26,9 +26,14 @@
  Co-Author :
  Date : 29.09.2020
 ---------------------------------------------------------- */
+#include "sdl_engine/sdl_camera.h"
+
 #include "aer/editor/editor_tool_manager.h"
-#include "aer/game/game_camera.h"
+#include "aer/ui/ui_manager.h"
+
+#ifdef NEKO_GLES3
 #include "aer/gizmos_renderer.h"
+#endif
 
 namespace neko::aer
 {
@@ -37,7 +42,6 @@ struct ResourceManagerContainer;
 struct ComponentManagerContainer;
 
 constexpr std::uint8_t kMaxPlayerNum = 4;
-
 class DrawSystem final : public SystemInterface,
 						 public sdl::SdlEventSystemInterface,
 						 public RenderCommandInterface,
@@ -53,11 +57,14 @@ public:
 	void Destroy() override;
 
 	void OnEvent(const SDL_Event& event) override;
-	GameCamera& GetGameCamera() { return camera_; }
-private:
-	void RenderScene(std::size_t playerNum);
 
-	GameCamera camera_;
+	sdl::MultiCamera& GetCameras() { return camera_; }
+private:
+#ifdef NEKO_GLES3
+	void RenderScene(std::size_t playerNum);
+#endif
+
+	sdl::MultiCamera camera_;
 	AerEngine& engine_;
 
 	ResourceManagerContainer& rContainer_;
@@ -66,6 +73,10 @@ private:
 #ifdef NEKO_GLES3
 	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
 #endif
+
+	std::unique_ptr<UiManager> uiManager_;
+
+	std::uint8_t playerNum_ = 1;
 
 	//For Test
 	Entity shipEntity_;

@@ -64,9 +64,9 @@ public:
 		EXPECT_TRUE(
 			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
 		EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
-		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).x,Vec3f(1.0, 3.0, 5.0).x,0.1f);
-		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).y,Vec3f(1.0, 3.0, 5.0).y,0.1f);
-		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).z,Vec3f(1.0, 3.0, 5.0).z,0.1f);
+		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).x,Vec3f(-1.0, 3.0, 5.0).x,0.1f);
+		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).y,Vec3f(-1.0, 3.0, 5.0).y,0.1f);
+		EXPECT_NEAR(cContainer.transform3dManager.GetRelativePosition(0).z,Vec3f(-1.0, 3.0, 5.0).z,0.1f);
 
 	}
 };
@@ -84,7 +84,7 @@ public:
 		EXPECT_TRUE(
 			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
 		EXPECT_TRUE(cContainer.entityManager.GetEntityParent(1) == 0);
-		EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(960, 540, 0));
+		EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(-960, 540, 0));
 	}
 };
 
@@ -275,15 +275,15 @@ public:
 		//Test Transform
 		EXPECT_TRUE(
 			cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::TRANSFORM3D)));
-        EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(1.0, 3.0, 5.0));
+        EXPECT_TRUE(cContainer.transform3dManager.GetRelativePosition(0) == Vec3f(-1.0, 3.0, 5.0));
         EXPECT_FALSE(
             cContainer.entityManager.HasComponent(1, EntityMask(ComponentType::TRANSFORM3D)));
 		//Test Renderer
         EXPECT_TRUE(
             cContainer.entityManager.HasComponent(2, EntityMask(ComponentType::MODEL)));
-        EXPECT_TRUE(cContainer.rendererViewer.GetMeshName(2) == "sphere");
+        EXPECT_TRUE(cContainer.renderManager.GetModelName(2) == "sphere");
         EXPECT_TRUE(cContainer.entityManager.HasComponent(3, EntityMask(ComponentType::MODEL)));
-        EXPECT_TRUE(cContainer.rendererViewer.GetMeshName(3) == "cube");
+        EXPECT_TRUE(cContainer.renderManager.GetModelName(3) == "cube");
         EXPECT_FALSE(cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::MODEL)));
 		//Test Rigidbody
         EXPECT_TRUE(
@@ -300,15 +300,15 @@ public:
         EXPECT_TRUE(cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().colliderType ==
                     physics::ColliderType::BOX);
         EXPECT_NEAR(
-            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness,
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bounciness,
             0.5f,
             0.01f);
         EXPECT_NEAR(
-            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness,
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bounciness,
             0.5f,
             0.01f);
         EXPECT_NEAR(
-            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bouciness,
+            cContainer.rigidStaticManager.GetComponent(3).GetRigidStaticData().material.bounciness,
             0.5f,
             0.01f);
         EXPECT_FALSE(cContainer.entityManager.HasComponent(0, EntityMask(ComponentType::RIGID_DYNAMIC)));

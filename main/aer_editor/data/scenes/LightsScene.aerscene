@@ -1,0 +1,1108 @@
+{
+    "layers": [
+        "Default",
+        "TransparentFX",
+        "Ignore Raycast",
+        "Water",
+        "UI",
+        "Ground"
+    ],
+    "name": "PhysicsScene1",
+    "objects": [
+        {
+            "instanceId": 0,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "cube"
+            },
+            "parent": 4294967295,
+            "rigidbody": {
+                "angularDamping": 0.0,
+                "boxCollider": {
+                    "exist": true,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                },
+                "exist": true,
+                "isKinematic": false,
+                "isStatic": true,
+                "linearDamping": 0.0,
+                "mass": 1.0,
+                "physicsMaterial": {
+                    "bounciness": 1.0,
+                    "dynamicFriction": 0.6000000238418579,
+                    "exist": true,
+                    "staticFriction": 0.6000000238418579
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "sphereCollider": {
+                    "exist": false,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.004999999888241291
+                },
+                "useGravity": true
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 100.0,
+                    "y": 1.0,
+                    "z": 100.0
+                }
+            }
+        },
+        {
+            "instanceId": 1,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": false
+            },
+            "parent": 4294967295,
+            "rigidbody": {
+                "exist": false
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": -3.069999933242798
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 2,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "sphere"
+            },
+            "parent": 1,
+            "rigidbody": {
+                "angularDamping": 0.05000000074505806,
+                "boxCollider": {
+                    "exist": false,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                },
+                "exist": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "linearDamping": 0.0,
+                "mass": 1.0,
+                "physicsMaterial": {
+                    "bounciness": 0.0,
+                    "dynamicFriction": 0.6000000238418579,
+                    "exist": true,
+                    "staticFriction": 0.6000000238418579
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "sphereCollider": {
+                    "exist": true,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
+                "useGravity": true
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": -5.0,
+                    "y": 1.0,
+                    "z": -3.069999933242798
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 3,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "sphere"
+            },
+            "parent": 1,
+            "rigidbody": {
+                "angularDamping": 0.05000000074505806,
+                "boxCollider": {
+                    "exist": false,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                },
+                "exist": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "linearDamping": 0.0,
+                "mass": 1.0,
+                "physicsMaterial": {
+                    "bounciness": 0.25,
+                    "dynamicFriction": 0.6000000238418579,
+                    "exist": true,
+                    "staticFriction": 0.6000000238418579
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "sphereCollider": {
+                    "exist": true,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
+                "useGravity": true
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": -2.5,
+                    "y": 1.0,
+                    "z": -3.069999933242798
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 4,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "sphere"
+            },
+            "parent": 1,
+            "rigidbody": {
+                "angularDamping": 0.05000000074505806,
+                "boxCollider": {
+                    "exist": false,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                },
+                "exist": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "linearDamping": 0.0,
+                "mass": 1.0,
+                "physicsMaterial": {
+                    "bounciness": 0.5,
+                    "dynamicFriction": 0.6000000238418579,
+                    "exist": true,
+                    "staticFriction": 0.6000000238418579
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "sphereCollider": {
+                    "exist": true,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
+                "useGravity": true
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 0.0,
+                    "y": 1.0,
+                    "z": -3.069999933242798
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 5,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "sphere"
+            },
+            "parent": 1,
+            "rigidbody": {
+                "angularDamping": 0.05000000074505806,
+                "boxCollider": {
+                    "exist": false,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                },
+                "exist": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "linearDamping": 0.0,
+                "mass": 1.0,
+                "physicsMaterial": {
+                    "bounciness": 0.75,
+                    "dynamicFriction": 0.6000000238418579,
+                    "exist": true,
+                    "staticFriction": 0.6000000238418579
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "sphereCollider": {
+                    "exist": true,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
+                "useGravity": true
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 2.5,
+                    "y": 1.0,
+                    "z": -3.069999933242798
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 6,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "sphere"
+            },
+            "parent": 1,
+            "rigidbody": {
+                "angularDamping": 0.05000000074505806,
+                "boxCollider": {
+                    "exist": false,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                },
+                "exist": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "linearDamping": 0.0,
+                "mass": 1.0,
+                "physicsMaterial": {
+                    "bounciness": 1.0,
+                    "dynamicFriction": 0.6000000238418579,
+                    "exist": true,
+                    "staticFriction": 0.6000000238418579
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "sphereCollider": {
+                    "exist": true,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
+                "useGravity": true
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 5.0,
+                    "y": 3.198774576187134,
+                    "z": -3.069999933242798
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 7,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": false
+            },
+            "parent": 4294967295,
+            "rigidbody": {
+                "exist": false
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 8,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "cube"
+            },
+            "parent": 7,
+            "rigidbody": {
+                "angularDamping": 0.05000000074505806,
+                "boxCollider": {
+                    "exist": true,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                },
+                "exist": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "linearDamping": 0.0,
+                "mass": 1.0,
+                "physicsMaterial": {
+                    "bounciness": 0.0,
+                    "dynamicFriction": 0.6000000238418579,
+                    "exist": true,
+                    "staticFriction": 0.6000000238418579
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "sphereCollider": {
+                    "exist": false,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
+                "useGravity": true
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": -5.000325679779053,
+                    "y": 1.0000003576278687,
+                    "z": -3.797088720602915e-05
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 9.556183755421443e-08,
+                    "y": 6.393736111931503e-05,
+                    "z": 2.6054274826492474e-07
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 9,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "cube"
+            },
+            "parent": 7,
+            "rigidbody": {
+                "angularDamping": 0.05000000074505806,
+                "boxCollider": {
+                    "exist": true,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                },
+                "exist": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "linearDamping": 0.0,
+                "mass": 1.0,
+                "physicsMaterial": {
+                    "bounciness": 0.25,
+                    "dynamicFriction": 0.6000000238418579,
+                    "exist": true,
+                    "staticFriction": 0.6000000238418579
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "sphereCollider": {
+                    "exist": false,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
+                "useGravity": true
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": -2.500002145767212,
+                    "y": 1.0000003576278687,
+                    "z": -5.586836050497368e-05
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 8.739847601191286e-08,
+                    "y": 2.6146975869778544e-05,
+                    "z": 2.580750333436299e-07
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 10,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "cube"
+            },
+            "parent": 7,
+            "rigidbody": {
+                "angularDamping": 0.05000000074505806,
+                "boxCollider": {
+                    "exist": true,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                },
+                "exist": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "linearDamping": 0.0,
+                "mass": 1.0,
+                "physicsMaterial": {
+                    "bounciness": 0.5,
+                    "dynamicFriction": 0.6000000238418579,
+                    "exist": true,
+                    "staticFriction": 0.6000000238418579
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "sphereCollider": {
+                    "exist": false,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
+                "useGravity": true
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": -8.870236342772841e-06,
+                    "y": 1.0000003576278687,
+                    "z": -0.00016668729949742556
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 9.444011794812468e-08,
+                    "y": 8.154317765729502e-05,
+                    "z": 2.581392379852332e-07
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 11,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "cube"
+            },
+            "parent": 7,
+            "rigidbody": {
+                "angularDamping": 0.05000000074505806,
+                "boxCollider": {
+                    "exist": true,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                },
+                "exist": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "linearDamping": 0.0,
+                "mass": 1.0,
+                "physicsMaterial": {
+                    "bounciness": 0.75,
+                    "dynamicFriction": 0.6000000238418579,
+                    "exist": true,
+                    "staticFriction": 0.6000000238418579
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "sphereCollider": {
+                    "exist": false,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
+                "useGravity": true
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 2.500169038772583,
+                    "y": 1.0000005960464478,
+                    "z": -0.00048170448280870914
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 1.033531447092173e-07,
+                    "y": 2.7278372726868838e-05,
+                    "z": 2.4385289520978404e-07
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 12,
+            "layer": "Default",
+            "light": {
+                "exist": false
+            },
+            "modelRenderer": {
+                "exist": true,
+                "meshName": "cube"
+            },
+            "parent": 7,
+            "rigidbody": {
+                "angularDamping": 0.05000000074505806,
+                "boxCollider": {
+                    "exist": true,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "size": {
+                        "x": 1.0,
+                        "y": 1.0,
+                        "z": 1.0
+                    }
+                },
+                "exist": true,
+                "isKinematic": false,
+                "isStatic": false,
+                "linearDamping": 0.0,
+                "mass": 1.0,
+                "physicsMaterial": {
+                    "bounciness": 1.0,
+                    "dynamicFriction": 0.6000000238418579,
+                    "exist": true,
+                    "staticFriction": 0.6000000238418579
+                },
+                "positionLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "rotationLock": {
+                    "x": false,
+                    "y": false,
+                    "z": false
+                },
+                "sphereCollider": {
+                    "exist": false,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
+                "useGravity": true
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 4.998598098754883,
+                    "y": 3.20154070854187,
+                    "z": 0.0012193013681098819
+                },
+                "rotation": {
+                    "w": 0.9999959468841553,
+                    "x": 0.0024309188593178988,
+                    "y": 0.0006900043808855116,
+                    "z": 0.0012916176347061992
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 13,
+            "layer": "Default",
+            "light": {
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                },
+                "exist": true,
+                "intensity": 1.0,
+                "radius": 10.0,
+                "specular": 1.0
+            },
+            "modelRenderer": {
+                "exist": false
+            },
+            "parent": 4294967295,
+            "rigidbody": {
+                "exist": false
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 0.0,
+                    "y": 5.0,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 14,
+            "layer": "Default",
+            "light": {
+                "diffuse": {
+                    "x": 1.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "exist": true,
+                "intensity": 0.5,
+                "radius": 10.0,
+                "specular": 1.0
+            },
+            "modelRenderer": {
+                "exist": false
+            },
+            "parent": 4294967295,
+            "rigidbody": {
+                "exist": false
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": 4.599999904632568,
+                    "y": 1.2999999523162842,
+                    "z": 0.0
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        },
+        {
+            "instanceId": 15,
+            "layer": "Default",
+            "light": {
+                "diffuse": {
+                    "x": 0.0,
+                    "y": 1.0,
+                    "z": 0.0
+                },
+                "exist": true,
+                "intensity": 1.0,
+                "radius": 1.0,
+                "specular": 1.0
+            },
+            "modelRenderer": {
+                "exist": false
+            },
+            "parent": 4294967295,
+            "rigidbody": {
+                "exist": false
+            },
+            "tag": "Untagged",
+            "transform": {
+                "exist": true,
+                "position": {
+                    "x": -6.25,
+                    "y": 1.2999999523162842,
+                    "z": -1.7999999523162842
+                },
+                "rotation": {
+                    "w": 1.0,
+                    "x": 0.0,
+                    "y": 0.0,
+                    "z": 0.0
+                },
+                "scale": {
+                    "x": 1.0,
+                    "y": 1.0,
+                    "z": 1.0
+                }
+            }
+        }
+    ],
+    "tags": [
+        "Untagged",
+        "Respawn",
+        "Finish",
+        "EditorOnly",
+        "MainCamera",
+        "Player",
+        "GameController",
+        "Wall"
+    ]
+}

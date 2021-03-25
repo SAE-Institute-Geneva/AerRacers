@@ -53,7 +53,7 @@ namespace neko::aer {
             camera->fovY = degree_t(80.0f);
             camera->nearPlane = 0.1f;
             camera->farPlane = 1'000'000.0f;
-            engine_.GetGameCamera().SetCameras(*camera);
+            engine_.GetCameras().SetCameras(*camera);
             const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
             engine_.GetComponentManagerContainer().sceneManager.LoadScene(
                 config.dataRootPath +

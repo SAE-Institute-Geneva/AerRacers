@@ -22,14 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <array>
+#include "xmmintrin.h"
 
-#include "basic.h"
-#include "engine/assert.h"
-#include "engine/intrinsincs.h"
-#include "mathematics/angle.h"
-#include "mathematics/trigo.h"
+#include "mathematics/basic.h"
 #include "mathematics/vector.h"
+
+#include <array>
 
 namespace neko
 {
@@ -117,7 +115,7 @@ using Mat2f = Mat2<float>;
 
 template<typename T>
 inline const Mat2<T> Mat2<T>::Identity = Mat2<T>(
-	std::array<Vec2<T>, 1> {Vec2<T>(1, 0), Vec2<T>(0, 1)});
+	std::array<Vec2<T>, 2> {Vec2<T>(1, 0), Vec2<T>(0, 1)});
 
 template<typename T>
 inline const Mat2<T> Mat2<T>::Zero = Mat2<T>(
@@ -233,29 +231,28 @@ public:
 
 	[[nodiscard]] Mat3<T> Inverse() const
 	{
-		const float determinant = Determinant();
-		if (determinant == 0.0f)
-			return Zero;
+		Mat3<T> inverse   = Zero;
+		float determinant = Determinant();
+		if (Equal(determinant, 0.0f)) return Zero;
 
-		Mat3<T> inverse = Zero;
-		for (int col = 0; col < 3; ++col)
+		//Calculate the cofactor matrix
+		for (int col = 0; col < 3; col++)
 		{
-			for (int row = 0; row < 3; ++row)
+			for (int row = 0; row < 3; row++)
 			{
-				const Mat2 sub(std::array<Vec2<T>, 2>
-					               {
-						               Vec2<T>(columns_[(col + 1) % 3][(row + 1) % 3],
-						                       columns_[(col + 1) % 3][(row + 2) % 3]),
-						               Vec2<T>(columns_[(col + 2) % 3][(row + 1) % 3],
-						                       columns_[(col + 2) % 3][(row + 2) % 3])
-					               });
-
-				inverse[col][row] = ((col + row) % 2 == 0 ? 1.0f : -1.0f) * sub.Determinant();
+				Mat2<T> sub;
+				sub[0] = Vec2<T>(
+					columns_[(col + 1) % 3][(row + 1) % 3],
+					columns_[(col + 1) % 3][(row + 2) % 3]);
+				sub[1] = Vec2<T>(
+					columns_[(col + 2) % 3][(row + 1) % 3],
+					columns_[(col + 2) % 3][(row + 2) % 3]);
+				inverse[col][row] = sub.Determinant();
 			}
 		}
 
 		inverse = inverse.Transpose();
-		inverse = inverse * (1 / determinant);
+		inverse = inverse * (1.0f / determinant);
 		return inverse;
 	}
 
@@ -482,30 +479,27 @@ public:
 		return result;
 	}
 
-	[[nodiscard]] Mat4 Inverse() const
+	[[nodiscard]] Mat4<T> Inverse() const
 	{
-		Mat4 inverse = Zero;
+		Mat4<T> inverse   = Zero;
 		float determinant = Determinant();
-		if (Equal(determinant, 0.0f))
-			return Zero;
+		if (Equal(determinant, 0.0f)) return Zero;
 
 		//Calculate the cofactor matrix
 		for (int col = 0; col < 4; col++)
 		{
 			for (int row = 0; row < 4; row++)
 			{
-				const Mat3 sub(std::array<Vec3<T>, 3>
-					               {
-						               Vec3f(columns_[(col + 1) % 4][(row + 1) % 4],
-						                     columns_[(col + 1) % 4][(row + 2) % 4],
-						                     columns_[(col + 1) % 4][(row + 3) % 4]),
-						               Vec3f(columns_[(col + 2) % 4][(row + 1) % 4],
-						                     columns_[(col + 2) % 4][(row + 2) % 4],
-						                     columns_[(col + 2) % 4][(row + 3) % 4]),
-						               Vec3f(columns_[(col + 3) % 4][(row + 1) % 4],
-						                     columns_[(col + 3) % 4][(row + 2) % 4],
-						                     columns_[(col + 3) % 4][(row + 3) % 4])
-					               });
+				Mat3<T> sub;
+				sub[0] = Vec3<T>(columns_[(col + 1) % 4][(row + 1) % 4],
+                    columns_[(col + 1) % 4][(row + 2) % 4],
+                    columns_[(col + 1) % 4][(row + 3) % 4]);
+				sub[1] = Vec3<T>(columns_[(col + 2) % 4][(row + 1) % 4],
+                    columns_[(col + 2) % 4][(row + 2) % 4],
+                    columns_[(col + 2) % 4][(row + 3) % 4]);
+				sub[2] = Vec3<T>(columns_[(col + 3) % 4][(row + 1) % 4],
+                    columns_[(col + 3) % 4][(row + 2) % 4],
+                    columns_[(col + 3) % 4][(row + 3) % 4]);
 				inverse[col][row] = ((col + row) % 2 == 0 ? 1.0f : -1.0f) * sub.Determinant();
 			}
 		}
@@ -620,6 +614,7 @@ inline Mat4<T> Mat4<T>::MultiplyAoSoA(const Mat4<T>& rhs) const noexcept
 	return Mat4f(v);
 }
 
+
 #if defined(__SSE__) && !defined(__ANDROID__)
 template<>
 inline Mat4f Mat4f::Transpose() const
@@ -703,6 +698,12 @@ inline Mat4f Mat4f::MultiplyIntrinsincs(const Mat4f& rhs) const noexcept
 		*(v4f*) (&v[column][0]) = x;
 	}
 	return Mat4f(v);
+}
+#else
+template<typename T>
+Mat4<T> Mat4<T>::MultiplyIntrinsics(const Mat4<T>& rhs) const noexcept
+{
+	return this->MultiplyNaive(rhs);
 }
 #endif
 } // namespace neko

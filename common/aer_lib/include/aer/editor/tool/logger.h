@@ -26,10 +26,6 @@
  Co-Author : 
  Date : 13.10.2020
 ---------------------------------------------------------- */
-#include <mutex>
-
-#include <SDL_events.h>
-
 #include "aer/editor/editor_tool_interface.h"
 
 namespace neko::aer
@@ -37,18 +33,13 @@ namespace neko::aer
 class Logger final : public EditorToolInterface
 {
 public:
-	explicit Logger(AerEngine& engine, ToolType type, int id, std::string name);
-
-	void Init() override;
-	void Update(seconds dt) override;
-	void Destroy() override;
+	explicit Logger(AerEngine& engine);
 
 	void DrawImGui() override;
-	void OnEvent(const SDL_Event& event) override;
 
-	/**
-    * \brief Deletes all logs 
-    */
+	[[nodiscard]] std::string_view GetName() const override { return "Logger"; }
+	[[nodiscard]] ToolType GetType() const override { return LOGGER; }
+
 	static void ClearLogs();
 
 private:

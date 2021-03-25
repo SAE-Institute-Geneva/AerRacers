@@ -6,26 +6,25 @@ MaterialPipeline& MaterialPipelineContainer::AddMaterial(
 	const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate)
 {
 	for (std::size_t i = 0; i < registeredInfos_.size(); i++)
-		if (registeredInfos_[i].second == pipelineCreate) return *registeredMaterials_[i];
+		if (registeredInfos_[i].second == pipelineCreate) return registeredMaterials_[i];
 
-	registeredMaterials_.push_back(
-		std::make_unique<MaterialPipeline>(pipelineStage, pipelineCreate));
-
+	registeredMaterials_.emplace_back(pipelineStage, pipelineCreate);
 	registeredInfos_.emplace_back(pipelineStage, pipelineCreate);
-	return *registeredMaterials_.back();
+	return registeredMaterials_.back();
 }
 
-MaterialPipeline& MaterialPipelineContainer::GetMaterial(
-	const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate) const
+std::optional_ref<MaterialPipeline> MaterialPipelineContainer::GetMaterial(
+	const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate)
 {
 	auto i = 0;
 	for (const auto& infoMaterial : registeredInfos_)
 	{
 		if (infoMaterial.first == pipelineStage && infoMaterial.second == pipelineCreate)
-			return *registeredMaterials_[i];
+			return registeredMaterials_[i];
 		i++;
 	}
 
 	logDebug("Can't access material!");
+	return std::nullopt;
 }
 }    // namespace neko::vk

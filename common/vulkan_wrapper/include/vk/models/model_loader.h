@@ -25,9 +25,9 @@
  Author: Canas Simon
  Date:
 ---------------------------------------------------------- */
-#include "assimp/Importer.hpp"
-#include "assimp/scene.h"
+#include "graphics/tinyobj_loader.h"
 
+#include "vk/material/diffuse_material.h"
 #include "vk/models/model.h"
 
 namespace neko::vk
@@ -61,34 +61,30 @@ public:
 	[[nodiscard]] bool HasErrors() const { return flags_ & ERROR_LOADING; }
 
 private:
-	/// Uses the assimp importer to load model from disk
+	/// Uses tinyobj to load model from disk
 	void LoadModel();
 
-	/// Process all the node of the aiScene, aka the meshes
+	/// Process all the shapes in the model, aka the meshes
 	void ProcessModel();
-	void ProcessNode(aiNode* node);
-	void ProcessMesh(Mesh& mesh, const aiMesh* aMesh);
-	void LoadMaterialTextures(
-		const aiMaterial* material, aiTextureType textureType, std::string_view directory);
-
-	/// Method called on the Render thread to create the VAOs of the meshes
-	void UploadMeshesToVk();
+	void LoadMaterialTextures(const tinyobj::material_t& mat,
+		Mesh& mesh,
+		DiffuseMaterial::TextureMaps textureType,
+		std::string_view texName);
 
 	friend class ModelManager;
 	std::string path_;
-	std::string directoryPath_;
+	std::string directory_;
 
 	ModelId modelId_ = INVALID_MODEL_ID;
-
-	Assimp::Importer importer_;
-	const aiScene* scene_ = nullptr;
+	tinyobj::attrib_t attrib_;
+	std::vector<tinyobj::shape_t> shapes_;
+	std::vector<tinyobj::material_t> materials_;
 	Model model_;
 
 	Job loadModelJob_;
 	Job processModelJob_;
-	Job uploadJob_;
 
-	std::uint8_t flags_        = NONE;
+	std::uint8_t flags_       = NONE;
 	std::uint8_t textureMaps_ = 0;
 
 	ResourceHash diffuseId_  = 0;
@@ -96,3 +92,7 @@ private:
 	ResourceHash normalId_   = 0;
 };
 }    // namespace neko::vk
+
+MAKE_HASHABLE(neko::Vec2f, t.x, t.y)
+MAKE_HASHABLE(neko::Vec3f, t.x, t.y, t.z)
+MAKE_HASHABLE(neko::vk::Vertex, t.position, t.normal, t.texCoords, t.tangent, t.bitangent)

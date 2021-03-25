@@ -362,7 +362,7 @@ bool TextureManager::IsTextureLoaded(TextureId textureId) const
 
 void TextureManager::Init()
 {
-    TextureManagerLocator::provide(this);
+	TextureManagerLocator::provide(this);
 }
 
 void TextureManager::Update([[maybe_unused]]seconds dt)

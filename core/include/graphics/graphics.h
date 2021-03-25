@@ -99,7 +99,7 @@ public:
      */
     void Render(RenderCommandInterface* command) override;
 
-    void Destroy();
+    virtual void Destroy();
 
     void SetFlag(RendererFlag flag);
     std::uint8_t GetFlag() const;

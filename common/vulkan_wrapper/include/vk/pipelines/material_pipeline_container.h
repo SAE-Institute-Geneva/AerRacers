@@ -36,11 +36,11 @@ public:
 
 	MaterialPipeline& AddMaterial(
 		const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate);
-	[[nodiscard]] MaterialPipeline& GetMaterial(
-		const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate) const;
+	[[nodiscard]] std::optional_ref<MaterialPipeline> GetMaterial(
+		const PipelineStage& pipelineStage, const GraphicsPipelineCreateInfo& pipelineCreate);
 
 private:
 	std::vector<std::pair<PipelineStage, GraphicsPipelineCreateInfo>> registeredInfos_;
-	std::vector<std::unique_ptr<MaterialPipeline>> registeredMaterials_;
+	std::vector<MaterialPipeline> registeredMaterials_;
 };
 }    // namespace neko::vk

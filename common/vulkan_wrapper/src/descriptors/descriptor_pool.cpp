@@ -7,7 +7,7 @@ namespace neko::vk
 void DescriptorPool::Init()
 {
 	const VkResources* vkObj        = VkResources::Inst;
-	const auto swapchainImagesCount = vkObj->swapchain->GetImageCount();
+	const auto swapchainImagesCount = vkObj->swapchain.GetImageCount();
 
 	std::array<VkDescriptorPoolSize, 2> poolSizes {};
 	poolSizes[0].type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;

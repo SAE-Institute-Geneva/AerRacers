@@ -31,32 +31,55 @@
 
 namespace neko::vk
 {
+/// Handles all the rendering from Vulkan
 class VkRenderer final : public neko::Renderer, public VkResources
 {
 public:
+	/// Inits the Vulkan Objects necessary
     explicit VkRenderer(sdl::VulkanWindow* window);
 
+	/// Currently unused
     void ClearScreen() override;
 
+	/// Executes commands before the render loop starts
     void BeforeRenderLoop() override;
+
+	/// Executes commands after the render loop has ended
     void AfterRenderLoop() override;
 
-    void SetWindow(sdl::VulkanWindow* window);
+	/// Sets the window used by the renderer
+    void SetWindow(std::unique_ptr<sdl::VulkanWindow> window);
+
+	/// Sets the renderer to use
     void SetRenderer(std::unique_ptr<IRenderer>&& newRenderer);
 
+	void Destroy() override;
 private:
-    bool StartRenderPass(RenderStage& renderStage);
+	/// Recreates the render pass if needed and starts it
+	bool StartRenderPass(RenderStage& renderStage);
+
+	/// Ends the render pass and submits the render data to the queue
     void EndRenderPass(const RenderStage& renderStage);
 
+	/// Rebuilds the swapchain, command buffers (if needed), the render stage and the image attachments
     void ResetRenderStages();
 
+	/// Recreates the swapchain (e.g.: when the screen changes size)
     void RecreateSwapChain();
+
+	/// Recreates the command buffers (e.g.: when the number of images in the swapchain changes)
     void RecreateCommandBuffers();
+
+	/// Recreate the render pass (e.g.: when it is out of date)
     void RecreatePass(RenderStage& renderStage);
+
+	/// Recreate the image attachments
     void RecreateAttachments();
 
+	/// Creates the pipeline cache
     void CreatePipelineCache();
 
+	/// Starts the rendering
 	void RenderAll() override;
 };
 }

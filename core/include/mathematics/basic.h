@@ -22,7 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <cmath>
 #include <random>
 
 namespace neko
@@ -31,6 +30,7 @@ inline float Abs(float v)
 {
     return std::abs(v);
 }
+
 inline bool Equal(float a, float b, float epsilon = 0.0000001f)
 {
     return Abs(a - b) < epsilon;
@@ -49,6 +49,13 @@ inline int Sign(float v) {
         return -1;
     }
 }
+
+inline int RoundUp(float number, int multiple = 2)
+{
+	int num = static_cast<int>(number) + (multiple - 1);
+	return num - (num % multiple);
+}
+
 template<typename T>
 float Clamp(T value, T lower, T upper)
 {
@@ -72,6 +79,7 @@ typename std::enable_if<std::is_floating_point<T>::value, T>::type RandomRange(T
     std::uniform_real_distribution<T> dis(start, end);
     return dis(gen);
 }
+
 template<typename T>
 T constexpr SqrtNewtonRaphson(T x, T curr, T prev)
 {
@@ -79,7 +87,6 @@ T constexpr SqrtNewtonRaphson(T x, T curr, T prev)
            ? curr
            : SqrtNewtonRaphson<T>(x, (curr + x / curr) * 0.5, curr);
 }
-
 
 /*
 * Constexpr version of the square root

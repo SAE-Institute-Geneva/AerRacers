@@ -32,9 +32,9 @@ namespace neko::vk
 class VkImGui final
 {
 public:
-	VkImGui();
-	~VkImGui();
+	VkImGui() = default;
 
+	void Init();
 	static void Render(const CommandBuffer& commandBuffer);
 	void Destroy() const;
 

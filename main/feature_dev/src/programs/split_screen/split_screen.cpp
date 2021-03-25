@@ -10,7 +10,7 @@ void SplitScreen::Init()
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	shader_.LoadFromFile(config.dataRootPath + "shaders/opengl/base.vert",
 		config.dataRootPath + "shaders/opengl/base.frag");
-	shader_.BindUbo(2 * sizeof(Mat4f));
+	shader_.BindUbo(2 * sizeof(Mat4f), "Matrices", gl::kUboMatricesBinding);
 	cube_.Init();
 
 	camera_.Init();
@@ -45,8 +45,8 @@ void SplitScreen::Render()
 
 			const Mat4f camProj = camera_.GenerateProjectionMatrix(0);
 			const Mat4f camView = camera_.GenerateViewMatrix(0);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+			shader_.SetUbo(sizeof(Mat4f), 0, &camProj);
+			shader_.SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(0, 0, size.x, size.y);
 			RenderScene();
 			break;
@@ -58,16 +58,16 @@ void SplitScreen::Render()
 			// Left
 			Mat4f camProj = camera_.GenerateProjectionMatrix(0);
 			Mat4f camView = camera_.GenerateViewMatrix(0);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+			shader_.SetUbo(sizeof(Mat4f), 0, &camProj);
+			shader_.SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(0, 0, size.x / 2.0f, size.y);
 			RenderScene();
 
 			// Right
 			camProj = camera_.GenerateProjectionMatrix(1);
 			camView = camera_.GenerateViewMatrix(1);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+			shader_.SetUbo(sizeof(Mat4f), 0, &camProj);
+			shader_.SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(size.x / 2.0f, 0, size.x / 2.0f, size.y);
 			RenderScene();
 			break;
@@ -79,24 +79,24 @@ void SplitScreen::Render()
 			// Top Left
 			Mat4f camProj = camera_.GenerateProjectionMatrix(0);
 			Mat4f camView = camera_.GenerateViewMatrix(0);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+			shader_.SetUbo(sizeof(Mat4f), 0, &camProj);
+			shader_.SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(0, size.y / 2.0f, size.x / 2.0f, size.y / 2.0f);
 			RenderScene();
 
 			// Top Right
 			camProj = camera_.GenerateProjectionMatrix(1);
 			camView = camera_.GenerateViewMatrix(1);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+			shader_.SetUbo(sizeof(Mat4f), 0, &camProj);
+			shader_.SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(size.x / 2.0f, size.y / 2.0f, size.x / 2.0f, size.y / 2.0f);
 			RenderScene();
 
 			// Bottom Left
 			camProj = camera_.GenerateProjectionMatrix(2);
 			camView = camera_.GenerateViewMatrix(2);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+			shader_.SetUbo(sizeof(Mat4f), 0, &camProj);
+			shader_.SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(0, 0, size.x / 2.0f, size.y / 2.0f);
 			RenderScene();
 			break;
@@ -108,32 +108,32 @@ void SplitScreen::Render()
 			// Top Left
 			Mat4f camProj = camera_.GenerateProjectionMatrix(0);
 			Mat4f camView = camera_.GenerateViewMatrix(0);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+			shader_.SetUbo(sizeof(Mat4f), 0, &camProj);
+			shader_.SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(0, size.y / 2.0f, size.x / 2.0f, size.y / 2.0f);
 			RenderScene();
 
 			// Top Right
 			camProj = camera_.GenerateProjectionMatrix(1);
 			camView = camera_.GenerateViewMatrix(1);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+			shader_.SetUbo(sizeof(Mat4f), 0, &camProj);
+			shader_.SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(size.x / 2.0f, size.y / 2.0f, size.x / 2.0f, size.y / 2.0f);
 			RenderScene();
 
 			// Bottom Left
 			camProj = camera_.GenerateProjectionMatrix(2);
 			camView = camera_.GenerateViewMatrix(2);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+			shader_.SetUbo(sizeof(Mat4f), 0, &camProj);
+			shader_.SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(0, 0, size.x / 2.0f, size.y / 2.0f);
 			RenderScene();
 
 			// Bottom Right
 			camProj = camera_.GenerateProjectionMatrix(3);
 			camView = camera_.GenerateViewMatrix(3);
-			gl::Shader::SetUbo(sizeof(Mat4f), 0, &camProj);
-			gl::Shader::SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
+			shader_.SetUbo(sizeof(Mat4f), 0, &camProj);
+			shader_.SetUbo(sizeof(Mat4f), sizeof(Mat4f), &camView);
 			glViewport(size.x / 2.0f, 0, size.x / 2.0f, size.y / 2.0f);
 			RenderScene();
 			break;

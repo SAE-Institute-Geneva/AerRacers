@@ -4,10 +4,6 @@
 
 namespace neko::vk
 {
-ModelCommandBuffer::ModelCommandBuffer()
-   : modelInstances_(std::vector<std::unique_ptr<ModelInstance>>())
-{}
-
 void ModelCommandBuffer::Destroy()
 {
 	for (auto& forwardDrawCmd : forwardDrawingCmd_) forwardDrawCmd.uniformHandle.Destroy();
@@ -18,10 +14,9 @@ void ModelCommandBuffer::Destroy()
 ModelInstanceIndex ModelCommandBuffer::AddModelInstanceIndex(const ModelId& modelId)
 {
 	for (size_t i = 0; i < modelInstances_.size(); i++)
-		if (modelInstances_[i]->GetModelId() == modelId) return i;
+		if (modelInstances_[i].GetModelId() == modelId) return i;
 
-	modelInstances_.emplace_back();
-	modelInstances_.back() = std::make_unique<ModelInstance>(modelId);
+	modelInstances_.emplace_back(modelId);
 	instanceMatrices_.emplace_back();
 	return modelInstances_.size() - 1;
 }
@@ -31,15 +26,14 @@ ModelInstanceIndex ModelCommandBuffer::AddModelInstanceIndex(
 {
 	for (size_t i = 0; i < modelInstances_.size(); i++)
 	{
-		if (modelInstances_[i]->GetModelId() == modelId)
+		if (modelInstances_[i].GetModelId() == modelId)
 		{
 			instanceMatrices_[i].push_back(matrix);
 			return i;
 		}
 	}
 
-	modelInstances_.emplace_back();
-	modelInstances_.back() = std::make_unique<ModelInstance>(modelId);
+	modelInstances_.emplace_back(modelId);
 	instanceMatrices_.emplace_back().push_back(matrix);
 	return modelInstances_.size() - 1;
 }
@@ -49,7 +43,7 @@ ModelInstanceIndex ModelCommandBuffer::AddModelInstanceIndex(
 {
 	for (size_t i = 0; i < modelInstances_.size(); i++)
 	{
-		if (modelInstances_[i]->GetModelId() == modelId)
+		if (modelInstances_[i].GetModelId() == modelId)
 		{
 			instanceMatrices_[i].insert(
 				instanceMatrices_[i].end(), matrices.begin(), matrices.end());
@@ -57,8 +51,7 @@ ModelInstanceIndex ModelCommandBuffer::AddModelInstanceIndex(
 		}
 	}
 
-	modelInstances_.emplace_back();
-	modelInstances_.back() = std::make_unique<ModelInstance>(modelId);
+	modelInstances_.emplace_back(modelId);
 	instanceMatrices_.emplace_back(matrices);
 	return modelInstances_.size() - 1;
 }
@@ -87,7 +80,7 @@ void ModelCommandBuffer::PrepareData()
 {
 	for (size_t i = 0; i < modelInstances_.size(); i++)
 	{
-		modelInstances_[i]->Update(instanceMatrices_[i]);
+		modelInstances_[i].Update(instanceMatrices_[i]);
 		instanceMatrices_[i].clear();
 	}
 }
@@ -101,17 +94,17 @@ void ModelCommandBuffer::Clear()
 void ModelCommandBuffer::AddMatrix(ModelInstanceIndex index, const Mat4f& matrix)
 {
 	instanceMatrices_[index].push_back(matrix);
-	modelInstances_[index]->AddInstance();
+	modelInstances_[index].AddInstance();
 }
 
 void ModelCommandBuffer::SetMatrices(ModelInstanceIndex index, const std::vector<Mat4f>& matrices)
 {
 	instanceMatrices_[index] = matrices;
-	modelInstances_[index]->AddInstance(matrices.size());
+	modelInstances_[index].AddInstance(matrices.size());
 }
 
 void ModelCommandBuffer::SetModelId(ModelInstanceIndex index, const ModelId& modelId)
 {
-	modelInstances_[index]->SetModelId(modelId);
+	modelInstances_[index].SetModelId(modelId);
 }
 }    // namespace neko::vk

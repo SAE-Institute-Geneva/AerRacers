@@ -2,11 +2,8 @@
 
 #include <imgui.h>
 
-#include "aer/tag.h"
 #include "aer/managers/player_manager.h"
-#include "aer/game/game_camera.h"
 #include "aer/aer_engine.h"
-#include "px/raycast.h"
 
 namespace neko::aer
 {
@@ -76,7 +73,7 @@ void CameraControllerManager::FixedUpdate(seconds dt) {
 void CameraControllerManager::Render()
 {
     for (PlayerId playerId = 0; playerId < playerManager_.GetPlayerCount(); ++playerId) {
-        auto& camera          = engine_.GetGameCamera().GetCamera(playerId);
+        auto& camera          = engine_.GetCameras().GetCamera(playerId);
         auto& cameraComponent = cameraControllers_[playerId];
         camera.position       = cameraComponent.cameraPos;
         camera.WorldLookAt(cameraComponent.targetPos);

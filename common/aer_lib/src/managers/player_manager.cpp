@@ -37,7 +37,7 @@ namespace neko::aer
         rigidDynamic.angularDamping = 3.0f;
         rigidDynamic.freezeRotation = Vec3<bool>(true, false, true);
         rigidDynamic.boxColliderData.size = Vec3f(9.0f, 1.0f, 5.5f);
-        rigidDynamic.material.bouciness = 0.0f;
+        rigidDynamic.material.bounciness = 0.0f;
         rigidDynamic.material.staticFriction = 0.0f;
         rigidDynamic.material.dynamicFriction = 0.0f;
         cContainer_.rigidDynamicManager.AddRigidDynamic(shipEntity, rigidDynamic);

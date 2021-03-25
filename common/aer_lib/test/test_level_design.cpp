@@ -36,11 +36,11 @@
 
 namespace neko::aer {
 
-    class TestLevelDesign
+    class TestLevelDesignBlock
         : public SystemInterface
          {
     public:
-        TestLevelDesign(
+        TestLevelDesignBlock(
             AerEngine& engine)
             : engine_(engine),
             rContainer_(engine.GetResourceManagerContainer()),
@@ -52,7 +52,7 @@ namespace neko::aer {
             camera->fovY = degree_t(80.0f);
             camera->nearPlane = 0.1f;
             camera->farPlane = 1'000'000.0f;
-            engine_.GetGameCamera().SetCameras(*camera);
+            engine_.GetCameras().SetCameras(*camera);
             const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
             engine_.GetComponentManagerContainer().sceneManager.LoadScene(
                 config.dataRootPath +
@@ -63,20 +63,18 @@ namespace neko::aer {
 
         void Update(neko::seconds dt) override {
             cContainer_.waypointManager.Update(dt);
-            if (testFinish_ == true) {
-                engine_.Stop();
-            }
+            // if (testFinish_ == true) {
+            //     engine_.Stop();
+            // }
         }
 
         void Destroy() override {
         }
 
         void HasSucceed() const {
-            EXPECT_TRUE(testFinish_);
         }
 
     private:
-        bool testFinish_ = false;
 
         ResourceManagerContainer& rContainer_;
         ComponentManagerContainer& cContainer_;
@@ -95,7 +93,7 @@ namespace neko::aer {
         AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
         engine.SetWindowAndRenderer(&window, &renderer);
 
-        TestLevelDesign testLevelDesign(engine);
+        TestLevelDesignBlock testLevelDesign(engine);
         engine.RegisterSystem(testLevelDesign);
 
         engine.Init();

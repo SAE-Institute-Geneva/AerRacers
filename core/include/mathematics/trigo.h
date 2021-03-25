@@ -23,6 +23,7 @@
  SOFTWARE.
  */
 #include <cmath>
+
 #include "mathematics/angle.h"
 
 namespace neko

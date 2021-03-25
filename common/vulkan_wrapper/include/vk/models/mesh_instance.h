@@ -33,8 +33,10 @@ namespace neko::vk
 {
 constexpr static std::string_view kUboSceneName  = "UboScene";
 constexpr static std::string_view kUboObjectName = "UboObject";
+constexpr static std::string_view kLightsName    = "Lights";
 constexpr static StringHash kUboSceneHash        = HashString(kUboSceneName);
 constexpr static StringHash kUboObjectHash       = HashString(kUboObjectName);
+constexpr static StringHash kLightsHash          = HashString(kLightsName);
 constexpr static std::uint32_t kMaxInstances     = 32;
 
 class ModelInstance
@@ -53,7 +55,9 @@ public:
 
 	void Update(std::vector<Mat4f>& modelMatrices);
 
-	bool CmdRender(const CommandBuffer& commandBuffer, UniformHandle& uniformScene);
+	bool CmdRender(const CommandBuffer& commandBuffer,
+		UniformHandle& uniformScene,
+		UniformHandle& uniformLight);
 
 	[[nodiscard]] const ModelId& GetModelId() const { return modelId_; }
 
@@ -63,6 +67,7 @@ public:
 private:
 	bool CmdRenderOpaque(const CommandBuffer& commandBuffer,
 		UniformHandle& uniformScene,
+		UniformHandle& uniformLight,
 		const Mesh& mesh,
 		const Material& material);
 

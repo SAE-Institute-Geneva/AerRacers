@@ -2042,6 +2042,7 @@ void ImGuiTextFilter::ImGuiTextRange::split(char separator, ImVector<ImGuiTextRa
 void ImGuiTextFilter::Build()
 {
     Filters.resize(0);
+	const std::size_t test = strlen(InputBuf);
     ImGuiTextRange input_range(InputBuf, InputBuf + strlen(InputBuf));
     input_range.split(',', &Filters);
 

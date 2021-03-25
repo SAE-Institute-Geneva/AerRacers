@@ -60,7 +60,7 @@ void AerEngine::Init()
 #endif
 
 	if (mode_ == ModeEnum::GAME) {
-		if (false)
+		if (true)
 		{
 			cContainer_.sceneManager.LoadScene(
 				GetConfig().dataRootPath +
@@ -83,8 +83,6 @@ void AerEngine::Init()
 
 void AerEngine::Destroy()
 {
-    //boundInputManager_->Destroy();
-    //boundInputManager_.release();
 	drawSystem_.Destroy();
 	SdlEngine::Destroy();
 }
@@ -98,11 +96,9 @@ void AerEngine::GenerateUiFrame()
 #endif
 
 #ifdef NEKO_GLES3
-	window_->GenerateUiFrame();
-	drawImGuiAction_.Execute();
-#elif NEKO_VULKAN
-	if (ImGui::GetCurrentContext())
 		drawImGuiAction_.Execute();
+#elif NEKO_VULKAN
+		if (ImGui::GetCurrentContext()) drawImGuiAction_.Execute();
 #endif
 }
 }    // namespace neko::aer

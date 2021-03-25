@@ -22,16 +22,12 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-
 #include <engine/entity.h>
-#include <engine/globals.h>
-#include <utils/vector_utility.h>
 #include <utils/json_utility.h>
-
+#include <utils/vector_utility.h>
 
 namespace neko
 {
-
 enum class ComponentType : EntityMask
 {
 	EMPTY = 1u << 0u,
@@ -51,22 +47,26 @@ enum class ComponentType : EntityMask
 	// Graphics
 	SPRITE2D = 1u << 7u,
 	MODEL    = 1u << 8u,
+	LIGHT    = 1u << 9u,
 
 	// Physics
-	BODY2D             = 1u << 9u,
-	BOX_COLLIDER2D     = 1u << 10u,
-	CIRCLE_COLLIDER2D  = 1u << 11u,
-	POLYGON_COLLIDER2D = 1u << 12u,
-	CONVEX_SHAPE2D     = 1u << 13u,
-    RIGID_STATIC = 1u << 14u,
-    RIGID_DYNAMIC = 1u << 15u,
+	BODY2D             = 1u << 10u,
+	BOX_COLLIDER2D     = 1u << 11u,
+	CIRCLE_COLLIDER2D  = 1u << 12u,
+	POLYGON_COLLIDER2D = 1u << 13u,
+	CONVEX_SHAPE2D     = 1u << 14u,
+	RIGID_STATIC       = 1u << 15u,
+	RIGID_DYNAMIC      = 1u << 16u,
 
 	// Game
-	PLAYER_COMPONENT = 1u << 16u,
+	PLAYER_COMPONENT = 1u << 17u,
 
-	PREFAB     = 1u << 17u,
-	OTHER_TYPE = 1u << 18u
+	// Miscellaneous
+	PREFAB     = 1u << 18u,
+	OTHER_TYPE = 1u << 19u
 };
+
+std::string ComponentTypeToString(ComponentType type);
 
 struct Component
 {
@@ -82,10 +82,11 @@ template<typename T, EntityMask componentType>
 class ComponentManager
 {
 public:
-	explicit ComponentManager(EntityManager& entityManager) : entityManager_(entityManager)
+	explicit ComponentManager(EntityManager& entityManager, const T& defaultValue = T {})
+	   : entityManager_(entityManager)
 	{
 		entityManager_.get().RegisterComponentManager(*this);
-		ResizeIfNecessary(components_, INIT_ENTITY_NMB - 1, T {});
+		ResizeIfNecessary(components_, INIT_ENTITY_NMB - 1, defaultValue);
 	}
 
 	virtual ~ComponentManager() = default;
