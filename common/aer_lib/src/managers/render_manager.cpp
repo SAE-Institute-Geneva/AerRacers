@@ -1,8 +1,13 @@
 #include "aer/managers/render_manager.h"
 
+#include <core_pch.h>
+
+
 #include "utils/file_utility.h"
 
 #include "aer/log.h"
+#include "engine/engine.h"
+#include "graphics/camera.h"
 
 #ifdef NEKO_VULKAN
 #include "vk/vk_resources.h"
