@@ -86,6 +86,8 @@ void AudioViewer::DrawImGui(Entity entity)
 		{
 			const ImVec2 buttonSize =
 				ImVec2((GetContentRegionAvailWidth() - GetStyle().ItemSpacing.x) / 2.0f , 0.0f);
+
+			PushItemWidth(-1);
 			if (!audioManager_.IsPlaying(entity))
 			{
 				if (Button("Play", buttonSize)) audioManager_.Play(entity);
@@ -103,6 +105,7 @@ void AudioViewer::DrawImGui(Entity entity)
 			}
 			SameLine();
 			if (Button("Stop", buttonSize)) audioManager_.Stop(entity);
+			PopItemWidth();
 
 			fmod::AudioSource audioSource = audioManager_.GetComponent(entity);
 			auto& fmodEngine              = fmod::FmodLocator::get();

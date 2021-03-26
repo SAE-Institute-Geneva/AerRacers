@@ -1,4 +1,23 @@
 {
+    "dirLight": {
+        "ambient": {
+            "x": 0.5,
+            "y": 0.5,
+            "z": 0.5
+        },
+        "diffuse": {
+            "x": 1.0,
+            "y": 1.0,
+            "z": 1.0
+        },
+        "direction": {
+            "x": -1.0,
+            "y": -1.0,
+            "z": -1.0
+        },
+        "intensity": 1.0,
+        "specular": 1.0
+    },
     "layers": [
         "Default",
         "TransparentFX",
@@ -7,7 +26,7 @@
         "UI",
         "Ground"
     ],
-    "name": "PhysicsScene1",
+    "name": "LightsScene",
     "objects": [
         {
             "instanceId": 0,
@@ -35,6 +54,17 @@
                         "y": 1.0,
                         "z": 1.0
                     }
+                },
+                "capsuleCollider": {
+                    "exist": false,
+                    "height": 0.009999999776482582,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.004999999888241291
                 },
                 "exist": true,
                 "isKinematic": false,
@@ -151,6 +181,17 @@
                         "z": 1.0
                     }
                 },
+                "capsuleCollider": {
+                    "exist": false,
+                    "height": 1.0,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
                 "exist": true,
                 "isKinematic": false,
                 "isStatic": false,
@@ -231,6 +272,17 @@
                         "y": 1.0,
                         "z": 1.0
                     }
+                },
+                "capsuleCollider": {
+                    "exist": false,
+                    "height": 1.0,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
                 },
                 "exist": true,
                 "isKinematic": false,
@@ -313,6 +365,17 @@
                         "z": 1.0
                     }
                 },
+                "capsuleCollider": {
+                    "exist": false,
+                    "height": 1.0,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
                 "exist": true,
                 "isKinematic": false,
                 "isStatic": false,
@@ -393,6 +456,17 @@
                         "y": 1.0,
                         "z": 1.0
                     }
+                },
+                "capsuleCollider": {
+                    "exist": false,
+                    "height": 1.0,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
                 },
                 "exist": true,
                 "isKinematic": false,
@@ -475,6 +549,17 @@
                         "z": 1.0
                     }
                 },
+                "capsuleCollider": {
+                    "exist": false,
+                    "height": 1.0,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
                 "exist": true,
                 "isKinematic": false,
                 "isStatic": false,
@@ -513,7 +598,7 @@
                 "exist": true,
                 "position": {
                     "x": 5.0,
-                    "y": 3.198774576187134,
+                    "y": 2.975325107574463,
                     "z": -3.069999933242798
                 },
                 "rotation": {
@@ -590,6 +675,17 @@
                         "z": 1.0
                     }
                 },
+                "capsuleCollider": {
+                    "exist": false,
+                    "height": 1.0,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
+                },
                 "exist": true,
                 "isKinematic": false,
                 "isStatic": false,
@@ -629,13 +725,13 @@
                 "position": {
                     "x": -5.000325679779053,
                     "y": 1.0000003576278687,
-                    "z": -3.797088720602915e-05
+                    "z": -3.8020549254724756e-05
                 },
                 "rotation": {
                     "w": 1.0,
-                    "x": 9.556183755421443e-08,
-                    "y": 6.393736111931503e-05,
-                    "z": 2.6054274826492474e-07
+                    "x": 1.0136536587879164e-07,
+                    "y": 6.392443901859224e-05,
+                    "z": 2.508411682811129e-07
                 },
                 "scale": {
                     "x": 1.0,
@@ -670,6 +766,17 @@
                         "y": 1.0,
                         "z": 1.0
                     }
+                },
+                "capsuleCollider": {
+                    "exist": false,
+                    "height": 1.0,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
                 },
                 "exist": true,
                 "isKinematic": false,
@@ -709,14 +816,14 @@
                 "exist": true,
                 "position": {
                     "x": -2.500002145767212,
-                    "y": 1.0000003576278687,
-                    "z": -5.586836050497368e-05
+                    "y": 1.000000238418579,
+                    "z": -5.587229679804295e-05
                 },
                 "rotation": {
                     "w": 1.0,
-                    "x": 8.739847601191286e-08,
-                    "y": 2.6146975869778544e-05,
-                    "z": 2.580750333436299e-07
+                    "x": 1.1541253996938394e-07,
+                    "y": 2.6054542104247957e-05,
+                    "z": 2.5569468675712415e-07
                 },
                 "scale": {
                     "x": 1.0,
@@ -751,6 +858,17 @@
                         "y": 1.0,
                         "z": 1.0
                     }
+                },
+                "capsuleCollider": {
+                    "exist": false,
+                    "height": 1.0,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
                 },
                 "exist": true,
                 "isKinematic": false,
@@ -789,15 +907,15 @@
             "transform": {
                 "exist": true,
                 "position": {
-                    "x": -8.870236342772841e-06,
+                    "x": -8.895138307707384e-06,
                     "y": 1.0000003576278687,
-                    "z": -0.00016668729949742556
+                    "z": -0.00016678801330272108
                 },
                 "rotation": {
                     "w": 1.0,
-                    "x": 9.444011794812468e-08,
-                    "y": 8.154317765729502e-05,
-                    "z": 2.581392379852332e-07
+                    "x": 9.139212409081665e-08,
+                    "y": 8.153967064572498e-05,
+                    "z": 2.623175419103063e-07
                 },
                 "scale": {
                     "x": 1.0,
@@ -832,6 +950,17 @@
                         "y": 1.0,
                         "z": 1.0
                     }
+                },
+                "capsuleCollider": {
+                    "exist": false,
+                    "height": 1.0,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
                 },
                 "exist": true,
                 "isKinematic": false,
@@ -871,14 +1000,14 @@
                 "exist": true,
                 "position": {
                     "x": 2.500169038772583,
-                    "y": 1.0000005960464478,
-                    "z": -0.00048170448280870914
+                    "y": 1.0000003576278687,
+                    "z": -0.00048185797641053796
                 },
                 "rotation": {
                     "w": 1.0,
-                    "x": 1.033531447092173e-07,
-                    "y": 2.7278372726868838e-05,
-                    "z": 2.4385289520978404e-07
+                    "x": 9.521195210027145e-08,
+                    "y": 2.727803985180799e-05,
+                    "z": 2.7906585842174536e-07
                 },
                 "scale": {
                     "x": 1.0,
@@ -913,6 +1042,17 @@
                         "y": 1.0,
                         "z": 1.0
                     }
+                },
+                "capsuleCollider": {
+                    "exist": false,
+                    "height": 1.0,
+                    "isTrigger": false,
+                    "offset": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "radius": 0.5
                 },
                 "exist": true,
                 "isKinematic": false,
@@ -951,15 +1091,15 @@
             "transform": {
                 "exist": true,
                 "position": {
-                    "x": 4.998598098754883,
-                    "y": 3.20154070854187,
-                    "z": 0.0012193013681098819
+                    "x": 5.001646518707275,
+                    "y": 2.983442783355713,
+                    "z": 0.003467970760539174
                 },
                 "rotation": {
-                    "w": 0.9999959468841553,
-                    "x": 0.0024309188593178988,
-                    "y": 0.0006900043808855116,
-                    "z": 0.0012916176347061992
+                    "w": 0.9999750852584839,
+                    "x": 0.006896514445543289,
+                    "y": -0.0006474133697338402,
+                    "z": -0.0013591559836640954
                 },
                 "scale": {
                     "x": 1.0,
@@ -983,7 +1123,8 @@
                 "specular": 1.0
             },
             "modelRenderer": {
-                "exist": false
+                "exist": true,
+                "meshName": "sphere"
             },
             "parent": 4294967295,
             "rigidbody": {
@@ -1004,9 +1145,9 @@
                     "z": 0.0
                 },
                 "scale": {
-                    "x": 1.0,
-                    "y": 1.0,
-                    "z": 1.0
+                    "x": 0.20000000298023224,
+                    "y": 0.20000000298023224,
+                    "z": 0.20000000298023224
                 }
             }
         },
@@ -1025,7 +1166,8 @@
                 "specular": 1.0
             },
             "modelRenderer": {
-                "exist": false
+                "exist": true,
+                "meshName": "sphere"
             },
             "parent": 4294967295,
             "rigidbody": {
@@ -1046,9 +1188,9 @@
                     "z": 0.0
                 },
                 "scale": {
-                    "x": 1.0,
-                    "y": 1.0,
-                    "z": 1.0
+                    "x": 0.20000000298023224,
+                    "y": 0.20000000298023224,
+                    "z": 0.20000000298023224
                 }
             }
         },
@@ -1067,7 +1209,8 @@
                 "specular": 1.0
             },
             "modelRenderer": {
-                "exist": false
+                "exist": true,
+                "meshName": "sphere"
             },
             "parent": 4294967295,
             "rigidbody": {
@@ -1088,9 +1231,9 @@
                     "z": 0.0
                 },
                 "scale": {
-                    "x": 1.0,
-                    "y": 1.0,
-                    "z": 1.0
+                    "x": 0.20000000298023224,
+                    "y": 0.20000000298023224,
+                    "z": 0.20000000298023224
                 }
             }
         }
