@@ -1,5 +1,7 @@
 #include "aer/aer_engine.h"
 
+#include "engine/resource_locations.h"
+
 namespace neko::aer
 {
 UiManager::UiManager(AerEngine& aerEngine)
@@ -23,13 +25,13 @@ void UiManager::Init()
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            uiImageShader_.LoadFromFile(config.dataRootPath + "shaders/opengl/ui_image.vert",
-                config.dataRootPath + "shaders/opengl/ui_image.frag");
-            fontManager_.Init();
-            lobsterId_ = fontManager_.LoadFont(config.dataRootPath + kLobsterPath_, 36);
-            robotoId_  = fontManager_.LoadFont(config.dataRootPath + kRobotoPath_, 36);
+			uiImageShader_.LoadFromFile(GetGlShadersFolderPath() + "ui_image.vert",
+				GetGlShadersFolderPath() + "ui_image.frag");
+			fontManager_.Init();
+			lobsterId_ = fontManager_.LoadFont(GetFontsFolderPath() + kLobsterName, 36);
+			robotoId_  = fontManager_.LoadFont(GetFontsFolderPath() + kRobotoName, 36);
 
-            //const Vec2u windowSize = config.windowSize / Vec2u(2, 1);
+			//const Vec2u windowSize = config.windowSize / Vec2u(2, 1);
             fontManager_.SetWindowSize(Vec2f(config.windowSize));
             glCheckError();
         }};

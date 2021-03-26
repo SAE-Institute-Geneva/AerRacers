@@ -25,6 +25,12 @@
             "location": 5,
             "size": 64,
             "type": 15
+        },
+        {
+            "name": "inNormalMatrix",
+            "location": 9,
+            "size": 36,
+            "type": 14
         }
     ],
     "uniforms": [

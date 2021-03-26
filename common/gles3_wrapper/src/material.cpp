@@ -26,43 +26,33 @@
 
 namespace neko::gl
 {
+Material::Material(TextureManager& textureManager, const FilesystemInterface& filesystem)
+	: filesystem_(filesystem),
+	  textureManager_(textureManager),
+	  loadingMaterialContentJob_(
+		  [this]()
+		  {
+		    json matJson = json::parse(loadMaterialJsonJob_.GetBufferFile().dataBuffer);
+		    FillContent(matJson);
+		    LoadShader();
+		    LoadTextures();
+		  }),
+	  loadMaterialJsonJob_(filesystem)
+{}
 
-Material::Material(TextureManager& textureManager, const FilesystemInterface& filesystem) :
-        filesystem_(filesystem),
-        textureManager_(textureManager),
-        loadingMaterialContentJob_([this]()
-        {
-            json matJson = json::parse(loadMaterialJsonJob_.GetBufferFile().dataBuffer);
-            FillContent(matJson);
-            LoadShader();
-            LoadTextures();
-        }),
-        loadMaterialJsonJob_(filesystem)
+void Material::LoadFromFile(std::string_view)
 {
-
+	BasicEngine::GetInstance()->ScheduleJob(&loadMaterialJsonJob_, JobThreadType::RESOURCE_THREAD);
+	loadingMaterialContentJob_.AddDependency(&loadMaterialJsonJob_);
+	BasicEngine::GetInstance()->ScheduleJob(
+		&loadingMaterialContentJob_, JobThreadType::OTHER_THREAD);
 }
 
-void Material::LoadFromFile(std::string_view path)
-{
-    BasicEngine::GetInstance()->ScheduleJob(&loadMaterialJsonJob_, JobThreadType::RESOURCE_THREAD);
-    loadingMaterialContentJob_.AddDependency(&loadMaterialJsonJob_);
-    BasicEngine::GetInstance()->ScheduleJob(&loadingMaterialContentJob_, JobThreadType::OTHER_THREAD);
-}
+void Material::Bind() const {}
 
-void Material::Bind() const
-{
+void Material::Destroy() {}
 
-}
-
-void Material::Destroy()
-{
-
-}
-
-void Material::SetShader(Shader& shader)
-{
-
-}
+void Material::SetShader(Shader&) {}
 
 void Material::SetBool(std::string_view attributeName, bool value)
 {

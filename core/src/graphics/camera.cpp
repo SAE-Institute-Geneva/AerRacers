@@ -23,7 +23,6 @@
  */
 #include "graphics/camera.h"
 
-
 #include "engine/assert.h"
 #include "engine/engine.h"
 

@@ -1,4 +1,4 @@
-#ifdef VALIDATION_LAYERS
+#ifdef NEKO_ASSERT
 namespace neko::vk
 {
 void CheckVkError(VkResult err, const char* msg, const char* file, int line)

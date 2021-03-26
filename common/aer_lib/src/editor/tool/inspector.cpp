@@ -13,11 +13,13 @@ Inspector::Inspector(AerEngine& engine)
 	 lightManager_(engine.GetComponentManagerContainer().lightManager),
 	 rigidDynamicManager_(engine.GetComponentManagerContainer().rigidDynamicManager),
 	 rigidStaticManager_(engine.GetComponentManagerContainer().rigidStaticManager),
+	 audioManager_(engine.GetComponentManagerContainer().audioManager),
 	 transform3dViewer_(engine.GetComponentManagerContainer().transform3dViewer),
 	 rendererViewer_(engine.GetComponentManagerContainer().rendererViewer),
 	 lightViewer_(engine.GetComponentManagerContainer().lightViewer),
 	 rigidDynamicViewer_(engine.GetComponentManagerContainer().rigidDynamicViewer),
-	 rigidStaticViewer_(engine.GetComponentManagerContainer().rigidStaticViewer)
+	 rigidStaticViewer_(engine.GetComponentManagerContainer().rigidStaticViewer),
+	 audioViewer_(engine.GetComponentManagerContainer().audioViewer)
 {}
 
 void Inspector::DrawImGui()
@@ -45,6 +47,7 @@ void Inspector::DrawImGui()
 	DisplayComponentViewer(lightViewer_, entity, ComponentType::LIGHT);
 	DisplayComponentViewer(rigidStaticViewer_, entity, ComponentType::RIGID_STATIC);
 	DisplayComponentViewer(rigidDynamicViewer_, entity, ComponentType::RIGID_DYNAMIC);
+	DisplayComponentViewer(audioViewer_, entity, ComponentType::AUDIO_SOURCE);
 
 	ImGui::Separator();
 	DisplayNewComponentButtons(entity);

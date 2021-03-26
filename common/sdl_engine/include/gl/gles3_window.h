@@ -1,5 +1,4 @@
 #pragma once
-
 /*
  MIT License
 
@@ -23,21 +22,19 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-
 #ifdef NEKO_GLES3
-
-#include <mathematics/vector.h>
-#include "gl/gles3_include.h"
 #include "sdl_engine/sdl_window.h"
+
 #include "graphics/graphics.h"
+
 namespace neko::sdl
 {
-
-class OnResizeRenderCommand : public neko::RenderCommandInterface
+class OnResizeRenderCommand : public RenderCommandInterface
 {
 public:
 	void Render() override;
     void SetWindowSize(Vec2u newWindowSize) { newWindowSize_ = newWindowSize; }
+
 protected:
     Vec2u newWindowSize_;
 };
@@ -49,6 +46,7 @@ public:
     {
         ImGuiFirstFrame = 1u << 0u
     };
+
     void Init() override;
 
     void InitImGui() override;

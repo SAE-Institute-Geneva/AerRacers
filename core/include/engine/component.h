@@ -59,8 +59,9 @@ enum class ComponentType : EntityMask
 	RIGID_DYNAMIC      = 1u << 16u,
 
 	// Miscellaneous
-	PREFAB     = 1u << 17u,
-	OTHER_TYPE = 1u << 18u
+	PREFAB       = 1u << 17u,
+	AUDIO_SOURCE = 1u << 18u,
+	OTHER_TYPE   = 1u << 19u
 };
 
 std::string ComponentTypeToString(ComponentType type);

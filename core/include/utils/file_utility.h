@@ -22,15 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-
-#include <functional>
-
-#include <string>
-#include <string_view>
-#include <fstream>
-
 #include "engine/jobsystem.h"
-
 
 #if defined(__ANDROID__)
 #include <jni.h>
@@ -53,8 +45,12 @@ constexpr char GetOsSeparator()
 }
 
 bool FileExists(std::string_view filename);
+bool IsRegularFile(std::string_view filename);
+bool IsDirectory(std::string_view filename);
 
-void IterateDirectory(std::string_view dirname, std::function<void(const std::string_view)> func, bool recursive=false);
+void IterateDirectory(std::string_view dirname,
+	const std::function<void(const std::string_view)>& func,
+	bool recursive = false);
 
 size_t CalculateFileSize(const std::string& filename);
 
@@ -64,8 +60,8 @@ bool CreateDirectory(std::string_view dirname);
 
 bool RemoveDirectory(std::string_view dirname, bool removeAll = true);
 
-const std::string LoadFile(const std::string& path);
-const std::string LoadBinaries(const std::string& path);
+std::string LoadFile(const std::string& path);
+std::string LoadBinaries(const std::string& path);
 
 std::string LinkFolderAndFile(std::string_view folderPath, std::string_view filePath);
 std::string GetRelativePath(std::string_view path, std::string_view relative);

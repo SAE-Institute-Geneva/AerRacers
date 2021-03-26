@@ -1,8 +1,9 @@
+#include "vk/vk_imgui.h"
 
-#include <vk/vk_imgui.h>
+#include <imgui_impl_sdl.h>
+#include <imgui_impl_vulkan.h>
 
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_vulkan.h"
+#include "engine/resource_locations.h"
 
 #include "vk/vk_resources.h"
 
@@ -75,8 +76,7 @@ void VkImGui::Init()
 	fontConfig.PixelSnapH  = true;
 
 	const float fontSizeInPixels = 16.0f;
-	const std::string path =
-		BasicEngine::GetInstance()->GetConfig().dataRootPath + "fonts/droid_sans.ttf";
+	const std::string path       = GetFontsFolderPath() + "droid_sans.ttf";
 	io.Fonts->AddFontFromFileTTF(path.c_str(), fontSizeInPixels, &fontConfig);
 
 	// Upload Fonts

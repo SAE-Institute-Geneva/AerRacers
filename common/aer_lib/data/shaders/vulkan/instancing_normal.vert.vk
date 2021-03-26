@@ -7,6 +7,7 @@ layout(location = 2) in vec2 inTexCoords;
 layout(location = 3) in vec3 inTangent;
 layout(location = 4) in vec3 inBitangent;
 layout(location = 5) in mat4 inModelMatrix;
+layout(location = 9) in mat3 inNormalMatrix;
 
 layout(location = 0) out vec2 TexCoords;
 layout(location = 1) out vec3 TangentLightPos;
@@ -40,13 +41,12 @@ layout(binding = 2) uniform Lights
 
 void main() 
 {
-	mat3 normalMatrix = transpose(inverse(mat3(inModelMatrix)));
 	vec3 fragPos = vec3(inModelMatrix * vec4(inPosition, 1.0));
 	TexCoords = inTexCoords;
 	
-    vec3 T = normalize(normalMatrix * inTangent);
-    vec3 B = normalize(normalMatrix * inBitangent);
-    vec3 N = normalize(normalMatrix * inNormal);
+    vec3 T = normalize(inNormalMatrix * inTangent);
+    vec3 B = normalize(inNormalMatrix * inBitangent);
+    vec3 N = normalize(inNormalMatrix * inNormal);
     mat3 TBN = transpose(mat3(T, B, N));
 	
     TangentLightPos = TBN * vec3(1.0);

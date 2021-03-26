@@ -100,6 +100,9 @@ void ModelLoader::ProcessShape(const tinyobj::shape_t& shape)
 			LoadMaterialTextures(mat, mesh, Mesh::Texture::EMISSIVE, mat.emissive_texname);
 	}
 
+	auto minExtents = Vec3f(MAXFLOAT);
+	auto maxExtents = Vec3f(-MAXFLOAT);
+
 	std::vector<Vertex> vertices;
 	vertices.reserve(shape.mesh.indices.size());
 
@@ -126,6 +129,13 @@ void ModelLoader::ProcessShape(const tinyobj::shape_t& shape)
 			-attrib_.texcoords[2 * index.texcoord_index + 1]
 		};
 
+		minExtents = Vec3f(std::min(minExtents.x, vertex.position.x),
+			std::min(minExtents.y, vertex.position.y),
+			std::min(minExtents.z, vertex.position.z));
+		maxExtents = Vec3f(std::max(maxExtents.x, vertex.position.x),
+			std::max(maxExtents.y, vertex.position.y),
+			std::max(maxExtents.z, vertex.position.z));
+
 		if (uniqueVertices.count(vertex) == 0)
 		{
 			uniqueVertices[vertex] = vertices.size();
@@ -135,6 +145,8 @@ void ModelLoader::ProcessShape(const tinyobj::shape_t& shape)
 		indices.emplace_back(static_cast<Index>(uniqueVertices[vertex]));
 	}
 
+	mesh.aabb_.lowerLeftBound  = minExtents;
+	mesh.aabb_.upperRightBound = maxExtents;
 	for (std::size_t i = 0; i < indices.size(); i += 3)
 	{
 		if (i + 2 >= indices.size()) break;

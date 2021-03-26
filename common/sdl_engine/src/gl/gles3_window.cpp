@@ -22,17 +22,16 @@
  SOFTWARE.
  */
 #ifdef NEKO_GLES3
-
 #include "gl/gles3_window.h"
 
 #include <sstream>
-#include <engine/engine.h>
-#include "engine/log.h"
 
-#include "imgui.h"
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_opengl3.h"
-#include <fmt/format.h>
+#include <imgui_impl_opengl3.h>
+#include <imgui_impl_sdl.h>
+
+#include "engine/engine.h"
+
+#include "gl/gles3_include.h"
 
 #ifdef EASY_PROFILE_USE
 #include <easy/profiler.h>

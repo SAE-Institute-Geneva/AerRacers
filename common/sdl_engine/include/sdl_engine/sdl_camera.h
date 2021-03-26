@@ -25,6 +25,7 @@
 #include "engine/assert.h"
 #include "graphics/camera.h"
 
+#include "engine/assert.h"
 #include "sdl_engine/sdl_engine.h"
 
 #ifdef NEKO_GLES3

@@ -22,16 +22,12 @@
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
 
-#include "aer/gizmos_renderer.h"
 #ifdef NEKO_GLES3
-	#include "aer/aer_engine.h"
-	#include "engine/engine.h"
-	#include "engine/system.h"
-	#include "engine/transform.h"
-	#include "gl/gles3_window.h"
-	#include "gl/graphics.h"
-	#include "gl/shader.h"
-	#include "gl/shape.h"
+#include "engine/resource_locations.h"
+
+#include "aer/aer_engine.h"
+#include "gl/gles3_window.h"
+#include "gl/graphics.h"
 
 namespace neko::aer
 {
@@ -70,10 +66,10 @@ public:
 	{
 		textureManager_.Init();
 		const auto& config = BasicEngine::GetInstance()->GetConfig();
-		shader_.LoadFromFile(config.dataRootPath + "shaders/opengl/coords.vert",
-			config.dataRootPath + "shaders/opengl/coords.frag");
-		textureWallId_ = textureManager_.LoadTexture(
-			config.dataRootPath + "sprites/wall.jpg", Texture::DEFAULT);
+		shader_.LoadFromFile(
+			GetGlShadersFolderPath() + "coords.vert", GetGlShadersFolderPath() + "coords.frag");
+		textureWallId_ =
+			textureManager_.LoadTexture(config.dataRootPath + "sprites/wall.jpg", Texture::DEFAULT);
 
 		cube_.Init();
 		quad_.Init();

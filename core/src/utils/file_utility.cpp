@@ -21,13 +21,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-#include <utils/file_utility.h>
-#include <sstream>
-#include <functional>
-#include "engine/log.h"
+#include "utils/file_utility.h"
+
+#include <fstream>
 
 #include <fmt/format.h>
 
+#include "engine/log.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -142,25 +142,17 @@ void ResourceJob::Reset()
 #else
 
 #ifdef __APPLE__
-
 #include <boost/filesystem.hpp>
 namespace fs = boost::filesystem;
 #endif
 
-#ifdef WIN32
-#include <filesystem>
-namespace fs = std::filesystem;
-#endif
-
-#if defined(__linux__) || defined (EMSCRIPTEN)
+#if defined(WIN32) || defined(__linux__) || defined (EMSCRIPTEN)
 #include <filesystem>
 namespace fs = std::filesystem;
 #endif
 
 namespace neko
 {
-
-
 bool FileExists(const std::string_view filename)
 {
 #ifdef __APPLE__
@@ -192,9 +184,10 @@ bool IsDirectory(const std::string_view filename)
 	return fs::is_directory(p);
 }
 
-void IterateDirectory(const std::string_view dirname, std::function<void(const std::string_view)> func, bool recursive)
+void IterateDirectory(const std::string_view dirname,
+	const std::function<void(const std::string_view)>& func,
+	bool recursive)
 {
-
 	if (IsDirectory(dirname))
 	{
 #ifdef __APPLE__
@@ -215,7 +208,7 @@ void IterateDirectory(const std::string_view dirname, std::function<void(const s
 	}
 	else
 	{
-		logDebug(fmt::format("[Error] Path: {}  is not a directory!", dirname));
+		logError(fmt::format("[Error] Path: {}  is not a directory!", dirname));
 	}
 }
 
@@ -325,7 +318,7 @@ std::string GetCurrentPath()
 	return fs::current_path().string();
 }
 
-const std::string LoadFile(const std::string& path)
+std::string LoadFile(const std::string& path)
 {
 	std::ifstream t(path);
 	std::string str((std::istreambuf_iterator<char>(t)),
@@ -333,7 +326,7 @@ const std::string LoadFile(const std::string& path)
 	return str;
 }
 
-const std::string LoadBinaries(const std::string& path)
+std::string LoadBinaries(const std::string& path)
 {
 	std::ifstream t(path, std::ios::binary);
 	std::string str((std::istreambuf_iterator<char>(t)),

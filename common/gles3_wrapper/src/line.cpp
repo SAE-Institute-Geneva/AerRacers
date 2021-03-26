@@ -24,9 +24,7 @@
 
 #include "gl/line.h"
 
-
-#include "engine/engine.h"
-#include "gl/gles3_include.h"
+#include "engine/resource_locations.h"
 
 namespace neko::gl
 {
@@ -44,16 +42,15 @@ void LineRenderer::Init()
 	glEnableVertexAttribArray(1);
 	glBindVertexArray(0);
 
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
-    lineShader_.LoadFromFile(
-            config.dataRootPath + "shaders/engine/line.vert",
-            config.dataRootPath + "shaders/engine/line.frag");
+	lineShader_.LoadFromFile(
+		GetShadersFolderPath() + "engine/line.vert", GetShadersFolderPath() + "engine/line.frag");
 }
 
 void LineRenderer::Render()
 {
 	if (previousBuffer_.positions_.empty())
 		return;
+
 	const size_t lineNmb = previousBuffer_.positions_.size() / 2;
 	//Generate the VAO
 	glBindVertexArray(vao_);

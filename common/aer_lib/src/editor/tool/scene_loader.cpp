@@ -1,5 +1,6 @@
 #include "aer/editor/tool/scene_loader.h"
 
+#include "engine/resource_locations.h"
 #include "utils/file_utility.h"
 #include "utils/imgui_utility.h"
 
@@ -13,9 +14,9 @@ SceneLoader::SceneLoader(AerEngine& engine)
 
 void SceneLoader::Init()
 {
-	Configuration config = engine_.GetConfig();
-	filepath_            = config.dataRootPath + "scenes/";
 	engine_.GetPhysicsEngine().RegisterFixedUpdateListener(*this);
+
+	LoadSceneFiles();
 }
 
 void SceneLoader::FixedUpdate(seconds)
@@ -29,7 +30,6 @@ void SceneLoader::FixedUpdate(seconds)
 
 void SceneLoader::DrawImGui()
 {
-	LoadSceneFiles();
 	if (!scenesPaths_.empty())
 	{
 		ImGui::Combo("Scene", &selectedSceneIndex_, &scenesPaths_);
@@ -46,7 +46,7 @@ void SceneLoader::LoadSceneFiles()
 {
 	scenesPaths_.clear();
 	IterateDirectory(
-		filepath_,
+		GetScenesFolderPath(),
 		[this](const std::string_view path) { scenesPaths_.emplace_back(path.data()); },
 		true);
 }

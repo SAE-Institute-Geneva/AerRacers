@@ -41,13 +41,17 @@ inline float Lerp(float start, float end, float t)
     return start + (end - start) * t;
 }
 
-inline int Sign(float v) {
-    if(v >= 0) {
-        return 1;
-    }
-    if( v < 0) {
-        return -1;
-    }
+inline float InverseLerp(float start, float end, float value)
+{
+    return (value - start) / (end - start);
+}
+
+inline int Sign(float v)
+{
+	if (v >= 0) return 1;
+	if (v < 0) return -1;
+
+	return 0;
 }
 
 inline int RoundUp(float number, int multiple = 2)
@@ -83,9 +87,7 @@ typename std::enable_if<std::is_floating_point<T>::value, T>::type RandomRange(T
 template<typename T>
 T constexpr SqrtNewtonRaphson(T x, T curr, T prev)
 {
-    return curr == prev
-           ? curr
-           : SqrtNewtonRaphson<T>(x, (curr + x / curr) * 0.5, curr);
+	return curr == prev ? curr : SqrtNewtonRaphson<T>(x, (curr + x / curr) * 0.5f, curr);
 }
 
 /*
@@ -97,8 +99,7 @@ T constexpr SqrtNewtonRaphson(T x, T curr, T prev)
 template<typename T>
 T constexpr Sqrt(T x)
 {
-    return x >= 0 && x < std::numeric_limits<T>::infinity()
-           ? SqrtNewtonRaphson<T>(x, x, 0)
-           : std::numeric_limits<T>::quiet_NaN();
+	return x >= 0 && x < std::numeric_limits<T>::infinity() ? SqrtNewtonRaphson<T>(x, x, 0) :
+                                                              std::numeric_limits<T>::quiet_NaN();
 }
 }

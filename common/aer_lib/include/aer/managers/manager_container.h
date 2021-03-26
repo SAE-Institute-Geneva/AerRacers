@@ -5,9 +5,10 @@
 #include "vk/material/material_manager.h"
 #endif
 
-#include "aer/managers/light_manager.h"
 #include "aer/managers/render_manager.h"
 #include "aer/scene.h"
+
+#include "fmod/audio_manager.h"
 
 namespace neko::aer
 {
@@ -50,12 +51,14 @@ struct ComponentManagerContainer : public SystemInterface
 		 lightManager(entityManager, transform3dManager),
 		 rigidDynamicManager(entityManager, transform3dManager, physicsEngine),
 		 rigidStaticManager(entityManager, transform3dManager, renderManager, physicsEngine),
+		 audioManager(entityManager, transform3dManager),
 		 transform3dViewer(entityManager, transform3dManager),
 		 rendererViewer(entityManager, renderManager),
 		 lightViewer(entityManager, lightManager),
 		 rigidDynamicViewer(transform3dManager, entityManager, physicsEngine, rigidDynamicManager),
 		 rigidStaticViewer(transform3dManager, entityManager, physicsEngine, rigidStaticManager),
-		 sceneManager(entityManager, *this)
+		 sceneManager(entityManager, *this),
+		 audioViewer(entityManager, audioManager)
 	{
 		physicsEngine.RegisterFixedUpdateListener(rigidDynamicManager);
 		physicsEngine.RegisterFixedUpdateListener(rigidStaticManager);
@@ -67,15 +70,21 @@ struct ComponentManagerContainer : public SystemInterface
 	{
 		transform3dManager.Init();
 		renderManager.Init();
+		audioManager.Init();
 	}
 
 	void Update(seconds dt) override
 	{
 		transform3dManager.Update();
 		renderManager.Update(dt);
+		audioManager.Update(dt);
 	}
 
-	void Destroy() override { renderManager.Destroy(); }
+	void Destroy() override
+	{
+		renderManager.Destroy();
+		audioManager.Destroy();
+	}
 
 	EntityManager entityManager;
 	Transform3dManager transform3dManager;
@@ -83,12 +92,14 @@ struct ComponentManagerContainer : public SystemInterface
 	LightManager lightManager;
 	physics::RigidDynamicManager rigidDynamicManager;
 	physics::RigidStaticManager rigidStaticManager;
+	AudioManager audioManager;
 
 	Transform3dViewer transform3dViewer;
 	RendererViewer rendererViewer;
 	LightViewer lightViewer;
 	physics::RigidDynamicViewer rigidDynamicViewer;
 	physics::RigidStaticViewer rigidStaticViewer;
+	AudioViewer audioViewer;
 
 	SceneManager sceneManager;
 };

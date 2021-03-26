@@ -21,13 +21,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-
-#include <graphics/sprite.h>
-
-#include "gl/sprite.h"
+#include "engine/resource_locations.h"
 #include "engine/transform.h"
 #include "graphics/camera.h"
-#include "engine/engine.h"
+
+#include "gl/sprite.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -39,10 +37,9 @@ namespace neko::gl
 
 void SpriteManager::Init()
 {
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
-    spriteShader_.LoadFromFile(config.dataRootPath + "shaders/engine/sprite.vert",
-        config.dataRootPath + "shaders/engine/sprite.frag");
-    spriteQuad_.Init();
+	spriteShader_.LoadFromFile(GetShadersFolderPath() + "engine/sprite.vert",
+		GetShadersFolderPath() + "engine/sprite.frag");
+	spriteQuad_.Init();
 }
 
 void SpriteManager::Destroy()
