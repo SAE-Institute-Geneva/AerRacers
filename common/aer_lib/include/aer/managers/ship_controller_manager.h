@@ -49,7 +49,7 @@ struct ShipParameter {
     const float kRotorMaxAngle = 30.0f;
     //Hover
     const float kHoverHeight = 10.0f;
-    const float kMaxGroundDist = 15.0f;
+    const float kMaxGroundDist = 100.0f;
     const float kHoverForce = 300.0f;
     const std::string kLayerName = "Ground";
     //Physics

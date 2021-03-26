@@ -93,7 +93,7 @@ namespace neko::aer
             else {
                 playerComponents_[playerId].linkedJoystick = 0;
             }
-            if (cContainer_.transform3dManager.GetGlobalPosition(playerComponents_[playerId].shipEntity).y < yDespawnPosition)
+            if (cContainer_.transform3dManager.GetGlobalPosition(playerComponents_[playerId].shipEntity).y < kYDespawnPosition_)
             {
                 cContainer_.rigidDynamicManager.MovePosition(playerComponents_[playerId].shipEntity, playerComponents_[playerId].playerSpawn);
             }

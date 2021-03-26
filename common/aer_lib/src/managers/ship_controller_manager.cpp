@@ -240,6 +240,10 @@ void ShipControllerViewer::DrawImGui(Entity entity)
         if (ImGui::TreeNode("ShipController")) {
             //auto cameraComponent = cameraControllerManager_.GetComponent(entity);
             auto shipController = shipControllerManager_.GetComponent(playerId);
+            std::string isGroundText = "IsGround : ";
+            isGroundText += (shipController.isOnGround ? "1" : "0");
+            ImGui::Text(isGroundText.c_str());
+            ImGui::TreePop();
         }
     }
 }

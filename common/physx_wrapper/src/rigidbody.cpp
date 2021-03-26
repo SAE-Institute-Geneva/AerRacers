@@ -893,6 +893,12 @@ void RigidStaticManager::FixedUpdate(seconds dt) {
 			rigidStatic.colliderType = ColliderType::MESH;
 			rigidStatic.meshColliderData.modelId = meshColliderToCreate_[index].second;
 			rigidStatic.meshColliderData.size = 100.0f;
+			std::string layer = aer::TagLocator::get().GetEntityLayer(meshColliderToCreate_[index].first);
+			if (layer == "Ground") rigidStatic.filterGroup = FilterGroup::GROUND;
+			else if (layer == "Ship") rigidStatic.filterGroup = FilterGroup::SHIP;
+			else if (layer == "Wall") rigidStatic.filterGroup = FilterGroup::WALL;
+			else
+				rigidStatic.filterGroup = FilterGroup::DEFAULT;
 			AddRigidStatic(meshColliderToCreate_[index].first, rigidStatic);
 			meshColliderToCreate_.erase(meshColliderToCreate_.begin() + index);
 		}
@@ -939,6 +945,12 @@ void RigidStaticManager::AddMeshColliderStatic(Entity entity, const std::string&
 		rigidStatic.colliderType = ColliderType::MESH;
 		rigidStatic.meshColliderData.modelId = modelId;
 		rigidStatic.meshColliderData.size = 100.0f;
+		std::string layer = aer::TagLocator::get().GetEntityLayer(entity);
+		if (layer == "Ground") rigidStatic.filterGroup = FilterGroup::GROUND;
+		else if (layer == "Ship") rigidStatic.filterGroup = FilterGroup::SHIP;
+		else if (layer == "Wall") rigidStatic.filterGroup = FilterGroup::WALL;
+		else
+			rigidStatic.filterGroup = FilterGroup::DEFAULT;
 		AddRigidStatic(entity, rigidStatic);
 	}
 	else

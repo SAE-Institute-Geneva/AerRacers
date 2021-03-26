@@ -79,6 +79,6 @@ private:
     ShipControllerManager& shipControllerManager_;
     ShipInputManager& shipInputManager_;
 
-    const float yDespawnPosition = -50.0f;
+    const float kYDespawnPosition_ = -10000.0f;
 };
 }
