@@ -391,7 +391,7 @@ public:
         EASY_BLOCK("Test Update", profiler::colors::Green);
 #endif
         updateCount_ += dt.count();
-        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Destroy() override {}
