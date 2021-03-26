@@ -64,6 +64,30 @@ bool AudioSource::IsPaused()
 	return isPaused;
 }
 
+float AudioSource::GetParameter(std::string_view parameterName) const
+{
+	if (instance_)
+	{
+		float returnVal;
+		fmodCheckError(instance_->getParameterByName(parameterName.data(), &returnVal));
+		return returnVal;
+	}
+
+	return 0.0f;
+}
+
+float AudioSource::GetParameter(FMOD_STUDIO_PARAMETER_ID parameterId) const
+{
+	if (instance_)
+	{
+		float returnVal;
+		fmodCheckError(instance_->getParameterByID(parameterId, &returnVal));
+		return returnVal;
+	}
+
+	return 0.0f;
+}
+
 void AudioSource::Update3DAttributes(const FMOD_3D_ATTRIBUTES& attributes)
 {
 	if (state_ != State::PLAYING) return;
@@ -85,6 +109,16 @@ FMOD_3D_ATTRIBUTES AudioSource::Get3DAttributes() const
 	if (instance_) return FmodLocator::get().GetEvent3DAttributes(instance_);
 
 	return {};
+}
+
+void AudioSource::SetParameter(std::string_view parameterName, float value)
+{
+	if (instance_) fmodCheckError(instance_->setParameterByName(parameterName.data(), value));
+}
+
+void AudioSource::SetParameter(FMOD_STUDIO_PARAMETER_ID parameterId, float value)
+{
+	if (instance_) fmodCheckError(instance_->setParameterByID(parameterId, value));
 }
 
 void AudioSource::SetVolume(float volumeDb)

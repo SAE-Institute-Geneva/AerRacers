@@ -26,23 +26,21 @@
  Date : 22.11.2020
 ---------------------------------------------------------- */
 #include <gtest/gtest.h>
-#include "PxConfig.h"
-#include "PxPhysicsAPI.h"
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
 #endif
 
-#include "px/physics_callbacks.h"
-#include "px/physics_engine.h"
-
 #include "aer/aer_engine.h"
-#include "aer/gizmos_renderer.h"
-#include "aer/log.h"
-#include "aer/managers/render_manager.h"
-#include "engine/engine.h"
-#include "engine/system.h"
-#include "engine/transform.h"
+
+#ifdef NEKO_GLES3
+#include "gl/gles3_window.h"
+#include "gl/graphics.h"
+#else
+#include "vk/graphics.h"
+#include "vk/renderers/renderer_editor.h"
+#include "vk/vulkan_window.h"
+#endif
 
 namespace neko::physics
 {
@@ -148,8 +146,6 @@ private:
 #pragma endregion
 
 #ifdef NEKO_GLES3
-#include "gl/gles3_window.h"
-#include "gl/graphics.h"
 #pragma region CubeFall
 class SceneCubeFall final : public SceneInterface
 {
@@ -490,11 +486,12 @@ public:
 		//    cubeTorque_.x * kPhysicsDuration_,
 		//    precision);
 		float modulo = 360.f;
-		EXPECT_NEAR(fmod(degree_t(radian_t(rigidDynamicManager_->GetDynamicData(cubeTorqueEntity_)
-											   .angularVelocity.x))
-							 .value(),
-						modulo),
-			fmod(cubeTorque_.x, modulo),
+		EXPECT_NEAR(
+			std::fmod(degree_t(radian_t(rigidDynamicManager_->GetDynamicData(cubeTorqueEntity_)
+											.angularVelocity.x))
+						  .value(),
+				modulo),
+			std::fmod(cubeTorque_.x, modulo),
 			10.0f);
 		//Cube Rotation
 		EXPECT_NEAR(transform3dManager_->GetRelativeRotation(cubeMoveRotationEntity_).x.value(),
@@ -1181,8 +1178,6 @@ TEST(PhysX, TestGroundMeshCollider)
 #pragma endregion
 #pragma region SceneTest
 #pragma region InterfaceScene
-namespace aer
-{
 class TestSceneInterface
 {
 public:
@@ -1395,7 +1390,7 @@ TEST(PhysX, TestPhysXColliderScene)
 	sdl::Gles3Window window;
 	gl::Gles3Renderer renderer;
 	Filesystem filesystem;
-	neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
+	aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
 
 	engine.SetWindowAndRenderer(&window, &renderer);
 	TestPhysXColliderScene testExample;
@@ -1409,14 +1404,10 @@ TEST(PhysX, TestPhysXColliderScene)
 
 	testSceneImporteur.HasSucceed();
 }
-}    // namespace aer
 #pragma endregion
 #pragma endregion
 
 #elif NEKO_VULKAN
-#include "vk/graphics.h"
-#include "vk/renderers/renderer_editor.h"
-#include "vk/vulkan_window.h"
 #pragma region GroundMeshCollider
 class SceneGroundMeshCollider final : public SceneInterface
 {
@@ -1493,6 +1484,7 @@ private:
 
 	Entity planeEntity_ = INVALID_ENTITY;
 };
+
 TEST(PhysX, TestGroundMeshCollider)
 {
 	//Travis Fix because Windows can't open a window

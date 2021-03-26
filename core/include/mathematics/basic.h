@@ -41,6 +41,11 @@ inline float Lerp(float start, float end, float t)
     return start + (end - start) * t;
 }
 
+inline float InverseLerp(float start, float end, float value)
+{
+    return (value - start) / (end - start);
+}
+
 inline int Sign(float v)
 {
 	if (v >= 0) return 1;

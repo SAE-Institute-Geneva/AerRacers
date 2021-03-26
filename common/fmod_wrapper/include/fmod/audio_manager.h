@@ -52,12 +52,32 @@ public:
 	[[nodiscard]] bool IsPaused(Entity e) { return components_[e].IsPaused(); }
 	[[nodiscard]] bool DoPlayOnWakeUp(Entity e) const { return components_[e].DoPlayOnWakeUp(); }
 
+	[[nodiscard]] float GetParameter(Entity e, std::string_view parameterName) const
+	{
+		return components_[e].GetParameter(parameterName);
+	}
+
+	[[nodiscard]] float GetParameter(Entity e, FMOD_STUDIO_PARAMETER_ID parameterId) const
+	{
+		return components_[e].GetParameter(parameterId);
+	}
+
 	[[nodiscard]] FMOD_3D_ATTRIBUTES Get3DAttributes(Entity e) const { return components_[e].Get3DAttributes(); }
 	[[nodiscard]] std::string_view GetEventName(Entity e) const { return components_[e].GetEventName(); }
 	[[nodiscard]] float GetVolume(Entity e) const { return components_[e].GetVolume(); }
 	[[nodiscard]] float GetPitch(Entity e) const { return components_[e].GetPitch(); }
 	[[nodiscard]] float GetMinDistance(Entity e) const { return components_[e].GetMinDistance(); }
 	[[nodiscard]] float GetMaxDistance(Entity e) const { return components_[e].GetMaxDistance(); }
+
+	void SetParameter(Entity e, std::string_view parameterName, float value)
+	{
+		components_[e].SetParameter(parameterName, value);
+	}
+
+	void SetParameter(Entity e, FMOD_STUDIO_PARAMETER_ID parameterId, float value)
+	{
+		components_[e].SetParameter(parameterId, value);
+	}
 
 	void SetEventName(Entity e, std::string_view eventName) { components_[e].SetEventName(eventName); }
 	void SetPlayOnWakeUp(Entity e, bool playOnWakeUp) { components_[e].SetPlayOnWakeUp(playOnWakeUp); }

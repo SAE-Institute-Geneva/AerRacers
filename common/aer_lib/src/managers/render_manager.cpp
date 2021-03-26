@@ -36,6 +36,7 @@ void RenderManager::Init()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("RenderManager::Init", profiler::colors::Brown);
 #endif
+
 #ifdef NEKO_GLES3
 	preRender_ = Job {[this]()
 		{
@@ -46,7 +47,6 @@ void RenderManager::Init()
 		}};
 
 	RendererLocator::get().AddPreRenderJob(&preRender_);
-#else
 #endif
 }
 
@@ -192,6 +192,7 @@ void RendererViewer::DrawImGui(Entity entity)
 		{
 			std::string meshName = "ModelName: " + rendererManager_.GetModelName(entity);
 			ImGui::Text("%s", meshName.c_str());
+
 			ImGui::TreePop();
 		}
 	}

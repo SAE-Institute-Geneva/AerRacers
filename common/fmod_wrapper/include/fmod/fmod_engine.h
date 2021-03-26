@@ -11,6 +11,7 @@ namespace neko::fmod
 {
 using BankMap      = std::map<std::string, FMOD::Studio::Bank*>;
 using FmodInstance = FMOD::Studio::EventInstance;
+using FmodDescription = FMOD::Studio::EventDescription;
 
 /// The number of sounds that can play simultaneously
 constexpr std::uint8_t kMaxInstance = 5u;
@@ -72,10 +73,13 @@ public:
 	/// \return All the events loaded from the FMOD banks
 	[[nodiscard]] virtual const std::vector<std::string>& GetEventNames() const = 0;
 
+	virtual FmodDescription* GetEventDescription(std::string_view) = 0;
+
 	/// \return The value of the event custom parameter
 	/// \param eventName: the name of the event
 	/// \param eventParameterName: the name of the parameter
-	[[nodiscard]] virtual float GetEventParameter(std::string_view, std::string_view) = 0;
+	[[nodiscard]] virtual float GetEventParameter(std::string_view) const         = 0;
+	[[nodiscard]] virtual float GetEventParameter(FMOD_STUDIO_PARAMETER_ID) const = 0;
 
 	/// \return The 3D attributes of the specified event instance
 	/// \param instance: the instance of the event
@@ -84,7 +88,8 @@ public:
 	/// \param eventName: the name of the event
 	/// \param eventParameterName: the name of the parameter
 	/// \param parameterValue: the value to give the parameter
-	virtual void SetEventParameter(std::string_view, std::string_view, float)   = 0;
+	virtual void SetEventParameter(std::string_view, float)                     = 0;
+	virtual void SetEventParameter(FMOD_STUDIO_PARAMETER_ID, float)             = 0;
 	virtual void SetEventVolume(FmodInstance*, float)                           = 0;
 	virtual void SetEventPitch(FmodInstance*, float)                            = 0;
 	virtual void SetEvent3DAttributes(FmodInstance*, const FMOD_3D_ATTRIBUTES&) = 0;
@@ -97,7 +102,7 @@ public:
 	[[nodiscard]] virtual bool IsPlaying(const FmodInstance*) const = 0;
 	[[nodiscard]] virtual bool IsPaused(const FmodInstance*) const  = 0;
 
-	virtual FMOD_3D_ATTRIBUTES GetAudioListener() const = 0;
+	[[nodiscard]] virtual FMOD_3D_ATTRIBUTES GetAudioListener() const = 0;
 
 	/// Sets the 3D attributes of the listener
 	virtual void SetAudioListener(const FMOD_3D_ATTRIBUTES&) = 0;
@@ -125,11 +130,14 @@ public:
 		neko_assert(false, "FMOD Engine is null!");
 	}
 
-	float GetEventParameter(std::string_view, std::string_view) override { return 0.0f; }
+	FmodDescription* GetEventDescription(std::string_view) override { return nullptr; }
+	float GetEventParameter(std::string_view) const override { return 0.0f; }
+	float GetEventParameter(FMOD_STUDIO_PARAMETER_ID) const override { return 0.0f; }
 	FMOD_3D_ATTRIBUTES GetEvent3DAttributes(FmodInstance*) const override
 	{ return {}; }
 
-	void SetEventParameter(std::string_view, std::string_view, float) override {}
+	void SetEventParameter(std::string_view, float) override {}
+	void SetEventParameter(FMOD_STUDIO_PARAMETER_ID, float) override {}
 	void SetEventVolume(FmodInstance*, float) override {}
 	void SetEventPitch(FmodInstance*, float) override {}
 	void SetEvent3DAttributes(FmodInstance*, const FMOD_3D_ATTRIBUTES&) override {}
@@ -176,13 +184,14 @@ public:
 	// ---------- Sound Parameters
 	[[nodiscard]] const std::vector<std::string>& GetEventNames() const override { return eventNames_; }
 
-	float GetEventParameter(
-		std::string_view eventName, std::string_view eventParameterName) override;
+	FmodDescription* GetEventDescription(std::string_view eventName) override;
+
+	float GetEventParameter(std::string_view parameterName) const override;
+	float GetEventParameter(FMOD_STUDIO_PARAMETER_ID parameterId) const override;
 	FMOD_3D_ATTRIBUTES GetEvent3DAttributes(FmodInstance* instance) const override;
 
-	void SetEventParameter(std::string_view eventName,
-		std::string_view eventParameterName,
-		float parameterValue) override;
+	void SetEventParameter(std::string_view parameterName, float value) override;
+	void SetEventParameter(FMOD_STUDIO_PARAMETER_ID parameterId, float value) override;
 	void SetEventVolume(FmodInstance* instance, float volumeDb) override;
 	void SetEventPitch(FmodInstance* instance, float pitch) override;
 	void SetEvent3DAttributes(FmodInstance* instance, const FMOD_3D_ATTRIBUTES& attributes) override;
@@ -198,7 +207,7 @@ public:
 	[[nodiscard]] bool IsPlaying(const FmodInstance* instance) const override;
 	[[nodiscard]] bool IsPaused(const FmodInstance* instance) const override;
 
-	FMOD_3D_ATTRIBUTES GetAudioListener() const override;
+	[[nodiscard]] FMOD_3D_ATTRIBUTES GetAudioListener() const override;
 
 	void SetAudioListener(const FMOD_3D_ATTRIBUTES& attributes) override;
 	void SetAudioListener(const Vec3f& position,

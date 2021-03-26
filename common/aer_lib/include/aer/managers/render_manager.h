@@ -45,15 +45,16 @@ public:
 	[[nodiscard]] std::string GetModelName(Entity entity);
 	[[nodiscard]] std::string_view GetModelPath(Entity entity);
 
-	void SetModel(Entity entity, const std::string& modelPath);
 #ifdef NEKO_GLES3
-	void SetModel(Entity entity, gl::ModelId modelId);
 	gl::Shader& GetShader() { return shader_; }
+
+	void SetModel(Entity entity, gl::ModelId modelId);
 #else
 	void DestroyComponent(Entity entity) override;
 
 	void SetModel(Entity entity, vk::ModelId modelId);
 #endif
+	void SetModel(Entity entity, const std::string& modelPath);
 
 	void UpdateDirtyComponent(Entity entity) override;
 

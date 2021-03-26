@@ -23,17 +23,16 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
+#include <SDL.h>
 
 #include "engine/window.h"
-#include <SDL.h>
-#include <utils/time_utility.h>
 
 namespace neko::sdl
 {
 class SdlWindow : public Window
 {
 public:
-    virtual void Init() override;
+	void Init() override;
     void Update([[maybe_unused]]seconds dt) override{};
 
     void Destroy() override;

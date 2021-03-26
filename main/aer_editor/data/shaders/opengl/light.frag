@@ -107,10 +107,17 @@ vec3 CalcDirLight(vec3 viewDir)
 	}
 
 	float diff = max(dot(normal, lightDir), 0.0);
+	if (diff > 0.51) diff = 1.0;
+	else if (diff > 0.5) diff = smoothstep(0.5, 0.51, diff);
+	else diff = 0.0;
+	
  	vec3 diffuse = dirLight.diffuse * diff * GetDiffuse();
 
 	vec3 halfwayDir = normalize(lightDir + viewDir);
   	float spec = pow(max(dot(normal, halfwayDir), 0.0), material.shininess);
+	if (spec > 0.51) spec = 1.0;
+	else spec = 0.0;
+	
 	vec3 specular = dirLight.diffuse * dirLight.specular * spec * GetSpecular();
     diffuse *= dirLight.intensity;
     specular *= dirLight.intensity;

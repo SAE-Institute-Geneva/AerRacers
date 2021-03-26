@@ -172,16 +172,24 @@ void FmodEngine::StopEvent(FmodInstance* instance, bool isStoppingImmediate)
 // ----------
 
 // ---------- Sound Parameters
-float FmodEngine::GetEventParameter(std::string_view eventName, std::string_view eventParameterName)
+FmodDescription* FmodEngine::GetEventDescription(std::string_view eventName)
 {
 	FMOD::Studio::EventDescription* description = nullptr;
 	studioSystem_->getEvent((kEventPrefix + std::string(eventName)).c_str(), &description);
+	return description;
+}
 
-	FmodInstance* instance = nullptr;
-	fmodCheckError(description->createInstance(&instance));
-
+float FmodEngine::GetEventParameter(std::string_view parameterName) const
+{
 	float value = 0;
-	fmodCheckError(instance->getParameterByName(eventParameterName.data(), &value));
+	fmodCheckError(studioSystem_->getParameterByName(parameterName.data(), &value));
+	return value;
+}
+
+float FmodEngine::GetEventParameter(FMOD_STUDIO_PARAMETER_ID parameterId) const
+{
+	float value = 0;
+	fmodCheckError(studioSystem_->getParameterByID(parameterId, &value));
 	return value;
 }
 
@@ -192,16 +200,14 @@ FMOD_3D_ATTRIBUTES FmodEngine::GetEvent3DAttributes(FmodInstance* instance) cons
 	return attributes;
 }
 
-void FmodEngine::SetEventParameter(
-	std::string_view eventName, std::string_view eventParameterName, float parameterValue)
+void FmodEngine::SetEventParameter(std::string_view parameterName, float value)
 {
-	FMOD::Studio::EventDescription* description = nullptr;
-	studioSystem_->getEvent((kEventPrefix + std::string(eventName)).c_str(), &description);
+	fmodCheckError(studioSystem_->setParameterByName(parameterName.data(), value));
+}
 
-	FmodInstance* instance = nullptr;
-	fmodCheckError(description->createInstance(&instance));
-
-	fmodCheckError(instance->setParameterByName(eventParameterName.data(), parameterValue));
+void FmodEngine::SetEventParameter(FMOD_STUDIO_PARAMETER_ID parameterId, float value)
+{
+	fmodCheckError(studioSystem_->setParameterByID(parameterId, value));
 }
 
 void FmodEngine::SetEventVolume(FmodInstance* instance, float volumeDb)

@@ -8,6 +8,7 @@
 #include "aer/editor/tool/light_controller.h"
 #include "aer/editor/tool/logger.h"
 #include "aer/editor/tool/scene_loader.h"
+#include "aer/gizmos_renderer.h"
 
 namespace neko::aer
 {

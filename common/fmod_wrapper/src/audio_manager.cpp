@@ -105,8 +105,9 @@ void AudioViewer::DrawImGui(Entity entity)
 			if (Button("Stop", buttonSize)) audioManager_.Stop(entity);
 
 			fmod::AudioSource audioSource = audioManager_.GetComponent(entity);
+			auto& fmodEngine              = fmod::FmodLocator::get();
 			const auto eventName          = audioManager_.GetEventName(entity);
-			const auto eventNames         = fmod::FmodLocator::get().GetEventNames();
+			const auto& eventNames        = fmodEngine.GetEventNames();
 			unsigned index =
 				std::find(eventNames.cbegin(), eventNames.cend(), eventName) - eventNames.cbegin();
 			if (Combo("Event", &index, &eventNames, LabelPos::LEFT))
@@ -133,6 +134,30 @@ void AudioViewer::DrawImGui(Entity entity)
 				audioSource.SetMaxDistance(maxDistance);
 
 			audioManager_.SetComponent(entity, audioSource);
+
+			const auto description = fmod::FmodLocator::get().GetEventDescription(eventName);
+			if (TreeNode("Event Parameters"))
+			{
+				int parameterCount;
+				description->getParameterDescriptionCount(&parameterCount);
+				for (int i = 0; i < parameterCount; ++i)
+				{
+					FMOD_STUDIO_PARAMETER_DESCRIPTION parameter;
+					description->getParameterDescriptionByIndex(i, &parameter);
+
+					float parameterVal = audioManager_.GetParameter(entity, parameter.id);
+					if (DragFloat(parameter.name,
+							&parameterVal,
+							LabelPos::LEFT,
+							0.01f,
+							parameter.minimum,
+							parameter.maximum))
+					{
+						audioManager_.SetParameter(entity, parameter.id, parameterVal);
+					}
+				}
+				TreePop();
+			}
 			TreePop();
 		}
 	}

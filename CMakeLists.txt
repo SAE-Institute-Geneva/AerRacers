@@ -66,17 +66,8 @@ if(Neko_Test OR Aer_Test)
     set(BUILD_GMOCK OFF CACHE INTERNAL "")
     set(INSTALL_GTEST OFF CACHE INTERNAL "")
     add_subdirectory(${GOOGLE_TEST_DIR})
-endif()
 
-# Enables aer_lib tests
-if (Aer_Test)
     set_target_properties(gtest PROPERTIES FOLDER Externals/GTest)
-    set_target_properties(gtest_main PROPERTIES FOLDER Externals/GTest)
-endif ()
-
-# Enables NekoCore tests
-if(Neko_Test)
-    set_target_properties (gtest PROPERTIES FOLDER Externals/GTest)
     set_target_properties(gtest_main PROPERTIES FOLDER Externals/GTest)
 endif()
 
@@ -145,6 +136,7 @@ add_compile_definitions("TINYOBJLOADER_IMPLEMENTATION=1")
 
 # Enables the Render Engine
 if (Neko_GLES3 AND NOT Neko_VULKAN)
+    message("+++ AAAAAAAAAA")
     add_compile_definitions("NEKO_GLES3=1")
 
     add_subdirectory("${EXTERNAL_DIR}/glad")

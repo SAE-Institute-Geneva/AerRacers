@@ -216,7 +216,7 @@ public:
         const auto& model = rContainer_.modelManager.GetModel(modelId);
         for (size_t i = 0; i < model->GetMeshCount(); ++i)
         {
-        	const auto& meshAabb = model->GetMesh(i).aabb;
+        	const auto& meshAabb = model->GetMesh(i).GetAabb();
         	gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
         }
     }
@@ -320,7 +320,7 @@ public:
         const auto& model = rContainer_.modelManager.GetModel(modelId);
         for (size_t i = 0; i < model->GetMeshCount(); ++i)
         {
-            const auto& meshAabb = model->GetMesh(i).aabb;
+            const auto& meshAabb = model->GetMesh(i).GetAabb();
             gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
         }
     }

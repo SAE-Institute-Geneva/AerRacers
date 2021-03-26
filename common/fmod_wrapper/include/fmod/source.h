@@ -52,6 +52,8 @@ public:
 	[[nodiscard]] bool IsPaused();
 	[[nodiscard]] bool DoPlayOnWakeUp() const { return playOnWakeUp_; }
 
+	[[nodiscard]] float GetParameter(std::string_view parameterName) const;
+	[[nodiscard]] float GetParameter(FMOD_STUDIO_PARAMETER_ID parameterId) const;
 	[[nodiscard]] FMOD_3D_ATTRIBUTES Get3DAttributes() const;
 	[[nodiscard]] std::string_view GetEventName() const { return eventName_; }
 	[[nodiscard]] float GetVolume() const { return volume_; }
@@ -59,6 +61,8 @@ public:
 	[[nodiscard]] float GetMinDistance() const { return minDistance_; }
 	[[nodiscard]] float GetMaxDistance() const { return maxDistance_; }
 
+	void SetParameter(std::string_view parameterName, float value);
+	void SetParameter(FMOD_STUDIO_PARAMETER_ID parameterId, float value);
 	void SetEventName(std::string_view eventName) { eventName_ = eventName; }
 	void SetPlayOnWakeUp(bool playOnWakeUp) { playOnWakeUp_ = playOnWakeUp; }
 	void SetVolume(float volumeDb);
