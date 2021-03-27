@@ -60,9 +60,10 @@ public:
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         testEntity_ = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(testEntity_);
+        cContainer_.transform3dManager.SetRelativeScale(testEntity_, Vec3f::one * 0.01f);
         cContainer_.renderManager.AddComponent(testEntity_);
         cContainer_.renderManager.SetModel(
-            testEntity_, config.dataRootPath + "models/gros_block1/gros_block1.obj");
+            testEntity_, config.dataRootPath + "models/ship/low_cortese_complet.obj");
         engine_.GetCameras().moveSpeed = 50.0f;
     }
 
@@ -102,7 +103,7 @@ public:
 
 private:
     float updateCount_ = 0;
-    const float kEngineDuration_ = 30.0f;
+    const float kEngineDuration_ = 5.0f;
     bool loaded_ = false;
     AerEngine& engine_;
 

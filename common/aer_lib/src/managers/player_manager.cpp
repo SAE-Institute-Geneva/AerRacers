@@ -44,21 +44,49 @@ namespace neko::aer
         shipControllerManager_.InitComponent(playerCount_);
         Entity shipModelEntity = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(shipModelEntity);
-        cContainer_.transform3dManager.SetGlobalPosition(shipModelEntity, pos);
-        cContainer_.transform3dManager.SetGlobalScale(shipModelEntity, Vec3f(9.0f, 1.0f, 5.5f));
         cContainer_.entityManager.SetEntityParent(shipModelEntity, shipEntity);
-        cContainer_.renderManager.AddComponent(shipModelEntity);
-        cContainer_.renderManager.SetModel(shipModelEntity, config.dataRootPath + "models/cube/cube.obj");
+        cContainer_.transform3dManager.SetRelativeScale(shipModelEntity, Vec3f::one * 0.01f);
+        cContainer_.transform3dManager.SetRelativePosition(shipModelEntity, Vec3f::zero);
+        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
+        Entity shipArtEntity = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(shipArtEntity);
+        cContainer_.entityManager.SetEntityParent(shipArtEntity, shipModelEntity);
+        cContainer_.transform3dManager.SetRelativePosition(shipArtEntity, Vec3f::zero);
+        cContainer_.transform3dManager.SetRelativeScale(shipArtEntity, Vec3f::one);
+        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+        cContainer_.renderManager.AddComponent(shipArtEntity);
+        cContainer_.renderManager.SetModel(shipArtEntity, config.dataRootPath + "models/ship/low_cortese_corps.obj");
 
         PlayerComponent playerComponent;
         playerComponent.shipEntity = shipEntity;
         playerComponent.shipModelEntity = shipModelEntity;
         playerComponent.playerNumber = playerComponents_.size();
         playerComponent.playerSpawn = pos;
+
+        Entity shipRightRotor = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(shipRightRotor);
+        cContainer_.entityManager.SetEntityParent(shipRightRotor, shipModelEntity);
+        cContainer_.transform3dManager.SetRelativePosition(shipRightRotor, Vec3f::zero);
+        cContainer_.transform3dManager.SetRelativeScale(shipRightRotor, Vec3f::one);
+        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+        cContainer_.renderManager.AddComponent(shipRightRotor);
+        cContainer_.renderManager.SetModel(shipRightRotor, config.dataRootPath + "models/ship/low_helice_g.obj");
+
+        Entity shipLeftRotor = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(shipLeftRotor);
+        cContainer_.entityManager.SetEntityParent(shipLeftRotor, shipModelEntity);
+        cContainer_.transform3dManager.SetRelativePosition(shipLeftRotor, Vec3f::zero);
+        cContainer_.transform3dManager.SetRelativeScale(shipLeftRotor, Vec3f::one);
+        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+        cContainer_.renderManager.AddComponent(shipLeftRotor);
+        cContainer_.renderManager.SetModel(shipLeftRotor, config.dataRootPath + "models/ship/low_helice_d.obj");
+
         std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
         if (controllers.size() > playerCount_)
             playerComponent.linkedJoystick = controllers[playerCount_];
         playerComponents_[playerCount_] = playerComponent;
+
+        shipControllerManager_.AssignRotors(playerCount_, shipRightRotor, shipLeftRotor);
         playerCount_++;
 
         return playerComponent.playerNumber;

@@ -118,6 +118,9 @@ namespace neko::aer {
             engine_.GetComponentManagerContainer().sceneManager.LoadScene(
                 config.dataRootPath + "scenes/LevelDesign24-03.aerscene");
             cContainer_.playerManager.CreatePlayer(Vec3f(-1128.0f, 185.0f, -788.0f));
+            DirectionalLight* dirLight = DirectionalLight::Instance;
+            dirLight->ambient = Vec3f::one * 0.9f;
+            dirLight->specular = 0.2f;
         }
 
         void Update(neko::seconds dt) override {
