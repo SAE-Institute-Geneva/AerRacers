@@ -69,6 +69,8 @@ struct ShipController {
     bool isOnGround = false;
     float startHoverHeight = 0.0f;
     Entity shipModel = INVALID_ENTITY;
+    Entity leftRotor = INVALID_ENTITY;
+    Entity rightRotor = INVALID_ENTITY;
 };
 
 /**
@@ -93,9 +95,11 @@ public:
 	void Update(seconds dt) override;
 	void FixedUpdate(seconds dt) override;
 	void Destroy() override;
+    void AssignRotors(PlayerId playerId, Entity& rightRotor, Entity& leftRotor);
     void InitComponent(PlayerId playerId);
     void CalculateHover(PlayerId playerId, seconds dt);
     void CalculateThrust(PlayerId playerId, seconds dt);
+    void RotorMovement(PlayerId playerId);
     void OnCollisionEnter(
         const physx::PxContactPairHeader& pairHeader) override;
 

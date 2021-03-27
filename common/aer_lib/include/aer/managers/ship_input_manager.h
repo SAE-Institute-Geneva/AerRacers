@@ -51,13 +51,13 @@ public:
 		float GetIntensity();
 		float GetThruster();
 		bool IsBreaking();
+		float GetJoystickAxis(Joystick joystick, Axis axis);
 
 	private:
 		bool IsJoystickActive(Joystick joystick);
 		bool IsJoystickAxisInDeadzone(Joystick joystick, Axis axis);
 		bool GetBoostButton();
 
-		float GetJoystickAxis(Joystick joystick, Axis axis);
 		float GetJoystickAngle(Joystick joystick);
 		float GetJoystickMagnitude(Joystick joystick);
 
@@ -81,6 +81,8 @@ public:
 	float GetRudder(PlayerId playerId);
 	float GetThruster(PlayerId playerId);
 	float GetIntensity(PlayerId playerId);
+	float GetJoystickAxis(PlayerId playerId, Joystick joystick, Axis axis);
+
 	bool IsBreaking(PlayerId playerId);
 
 	void Init() override;

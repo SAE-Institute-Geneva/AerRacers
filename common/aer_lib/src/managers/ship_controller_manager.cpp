@@ -38,6 +38,13 @@ void ShipControllerManager::InitComponent(PlayerId player)
    shipController.drag = shipParameter_.kForwardForce / shipParameter_.kTerminalVelocity;
 }
 
+void ShipControllerManager::AssignRotors(PlayerId playerId, Entity& rightRotor, Entity& leftRotor) {
+    ShipController& shipController = shipControllers_[playerId];
+    shipController.rightRotor = rightRotor;
+    shipController.leftRotor = leftRotor;
+}
+
+
 
 void ShipControllerManager::Init()
 {
@@ -51,6 +58,7 @@ void ShipControllerManager::FixedUpdate(seconds dt) {
         if (!entityManager_.HasComponent(shipEntity, EntityMask(ComponentType::RIGID_DYNAMIC))) continue;
         CalculateHover(playerId, dt);
         CalculateThrust(playerId, dt);
+        RotorMovement(playerId);
     }
 }
 
@@ -173,6 +181,22 @@ void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
             shipParameter_.kPropultionMultiplicator);
     rigidDynamic.AddForce(forward * propultion, physx::PxForceMode::eACCELERATION);
 }
+
+void ShipControllerManager::RotorMovement(PlayerId playerId) {
+    ShipController& shipController = shipControllers_[playerId];
+
+    Vec3f rightRotation = Vec3f::zero;
+    rightRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
+    rightRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
+    
+    Vec3f leftRotation = Vec3f::zero;
+    leftRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
+    leftRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
+
+    transformManager_.SetRelativeRotation(shipController.rightRotor, ConvertVec3fToEulerAngles(rightRotation));
+    transformManager_.SetRelativeRotation(shipController.leftRotor, ConvertVec3fToEulerAngles(leftRotation));
+}
+
 
 void ShipControllerManager::OnCollisionEnter(
     const physx::PxContactPairHeader& pairHeader)
