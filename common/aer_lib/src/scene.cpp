@@ -106,6 +106,7 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 		}
 	}
 
+#ifdef NEKO_FMOD
 	// Audio Source
 	if (CheckJsonParameter(componentJson, "audioSource", json::value_t::object))
 	{
@@ -119,6 +120,7 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 			}
 		}
 	}
+#endif
 
 	// Ship Values
 	if (CheckJsonParameter(componentJson, "shipControl", json::value_t::object))
@@ -299,11 +301,13 @@ json SceneManager::WriteEntityJson(Entity entity) const
 	entityJson["light"]["exist"] =
 		entityManager_.HasComponent(entity, EntityMask(ComponentType::LIGHT));
 
+#ifdef NEKO_FMOD
 	// Audio Sources
 	entityJson["audioSource"] = json::object();
 	entityJson["audioSource"] = componentManagerContainer_.audioViewer.GetJsonFromComponent(entity);
 	entityJson["audioSource"]["exist"] =
 		entityManager_.HasComponent(entity, EntityMask(ComponentType::AUDIO_SOURCE));
+#endif
 
 	// Ship Variables
 	//entityJson["shipControl"] = json::object();

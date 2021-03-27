@@ -8,7 +8,9 @@
 #include "aer/managers/render_manager.h"
 #include "aer/scene.h"
 
+#ifdef NEKO_FMOD
 #include "fmod/audio_manager.h"
+#endif
 
 namespace neko::aer
 {
@@ -51,14 +53,18 @@ struct ComponentManagerContainer : public SystemInterface
 		 lightManager(entityManager, transform3dManager),
 		 rigidDynamicManager(entityManager, transform3dManager, physicsEngine),
 		 rigidStaticManager(entityManager, transform3dManager, renderManager, physicsEngine),
+#ifdef NEKO_FMOD
 		 audioManager(entityManager, transform3dManager),
+#endif
 		 transform3dViewer(entityManager, transform3dManager),
 		 rendererViewer(entityManager, renderManager),
 		 lightViewer(entityManager, lightManager),
 		 rigidDynamicViewer(transform3dManager, entityManager, physicsEngine, rigidDynamicManager),
 		 rigidStaticViewer(transform3dManager, entityManager, physicsEngine, rigidStaticManager),
-		 sceneManager(entityManager, *this),
-		 audioViewer(entityManager, audioManager)
+#ifdef NEKO_FMOD
+		audioViewer(entityManager, audioManager),
+#endif
+		 sceneManager(entityManager, *this)
 	{
 		physicsEngine.RegisterFixedUpdateListener(rigidDynamicManager);
 		physicsEngine.RegisterFixedUpdateListener(rigidStaticManager);
@@ -70,20 +76,26 @@ struct ComponentManagerContainer : public SystemInterface
 	{
 		transform3dManager.Init();
 		renderManager.Init();
+#ifdef NEKO_FMOD
 		audioManager.Init();
+#endif
 	}
 
 	void Update(seconds dt) override
 	{
 		transform3dManager.Update();
 		renderManager.Update(dt);
+#ifdef NEKO_FMOD
 		audioManager.Update(dt);
+#endif
 	}
 
 	void Destroy() override
 	{
 		renderManager.Destroy();
+#ifdef NEKO_FMOD
 		audioManager.Destroy();
+#endif
 	}
 
 	EntityManager entityManager;
@@ -92,14 +104,18 @@ struct ComponentManagerContainer : public SystemInterface
 	LightManager lightManager;
 	physics::RigidDynamicManager rigidDynamicManager;
 	physics::RigidStaticManager rigidStaticManager;
+#ifdef NEKO_FMOD
 	AudioManager audioManager;
+#endif
 
 	Transform3dViewer transform3dViewer;
 	RendererViewer rendererViewer;
 	LightViewer lightViewer;
 	physics::RigidDynamicViewer rigidDynamicViewer;
 	physics::RigidStaticViewer rigidStaticViewer;
+#ifdef NEKO_FMOD
 	AudioViewer audioViewer;
+#endif
 
 	SceneManager sceneManager;
 };
