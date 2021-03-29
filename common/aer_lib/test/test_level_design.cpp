@@ -63,9 +63,8 @@ namespace neko::aer {
 
         void Update(neko::seconds dt) override {
             cContainer_.waypointManager.Update(dt);
-            // if (testFinish_ == true) {
-            //     engine_.Stop();
-            // }
+            //cContainer_.waypointManager.DrawImGui();
+
         }
 
         void Destroy() override {

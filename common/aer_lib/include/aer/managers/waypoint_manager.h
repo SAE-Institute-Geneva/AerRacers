@@ -79,6 +79,7 @@ namespace neko::aer
         WaypointManager(AerEngine& engine);
         void Init() override;
         void Update(seconds dt) override;
+        void DrawImGui();
         void AddWaypointFromJson(Entity entity, const json& jsonComponent);
         void CalculatePlayerPosition(Vec3f playerPosition, PlayerId playerId);
         void CalculatePlayerPlacement();

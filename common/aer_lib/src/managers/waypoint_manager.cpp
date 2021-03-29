@@ -28,6 +28,7 @@
 #include <aer/managers/waypoint_manager.h>
 #include <engine/entity.h>
 #include <aer/aer_engine.h>
+#include <utils/imgui_utility.h>
 
 namespace neko::aer
 {
@@ -58,16 +59,22 @@ namespace neko::aer
         }
     }
 
+    void WaypointManager::DrawImGui()
+    {
+        for (int i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
+        {
+            std::string playerText = "Player " + std::to_string(i) + 
+                "\n Position: " + std::to_string(playerPositionData_.racePlacement[i]) + 
+                "\n Waypoint: " + std::to_string(playerPositionData_.waypoints[i]) +
+                "\n Waypoint Count: " + std::to_string(playerPositionData_.waypointsCount[i]) + 
+                "\n Position in Waypoint: " + std::to_string(playerPositionData_.positionInWaypoint[i]);
+            ImGui::Text(playerText.c_str());
+        }
+    }
+
     void WaypointManager::AddWaypointFromJson(Entity entity, const json& jsonComponent)
     {
         Waypoint newWaypoint;
-        if (CheckJsonParameter(jsonComponent, "index", json::object()))
-        {
-            if ((IsJsonValueNumeric(jsonComponent["index"])))
-            {
-                newWaypoint.index = jsonComponent["index"];
-            }
-        }
         if (CheckJsonParameter(jsonComponent, "position", json::object()))
         {
             newWaypoint.position = GetVector2FromJson(jsonComponent, "position");
@@ -80,49 +87,56 @@ namespace neko::aer
         {
             newWaypoint.normalizedNextVector2 = GetVector2FromJson(jsonComponent, "normalizedNextVector2");
         }
-        if (CheckJsonParameter(jsonComponent, "previousWaypoint", json::object()))
-        {
-            if ((IsJsonValueNumeric(jsonComponent["previousWaypoint"])))
-            {
-                newWaypoint.previousWaypoint = jsonComponent["previousWaypoint"];
-            }
-        }
-        if (CheckJsonParameter(jsonComponent, "nextWaypoint", json::object()))
+        if (CheckJsonParameter(jsonComponent, "nextWaypoint", json::value_t::number_unsigned))
         {
             if ((IsJsonValueNumeric(jsonComponent["nextWaypoint"])))
             {
                 newWaypoint.nextWaypoint = jsonComponent["nextWaypoint"];
             }
         }
-        if (CheckJsonParameter(jsonComponent, "previousWaypoint2", json::object()))
+        if (CheckJsonParameter(jsonComponent, "previousWaypoint", json::value_t::number_unsigned))
         {
-            if ((IsJsonValueNumeric(jsonComponent["previousWaypoint2"])))
+            if ((IsJsonValueNumeric(jsonComponent["previousWaypoint"])))
             {
-                newWaypoint.previousWaypoint2 = jsonComponent["previousWaypoint2"];
+                newWaypoint.previousWaypoint = jsonComponent["previousWaypoint"];
             }
         }
-        if (CheckJsonParameter(jsonComponent, "nextWaypoint2", json::object()))
+        if (CheckJsonParameter(jsonComponent, "nextWaypoint2", json::value_t::number_unsigned))
         {
             if ((IsJsonValueNumeric(jsonComponent["nextWaypoint2"])))
             {
                 newWaypoint.previousWaypoint2 = jsonComponent["nextWaypoint2"];
             }
         }
-        if (CheckJsonParameter(jsonComponent, "lengthNext", json::object()))
+        if (CheckJsonParameter(jsonComponent, "previousWaypoint2", json::value_t::number_unsigned))
+        {
+            if ((IsJsonValueNumeric(jsonComponent["previousWaypoint2"])))
+            {
+                newWaypoint.previousWaypoint2 = jsonComponent["previousWaypoint2"];
+            }
+        }
+        if (CheckJsonParameter(jsonComponent, "index", json::value_t::number_unsigned))
+        {
+            if ((IsJsonValueNumeric(jsonComponent["index"])))
+            {
+                newWaypoint.index = jsonComponent["index"];
+            }
+        }
+        if (CheckJsonParameter(jsonComponent, "lengthNext", json::value_t::number_float))
         {
             if ((IsJsonValueNumeric(jsonComponent["lengthNext"])))
             {
                 newWaypoint.lengthNext = jsonComponent["lengthNext"];
             }
         }
-        if (CheckJsonParameter(jsonComponent, "lengthNext2", json::object()))
+        if (CheckJsonParameter(jsonComponent, "lengthNext2", json::value_t::number_float))
         {
             if ((IsJsonValueNumeric(jsonComponent["lengthNext2"])))
             {
                 newWaypoint.lengthNext2 = jsonComponent["lengthNext2"];
             }
         }
-        if (CheckJsonParameter(jsonComponent, "hasTwoPrevious", json::object()))
+        if (CheckJsonParameter(jsonComponent, "hasTwoPrevious", json::value_t::boolean))
         {
             //TODO: Check if it works
             if (jsonComponent["hasTwoPrevious"] == "true")
@@ -134,7 +148,7 @@ namespace neko::aer
                 newWaypoint.hasTwoNext = false;
             }
         }
-        if (CheckJsonParameter(jsonComponent, "hasTwoNext", json::object()))
+        if (CheckJsonParameter(jsonComponent, "hasTwoNext", json::value_t::boolean))
         {
             //TODO: Check if it works
             if (jsonComponent["hasTwoNext"] == "true")
@@ -146,6 +160,7 @@ namespace neko::aer
                 newWaypoint.hasTwoPrevious = false;
             }
         }
+        waypoints_.push_back(newWaypoint);
     }
 
     void WaypointManager::CalculatePlayerPosition(Vec3f playerPosition, PlayerId playerId)
