@@ -38,7 +38,7 @@ namespace neko::aer
     using WaypointIndex = uint8_t;
     using RacePlacement = uint8_t;
     using PlayerId = uint8_t;
-    using WaypointsCount = uint8_t;
+    using WaypointsCount = int;
 
     class AerEngine;
 
@@ -73,7 +73,7 @@ namespace neko::aer
 
     //class AerEngine;
 
-    class WaypointManager : public SystemInterface
+    class WaypointManager : public SystemInterface, public DrawImGuiInterface
     {
     public:
         WaypointManager(AerEngine& engine);

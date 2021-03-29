@@ -40,6 +40,7 @@ namespace neko::aer
 
     void WaypointManager::Init()
     {
+        engine_.RegisterOnDrawUi(*this);
         WaypointIndex startWaypointIndex = 0;
         for (uint8_t i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
         {
@@ -63,12 +64,13 @@ namespace neko::aer
     {
         for (int i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
         {
-            std::string playerText = "Player " + std::to_string(i) + 
-                "\n Position: " + std::to_string(playerPositionData_.racePlacement[i]) + 
+            ImGui::Begin("Player" + i);
+            std::string playerText = "Position: " + std::to_string(playerPositionData_.racePlacement[i]) + 
                 "\n Waypoint: " + std::to_string(playerPositionData_.waypoints[i]) +
                 "\n Waypoint Count: " + std::to_string(playerPositionData_.waypointsCount[i]) + 
                 "\n Position in Waypoint: " + std::to_string(playerPositionData_.positionInWaypoint[i]);
             ImGui::Text(playerText.c_str());
+            ImGui::End();
         }
     }
 
