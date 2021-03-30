@@ -14,6 +14,8 @@
 #include "aer/managers/render_manager.h"
 #include "aer/managers/ship_controller_manager.h"
 #include "aer/managers/camera_controller_manager.h"
+#include "aer/managers/waypoint_manager.h"
+#include "aer/managers/game_manager.h"
 #include "aer/scene.h"
 #include "engine/transform.h"
 namespace neko::aer
@@ -56,7 +58,7 @@ struct ComponentManagerContainer : public SystemInterface
 		 renderManager(entityManager, rContainer.modelManager, transform3dManager, lightManager),
 		 lightManager(entityManager, transform3dManager),
 		 rigidDynamicManager(entityManager, transform3dManager, physicsEngine),
-		 rigidStaticManager(entityManager, transform3dManager, physicsEngine),
+    rigidStaticManager(entityManager, transform3dManager, renderManager, physicsEngine),
          playerManager(*this),
          shipInputManager(playerManager),
          shipControllerManager(
@@ -72,6 +74,7 @@ struct ComponentManagerContainer : public SystemInterface
             transform3dManager,
             rigidDynamicManager,
             physicsEngine,
+
             playerManager, 
             engine),
 		 transform3dViewer(entityManager, transform3dManager),
@@ -81,7 +84,7 @@ struct ComponentManagerContainer : public SystemInterface
 		 rigidStaticViewer(transform3dManager, entityManager, physicsEngine, rigidStaticManager),
          shipControllerViewer(entityManager, playerManager, shipControllerManager),
          cameraControllerViewer(entityManager, playerManager, cameraControllerManager),
-		 sceneManager(entityManager, *this)
+		 sceneManager(entityManager, *this), waypointManager(engine), gameManager(engine)
 	{
         physicsEngine.RegisterCollisionListener(shipControllerManager);
         physicsEngine.RegisterFixedUpdateListener(rigidDynamicManager);
@@ -97,6 +100,7 @@ struct ComponentManagerContainer : public SystemInterface
         transform3dManager.Init();
         renderManager.Init();
         shipControllerManager.Init();
+        waypointManager.Init();
     }
 
     void Update(seconds dt) override
@@ -106,6 +110,7 @@ struct ComponentManagerContainer : public SystemInterface
         playerManager.Update(dt);
         shipControllerManager.Update(dt);
         cameraControllerManager.Update(dt);
+        waypointManager.Update(dt);
         shipInputManager.Update(dt);
     }
 
@@ -121,6 +126,8 @@ struct ComponentManagerContainer : public SystemInterface
     ShipInputManager shipInputManager;
     ShipControllerManager shipControllerManager;
     CameraControllerManager cameraControllerManager;
+    WaypointManager waypointManager;
+    GameManager gameManager;
 
     Transform3dViewer transform3dViewer;
     RendererViewer rendererViewer;

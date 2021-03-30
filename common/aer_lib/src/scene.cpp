@@ -42,6 +42,16 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 		}
 	}
 
+	if (CheckJsonParameter(componentJson, "waypoint", json::value_t::object))
+	{
+		if (CheckJsonParameter(componentJson["waypoint"], "exist", json::value_t::boolean))
+		{
+			if (componentJson["waypoint"]["exist"])
+			{
+				componentManagerContainer_.waypointManager.AddWaypointFromJson(entity, componentJson["waypoint"]);
+			}
+		}
+	}
 	// Rigidbody
 	if (CheckJsonParameter(componentJson, "rigidbody", json::value_t::object))
 	{
@@ -87,6 +97,18 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 				componentManagerContainer_.renderManager.AddComponent(entity);
 				componentManagerContainer_.rendererViewer.SetComponentFromJson(
 					entity, componentJson["modelRenderer"]);
+			}
+		}
+	}
+
+	// MeshCollider
+	if (CheckJsonParameter(componentJson, "meshCollider", json::value_t::object))
+	{
+		if (CheckJsonParameter(componentJson["meshCollider"], "exist", json::value_t::boolean))
+		{
+			if (componentJson["meshCollider"]["exist"])
+			{
+				componentManagerContainer_.rigidStaticManager.AddMeshColliderStatic(entity, componentJson["meshCollider"]["meshColliderName"]);
 			}
 		}
 	}
@@ -206,6 +228,11 @@ bool SceneManager::LoadScene(const std::string_view& jsonPath)
 	if (filesystem_.FileExists(jsonPath))
 	{
 		json scene              = neko::LoadJson(jsonPath);
+		if (!scene.is_object())
+		{
+			LogError(fmt::format("Scene reading failed {}", jsonPath));
+			return false;
+		}
 		currentScene_.scenePath = jsonPath;
 #ifdef NEKO_VULKAN
 		auto& cmdBuffers = vk::VkResources::Inst->modelCommandBuffers;
@@ -218,7 +245,7 @@ bool SceneManager::LoadScene(const std::string_view& jsonPath)
 	}
 	else
 	{
-		LogDebug(fmt::format("Scene not found", currentScene_.sceneName));
+		LogError(fmt::format("Scene not found {}", jsonPath));
 		return false;
 	}
 }

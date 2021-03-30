@@ -73,7 +73,7 @@ void CameraControllerManager::FixedUpdate(seconds dt) {
 void CameraControllerManager::Render()
 {
     for (PlayerId playerId = 0; playerId < playerManager_.GetPlayerCount(); ++playerId) {
-        auto& camera          = engine_.GetGameCamera().GetCamera(playerId);
+        auto& camera          = engine_.GetCameras().GetCamera(playerId);
         auto& cameraComponent = cameraControllers_[playerId];
         camera.position       = cameraComponent.cameraPos;
         camera.WorldLookAt(cameraComponent.targetPos);

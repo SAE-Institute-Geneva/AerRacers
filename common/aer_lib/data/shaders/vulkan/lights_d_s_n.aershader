@@ -1,0 +1,169 @@
+{
+    "vert": "shaders/vulkan/instancing_no_normal.vert.spv",
+    "frag": "shaders/vulkan/lights/lights_d_s_n.frag.spv",
+    "attributes": [
+        {
+            "name": "inPosition",
+            "location": 0,
+            "size": 16,
+            "type": 3
+        },
+        {
+            "name": "inNormal",
+            "location": 1,
+            "size": 16,
+            "type": 3
+        },
+        {
+            "name": "inTexCoords",
+            "location": 2,
+            "size": 8,
+            "type": 2
+        },
+        {
+            "name": "inModelMatrix",
+            "location": 5,
+            "size": 64,
+            "type": 15
+        }
+    ],
+    "uniforms": [
+        {
+            "name": "diffuseMap",
+            "binding": 3,
+            "type": 1,
+            "stageFlags": 16,
+            "writeOnly": false
+        },
+        {
+            "name": "specularMap",
+            "binding": 4,
+            "type": 1,
+            "stageFlags": 16,
+            "writeOnly": false
+        },
+        {
+            "name": "normalMap",
+            "binding": 5,
+            "type": 1,
+            "stageFlags": 16,
+            "writeOnly": false
+        }
+    ],
+    "uniformBlocks": [
+        {
+            "name": "UboScene",
+            "binding": 0,
+            "size": 144,
+            "stageFlags": 1,
+            "type": 0,
+            "uniforms": [
+                {
+                    "name": "view",
+                    "isArray": false,
+                    "offset": 0,
+                    "size": 64,
+                    "writeOnly": false
+                },
+                {
+                    "name": "proj",
+                    "isArray": false,
+                    "offset": 64,
+                    "size": 64,
+                    "writeOnly": false
+                },
+                {
+                    "name": "viewPos",
+                    "isArray": false,
+                    "offset": 128,
+                    "size": 16,
+                    "writeOnly": false
+                }
+            ]
+        },
+        {
+            "name": "UboObject",
+            "binding": 1,
+            "size": 20,
+            "stageFlags": 16,
+            "type": 0,
+            "uniforms": [
+                {
+                    "name": "color",
+                    "isArray": false,
+                    "offset": 0,
+                    "size": 16,
+                    "writeOnly": false
+                },
+                {
+                    "name": "usedMaps",
+                    "isArray": false,
+                    "offset": 16,
+                    "size": 4,
+                    "writeOnly": false
+                }
+            ]
+        },
+        {
+            "name": "Lights",
+            "binding": 2,
+            "size": 80,
+            "stageFlags": 16,
+            "type": 0,
+            "uniforms": [
+                {
+                    "name": "lightNum",
+                    "isArray": false,
+                    "offset": 0,
+                    "size": 4,
+                    "writeOnly": false
+                },
+                {
+                    "name": "dirLight",
+                    "isArray": false,
+                    "offset": 16,
+                    "size": 64,
+                    "writeOnly": false
+                }
+            ]
+        }
+    ],
+    "structs": [
+        {
+            "name": "DirLight",
+            "size": 64,
+            "parameters": [
+                {
+                    "name": "diffuse",
+                    "isArray": false,
+                    "offset": 0,
+                    "size": 16
+                },
+                {
+                    "name": "specular",
+                    "isArray": false,
+                    "offset": 16,
+                    "size": 8
+                },
+                {
+                    "name": "intensity",
+                    "isArray": false,
+                    "offset": 24,
+                    "size": 8
+                },
+                {
+                    "name": "ambient",
+                    "isArray": false,
+                    "offset": 32,
+                    "size": 16
+                },
+                {
+                    "name": "direction",
+                    "isArray": false,
+                    "offset": 48,
+                    "size": 16
+                }
+            ]
+        }
+    ]
+}

@@ -90,7 +90,7 @@ struct DirectionalLight : Light
 		intensity = other["intensity"].get<float>();
 	}
 
-	alignas(16) Vec3f ambient   = Vec3f::one * 0.1f;
+	alignas(16) Vec3f ambient   = Vec3f::one * 0.5f;
 	alignas(16) Vec3f direction = -Vec3f::one;
 };
 inline DirectionalLight* DirectionalLight::Instance = nullptr;

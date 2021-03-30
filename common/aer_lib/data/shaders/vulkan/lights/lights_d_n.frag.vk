@@ -1,0 +1,99 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+layout(location = 0) in vec2 TexCoords;
+layout(location = 1) in vec3 TangentLightPos;
+layout(location = 2) in vec3 TangentLightDir;
+layout(location = 3) in vec3 TangentViewPos;
+layout(location = 4) in vec3 TangentFragPos;
+
+layout(location = 0) out vec4 outColor;
+
+struct DirLight
+{
+	vec3 diffuse;
+
+	float specular;
+	float intensity;
+	
+	vec3 ambient;
+	vec3 direction;
+};
+
+layout(binding = 1) uniform UboObject 
+{
+	vec4 color;
+	uint usedMaps;
+} object;
+
+layout(binding = 2) uniform Lights
+{
+	uint lightNum;
+	DirLight dirLight;
+} lights;
+
+layout(binding = 3) uniform sampler2D diffuseMap;
+layout(binding = 5) uniform sampler2D normalMap;
+
+vec3 GetDiffuse()
+{
+	vec3 diffuse = object.color.rgb;
+	diffuse *= texture(diffuseMap, TexCoords).rgb;
+
+	return diffuse;
+}
+
+float GetSpecular()
+{
+	return 1.0;
+}
+
+vec3 GetEmissive()
+{
+	return vec3(0.0);
+}
+
+vec3 CalcNoLight()
+{
+    return GetDiffuse();
+}
+
+vec3 CalcDirLight(vec3 viewDir)
+{
+	vec3 normal, lightDir;
+	vec3 ambient = lights.dirLight.ambient * GetDiffuse();
+	normal = texture(normalMap, TexCoords).rgb;
+	normal = normalize(normal * 2.0 - 1.0);
+	lightDir = normalize(-TangentLightDir);
+
+	float diff = max(dot(normal, lightDir), 0.0);
+	vec3 diffuse = lights.dirLight.diffuse * diff * GetDiffuse();
+
+	vec3 halfwayDir = normalize(lightDir + viewDir);
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), /*material.shininess*/ 64.0);
+
+	vec3 specular = lights.dirLight.diffuse * lights.dirLight.specular * spec * GetSpecular();
+	diffuse *= lights.dirLight.intensity;
+	specular *= lights.dirLight.intensity;
+
+	return ambient + diffuse + specular;
+}
+
+void main() 
+{
+	vec3 lighting;
+	vec3 viewDir = normalize(TangentViewPos - TangentFragPos);
+	
+	if (lights.lightNum != 0u)
+	{
+		lighting = CalcDirLight(viewDir);
+	}
+	else
+	{
+		lighting = CalcNoLight();
+	}
+	
+	lighting += GetEmissive();
+
+	outColor = vec4(lighting, 1.0);
+}
