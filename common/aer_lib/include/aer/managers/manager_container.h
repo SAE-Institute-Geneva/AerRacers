@@ -100,6 +100,7 @@ struct ComponentManagerContainer : public SystemInterface
         transform3dManager.Init();
         renderManager.Init();
         shipControllerManager.Init();
+        waypointManager.Init();
     }
 
     void Update(seconds dt) override
@@ -109,6 +110,7 @@ struct ComponentManagerContainer : public SystemInterface
         playerManager.Update(dt);
         shipControllerManager.Update(dt);
         cameraControllerManager.Update(dt);
+        waypointManager.Update(dt);
         shipInputManager.Update(dt);
     }
 

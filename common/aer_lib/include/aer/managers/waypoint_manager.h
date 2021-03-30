@@ -83,9 +83,11 @@ namespace neko::aer
         void AddWaypointFromJson(Entity entity, const json& jsonComponent);
         void CalculatePlayerPosition(Vec3f playerPosition, PlayerId playerId);
         void CalculatePlayerPlacement();
+        void StartDetection();
         PlayerPositionData* GetPlayerPositionData();
         void Destroy() override;
     private:
+        bool hasPlayersSpawned = false;
         std::vector<Waypoint> waypoints_;
         AerEngine& engine_;
         PlayerPositionData playerPositionData_;

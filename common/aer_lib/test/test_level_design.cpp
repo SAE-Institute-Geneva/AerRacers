@@ -58,12 +58,10 @@ namespace neko::aer {
                 config.dataRootPath +
                 "scenes/WaypointTest.aerscene");
             cContainer_.playerManager.CreatePlayer(Vec3f(192.0f, 84.0f, 56.0f));
-            cContainer_.waypointManager.Init();
+            cContainer_.waypointManager.StartDetection();
         }
 
         void Update(neko::seconds dt) override {
-            cContainer_.waypointManager.Update(dt);
-            //cContainer_.waypointManager.DrawImGui();
         }
 
 

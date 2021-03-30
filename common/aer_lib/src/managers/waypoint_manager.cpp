@@ -41,36 +41,63 @@ namespace neko::aer
     void WaypointManager::Init()
     {
         engine_.RegisterOnDrawUi(*this);
-        WaypointIndex startWaypointIndex = 0;
-        for (uint8_t i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
-        {
-            playerPositionData_.waypoints[i] = startWaypointIndex;
-            playerPositionData_.waypointsCount[i] = 0;
-            CalculatePlayerPosition(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i), i);
-            CalculatePlayerPlacement();
-        }
     }
 
     void WaypointManager::Update(seconds dt)
     {
-        for (uint8_t i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
+        if (hasPlayersSpawned)
         {
-            CalculatePlayerPosition(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i), i);
-            CalculatePlayerPlacement();
+            for (uint8_t i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
+            {
+                CalculatePlayerPosition(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i), i);
+                CalculatePlayerPlacement();
+            }
         }
     }
 
     void WaypointManager::DrawImGui()
     {
-        for (int i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
+        if (hasPlayersSpawned)
         {
-            ImGui::Begin("Player" + i);
-            std::string playerText = "Position: " + std::to_string(playerPositionData_.racePlacement[i]) + 
-                "\n Waypoint: " + std::to_string(playerPositionData_.waypoints[i]) +
-                "\n Waypoint Count: " + std::to_string(playerPositionData_.waypointsCount[i]) + 
-                "\n Position in Waypoint: " + std::to_string(playerPositionData_.positionInWaypoint[i]);
-            ImGui::Text(playerText.c_str());
-            ImGui::End();
+            for (int i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
+            {
+                ImGui::Begin("Player" + i);
+                std::string playerText = "Position: " + std::to_string(playerPositionData_.racePlacement[i]) +
+                    "\n Waypoint: " + std::to_string(playerPositionData_.waypoints[i]) +
+                    "\n Waypoint Count: " + std::to_string(playerPositionData_.waypointsCount[i]) +
+                    "\n Position in Waypoint: " + std::to_string(playerPositionData_.positionInWaypoint[i]) +
+                    "\n Placement: " + std::to_string(playerPositionData_.racePlacement[i]) +
+                    "\n Distance From Next WP: " + std::to_string(
+                        sqrt(
+
+                            pow(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).x
+                                - waypoints_[waypoints_[playerPositionData_.waypoints[i]].nextWaypoint].position.x, 2) +
+                            pow(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).z
+                                - waypoints_[waypoints_[playerPositionData_.waypoints[i]].nextWaypoint].position.y, 2))) +
+                    "\n Distance From Previous WP: " + std::to_string(sqrt(
+                        pow(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).x
+                            - waypoints_[waypoints_[playerPositionData_.waypoints[i]].previousWaypoint].position.x, 2) +
+                        pow(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).z
+                            - waypoints_[waypoints_[playerPositionData_.waypoints[i]].previousWaypoint].position.y, 2))) +
+                    "\n Current WP Position: " +
+                    "x:" + std::to_string(waypoints_[playerPositionData_.waypoints[i]].position.x) +
+                    " y:" + std::to_string(waypoints_[playerPositionData_.waypoints[i]].position.y) +
+                    "\n Last WP Position: " +
+                    "x:" + std::to_string(waypoints_[waypoints_[playerPositionData_.waypoints[i]].previousWaypoint].position.x) +
+                    " y:" + std::to_string(waypoints_[waypoints_[playerPositionData_.waypoints[i]].previousWaypoint].position.y) +
+                    "\n Next WP Position: " +
+                    "x:" + std::to_string(waypoints_[waypoints_[playerPositionData_.waypoints[i]].nextWaypoint].position.x) +
+                    " y:" + std::to_string(waypoints_[waypoints_[playerPositionData_.waypoints[i]].nextWaypoint].position.y) +
+                    "\n Player Position: " +
+                    "x:" + std::to_string(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).x) +
+                    " y:" + std::to_string(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).z) +
+                    "\n Next Normalized: " +
+                    "x:" + std::to_string(waypoints_[playerPositionData_.waypoints[i]].normalizedNextVector.x) +
+                    " y:" + std::to_string(waypoints_[playerPositionData_.waypoints[i]].normalizedNextVector.y);
+
+                ImGui::Text(playerText.c_str());
+                ImGui::End();
+            }
         }
     }
 
@@ -80,14 +107,17 @@ namespace neko::aer
         if (CheckJsonParameter(jsonComponent, "position", json::object()))
         {
             newWaypoint.position = GetVector2FromJson(jsonComponent, "position");
+            newWaypoint.position.x *= -1;
         }
         if (CheckJsonParameter(jsonComponent, "normalizedNextVector", json::object()))
         {
             newWaypoint.normalizedNextVector = GetVector2FromJson(jsonComponent, "normalizedNextVector");
+            newWaypoint.normalizedNextVector.x *= -1;
         }
         if (CheckJsonParameter(jsonComponent, "normalizedNextVector2", json::object()))
         {
             newWaypoint.normalizedNextVector2 = GetVector2FromJson(jsonComponent, "normalizedNextVector2");
+            newWaypoint.normalizedNextVector2.x *= -1;
         }
         if (CheckJsonParameter(jsonComponent, "nextWaypoint", json::value_t::number_unsigned))
         {
@@ -167,27 +197,28 @@ namespace neko::aer
 
     void WaypointManager::CalculatePlayerPosition(Vec3f playerPosition, PlayerId playerId)
     {
-        //TODO: If multiple Waypoints
         Vec2f playerPosition2d = Vec2f(playerPosition.x, playerPosition.z);
-        float position = Vec2f::Dot(playerPosition2d, waypoints_[playerPositionData_.waypoints[playerId]].normalizedNextVector);
+        Vec2f vecWaypointPlayer = playerPosition2d - waypoints_[playerPositionData_.waypoints[playerId]].position;
+        float positionInWP = Vec2f::Dot(waypoints_[playerPositionData_.waypoints[playerId]].normalizedNextVector, vecWaypointPlayer);
+        playerPositionData_.positionInWaypoint[playerId] = positionInWP;
         if (waypoints_[playerPositionData_.waypoints[playerId]].hasTwoNext)
         {
-            float position2 = Vec2f::Dot(playerPosition2d, waypoints_[playerPositionData_.waypoints[playerId]].normalizedNextVector2);
+            Vec2f vecWaypointPlayer2 = playerPosition2d - waypoints_[playerPositionData_.waypoints[playerId]].position;
+            float position2 = Vec2f::Dot(waypoints_[playerPositionData_.waypoints[playerId]].normalizedNextVector2, vecWaypointPlayer2);
             
-            if (position > waypoints_[playerPositionData_.waypoints[playerId]].lengthNext)
+            if (positionInWP > waypoints_[playerPositionData_.waypoints[playerId]].lengthNext)
             {
-                Vec2f playerPosition = Vec2f(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(playerId));
                 float distWP1 = sqrt(
-                        pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].position.x - playerPosition.x, 2) +
-                        pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].position.y - playerPosition.y, 2));
+                        pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].position.x - playerPosition2d.x, 2) +
+                        pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].position.y - playerPosition2d.y, 2));
                 float distWP2 = sqrt(
-                    pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].position.x - playerPosition.x, 2) +
-                    pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].position.y - playerPosition.y, 2));
+                    pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].position.x - playerPosition2d.x, 2) +
+                    pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].position.y - playerPosition2d.y, 2));
                 if (distWP1 < distWP2)
                 {
                     playerPositionData_.waypoints[playerId] = waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint;
                     playerPositionData_.waypointsCount[playerId]++;
-                    playerPositionData_.positionInWaypoint[playerId] = Vec2f::Dot(playerPosition2d, waypoints_[playerPositionData_.waypoints[playerId]].normalizedNextVector);
+                    playerPositionData_.positionInWaypoint[playerId] = Vec2f::Dot(waypoints_[playerPositionData_.waypoints[playerId]].normalizedNextVector, vecWaypointPlayer);
                 }
                 else
                 {
@@ -196,13 +227,12 @@ namespace neko::aer
             }
             else if (position2 > waypoints_[playerPositionData_.waypoints[playerId]].lengthNext2)
             {
-                Vec2f playerPosition = Vec2f(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(playerId));
                 float distWP1 = sqrt(
-                    pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].position.x - playerPosition.x, 2) +
-                    pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].position.y - playerPosition.y, 2));
+                    pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].position.x - playerPosition2d.x, 2) +
+                    pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].position.y - playerPosition2d.y, 2));
                 float distWP2 = sqrt(
-                    pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].position.x - playerPosition.x, 2) +
-                    pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].position.y - playerPosition.y, 2));
+                    pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].position.x - playerPosition2d.x, 2) +
+                    pow(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].position.y - playerPosition2d.y, 2));
                 if (distWP1 < distWP2)
                 {
                     
@@ -211,12 +241,14 @@ namespace neko::aer
                 {
                     playerPositionData_.waypoints[playerId] = waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2;
                     playerPositionData_.waypointsCount[playerId]++;
-                    playerPositionData_.positionInWaypoint[playerId] = Vec2f::Dot(playerPosition2d, waypoints_[playerPositionData_.waypoints[playerId]].normalizedNextVector2);
+                    playerPositionData_.positionInWaypoint[playerId] = Vec2f::Dot(waypoints_[playerPositionData_.waypoints[playerId]].normalizedNextVector2, vecWaypointPlayer2);
                 }
             }
-            else if (position < 0)
+            else if (positionInWP < 0)
             {
-                float previousPosition = Vec2f::Dot(playerPosition2d, waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].previousWaypoint].normalizedNextVector);
+
+                Vec2f previousVecWaypointPlayer = playerPosition2d - waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].previousWaypoint].position;
+                float previousPosition = Vec2f::Dot(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].previousWaypoint].normalizedNextVector, previousVecWaypointPlayer);
                 
                 if (waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].previousWaypoint].lengthNext > previousPosition)
                 {
@@ -226,30 +258,31 @@ namespace neko::aer
                 }
                 else
                 {
-                    playerPositionData_.positionInWaypoint[playerId] = position;
+                    playerPositionData_.positionInWaypoint[playerId] = positionInWP;
                 }
             }
         }
         else if (waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].hasTwoPrevious)
         {
-            float position2 = Vec2f::Dot(playerPosition2d, waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].previousWaypoint2].normalizedNextVector);
-            if (position > waypoints_[playerPositionData_.waypoints[playerId]].lengthNext)
+            float position2 = Vec2f::Dot(waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].previousWaypoint2].normalizedNextVector, vecWaypointPlayer);
+            if (positionInWP > waypoints_[playerPositionData_.waypoints[playerId]].lengthNext)
             {
                 playerPositionData_.waypoints[playerId] = waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint;
                 playerPositionData_.waypointsCount[playerId]++;
-                playerPositionData_.positionInWaypoint[playerId] = position;
+                playerPositionData_.positionInWaypoint[playerId] = positionInWP;
             }
-            else if (position < 0)
+            else if (positionInWP < 0)
             {
                 float distWP1 = sqrt(
-                    pow(waypoints_[playerPositionData_.waypoints[playerId]].position.x - playerPosition.x, 2) +
-                    pow(waypoints_[playerPositionData_.waypoints[playerId]].position.y - playerPosition.y, 2));
+                    pow(waypoints_[playerPositionData_.waypoints[playerId]].position.x - playerPosition2d.x, 2) +
+                    pow(waypoints_[playerPositionData_.waypoints[playerId]].position.y - playerPosition2d.y, 2));
                 float distWP2 = sqrt(
-                    pow(waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].previousWaypoint2].position.x - playerPosition.x, 2) +
-                    pow(waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].previousWaypoint2].position.y - playerPosition.y, 2));
+                    pow(waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].previousWaypoint2].position.x - playerPosition2d.x, 2) +
+                    pow(waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].previousWaypoint2].position.y - playerPosition2d.y, 2));
                 if (distWP1 < distWP2)
                 {
-                    float previousPosition = Vec2f::Dot(playerPosition2d, waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].previousWaypoint].normalizedNextVector);
+                    Vec2f previousVecWaypointPlayer = playerPosition2d - waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].previousWaypoint].position;
+                    float previousPosition = Vec2f::Dot(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].previousWaypoint].normalizedNextVector, previousVecWaypointPlayer);
 
                     if (waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].previousWaypoint].lengthNext
                 > previousPosition)
@@ -260,7 +293,7 @@ namespace neko::aer
                     }
                     else
                     {
-                        playerPositionData_.positionInWaypoint[playerId] = position;
+                        playerPositionData_.positionInWaypoint[playerId] = positionInWP;
                     }
                 }
                 else
@@ -271,18 +304,19 @@ namespace neko::aer
             else if (position2 < 0)
             {
                 float distWP1 = sqrt(
-                    pow(waypoints_[playerPositionData_.waypoints[playerId]].position.x - playerPosition.x, 2) +
-                    pow(waypoints_[playerPositionData_.waypoints[playerId]].position.y - playerPosition.y, 2));
+                    pow(waypoints_[playerPositionData_.waypoints[playerId]].position.x - playerPosition2d.x, 2) +
+                    pow(waypoints_[playerPositionData_.waypoints[playerId]].position.y - playerPosition2d.y, 2));
                 float distWP2 = sqrt(
-                    pow(waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].previousWaypoint2].position.x - playerPosition.x, 2) +
-                    pow(waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].previousWaypoint2].position.y - playerPosition.y, 2));
+                    pow(waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].previousWaypoint2].position.x - playerPosition2d.x, 2) +
+                    pow(waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint2].previousWaypoint2].position.y - playerPosition2d.y, 2));
                 if (distWP1 < distWP2)
                 {
                     
                 }
                 else
                 {
-                    float previousPosition = Vec2f::Dot(playerPosition2d, waypoints_[waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].previousWaypoint2].previousWaypoint].normalizedNextVector);
+                    Vec2f previousVecWaypointPlayer = playerPosition2d - waypoints_[waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].previousWaypoint2].previousWaypoint].position;
+                    float previousPosition = Vec2f::Dot(waypoints_[waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].previousWaypoint2].previousWaypoint].normalizedNextVector, previousVecWaypointPlayer);
 
                     if (waypoints_[waypoints_[waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint].previousWaypoint2].previousWaypoint].lengthNext2
                 > previousPosition)
@@ -293,7 +327,7 @@ namespace neko::aer
                     }
                     else
                     {
-                        playerPositionData_.positionInWaypoint[playerId] = position;
+                        playerPositionData_.positionInWaypoint[playerId] = positionInWP;
                     }
                 }
             }
@@ -301,17 +335,18 @@ namespace neko::aer
         else
         {
             
-            if (position > waypoints_[playerPositionData_.waypoints[playerId]].lengthNext)
+            if (positionInWP > waypoints_[playerPositionData_.waypoints[playerId]].lengthNext)
             {
                 playerPositionData_.waypoints[playerId] = waypoints_[playerPositionData_.waypoints[playerId]].nextWaypoint;
                 playerPositionData_.waypointsCount[playerId]++;
-                playerPositionData_.positionInWaypoint[playerId] = position;
+                Vec2f nextVecWaypointPlayer = playerPosition2d - waypoints_[playerPositionData_.waypoints[playerId]].position;
+                float nextPosition = Vec2f::Dot(waypoints_[playerPositionData_.waypoints[playerId]].normalizedNextVector, nextVecWaypointPlayer);
+                playerPositionData_.positionInWaypoint[playerId] = nextPosition;
             }
-
-            else if (position < 0)
+            else if (positionInWP < 0)
             {
-                
-                float previousPosition = Vec2f::Dot(playerPosition2d, waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].previousWaypoint].normalizedNextVector);
+                Vec2f previousVecWaypointPlayer = playerPosition2d - waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].previousWaypoint].position;
+                float previousPosition = Vec2f::Dot(waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].previousWaypoint].normalizedNextVector, previousVecWaypointPlayer);
 
                 if (waypoints_[waypoints_[playerPositionData_.waypoints[playerId]].previousWaypoint].lengthNext
             > previousPosition)
@@ -322,7 +357,7 @@ namespace neko::aer
                 }
                 else
                 {
-                    playerPositionData_.positionInWaypoint[playerId] = position;
+                    playerPositionData_.positionInWaypoint[playerId] = positionInWP;
                 }
             }
         }
@@ -338,31 +373,45 @@ namespace neko::aer
                 {
                     if (playerPositionData_.waypointsCount[i] > playerPositionData_.waypointsCount[j])
                     {
-                        playerPositionData_.positionInWaypoint[j]++;
+                        playerPositionData_.racePlacement[j]++;
                     }
                     else if (playerPositionData_.waypointsCount[i] == playerPositionData_.waypointsCount[j])
                     {
                         if (playerPositionData_.positionInWaypoint[i] > playerPositionData_.positionInWaypoint[j])
                         {
-                            playerPositionData_.positionInWaypoint[j]++;
+                            playerPositionData_.racePlacement[j]++;
                         }
                         else
                         {
-                            playerPositionData_.positionInWaypoint[i]++;
+                            playerPositionData_.racePlacement[i]++;
                         }
                     }
                     else
                     {
-                        playerPositionData_.positionInWaypoint[i]++;
+                        playerPositionData_.racePlacement[i]++;
                     }
                 }
             }
             else
             {
-                playerPositionData_.waypointsCount[i] = 1;
+                playerPositionData_.racePlacement[i] = 1;
             }
         }
     }
+
+    void WaypointManager::StartDetection()
+    {
+        WaypointIndex startWaypointIndex = 0;
+        for (uint8_t i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
+        {
+            playerPositionData_.waypoints[i] = startWaypointIndex;
+            playerPositionData_.waypointsCount[i] = 0;
+            CalculatePlayerPosition(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i), i);
+            CalculatePlayerPlacement();
+        }
+        hasPlayersSpawned = true;
+    }
+
 
     PlayerPositionData* WaypointManager::GetPlayerPositionData()
     {
