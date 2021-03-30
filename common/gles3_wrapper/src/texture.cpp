@@ -457,8 +457,6 @@ TextureLoader::TextureLoader(std::string_view path,
 
 bool TextureLoader::IsDone()
 {
-    //return loadingTextureJob_.IsDone();
-    return decompressTextureJob_.IsDone();
     return uploadToGLJob_.IsDone();
 }
 
@@ -499,9 +497,13 @@ void TextureLoader::DecompressTexture()
         return;
     }
 #else
-    texture_.name = gl::StbCreateTexture(path_, filesystem_);
-    return;
-    image_ = StbImageConvert(bufferFile_);
+    const std::string extension = GetFilenameExtension(path_);
+    int reqComponents = 0;
+    if (extension == ".jpg" || extension == ".tga" || extension == ".hdr")
+        reqComponents = 3;
+    else if (extension == ".png")
+        reqComponents = 4;
+    image_ = StbImageConvert(bufferFile_, false, false, reqComponents);
     //int width, height, nrChannels;
     //image_.data = stbi_load(path_.c_str(), &width, &height, &nrChannels, 0);
     //image_.width = width;
@@ -529,8 +531,12 @@ void TextureLoader::UploadToGL()
     }
     ktxTexture_Destroy(kTexture);
 #else
-    Image image = std::move(image_);
-    const auto extension = GetFilenameExtension(path_);
+    const std::string extension = GetFilenameExtension(path_);
+
+    bufferFile_.Destroy();
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("Push Texture To GPU");
+#endif
     glGenTextures(1, &texture_.name);
 
     glBindTexture(GL_TEXTURE_2D, texture_.name);
@@ -548,22 +554,27 @@ void TextureLoader::UploadToGL()
     }
     if (extension == ".jpg" || extension == ".tga")
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_.data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image_.width, image_.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_.data);
     }
     else if (extension == ".png")
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_.data);
+        if (image_.nbChannels == 3)
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_.width, image_.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_.data);
+        }
+        else if (image_.nbChannels == 4) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_.width, image_.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_.data);
+        }
     }
     else if (extension == ".hdr")
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, image.width, image.height, 0, GL_RGB, GL_FLOAT, image_.data);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, image_.width, image_.height, 0, GL_RGB, GL_FLOAT, image_.data);
     }
     if (flags_ & Texture::MIPMAPS_TEXTURE)
     {
         glGenerateMipmap(GL_TEXTURE_2D);
     }
-    glCheckError();
-    image.Destroy();
+    image_.Destroy();
 #endif
 }
 
