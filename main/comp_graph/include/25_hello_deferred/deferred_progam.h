@@ -28,6 +28,7 @@
 #include "gl/shader.h"
 #include "gl/texture.h"
 #include "gl/model.h"
+#include "gl/model_manager.h"
 
 namespace neko
 {

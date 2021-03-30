@@ -99,7 +99,7 @@ void SdlEngine::ManageEvent()
 
 void SdlEngine::GenerateUiFrame()
 {
-    window_->GenerateUiFrame();
+    //window_->GenerateUiFrame();
     BasicEngine::GenerateUiFrame();
 }
 

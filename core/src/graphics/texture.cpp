@@ -38,7 +38,7 @@ namespace neko
 {
 
 
-Image StbImageConvert(const BufferFile& imageFile, bool flipY, bool hdr)
+Image StbImageConvert(const BufferFile& imageFile, bool flipY, bool hdr, int reqComponents)
 {
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Convert Image");

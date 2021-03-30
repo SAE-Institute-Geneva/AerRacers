@@ -3,6 +3,7 @@ list(APPEND aer_lib_libs Neko_Core sdl_engine physx_wrapper)
 if (Neko_FMOD)
     list(APPEND aer_lib_libs fmod_wrapper)
 endif ()
+
 if (Neko_GLES3 AND NOT Neko_VULKAN)
     list(APPEND aer_lib_libs gles3_wrapper)
 elseif (Neko_VULKAN)

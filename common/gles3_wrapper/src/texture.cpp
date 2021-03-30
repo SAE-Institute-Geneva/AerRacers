@@ -25,7 +25,10 @@
 #include <sstream>
 
 #include <fmt/format.h>
+#undef NEKO_KTX
+#ifdef NEKO_KTX 
 #include <ktx.h>
+#endif
 
 #include "engine/engine.h"
 #include "engine/log.h"
@@ -34,6 +37,8 @@
 
 #include "gl/gles3_include.h"
 #include "gl/texture.h"
+
+#include <stb_image.h>
 
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
@@ -74,7 +79,7 @@ StbCreateTexture(const std::string_view filename, const FilesystemInterface& fil
 #ifdef EASY_PROFILE_USE
     EASY_END_BLOCK;
 #endif
-    Image image = StbImageConvert(textureFile);
+    Image image = StbImageConvert(textureFile, false, false, reqComponents);
     /*if (extension == ".hdr")
     {
         //data = stbi_loadf(filename.data(), &width, &height, &reqComponents, 0);
@@ -113,7 +118,12 @@ StbCreateTexture(const std::string_view filename, const FilesystemInterface& fil
     }
     else if (extension == ".png")
     {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.data);
+        if (image.nbChannels == 3)
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image.data);
+        } else if (image.nbChannels == 4) {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image.data);
+        }
     }
     else if (extension == ".hdr")
     {
@@ -127,6 +137,7 @@ StbCreateTexture(const std::string_view filename, const FilesystemInterface& fil
     return texture;
 }
 
+#ifdef NEKO_KTX 
 void PrintKTXError(ktx_error_code_e result, const char* file, int line)
 {
     std::string log;
@@ -191,10 +202,12 @@ void PrintKTXError(ktx_error_code_e result, const char* file, int line)
     }
     logDebug(fmt::format("{} in file: {} at line: {}", log, file, line));
 }
+#endif
 
 
 TextureName CreateTextureFromKTX(const std::string_view filename, const FilesystemInterface& filesystem)
 {
+#ifdef NEKO_KTX 
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Load KTX Texture");
 #endif
@@ -242,6 +255,9 @@ TextureName CreateTextureFromKTX(const std::string_view filename, const Filesyst
 #endif
     ktxTexture_Destroy(kTexture);
     return texture;
+#else
+    return INVALID_TEXTURE_NAME;
+#endif
 }
 
 TextureName LoadCubemap(std::vector<std::string> facesFilename, const FilesystemInterface& filesystem)
@@ -317,6 +333,7 @@ TextureId TextureManager::LoadTexture(std::string_view path, Texture::TextureFla
         logDebug(fmt::format("[Error] Could not find texture id in json file {}", metaPath));
         return textureId;
     }
+#ifdef NEKO_KTX
     if(CheckJsonExists(metaJson, "ktx_path"))
     {
         ktxPath = metaJson["ktx_path"];
@@ -326,6 +343,7 @@ TextureId TextureManager::LoadTexture(std::string_view path, Texture::TextureFla
         logDebug("[Error] Could not find ktx path in json file");
         return INVALID_TEXTURE_ID;
     }
+#endif
 
     if (textureId == INVALID_TEXTURE_ID)
     {
@@ -333,12 +351,21 @@ TextureId TextureManager::LoadTexture(std::string_view path, Texture::TextureFla
         return textureId;
     }
     const auto& config = BasicEngine::GetInstance()->GetConfig();
+#ifdef NEKO_KTX
     textureLoaders_.push(TextureLoader
     {
         config.dataRootPath + ktxPath,
         textureId,
         flags
     });
+#else
+    textureLoaders_.push(TextureLoader
+        {
+            path,
+            textureId,
+            flags
+        });
+#endif
     textureLoaders_.back().Start();
     texturePathMap_[path.data()] = textureId;
     return textureId;
@@ -430,6 +457,8 @@ TextureLoader::TextureLoader(std::string_view path,
 
 bool TextureLoader::IsDone()
 {
+    //return loadingTextureJob_.IsDone();
+    return decompressTextureJob_.IsDone();
     return uploadToGLJob_.IsDone();
 }
 
@@ -438,17 +467,19 @@ void TextureLoader::LoadTexture()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("Load KTX from disk");
 #endif
+
     bufferFile_ = filesystem_.get().LoadFile(path_);
     if(bufferFile_.dataBuffer == nullptr)
     {
         error_ = TextureLoaderError::ASSET_LOADING_ERROR;
         return;
     }
-    BasicEngine::GetInstance()->ScheduleJob(&decompressTextureJob_, JobThreadType::OTHER_THREAD);
+    BasicEngine::GetInstance()->ScheduleJob(&decompressTextureJob_, JobThreadType::RENDER_THREAD);
 }
 
 void TextureLoader::DecompressTexture()
 {
+#ifdef NEKO_KTX 
     KTX_error_code result;
     {
 #ifdef EASY_PROFILE_USE
@@ -467,11 +498,22 @@ void TextureLoader::DecompressTexture()
         error_ = TextureLoaderError::DECOMPRESS_ERROR;
         return;
     }
+#else
+    texture_.name = gl::StbCreateTexture(path_, filesystem_);
+    return;
+    image_ = StbImageConvert(bufferFile_);
+    //int width, height, nrChannels;
+    //image_.data = stbi_load(path_.c_str(), &width, &height, &nrChannels, 0);
+    //image_.width = width;
+    //image_.height = height;
+    //image_.nbChannels = nrChannels;
+#endif
     RendererLocator ::get().AddPreRenderJob(&uploadToGLJob_);
 }
 
 void TextureLoader::UploadToGL()
 {
+#ifdef NEKO_KTX 
 #ifdef EASY_PROFILE_USE
       EASY_BLOCK("Upload KTX Texture to GPU");
 #endif
@@ -486,6 +528,43 @@ void TextureLoader::UploadToGL()
         PrintKTXError(result, __FILE__, __LINE__);
     }
     ktxTexture_Destroy(kTexture);
+#else
+    Image image = std::move(image_);
+    const auto extension = GetFilenameExtension(path_);
+    glGenTextures(1, &texture_.name);
+
+    glBindTexture(GL_TEXTURE_2D, texture_.name);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, flags_ & Texture::CLAMP_WRAP ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, flags_ & Texture::CLAMP_WRAP ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, flags_ & Texture::SMOOTH_TEXTURE ? GL_LINEAR : GL_NEAREST);
+    if (flags_ & Texture::MIPMAPS_TEXTURE)
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+            flags_ & Texture::SMOOTH_TEXTURE ? GL_LINEAR_MIPMAP_LINEAR : GL_NEAREST_MIPMAP_LINEAR);
+    }
+    else
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, flags_ & Texture::SMOOTH_TEXTURE ? GL_LINEAR : GL_NEAREST);
+    }
+    if (extension == ".jpg" || extension == ".tga")
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_.data);
+    }
+    else if (extension == ".png")
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image_.data);
+    }
+    else if (extension == ".hdr")
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, image.width, image.height, 0, GL_RGB, GL_FLOAT, image_.data);
+    }
+    if (flags_ & Texture::MIPMAPS_TEXTURE)
+    {
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    glCheckError();
+    image.Destroy();
+#endif
 }
 
 void TextureLoader::Start()
