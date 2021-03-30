@@ -38,12 +38,26 @@ void ShipControllerManager::InitComponent(PlayerId player)
    shipController.drag = shipParameter_.kForwardForce / shipParameter_.kTerminalVelocity;
 }
 
-void ShipControllerManager::AssignRotors(PlayerId playerId, Entity& rightRotor, Entity& leftRotor) {
+void ShipControllerManager::AssignRotors(PlayerId playerId, Entity& rightRotorAnchor, Entity& leftRotorAnchor, Entity& rightRotorModel, Entity& leftRotorModel) {
     ShipController& shipController = shipControllers_[playerId];
-    shipController.rightRotor = rightRotor;
-    shipController.leftRotor = leftRotor;
+    shipController.rightRotorAnchor = rightRotorAnchor;
+    shipController.leftRotorAnchor = leftRotorAnchor;
+
+    shipController.rightRotorModel = rightRotorModel;
+    shipController.leftRotorModel = leftRotorModel;
 }
 
+void ShipControllerManager::RotorRotation(PlayerId playerId) {
+    ShipController& shipController = shipControllers_[playerId];
+    Entity& rightRotor = shipController.rightRotorModel;
+    Entity& leftRotor = shipController.leftRotorModel;
+
+    Vec3f currentRightRotorRotation = ConvertEulerAnglesToVec3f(transformManager_.GetRelativeRotation(rightRotor));
+    transformManager_.SetRelativeRotation(rightRotor, ConvertVec3fToEulerAngles(Vec3f(currentRightRotorRotation.x, currentRightRotorRotation.y-shipParameter_.kRotorRotationSpeed, currentRightRotorRotation.z)));
+
+    Vec3f currentLeftRotorRotation = ConvertEulerAnglesToVec3f(transformManager_.GetRelativeRotation(leftRotor));
+    transformManager_.SetRelativeRotation(leftRotor, ConvertVec3fToEulerAngles(Vec3f(currentLeftRotorRotation.x, currentLeftRotorRotation.y - shipParameter_.kRotorRotationSpeed, currentLeftRotorRotation.z)));
+}
 
 
 void ShipControllerManager::Init()
@@ -59,6 +73,7 @@ void ShipControllerManager::FixedUpdate(seconds dt) {
         CalculateHover(playerId, dt);
         CalculateThrust(playerId, dt);
         RotorMovement(playerId);
+        RotorRotation(playerId);
     }
 }
 
@@ -193,8 +208,8 @@ void ShipControllerManager::RotorMovement(PlayerId playerId) {
     leftRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
     leftRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
 
-    transformManager_.SetRelativeRotation(shipController.rightRotor, ConvertVec3fToEulerAngles(rightRotation));
-    transformManager_.SetRelativeRotation(shipController.leftRotor, ConvertVec3fToEulerAngles(leftRotation));
+    transformManager_.SetRelativeRotation(shipController.rightRotorAnchor, ConvertVec3fToEulerAngles(rightRotation));
+    transformManager_.SetRelativeRotation(shipController.leftRotorAnchor, ConvertVec3fToEulerAngles(leftRotation));
 }
 
 
