@@ -48,15 +48,7 @@ namespace neko::aer {
 
 
         void Init() override {
-            // Camera3D* camera = GizmosLocator::get().GetCamera();
-            // camera->fovY = degree_t(80.0f);
-            // camera->nearPlane = 0.1f;
-            // camera->farPlane = 1'000'000.0f;
-            // engine_.GetCameras().SetCameras(*camera);
-            // const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-            // engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-            //     config.dataRootPath +
-            //     "scenes/WaypointTest.aerscene");
+            cContainer_.gameManager.StartGameManager();
             cContainer_.playerManager.CreatePlayer(Vec3f(192.0f, 84.0f, 56.0f));
             cContainer_.waypointManager.StartDetection();
         }

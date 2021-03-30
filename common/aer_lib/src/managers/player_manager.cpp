@@ -133,6 +133,17 @@ Vec3f PlayerManager::GetPlayerPosition(PlayerId playerId)
 {
     return cContainer_.transform3dManager.GetGlobalPosition(playerComponents_[playerId].shipEntity);
 }
+bool PlayerManager::GetCanMove(PlayerId playerId)
+{
+    return shipControllerManager_.GetCanMove(playerId);
+}
+
+void PlayerManager::SetCanMove(PlayerId playerId, bool value)
+{
+    shipControllerManager_.SetCanMove(playerId, value);
+}
+
+
 
 
     void PlayerManager::Destroy()

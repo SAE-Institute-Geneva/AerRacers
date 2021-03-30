@@ -71,6 +71,7 @@ struct ShipController {
     Entity shipModel = INVALID_ENTITY;
     Entity leftRotor = INVALID_ENTITY;
     Entity rightRotor = INVALID_ENTITY;
+    bool canMove = true;
 };
 
 /**
@@ -102,6 +103,8 @@ public:
     void RotorMovement(PlayerId playerId);
     void OnCollisionEnter(
         const physx::PxContactPairHeader& pairHeader) override;
+    void SetCanMove(PlayerId playerId, bool value);
+    bool GetCanMove(PlayerId playerId);
 
     ShipController GetComponent(PlayerId playerId) { return shipControllers_[playerId]; }
 protected:

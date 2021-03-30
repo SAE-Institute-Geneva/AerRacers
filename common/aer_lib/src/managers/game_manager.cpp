@@ -9,27 +9,30 @@ namespace neko::aer
 
     void GameManager::Init()
     {
-        if (enableGameManager)
-        {
-            Camera3D* camera = GizmosLocator::get().GetCamera();
-            camera->fovY = degree_t(80.0f);
-            camera->nearPlane = 0.1f;
-            camera->farPlane = 1'000'000.0f;
-            engine_.GetCameras().SetCameras(*camera);
-            const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-            engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-                config.dataRootPath +
-                "scenes/WaypointTest.aerscene");
-            SpawnPlayers();
-            StartWPManager();
-            StartCountDown();
-            game_state_ = GameState::WATING;
-        }
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+        engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+            config.dataRootPath +
+            "scenes/WaypointTest.aerscene");
+        gameManagerStarted = false;
+    }
+
+    void GameManager::StartGameManager()
+    {
+        Camera3D* camera = GizmosLocator::get().GetCamera();
+        camera->fovY = degree_t(80.0f);
+        camera->nearPlane = 0.1f;
+        camera->farPlane = 1'000'000.0f;
+        engine_.GetCameras().SetCameras(*camera);
+        SpawnPlayers();
+        StartWPManager();
+        StartCountDown();
+        gameManagerStarted = true;
+        game_state_ = GameState::WATING;
     }
 
     void GameManager::Update(seconds dt)
     {
-        if (enableGameManager)
+        if (gameManagerStarted)
         {
             switch (game_state_)
             {
@@ -54,6 +57,7 @@ namespace neko::aer
         for (int i = 0; i < playerCount; i++)
         {
             engine_.GetComponentManagerContainer().playerManager.CreatePlayer(spawns[i], EulerAngles(0,180,0));
+            engine_.GetComponentManagerContainer().playerManager.SetCanMove(i, false);
         }
     }
 
@@ -72,6 +76,7 @@ namespace neko::aer
         if (time <= neko::seconds(0))
         {
             StartTimer();
+            UnFreezePlayers();
             game_state_ = GameState::RACING;
         }
     }
@@ -81,6 +86,13 @@ namespace neko::aer
         time = neko::seconds(0);
     }
 
+    void GameManager::UnFreezePlayers()
+    {
+        for (int i = 0; i < playerCount; i++)
+        {
+            engine_.GetComponentManagerContainer().playerManager.SetCanMove(i, true);
+        }
+    }
 
     void GameManager::UpdateGame()
     {

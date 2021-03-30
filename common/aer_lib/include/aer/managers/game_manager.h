@@ -49,12 +49,14 @@ namespace neko::aer
     public:
         GameManager(AerEngine& engine);
         void Init() override;
+        void StartGameManager();
         void Update(seconds dt) override;
         void SpawnPlayers();
         void StartWPManager();
         void StartCountDown();
         void WaitForStart();
         void StartTimer();
+        void UnFreezePlayers();
         void UpdateGame();
         void CheckIfEveryoneHasFinished();
         void ShowEndScore(PlayerId player_id);
@@ -67,6 +69,7 @@ namespace neko::aer
         GameState game_state_;
         PlayerPositionData* playerPositionData;
         neko::seconds time = neko::seconds(0);
+        bool gameManagerStarted = false;
 
         std::array<bool, 4> hasWin = {
             false,
@@ -75,8 +78,7 @@ namespace neko::aer
             false
         };
 
-        const bool enableGameManager = true;
-        const float startTimer = 3.0f;
+        const float startTimer = 10.0f;
         const float endTimer = 10.0f;
         const int wpToFinish = 33;
         const int playerCount = 4;

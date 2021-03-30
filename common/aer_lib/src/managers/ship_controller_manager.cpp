@@ -132,8 +132,15 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
     //GizmosLocator::get().DrawLine(shipPosition, shipPosition + (rotation * Vec3f::up) * 3.0f, Color::red, 5.0f);
     //GizmosLocator::get().DrawLine(shipPosition, shipPosition + (rotation * Vec3f::right) * 3.0f, Color::red, 5.0f);
     rigidDynamic.MoveRotation(Quaternion::Lerp(shipRotation,rotation, shipParameter_.kAngleRoadLerp));
-    float angle = shipParameter_.kAngleOfRoll * -shipInputManager_.GetRudder(playerId) * shipInputManager_.GetIntensity(playerId);
-    float pitchAngle = shipParameter_.kAngleOfPitch * shipInputManager_.GetThruster(playerId) * shipInputManager_.GetIntensity(playerId);
+    float angle = 0; 
+    float pitchAngle = 0; 
+
+        if (shipController.canMove)
+        {
+            angle = shipParameter_.kAngleOfRoll * -shipInputManager_.GetRudder(playerId) * shipInputManager_.GetIntensity(playerId);
+            pitchAngle = shipParameter_.kAngleOfPitch * shipInputManager_.GetThruster(playerId) * shipInputManager_.GetIntensity(playerId);
+        }
+
     Quaternion bodyRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(playerId)) * Quaternion::FromEuler(EulerAngles(pitchAngle, 0.0f, angle));
 
     //transformManager_.SetGlobalRotation(entity, 
@@ -152,7 +159,12 @@ void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
     if (shipEntity == INVALID_ENTITY) return;
     physics::RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(shipEntity);
 
-    float rotationTorque = (shipInputManager_.GetRudder(playerId) * shipParameter_.kRotationMultiplicator) - rigidDynamic.GetDynamicData().angularVelocity.y;
+    float rotationTorque = 0; 
+
+    if (shipController.canMove)
+    {
+        rotationTorque = (shipInputManager_.GetRudder(playerId) * shipParameter_.kRotationMultiplicator) - rigidDynamic.GetDynamicData().angularVelocity.y;
+    }
 
     rigidDynamic.AddRelativeTorque(Vec3f(0.0f, rotationTorque, 0.0f), physx::PxForceMode::eVELOCITY_CHANGE);
 
@@ -163,38 +175,66 @@ void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
 
     rigidDynamic.AddForce(sideFriction, physx::PxForceMode::eACCELERATION);
 
-    if(shipInputManager_.GetThruster(playerId) <= 0.0f) {
+    //TODO
+    float currentThruster = 0;
+    bool currentBreaking = false;
+        if (shipController.canMove)
+        {
+            currentThruster = shipInputManager_.GetThruster(playerId);
+            currentBreaking = shipInputManager_.IsBreaking(playerId);
+        }
+
+    if(currentThruster <= 0.0f) {
         rigidDynamicManager_.SetLinearVelocity(shipEntity, rigidDynamic.GetDynamicData().linearVelocity * shipParameter_.kSlowingVelFactor);
     }
 
     if(!shipController.isOnGround) {
         return;
     }
-
-    if(shipInputManager_.IsBreaking(playerId)) {
+    if(currentBreaking) {
         rigidDynamicManager_.SetLinearVelocity(shipEntity, rigidDynamic.GetDynamicData().linearVelocity * shipParameter_.kBrakingVelFactor);
     }
 
     Vec3f forward = Quaternion::FromEuler(transformManager_.GetGlobalRotation(shipEntity)) * Vec3f::forward;
-    float propultion = (shipParameter_.kForwardForce * shipInputManager_.GetThruster(playerId) * shipParameter_.kPropultionMultiplicator) -
+    float propultion = (shipParameter_.kForwardForce * currentThruster * shipParameter_.kPropultionMultiplicator) -
         (shipController.drag * Clamp(Vec3f::Dot(rigidDynamic.GetDynamicData().linearVelocity, forward), 0.0f, shipParameter_.kTerminalVelocity) *
             shipParameter_.kPropultionMultiplicator);
     rigidDynamic.AddForce(forward * propultion, physx::PxForceMode::eACCELERATION);
 }
 
 void ShipControllerManager::RotorMovement(PlayerId playerId) {
-    ShipController& shipController = shipControllers_[playerId];
 
-    Vec3f rightRotation = Vec3f::zero;
-    rightRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
-    rightRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
+
     
-    Vec3f leftRotation = Vec3f::zero;
-    leftRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
-    leftRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
 
+    ShipController& shipController = shipControllers_[playerId];
+    
+    Vec3f rightRotation = Vec3f::zero;
+    if (shipController.canMove)
+    {
+        rightRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
+        rightRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
+    }
+     
+    Vec3f leftRotation = Vec3f::zero;
+    if (shipController.canMove)
+    {
+        leftRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
+        leftRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
+    }
+    
     transformManager_.SetRelativeRotation(shipController.rightRotor, ConvertVec3fToEulerAngles(rightRotation));
     transformManager_.SetRelativeRotation(shipController.leftRotor, ConvertVec3fToEulerAngles(leftRotation));
+}
+
+void ShipControllerManager::SetCanMove(PlayerId playerId, bool value)
+{
+    shipControllers_[playerId].canMove = value;
+}
+
+bool ShipControllerManager::GetCanMove(PlayerId playerId)
+{
+    return shipControllers_[playerId].canMove;
 }
 
 

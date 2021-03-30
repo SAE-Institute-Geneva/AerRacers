@@ -112,6 +112,8 @@ public:
     Entity GetShipEntity(PlayerId playerId);
     size_t GetPlayerCount() const { return playerCount_; }
     Vec3f GetPlayerPosition(PlayerId playerId);
+    bool GetCanMove(PlayerId playerId);
+    void SetCanMove(PlayerId playerId, bool value);
 
     void Init() override;
     void Update(seconds dt) override;
