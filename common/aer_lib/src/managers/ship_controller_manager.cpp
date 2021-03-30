@@ -151,6 +151,7 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
     float pitchAngle = shipParameter_.kAngleOfPitch * shipInputManager_.GetThruster(playerId) * shipInputManager_.GetIntensity(playerId);
     Quaternion bodyRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(playerId)) * Quaternion::FromEuler(EulerAngles(pitchAngle, 0.0f, angle));
 
+    transformManager_.SetRelativeRotation(shipController.shipModel, Quaternion::ToEulerAngles(bodyRotation));
     //transformManager_.SetGlobalRotation(entity, 
     //    Quaternion::ToEulerAngles(
     //        Quaternion::Lerp(
