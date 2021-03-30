@@ -38,19 +38,10 @@ void ShipControllerManager::InitComponent(PlayerId player)
    shipController.drag = shipParameter_.kForwardForce / shipParameter_.kTerminalVelocity;
 }
 
-void ShipControllerManager::AssignRotors(PlayerId playerId, Entity& rightRotorAnchor, Entity& leftRotorAnchor, Entity& rightRotorModel, Entity& leftRotorModel) {
-    ShipController& shipController = shipControllers_[playerId];
-    shipController.rightRotorAnchor = rightRotorAnchor;
-    shipController.leftRotorAnchor = leftRotorAnchor;
-
-    shipController.rightRotorModel = rightRotorModel;
-    shipController.leftRotorModel = leftRotorModel;
-}
-
 void ShipControllerManager::RotorRotation(PlayerId playerId) {
-    ShipController& shipController = shipControllers_[playerId];
-    Entity& rightRotor = shipController.rightRotorModel;
-    Entity& leftRotor = shipController.leftRotorModel;
+    PlayerComponent playerComponent = playerManager_.GetPlayerComponent(playerId);
+    Entity& rightRotor = playerComponent.rightRotorModel;
+    Entity& leftRotor = playerComponent.leftRotorModel;
 
     Vec3f currentRightRotorRotation = ConvertEulerAnglesToVec3f(transformManager_.GetRelativeRotation(rightRotor));
     transformManager_.SetRelativeRotation(rightRotor, ConvertVec3fToEulerAngles(Vec3f(currentRightRotorRotation.x, currentRightRotorRotation.y-shipParameter_.kRotorRotationSpeed, currentRightRotorRotation.z)));
@@ -151,7 +142,7 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
     float pitchAngle = shipParameter_.kAngleOfPitch * shipInputManager_.GetThruster(playerId) * shipInputManager_.GetIntensity(playerId);
     Quaternion bodyRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(playerId)) * Quaternion::FromEuler(EulerAngles(pitchAngle, 0.0f, angle));
 
-    transformManager_.SetRelativeRotation(shipController.shipModel, Quaternion::ToEulerAngles(bodyRotation));
+    transformManager_.SetRelativeRotation(playerManager_.GetPlayerComponent(playerId).shipModelEntity, Quaternion::ToEulerAngles(bodyRotation));
     //transformManager_.SetGlobalRotation(entity, 
     //    Quaternion::ToEulerAngles(
     //        Quaternion::Lerp(
@@ -199,7 +190,7 @@ void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
 }
 
 void ShipControllerManager::RotorMovement(PlayerId playerId) {
-    ShipController& shipController = shipControllers_[playerId];
+    PlayerComponent playerComponent = playerManager_.GetPlayerComponent(playerId);
 
     Vec3f rightRotation = Vec3f::zero;
     rightRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
@@ -209,8 +200,8 @@ void ShipControllerManager::RotorMovement(PlayerId playerId) {
     leftRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
     leftRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
 
-    transformManager_.SetRelativeRotation(shipController.rightRotorAnchor, ConvertVec3fToEulerAngles(rightRotation));
-    transformManager_.SetRelativeRotation(shipController.leftRotorAnchor, ConvertVec3fToEulerAngles(leftRotation));
+    transformManager_.SetRelativeRotation(playerComponent.rightRotorAnchor, ConvertVec3fToEulerAngles(rightRotation));
+    transformManager_.SetRelativeRotation(playerComponent.leftRotorAnchor, ConvertVec3fToEulerAngles(leftRotation));
 }
 
 

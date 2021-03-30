@@ -24,6 +24,17 @@ namespace neko::aer
         const auto& config = BasicEngine::GetInstance()->GetConfig();
         cContainer_.sceneManager.AddTag("Ship");
         cContainer_.sceneManager.AddTag("Camera");
+
+        //Player Hierarchy//
+        //ShipEntity
+            //ShipModel
+                //ShipArt
+                //LeftRotorAnchor
+                    //LeftRotorModel
+                //RightRotorAnchor
+                    //RightRotorModel
+
+        //ShipEntity
         Entity shipEntity = cContainer_.entityManager.CreateEntity();
         cContainer_.entityManager.AddComponentType(shipEntity, EntityMask(ComponentType::PLAYER_COMPONENT));
         cContainer_.entityManager.SetEntityName(shipEntity, "ship");
@@ -42,31 +53,20 @@ namespace neko::aer
         rigidDynamic.material.dynamicFriction = 0.0f;
         cContainer_.rigidDynamicManager.AddRigidDynamic(shipEntity, rigidDynamic);
         shipControllerManager_.InitComponent(playerCount_);
+
+        //ShipModel
         Entity shipModelEntity = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(shipModelEntity);
         cContainer_.transform3dManager.SetGlobalPosition(shipModelEntity, pos);
         cContainer_.entityManager.SetEntityParent(shipModelEntity, shipEntity);
+
+        //ShipArt
         Entity shipArtEntity = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(shipArtEntity);
         cContainer_.entityManager.SetEntityParent(shipArtEntity, shipModelEntity);
         cContainer_.transform3dManager.SetGlobalScale(shipArtEntity, Vec3f(9.0f, 1.0f, 5.5f));
         cContainer_.renderManager.AddComponent(shipArtEntity);
         cContainer_.renderManager.SetModel(shipArtEntity, config.dataRootPath + "models/cube/cube.obj");
-
-
-        PlayerComponent playerComponent;
-        playerComponent.shipEntity = shipEntity;
-        playerComponent.shipModelEntity = shipModelEntity;
-        playerComponent.playerNumber = playerComponents_.size();
-        playerComponent.playerSpawn = pos;
-
-        //Player Hierarchy
-            //Ship
-                //ShipModel
-                    //LeftRotorAnchor
-                        //LeftRotorModel
-                    //RightRotorAnchor
-                        //RightRotorModel
 
         //RightRotorAnchor
         Entity shipRightRotorAnchor = cContainer_.entityManager.CreateEntity();
@@ -91,7 +91,7 @@ namespace neko::aer
         cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorAnchor, pos + Vec3f::right * 7);
         cContainer_.transform3dManager.SetGlobalScale(shipLeftRotorAnchor, Vec3f(2, 1, 2));
 
-        //RightRotorModel
+        //LeftRotorModel
         Entity shipLeftRotorModel = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(shipLeftRotorModel);
         cContainer_.entityManager.SetEntityParent(shipLeftRotorModel, shipLeftRotorAnchor);
@@ -100,12 +100,21 @@ namespace neko::aer
         cContainer_.renderManager.AddComponent(shipLeftRotorModel);
         cContainer_.renderManager.SetModel(shipLeftRotorModel, config.dataRootPath + "models/cube/cube.obj");
 
+        PlayerComponent playerComponent;
+        playerComponent.shipEntity = shipEntity;
+        playerComponent.shipModelEntity = shipModelEntity;
+        playerComponent.rightRotorAnchor = shipRightRotorAnchor;
+        playerComponent.rightRotorModel = shipRightRotorModel;
+        playerComponent.leftRotorAnchor = shipLeftRotorAnchor;
+        playerComponent.leftRotorModel = shipLeftRotorModel;
+        playerComponent.playerNumber = playerComponents_.size();
+        playerComponent.playerSpawn = pos;
+
         std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
         if (controllers.size() > playerCount_)
             playerComponent.linkedJoystick = controllers[playerCount_];
         playerComponents_[playerCount_] = playerComponent;
 
-        shipControllerManager_.AssignRotors(playerCount_, shipRightRotorAnchor, shipLeftRotorAnchor, shipRightRotorModel, shipLeftRotorModel);
         playerCount_++;
 
         return playerComponent.playerNumber;

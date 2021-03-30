@@ -44,6 +44,10 @@ using PlayerId = uint8_t;
 struct PlayerComponent {
     Entity shipEntity      = INVALID_ENTITY;
     Entity shipModelEntity = INVALID_ENTITY;
+    Entity leftRotorAnchor = INVALID_ENTITY;
+    Entity rightRotorAnchor = INVALID_ENTITY;
+    Entity leftRotorModel = INVALID_ENTITY;
+    Entity rightRotorModel = INVALID_ENTITY;
 
     PlayerId playerNumber            = 0;
     sdl::ControllerId linkedJoystick = 0;
