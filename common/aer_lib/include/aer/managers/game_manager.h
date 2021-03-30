@@ -65,5 +65,17 @@ namespace neko::aer
         const uint8_t waypointsToWin = 108;
         GameState game_state_;
         PlayerPositionData* playerPositionData;
+        neko::seconds time = neko::seconds(0);
+
+        const float startTimer = 3.0f;
+        const int wpToFinish = 33;
+        const int playerCount = 4;
+        const std::array<Vec3f, 4> spawns =
+        {
+            Vec3f().zero,
+            Vec3f().zero,
+            Vec3f().zero,
+            Vec3f().zero,
+        };
     };
 }
