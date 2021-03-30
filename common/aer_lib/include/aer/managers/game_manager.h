@@ -35,6 +35,7 @@ namespace neko::aer
 {
     class AerEngine;
     struct PlayerPositionData;
+    
 
     enum GameState
     {
@@ -49,6 +50,15 @@ namespace neko::aer
         GameManager(AerEngine& engine);
         void Init() override;
         void Update(seconds dt) override;
+        void SpawnPlayers();
+        void StartWPManager();
+        void StartCountDown();
+        void WaitForStart();
+        void StartTimer();
+        void UpdateGame();
+        void ShowEndScore(PlayerId player_id);
+        void EndGame();
+        void RestartGame();
         void Destroy() override;
     private:
         AerEngine& engine_;

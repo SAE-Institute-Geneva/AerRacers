@@ -10,7 +10,7 @@ namespace neko::aer
     void GameManager::Init()
     {
         game_state_ = GameState::WATING;
-        playerPositionData = engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData();
+        SpawnPlayers();
     }
 
     void GameManager::Update(seconds dt)
@@ -18,21 +18,62 @@ namespace neko::aer
         switch (game_state_)
         {
         case GameState::WATING:
-            game_state_ = GameState::RACING;
             break;
         case GameState::RACING:
-            for (WaypointsCount element : playerPositionData->waypointsCount)
-            {
-                if (element > waypointsToWin)
-                {
-                    game_state_ = GameState::END;
-                }
-            }
             break;
         case GameState::END:
             break;
         }
     }
+
+    void GameManager::SpawnPlayers()
+    {
+
+    }
+
+    void GameManager::StartWPManager()
+    {
+        
+    }
+
+    void GameManager::StartCountDown()
+    {
+        
+    }
+       
+    void GameManager::WaitForStart()
+    {
+        
+    }
+
+    void GameManager::StartTimer()
+    {
+        
+    }
+
+
+    void GameManager::UpdateGame()
+    {
+        
+    }
+
+
+    void GameManager::ShowEndScore(PlayerId player_id)
+    {
+        
+    }
+
+    void GameManager::EndGame()
+    {
+        
+    }
+
+
+    void GameManager::RestartGame()
+    {
+        
+    }
+
 
     void GameManager::Destroy()
     {
