@@ -9,28 +9,44 @@ namespace neko::aer
 
     void GameManager::Init()
     {
-        game_state_ = GameState::WATING;
-        SpawnPlayers();
-        StartWPManager();
-        StartCountDown();
+        if (enableGameManager)
+        {
+            Camera3D* camera = GizmosLocator::get().GetCamera();
+            camera->fovY = degree_t(80.0f);
+            camera->nearPlane = 0.1f;
+            camera->farPlane = 1'000'000.0f;
+            engine_.GetCameras().SetCameras(*camera);
+            const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+            engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+                config.dataRootPath +
+                "scenes/WaypointTest.aerscene");
+            
+            SpawnPlayers();
+            StartWPManager();
+            StartCountDown();
+            game_state_ = GameState::WATING;
+        }
     }
 
     void GameManager::Update(seconds dt)
     {
-        switch (game_state_)
+        if (enableGameManager)
         {
-        case GameState::WATING:
-            time -= dt;
-            //TODO: Don't allow player to move
-            WaitForStart();
-            break;
-        case GameState::RACING:
-            time += dt;
-            UpdateGame();
-            break;
-        case GameState::END:
-            EndGame();
-            break;
+            switch (game_state_)
+            {
+            case GameState::WATING:
+                time -= dt;
+                //TODO: Don't allow player to move
+                WaitForStart();
+                break;
+            case GameState::RACING:
+                time += dt;
+                UpdateGame();
+                break;
+            case GameState::END:
+                EndGame();
+                break;
+            }
         }
     }
 
@@ -38,7 +54,7 @@ namespace neko::aer
     {
         for (int i = 0; i < playerCount; i++)
         {
-            engine_.GetComponentManagerContainer().playerManager.CreatePlayer(spawns[i]);
+            engine_.GetComponentManagerContainer().playerManager.CreatePlayer(spawns[i], EulerAngles(0,180,0));
         }
     }
 
@@ -99,7 +115,8 @@ namespace neko::aer
 
     void GameManager::ShowEndScore(PlayerId player_id)
     {
-        
+        //engine_.GetCameras().GetCamera(player_id);
+
     }
 
     void GameManager::EndGame()

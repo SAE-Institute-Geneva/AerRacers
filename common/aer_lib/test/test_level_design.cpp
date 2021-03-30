@@ -48,15 +48,15 @@ namespace neko::aer {
 
 
         void Init() override {
-            Camera3D* camera = GizmosLocator::get().GetCamera();
-            camera->fovY = degree_t(80.0f);
-            camera->nearPlane = 0.1f;
-            camera->farPlane = 1'000'000.0f;
-            engine_.GetCameras().SetCameras(*camera);
-            const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-            engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-                config.dataRootPath +
-                "scenes/WaypointTest.aerscene");
+            // Camera3D* camera = GizmosLocator::get().GetCamera();
+            // camera->fovY = degree_t(80.0f);
+            // camera->nearPlane = 0.1f;
+            // camera->farPlane = 1'000'000.0f;
+            // engine_.GetCameras().SetCameras(*camera);
+            // const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+            // engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+            //     config.dataRootPath +
+            //     "scenes/WaypointTest.aerscene");
             cContainer_.playerManager.CreatePlayer(Vec3f(192.0f, 84.0f, 56.0f));
             cContainer_.waypointManager.StartDetection();
         }
@@ -117,15 +117,13 @@ namespace neko::aer {
             engine_.GetCameras().SetCameras(*camera);
             const Configuration config = BasicEngine::GetInstance()->GetConfig();
             engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-                config.dataRootPath + "scenes/LevelDesign24-03.aerscene");
-            cContainer_.playerManager.CreatePlayer(Vec3f(-1128.0f, 185.0f, -788.0f));
+                config.dataRootPath + "scenes/WaypointTest.aerscene");
             DirectionalLight* dirLight = DirectionalLight::Instance;
             dirLight->ambient = Vec3f::one * 0.9f;
             dirLight->specular = 0.2f;
         }
 
         void Update(neko::seconds dt) override {
-
         }
 
         void Destroy() override {

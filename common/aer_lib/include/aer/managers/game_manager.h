@@ -75,16 +75,17 @@ namespace neko::aer
             false
         };
 
+        const bool enableGameManager = true;
         const float startTimer = 3.0f;
         const float endTimer = 10.0f;
         const int wpToFinish = 33;
         const int playerCount = 4;
         const std::array<Vec3f, 4> spawns =
         {
-            Vec3f().zero,
-            Vec3f().zero,
-            Vec3f().zero,
-            Vec3f().zero,
+            Vec3f(206, 43, -481),
+            Vec3f(156, 43, -471),
+            Vec3f(106, 43, -461),
+            Vec3f(56, 43, -451)
         };
     };
 }

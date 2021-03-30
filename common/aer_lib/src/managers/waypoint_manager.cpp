@@ -61,7 +61,7 @@ namespace neko::aer
         {
             for (int i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
             {
-                ImGui::Begin("Player" + i);
+                ImGui::Begin("Player" + std::to_string(i));
                 std::string playerText = "Position: " + std::to_string(playerPositionData_.racePlacement[i]) +
                     "\n Waypoint: " + std::to_string(playerPositionData_.waypoints[i]) +
                     "\n Waypoint Count: " + std::to_string(playerPositionData_.waypointsCount[i]) +
@@ -367,35 +367,81 @@ namespace neko::aer
     {
         for (int i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
         {
-            if (i > 0)
+            playerPositionData_.racePlacement[i] = i + 1;
+        }
+        for (int i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
+        {
+            for (int j = i; j < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); j++)
             {
-                for (int j = i; j >= 0; j--)
+                if (playerPositionData_.waypointsCount[i] > playerPositionData_.waypointsCount[j])
                 {
-                    if (playerPositionData_.waypointsCount[i] > playerPositionData_.waypointsCount[j])
+                    if (playerPositionData_.racePlacement[i] > playerPositionData_.racePlacement[j])
                     {
-                        playerPositionData_.racePlacement[j]++;
+                        RacePlacement racePlacementI = playerPositionData_.racePlacement[i];
+                        playerPositionData_.racePlacement[i] = playerPositionData_.racePlacement[j];
+                        playerPositionData_.racePlacement[j] = racePlacementI;
                     }
-                    else if (playerPositionData_.waypointsCount[i] == playerPositionData_.waypointsCount[j])
+                }
+                else if (playerPositionData_.waypointsCount[i] == playerPositionData_.waypointsCount[j])
+                {
+                    if (playerPositionData_.positionInWaypoint[i] > playerPositionData_.positionInWaypoint[j])
                     {
-                        if (playerPositionData_.positionInWaypoint[i] > playerPositionData_.positionInWaypoint[j])
+                        if (playerPositionData_.racePlacement[i] > playerPositionData_.racePlacement[j])
                         {
-                            playerPositionData_.racePlacement[j]++;
-                        }
-                        else
-                        {
-                            playerPositionData_.racePlacement[i]++;
+                            RacePlacement racePlacementI = playerPositionData_.racePlacement[i];
+                            playerPositionData_.racePlacement[i] = playerPositionData_.racePlacement[j];
+                            playerPositionData_.racePlacement[j] = racePlacementI;
                         }
                     }
                     else
                     {
-                        playerPositionData_.racePlacement[i]++;
+                        if (playerPositionData_.racePlacement[i] < playerPositionData_.racePlacement[j])
+                        {
+                            RacePlacement racePlacementI = playerPositionData_.racePlacement[i];
+                            playerPositionData_.racePlacement[i] = playerPositionData_.racePlacement[j];
+                            playerPositionData_.racePlacement[j] = racePlacementI;
+                        }
+                    }
+                }
+                else
+                {
+                    if (playerPositionData_.racePlacement[i] > playerPositionData_.racePlacement[j])
+                    {
+                        RacePlacement racePlacementI = playerPositionData_.racePlacement[i];
+                        playerPositionData_.racePlacement[i] = playerPositionData_.racePlacement[j];
+                        playerPositionData_.racePlacement[j] = racePlacementI;
                     }
                 }
             }
-            else
-            {
-                playerPositionData_.racePlacement[i] = 1;
-            }
+            // if (i > 0)
+            // {
+            //     for (int j = i-1; j >= 0; j--)
+            //     {
+            //         if (playerPositionData_.waypointsCount[i] > playerPositionData_.waypointsCount[j])
+            //         {
+            //             playerPositionData_.racePlacement[j]++;
+            //         }
+            //         else if (playerPositionData_.waypointsCount[i] == playerPositionData_.waypointsCount[j])
+            //         {
+            //             if (playerPositionData_.positionInWaypoint[i] > playerPositionData_.positionInWaypoint[j])
+            //             {
+            //                 playerPositionData_.racePlacement[j]++;
+            //             }
+            //             else
+            //             {
+            //                 playerPositionData_.racePlacement[i]++;
+            //             }
+            //         }
+            //         else
+            //         {
+            //             playerPositionData_.racePlacement[i]++;
+            //         }
+            //     }
+            // }
+            // else
+            // {
+            //     playerPositionData_.racePlacement[i] = 1;
+            // }
         }
     }
 
@@ -407,8 +453,8 @@ namespace neko::aer
             playerPositionData_.waypoints[i] = startWaypointIndex;
             playerPositionData_.waypointsCount[i] = 0;
             CalculatePlayerPosition(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i), i);
-            CalculatePlayerPlacement();
         }
+        CalculatePlayerPlacement();
         hasPlayersSpawned = true;
     }
 
