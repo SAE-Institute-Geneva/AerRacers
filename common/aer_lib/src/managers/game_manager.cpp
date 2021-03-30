@@ -21,12 +21,15 @@ namespace neko::aer
         {
         case GameState::WATING:
             time -= dt;
+            //TODO: Don't allow player to move
             WaitForStart();
             break;
         case GameState::RACING:
             time += dt;
+            UpdateGame();
             break;
         case GameState::END:
+            EndGame();
             break;
         }
     }
@@ -71,6 +74,24 @@ namespace neko::aer
             if (playerWPCount > waypointsToWin)
             {
                 ShowEndScore(playerWPCount);
+                hasWin[playerWPCount] = true;
+            }
+        }
+
+        CheckIfEveryoneHasFinished();
+    }
+
+    void GameManager::CheckIfEveryoneHasFinished()
+    {
+        for (int i = 0; i < playerCount; i++)
+        {
+            if (hasWin[i] == false)
+            {
+                break;
+            }
+            else if (i == playerCount - 1)
+            {
+                game_state_ = GameState::END;
             }
         }
     }

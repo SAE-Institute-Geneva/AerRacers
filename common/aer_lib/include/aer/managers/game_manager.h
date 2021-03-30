@@ -56,6 +56,7 @@ namespace neko::aer
         void WaitForStart();
         void StartTimer();
         void UpdateGame();
+        void CheckIfEveryoneHasFinished();
         void ShowEndScore(PlayerId player_id);
         void EndGame();
         void RestartGame();
@@ -67,7 +68,15 @@ namespace neko::aer
         PlayerPositionData* playerPositionData;
         neko::seconds time = neko::seconds(0);
 
+        std::array<bool, 4> hasWin = {
+            false,
+            false,
+            false,
+            false
+        };
+
         const float startTimer = 3.0f;
+        const float endTimer = 10.0f;
         const int wpToFinish = 33;
         const int playerCount = 4;
         const std::array<Vec3f, 4> spawns =
