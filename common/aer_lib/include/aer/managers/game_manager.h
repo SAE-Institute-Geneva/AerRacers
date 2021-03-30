@@ -63,7 +63,7 @@ namespace neko::aer
         void Destroy() override;
     private:
         AerEngine& engine_;
-        const uint8_t waypointsToWin = 108;
+        //const int waypointsToWin = 108;
         GameState game_state_;
         PlayerPositionData* playerPositionData;
         neko::seconds time = neko::seconds(0);

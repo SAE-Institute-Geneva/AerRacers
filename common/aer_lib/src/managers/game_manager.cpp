@@ -20,7 +20,6 @@ namespace neko::aer
             engine_.GetComponentManagerContainer().sceneManager.LoadScene(
                 config.dataRootPath +
                 "scenes/WaypointTest.aerscene");
-            
             SpawnPlayers();
             StartWPManager();
             StartCountDown();
@@ -85,12 +84,13 @@ namespace neko::aer
 
     void GameManager::UpdateGame()
     {
-        for (PlayerId playerWPCount : engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount)
+
+        for (int i = 0; i < playerCount; i++)
         {
-            if (playerWPCount > waypointsToWin)
+            if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpToFinish)
             {
-                ShowEndScore(playerWPCount);
-                hasWin[playerWPCount] = true;
+                ShowEndScore(i);
+                hasWin[i] = true;
             }
         }
 
