@@ -24,6 +24,10 @@ float ShipInputManager::GetIntensity(PlayerId playerId)
     return shipInputs_[playerId].GetIntensity();
 }
 
+float ShipInputManager::GetJoystickAxis(PlayerId playerId, Joystick joystick, Axis axis) {
+    return shipInputs_[playerId].GetJoystickAxis(joystick, axis);
+}
+
 bool ShipInputManager::IsBreaking(PlayerId playerId)
 {
     return shipInputs_[playerId].IsBreaking();

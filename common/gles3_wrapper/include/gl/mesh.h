@@ -1,4 +1,5 @@
 #pragma once
+#include "graphics/color.h"
 /*
  MIT License
 
@@ -81,7 +82,9 @@ private:
 	std::vector<Index> indices_;
 	std::vector<Texture> textures_;
 
-	float shininess_ = 0.0f;
+	float shininess_ = 16.0f;
+	//Color3 diffuse_ = Color3(0.8f);
+	//Color3 specular_ = Color3::one;
 	Vec3f color_     = Vec3f::one;
 	Aabb3d aabb_ {};
 

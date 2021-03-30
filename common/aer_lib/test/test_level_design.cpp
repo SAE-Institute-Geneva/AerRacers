@@ -98,5 +98,68 @@ namespace neko::aer {
         testLevelDesign.HasSucceed();
 
     }
+    class TestLevelDesignArt
+        : public SystemInterface
+         {
+    public:
+        TestLevelDesignArt(
+            AerEngine& engine)
+            : engine_(engine),
+            rContainer_(engine.GetResourceManagerContainer()),
+            cContainer_(engine.GetComponentManagerContainer()) { }
+
+
+        void Init() override {
+            Camera3D* camera = GizmosLocator::get().GetCamera();
+            camera->fovY = degree_t(80.0f);
+            camera->nearPlane = 0.1f;
+            camera->farPlane = 1'000'000.0f;
+            engine_.GetCameras().SetCameras(*camera);
+            const Configuration config = BasicEngine::GetInstance()->GetConfig();
+            engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+                config.dataRootPath + "scenes/LevelDesign24-03.aerscene");
+            cContainer_.playerManager.CreatePlayer(Vec3f(-1128.0f, 185.0f, -788.0f));
+            DirectionalLight* dirLight = DirectionalLight::Instance;
+            dirLight->ambient = Vec3f::one * 0.9f;
+            dirLight->specular = 0.2f;
+        }
+
+        void Update(neko::seconds dt) override {
+
+        }
+
+        void Destroy() override {
+        }
+
+        void HasSucceed() const {
+        }
+
+    private:
+
+        ResourceManagerContainer& rContainer_;
+        ComponentManagerContainer& cContainer_;
+
+        AerEngine& engine_;
+    };
+
+    TEST(Game, TestLevelDesignArt)
+    {
+        Configuration config;
+        config.windowName = "AerEditor";
+        config.windowSize = neko::Vec2u(1400, 900);
+        sdl::Gles3Window window;
+        gl::Gles3Renderer renderer;
+        Filesystem filesystem;
+        AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
+        engine.SetWindowAndRenderer(&window, &renderer);
+
+        TestLevelDesignArt testLevelDesign(engine);
+        engine.RegisterSystem(testLevelDesign);
+
+        engine.Init();
+        engine.EngineLoop();
+        testLevelDesign.HasSucceed();
+
+    }
 }
 #endif
