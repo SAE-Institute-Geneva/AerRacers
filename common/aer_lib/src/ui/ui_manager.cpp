@@ -51,23 +51,24 @@ void UiManager::Render(std::uint8_t playerNmb)
 	if (uiImageShader_.GetProgram() == 0) return;
 
 	uiImageShader_.Bind();
-	uiImageShader_.SetInt("tex", 0);
 	glDisable(GL_DEPTH_TEST);
 	glCullFace(GL_FRONT);
-	const auto& config = aerEngine_.GetConfig();
+
+	const Vec2u winSize = aerEngine_.GetConfig().windowSize;
+	glViewport(0, 0, winSize.x, winSize.y);
+
 	for (auto& image : uiImages_)
 	{
+		auto& textureManager = aerEngine_.GetResourceManagerContainer().textureManager;
 		if (!(image->GetFlags() & UiFlag::INITIALIZED))
 		{
-			image->Init(aerEngine_.GetResourceManagerContainer().textureManager);
+			image->Init(textureManager);
 			image->AddFlag(UiFlag::INITIALIZED);
 		}
-		if ((image->GetFlags() & UiFlag::INITIALIZED) && (image->GetFlags() & UiFlag::ENABLED))
+
+		if (image->GetFlags() & UiFlag::INITIALIZED && image->GetFlags() & UiFlag::ENABLED)
 		{
-			ChangeViewport(image->GetScreenId(), playerNmb, config.windowSize);
-			image->Draw(aerEngine_.GetResourceManagerContainer().textureManager,
-				config.windowSize,
-				uiImageShader_);
+			image->Draw(textureManager, winSize, playerNmb, uiImageShader_);
 		}
 	}
 
@@ -76,7 +77,6 @@ void UiManager::Render(std::uint8_t playerNmb)
 	{
 		if (text->GetFlags() & UiFlag::ENABLED)
 		{
-			ChangeViewport(text->GetScreenId(), playerNmb, config.windowSize);
 			text->Draw(fontManager_, GetFontId(text->GetFont()));
 		}
 	}
@@ -132,55 +132,7 @@ FontId UiManager::GetFontId(FontLoaded fontLoaded) const
 	{
 		case FontLoaded::LOBSTER: return lobsterId_;
 		case FontLoaded::ROBOTO: return robotoId_;
-		default:;
-	}
-
-	return INVALID_FONT_ID;
-}
-
-#ifdef NEKO_GLES3
-void UiManager::ChangeViewport(
-	const std::uint8_t screenId, const std::uint8_t playerNmb, const Vec2u& windowSize)
-{
-	if (screenId > playerNmb || screenId == 0) {
-	    glViewport(0, 0, windowSize.x, windowSize.y);
-	}
-	else
-	{
-		switch (screenId)
-		{
-			case 1:
-			{
-				switch (playerNmb)
-				{
-					case 2: glViewport(0, 0, windowSize.x / 2, windowSize.y); break;
-					case 3:
-					case 4:
-						glViewport(0, windowSize.y / 2, windowSize.x / 2, windowSize.y / 2);
-						break;
-					default:  glViewport(0, 0, windowSize.x, windowSize.y);  break;
-				}
-			}
-			break;
-			case 2:
-			{
-				switch (playerNmb)
-				{
-					case 2: glViewport(windowSize.x / 2, 0, windowSize.x / 2, windowSize.y); break;
-					case 3:
-					case 4:
-						glViewport(
-							windowSize.x / 2, windowSize.y / 2, windowSize.x / 2, windowSize.y / 2);
-						break;
-					default:  glViewport(0, 0, windowSize.x, windowSize.y);  break;
-				}
-			}
-			break;
-			case 3: glViewport(0, 0, windowSize.x / 2, windowSize.y / 2); break;
-			case 4: glViewport(windowSize.x / 2, 0, windowSize.x / 2, windowSize.y / 2); break;
-			default:  glViewport(0, 0, windowSize.x, windowSize.y);  break;
-		}
+		default: return INVALID_FONT_ID;
 	}
 }
-#endif
 }    // namespace neko::aer

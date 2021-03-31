@@ -58,7 +58,7 @@ public:
      */
 	UiText(FontLoaded font    = FontLoaded::LOBSTER,
 		std::string_view text = "",
-		const Vec2f & position = Vec2f::zero,
+		Vec2i position        = Vec2i::zero,
 		UiAnchor anchor       = UiAnchor::CENTER,
 		std::uint8_t screenId = 0,
 		float scale           = 1.0f,

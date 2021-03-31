@@ -4,11 +4,7 @@ precision highp float;
 layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>
 out vec2 TexCoords;
 
-layout (std140) uniform Matrices
-{
-    mat4 proj;
-    mat4 view;
-};
+uniform mat4 proj;
 
 void main()
 {

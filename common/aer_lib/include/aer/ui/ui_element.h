@@ -62,15 +62,14 @@ struct UiFlag
 class UiElement
 {
 public:
-	explicit UiElement(const Vec2f & pos = Vec2f::zero,
-		UiAnchor uiAnchor               = UiAnchor::CENTER,
-		std::uint8_t screenId           = 0);
+	UiElement(
+		Vec2i pos = Vec2i::zero, UiAnchor uiAnchor = UiAnchor::CENTER, std::uint8_t screenId = 0);
 	virtual void Destroy();
 
 	[[nodiscard]] std::uint8_t GetFlags() const { return flags_; }
 	[[nodiscard]] std::uint8_t GetScreenId() const { return screenId_; }
 
-	void SetPosition(const Vec2f& pos) { position_ = pos; }
+	void SetPosition(Vec2i pos) { position_ = pos; }
 	void SetAnchor(UiAnchor uiAnchor) { uiAnchor_ = uiAnchor; }
 	void SetScreenId(std::uint8_t screenId) { screenId_ = screenId; }
 	void SetEnable(bool enable);
@@ -79,13 +78,14 @@ public:
 	void RemoveFlag(UiFlag::Enum flag);
 
 protected:
-    virtual ~UiElement() = default;
-    
-	static Vec2f CalculateUiElementPosition(Vec2f position, UiAnchor anchor);
+	virtual ~UiElement() = default;
 
-	Vec2f position_    = Vec2f::zero;    //In percent
-	UiAnchor uiAnchor_ = UiAnchor::CENTER;
-	std::uint8_t flags_     = UiFlag::ENABLED;
-	std::uint8_t screenId_  = 0;
+	[[nodiscard]] Vec2i GetAnchorPosition(Vec2i position) const;
+	[[nodiscard]] Vec2i GetAnchorFromScreenId(Vec2i anchorPos, std::uint8_t playerNmb) const;
+
+	Vec2i position_        = Vec2i::zero;    // In pixels
+	UiAnchor uiAnchor_     = UiAnchor::CENTER;
+	std::uint8_t flags_    = UiFlag::ENABLED;
+	std::uint8_t screenId_ = 0;
 };
 }    // namespace neko::aer
