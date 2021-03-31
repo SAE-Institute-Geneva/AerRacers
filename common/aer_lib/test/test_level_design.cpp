@@ -109,7 +109,11 @@ namespace neko::aer {
             engine_.GetCameras().SetCameras(*camera);
             const Configuration config = BasicEngine::GetInstance()->GetConfig();
             engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-                config.dataRootPath + "scenes/WaypointTest.aerscene");
+                config.dataRootPath + "scenes/LevelDesign24-03.aerscene");
+            cContainer_.playerManager.CreatePlayer(Vec3f(-1108.0f, 185.0f, -788.0f));
+            cContainer_.playerManager.CreatePlayer(Vec3f(-1128.0f, 185.0f, -788.0f));
+            cContainer_.playerManager.CreatePlayer(Vec3f(-1148.0f, 185.0f, -788.0f));
+            cContainer_.playerManager.CreatePlayer(Vec3f(-1168.0f, 185.0f, -788.0f));
             DirectionalLight* dirLight = DirectionalLight::Instance;
             dirLight->ambient = Vec3f::one * 0.9f;
             dirLight->specular = 0.2f;

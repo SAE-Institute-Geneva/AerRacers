@@ -76,7 +76,7 @@ private:
 
 	std::unique_ptr<UiManager> uiManager_;
 
-	std::uint8_t playerNum_ = 1;
+	std::uint8_t playerNum_ = 4;
 
 	//For Test
 	Entity shipEntity_;
