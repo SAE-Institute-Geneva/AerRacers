@@ -60,7 +60,7 @@ namespace neko::aer
         cContainer_.entityManager.SetEntityParent(shipModelEntity, shipEntity);
         cContainer_.transform3dManager.SetRelativeScale(shipModelEntity, Vec3f::one * 0.01f);
         cContainer_.transform3dManager.SetRelativePosition(shipModelEntity, Vec3f::zero);
-        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
+        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
 
         //ShipArt
         Entity shipArtEntity = cContainer_.entityManager.CreateEntity();
@@ -68,7 +68,7 @@ namespace neko::aer
         cContainer_.entityManager.SetEntityParent(shipArtEntity, shipModelEntity);
         cContainer_.transform3dManager.SetRelativePosition(shipArtEntity, Vec3f::zero);
         cContainer_.transform3dManager.SetRelativeScale(shipArtEntity, Vec3f::one);
-        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
         cContainer_.renderManager.AddComponent(shipArtEntity);
         cContainer_.renderManager.SetModel(shipArtEntity, config.dataRootPath + "models/ship/low_cortese_corps.obj");
 

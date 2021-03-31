@@ -58,7 +58,7 @@ void AerEngine::Init()
 #endif
 
 	if (mode_ == ModeEnum::GAME) {
-		if (true)
+		if (false)
 		{
 			cContainer_.sceneManager.LoadScene(
 				GetConfig().dataRootPath +
@@ -67,7 +67,7 @@ void AerEngine::Init()
 			cContainer_.playerManager.CreatePlayer(Vec3f(20.0f, 10.0f, 30));
 			cContainer_.playerManager.CreatePlayer(Vec3f(40.0f, 10.0f, 30));
 			cContainer_.playerManager.CreatePlayer(Vec3f(60.0f, 10.0f, 30.0f));
-		} else {
+		} else if (false) {
 			cContainer_.sceneManager.LoadScene(
 				GetConfig().dataRootPath +
 					"scenes/test_leveldesign_cube.aerscene");
@@ -75,6 +75,9 @@ void AerEngine::Init()
 			cContainer_.playerManager.CreatePlayer(Vec3f(202.0f, 84.0f, 56.0f), EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
 			cContainer_.playerManager.CreatePlayer(Vec3f(182.0f, 84.0f, 56.0f), EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
 			cContainer_.playerManager.CreatePlayer(Vec3f(162.0f, 84.0f, 56.0f), EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
+		} else {
+			cContainer_.gameManager.StartGameManager();
+			cContainer_.waypointManager.StartDetection();
 		}
 	}
 }
