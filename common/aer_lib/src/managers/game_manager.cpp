@@ -164,13 +164,17 @@ namespace neko::aer
 
     void GameManager::ShowEndScore(PlayerId player_id)
     {
-        //engine_.GetCameras().GetCamera(player_id);
+        SetMiddleUiText(player_id, "GG! Position: " + std::to_string(engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->racePlacement[player_id]));
+        engine_.GetComponentManagerContainer().playerManager.SetCanMove(player_id, false);
 
     }
 
     void GameManager::EndGame()
     {
-        
+        for (int i = 0; i < playerCount; i++)
+        {
+            middleTextUi[i].SetText("Everyone finished");
+        }
     }
 
 
@@ -182,11 +186,10 @@ namespace neko::aer
     void GameManager::StartUi()
     {
         auto& uiManager = UiManagerLocator::get();
-        //globalText =
         for(int i = 0; i < playerCount; i++)
         {
             middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2f(0.0f, 0.0f), UiAnchor::CENTER, i + 1, 4.0f, Color::cyan);
-            TimerUi[i] = UiText(FontLoaded::LOBSTER, "Timer: " + std::to_string(neko::seconds(0).count()), Vec2f(1.0f, -1.0f) * uiPositionMultiplier, UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::cyan);
+            TimerUi[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2f(1.0f, -1.0f) * uiPositionMultiplier, UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::cyan);
             LapsUi[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2f(-1.0f, -1.0f) * uiPositionMultiplier, UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::cyan);;
             placementUi[i] = UiText(FontLoaded::LOBSTER, "0th", Vec2f(-1.0f, 1.0f) * uiPositionMultiplier, UiAnchor::BOTTOM_RIGHT, i + 1, 2.0f, Color::cyan);;
 
@@ -195,7 +198,6 @@ namespace neko::aer
             uiManager.AddUiText(&LapsUi[i]);
             uiManager.AddUiText(&placementUi[i]);
         }
-
     }
 
     void GameManager::SetMiddleUiText(PlayerId player_id, std::string text)
@@ -207,7 +209,7 @@ namespace neko::aer
     {
         for (int i = 0; i < playerCount; i++)
         {
-            TimerUi[i].SetText(std::to_string(time.count()));
+            TimerUi[i].SetText(fmt::format("{:.2f}", time.count()));
         }
 
     }

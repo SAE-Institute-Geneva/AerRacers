@@ -57,48 +57,48 @@ namespace neko::aer
 
     void WaypointManager::DrawImGui()
     {
-        if (hasPlayersSpawned)
-        {
-            for (int i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
-            {
-                ImGui::Begin("Player" + std::to_string(i));
-                std::string playerText = "Position: " + std::to_string(playerPositionData_.racePlacement[i]) +
-                    "\n Waypoint: " + std::to_string(playerPositionData_.waypoints[i]) +
-                    "\n Waypoint Count: " + std::to_string(playerPositionData_.waypointsCount[i]) +
-                    "\n Position in Waypoint: " + std::to_string(playerPositionData_.positionInWaypoint[i]) +
-                    "\n Placement: " + std::to_string(playerPositionData_.racePlacement[i]) +
-                    "\n Distance From Next WP: " + std::to_string(
-                        sqrt(
-
-                            pow(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).x
-                                - waypoints_[waypoints_[playerPositionData_.waypoints[i]].nextWaypoint].position.x, 2) +
-                            pow(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).z
-                                - waypoints_[waypoints_[playerPositionData_.waypoints[i]].nextWaypoint].position.y, 2))) +
-                    "\n Distance From Previous WP: " + std::to_string(sqrt(
-                        pow(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).x
-                            - waypoints_[waypoints_[playerPositionData_.waypoints[i]].previousWaypoint].position.x, 2) +
-                        pow(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).z
-                            - waypoints_[waypoints_[playerPositionData_.waypoints[i]].previousWaypoint].position.y, 2))) +
-                    "\n Current WP Position: " +
-                    "x:" + std::to_string(waypoints_[playerPositionData_.waypoints[i]].position.x) +
-                    " y:" + std::to_string(waypoints_[playerPositionData_.waypoints[i]].position.y) +
-                    "\n Last WP Position: " +
-                    "x:" + std::to_string(waypoints_[waypoints_[playerPositionData_.waypoints[i]].previousWaypoint].position.x) +
-                    " y:" + std::to_string(waypoints_[waypoints_[playerPositionData_.waypoints[i]].previousWaypoint].position.y) +
-                    "\n Next WP Position: " +
-                    "x:" + std::to_string(waypoints_[waypoints_[playerPositionData_.waypoints[i]].nextWaypoint].position.x) +
-                    " y:" + std::to_string(waypoints_[waypoints_[playerPositionData_.waypoints[i]].nextWaypoint].position.y) +
-                    "\n Player Position: " +
-                    "x:" + std::to_string(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).x) +
-                    " y:" + std::to_string(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).z) +
-                    "\n Next Normalized: " +
-                    "x:" + std::to_string(waypoints_[playerPositionData_.waypoints[i]].normalizedNextVector.x) +
-                    " y:" + std::to_string(waypoints_[playerPositionData_.waypoints[i]].normalizedNextVector.y);
-
-                ImGui::Text(playerText.c_str());
-                ImGui::End();
-            }
-        }
+        // if (hasPlayersSpawned)
+        // {
+        //     for (int i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
+        //     {
+        //         ImGui::Begin("Player" + std::to_string(i));
+        //         std::string playerText = "Position: " + std::to_string(playerPositionData_.racePlacement[i]) +
+        //             "\n Waypoint: " + std::to_string(playerPositionData_.waypoints[i]) +
+        //             "\n Waypoint Count: " + std::to_string(playerPositionData_.waypointsCount[i]) +
+        //             "\n Position in Waypoint: " + std::to_string(playerPositionData_.positionInWaypoint[i]) +
+        //             "\n Placement: " + std::to_string(playerPositionData_.racePlacement[i]) +
+        //             "\n Distance From Next WP: " + std::to_string(
+        //                 sqrt(
+        //
+        //                     pow(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).x
+        //                         - waypoints_[waypoints_[playerPositionData_.waypoints[i]].nextWaypoint].position.x, 2) +
+        //                     pow(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).z
+        //                         - waypoints_[waypoints_[playerPositionData_.waypoints[i]].nextWaypoint].position.y, 2))) +
+        //             "\n Distance From Previous WP: " + std::to_string(sqrt(
+        //                 pow(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).x
+        //                     - waypoints_[waypoints_[playerPositionData_.waypoints[i]].previousWaypoint].position.x, 2) +
+        //                 pow(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).z
+        //                     - waypoints_[waypoints_[playerPositionData_.waypoints[i]].previousWaypoint].position.y, 2))) +
+        //             "\n Current WP Position: " +
+        //             "x:" + std::to_string(waypoints_[playerPositionData_.waypoints[i]].position.x) +
+        //             " y:" + std::to_string(waypoints_[playerPositionData_.waypoints[i]].position.y) +
+        //             "\n Last WP Position: " +
+        //             "x:" + std::to_string(waypoints_[waypoints_[playerPositionData_.waypoints[i]].previousWaypoint].position.x) +
+        //             " y:" + std::to_string(waypoints_[waypoints_[playerPositionData_.waypoints[i]].previousWaypoint].position.y) +
+        //             "\n Next WP Position: " +
+        //             "x:" + std::to_string(waypoints_[waypoints_[playerPositionData_.waypoints[i]].nextWaypoint].position.x) +
+        //             " y:" + std::to_string(waypoints_[waypoints_[playerPositionData_.waypoints[i]].nextWaypoint].position.y) +
+        //             "\n Player Position: " +
+        //             "x:" + std::to_string(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).x) +
+        //             " y:" + std::to_string(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i).z) +
+        //             "\n Next Normalized: " +
+        //             "x:" + std::to_string(waypoints_[playerPositionData_.waypoints[i]].normalizedNextVector.x) +
+        //             " y:" + std::to_string(waypoints_[playerPositionData_.waypoints[i]].normalizedNextVector.y);
+        //
+        //         ImGui::Text(playerText.c_str());
+        //         ImGui::End();
+        //     }
+        // }
     }
 
     void WaypointManager::AddWaypointFromJson(Entity entity, const json& jsonComponent)
@@ -375,7 +375,7 @@ namespace neko::aer
             {
                 if (playerPositionData_.waypointsCount[i] > playerPositionData_.waypointsCount[j])
                 {
-                    if (playerPositionData_.racePlacement[i] > playerPositionData_.racePlacement[j])
+                    if (playerPositionData_.racePlacement[i] < playerPositionData_.racePlacement[j])
                     {
                         RacePlacement racePlacementI = playerPositionData_.racePlacement[i];
                         playerPositionData_.racePlacement[i] = playerPositionData_.racePlacement[j];
@@ -386,7 +386,7 @@ namespace neko::aer
                 {
                     if (playerPositionData_.positionInWaypoint[i] > playerPositionData_.positionInWaypoint[j])
                     {
-                        if (playerPositionData_.racePlacement[i] > playerPositionData_.racePlacement[j])
+                        if (playerPositionData_.racePlacement[i] >  playerPositionData_.racePlacement[j])
                         {
                             RacePlacement racePlacementI = playerPositionData_.racePlacement[i];
                             playerPositionData_.racePlacement[i] = playerPositionData_.racePlacement[j];
@@ -405,7 +405,7 @@ namespace neko::aer
                 }
                 else
                 {
-                    if (playerPositionData_.racePlacement[i] > playerPositionData_.racePlacement[j])
+                    if (playerPositionData_.racePlacement[i] < playerPositionData_.racePlacement[j])
                     {
                         RacePlacement racePlacementI = playerPositionData_.racePlacement[i];
                         playerPositionData_.racePlacement[i] = playerPositionData_.racePlacement[j];
