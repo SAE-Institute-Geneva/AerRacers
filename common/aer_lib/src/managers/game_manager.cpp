@@ -26,6 +26,7 @@ namespace neko::aer
         SpawnPlayers();
         StartWPManager();
         StartCountDown();
+        StartUi();
         gameManagerStarted = true;
         game_state_ = GameState::WATING;
     }
@@ -50,7 +51,18 @@ namespace neko::aer
                 break;
             }
         }
+        for (int i = 0; i < playerCount; i++)
+        {
+            middleTextUi[i].SetText("test");
+            middleTextUi[i].SetScreenId(i);
+        }
     }
+
+    void GameManager::Render()
+    {
+        
+    }
+
 
     void GameManager::SpawnPlayers()
     {
@@ -138,6 +150,38 @@ namespace neko::aer
 
 
     void GameManager::RestartGame()
+    {
+        
+    }
+
+    void GameManager::StartUi()
+    {
+        auto& uiManager = UiManagerLocator::get();
+        //globalText =
+        for(int i = 0; i < playerCount; i++)
+        {
+            middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2f(0.5f, 0.5f), UiAnchor::CENTER, i, 1.0f, Color::cyan);
+            uiManager.AddUiText(&middleTextUi[i]);
+        }
+
+    }
+
+    void GameManager::SetMiddleUiText(PlayerId player_id, std::string text)
+    {
+        
+    }
+
+    void GameManager::UpdateTimerUiText(PlayerId player_id)
+    {
+        
+    }
+
+    void GameManager::UpdateLapsUiText(PlayerId player_id)
+    {
+        
+    }
+
+    void GameManager::UpdatePlacementUiText(PlayerId player_id)
     {
         
     }

@@ -44,13 +44,14 @@ namespace neko::aer
         END
     };
 
-    class GameManager : public SystemInterface
+    class GameManager : public SystemInterface, public RenderCommandInterface
     {
     public:
         GameManager(AerEngine& engine);
         void Init() override;
         void StartGameManager();
         void Update(seconds dt) override;
+        void Render() override;
         void SpawnPlayers();
         void StartWPManager();
         void StartCountDown();
@@ -58,10 +59,17 @@ namespace neko::aer
         void StartTimer();
         void UnFreezePlayers();
         void UpdateGame();
-        void CheckIfEveryoneHasFinished();
         void ShowEndScore(PlayerId player_id);
         void EndGame();
         void RestartGame();
+
+        void StartUi();
+        void SetMiddleUiText(PlayerId player_id, std::string text);
+        void UpdateTimerUiText(PlayerId player_id);
+        void UpdateLapsUiText(PlayerId player_id);
+        void UpdatePlacementUiText(PlayerId player_id);
+        void CheckIfEveryoneHasFinished();
+
         void Destroy() override;
     private:
         AerEngine& engine_;
@@ -77,6 +85,12 @@ namespace neko::aer
             false,
             false
         };
+
+        std::array<UiText, 4> middleTextUi;
+        std::array<UiText, 4> TimerUi;
+        std::array<UiText, 4> LapsUi;
+        std::array<UiText, 4> placementUi;
+        UiText globalText;
 
         const float startTimer = 10.0f;
         const float endTimer = 10.0f;
