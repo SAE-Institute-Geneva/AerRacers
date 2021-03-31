@@ -57,6 +57,9 @@ struct ShipParameter {
     const float kTerminalVelocity = 1000.0f;
     const float kHoverGravity = 20.0f;
     const float kFallGravity = 300.0f;
+
+    //Visuals
+    const float kRotorRotationSpeed = 20.0f;
 };
 /**
  * \brief Component used to control the ship movements.
@@ -68,9 +71,6 @@ struct ShipController {
     float drag = 0.0f;
     bool isOnGround = false;
     float startHoverHeight = 0.0f;
-    Entity shipModel = INVALID_ENTITY;
-    Entity leftRotor = INVALID_ENTITY;
-    Entity rightRotor = INVALID_ENTITY;
     bool canMove = true;
 };
 
@@ -96,7 +96,7 @@ public:
 	void Update(seconds dt) override;
 	void FixedUpdate(seconds dt) override;
 	void Destroy() override;
-    void AssignRotors(PlayerId playerId, Entity& rightRotor, Entity& leftRotor);
+    void RotorRotation(PlayerId playerId);
     void InitComponent(PlayerId playerId);
     void CalculateHover(PlayerId playerId, seconds dt);
     void CalculateThrust(PlayerId playerId, seconds dt);

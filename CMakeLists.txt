@@ -45,6 +45,7 @@ set(Aer_Lib ON CACHE BOOL "Activate Aer_Lib")
 set(Aer_Test ON CACHE BOOL "Activate Aer Test")
 set(Neko_Assert ON CACHE BOOL "Activate Neko Assertion")
 set(Neko_Benchmark OFF CACHE BOOL "Activate Benchmark")
+set(Neko_FMOD ON CACHE BOOL "Activate FMOD")
 set(Neko_Freetype ON CACHE BOOL "Activate Freetype")
 set(Neko_GLES3 ON CACHE BOOL "Activate OpenGL ES 3.0")
 set(Neko_ImGui ON CACHE BOOL "Activate ImGui")
@@ -65,17 +66,8 @@ if(Neko_Test OR Aer_Test)
     set(BUILD_GMOCK OFF CACHE INTERNAL "")
     set(INSTALL_GTEST OFF CACHE INTERNAL "")
     add_subdirectory(${GOOGLE_TEST_DIR})
-endif()
 
-# Enables aer_lib tests
-if (Aer_Test)
     set_target_properties(gtest PROPERTIES FOLDER Externals/GTest)
-    set_target_properties(gtest_main PROPERTIES FOLDER Externals/GTest)
-endif ()
-
-# Enables NekoCore tests
-if(Neko_Test)
-    set_target_properties (gtest PROPERTIES FOLDER Externals/GTest)
     set_target_properties(gtest_main PROPERTIES FOLDER Externals/GTest)
 endif()
 
@@ -97,6 +89,21 @@ if (Neko_Benchmark)
     set_target_properties(benchmark_main PROPERTIES FOLDER Externals/GTest)
 endif ()
 
+# Enables FMOD
+if (Neko_FMOD)
+    add_compile_definitions("NEKO_FMOD=1")
+    set(FMOD_ROOT "${EXTERNAL_DIR}/FMOD" CACHE STRING "")
+    if (WIN32)
+        include_directories("${FMOD_ROOT}/win64/inc")
+    elseif (UNIX)
+        include_directories("${FMOD_ROOT}/linux_x86_64/inc")
+    endif ()
+    add_subdirectory("${FMOD_ROOT}")
+    set_target_properties(fmod PROPERTIES UNITY_BUILD ON)
+
+    add_subdirectory(common/fmod_wrapper)
+endif ()
+
 # Enables Freetype
 if (Neko_Freetype)
     add_compile_definitions("NEKO_FREETYPE=1")
@@ -105,6 +112,15 @@ if (Neko_Freetype)
     add_subdirectory("${FREETYPE_DIR}")
     set_target_properties(freetype PROPERTIES FOLDER Externals)
 endif ()
+
+# Enables KTX
+if(Neko_KTX)
+    add_compile_definitions("NEKO_KTX=1")
+    set(KTX_DIR "${EXTERNAL_DIR}/KTX-Software")
+    set(KTX_VERSION_FULL "v4.0.0-beta4" CACHE STRING "")
+    add_subdirectory("${KTX_DIR}")
+    add_dependencies(ktx mkvk)
+endif()
 
 # Assimp variables
 set(ASSIMP_VERSION 5.0.1)
@@ -130,6 +146,7 @@ add_compile_definitions("TINYOBJLOADER_IMPLEMENTATION=1")
 
 # Enables the Render Engine
 if (Neko_GLES3 AND NOT Neko_VULKAN)
+    message("+++ AAAAAAAAAA")
     add_compile_definitions("NEKO_GLES3=1")
 
     add_subdirectory("${EXTERNAL_DIR}/glad")
@@ -151,14 +168,6 @@ if (Neko_ImGui)
     add_subdirectory("${IMGUI_ROOT}")
     set_target_properties(imgui PROPERTIES UNITY_BUILD ON)
 endif ()
-
-# Enables KTX
-if(Neko_KTX)
-    set(KTX_DIR "${EXTERNAL_DIR}/KTX-Software")
-    set(KTX_VERSION_FULL "v4.0.0-beta4" CACHE STRING "")
-    add_subdirectory("${KTX_DIR}")
-    add_dependencies(ktx mkvk)
-endif()
 
 # Enables PhysFS
 if(Neko_PhysFS)

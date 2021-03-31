@@ -21,14 +21,15 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-
-#include "utils/json_utility.h"
-#include "gl/font.h"
+#include "engine/resource_locations.h"
 #include "mathematics/transform.h"
-#include "engine/engine.h"
+
+#include "gl/font.h"
+
 #ifdef EASY_PROFILE_USE
 #include "easy/profiler.h"
 #endif
+
 namespace neko::gl
 {
 
@@ -40,11 +41,10 @@ FontManager::FontManager(const FilesystemInterface& filesystem) :
 
 void FontManager::Init()
 {
-    const auto& config = BasicEngine::GetInstance()->GetConfig();
-    textShader_.LoadFromFile(config.dataRootPath + "shaders/engine/text.vert",
-                             config.dataRootPath + "shaders/engine/text.frag");
-    glCheckError();
-    // configure VAO/VBO for texture quads
+	textShader_.LoadFromFile(GetGlShadersFolderPath() + "ui_text.vert", GetGlShadersFolderPath() + "ui_text.frag");
+
+	glCheckError();
+	// configure VAO/VBO for texture quads
     // -----------------------------------
     glGenVertexArrays(1, &textureQuad_.VAO);
     glGenBuffers(1, &textureQuad_.VBO[0]);
@@ -52,7 +52,7 @@ void FontManager::Init()
     glBindBuffer(GL_ARRAY_BUFFER, textureQuad_.VBO[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, nullptr, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), nullptr);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
     glCheckError();
@@ -159,65 +159,67 @@ FontId FontManager::LoadFont(std::string_view fontPath, int pixelHeight)
     return fontId;
 }
 
-void FontManager::RenderText(const FontId fontId, const std::string text, const Vec2f& position, const TextAnchor anchor, const float scale,
-                             const Color4& color)
+void FontManager::RenderText(const FontId fontId,
+	const std::string text,
+	const Vec2f& position,
+	const TextAnchor anchor,
+	const float scale,
+	const Color4& color)
 {
-    textShader_.Bind();
-    textShader_.SetMat4("projection", projection_);
+	textShader_.Bind();
+	textShader_.SetMat4("projection", projection_);
 #ifdef EASY_PROFILE_USE
-    EASY_BLOCK("Render Text");
+	EASY_BLOCK("Render Text");
 #endif
-    auto& font = fonts_[fontId];
-    // activate corresponding render state
+	auto& font = fonts_[fontId];
+	// activate corresponding render state
 
-    //textShader_.Bind();
-    //textShader_.SetMat4("projection", projection_);
-    textShader_.SetVec4("textColor", color);
-    glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(textureQuad_.VAO);
+	//textShader_.Bind();
+	//textShader_.SetMat4("projection", projection_);
+	textShader_.SetVec4("textColor", color);
+	glActiveTexture(GL_TEXTURE0);
+	glBindVertexArray(textureQuad_.VAO);
 
-    Vec2f textPosition = CalculateTextPosition(position, anchor);
-    const Character ch = font.characters[*text.c_str()];
-    float x            = textPosition.x;
-    if (true) {
-        x = textPosition.x - (ch.size.x * scale * (text.size() - 1)) / 2.0f;
-    }
-    float y = textPosition.y - (ch.size.y * scale) / 2;
-    // iterate through all characters
-    for (const auto* c = text.c_str(); *c != 0; c++) {
-        const Character ch = font.characters[*c];
+	Vec2f textPosition = CalculateTextPosition(position, anchor);
+	const Character ch = font.characters[*text.c_str()];
+	float x            = textPosition.x - (ch.size.x * scale * (text.size() - 1)) / 2.0f;
+	float y            = textPosition.y - (ch.size.y * scale) / 2;
 
-        const float xpos = x + ch.bearing.x * scale;
-        const float ypos = y - (ch.size.y - ch.bearing.y) * scale;
+	// iterate through all characters
+	for (const auto* c = text.c_str(); *c != 0; c++)
+	{
+		const Character character = font.characters[*c];
 
-        const float w = ch.size.x * scale;
-        const float h = ch.size.y * scale;
-        // update VBO for each character
-        const float vertices[6][4] = {
-            {xpos, ypos + h, 0.0f, 0.0f},
-            {xpos, ypos, 0.0f, 1.0f},
-            {xpos + w, ypos, 1.0f, 1.0f},
+		const float xPos = x + character.bearing.x * scale;
+		const float yPos = y - static_cast<float>(character.size.y - character.bearing.y) * scale;
 
-            {xpos, ypos + h, 0.0f, 0.0f},
-            {xpos + w, ypos, 1.0f, 1.0f},
-            {xpos + w, ypos + h, 1.0f, 0.0f}
-        };
-        // render glyph texture over quad
-        glBindTexture(GL_TEXTURE_2D, ch.textureID);
-        // update content of VBO memory
-        glBindBuffer(GL_ARRAY_BUFFER, textureQuad_.VBO[0]);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-        // be sure to use glBufferSubData and not glBufferData
+		const float w = character.size.x * scale;
+		const float h = character.size.y * scale;
+		// update VBO for each character
+		const float vertices[6][4] = {{xPos, yPos + h, 0.0f, 0.0f},
+			{xPos, yPos, 0.0f, 1.0f},
+			{xPos + w, yPos, 1.0f, 1.0f},
 
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
-        // render quad
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        // now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.advance >> 6) * scale;
-        // bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
-    }
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_2D, 0);
+			{xPos, yPos + h, 0.0f, 0.0f},
+			{xPos + w, yPos, 1.0f, 1.0f},
+			{xPos + w, yPos + h, 1.0f, 0.0f}};
+
+		// render glyph texture over quad
+		glBindTexture(GL_TEXTURE_2D, character.textureID);
+		// update content of VBO memory
+		glBindBuffer(GL_ARRAY_BUFFER, textureQuad_.VBO[0]);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		// be sure to use glBufferSubData and not glBufferData
+
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		// render quad
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+		x += (character.advance >> 6) * scale;
+		// bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+	}
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void FontManager::Destroy()

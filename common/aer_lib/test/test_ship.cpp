@@ -26,6 +26,8 @@
 #endif
 
 #include "aer/gizmos_renderer.h"
+#include "gl/gles3_window.h"
+#include "gl/graphics.h"
 #ifdef NEKO_GLES3
 #include "aer/aer_engine.h"
 #include "engine/engine.h"

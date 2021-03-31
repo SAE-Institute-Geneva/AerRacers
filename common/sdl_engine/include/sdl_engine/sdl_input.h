@@ -26,6 +26,7 @@
  Co-Author :
  Date : 07.11.2020
 ---------------------------------------------------------- */
+
 #include <vector>
 #include <array>
 #include <cstdint>
@@ -33,8 +34,8 @@
 #include <imgui.h>
 #include <SDL.h>
 
-#include <mathematics/vector.h>
-#include <utils/service_locator.h>
+#include "mathematics/vector.h"
+#include "utils/service_locator.h"
 
 namespace neko::sdl {
 class SdlEngine;
@@ -450,29 +451,27 @@ public:
         ControllerId controllerId,
         ControllerAxisType axis) const = 0;
 
-    /**
+	/**
     * \brief Translate KeyCodeType enum to string
     */
-    virtual std::string PcInputsEnumToString(KeyCodeType keyCode) = 0;
+	virtual std::string PcInputsEnumToString(KeyCodeType keyCode) = 0;
 
-    /**
+	/**
     * \brief Translate KeyCodeType enum to string
     */
-    virtual std::string MouseInputsEnumToString(MouseButtonType mouseButton) =
-    0;
+	virtual std::string MouseInputsEnumToString(MouseButtonType mouseButton) = 0;
 
-    /**
+	/**
     * \brief Translate SwitchInputs enum to string
     */
-    virtual std::string SwitchInputsEnumToString(SwitchButtonType switchInputs)
-    = 0;
+	virtual std::string SwitchInputsEnumToString(SwitchButtonType switchInputs) = 0;
 
-    /**
+	/**
     * \brief Translate KeyCodeType enum to string
     */
-    virtual std::string SwitchInputsEnumToString(SwitchAxisType switchAxis) = 0;
+	virtual std::string SwitchInputsEnumToString(SwitchAxisType switchAxis) = 0;
 
-    /**
+	/**
     * \brief Translate ControllerInputs enum to string
     */
     virtual std::string ControllerInputsEnumToString(
@@ -547,9 +546,6 @@ private:
 
     [[nodiscard]] unsigned FindSwitchIndexFromId(SwitchJoyId switchJoyId) const;
 
-    static inline const unsigned kMaxController = 8;
-    static inline const unsigned kMaxPlayer = 4;
-
     std::array<ButtonState, static_cast<int>(KeyCodeType::KEYBOARD_SIZE)>
     keyPressedState_ = std::array<ButtonState, static_cast<int>(KeyCodeType::KEYBOARD_SIZE)>();
     std::array<ButtonState, static_cast<int>(MouseButtonType::LENGTH)>
@@ -564,7 +560,6 @@ private:
     Vec2f mouseScroll_ = Vec2f::zero;
 
     SDL_Joystick* joystick_{};
-    SDL_GameController* controller_{};
 
     const float kMaxJoyValue_ = 32768.0f;
 };

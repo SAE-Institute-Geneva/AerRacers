@@ -38,12 +38,17 @@ void ShipControllerManager::InitComponent(PlayerId player)
    shipController.drag = shipParameter_.kForwardForce / shipParameter_.kTerminalVelocity;
 }
 
-void ShipControllerManager::AssignRotors(PlayerId playerId, Entity& rightRotor, Entity& leftRotor) {
-    ShipController& shipController = shipControllers_[playerId];
-    shipController.rightRotor = rightRotor;
-    shipController.leftRotor = leftRotor;
-}
+void ShipControllerManager::RotorRotation(PlayerId playerId) {
+    PlayerComponent playerComponent = playerManager_.GetPlayerComponent(playerId);
+    Entity& rightRotor = playerComponent.rightRotorModel;
+    Entity& leftRotor = playerComponent.leftRotorModel;
 
+    Vec3f currentRightRotorRotation = Vec3f(transformManager_.GetRelativeRotation(rightRotor));
+    transformManager_.SetRelativeRotation(rightRotor, EulerAngles(Vec3f(currentRightRotorRotation.x, currentRightRotorRotation.y-shipParameter_.kRotorRotationSpeed, currentRightRotorRotation.z)));
+
+    Vec3f currentLeftRotorRotation = Vec3f(transformManager_.GetRelativeRotation(leftRotor));
+    transformManager_.SetRelativeRotation(leftRotor, EulerAngles(Vec3f(currentLeftRotorRotation.x, currentLeftRotorRotation.y - shipParameter_.kRotorRotationSpeed, currentLeftRotorRotation.z)));
+}
 
 
 void ShipControllerManager::Init()
@@ -59,6 +64,7 @@ void ShipControllerManager::FixedUpdate(seconds dt) {
         CalculateHover(playerId, dt);
         CalculateThrust(playerId, dt);
         RotorMovement(playerId);
+        RotorRotation(playerId);
     }
 }
 
@@ -143,6 +149,7 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
 
     Quaternion bodyRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(playerId)) * Quaternion::FromEuler(EulerAngles(pitchAngle, 0.0f, angle));
 
+    transformManager_.SetRelativeRotation(playerManager_.GetPlayerComponent(playerId).shipModelEntity, Quaternion::ToEulerAngles(bodyRotation));
     //transformManager_.SetGlobalRotation(entity, 
     //    Quaternion::ToEulerAngles(
     //        Quaternion::Lerp(
@@ -204,27 +211,51 @@ void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
 
 void ShipControllerManager::RotorMovement(PlayerId playerId) {
 
-
-    
+    PlayerComponent playerComponent = playerManager_.GetPlayerComponent(playerId);
 
     ShipController& shipController = shipControllers_[playerId];
-    
+
     Vec3f rightRotation = Vec3f::zero;
     if (shipController.canMove)
     {
         rightRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
         rightRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
     }
-     
+
     Vec3f leftRotation = Vec3f::zero;
     if (shipController.canMove)
     {
         leftRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
         leftRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
     }
+
+    transformManager_.SetRelativeRotation(playerComponent.rightRotorAnchor, EulerAngles(rightRotation));
+    transformManager_.SetRelativeRotation(playerComponent.leftRotorAnchor, EulerAngles(leftRotation));
     
-    transformManager_.SetRelativeRotation(shipController.rightRotor, ConvertVec3fToEulerAngles(rightRotation));
-    transformManager_.SetRelativeRotation(shipController.leftRotor, ConvertVec3fToEulerAngles(leftRotation));
+
+// <<<<<<< HEAD
+//     ShipController& shipController = shipControllers_[playerId];
+//     
+//     Vec3f rightRotation = Vec3f::zero;
+//     if (shipController.canMove)
+//     {
+//         rightRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
+//         rightRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
+//     }
+//      
+//     Vec3f leftRotation = Vec3f::zero;
+//     if (shipController.canMove)
+//     {
+//         leftRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
+//         leftRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
+//     }
+//     
+//     transformManager_.SetRelativeRotation(shipController.rightRotor, ConvertVec3fToEulerAngles(rightRotation));
+//     transformManager_.SetRelativeRotation(shipController.leftRotor, ConvertVec3fToEulerAngles(leftRotation));
+// =======
+//     transformManager_.SetRelativeRotation(playerComponent.rightRotorAnchor, EulerAngles(rightRotation));
+//     transformManager_.SetRelativeRotation(playerComponent.leftRotorAnchor, EulerAngles(leftRotation));
+// >>>>>>> ea26681eab9459c5b4b74681e5e6c2e10d7cb858
 }
 
 void ShipControllerManager::SetCanMove(PlayerId playerId, bool value)

@@ -34,7 +34,9 @@
 namespace neko::aer
 {
 class AerEngine;
-const static std::size_t MAX_UI_ELEMENTS = 16;
+constexpr std::size_t MAX_UI_ELEMENTS    = 16;
+constexpr const char* kRobotoName  = "Roboto-Medium.ttf";
+constexpr const char* kLobsterName = "Lobster-Regular.ttf";
 //-----------------------------------------------------------------------------
 // IUiManager
 //-----------------------------------------------------------------------------
@@ -112,8 +114,6 @@ private:
 #ifdef NEKO_GLES3
 	gl::FontManager fontManager_;
 #endif
-	const std::string kLobsterPath_ = "fonts/Lobster-Regular.ttf";
-	const std::string kRobotoPath_ = "fonts/Roboto-Medium.ttf";
 	FontId robotoId_                = INVALID_FONT_ID;
 	FontId lobsterId_               = INVALID_FONT_ID;
 

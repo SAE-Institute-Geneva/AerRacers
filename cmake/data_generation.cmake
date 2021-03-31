@@ -14,6 +14,8 @@ function(data_generate BINARY)
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.aershader")
     file(GLOB_RECURSE FONT_FILES
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.ttf")
+    file(GLOB_RECURSE FMOD_FILES
+            "${CMAKE_CURRENT_SOURCE_DIR}/data/*.bank")
     file(GLOB_RECURSE IMG_FILES
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.bmp"
             "${CMAKE_CURRENT_SOURCE_DIR}/data/*.dds"
@@ -57,6 +59,7 @@ function(data_generate BINARY)
     set(data_generate_name "${BINARY}_Generate_Data")
     source_group("Data/AerFiles"    FILES ${AER_FILES})
     source_group("Data/Font"        FILES ${FONT_FILES})
+    source_group("Data/Fmod"        FILES ${FMOD_FILES})
     source_group("Data/Img"         FILES ${IMG_FILES})
     source_group("Data/Materials"   FILES ${MATERIAL_FILES})
     source_group("Data/Model"       FILES ${MODEL_FILES})
@@ -69,6 +72,7 @@ function(data_generate BINARY)
     list(APPEND DATA_FILES
             ${AER_FILES}
             ${FONT_FILES}
+            ${FMOD_FILES}
             ${IMG_FILES}
             ${MATERIAL_FILES}
             ${MODEL_FILES}

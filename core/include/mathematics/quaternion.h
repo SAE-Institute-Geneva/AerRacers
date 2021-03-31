@@ -411,7 +411,7 @@ struct Quaternion
 		return os;
 	}
 
-    /**
+	/**
 	 * \brief Interpolates between q1 and q2 by t and normalizes the result afterwards.
 	 * \param t is clamped to the range [0, 1].
 	 */
@@ -443,20 +443,21 @@ struct Quaternion
 		quaternion.w *= num3;
 		return quaternion;
 	}
-    /**
+
+	/**
 	 * \brief Creates a rotation with the specified forward and upwards directions.
 	 * \param lookAt The direction to look in.
 	 * \param upDirection The vector that defines in which direction up is.
 	 */
 	static Quaternion LookRotation(const Vec3f& lookAt, const Vec3f& upDirection) {
-		//if(lookAt.Magnitude() == 0 || upDirection.Magnitude() == 0) {
-		//	logDebug("Look rotation viewing vector is zero");
-		//	return Quaternion(0, 0, 0, 1);
-		//}
-		//if (Vec3f::Cross(lookAt, upDirection) == Vec3f::zero) {
-		//	logDebug("LookRotation vectors are colinear");
-		//	return Quaternion(0, 0, 0, 1);
-		//}
+		if(lookAt.Magnitude() == 0 || upDirection.Magnitude() == 0) {
+			logDebug("Look rotation viewing vector is zero");
+			return Quaternion(0, 0, 0, 1);
+		}
+		if (Vec3f::Cross(lookAt, upDirection) == Vec3f::zero) {
+			logDebug("LookRotation vectors are colinear");
+			return Quaternion(0, 0, 0, 1);
+		}
 
 		//from https://answers.unity.com/questions/467614/what-is-the-source-code-of-quaternionlookrotation.html
 	    

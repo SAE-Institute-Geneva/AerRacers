@@ -39,7 +39,7 @@ class LightManager : public ComponentManager<PointLight, EntityMask(ComponentTyp
 {
 public:
 	using ComponentManager::ComponentManager;
-	explicit LightManager(EntityManager& entityManager, Transform3dManager& transformManager);
+	LightManager(EntityManager& entityManager, Transform3dManager& transformManager);
 
 #ifdef NEKO_GLES3
 	void SetShaderValues(gl::Shader& shader);

@@ -73,7 +73,7 @@ struct Image
  * @param hdr
  * @return
  */
-Image StbImageConvert(const BufferFile& imageFile, bool flipY = false, bool hdr = false);
+Image StbImageConvert(const BufferFile& imageFile, bool flipY = false, bool hdr = false, int reqComponents = 0);
 
 /**
  * \brief Result from Texture Manager functions: LoadTexture and GetTexture

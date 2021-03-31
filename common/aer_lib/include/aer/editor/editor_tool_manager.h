@@ -27,6 +27,7 @@
  Date : 03.11.2020
 ---------------------------------------------------------- */
 #include "engine/entity.h"
+#include "utils/imgui_utility.h"
 
 #include "aer/editor/editor_tool_interface.h"
 
@@ -74,5 +75,7 @@ private:
 
 	Entity selectedEntity_ = INVALID_ENTITY;
 	std::vector<std::unique_ptr<EditorToolInterface>> tools_;
+
+	bool hasInit_ = false;
 };
 }    // namespace neko::aer

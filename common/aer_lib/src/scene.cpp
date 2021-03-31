@@ -1,4 +1,5 @@
 #include "engine/engine.h"
+#include "engine/resource_locations.h"
 #include "utils/file_utility.h"
 
 #include "aer/log.h"
@@ -14,8 +15,6 @@
 
 namespace neko::aer
 {
-constexpr std::string_view SceneExtension = ".scene";
-
 SceneManager::SceneManager(
 	EntityManager& entityManager, ComponentManagerContainer& componentManagerContainer)
    : filesystem_(BasicEngine::GetInstance()->GetFilesystem()),
@@ -126,6 +125,22 @@ void SceneManager::ParseComponentJson(const json& componentJson, Entity entity)
 			}
 		}
 	}
+
+#ifdef NEKO_FMOD
+	// Audio Source
+	if (CheckJsonParameter(componentJson, "audioSource", json::value_t::object))
+	{
+		if (CheckJsonParameter(componentJson["audioSource"], "exist", json::value_t::boolean))
+		{
+			if (componentJson["audioSource"]["exist"])
+			{
+				componentManagerContainer_.audioManager.AddComponent(entity);
+				componentManagerContainer_.audioViewer.SetComponentFromJson(
+					entity, componentJson["audioSource"]);
+			}
+		}
+	}
+#endif
 
 	// Ship Values
 	if (CheckJsonParameter(componentJson, "shipControl", json::value_t::object))
@@ -252,9 +267,8 @@ bool SceneManager::LoadScene(const std::string_view& jsonPath)
 
 void SceneManager::SaveCurrentScene()
 {
-	const neko::Configuration config = neko::BasicEngine::GetInstance()->GetConfig();
-	WriteStringToFile(config.dataRootPath + "scenes/" + currentScene_.sceneName + ".aerscene",
-		WriteSceneJson().dump(4));
+	WriteStringToFile(
+		GetScenesFolderPath() + currentScene_.sceneName + ".aerscene", WriteSceneJson().dump(4));
 	currentScene_.saved = true;
 }
 
@@ -298,10 +312,17 @@ json SceneManager::WriteEntityJson(Entity entity) const
 
 	// Lights
 	entityJson["light"] = json::object();
-	entityJson["light"] =
-		componentManagerContainer_.lightViewer.GetJsonFromComponent(entity);
+	entityJson["light"] = componentManagerContainer_.lightViewer.GetJsonFromComponent(entity);
 	entityJson["light"]["exist"] =
 		entityManager_.HasComponent(entity, EntityMask(ComponentType::LIGHT));
+
+#ifdef NEKO_FMOD
+	// Audio Sources
+	entityJson["audioSource"] = json::object();
+	entityJson["audioSource"] = componentManagerContainer_.audioViewer.GetJsonFromComponent(entity);
+	entityJson["audioSource"]["exist"] =
+		entityManager_.HasComponent(entity, EntityMask(ComponentType::AUDIO_SOURCE));
+#endif
 
 	// Ship Variables
 	//entityJson["shipControl"] = json::object();

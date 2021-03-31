@@ -27,6 +27,7 @@
 #include "gl/shader.h"
 #include "gl/texture.h"
 #include "gl/model.h"
+#include "gl/model_manager.h"
 #include "sdl_engine/sdl_camera.h"
 
 namespace neko

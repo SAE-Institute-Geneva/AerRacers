@@ -13,11 +13,17 @@ Inspector::Inspector(AerEngine& engine)
       lightManager_(engine.GetComponentManagerContainer().lightManager),
       rigidDynamicManager_(engine.GetComponentManagerContainer().rigidDynamicManager),
       rigidStaticManager_(engine.GetComponentManagerContainer().rigidStaticManager),
+#ifdef NEKO_FMOD
+	audioManager_(engine.GetComponentManagerContainer().audioManager),
+#endif
       shipControllerManager_(engine.GetComponentManagerContainer().shipControllerManager),
       rendererViewer_(engine.GetComponentManagerContainer().rendererViewer),
       lightViewer_(engine.GetComponentManagerContainer().lightViewer),
       rigidDynamicViewer_(engine.GetComponentManagerContainer().rigidDynamicViewer),
       rigidStaticViewer_(engine.GetComponentManagerContainer().rigidStaticViewer),
+#ifdef NEKO_FMOD
+	audioViewer_(engine.GetComponentManagerContainer().audioViewer),
+#endif
       transform3dViewer_(engine.GetComponentManagerContainer().transform3dViewer),
       shipControllerViewer_(engine.GetComponentManagerContainer().shipControllerViewer) { }
 
@@ -46,6 +52,9 @@ void Inspector::DrawImGui()
 	DisplayComponentViewer(lightViewer_, entity, ComponentType::LIGHT);
 	DisplayComponentViewer(rigidStaticViewer_, entity, ComponentType::RIGID_STATIC);
 	DisplayComponentViewer(rigidDynamicViewer_, entity, ComponentType::RIGID_DYNAMIC);
+#ifdef NEKO_FMOD
+	DisplayComponentViewer(audioViewer_, entity, ComponentType::AUDIO_SOURCE);
+#endif
 	shipControllerViewer_.DrawImGui(entity);
 	engine_.GetComponentManagerContainer().cameraControllerViewer.DrawImGui(entity);
 

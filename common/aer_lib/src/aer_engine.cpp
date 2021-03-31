@@ -1,9 +1,5 @@
 #include "aer/aer_engine.h"
 
-#ifdef NEKO_VULKAN
-#include "vk/vk_resources.h"
-#endif
-
 #ifdef EASY_PROFILE_USE
     #include <easy/profiler.h>
 #endif
@@ -31,18 +27,20 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 	}
 
 	if (mode_ != ModeEnum::TEST)
-    {
+	{
 		RegisterSystem(drawSystem_);
 		RegisterOnEvent(drawSystem_);
 		RegisterOnDrawUi(drawSystem_);
 
-		//boundInputManager_ = std::make_unique<InputBindingManager>();
-		tagManager_        = std::make_unique<TagManager>(cContainer_.sceneManager);
+		tagManager_ = std::make_unique<TagManager>(cContainer_.sceneManager);
 
-        physicsEngine_.InitPhysics();
+		physicsEngine_.InitPhysics();
+#ifdef NEKO_FMOD
+		RegisterSystem(fmodEngine_);
+#endif
 		RegisterSystem(rContainer_);
-        RegisterSystem(cContainer_);
-        RegisterSystem(physicsEngine_);
+		RegisterSystem(cContainer_);
+		RegisterSystem(physicsEngine_);
 	}
 }
 

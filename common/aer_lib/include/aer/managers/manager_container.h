@@ -18,6 +18,11 @@
 #include "aer/managers/game_manager.h"
 #include "aer/scene.h"
 #include "engine/transform.h"
+
+#ifdef NEKO_FMOD
+#include "fmod/audio_manager.h"
+#endif
+
 namespace neko::aer
 {
 struct ResourceManagerContainer : public SystemInterface
@@ -59,6 +64,9 @@ struct ComponentManagerContainer : public SystemInterface
 		 lightManager(entityManager, transform3dManager),
 		 rigidDynamicManager(entityManager, transform3dManager, physicsEngine),
     rigidStaticManager(entityManager, transform3dManager, renderManager, physicsEngine),
+#ifdef NEKO_FMOD
+		audioManager(entityManager, transform3dManager),
+#endif
          playerManager(*this),
          shipInputManager(playerManager),
          shipControllerManager(
@@ -74,7 +82,6 @@ struct ComponentManagerContainer : public SystemInterface
             transform3dManager,
             rigidDynamicManager,
             physicsEngine,
-
             playerManager, 
             engine),
 		 transform3dViewer(entityManager, transform3dManager),
@@ -84,7 +91,11 @@ struct ComponentManagerContainer : public SystemInterface
 		 rigidStaticViewer(transform3dManager, entityManager, physicsEngine, rigidStaticManager),
          shipControllerViewer(entityManager, playerManager, shipControllerManager),
          cameraControllerViewer(entityManager, playerManager, cameraControllerManager),
-		 sceneManager(entityManager, *this), waypointManager(engine), gameManager(engine)
+    waypointManager(engine), gameManager(engine),
+#ifdef NEKO_FMOD
+		audioViewer(entityManager, audioManager),
+#endif
+		 sceneManager(entityManager, *this)
 	{
         physicsEngine.RegisterCollisionListener(shipControllerManager);
         physicsEngine.RegisterFixedUpdateListener(rigidDynamicManager);
@@ -94,11 +105,14 @@ struct ComponentManagerContainer : public SystemInterface
         physicsEngine.RegisterFixedUpdateListener(shipControllerManager);
         physicsEngine.RegisterFixedUpdateListener(cameraControllerManager);
 	}
-
+	
     void Init() override
     {
         transform3dManager.Init();
         renderManager.Init();
+#ifdef NEKO_FMOD
+		audioManager.Init();
+#endif
         shipControllerManager.Init();
         waypointManager.Init();
         gameManager.Init();
@@ -108,6 +122,9 @@ struct ComponentManagerContainer : public SystemInterface
     {
         transform3dManager.Update();
         renderManager.Update(dt);
+#ifdef NEKO_FMOD
+		audioManager.Update(dt);
+#endif
         playerManager.Update(dt);
         shipControllerManager.Update(dt);
         cameraControllerManager.Update(dt);
@@ -115,8 +132,14 @@ struct ComponentManagerContainer : public SystemInterface
         shipInputManager.Update(dt);
         gameManager.Update(dt);
     }
-
-    void Destroy() override { renderManager.Destroy(); }
+    
+	void Destroy() override
+	{
+		renderManager.Destroy();
+#ifdef NEKO_FMOD
+		audioManager.Destroy();
+#endif
+	}
 
 	EntityManager entityManager;
 	Transform3dManager transform3dManager;
@@ -139,5 +162,8 @@ struct ComponentManagerContainer : public SystemInterface
     ShipControllerViewer shipControllerViewer;
     CameraControllerViewer cameraControllerViewer;
     SceneManager sceneManager;
+#ifdef NEKO_FMOD
+	AudioManager audioManager;
+#endif
 };
 }    // namespace neko::aer

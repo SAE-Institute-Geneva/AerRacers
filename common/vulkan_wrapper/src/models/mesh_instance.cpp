@@ -11,12 +11,17 @@ VertexInput ModelInstance::Instance::GetVertexInput(uint32_t baseBinding)
 	bindingDescription.stride    = sizeof(Instance);
 	bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
 
-	const VkFormat format = VK_FORMAT_R32G32B32A32_SFLOAT;
+	const VkFormat format3 = VK_FORMAT_R32G32B32_SFLOAT;
+	const VkFormat format4 = VK_FORMAT_R32G32B32A32_SFLOAT;
 	const std::vector<VkVertexInputAttributeDescription> attributeDescriptions = {
-		{0, baseBinding, format, offsetof(Instance, modelMatrix)},
-		{1, baseBinding, format, offsetof(Instance, modelMatrix) + sizeof(Vec4f)},
-		{2, baseBinding, format, offsetof(Instance, modelMatrix) + 2 * sizeof(Vec4f)},
-		{3, baseBinding, format, offsetof(Instance, modelMatrix) + 3 * sizeof(Vec4f)},
+		{0, baseBinding, format4, offsetof(Instance, modelMatrix)},
+		{1, baseBinding, format4, offsetof(Instance, modelMatrix) + sizeof(Vec4f)},
+		{2, baseBinding, format4, offsetof(Instance, modelMatrix) + 2 * sizeof(Vec4f)},
+		{3, baseBinding, format4, offsetof(Instance, modelMatrix) + 3 * sizeof(Vec4f)},
+
+		{4, baseBinding, format3, offsetof(Instance, normalMatrix)},
+		{5, baseBinding, format3, offsetof(Instance, normalMatrix) + sizeof(Vec3f)},
+		{6, baseBinding, format3, offsetof(Instance, normalMatrix) + 2 * sizeof(Vec3f)},
 	};
 
 	return VertexInput(0, bindingDescription, attributeDescriptions);
@@ -46,8 +51,9 @@ void ModelInstance::Update(std::vector<Mat4f>& modelMatrices)
 		{
 			if (instances_ >= maxInstances_) break;
 
-			auto instance         = &instances[instances_];
-			instance->modelMatrix = modelMatrix;
+			auto instance          = &instances[instances_];
+			instance->modelMatrix  = modelMatrix;
+			instance->normalMatrix = Mat3f(modelMatrix).Inverse().Transpose();
 			instances_++;
 		}
 	}

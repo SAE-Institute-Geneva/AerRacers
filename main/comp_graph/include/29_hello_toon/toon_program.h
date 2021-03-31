@@ -25,6 +25,7 @@
 #include "comp_graph/sample_program.h"
 #include "sdl_engine/sdl_camera.h"
 #include "gl/model.h"
+#include "gl/model_manager.h"
 
 namespace neko
 {
