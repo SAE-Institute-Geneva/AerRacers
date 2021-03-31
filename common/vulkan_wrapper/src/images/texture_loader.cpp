@@ -16,7 +16,6 @@ TextureLoader::TextureLoader(
 TextureLoader::TextureLoader(TextureLoader&& other) noexcept
    : filesystem_(other.filesystem_),
 	 flags_(other.flags_),
-	 vdi_(other.vdi_),
 	 loadingTextureJob_([this]() { LoadTexture(); }),
 	 decompressTextureJob_([this]() { DecompressTexture(); }),
 	 uploadJob_([this]() { Upload(); }),
@@ -47,18 +46,17 @@ void TextureLoader::DecompressTexture()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("Create KTX from memory");
 #endif
-	KTX_error_code result;
-	{
-		result = ktxTexture_CreateFromMemory(
-			reinterpret_cast<const ktx_uint8_t*>(bufferFile_.dataBuffer),
-			bufferFile_.dataLength,
-			KTX_TEXTURE_CREATE_NO_FLAGS,
-			&kTexture_);
-	}
 
-	if (result != KTX_SUCCESS)
+	stbi_set_flip_vertically_on_load(flags_ & Texture::FLIP_Y);
+	image_.data = stbi_load_from_memory((unsigned char*) (bufferFile_.dataBuffer),
+		bufferFile_.dataLength,
+		&image_.width,
+		&image_.height,
+		&image_.nbChannels,
+		0);
+
+	if (!image_.data)
 	{
-		ktxCheckError(result);
 		error_ = TextureLoaderError::DECOMPRESS_ERROR;
 		return;
 	}
@@ -68,33 +66,23 @@ void TextureLoader::DecompressTexture()
 
 void TextureLoader::Upload()
 {
-	ktxVulkanTexture texture;
-	ktxVulkanDeviceInfo vdi;
-	VkResources* vkObj = VkResources::Inst;
-	ktxVulkanDeviceInfo_Construct(&vdi,
-		vkObj->gpu,
-		vkObj->device,
-		vkObj->device.GetGraphicsQueue(),
-		vkObj->GetCurrentCmdPool(),
-		nullptr);
-	const auto res = ktxTexture_VkUploadEx(kTexture_, &vdi, &texture, kTiling, kUsage, kLayout);
-	ktxTexture_Destroy(kTexture_);
-	ktxVulkanDeviceInfo_Destruct(&vdi);
-	if (res != KTX_SUCCESS)
+	VkFormat format;
+	switch (image_.nbChannels)
 	{
-		error_ = TextureLoaderError::UPLOAD_TO_GPU_ERROR;
-		ktxCheckError(res);
-		return;
+		case 3: format = VK_FORMAT_R8G8B8_SRGB; break;
+		case 4: format = VK_FORMAT_R8G8B8A8_SRGB; break;
+		default: neko_assert(false, "Unsupported channel number!");
 	}
 
-	VkSamplerAddressMode addressMode = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
-	if (flags_ & Texture::REPEAT_WRAP) addressMode = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	else if (flags_ & Texture::MIRROR_REPEAT_WRAP)
-		addressMode = VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
-
-	texture_.CreateFromKtx(texture,
+	texture_ = Image2d(path_,
+		format,
 		flags_ & Texture::SMOOTH_TEXTURE ? VK_FILTER_LINEAR : VK_FILTER_NEAREST,
-		addressMode,
+		flags_ & Texture::REPEAT_WRAP ? VK_SAMPLER_ADDRESS_MODE_REPEAT :
+                                        VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
+		true,
+		flags_ & Texture::MIPMAPS_TEXTURE,
 		false);
+	texture_.CreateFromStb(image_);
+	image_.Destroy();
 }
 }    // namespace neko::vk

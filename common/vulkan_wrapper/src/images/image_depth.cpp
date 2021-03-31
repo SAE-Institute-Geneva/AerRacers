@@ -20,8 +20,7 @@ ImageDepth::ImageDepth(const Vec2u& extent, VkSampleCountFlagBits samples)
 	VkImageAspectFlags aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
 	if (HasStencil(format_)) aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
 
-	image_ = CreateImage(memory_,
-		extent_,
+	image_ = CreateImage(extent_,
 		format_,
 		sample_,
 		VK_IMAGE_TILING_OPTIMAL,
