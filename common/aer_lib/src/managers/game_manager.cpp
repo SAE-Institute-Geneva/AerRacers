@@ -9,15 +9,15 @@ namespace neko::aer
 
     void GameManager::Init()
     {
-        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-        engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-            config.dataRootPath +
-            "scenes/WaypointTest.aerscene");
         gameManagerStarted = false;
     }
 
     void GameManager::StartGameManager()
     {
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+        engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+            config.dataRootPath +
+            "scenes/WaypointTest.aerscene");
         Camera3D* camera = GizmosLocator::get().GetCamera();
         camera->fovY = degree_t(80.0f);
         camera->nearPlane = 0.1f;
