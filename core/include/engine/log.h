@@ -31,4 +31,4 @@
  * @param msg
  */
 void logDebug(const std::string& msg);
-const std::vector<std::string>& getLog();
+void logError(const std::string& msg);

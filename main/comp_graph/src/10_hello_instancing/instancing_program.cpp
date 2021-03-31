@@ -148,7 +148,7 @@ void HelloInstancingProgram::Render()
         auto* asteroidModel = modelManager_.GetModel(modelId_);
         const auto& asteroidMesh = asteroidModel->GetMesh(0);
 
-        glBindVertexArray(asteroidMesh.VAO);
+        glBindVertexArray(asteroidMesh.GetVao());
         glGenBuffers(1, &instanceVBO_);
 
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO_);
@@ -185,7 +185,7 @@ void HelloInstancingProgram::Render()
 #endif
             uniformInstancingShader_.Bind();
             const auto& asteroidMesh = asteroidModel->GetMesh(0);
-            asteroidModel->BindTextures(0, uniformInstancingShader_);
+            //asteroidModel->BindTextures(0, uniformInstancingShader_);
             uniformInstancingShader_.SetMat4("view", camera_.GenerateViewMatrix());
             uniformInstancingShader_.SetMat4("projection", camera_.GenerateProjectionMatrix());
 
@@ -208,8 +208,8 @@ void HelloInstancingProgram::Render()
 #endif
                 if (chunkEndIndex > chunkBeginIndex)
                 {
-                    glBindVertexArray(asteroidMesh.VAO);
-                    glDrawElementsInstanced(GL_TRIANGLES, asteroidMesh.indices.size(), GL_UNSIGNED_INT, 0,
+                    glBindVertexArray(asteroidMesh.GetVao());
+                    glDrawElementsInstanced(GL_TRIANGLES, asteroidMesh.GetIndices().size(), GL_UNSIGNED_INT, 0,
                                             chunkEndIndex - chunkBeginIndex);
                     glBindVertexArray(0);
                 }
@@ -223,7 +223,7 @@ void HelloInstancingProgram::Render()
 #endif
             vertexInstancingDrawShader_.Bind();
             const auto& asteroidMesh = asteroidModel->GetMesh(0);
-            asteroidModel->BindTextures(0, vertexInstancingDrawShader_);
+            //asteroidModel->BindTextures(0, vertexInstancingDrawShader_);
             vertexInstancingDrawShader_.SetMat4("view", camera_.GenerateViewMatrix());
             vertexInstancingDrawShader_.SetMat4("projection", camera_.GenerateProjectionMatrix());
 
@@ -245,8 +245,8 @@ void HelloInstancingProgram::Render()
                     EASY_BLOCK("Draw Mesh");
 
 #endif
-                    glBindVertexArray(asteroidMesh.VAO);
-                    glDrawElementsInstanced(GL_TRIANGLES, asteroidMesh.indices.size(), GL_UNSIGNED_INT, 0,
+                    glBindVertexArray(asteroidMesh.GetVao());
+                    glDrawElementsInstanced(GL_TRIANGLES, asteroidMesh.GetIndices().size(), GL_UNSIGNED_INT, 0,
                                             chunkSize);
                     glBindVertexArray(0);
                 }

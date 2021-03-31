@@ -22,6 +22,9 @@ void VkResources::DestroyResources()
 		vkDestroySemaphore(VkDevice(device), finishedSemaphores_[i], nullptr);
 	}
 
+	imgui_.Destroy();
+	renderer_->Destroy();
+
 	for (auto& commandBuffer : commandBuffers_)
 		commandBuffer.Destroy();
 

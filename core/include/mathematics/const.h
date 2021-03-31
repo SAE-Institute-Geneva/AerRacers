@@ -31,6 +31,7 @@
 namespace neko
 {
 const float PI = static_cast<float>(M_PI);
+const float MAXFLOAT = std::numeric_limits<float>::infinity();
 
 
 }

@@ -32,7 +32,7 @@ struct Camera
 	void SetAspect(const float aspect) { aspect_ = aspect; }
 	void SetAspect(const float width, const float height) { aspect_ = width / height; }
 
-    [[nodiscard]] virtual Mat4f GenerateProjectionMatrix() const { return Mat4f::Identity; }
+	[[nodiscard]] virtual Mat4f GenerateProjectionMatrix() const { return Mat4f::Identity; }
 
 protected:
 	float aspect_ = 1.0f;

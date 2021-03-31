@@ -62,8 +62,9 @@ enum class ComponentType : EntityMask
 	PLAYER_COMPONENT = 1u << 17u,
 
 	// Miscellaneous
-	PREFAB     = 1u << 18u,
-	OTHER_TYPE = 1u << 19u
+	PREFAB       = 1u << 18u,
+	AUDIO_SOURCE = 1u << 19u,
+	OTHER_TYPE   = 1u << 20u
 };
 
 std::string ComponentTypeToString(ComponentType type);

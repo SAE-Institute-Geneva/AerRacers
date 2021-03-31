@@ -62,6 +62,9 @@ private:
 	physics::RigidDynamicManager& rigidDynamicManager_;
 	physics::RigidStaticManager& rigidStaticManager_;
 	ShipControllerManager& shipControllerManager_;
+#ifdef NEKO_FMOD
+	AudioManager& audioManager_;
+#endif
 
 	// Component Viewers
 	Transform3dViewer& transform3dViewer_;
@@ -70,6 +73,9 @@ private:
 	physics::RigidDynamicViewer& rigidDynamicViewer_;
 	physics::RigidStaticViewer& rigidStaticViewer_;
 	ShipControllerViewer& shipControllerViewer_;
+#ifdef NEKO_FMOD
+	AudioViewer& audioViewer_;
+#endif
 
 	// ImGui Variables
 	//ImGui::ImGuiTextFilter searchFilter_;
@@ -77,7 +83,7 @@ private:
 	int currentTag_ = 0;
 	int currentLayer_ = 0;
 
-	static constexpr std::array<ComponentType, 19> componentTypes_ {
+	static constexpr std::array<ComponentType, 20> componentTypes_ {
 		ComponentType::TRANSFORM2D,
 		ComponentType::TRANSFORM3D,
 
@@ -95,6 +101,9 @@ private:
 		ComponentType::RIGID_STATIC,
 		ComponentType::RIGID_DYNAMIC,
 
-		ComponentType::PREFAB};
+		// Miscellaneous
+		ComponentType::PREFAB,
+		ComponentType::AUDIO_SOURCE
+	};
 };
 }    // namespace neko::aer

@@ -25,14 +25,15 @@
  Author: Canas Simon
  Date:
 ---------------------------------------------------------- */
-#include "engine/log.h"
 #include "engine/assert.h"
+#include "engine/log.h"
 
 #ifdef NEKO_VULKAN
-#if !defined (NDEBUG) && !defined (NN_NINTENDO_SDK)
+#if !defined(NDEBUG) && !defined(NN_NINTENDO_SDK)
 #define VALIDATION_LAYERS
 #endif
 
-#include "vulkan/vulkan.h"
 #include "vk/vk_error_handler.h"
+#include "vulkan/vulkan.h"
+#include "vulkan/vulkan_core.h"
 #endif

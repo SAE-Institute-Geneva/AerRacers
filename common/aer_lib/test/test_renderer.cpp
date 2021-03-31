@@ -24,24 +24,23 @@
 #ifdef EASY_PROFILE_USE
     #include "easy/profiler.h"
 #endif
+#include <aer\aer_engine.h>
 
-#include "aer/gizmos_renderer.h"
 #ifdef NEKO_GLES3
-    #include "aer/aer_engine.h"
-    #include "engine/engine.h"
-    #include "engine/system.h"
-    #include "engine/transform.h"
-    #include "gl/gles3_window.h"
-    #include "gl/graphics.h"
-    #include "gl/shader.h"
-    #include "gl/shape.h"
-
+#include "aer/aer_engine.h"
+#include "engine/engine.h"
+#include "engine/system.h"
+#include "engine/transform.h"
+#include "gl/gles3_window.h"
+#include "gl/graphics.h"
+#include "gl/shader.h"
+#include "gl/shape.h"
 namespace neko::aer
 {
 class TestRenderer : public SystemInterface, public RenderCommandInterface, public DrawImGuiInterface
 {
 public:
-    TestRenderer(
+    explicit TestRenderer(
         AerEngine& engine)
         : engine_(engine),
           rContainer_(engine.GetResourceManagerContainer()),
@@ -213,12 +212,12 @@ public:
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
 
-        //const auto& model = rContainer_.modelManager.GetModel(modelId);
-        //for (size_t i = 0; i < model->GetMeshCount(); ++i)
-        //{
-        //	const auto& meshAabb = model->GetMesh(i).aabb;
-        //	gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
-        //}
+        const auto& model = rContainer_.modelManager.GetModel(modelId);
+        for (size_t i = 0; i < model->GetMeshCount(); ++i)
+        {
+        	const auto& meshAabb = model->GetMesh(i).GetAabb();
+        	gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
+        }
     }
 
     void Render() override {}
@@ -418,12 +417,12 @@ public:
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
 
-        //const auto& model = rContainer_.modelManager.GetModel(modelId);
-        //for (size_t i = 0; i < model->GetMeshCount(); ++i)
-        //{
-        //    const auto& meshAabb = model->GetMesh(i).aabb;
-        //    gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
-        //}
+        const auto& model = rContainer_.modelManager.GetModel(modelId);
+        for (size_t i = 0; i < model->GetMeshCount(); ++i)
+        {
+            const auto& meshAabb = model->GetMesh(i).GetAabb();
+            gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
+        }
     }
 
     void Render() override {}

@@ -4,6 +4,31 @@
 
 namespace ImGui
 {
+void DrawLabel(std::string_view label, LabelPos labelPos)
+{
+	PushItemWidth(-1.0f);
+	{
+		const std::string labelStr = std::string(label);
+		const std::string text     = " " + labelStr.substr(0, labelStr.find_first_of('#'));
+		if (labelPos == LabelPos::LEFT)
+		{
+			Text("%s", text.c_str());
+			ImGui::SameLine();
+		}
+		else
+		{
+			const float width = CalcItemWidth();
+			PushItemWidth(width - CalcTextSize(text.c_str()).x);
+		}
+	}
+}
+
+void EndDrawLabel(LabelPos labelPos)
+{
+	if (labelPos == LabelPos::RIGHT) PopItemWidth();
+	PopItemWidth();
+}
+
 bool Begin(std::string_view name, bool* isOpen, ImGuiWindowFlags flags)
 {
 	return Begin(name.data(), isOpen, flags);
@@ -19,26 +44,16 @@ bool DragFloat(std::string_view label,
 	ImGuiSliderFlags flags)
 {
 	bool result;
-	const std::string labelStr = std::string(label);
-	const std::string text     = " " + labelStr.substr(0, labelStr.find_first_of('#'));
-	if (labelPos == LabelPos::LEFT)
-	{
-		Text("%s", text.c_str());
-		ImGui::SameLine();
-		PushItemWidth(-1.0f);
-		result = DragScalar(
-			("##" + labelStr).c_str(), ImGuiDataType_Float, v, vSpeed, &vMin, &vMax, format, flags);
-		PopItemWidth();
-	}
-	else
-	{
-		PushItemWidth(-1.0f);
-		const float width = CalcItemWidth();
-		PushItemWidth(width - CalcTextSize(text.c_str()).x);
-		result = DragScalar(
-			("##" + labelStr).c_str(), ImGuiDataType_Float, v, vSpeed, &vMin, &vMax, format, flags);
-		PopItemWidth();
-	}
+	DrawLabel(label, labelPos);
+	result = DragScalar(("##" + std::string(label)).c_str(),
+		ImGuiDataType_Float,
+		v,
+		vSpeed,
+		&vMin,
+		&vMax,
+		format,
+		flags);
+	EndDrawLabel(labelPos);
 
 	return result;
 }
@@ -53,40 +68,17 @@ bool DragFloat2(std::string_view label,
 	ImGuiSliderFlags flags)
 {
 	bool result;
-	PushItemWidth(-1.0f);
-	{
-		const std::string labelStr = std::string(label);
-		const std::string text     = " " + labelStr.substr(0, labelStr.find_first_of('#'));
-		if (labelPos == LabelPos::LEFT)
-		{
-			Text("%s", text.c_str());
-			ImGui::SameLine();
-			result = DragScalarN(("##" + labelStr).c_str(),
-				ImGuiDataType_Float,
-				v,
-				2,
-				vSpeed,
-				&vMin,
-				&vMax,
-				format,
-				flags);
-		}
-		else
-		{
-			const float width = CalcItemWidth();
-			PushItemWidth(width - CalcTextSize(text.c_str()).x);
-			result = DragScalarN(("##" + labelStr).c_str(),
-				ImGuiDataType_Float,
-				v,
-				2,
-				vSpeed,
-				&vMin,
-				&vMax,
-				format,
-				flags);
-		}
-	}
-	PopItemWidth();
+	DrawLabel(label, labelPos);
+	result = DragScalarN(("##" + std::string(label)).c_str(),
+		ImGuiDataType_Float,
+		v,
+		2,
+		vSpeed,
+		&vMin,
+		&vMax,
+		format,
+		flags);
+	EndDrawLabel(labelPos);
 
 	return result;
 }
@@ -101,40 +93,17 @@ bool DragFloat3(std::string_view label,
 	ImGuiSliderFlags flags)
 {
 	bool result;
-	PushItemWidth(-1.0f);
-	{
-		const std::string labelStr = std::string(label);
-		const std::string text     = " " + labelStr.substr(0, labelStr.find_first_of('#'));
-		if (labelPos == LabelPos::LEFT)
-		{
-			Text("%s", text.c_str());
-			ImGui::SameLine();
-			result = DragScalarN(("##" + labelStr).c_str(),
-				ImGuiDataType_Float,
-				v,
-				3,
-				vSpeed,
-				&vMin,
-				&vMax,
-				format,
-				flags);
-		}
-		else
-		{
-			const float width = CalcItemWidth();
-			PushItemWidth(width - CalcTextSize(text.c_str()).x);
-			result = DragScalarN(("##" + labelStr).c_str(),
-				ImGuiDataType_Float,
-				v,
-				3,
-				vSpeed,
-				&vMin,
-				&vMax,
-				format,
-				flags);
-		}
-	}
-	PopItemWidth();
+	DrawLabel(label, labelPos);
+	result = DragScalarN(("##" + std::string(label)).c_str(),
+		ImGuiDataType_Float,
+		v,
+		3,
+		vSpeed,
+		&vMin,
+		&vMax,
+		format,
+		flags);
+	EndDrawLabel(labelPos);
 
 	return result;
 }
@@ -149,40 +118,103 @@ bool DragFloat4(std::string_view label,
 	ImGuiSliderFlags flags)
 {
 	bool result;
-	PushItemWidth(-1.0f);
-	{
-		const std::string labelStr = std::string(label);
-		const std::string text     = " " + labelStr.substr(0, labelStr.find_first_of('#'));
-		if (labelPos == LabelPos::LEFT)
-		{
-			Text("%s", text.c_str());
-			ImGui::SameLine();
-			result = DragScalarN(("##" + labelStr).c_str(),
-				ImGuiDataType_Float,
-				v,
-				4,
-				vSpeed,
-				&vMin,
-				&vMax,
-				format,
-				flags);
-		}
-		else
-		{
-			const float width = CalcItemWidth();
-			PushItemWidth(width - CalcTextSize(text.c_str()).x);
-			result = DragScalarN(("##" + labelStr).c_str(),
-				ImGuiDataType_Float,
-				v,
-				4,
-				vSpeed,
-				&vMin,
-				&vMax,
-				format,
-				flags);
-		}
-	}
-	PopItemWidth();
+	DrawLabel(label, labelPos);
+	result = DragScalarN(("##" + std::string(label)).c_str(),
+		ImGuiDataType_Float,
+		v,
+		4,
+		vSpeed,
+		&vMin,
+		&vMax,
+		format,
+		flags);
+	EndDrawLabel(labelPos);
+
+	return result;
+}
+
+bool SliderFloat(const char* label,
+                        float* v,
+                        float vMin,
+                        float vMax,
+                        LabelPos labelPos,
+                        const char* format,
+                        ImGuiSliderFlags flags)
+{
+	bool result;
+	DrawLabel(label, labelPos);
+	result = SliderScalar(
+		("##" + std::string(label)).c_str(), ImGuiDataType_Float, v, &vMin, &vMax, format, flags);
+	EndDrawLabel(labelPos);
+
+	return result;
+}
+
+bool SliderFloat2(const char* label,
+	float v[2],
+	float vMin,
+	float vMax,
+	LabelPos labelPos,
+	const char* format,
+	ImGuiSliderFlags flags)
+{
+	bool result;
+	DrawLabel(label, labelPos);
+	result = SliderScalarN(("##" + std::string(label)).c_str(),
+		ImGuiDataType_Float,
+		v,
+		2,
+		&vMin,
+		&vMax,
+		format,
+		flags);
+	EndDrawLabel(labelPos);
+
+	return result;
+}
+
+bool SliderFloat3(const char* label,
+	float v[3],
+	float vMin,
+	float vMax,
+	LabelPos labelPos,
+	const char* format,
+	ImGuiSliderFlags flags)
+{
+	bool result;
+	DrawLabel(label, labelPos);
+	result = SliderScalarN(("##" + std::string(label)).c_str(),
+		ImGuiDataType_Float,
+		v,
+		3,
+		&vMin,
+		&vMax,
+		format,
+		flags);
+	EndDrawLabel(labelPos);
+
+	return result;
+}
+
+bool SliderFloat4(const char* label,
+	float v[4],
+	float vMin,
+	float vMax,
+	LabelPos labelPos,
+	const char* format,
+	ImGuiSliderFlags flags)
+{
+	bool result;
+	DrawLabel(label, labelPos);
+	result = SliderScalarN(("##" + std::string(label)).c_str(),
+		ImGuiDataType_Float,
+		v,
+		4,
+		&vMin,
+		&vMax,
+		format,
+		flags);
+	EndDrawLabel(labelPos);
 
 	return result;
 }
@@ -195,39 +227,11 @@ bool ColorEdit3(std::string_view label, float* col, LabelPos labelPos, ImGuiColo
 bool ColorEdit4(std::string_view label, float* col, LabelPos labelPos, ImGuiColorEditFlags flags)
 {
 	bool result;
-	PushItemWidth(-1.0f);
-	{
-		const std::string labelStr = std::string(label);
-		const std::string text     = " " + labelStr.substr(0, labelStr.find_first_of('#'));
-		if (labelPos == LabelPos::LEFT)
-		{
-			Text("%s", text.c_str());
-			ImGui::SameLine();
-			result = ColorEdit4(("##" + labelStr).c_str(), col, flags);
-		}
-		else
-		{
-			const float width = CalcItemWidth();
-			PushItemWidth(width - CalcTextSize(text.c_str()).x);
-			result = ColorEdit4(("##" + labelStr).c_str(), col, flags);
-		}
-	}
-	PopItemWidth();
+	DrawLabel(label, labelPos);
+	result = ColorEdit4(("##" + std::string(label)).c_str(), col, flags);
+	EndDrawLabel(labelPos);
 
 	return result;
-}
-
-bool ButtonCentered(std::string_view label, const ImVec2& size)
-{
-	const std::string labelName = std::string(label).substr(0, label.find_first_of('#'));
-	const float width           = CalcTextSize(labelName.data()).x;
-	const float cursorPos       = GetCursorPosX();
-	const float padding         = GetStyle().FramePadding.x;
-	const float availWidth      = GetContentRegionAvailWidth() - cursorPos;
-	if (size.x != 0.0f) SetCursorPosX(cursorPos + (availWidth / 2.0f) - size.x + (size.x / 2.0f));
-	else SetCursorPosX(cursorPos + (availWidth / 2.0f) - width + (width / 2.0f) - padding);
-
-	return Button(label.data(), size);
 }
 
 //#pragma clang diagnostic push
@@ -262,6 +266,19 @@ bool ButtonCentered(std::string_view label, const ImVec2& size)
 //}
 //#pragma clang diagnostic pop
 
+bool ButtonCentered(std::string_view label, const ImVec2& size)
+{
+	const std::string labelName = std::string(label).substr(0, label.find_first_of('#'));
+	const float width           = CalcTextSize(labelName.data()).x;
+	const float cursorPos       = GetCursorPosX();
+	const float padding         = GetStyle().FramePadding.x;
+	const float availWidth      = GetContentRegionAvailWidth() - cursorPos;
+	if (size.x != 0.0f) SetCursorPosX(cursorPos + (availWidth / 2.0f) - size.x + (size.x / 2.0f));
+	else SetCursorPosX(cursorPos + (availWidth / 2.0f) - width + (width / 2.0f) - padding);
+
+	return Button(label.data(), size);
+}
+
 bool Button(std::string_view label, const ImVec2& size)
 {
 	return Button(label.data(), size);
@@ -283,31 +300,27 @@ static int InputTextCallback(ImGuiInputTextCallbackData* data)
 	return 0;
 }
 
-bool InputText(std::string_view label, std::string* str, ImGuiInputTextFlags flags)
+bool InputText(
+	std::string_view label, std::string* str, LabelPos labelPos, ImGuiInputTextFlags flags)
 {
 	flags |= ImGuiInputTextFlags_CallbackResize;
-	return InputText(label.data(),
+
+	bool result;
+	DrawLabel(label, labelPos);
+	result = InputText(("##" + std::string(label)).c_str(),
 		const_cast<char*>(str->c_str()),
 		str->capacity() + 1,
 		flags,
 		InputTextCallback,
 		static_cast<void*>(str));
-}
-
-bool Combo(std::string_view label, int* currentItem, const std::vector<std::string>* items, int heightInItems)
-{
-	const auto lambda = [](void* data, const int idx, const char** outText)
-	{
-		*outText = static_cast<const std::vector<std::string>*>(data)->at(idx).c_str();
-		return true;
-	};
-
-	return Combo(label.data(), currentItem, lambda, (void*) items, items->size(), heightInItems);
+	EndDrawLabel(labelPos);
+	return result;
 }
 
 bool Combo(std::string_view label,
-	unsigned int* currentItem,
+	int* currentItem,
 	const std::vector<std::string>* items,
+	LabelPos labelPos,
 	int heightInItems)
 {
 	const auto lambda = [](void* data, const int idx, const char** outText)
@@ -316,8 +329,52 @@ bool Combo(std::string_view label,
 		return true;
 	};
 
-	return Combo(label.data(),
-		reinterpret_cast<int*>(currentItem), lambda, (void*) items, items->size(), heightInItems);
+	bool result;
+	DrawLabel(label, labelPos);
+	result = Combo(("##" + std::string(label)).c_str(),
+		currentItem,
+		lambda,
+		(void*) items,
+		items->size(),
+		heightInItems);
+	EndDrawLabel(labelPos);
+
+	return result;
+}
+
+bool Combo(std::string_view label,
+	unsigned int* currentItem,
+	const std::vector<std::string>* items,
+	LabelPos labelPos,
+	int heightInItems)
+{
+	const auto lambda = [](void* data, const int idx, const char** outText)
+	{
+		*outText = static_cast<const std::vector<std::string>*>(data)->at(idx).c_str();
+		return true;
+	};
+
+	bool result;
+	DrawLabel(label, labelPos);
+	result = Combo(("##" + std::string(label)).c_str(),
+		reinterpret_cast<int*>(currentItem),
+		lambda,
+		(void*) items,
+		items->size(),
+		heightInItems);
+	EndDrawLabel(labelPos);
+
+	return result;
+}
+
+bool Checkbox(std::string_view label, bool* v, LabelPos labelPos)
+{
+	bool result;
+	DrawLabel(label, labelPos);
+	result = Checkbox(("##" + std::string(label)).c_str(), v);
+	EndDrawLabel(labelPos);
+
+	return result;
 }
 
 #ifdef NEKO_GLES3

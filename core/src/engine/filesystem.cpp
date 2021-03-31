@@ -3,10 +3,10 @@
 //
 #include "engine/filesystem.h"
 
+#include <fstream>
+
 #ifdef STD_FILESYSTEM
-
 #include <filesystem>
-
 namespace fs = std::filesystem;
 #endif
 

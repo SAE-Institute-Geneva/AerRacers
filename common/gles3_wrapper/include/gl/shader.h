@@ -100,7 +100,7 @@ public:
 private:
 	const FilesystemInterface& filesystem_;
 
-	GLuint shaderProgram_ = 0;
-	GLuint ubos_[3];
+	GLuint shaderProgram_ = INVALID_SHADER;
+	GLuint ubos_[3] = { INVALID_SHADER , INVALID_SHADER , INVALID_SHADER };
 };
 }

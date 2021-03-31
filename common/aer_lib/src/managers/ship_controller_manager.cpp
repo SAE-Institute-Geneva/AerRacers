@@ -43,11 +43,11 @@ void ShipControllerManager::RotorRotation(PlayerId playerId) {
     Entity& rightRotor = playerComponent.rightRotorModel;
     Entity& leftRotor = playerComponent.leftRotorModel;
 
-    Vec3f currentRightRotorRotation = ConvertEulerAnglesToVec3f(transformManager_.GetRelativeRotation(rightRotor));
-    transformManager_.SetRelativeRotation(rightRotor, ConvertVec3fToEulerAngles(Vec3f(currentRightRotorRotation.x, currentRightRotorRotation.y-shipParameter_.kRotorRotationSpeed, currentRightRotorRotation.z)));
+    Vec3f currentRightRotorRotation = Vec3f(transformManager_.GetRelativeRotation(rightRotor));
+    transformManager_.SetRelativeRotation(rightRotor, EulerAngles(Vec3f(currentRightRotorRotation.x, currentRightRotorRotation.y-shipParameter_.kRotorRotationSpeed, currentRightRotorRotation.z)));
 
-    Vec3f currentLeftRotorRotation = ConvertEulerAnglesToVec3f(transformManager_.GetRelativeRotation(leftRotor));
-    transformManager_.SetRelativeRotation(leftRotor, ConvertVec3fToEulerAngles(Vec3f(currentLeftRotorRotation.x, currentLeftRotorRotation.y - shipParameter_.kRotorRotationSpeed, currentLeftRotorRotation.z)));
+    Vec3f currentLeftRotorRotation = Vec3f(transformManager_.GetRelativeRotation(leftRotor));
+    transformManager_.SetRelativeRotation(leftRotor, EulerAngles(Vec3f(currentLeftRotorRotation.x, currentLeftRotorRotation.y - shipParameter_.kRotorRotationSpeed, currentLeftRotorRotation.z)));
 }
 
 
@@ -200,8 +200,8 @@ void ShipControllerManager::RotorMovement(PlayerId playerId) {
     leftRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
     leftRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
 
-    transformManager_.SetRelativeRotation(playerComponent.rightRotorAnchor, ConvertVec3fToEulerAngles(rightRotation));
-    transformManager_.SetRelativeRotation(playerComponent.leftRotorAnchor, ConvertVec3fToEulerAngles(leftRotation));
+    transformManager_.SetRelativeRotation(playerComponent.rightRotorAnchor, EulerAngles(rightRotation));
+    transformManager_.SetRelativeRotation(playerComponent.leftRotorAnchor, EulerAngles(leftRotation));
 }
 
 

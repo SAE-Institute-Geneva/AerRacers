@@ -181,11 +181,11 @@ def validate_texture(img_src, img_out, meta_data):
         exit(1)
     out_path = Path(img_out)
     extension = out_path.suffix.lower()
-    if extension in ktxable_texture_ext:
-        if "ktx" in meta_data:
-            do_ktx = meta_data["ktx"]
-        else:
-            do_ktx = True
-        if do_ktx:
-            status = convert_to_ktx(img_out, img_out+".ktx", meta_data)
-            meta_data["ktx"] = status == 0
+    # if extension in ktxable_texture_ext:
+        # if "ktx" in meta_data:
+            # do_ktx = meta_data["ktx"]
+        # else:
+            # do_ktx = True
+        # if do_ktx:
+            # status = convert_to_ktx(img_out, img_out+".ktx", meta_data)
+            # meta_data["ktx"] = status == 0

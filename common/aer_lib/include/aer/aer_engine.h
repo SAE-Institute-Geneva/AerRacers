@@ -27,6 +27,10 @@
  Date : 29.09.2020 
  Last Modif: 26.01.2021
 ---------------------------------------------------------- */
+#ifdef NEKO_FMOD
+#include "fmod/fmod_engine.h"
+#endif
+
 #include "aer/draw_system.h"
 #include "aer/log.h"
 #include "aer/managers/manager_container.h"
@@ -64,6 +68,9 @@ public:
 
 	EditorToolManager& GetEditorToolManager() { return toolManager_; }
     physics::PhysicsEngine& GetPhysicsEngine() { return physicsEngine_; }
+#ifdef NEKO_FMOD
+	fmod::FmodEngine& GetFmodEngine() { return fmodEngine_; }
+#endif
 
 	sdl::MultiCamera& GetCameras() { return drawSystem_.GetCameras(); }
 private:
@@ -71,6 +78,9 @@ private:
 
 	DrawSystem drawSystem_;
 
+#ifdef NEKO_FMOD
+	fmod::FmodEngine fmodEngine_;
+#endif
     physics::PhysicsEngine physicsEngine_;
 
 	ResourceManagerContainer rContainer_;

@@ -1,4 +1,4 @@
-if (NOT Neko_GLES3 OR NOT Neko_SDL2 OR NOT Neko_KTX OR NOT Neko_Freetype)
+if (NOT Neko_GLES3 OR NOT Neko_SDL2 OR NOT Neko_Freetype)
     return()
 endif()
 include_directories("include/")
@@ -10,7 +10,11 @@ file(GLOB_RECURSE shaders_src ${CMAKE_SOURCE_DIR}/data/shaders/*.vert ${CMAKE_SO
 source_group("Shaders"	FILES ${shaders_src})
 
 add_executable(comp_graph ${comp_graph_src} ${shaders_src})
-target_link_libraries(comp_graph PUBLIC Neko_Core sdl_engine gles3_wrapper ktx)
+list(APPEND comp_graph_libs Neko_Core sdl_engine gles3_wrapper)
+if (Neko_KTX)
+    list(APPEND comp_graph_libs ktx)
+endif ()
+target_link_libraries(comp_graph PUBLIC ${comp_graph_libs})
 neko_bin_config(comp_graph)
 data_generate(comp_graph)
 set_target_properties(comp_graph PROPERTIES UNITY_BUILD ON)

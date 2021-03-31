@@ -72,6 +72,8 @@ public:
 
 	[[nodiscard]] const std::vector<Vertex>& GetVertices() const { return vertices_; }
 	[[nodiscard]] const std::vector<Index>& GetIndices() const { return indices_; }
+	[[nodiscard]] const Aabb3d& GetAabb() const { return aabb_; }
+	[[nodiscard]] const GLuint& GetVao() const { return vao_; }
 
 private:
 	friend class Model;
@@ -82,10 +84,8 @@ private:
 	std::vector<Index> indices_;
 	std::vector<Texture> textures_;
 
-	float shininess_ = 16.0f;
-	//Color3 diffuse_ = Color3(0.8f);
-	//Color3 specular_ = Color3::one;
-	Vec3f color_     = Vec3f::one;
+	float shininess_ = 64.0f;
+	Color3 color_    = Vec3f::one * 0.8f;
 	Aabb3d aabb_ {};
 
 	GLuint vao_ = 0, vbo_ = 0, ebo_ = 0;

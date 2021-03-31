@@ -1,5 +1,9 @@
 #include "aer/aer_engine.h"
 
+#ifdef NEKO_VULKAN
+#include "vk/vk_resources.h"
+#endif
+
 #ifdef EASY_PROFILE_USE
 #include <easy/profiler.h>
 #endif
@@ -37,23 +41,29 @@ void DrawSystem::Init()
 	camera.nearPlane        = 0.1f;
 	camera.farPlane         = 1'000'000.0f;
 	camera_.SetCameras(camera);
-
-	sdl::MultiCameraLocator::provide(&camera_);
+	CameraLocator::provide(&camera_.GetCamera(0));
 
 #ifdef NEKO_GLES3
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(0));
 #endif
 }
 
-void DrawSystem::Update(seconds)
+void DrawSystem::Update(seconds dt)
 {
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("DrawSystem::Update");
 #endif
+	
+	const Camera3D& camera = camera_.GetCamera(0);
+	const Vec3f position   = camera.position;
 
-	//For Test
-	if (engine_.GetMode() == ModeEnum::GAME) {
-	}
+#ifdef NEKO_FMOD
+	FMOD_3D_ATTRIBUTES attributes;
+	attributes.position = fmod::Vec3ToFmod(position);
+	attributes.forward  = fmod::Vec3ToFmod(-camera.reverseDirection);
+	attributes.up       = fmod::Vec3ToFmod(camera.GetUp());
+	engine_.GetFmodEngine().SetAudioListener(attributes);
+#endif
 	RendererLocator::get().Render(this);
 }
 

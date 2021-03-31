@@ -51,8 +51,6 @@ public:
 private:
 	SceneManager& sceneManager_;
 
-	std::string filepath_;
-
 	std::vector<std::string> scenesPaths_;
 	unsigned selectedSceneIndex_ = 0;
 	bool toSave_                 = false;

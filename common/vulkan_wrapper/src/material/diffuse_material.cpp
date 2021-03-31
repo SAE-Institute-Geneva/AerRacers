@@ -1,6 +1,8 @@
 #include "vk/material/diffuse_material.h"
 
 #include "engine/engine.h"
+#include "engine/resource_locations.h"
+
 #include "vk/models/mesh_instance.h"
 
 namespace neko::vk
@@ -61,14 +63,12 @@ void DiffuseMaterial::CreatePipeline(const VertexInput&)
 
 std::string DiffuseMaterial::GetShaderPath() const
 {
-	std::string directory = "shaders/vulkan/";
-	/*directory += "no_light/"; //TODO put a check for light type*/
 	std::string shaderName = "lights";
 	if (diffuse_) shaderName += "_d";
 	if (specular_) shaderName += "_s";
 	if (normal_) shaderName = "_n";
 
-	return directory + shaderName + ".aershader";
+	return GetVkShadersFolderPath() + shaderName + ".aershader";
 }
 
 void DiffuseMaterial::SetColor(const Color4& color)

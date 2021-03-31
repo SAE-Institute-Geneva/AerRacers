@@ -199,9 +199,12 @@ void Shader::SetUbo(const std::uint32_t size,
 	const void* data,
 	std::uint8_t binding) const
 {
-	glBindBuffer(GL_UNIFORM_BUFFER, ubos_[binding]);
-	glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
-	glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	if (ubos_[binding] != INVALID_SHADER)
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, ubos_[binding]);
+		glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+	}
 	glCheckError();
 }
 

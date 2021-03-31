@@ -1,8 +1,8 @@
 #include "aer/managers/render_manager.h"
 
 #include <core_pch.h>
-
-
+	
+#include "engine/resource_locations.h"
 #include "utils/file_utility.h"
 
 #include "aer/log.h"
@@ -40,19 +40,17 @@ void RenderManager::Init()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("RenderManager::Init", profiler::colors::Brown);
 #endif
-#ifdef NEKO_GLES3
-	const auto& config = BasicEngine::GetInstance()->GetConfig();
 
-	preRender_ = Job {[this, config]()
+#ifdef NEKO_GLES3
+	preRender_ = Job {[this]()
 		{
-			shader_.LoadFromFile(config.dataRootPath + "shaders/opengl/light.vert",
-				config.dataRootPath + "shaders/opengl/light.frag");
+			shader_.LoadFromFile(
+				GetGlShadersFolderPath() + "light.vert", GetGlShadersFolderPath() + "light.frag");
 			shader_.BindUbo(gl::kUboMatricesSize, gl::kUboMatricesBinding);
 			shader_.BindUbo(gl::kUboLightsSize, gl::kUboLightsBinding);
 		}};
 
 	RendererLocator::get().AddPreRenderJob(&preRender_);
-#else
 #endif
 }
 
@@ -198,6 +196,7 @@ void RendererViewer::DrawImGui(Entity entity)
 		{
 			std::string meshName = "ModelName: " + rendererManager_.GetModelName(entity);
 			ImGui::Text("%s", meshName.c_str());
+
 			ImGui::TreePop();
 		}
 	}
@@ -217,15 +216,13 @@ void RendererViewer::SetComponentFromJson(Entity entity, const json& componentJs
 {
 	if (CheckJsonParameter(componentJson, "meshName", json::value_t::string))
 	{
-		Configuration config = BasicEngine::GetInstance()->GetConfig();
 		std::string meshName = std::string(componentJson["meshName"]);
 		std::transform(meshName.begin(),
 			meshName.end(),
 			meshName.begin(),
 			[](unsigned char c) { return std::tolower(c); });
 
-		const std::string path =
-			config.dataRootPath + "models/" + meshName + "/" + meshName + ".obj";
+		const std::string path = GetModelsFolderPath() + meshName + "/" + meshName + ".obj";
 		if (FileExists(path))
 		{
 			rendererManager_.AddComponent(entity);
