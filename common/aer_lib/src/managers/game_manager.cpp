@@ -45,17 +45,16 @@ namespace neko::aer
             case GameState::RACING:
                 time += dt;
                 UpdateGame();
+                UpdateTimerUiText();
                 break;
             case GameState::END:
                 EndGame();
                 break;
             }
         }
-        for (int i = 0; i < playerCount; i++)
-        {
-            middleTextUi[i].SetText("test");
-            middleTextUi[i].SetScreenId(i);
-        }
+
+        UpdateLapsUiText();
+        UpdatePlacementUiText();
     }
 
     void GameManager::Render()
@@ -85,11 +84,37 @@ namespace neko::aer
        
     void GameManager::WaitForStart()
     {
+        
         if (time <= neko::seconds(0))
         {
             StartTimer();
             UnFreezePlayers();
             game_state_ = GameState::RACING;
+            for (int i = 0; i < playerCount; i++)
+            {
+                SetMiddleUiText(i, "GO!!!");
+            }
+        }
+        else if (time <= neko::seconds(1))
+        {
+            for (int i = 0; i < playerCount; i++)
+            {
+                SetMiddleUiText(i, "1");
+            }
+        }
+        else if (time <= neko::seconds(2))
+        {
+            for (int i = 0; i < playerCount; i++)
+            {
+                SetMiddleUiText(i, "2");
+            }
+        }
+        else if (time <= neko::seconds(3))
+        {
+            for (int i = 0; i < playerCount; i++)
+            {
+                SetMiddleUiText(i, "3");
+            }
         }
     }
 
@@ -160,30 +185,47 @@ namespace neko::aer
         //globalText =
         for(int i = 0; i < playerCount; i++)
         {
-            middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2f(0.5f, 0.5f), UiAnchor::CENTER, i, 1.0f, Color::cyan);
+            middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2f(0.0f, 0.0f), UiAnchor::CENTER, i + 1, 4.0f, Color::cyan);
+            TimerUi[i] = UiText(FontLoaded::LOBSTER, "Timer: " + std::to_string(neko::seconds(0).count()), Vec2f(1.0f, -1.0f) * uiPositionMultiplier, UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::cyan);
+            LapsUi[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2f(-1.0f, -1.0f) * uiPositionMultiplier, UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::cyan);;
+            placementUi[i] = UiText(FontLoaded::LOBSTER, "0th", Vec2f(-1.0f, 1.0f) * uiPositionMultiplier, UiAnchor::BOTTOM_RIGHT, i + 1, 2.0f, Color::cyan);;
+
             uiManager.AddUiText(&middleTextUi[i]);
+            uiManager.AddUiText(&TimerUi[i]);
+            uiManager.AddUiText(&LapsUi[i]);
+            uiManager.AddUiText(&placementUi[i]);
         }
 
     }
 
     void GameManager::SetMiddleUiText(PlayerId player_id, std::string text)
     {
-        
+        middleTextUi[player_id].SetText(text);
     }
 
-    void GameManager::UpdateTimerUiText(PlayerId player_id)
+    void GameManager::UpdateTimerUiText()
     {
-        
+        for (int i = 0; i < playerCount; i++)
+        {
+            TimerUi[i].SetText(std::to_string(time.count()));
+        }
+
     }
 
-    void GameManager::UpdateLapsUiText(PlayerId player_id)
+    void GameManager::UpdateLapsUiText()
     {
-        
+        for (int i = 0; i < playerCount; i++)
+        {
+
+        }
     }
 
-    void GameManager::UpdatePlacementUiText(PlayerId player_id)
+    void GameManager::UpdatePlacementUiText()
     {
-        
+        for (int i = 0; i < playerCount; i++)
+        {
+            placementUi[i].SetText(std::to_string(engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->racePlacement[i]));
+        }
     }
 
 

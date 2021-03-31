@@ -65,9 +65,9 @@ namespace neko::aer
 
         void StartUi();
         void SetMiddleUiText(PlayerId player_id, std::string text);
-        void UpdateTimerUiText(PlayerId player_id);
-        void UpdateLapsUiText(PlayerId player_id);
-        void UpdatePlacementUiText(PlayerId player_id);
+        void UpdateTimerUiText();
+        void UpdateLapsUiText();
+        void UpdatePlacementUiText();
         void CheckIfEveryoneHasFinished();
 
         void Destroy() override;
@@ -96,6 +96,8 @@ namespace neko::aer
         const float endTimer = 10.0f;
         const int wpToFinish = 33;
         const int playerCount = 4;
+        const float uiPositionMultiplier = 0.25f;
+
         const std::array<Vec3f, 4> spawns =
         {
             Vec3f(206, 43, -481),
