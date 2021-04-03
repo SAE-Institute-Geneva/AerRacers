@@ -24,6 +24,7 @@ void AudioManager::Update(seconds)
 {
 	const auto audioSources =
 		entityManager_.get().FilterEntities(EntityMask(ComponentType::AUDIO_SOURCE));
+	if (audioSources.empty()) return;
 	ResizeIfNecessary(components_, audioSources.back(), {});
 	for (auto& entity : audioSources)
 	{
