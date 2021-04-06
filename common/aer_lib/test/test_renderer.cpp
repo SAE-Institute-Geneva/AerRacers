@@ -247,6 +247,8 @@ private:
 
 TEST(Renderer, NanosuitMesh)
 {
+    logDebug("Unactive useless test");
+    return;
     //Travis Fix because Windows can't open a window
     char* env = getenv("TRAVIS_DEACTIVATE_GUI");
     if (env != nullptr)
@@ -351,6 +353,8 @@ private:
 
 TEST(Renderer, LevelDesign)
 {
+    logDebug("Unactive useless test");
+    return;
     //Travis Fix because Windows can't open a window
     char* env = getenv("TRAVIS_DEACTIVATE_GUI");
     if (env != nullptr)

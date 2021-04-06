@@ -310,7 +310,7 @@ public:
         if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
         {
             loaded_ = rContainer_.modelManager.IsLoaded(modelId);
-            //engine_.Stop();
+            engine_.Stop();
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
     }
@@ -336,7 +336,7 @@ public:
 
 private:
     float updateCount_ = 0;
-    const float kEngineDuration_ = 5.0f;
+    const float kEngineDuration_ = 20.0f;
     bool loaded_ = false;
     AerEngine& engine_;
     Vec3f cameraPosition_ = Vec3f(0, 0, 10);
@@ -433,7 +433,7 @@ public:
         if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
         {
             loaded_ = rContainer_.modelManager.IsLoaded(modelId);
-            //engine_.Stop();
+            engine_.Stop();
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
     }
@@ -559,7 +559,7 @@ public:
         if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
         {
             loaded_ = rContainer_.modelManager.IsLoaded(modelId);
-            //engine_.Stop();
+            engine_.Stop();
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
     }
@@ -651,7 +651,7 @@ public:
 #endif
         const Configuration config = BasicEngine::GetInstance()->GetConfig();
         engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-            config.dataRootPath + "scenes/LevelDesign24-03.aerscene");
+            config.dataRootPath + "scenes/LevelDesign05-04.aerscene");
         Camera3D* camera = GizmosLocator::get().GetCamera();
         camera->position = Vec3f(10.0f, 5.0f, 0.0f);
         camera->Rotate(EulerAngles(degree_t(0.0f), degree_t(-90.0f), degree_t(0.0f)));
@@ -663,7 +663,7 @@ public:
         EASY_BLOCK("Test Update", profiler::colors::Green);
 #endif
         updateCount_ += dt.count();
-        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Destroy() override {}
@@ -756,7 +756,7 @@ public:
             cContainer_.transform3dManager.SetRelativeScale(testEntity_, Vec3f::one * 0.1f);
             cContainer_.renderManager.AddComponent(testEntity_);
             cContainer_.renderManager.SetModel(
-                testEntity_, config.dataRootPath + "models/gros_block1/gros_block1.obj");
+                testEntity_, config.dataRootPath + "models/blocks/gros_block1/gros_block1.obj");
             engine_.GetCameras().moveSpeed = 50.0f;
             engine_.GetCameras().SetPosition(cameraPosition_, 0);
         }
@@ -765,7 +765,7 @@ public:
         {
             const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
             textureWallId_ = engine_.GetResourceManagerContainer().textureManager.LoadTexture(config.dataRootPath + "sprites/wall.jpg", Texture::DEFAULT);
-            textureBlockId_ = engine_.GetResourceManagerContainer().textureManager.LoadTexture(config.dataRootPath + "models/textures/pierre1_basecolor.png", Texture::DEFAULT);
+            textureBlockId_ = engine_.GetResourceManagerContainer().textureManager.LoadTexture(config.dataRootPath + "models/blocks/gros_block1/pierre1_basecolor.png", Texture::DEFAULT);
             textureCubeId_ = engine_.GetResourceManagerContainer().textureManager.LoadTexture(config.dataRootPath + "models/cube/BaseColor.png", Texture::DEFAULT);
 
         }

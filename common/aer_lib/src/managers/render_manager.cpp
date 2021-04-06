@@ -227,13 +227,17 @@ void RendererViewer::SetComponentFromJson(Entity entity, const json& componentJs
 {
 	if (CheckJsonParameter(componentJson, "meshName", json::value_t::string))
 	{
-		std::string meshName = std::string(componentJson["meshName"]);
-		std::transform(meshName.begin(),
-			meshName.end(),
-			meshName.begin(),
+		std::string meshPath = std::string(componentJson["meshName"]);
+		std::transform(meshPath.begin(),
+			meshPath.end(),
+			meshPath.begin(),
 			[](unsigned char c) { return std::tolower(c); });
+		std::size_t found = meshPath.find_last_of('/') + 1;
+		std::string meshName = meshPath;
+		if (found != std::string::npos)
+			meshName = meshName.substr(found);
 
-		const std::string path = GetModelsFolderPath() + meshName + "/" + meshName + ".obj";
+		const std::string path = GetModelsFolderPath() + meshPath + "/" + meshName + ".obj";
 		if (FileExists(path))
 		{
 			rendererManager_.AddComponent(entity);
@@ -241,7 +245,7 @@ void RendererViewer::SetComponentFromJson(Entity entity, const json& componentJs
 		}
 		else
 		{
-			LogDebug("File " + meshName + " not found");
+			LogDebug("File " + meshPath + " not found");
 		}
 	}
 }
