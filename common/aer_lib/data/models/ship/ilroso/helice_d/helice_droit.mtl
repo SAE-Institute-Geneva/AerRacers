@@ -1,0 +1,56 @@
+newmtl initialShadingGroup
+illum 4
+Kd 0.50 0.50 0.50
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+#corps
+newmtl lambert16SG
+illum 4
+Kd 0.50 0.50 0.50
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+map_Bump ../textures/corps/blue/retopo_gros_objet_normal.png
+map_Kd ../textures/corps/blue/retopo_gros_objet_basecolor.png
+map_Ks ../textures/corps/blue/retopo_gros_objet_specular.png
+#details
+newmtl lambert17SG
+illum 4
+Kd 0.50 0.50 0.50
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+map_Bump ../textures/details/retopo_detaille_normal.png
+map_Kd ../textures/details/retopo_detaille_basecolor.png
+map_Ks ../textures/details/retopo_detaille_specular.png
+#helice arriere
+newmtl lambert20SG
+illum 4
+Kd 0.50 0.50 0.50
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+map_Bump ../textures/helice_arriere/helice_arriere_normal.png
+map_Kd ../textures/helice_arriere/helice_arriere_basecolor.png
+map_Ks ../textures/helice_arriere/helice_arriere_specular.png
+#helice gauche
+newmtl lambert21SG
+illum 4
+Kd 0.50 0.50 0.50
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+map_Bump ../textures/helice_side/helice_droite_normal.png
+map_Kd ../textures/helice_side/helice_droite_basecolor.png
+map_Ks ../textures/helice_side/helice_droite_specular.png
+#helice droite
+newmtl lambert22SG
+illum 4
+Kd 0.50 0.50 0.50
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+map_Bump ../textures/helice_side/helice_droite_normal.png
+map_Kd ../textures/helice_side/helice_droite_basecolor.png
+map_Ks ../textures/helice_side/helice_droite_specular.png

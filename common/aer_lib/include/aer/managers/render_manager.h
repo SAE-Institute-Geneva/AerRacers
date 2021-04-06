@@ -50,6 +50,10 @@ public:
 	gl::Shader& GetShader() { return shader_; }
 
 	void SetModel(Entity entity, gl::ModelId modelId);
+
+	void SetTexture(Entity entity,
+		const std::string& texturelPath,
+		gl::Mesh::Texture::Type textureType);
 #else
 	void DestroyComponent(Entity entity) override;
 

@@ -26,11 +26,11 @@
 #endif
 
 #include "aer/gizmos_renderer.h"
+#include "aer/aer_engine.h"
+#include "engine/engine.h"
+#include "engine/system.h"
+#include "engine/transform.h"
 #ifdef NEKO_GLES3
-    #include "aer/aer_engine.h"
-    #include "engine/engine.h"
-    #include "engine/system.h"
-    #include "engine/transform.h"
     #include "gl/gles3_window.h"
     #include "gl/graphics.h"
     #include "gl/shader.h"
@@ -38,120 +38,123 @@
 
 namespace neko::aer
 {
-
-class TestLevelDesign : public SystemInterface,
-    public RenderCommandInterface,
-    public DrawImGuiInterface
-{
-public:
-    explicit TestLevelDesign(AerEngine& engine)
-        : engine_(engine),
-        rContainer_(engine.GetResourceManagerContainer()),
-        cContainer_(engine.GetComponentManagerContainer())
-    {
-    }
-
-    void Init() override
-    {
-        gizmosRenderer_ = &GizmosLocator::get();
-#ifdef EASY_PROFILE_USE
-        EASY_BLOCK("Test Init", profiler::colors::Green);
-#endif
-        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-        testEntity_ = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(testEntity_);
-        cContainer_.renderManager.AddComponent(testEntity_);
-        cContainer_.renderManager.SetModel(
-            //testEntity_, config.dataRootPath + "models/leveldesign/big_terrain_01.obj");
-            testEntity_, config.dataRootPath + "models/leveldesign/aer_racer_circuit_v37.obj");
-        engine_.GetCameras().moveSpeed = 50.0f;
-    }
-
-    void Update(seconds dt) override
-    {
-#ifdef EASY_PROFILE_USE
-        EASY_BLOCK("Test Update", profiler::colors::Green);
-#endif
-        const auto modelId = cContainer_.renderManager.GetComponent(testEntity_).modelId;
-        updateCount_ += dt.count();
-        if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
-        {
-            loaded_ = rContainer_.modelManager.IsLoaded(modelId);
-            engine_.Stop();
-        }
-        if (!rContainer_.modelManager.IsLoaded(modelId)) return;
-
-        //const auto& model = rContainer_.modelManager.GetModel(modelId);
-        //for (size_t i = 0; i < model->GetMeshCount(); ++i)
-        //{
-        //    const auto& meshAabb = model->GetMesh(i).aabb;
-        //    gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
-        //}
-    }
-
-    void Render() override {}
-
-    void Destroy() override
-    {
-        EXPECT_TRUE(loaded_);
-    }
-
-    void DrawImGui() override
-    {
-        ImGui::Begin("Test parameter");
-        {
-            float speed = engine_.GetCameras().moveSpeed;
-            if (ImGui::DragFloat("CameraSpeed", &speed)) {
-                engine_.GetCameras().moveSpeed = speed;
-            }
-        }
-        ImGui::End();
-    }
-
-private:
-    float updateCount_ = 0;
-    const float kEngineDuration_ = 30.0f;
-    bool loaded_ = false;
-    AerEngine& engine_;
-
-    ResourceManagerContainer& rContainer_;
-    ComponentManagerContainer& cContainer_;
-
-    IGizmoRenderer* gizmosRenderer_;
-
-    Entity testEntity_;
-};
-
-TEST(Arts, LevelDesign)
-{
-    //Travis Fix because Windows can't open a window
-    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
-    if (env != nullptr)
-    {
-        std::cout << "Test skip for travis windows" << std::endl;
-        return;
-    }
-
-    Configuration config;
-    config.windowName = "AerEditor";
-    config.windowSize = Vec2u(1400, 900);
-
-    sdl::Gles3Window window;
-    gl::Gles3Renderer renderer;
-    Filesystem filesystem;
-    AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
-
-    engine.SetWindowAndRenderer(&window, &renderer);
-
-    TestLevelDesign testRenderer(engine);
-
-    engine.RegisterSystem(testRenderer);
-    engine.RegisterOnDrawUi(testRenderer);
-    engine.Init();
-    engine.EngineLoop();
-    logDebug("Test without check");
-
-}
+//#pragma region LevelDesign
+//class TestLevelDesign : public SystemInterface,
+//    public RenderCommandInterface,
+//    public DrawImGuiInterface
+//{
+//public:
+//    explicit TestLevelDesign(AerEngine& engine)
+//        : engine_(engine),
+//        rContainer_(engine.GetResourceManagerContainer()),
+//        cContainer_(engine.GetComponentManagerContainer())
+//    {
+//    }
+//
+//    void Init() override
+//    {
+//        gizmosRenderer_ = &GizmosLocator::get();
+//#ifdef EASY_PROFILE_USE
+//        EASY_BLOCK("Test Init", profiler::colors::Green);
+//#endif
+//        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+//        testEntity_ = cContainer_.entityManager.CreateEntity();
+//        cContainer_.transform3dManager.AddComponent(testEntity_);
+//        cContainer_.renderManager.AddComponent(testEntity_);
+//        cContainer_.renderManager.SetModel(
+//            //testEntity_, config.dataRootPath + "models/leveldesign/big_terrain_01.obj");
+//            testEntity_, config.dataRootPath + "models/leveldesign/aer_racer_circuit_v37.obj");
+//        engine_.GetCameras().moveSpeed = 50.0f;
+//    }
+//
+//    void Update(seconds dt) override
+//    {
+//#ifdef EASY_PROFILE_USE
+//        EASY_BLOCK("Test Update", profiler::colors::Green);
+//#endif
+//        const auto modelId = cContainer_.renderManager.GetComponent(testEntity_).modelId;
+//        updateCount_ += dt.count();
+//        if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
+//        {
+//            loaded_ = rContainer_.modelManager.IsLoaded(modelId);
+//            engine_.Stop();
+//        }
+//        if (!rContainer_.modelManager.IsLoaded(modelId)) return;
+//
+//        //const auto& model = rContainer_.modelManager.GetModel(modelId);
+//        //for (size_t i = 0; i < model->GetMeshCount(); ++i)
+//        //{
+//        //    const auto& meshAabb = model->GetMesh(i).aabb;
+//        //    gizmosRenderer_->DrawCube(meshAabb.CalculateCenter(), meshAabb.CalculateExtends());
+//        //}
+//    }
+//
+//    void Render() override {}
+//
+//    void Destroy() override
+//    {
+//        EXPECT_TRUE(loaded_);
+//    }
+//
+//    void DrawImGui() override
+//    {
+//        ImGui::Begin("Test parameter");
+//        {
+//            float speed = engine_.GetCameras().moveSpeed;
+//            if (ImGui::DragFloat("CameraSpeed", &speed)) {
+//                engine_.GetCameras().moveSpeed = speed;
+//            }
+//        }
+//        ImGui::End();
+//    }
+//
+//private:
+//    float updateCount_ = 0;
+//    const float kEngineDuration_ = 30.0f;
+//    bool loaded_ = false;
+//    AerEngine& engine_;
+//
+//    ResourceManagerContainer& rContainer_;
+//    ComponentManagerContainer& cContainer_;
+//
+//    IGizmoRenderer* gizmosRenderer_;
+//
+//    Entity testEntity_;
+//};
+//
+//TEST(Arts, LevelDesign)
+//{
+//
+//
+//    //Travis Fix because Windows can't open a window
+//    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+//    if (env != nullptr)
+//    {
+//        std::cout << "Test skip for travis windows" << std::endl;
+//        return;
+//    }
+//
+//    Configuration config;
+//    config.windowName = "AerEditor";
+//    config.windowSize = Vec2u(1400, 900);
+//
+//    sdl::Gles3Window window;
+//    gl::Gles3Renderer renderer;
+//    Filesystem filesystem;
+//    AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
+//
+//    engine.SetWindowAndRenderer(&window, &renderer);
+//
+//    TestLevelDesign testRenderer(engine);
+//
+//    engine.RegisterSystem(testRenderer);
+//    engine.RegisterOnDrawUi(testRenderer);
+//    engine.Init();
+//    engine.EngineLoop();
+//    logDebug("Test without check");
+//
+//}
+////#pragma endregion
 #pragma region Ship
 class TestShip : public SystemInterface,
     public RenderCommandInterface,
@@ -171,13 +174,98 @@ public:
         EASY_BLOCK("Test Init", profiler::colors::Green);
 #endif
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-        testEntity_ = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(testEntity_);
-        cContainer_.transform3dManager.SetRelativeScale(testEntity_, Vec3f::one * 0.01f);
-        cContainer_.renderManager.AddComponent(testEntity_);
+        Entity ilRoso1 = SpawnIlRoso(Vec3f::right * 10.0f * -2);
+        Entity ilRoso2 = SpawnIlRoso(Vec3f::right * 10.0f * -1);
+        Entity ilRoso3 = SpawnIlRoso(Vec3f::right * 10.0f);
+        Entity ilRoso4 = SpawnIlRoso(Vec3f::right * 10.0f * 1);
+        Entity cortese1 = SpawnCortese(Vec3f::right * 10.0f * 2);
+        Entity cortese2 = SpawnCortese(Vec3f::right * 10.0f * 3);
+        //cContainer_.renderManager.SetTexture(
+        //    testEntity_, config.dataRootPath + "models/ship/cortese/textures/corps_blue/low_cortese_complet_centre_basecolor.png", gl::Mesh::Texture::Type::DIFFUSE);
+        engine_.GetCameras().moveSpeed = 1.0f;
+        engine_.GetCameras().SetPosition(cameraPosition_, 0);
+        testEntity_ = cortese2;
+    }
+
+    Entity SpawnCortese(Vec3f pos)
+    {
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+        Entity corps = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(corps);
+        cContainer_.transform3dManager.SetRelativeScale(corps, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativePosition(corps, pos);
+        cContainer_.renderManager.AddComponent(corps);
         cContainer_.renderManager.SetModel(
-            testEntity_, config.dataRootPath + "models/ship/low_cortese_complet.obj");
-        engine_.GetCameras().moveSpeed = 50.0f;
+            corps, config.dataRootPath + "models/ship/cortese/corps/low_cortese_corps.obj");
+        Entity details = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(details);
+        cContainer_.transform3dManager.SetRelativeScale(details, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativePosition(details, pos);
+        cContainer_.renderManager.AddComponent(details);
+        cContainer_.renderManager.SetModel(
+            details, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
+        Entity helice_d = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(helice_d);
+        cContainer_.transform3dManager.SetRelativeScale(helice_d, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativePosition(helice_d, pos);
+        cContainer_.renderManager.AddComponent(helice_d);
+        cContainer_.renderManager.SetModel(
+            helice_d, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
+        Entity helice_g = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(helice_g);
+        cContainer_.transform3dManager.SetRelativeScale(helice_g, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativePosition(helice_g, pos);
+        cContainer_.renderManager.AddComponent(helice_g);
+        cContainer_.renderManager.SetModel(
+            helice_g, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
+        Entity helice_arriere = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(helice_arriere);
+        cContainer_.transform3dManager.SetRelativeScale(helice_arriere, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativePosition(helice_arriere, pos);
+        cContainer_.renderManager.AddComponent(helice_arriere);
+        cContainer_.renderManager.SetModel(
+            helice_arriere, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
+        return corps;
+    }
+    Entity SpawnIlRoso(Vec3f pos)
+    {
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+        Entity corps = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(corps);
+        cContainer_.transform3dManager.SetRelativeScale(corps, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativePosition(corps, pos);
+        cContainer_.renderManager.AddComponent(corps);
+        cContainer_.renderManager.SetModel(
+            corps, config.dataRootPath + "models/ship/cortese/corps/low_cortese_corps.obj");
+        Entity details = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(details);
+        cContainer_.transform3dManager.SetRelativeScale(details, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativePosition(details, pos);
+        cContainer_.renderManager.AddComponent(details);
+        cContainer_.renderManager.SetModel(
+            details, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
+        Entity helice_d = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(helice_d);
+        cContainer_.transform3dManager.SetRelativeScale(helice_d, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativePosition(helice_d, pos);
+        cContainer_.renderManager.AddComponent(helice_d);
+        cContainer_.renderManager.SetModel(
+            helice_d, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
+        Entity helice_g = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(helice_g);
+        cContainer_.transform3dManager.SetRelativeScale(helice_g, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativePosition(helice_g, pos);
+        cContainer_.renderManager.AddComponent(helice_g);
+        cContainer_.renderManager.SetModel(
+            helice_g, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
+        Entity helice_arriere = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(helice_arriere);
+        cContainer_.transform3dManager.SetRelativeScale(helice_arriere, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativePosition(helice_arriere, pos);
+        cContainer_.renderManager.AddComponent(helice_arriere);
+        cContainer_.renderManager.SetModel(
+            helice_arriere, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
+        return corps;
     }
 
     void Update(seconds dt) override
@@ -190,7 +278,7 @@ public:
         if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
         {
             loaded_ = rContainer_.modelManager.IsLoaded(modelId);
-            engine_.Stop();
+            //engine_.Stop();
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
     }
@@ -219,6 +307,7 @@ private:
     const float kEngineDuration_ = 5.0f;
     bool loaded_ = false;
     AerEngine& engine_;
+    Vec3f cameraPosition_ = Vec3f(0, 0, 10);
 
     ResourceManagerContainer& rContainer_;
     ComponentManagerContainer& cContainer_;
@@ -276,13 +365,16 @@ public:
         EASY_BLOCK("Test Init", profiler::colors::Green);
 #endif
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-        testEntity_ = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(testEntity_);
-        cContainer_.transform3dManager.SetRelativeScale(testEntity_, Vec3f::one * 0.1f);
-        cContainer_.renderManager.AddComponent(testEntity_);
-        cContainer_.renderManager.SetModel(
-            testEntity_, config.dataRootPath + "models/gros_block1/gros_block1.obj");
-        engine_.GetCameras().moveSpeed = 50.0f;
+        for (std::size_t c = 0; c < blocksName_.size(); c++) {
+            testEntity_ = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(testEntity_);
+            cContainer_.transform3dManager.SetRelativeScale(testEntity_, Vec3f::one * 0.01f);
+            cContainer_.transform3dManager.SetRelativePosition(testEntity_, Vec3f::right * 50.0f * (c - blocksName_.size()/2.0f));
+            cContainer_.renderManager.AddComponent(testEntity_);
+            cContainer_.renderManager.SetModel(
+                testEntity_, config.dataRootPath + "models/blocks/" + blocksName_[c] + "/" + blocksName_[c] + ".obj");
+        }
+        engine_.GetCameras().moveSpeed = 100.0f;
         engine_.GetCameras().SetPosition(cameraPosition_, 0);
     }
 
@@ -296,7 +388,7 @@ public:
         if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
         {
             loaded_ = rContainer_.modelManager.IsLoaded(modelId);
-            engine_.Stop();
+            //engine_.Stop();
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
     }
@@ -330,7 +422,23 @@ private:
     ComponentManagerContainer& cContainer_;
 
     Entity testEntity_;
-    Vec3f cameraPosition_ = Vec3f(162, 498, 753);
+    Vec3f cameraPosition_ = Vec3f(0, 50, 300);
+
+    const std::vector<std::string> blocksName_ =
+    {
+    "gros_block1",
+    "gros_block2",
+    "obstacle_grand1",
+    "obstacle_grand2",
+    "obstacle_moyen1",
+    "obstacle_moyen2",
+    "obstacle_moyen3",
+    "obstacle_petit1",
+    "obstacle_petit2",
+    "obstacle_petit3"
+    };
+
+
 };
 
 TEST(Arts, Block)
@@ -364,6 +472,125 @@ TEST(Arts, Block)
 
 }
 #pragma endregion 
+#pragma region Totem
+class TestTotem : public SystemInterface,
+    public RenderCommandInterface,
+    public DrawImGuiInterface
+{
+public:
+    explicit TestTotem(AerEngine& engine)
+        : engine_(engine),
+        rContainer_(engine.GetResourceManagerContainer()),
+        cContainer_(engine.GetComponentManagerContainer())
+    {
+    }
+
+    void Init() override
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Init", profiler::colors::Green);
+#endif
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+        for (std::size_t c = 0; c < totemNames_.size(); c++) {
+            testEntity_ = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(testEntity_);
+            cContainer_.transform3dManager.SetRelativeScale(testEntity_, Vec3f::one * 0.1f);
+            cContainer_.transform3dManager.SetRelativePosition(testEntity_, Vec3f::right * 100.0f * (c - totemNames_.size() / 2.0f));
+            cContainer_.renderManager.AddComponent(testEntity_);
+            cContainer_.renderManager.SetModel(
+                testEntity_, config.dataRootPath + "models/totems/" + totemNames_[c] + "/" + totemNames_[c] + ".obj");
+        }
+        engine_.GetCameras().moveSpeed = 100.0f;
+        engine_.GetCameras().SetPosition(cameraPosition_, 0);
+    }
+
+    void Update(seconds dt) override
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Update", profiler::colors::Green);
+#endif
+        const auto modelId = cContainer_.renderManager.GetComponent(testEntity_).modelId;
+        updateCount_ += dt.count();
+        if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
+        {
+            loaded_ = rContainer_.modelManager.IsLoaded(modelId);
+            //engine_.Stop();
+        }
+        if (!rContainer_.modelManager.IsLoaded(modelId)) return;
+    }
+
+    void Render() override {}
+
+    void Destroy() override
+    {
+        EXPECT_TRUE(loaded_);
+    }
+
+    void DrawImGui() override
+    {
+        ImGui::Begin("Test parameter");
+        {
+            float speed = engine_.GetCameras().moveSpeed;
+            if (ImGui::DragFloat("CameraSpeed", &speed)) {
+                engine_.GetCameras().moveSpeed = speed;
+            }
+        }
+        ImGui::End();
+    }
+
+private:
+    float updateCount_ = 0;
+    const float kEngineDuration_ = 20.0f;
+    bool loaded_ = false;
+    AerEngine& engine_;
+
+    ResourceManagerContainer& rContainer_;
+    ComponentManagerContainer& cContainer_;
+
+    Entity testEntity_;
+    Vec3f cameraPosition_ = Vec3f(0, 50, 300);
+
+    const std::vector<std::string> totemNames_ =
+    {
+    "grand_totem_low",
+    "totem_red",
+    "totem_blue",
+    "totem_green"
+    };
+};
+
+TEST(Arts, Totem)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr)
+    {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    Configuration config;
+    config.windowName = "AerEditor";
+    config.windowSize = Vec2u(1400, 900);
+
+    sdl::Gles3Window window;
+    gl::Gles3Renderer renderer;
+    Filesystem filesystem;
+    AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+
+    TestTotem testRenderer(engine);
+
+    engine.RegisterSystem(testRenderer);
+    engine.RegisterOnDrawUi(testRenderer);
+    engine.Init();
+    engine.EngineLoop();
+    logDebug("Test without check");
+
+}
+#pragma endregion
+#pragma region LevelDesign
 class LevelDesignViewer : public SystemInterface,
     public DrawImGuiInterface
 {
@@ -391,7 +618,7 @@ public:
         EASY_BLOCK("Test Update", profiler::colors::Green);
 #endif
         updateCount_ += dt.count();
-        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Destroy() override {}
@@ -450,6 +677,7 @@ TEST(Arts, TestLevelDesignSceneViewer)
     //testSceneImporteur.HasSucceed();
     logDebug("Test without check");
 }
+#pragma endregion
 #pragma region Stb
 class TestStb : public SystemInterface,
     public RenderCommandInterface,

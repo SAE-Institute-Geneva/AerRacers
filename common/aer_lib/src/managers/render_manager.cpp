@@ -145,6 +145,13 @@ void RenderManager::SetModel(Entity entity, gl::ModelId modelId)
 
 	SetComponent(entity, drawCmd);
 }
+
+void RenderManager::SetTexture(Entity entity,
+    const std::string& texturelPath,
+    gl::Mesh::Texture::Type textureType)
+{
+	modelManager_.SetTexture(components_[entity].modelId, texturelPath, textureType);
+}
 #else
 void RenderManager::DestroyComponent(Entity entity)
 {

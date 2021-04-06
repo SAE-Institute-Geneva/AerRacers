@@ -75,6 +75,10 @@ public:
 	[[nodiscard]] const Aabb3d& GetAabb() const { return aabb_; }
 	[[nodiscard]] const GLuint& GetVao() const { return vao_; }
 
+	std::vector<Texture>& GetTextures() { return textures_; }
+	Texture& GetTexture(std::size_t index) { return textures_[index]; }
+	std::size_t GetTexture(gl::Mesh::Texture::Type type);
+
 private:
 	friend class Model;
 	friend class ModelLoader;

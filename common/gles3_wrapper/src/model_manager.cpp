@@ -63,6 +63,34 @@ ModelId ModelManager::LoadModel(std::string_view path)
 	return modelId;
 }
 
+void ModelManager::SetTexture(ModelId modelId,
+    const std::string& texturelPath,
+    gl::Mesh::Texture::Type textureType)
+{
+	if (modelId == INVALID_MODEL_ID) return;
+
+	const auto it = modelMap_.find(modelId);
+	if (it == modelMap_.end()) return;
+	
+    Model model = modelMap_[modelId];
+	Mesh* mesh = model.GetMeshPtr(0);
+	auto& textures        = mesh->GetTextures();
+	const auto typeIndex  = mesh->GetTexture(textureType);
+	if (!texturelPath.empty())
+	{
+		auto& textureManager = TextureManagerLocator::get();
+		textures[typeIndex].textureId = textureManager.LoadTexture(texturelPath, Texture::TextureFlags::DEFAULT);
+		const auto* texturePtr = textureManager.GetTexture(textures[typeIndex].textureId);
+		if (texturePtr)
+		{
+			textures[typeIndex].textureName = texturePtr->name;
+		} else {
+			logError("[Error] Texture " + texturelPath + " not loaded");
+		}
+		textures[typeIndex].type = textureType;
+	}
+}
+
 std::string ModelManager::GetModelName(ModelId modelId)
 {
 	for (auto& it : modelPathMap_)

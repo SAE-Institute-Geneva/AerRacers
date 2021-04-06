@@ -66,6 +66,10 @@ public:
 	[[nodiscard]] bool IsLoaded(ModelId modelId) const override { return GetModel(modelId); }
 	ModelId LoadModel(std::string_view path) override;
 
+	void SetTexture(ModelId modelId,
+		const std::string& texturelPath,
+		gl::Mesh::Texture::Type textureType);
+
 private:
 	std::map<std::string, ModelId> modelPathMap_ {};
 	std::map<ModelId, Model> modelMap_ {};

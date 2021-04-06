@@ -122,6 +122,15 @@ void Mesh::Destroy()
 	indices_.clear();
 }
 
+std::size_t Mesh::GetTexture(gl::Mesh::Texture::Type type)
+{
+	for (size_t i = 0; i < textures_.size(); ++i)
+		if (textures_[i].type == type)
+			return i;
+
+	return INVALID_INDEX;
+}
+
 void Mesh::BindTextures(const Shader& shader) const
 {
 	glCheckError();

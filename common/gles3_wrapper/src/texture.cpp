@@ -472,7 +472,7 @@ void TextureLoader::LoadTexture()
         error_ = TextureLoaderError::ASSET_LOADING_ERROR;
         return;
     }
-    BasicEngine::GetInstance()->ScheduleJob(&decompressTextureJob_, JobThreadType::RENDER_THREAD);
+    BasicEngine::GetInstance()->ScheduleJob(&decompressTextureJob_, JobThreadType::RESOURCE_THREAD);
 }
 
 void TextureLoader::DecompressTexture()

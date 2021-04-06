@@ -37,6 +37,7 @@ public:
 	void Draw(const Shader& shader) const;
 	void Destroy();
 
+	Mesh* GetMeshPtr(std::size_t meshIndex) { return &meshes_[meshIndex]; }
 	[[nodiscard]] const Mesh& GetMesh(std::size_t meshIndex) const { return meshes_[meshIndex]; }
 	[[nodiscard]] const std::vector<Mesh>& GetMeshes() const { return meshes_; }
 	[[nodiscard]] size_t GetMeshCount() const { return meshes_.size(); }

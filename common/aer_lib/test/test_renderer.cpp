@@ -213,7 +213,7 @@ public:
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
 
-        const auto& model = rContainer_.modelManager.GetModel(modelId);
+        const auto* model = rContainer_.modelManager.GetModel(modelId);
         for (size_t i = 0; i < model->GetMeshCount(); ++i)
         {
         	const auto& meshAabb = model->GetMesh(i).GetAabb();
