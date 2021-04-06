@@ -31,6 +31,7 @@ namespace neko::gl
 class IModelManager
 {
 public:
+	[[nodiscard]] virtual Model* GetModelPtr(ModelId) = 0;
 	[[nodiscard]] virtual const Model* GetModel(ModelId) const           = 0;
 	[[nodiscard]] virtual std::string GetModelName(ModelId modelId)      = 0;
 	[[nodiscard]] virtual std::string_view GetModelPath(ModelId modelId) = 0;
@@ -42,6 +43,7 @@ public:
 class NullModelManager : public IModelManager
 {
 public:
+	[[nodiscard]] Model* GetModelPtr(ModelId) override { return nullptr; }
 	[[nodiscard]] const Model* GetModel(ModelId) const override { return nullptr; }
 	[[nodiscard]] std::string GetModelName(ModelId) override { return ""; };
 	[[nodiscard]] std::string_view GetModelPath(ModelId) override { return ""; };
@@ -58,7 +60,8 @@ public:
 	void Init() override;
 	void Update(seconds) override;
 	void Destroy() override;
-
+	
+	[[nodiscard]] Model* GetModelPtr(ModelId modelId) override;
 	[[nodiscard]] const Model* GetModel(ModelId modelId) const override;
 	[[nodiscard]] std::string GetModelName(ModelId modelId) override;
 	[[nodiscard]] std::string_view GetModelPath(ModelId modelId) override;

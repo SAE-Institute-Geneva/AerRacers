@@ -67,8 +67,9 @@ public:
 	};
 
 	void Init();
-	void Draw(const Shader& shader) const;
-	void Destroy();
+    void Draw(const Shader& shader) const;
+    void DrawFromTexture(const Shader& shader, const TextureName& texture);
+    void Destroy();
 
 	[[nodiscard]] const std::vector<Vertex>& GetVertices() const { return vertices_; }
 	[[nodiscard]] const std::vector<Index>& GetIndices() const { return indices_; }

@@ -112,6 +112,19 @@ void Mesh::Draw(const Shader& shader) const
 	glBindVertexArray(0);
 }
 
+void Mesh::DrawFromTexture(const Shader& shader, const TextureName& texture)
+{
+	std::size_t diffuse = GetTexture(Texture::Type::DIFFUSE);
+	TextureName baseTexture = textures_[diffuse].textureName;
+	textures_[diffuse].textureName = texture;
+	BindTextures(shader);
+
+	glBindVertexArray(vao_);
+	glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
+	glBindVertexArray(0);
+	textures_[diffuse].textureName = baseTexture;
+}
+
 void Mesh::Destroy()
 {
 	glDeleteVertexArrays(1, &vao_);

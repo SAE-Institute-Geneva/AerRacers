@@ -84,8 +84,14 @@ void RenderManager::Render()
 			shader_.SetMat4("model", modelMat);
 			shader_.SetMat3("normalMatrix", Mat3f(modelMat).Inverse().Transpose());
 
-			const auto& model = modelManager.GetModel(components_[entity].modelId);
-			model->Draw(shader_);
+			const auto* model = modelManager.GetModel(components_[entity].modelId);
+			if (components_[entity].diffuseTexture == INVALID_TEXTURE_NAME)
+			{
+				model->Draw(shader_);
+			} else {
+				auto* modelPtr = modelManager.GetModelPtr(components_[entity].modelId);
+				modelPtr->DrawFromTexture(shader_, components_[entity].diffuseTexture);
+			}
 		}
 	}
 #elif NEKO_VULKAN
@@ -146,11 +152,13 @@ void RenderManager::SetModel(Entity entity, gl::ModelId modelId)
 	SetComponent(entity, drawCmd);
 }
 
-void RenderManager::SetTexture(Entity entity,
-    const std::string& texturelPath,
-    gl::Mesh::Texture::Type textureType)
+void RenderManager::SetDiffuseTexture(Entity entity,
+	const TextureName& diffuseTexture)
 {
-	modelManager_.SetTexture(components_[entity].modelId, texturelPath, textureType);
+	DrawCmd drawCmd = GetComponent(entity);
+	drawCmd.diffuseTexture = diffuseTexture;
+
+	SetComponent(entity, drawCmd);
 }
 #else
 void RenderManager::DestroyComponent(Entity entity)

@@ -173,18 +173,24 @@ public:
 #ifdef EASY_PROFILE_USE
         EASY_BLOCK("Test Init", profiler::colors::Green);
 #endif
-        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-        Entity ilRoso1 = SpawnIlRoso(Vec3f::right * 10.0f * -2);
-        Entity ilRoso2 = SpawnIlRoso(Vec3f::right * 10.0f * -1);
-        Entity ilRoso3 = SpawnIlRoso(Vec3f::right * 10.0f);
-        Entity ilRoso4 = SpawnIlRoso(Vec3f::right * 10.0f * 1);
-        Entity cortese1 = SpawnCortese(Vec3f::right * 10.0f * 2);
-        Entity cortese2 = SpawnCortese(Vec3f::right * 10.0f * 3);
-        //cContainer_.renderManager.SetTexture(
-        //    testEntity_, config.dataRootPath + "models/ship/cortese/textures/corps_blue/low_cortese_complet_centre_basecolor.png", gl::Mesh::Texture::Type::DIFFUSE);
+        ilRoso1 = SpawnIlRoso(Vec3f::right * 10.0f * -2);
+        ilRoso2 = SpawnIlRoso(Vec3f::right * 10.0f * -1);
+        ilRoso3 = SpawnIlRoso(Vec3f::right * 10.0f * 0);
+        ilRoso4 = SpawnIlRoso(Vec3f::right * 10.0f * 1);
+        cortese1 = SpawnCortese(Vec3f::right * 10.0f * 2);
+        cortese2 = SpawnCortese(Vec3f::right * 10.0f * 3);
         engine_.GetCameras().moveSpeed = 1.0f;
         engine_.GetCameras().SetPosition(cameraPosition_, 0);
         testEntity_ = cortese2;
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+        ilRoso1Texture = rContainer_.textureManager.LoadTexture(config.dataRootPath + "models/ship/ilroso/textures/corps/blue/retopo_gros_objet_basecolor.png", Texture::DEFAULT);
+        ilRoso2Texture = rContainer_.textureManager.LoadTexture(config.dataRootPath + "models/ship/ilroso/textures/corps/greyred/retopo_gros_objet_basecolor.png", Texture::DEFAULT);
+        ilRoso3Texture = rContainer_.textureManager.LoadTexture(config.dataRootPath + "models/ship/ilroso/textures/corps/redblack/retopo_gros_objet_basecolor.png", Texture::DEFAULT);
+        ilRoso4Texture = rContainer_.textureManager.LoadTexture(config.dataRootPath + "models/ship/ilroso/textures/corps/redwhite/retopo_gros_objet_basecolor.png", Texture::DEFAULT);
+        cortese1Texture = rContainer_.textureManager.LoadTexture(config.dataRootPath + "models/ship/cortese/textures/corps_blue/low_cortese_complet_centre_basecolor.png", Texture::DEFAULT);
+        cortese2Texture = rContainer_.textureManager.LoadTexture(config.dataRootPath + "models/ship/cortese/textures/corps_red/low_cortese_complet_centre_basecolor.png", Texture::DEFAULT);
+
+
     }
 
     Entity SpawnCortese(Vec3f pos)
@@ -192,39 +198,39 @@ public:
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         Entity corps = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(corps);
-        cContainer_.transform3dManager.SetRelativeScale(corps, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativeScale(corps, Vec3f::one * 0.01f);
         cContainer_.transform3dManager.SetRelativePosition(corps, pos);
         cContainer_.renderManager.AddComponent(corps);
         cContainer_.renderManager.SetModel(
             corps, config.dataRootPath + "models/ship/cortese/corps/low_cortese_corps.obj");
         Entity details = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(details);
-        cContainer_.transform3dManager.SetRelativeScale(details, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativeScale(details, Vec3f::one * 0.01f);
         cContainer_.transform3dManager.SetRelativePosition(details, pos);
         cContainer_.renderManager.AddComponent(details);
         cContainer_.renderManager.SetModel(
             details, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
-        Entity helice_d = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(helice_d);
-        cContainer_.transform3dManager.SetRelativeScale(helice_d, Vec3f::one * 0.001f);
-        cContainer_.transform3dManager.SetRelativePosition(helice_d, pos);
-        cContainer_.renderManager.AddComponent(helice_d);
-        cContainer_.renderManager.SetModel(
-            helice_d, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
-        Entity helice_g = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(helice_g);
-        cContainer_.transform3dManager.SetRelativeScale(helice_g, Vec3f::one * 0.001f);
-        cContainer_.transform3dManager.SetRelativePosition(helice_g, pos);
-        cContainer_.renderManager.AddComponent(helice_g);
-        cContainer_.renderManager.SetModel(
-            helice_g, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
         Entity helice_arriere = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(helice_arriere);
-        cContainer_.transform3dManager.SetRelativeScale(helice_arriere, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativeScale(helice_arriere, Vec3f::one * 0.01f);
         cContainer_.transform3dManager.SetRelativePosition(helice_arriere, pos);
         cContainer_.renderManager.AddComponent(helice_arriere);
         cContainer_.renderManager.SetModel(
-            helice_arriere, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
+            helice_arriere, config.dataRootPath + "models/ship/cortese/helice_arriere/low_helice_arriere.obj");
+        Entity helice_d = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(helice_d);
+        cContainer_.transform3dManager.SetRelativeScale(helice_d, Vec3f::one * 0.01f);
+        cContainer_.transform3dManager.SetRelativePosition(helice_d, pos);
+        cContainer_.renderManager.AddComponent(helice_d);
+        cContainer_.renderManager.SetModel(
+            helice_d, config.dataRootPath + "models/ship/cortese/helice_d/low_helice_d.obj");
+        Entity helice_g = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(helice_g);
+        cContainer_.transform3dManager.SetRelativeScale(helice_g, Vec3f::one * 0.01f);
+        cContainer_.transform3dManager.SetRelativePosition(helice_g, pos);
+        cContainer_.renderManager.AddComponent(helice_g);
+        cContainer_.renderManager.SetModel(
+            helice_g, config.dataRootPath + "models/ship/cortese/helice_g/low_helice_g.obj");
         return corps;
     }
     Entity SpawnIlRoso(Vec3f pos)
@@ -232,39 +238,39 @@ public:
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         Entity corps = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(corps);
-        cContainer_.transform3dManager.SetRelativeScale(corps, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativeScale(corps, Vec3f::one * 0.1f);
         cContainer_.transform3dManager.SetRelativePosition(corps, pos);
         cContainer_.renderManager.AddComponent(corps);
         cContainer_.renderManager.SetModel(
-            corps, config.dataRootPath + "models/ship/cortese/corps/low_cortese_corps.obj");
+            corps, config.dataRootPath + "models/ship/ilroso/corps/objet_central_low.obj");
         Entity details = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(details);
-        cContainer_.transform3dManager.SetRelativeScale(details, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativeScale(details, Vec3f::one * 0.1f);
         cContainer_.transform3dManager.SetRelativePosition(details, pos);
         cContainer_.renderManager.AddComponent(details);
         cContainer_.renderManager.SetModel(
-            details, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
-        Entity helice_d = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(helice_d);
-        cContainer_.transform3dManager.SetRelativeScale(helice_d, Vec3f::one * 0.001f);
-        cContainer_.transform3dManager.SetRelativePosition(helice_d, pos);
-        cContainer_.renderManager.AddComponent(helice_d);
-        cContainer_.renderManager.SetModel(
-            helice_d, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
-        Entity helice_g = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(helice_g);
-        cContainer_.transform3dManager.SetRelativeScale(helice_g, Vec3f::one * 0.001f);
-        cContainer_.transform3dManager.SetRelativePosition(helice_g, pos);
-        cContainer_.renderManager.AddComponent(helice_g);
-        cContainer_.renderManager.SetModel(
-            helice_g, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
+            details, config.dataRootPath + "models/ship/ilroso/details/details_low.obj");
         Entity helice_arriere = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(helice_arriere);
-        cContainer_.transform3dManager.SetRelativeScale(helice_arriere, Vec3f::one * 0.001f);
+        cContainer_.transform3dManager.SetRelativeScale(helice_arriere, Vec3f::one * 0.1f);
         cContainer_.transform3dManager.SetRelativePosition(helice_arriere, pos);
         cContainer_.renderManager.AddComponent(helice_arriere);
         cContainer_.renderManager.SetModel(
-            helice_arriere, config.dataRootPath + "models/ship/cortese/details/low_cortese_elements.obj");
+            helice_arriere, config.dataRootPath + "models/ship/ilroso/helice_arriere/helice_arriere.obj");
+        Entity helice_d = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(helice_d);
+        cContainer_.transform3dManager.SetRelativeScale(helice_d, Vec3f::one * 0.1f);
+        cContainer_.transform3dManager.SetRelativePosition(helice_d, pos);
+        cContainer_.renderManager.AddComponent(helice_d);
+        cContainer_.renderManager.SetModel(
+            helice_d, config.dataRootPath + "models/ship/ilroso/helice_d/helice_droit.obj");
+        Entity helice_g = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(helice_g);
+        cContainer_.transform3dManager.SetRelativeScale(helice_g, Vec3f::one * 0.1f);
+        cContainer_.transform3dManager.SetRelativePosition(helice_g, pos);
+        cContainer_.renderManager.AddComponent(helice_g);
+        cContainer_.renderManager.SetModel(
+            helice_g, config.dataRootPath + "models/ship/ilroso/helice_g/helice_gauche.obj");
         return corps;
     }
 
@@ -273,6 +279,32 @@ public:
 #ifdef EASY_PROFILE_USE
         EASY_BLOCK("Test Update", profiler::colors::Green);
 #endif
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+        if (rContainer_.textureManager.IsTextureLoaded(ilRoso1Texture)) {
+            TextureName textureName = rContainer_.textureManager.GetTextureName(ilRoso1Texture);
+            cContainer_.renderManager.SetDiffuseTexture(ilRoso1, textureName);
+        }
+        if (rContainer_.textureManager.IsTextureLoaded(ilRoso2Texture)) {
+            TextureName textureName = rContainer_.textureManager.GetTextureName(ilRoso2Texture);
+            cContainer_.renderManager.SetDiffuseTexture(ilRoso2, textureName);
+        }
+        if (rContainer_.textureManager.IsTextureLoaded(ilRoso3Texture)) {
+            TextureName textureName = rContainer_.textureManager.GetTextureName(ilRoso3Texture);
+            cContainer_.renderManager.SetDiffuseTexture(ilRoso3, textureName);
+        }
+        if (rContainer_.textureManager.IsTextureLoaded(ilRoso4Texture)) {
+            TextureName textureName = rContainer_.textureManager.GetTextureName(ilRoso4Texture);
+            cContainer_.renderManager.SetDiffuseTexture(ilRoso4, textureName);
+        }
+        if (rContainer_.textureManager.IsTextureLoaded(cortese1Texture)) {
+            TextureName textureName = rContainer_.textureManager.GetTextureName(cortese1Texture);
+            cContainer_.renderManager.SetDiffuseTexture(cortese1, textureName);
+        }
+        if (rContainer_.textureManager.IsTextureLoaded(cortese2Texture)) {
+            TextureName textureName = rContainer_.textureManager.GetTextureName(cortese2Texture);
+            cContainer_.renderManager.SetDiffuseTexture(cortese2, textureName);
+        }
+
         const auto modelId = cContainer_.renderManager.GetComponent(testEntity_).modelId;
         updateCount_ += dt.count();
         if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
@@ -313,6 +345,19 @@ private:
     ComponentManagerContainer& cContainer_;
 
     Entity testEntity_;
+
+    Entity ilRoso1;
+    Entity ilRoso2;
+    Entity ilRoso3;
+    Entity ilRoso4;
+    Entity cortese1;
+    Entity cortese2;
+    TextureId ilRoso1Texture;
+    TextureId ilRoso2Texture;
+    TextureId ilRoso3Texture;
+    TextureId ilRoso4Texture;
+    TextureId cortese1Texture;
+    TextureId cortese2Texture;
 };
 
 TEST(Arts, Ship)
