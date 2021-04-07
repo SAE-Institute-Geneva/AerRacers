@@ -147,6 +147,13 @@ namespace neko::aer
             if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpToFinish)
             {
                 ShowEndScore(i);
+                if (hasWin[i] == false)
+                {
+                    VictoryData victoryData = VictoryData();
+                    victoryData.time = time.count();
+                    victoryData.index = i;
+                    victoryDatas.push_back(victoryData);
+                }
                 hasWin[i] = true;
             }
         }
@@ -181,7 +188,8 @@ namespace neko::aer
     {
         for (int i = 0; i < playerCount; i++)
         {
-            middleTextUi[i].SetText("Everyone finished");
+            middleTextUi[i].SetText("");
+            endGameText[i].SetText(std::to_string(i + 1) + positionsText[i] + ": Player " + std::to_string(victoryDatas[i].index + 1) + " (Time: " + fmt::format("{:.2f}", victoryDatas[i].time) + ")");
         }
     }
 
@@ -205,6 +213,7 @@ namespace neko::aer
             uiManager.AddUiText(&TimerUi[i]);
             uiManager.AddUiText(&LapsUi[i]);
             uiManager.AddUiText(&placementUi[i]);
+            uiManager.AddUiText(&endGameText[i]);
         }
     }
 
