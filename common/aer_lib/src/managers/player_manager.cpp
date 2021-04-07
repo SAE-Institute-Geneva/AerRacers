@@ -69,7 +69,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativeScale(shipModelEntity, Vec3f::one * 0.2f);
             cContainer_.transform3dManager.SetRelativePosition(shipModelEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+                EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
 
             //ShipArt
             Entity shipArtEntity = cContainer_.entityManager.CreateEntity();
@@ -151,7 +151,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativeScale(shipModelEntity, Vec3f::one * 0.2f);
             cContainer_.transform3dManager.SetRelativePosition(shipModelEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+                EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
 
             //ShipArt
             Entity shipArtEntity = cContainer_.entityManager.CreateEntity();
