@@ -22,6 +22,7 @@ struct DrawCmd
 #endif
 
 	bool isVisible = true;
+	TextureName diffuseTexture = INVALID_TEXTURE_NAME;
 };
 
 class RenderManager final : public SystemInterface,
@@ -50,6 +51,7 @@ public:
 	gl::Shader& GetShader() { return shader_; }
 
 	void SetModel(Entity entity, gl::ModelId modelId);
+    void SetDiffuseTexture(Entity entity, const TextureName& diffuseTexture);
 #else
 	void DestroyComponent(Entity entity) override;
 

@@ -27,9 +27,9 @@
  Date : 24.03.21
 ---------------------------------------------------------- */
 
-#include <engine\entity.h>
+#include <engine/entity.h>
 #include <mathematics/vector.h>
-#include <aer/aer_engine.h>
+#include <aer/ui/ui_text.h>
 
 namespace neko::aer
 {

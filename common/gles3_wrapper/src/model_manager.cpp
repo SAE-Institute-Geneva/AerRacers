@@ -22,7 +22,7 @@ void ModelManager::Update(seconds)
 		{
 			break;
 		}
-	}
+	} 
 }
 
 void ModelManager::Destroy()
@@ -36,6 +36,15 @@ const Model* ModelManager::GetModel(ModelId modelId) const
 
 	const auto it = modelMap_.find(modelId);
 	if (it != modelMap_.end()) return &it->second;
+	return nullptr;
+}
+
+Model* ModelManager::GetModelPtr(ModelId modelId)
+{
+	if (modelId == INVALID_MODEL_ID) return nullptr;
+
+	const auto it = modelMap_.find(modelId);
+	if (it != modelMap_.end()) return &modelMap_[modelId];
 	return nullptr;
 }
 

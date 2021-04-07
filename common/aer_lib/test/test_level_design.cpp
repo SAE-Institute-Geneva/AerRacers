@@ -109,7 +109,7 @@ namespace neko::aer {
             engine_.GetCameras().SetCameras(*camera);
             const Configuration config = BasicEngine::GetInstance()->GetConfig();
             engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-                config.dataRootPath + "scenes/LevelDesign24-03.aerscene");
+                config.dataRootPath + "scenes/LevelDesign05-04.aerscene");
             cContainer_.playerManager.CreatePlayer(Vec3f(-1108.0f, 185.0f, -788.0f));
             cContainer_.playerManager.CreatePlayer(Vec3f(-1128.0f, 185.0f, -788.0f));
             cContainer_.playerManager.CreatePlayer(Vec3f(-1148.0f, 185.0f, -788.0f));
