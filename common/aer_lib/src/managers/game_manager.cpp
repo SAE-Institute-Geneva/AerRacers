@@ -37,26 +37,29 @@ namespace neko::aer
     {
         if (gameManagerStarted)
         {
-            switch (game_state_)
+            if (gameManagerStarted)
             {
-            case GameState::WATING:
-                time -= dt;
-                //TODO: Don't allow player to move
-                WaitForStart();
-                break;
-            case GameState::RACING:
-                time += dt;
-                UpdateGame();
-                UpdateTimerUiText();
-                break;
-            case GameState::END:
-                EndGame();
-                break;
+                switch (game_state_)
+                {
+                case GameState::WATING:
+                    time -= dt;
+                    //TODO: Don't allow player to move
+                    WaitForStart();
+                    break;
+                case GameState::RACING:
+                    time += dt;
+                    UpdateGame();
+                    UpdateTimerUiText();
+                    break;
+                case GameState::END:
+                    EndGame();
+                    break;
+                }
             }
-        }
 
-        UpdateLapsUiText();
-        UpdatePlacementUiText();
+            UpdateLapsUiText();
+            UpdatePlacementUiText();
+        }
     }
 
     void GameManager::Render()

@@ -124,6 +124,9 @@ namespace neko::aer
         std::array<Vec2f, 4> playerScreenOffsets{Vec2f(-0.5, 0.5), Vec2f(0.5, 0.5), Vec2f(-0.5, -0.5), Vec2f(0.5, -0.5)};
 
 
+
+        bool useMenu = false;
+
         bool isDpadLeft = false;
         bool isDpadRight = false;
         bool isDpadUp = false;
