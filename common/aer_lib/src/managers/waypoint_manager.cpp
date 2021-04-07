@@ -371,11 +371,11 @@ namespace neko::aer
         }
         for (int i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
         {
-            for (int j = i; j < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); j++)
+            for (int j = i+1; j < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); j++)
             {
                 if (playerPositionData_.waypointsCount[i] > playerPositionData_.waypointsCount[j])
                 {
-                    if (playerPositionData_.racePlacement[i] < playerPositionData_.racePlacement[j])
+                    if (playerPositionData_.racePlacement[i] > playerPositionData_.racePlacement[j])
                     {
                         RacePlacement racePlacementI = playerPositionData_.racePlacement[i];
                         playerPositionData_.racePlacement[i] = playerPositionData_.racePlacement[j];
