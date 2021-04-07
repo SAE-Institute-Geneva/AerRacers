@@ -43,6 +43,12 @@ namespace neko::aer
         END
     };
 
+struct VictoryData
+{
+    int index;
+    float time;
+};
+
     class GameManager : public SystemInterface, public RenderCommandInterface
     {
     public:
@@ -89,6 +95,14 @@ namespace neko::aer
         std::array<UiText, 4> TimerUi;
         std::array<UiText, 4> LapsUi;
         std::array<UiText, 4> placementUi;
+        std::array<UiText, 4> endGameText {
+            UiText(FontLoaded::LOBSTER, "", Vec2f(0.0,0.6), UiAnchor::CENTER, 0, 1, Color::cyan),
+            UiText(FontLoaded::LOBSTER, "", Vec2f(0.0,0.2), UiAnchor::CENTER, 0, 1, Color::cyan),
+            UiText(FontLoaded::LOBSTER, "", Vec2f(0.0,-0.2), UiAnchor::CENTER, 0, 1, Color::cyan),
+            UiText(FontLoaded::LOBSTER, "", Vec2f(0.0,-0.6), UiAnchor::CENTER, 0, 1, Color::cyan)
+        };
+        std::array<std::string, 4> positionsText{ "st", "nd", "rd", "th" };
+        std::vector<VictoryData> victoryDatas;
         UiText globalText;
 
         const float startTimer = 10.0f;
