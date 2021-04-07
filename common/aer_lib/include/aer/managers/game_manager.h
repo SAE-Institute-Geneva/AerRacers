@@ -29,7 +29,7 @@
 
 #include <engine\entity.h>
 #include <mathematics/vector.h>
-#include <aer/aer_engine.h>
+#include <aer/ui/ui_manager.h>
 
 namespace neko::aer
 {
@@ -49,7 +49,7 @@ namespace neko::aer
     public:
         GameManager(AerEngine& engine);
         void Init() override;
-        void StartGameManager();
+        void StartGameManager(int currentPlayerCount);
         void Update(seconds dt) override;
         void Render() override;
         void SpawnPlayers();
@@ -95,7 +95,7 @@ namespace neko::aer
         const float startTimer = 10.0f;
         const float endTimer = 10.0f;
         const int wpToFinish = 33;
-        const int playerCount = 4;
+        int playerCount = 4;
         const float uiPositionMultiplier = 0.25f;
 
         const std::array<Vec3f, 4> spawns =

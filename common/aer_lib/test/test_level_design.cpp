@@ -48,9 +48,10 @@ namespace neko::aer {
 
 
         void Init() override {
-            cContainer_.gameManager.StartGameManager();
-            cContainer_.playerManager.CreatePlayer(Vec3f(192.0f, 84.0f, 56.0f));
-            cContainer_.waypointManager.StartDetection();
+            cContainer_.menuManager.StartMenu();
+            //cContainer_.gameManager.StartGameManager();
+            //cContainer_.playerManager.CreatePlayer(Vec3f(192.0f, 84.0f, 56.0f));
+            //cContainer_.waypointManager.StartDetection();
         }
 
         void Update(neko::seconds dt) override {

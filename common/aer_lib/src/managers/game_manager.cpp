@@ -1,4 +1,5 @@
 #include <aer/managers/game_manager.h>
+#include <aer/aer_engine.h>
 
 namespace neko::aer
 {
@@ -12,7 +13,7 @@ namespace neko::aer
         gameManagerStarted = false;
     }
 
-    void GameManager::StartGameManager()
+    void GameManager::StartGameManager(int currentPlayerCount)
     {
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         engine_.GetComponentManagerContainer().sceneManager.LoadScene(
@@ -23,6 +24,7 @@ namespace neko::aer
         camera->nearPlane = 0.1f;
         camera->farPlane = 1'000'000.0f;
         engine_.GetCameras().SetCameras(*camera);
+        playerCount = currentPlayerCount;
         SpawnPlayers();
         StartWPManager();
         StartCountDown();

@@ -16,6 +16,7 @@
 #include "aer/managers/camera_controller_manager.h"
 #include "aer/managers/waypoint_manager.h"
 #include "aer/managers/game_manager.h"
+#include "aer/managers/menu_manager.h"
 #include "aer/scene.h"
 #include "engine/transform.h"
 
@@ -91,7 +92,7 @@ struct ComponentManagerContainer : public SystemInterface
 		 rigidStaticViewer(transform3dManager, entityManager, physicsEngine, rigidStaticManager),
          shipControllerViewer(entityManager, playerManager, shipControllerManager),
          cameraControllerViewer(entityManager, playerManager, cameraControllerManager),
-    waypointManager(engine), gameManager(engine),
+    waypointManager(engine), gameManager(engine), menuManager(engine),
 #ifdef NEKO_FMOD
 		audioViewer(entityManager, audioManager),
 #endif
@@ -116,6 +117,7 @@ struct ComponentManagerContainer : public SystemInterface
         shipControllerManager.Init();
         waypointManager.Init();
         gameManager.Init();
+        menuManager.Init();
     }
 
     void Update(seconds dt) override
@@ -131,6 +133,7 @@ struct ComponentManagerContainer : public SystemInterface
         waypointManager.Update(dt);
         shipInputManager.Update(dt);
         gameManager.Update(dt);
+        menuManager.Update(dt);
     }
     
 	void Destroy() override
@@ -153,6 +156,7 @@ struct ComponentManagerContainer : public SystemInterface
     CameraControllerManager cameraControllerManager;
     WaypointManager waypointManager;
     GameManager gameManager;
+    MenuManager menuManager;
 
     Transform3dViewer transform3dViewer;
     RendererViewer rendererViewer;
