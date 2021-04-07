@@ -88,8 +88,14 @@ void RenderManager::Render()
 			shader_.SetMat4("model", modelMat);
 			shader_.SetMat3("normalMatrix", Mat3f(modelMat).Inverse().Transpose());
 
-			const auto& model = modelManager.GetModel(components_[entity].modelId);
-			model->Draw(shader_);
+			const auto* model = modelManager.GetModel(components_[entity].modelId);
+			if (components_[entity].diffuseTexture == INVALID_TEXTURE_NAME)
+			{
+				model->Draw(shader_);
+			} else {
+				auto* modelPtr = modelManager.GetModelPtr(components_[entity].modelId);
+				modelPtr->DrawFromTexture(shader_, components_[entity].diffuseTexture);
+			}
 		}
 	}
 #elif NEKO_VULKAN
@@ -146,6 +152,15 @@ void RenderManager::SetModel(Entity entity, gl::ModelId modelId)
 {
 	DrawCmd drawCmd = GetComponent(entity);
 	drawCmd.modelId = modelId;
+
+	SetComponent(entity, drawCmd);
+}
+
+void RenderManager::SetDiffuseTexture(Entity entity,
+	const TextureName& diffuseTexture)
+{
+	DrawCmd drawCmd = GetComponent(entity);
+	drawCmd.diffuseTexture = diffuseTexture;
 
 	SetComponent(entity, drawCmd);
 }
@@ -216,13 +231,17 @@ void RendererViewer::SetComponentFromJson(Entity entity, const json& componentJs
 {
 	if (CheckJsonParameter(componentJson, "meshName", json::value_t::string))
 	{
-		std::string meshName = std::string(componentJson["meshName"]);
-		std::transform(meshName.begin(),
-			meshName.end(),
-			meshName.begin(),
+		std::string meshPath = std::string(componentJson["meshName"]);
+		std::transform(meshPath.begin(),
+			meshPath.end(),
+			meshPath.begin(),
 			[](unsigned char c) { return std::tolower(c); });
+		std::size_t found = meshPath.find_last_of('/') + 1;
+		std::string meshName = meshPath;
+		if (found != std::string::npos)
+			meshName = meshName.substr(found);
 
-		const std::string path = GetModelsFolderPath() + meshName + "/" + meshName + ".obj";
+		const std::string path = GetModelsFolderPath() + meshPath + "/" + meshName + ".obj";
 		if (FileExists(path))
 		{
 			rendererManager_.AddComponent(entity);
@@ -230,7 +249,7 @@ void RendererViewer::SetComponentFromJson(Entity entity, const json& componentJs
 		}
 		else
 		{
-			LogDebug("File " + meshName + " not found");
+			LogDebug("File " + meshPath + " not found");
 		}
 	}
 }

@@ -1,6 +1,9 @@
 #include <aer/managers/game_manager.h>
 #include <aer/aer_engine.h>
 
+
+#include <aer/aer_engine.h>
+
 namespace neko::aer
 {
     GameManager::GameManager(AerEngine& engine) : engine_(engine)

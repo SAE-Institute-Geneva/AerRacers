@@ -30,6 +30,12 @@ void Model::Draw(const Shader& shader) const
 	for (auto& mesh : meshes_) mesh.Draw(shader);
 }
 
+void Model::DrawFromTexture(const Shader& shader, const TextureName& texture)
+{
+	for (auto& mesh : meshes_) mesh.DrawFromTexture(shader, texture);
+}
+
+
 void Model::Destroy()
 {
 	for (auto& mesh : meshes_) mesh.Destroy();

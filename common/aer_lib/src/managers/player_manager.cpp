@@ -36,85 +36,197 @@ namespace neko::aer
 
         //ShipEntity
         Entity shipEntity = cContainer_.entityManager.CreateEntity();
-        cContainer_.entityManager.AddComponentType(shipEntity, EntityMask(ComponentType::PLAYER_COMPONENT));
+        cContainer_.entityManager.AddComponentType(shipEntity,
+            EntityMask(ComponentType::PLAYER_COMPONENT));
         cContainer_.entityManager.SetEntityName(shipEntity, "ship");
         TagLocator::get().SetEntityTag(shipEntity, "Ship");
         cContainer_.transform3dManager.AddComponent(shipEntity);
         cContainer_.transform3dManager.SetGlobalPosition(shipEntity, pos);
         cContainer_.transform3dManager.SetGlobalRotation(shipEntity, euler);
         physics::RigidDynamicData rigidDynamic;
-        rigidDynamic.useGravity = false;
-        rigidDynamic.colliderType = physics::ColliderType::BOX;
-        rigidDynamic.angularDamping = 3.0f;
-        rigidDynamic.freezeRotation = Vec3<bool>(true, false, true);
-        rigidDynamic.boxColliderData.size = Vec3f(9.0f, 1.0f, 5.5f);
-        rigidDynamic.material.bounciness = 0.0f;
-        rigidDynamic.material.staticFriction = 0.0f;
+        rigidDynamic.useGravity               = false;
+        rigidDynamic.colliderType             = physics::ColliderType::BOX;
+        rigidDynamic.angularDamping           = 3.0f;
+        rigidDynamic.freezeRotation           = Vec3<bool>(true, false, true);
+        rigidDynamic.boxColliderData.size     = Vec3f(9.0f, 1.0f, 5.5f);
+        rigidDynamic.material.bounciness      = 0.0f;
+        rigidDynamic.material.staticFriction  = 0.0f;
         rigidDynamic.material.dynamicFriction = 0.0f;
         cContainer_.rigidDynamicManager.AddRigidDynamic(shipEntity, rigidDynamic);
         shipControllerManager_.InitComponent(playerCount_);
 
-        //ShipModel
-        Entity shipModelEntity = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(shipModelEntity);
-        cContainer_.entityManager.SetEntityParent(shipModelEntity, shipEntity);
-        cContainer_.transform3dManager.SetRelativeScale(shipModelEntity, Vec3f::one * 0.01f);
-        cContainer_.transform3dManager.SetRelativePosition(shipModelEntity, Vec3f::zero);
-        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
-
-        //ShipArt
-        Entity shipArtEntity = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(shipArtEntity);
-        cContainer_.entityManager.SetEntityParent(shipArtEntity, shipModelEntity);
-        cContainer_.transform3dManager.SetRelativePosition(shipArtEntity, Vec3f::zero);
-        cContainer_.transform3dManager.SetRelativeScale(shipArtEntity, Vec3f::one);
-        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
-        cContainer_.renderManager.AddComponent(shipArtEntity);
-        cContainer_.renderManager.SetModel(shipArtEntity, config.dataRootPath + "models/ship/low_cortese_corps.obj");
-
-        //RightRotorAnchor
-        Entity shipRightRotorAnchor = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(shipRightRotorAnchor);
-        cContainer_.entityManager.SetEntityParent(shipRightRotorAnchor, shipModelEntity);
-        cContainer_.transform3dManager.SetRelativePosition(shipRightRotorAnchor, pos + Vec3f::left * 7);
-        cContainer_.transform3dManager.SetGlobalScale(shipRightRotorAnchor, Vec3f(2, 1, 2));
-
-        //RightRotorModel
-        Entity shipRightRotorModel = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(shipRightRotorModel);
-        cContainer_.entityManager.SetEntityParent(shipRightRotorModel, shipModelEntity);
-        cContainer_.transform3dManager.SetRelativePosition(shipRightRotorModel, Vec3f::zero);
-        cContainer_.transform3dManager.SetRelativeScale(shipRightRotorModel, Vec3f::one);
-        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
-        cContainer_.renderManager.AddComponent(shipRightRotorModel);
-        cContainer_.renderManager.SetModel(shipRightRotorModel, config.dataRootPath + "models/ship/low_helice_g.obj");
-
-        //LeftRotorAnchor
-        Entity shipLeftRotorAnchor = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(shipLeftRotorAnchor);
-        cContainer_.entityManager.SetEntityParent(shipLeftRotorAnchor, shipModelEntity);
-        cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorAnchor, pos + Vec3f::right * 7);
-        cContainer_.transform3dManager.SetGlobalScale(shipLeftRotorAnchor, Vec3f(2, 1, 2));
-
-        //LeftRotorModel
-        Entity shipLeftRotorModel = cContainer_.entityManager.CreateEntity();
-        cContainer_.transform3dManager.AddComponent(shipLeftRotorModel);
-        cContainer_.entityManager.SetEntityParent(shipLeftRotorModel, shipModelEntity);
-        cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorModel, Vec3f::zero);
-        cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorModel, Vec3f::one);
-        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
-        cContainer_.renderManager.AddComponent(shipLeftRotorModel);
-        cContainer_.renderManager.SetModel(shipLeftRotorModel, config.dataRootPath + "models/ship/low_helice_d.obj");
-
         PlayerComponent playerComponent;
-        playerComponent.shipEntity = shipEntity;
-        playerComponent.shipModelEntity = shipModelEntity;
-        playerComponent.rightRotorAnchor = shipRightRotorAnchor;
-        playerComponent.rightRotorModel = shipRightRotorModel;
-        playerComponent.leftRotorAnchor = shipLeftRotorAnchor;
-        playerComponent.leftRotorModel = shipLeftRotorModel;
+        playerComponent.shipEntity   = shipEntity;
         playerComponent.playerNumber = playerComponents_.size();
-        playerComponent.playerSpawn = pos;
+        playerComponent.playerSpawn  = pos;
+
+        bool cortese = false;
+        if (cortese) {
+            //ShipModel
+            Entity shipModelEntity = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipModelEntity);
+            cContainer_.entityManager.SetEntityParent(shipModelEntity, shipEntity);
+            cContainer_.transform3dManager.SetRelativeScale(shipModelEntity, Vec3f::one * 0.2f);
+            cContainer_.transform3dManager.SetRelativePosition(shipModelEntity, Vec3f::zero);
+            cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+
+            //ShipArt
+            Entity shipArtEntity = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipArtEntity);
+            cContainer_.entityManager.SetEntityParent(shipArtEntity, shipModelEntity);
+            cContainer_.transform3dManager.SetRelativePosition(shipArtEntity, Vec3f::zero);
+            cContainer_.transform3dManager.SetRelativeScale(shipArtEntity, Vec3f::one);
+            cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+            cContainer_.renderManager.AddComponent(shipArtEntity);
+            cContainer_.renderManager.SetModel(shipArtEntity,
+                config.dataRootPath + "models/ship/cortese/corps/low_cortese_corps_resize.obj");
+
+            //ShipArt
+            Entity shipArtDetailEntity = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipArtDetailEntity);
+            cContainer_.entityManager.SetEntityParent(shipArtDetailEntity, shipArtEntity);
+            cContainer_.transform3dManager.SetRelativePosition(shipArtDetailEntity, Vec3f::zero);
+            cContainer_.transform3dManager.SetRelativeScale(shipArtDetailEntity, Vec3f::one);
+            cContainer_.transform3dManager.SetRelativeRotation(shipArtDetailEntity,
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+            cContainer_.renderManager.AddComponent(shipArtDetailEntity);
+            cContainer_.renderManager.SetModel(shipArtDetailEntity,
+                config.dataRootPath +
+                "models/ship/cortese/details/low_cortese_elements_resize.obj");
+
+            //RightRotorAnchor
+            Entity shipRightRotorAnchor = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipRightRotorAnchor);
+            cContainer_.entityManager.SetEntityParent(shipRightRotorAnchor, shipModelEntity);
+            cContainer_.transform3dManager.SetRelativePosition(shipRightRotorAnchor,
+                pos + Vec3f(-16.75f, 0, 4));
+            cContainer_.transform3dManager.SetRelativeScale(shipRightRotorAnchor, Vec3f::one);
+
+            //RightRotorModel
+            Entity shipRightRotorModel = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipRightRotorModel);
+            cContainer_.entityManager.SetEntityParent(shipRightRotorModel, shipRightRotorAnchor);
+            cContainer_.transform3dManager.SetRelativePosition(shipRightRotorModel, Vec3f::zero);
+            cContainer_.transform3dManager.SetRelativeScale(shipRightRotorModel, Vec3f::one);
+            cContainer_.transform3dManager.SetRelativeRotation(shipRightRotorModel,
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+            cContainer_.renderManager.AddComponent(shipRightRotorModel);
+            cContainer_.renderManager.SetModel(shipRightRotorModel,
+                config.dataRootPath +
+                "models/ship/cortese/helice_d/low_helice_d_origin_resize.obj");
+
+            //LeftRotorAnchor
+            Entity shipLeftRotorAnchor = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipLeftRotorAnchor);
+            cContainer_.entityManager.SetEntityParent(shipLeftRotorAnchor, shipModelEntity);
+            cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorAnchor,
+                pos + Vec3f(16.75f, 0, 4));
+            cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorAnchor, Vec3f::one);
+
+            //LeftRotorModel
+            Entity shipLeftRotorModel = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipLeftRotorModel);
+            cContainer_.entityManager.SetEntityParent(shipLeftRotorModel, shipLeftRotorAnchor);
+            cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorModel, Vec3f::zero);
+            cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorModel, Vec3f::one);
+            cContainer_.transform3dManager.SetRelativeRotation(shipLeftRotorModel,
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+            cContainer_.renderManager.AddComponent(shipLeftRotorModel);
+            cContainer_.renderManager.SetModel(shipLeftRotorModel,
+                config.dataRootPath +
+                "models/ship/cortese/helice_g/low_helice_g_origin_resize.obj");
+
+            playerComponent.shipModelEntity  = shipModelEntity;
+            playerComponent.rightRotorAnchor = shipRightRotorAnchor;
+            playerComponent.rightRotorModel  = shipRightRotorModel;
+            playerComponent.leftRotorAnchor  = shipLeftRotorAnchor;
+            playerComponent.leftRotorModel   = shipLeftRotorModel;
+        } else {
+            //ShipModel
+            Entity shipModelEntity = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipModelEntity);
+            cContainer_.entityManager.SetEntityParent(shipModelEntity, shipEntity);
+            cContainer_.transform3dManager.SetRelativeScale(shipModelEntity, Vec3f::one * 0.2f);
+            cContainer_.transform3dManager.SetRelativePosition(shipModelEntity, Vec3f::zero);
+            cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+
+            //ShipArt
+            Entity shipArtEntity = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipArtEntity);
+            cContainer_.entityManager.SetEntityParent(shipArtEntity, shipModelEntity);
+            cContainer_.transform3dManager.SetRelativePosition(shipArtEntity, Vec3f::zero);
+            cContainer_.transform3dManager.SetRelativeScale(shipArtEntity, Vec3f::one);
+            cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+            cContainer_.renderManager.AddComponent(shipArtEntity);
+            cContainer_.renderManager.SetModel(shipArtEntity,
+                config.dataRootPath + "models/ship/ilroso/corps/objet_central_low.obj");
+
+            //ShipArt
+            Entity shipArtDetailEntity = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipArtDetailEntity);
+            cContainer_.entityManager.SetEntityParent(shipArtDetailEntity, shipArtEntity);
+            cContainer_.transform3dManager.SetRelativePosition(shipArtDetailEntity, Vec3f::zero);
+            cContainer_.transform3dManager.SetRelativeScale(shipArtDetailEntity, Vec3f::one);
+            cContainer_.transform3dManager.SetRelativeRotation(shipArtDetailEntity,
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+            cContainer_.renderManager.AddComponent(shipArtDetailEntity);
+            cContainer_.renderManager.SetModel(shipArtDetailEntity,
+                config.dataRootPath +
+                "models/ship/ilroso/details/details_low.obj");
+
+            //RightRotorAnchor
+            Entity shipRightRotorAnchor = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipRightRotorAnchor);
+            cContainer_.entityManager.SetEntityParent(shipRightRotorAnchor, shipModelEntity);
+            cContainer_.transform3dManager.SetRelativePosition(shipRightRotorAnchor,
+                pos + Vec3f(-12.5f, 3.5f, -1.5f));
+            cContainer_.transform3dManager.SetRelativeScale(shipRightRotorAnchor, Vec3f::one);
+
+            //RightRotorModel
+            Entity shipRightRotorModel = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipRightRotorModel);
+            cContainer_.entityManager.SetEntityParent(shipRightRotorModel, shipRightRotorAnchor);
+            cContainer_.transform3dManager.SetRelativePosition(shipRightRotorModel, Vec3f::zero);
+            cContainer_.transform3dManager.SetRelativeScale(shipRightRotorModel, Vec3f::one);
+            cContainer_.transform3dManager.SetRelativeRotation(shipRightRotorModel,
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+            cContainer_.renderManager.AddComponent(shipRightRotorModel);
+            cContainer_.renderManager.SetModel(shipRightRotorModel,
+                config.dataRootPath +
+                "models/ship/ilroso/helice_d/helice_droit.obj");
+
+            //LeftRotorAnchor
+            Entity shipLeftRotorAnchor = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipLeftRotorAnchor);
+            cContainer_.entityManager.SetEntityParent(shipLeftRotorAnchor, shipModelEntity);
+            cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorAnchor,
+                pos + Vec3f(12.5f, 3.5f, -1.5f));
+            cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorAnchor, Vec3f::one);
+
+            //LeftRotorModel
+            Entity shipLeftRotorModel = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(shipLeftRotorModel);
+            cContainer_.entityManager.SetEntityParent(shipLeftRotorModel, shipLeftRotorAnchor);
+            cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorModel, Vec3f::zero);
+            cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorModel, Vec3f::one);
+            cContainer_.transform3dManager.SetRelativeRotation(shipLeftRotorModel,
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+            cContainer_.renderManager.AddComponent(shipLeftRotorModel);
+            cContainer_.renderManager.SetModel(shipLeftRotorModel,
+                config.dataRootPath +
+                "models/ship/ilroso/helice_g/helice_gauche.obj");
+
+            playerComponent.shipModelEntity = shipModelEntity;
+            playerComponent.rightRotorAnchor = shipRightRotorAnchor;
+            playerComponent.rightRotorModel = shipRightRotorModel;
+            playerComponent.leftRotorAnchor = shipLeftRotorAnchor;
+            playerComponent.leftRotorModel = shipLeftRotorModel;
+        }
+
 
         std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
         if (controllers.size() > playerCount_)

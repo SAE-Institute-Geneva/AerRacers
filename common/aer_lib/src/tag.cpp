@@ -33,7 +33,6 @@ TagIndex TagManager::GetEntityTagIndex(Entity entity) const
 
 	if (entity == INVALID_ENTITY || entity >= entityTagArray_.size())
 	{
-		LogDebug("Entity invalid");
 		return 0;
 	}
 
@@ -127,7 +126,6 @@ LayerIndex TagManager::GetEntityLayerIndex(Entity entity) const
 
 	if (entity == INVALID_ENTITY || entity >= entityLayerArray_.size())
 	{
-		LogDebug("Entity invalid");
 		return 0;
 	}
 
