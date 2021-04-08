@@ -77,6 +77,7 @@ void ShipControllerManager::Update(seconds dt)
 void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
 {
     ShipController& shipController = shipControllers_[playerId];
+
     Entity shipEntity = playerManager_.GetShipEntity(playerId);
     if (shipEntity == INVALID_ENTITY) return;
     physics::RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(shipEntity);
@@ -144,7 +145,38 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
         if (shipController.canMove)
         {
             angle = shipParameter_.kAngleOfRoll * -shipInputManager_.GetRudder(playerId) * shipInputManager_.GetIntensity(playerId);
-            pitchAngle = shipParameter_.kAngleOfPitch * shipInputManager_.GetThruster(playerId) * shipInputManager_.GetIntensity(playerId);
+            float thrust = shipInputManager_.GetThruster(playerId);
+
+            if(thrust > shipParameter_.kAngleDeadzoneLimit) {
+                shipController.angleMultiplicator += shipParameter_.kAngleChangeSpeed;
+            }
+            else if(thrust < -shipParameter_.kAngleDeadzoneLimit){
+                shipController.angleMultiplicator -= shipParameter_.kAngleChangeSpeed;
+            }
+            else if(thrust > -shipParameter_.kAngleDeadzoneLimit && thrust < shipParameter_.kAngleDeadzoneLimit) {
+                if(shipController.angleMultiplicator < -shipParameter_.kAngleDeadzoneLimit) {
+                    shipController.angleMultiplicator += shipParameter_.kAngleChangeSpeed;
+                }
+                else if(shipController.angleMultiplicator > shipParameter_.kAngleDeadzoneLimit) {
+                    shipController.angleMultiplicator -= shipParameter_.kAngleChangeSpeed;
+                }
+                else {
+                    shipController.angleMultiplicator = 0;
+                }
+            }
+
+            if(shipController.angleMultiplicator >= 1) {
+                shipController.angleMultiplicator = 1;
+            }
+            if(shipController.angleMultiplicator <= -1) {
+                shipController.angleMultiplicator = -1;
+            }
+
+            //Automated pitch
+            pitchAngle = shipParameter_.kAngleOfPitch * shipController.angleMultiplicator;
+
+            //Pitch with user input
+            //pitchAngle = shipParameter_.kAngleOfPitch *shipInputManager_.GetThruster(playerId) * shipInputManager_.GetIntensity(playerId);
         }
 
     Entity shipModelEntity = playerManager_.GetPlayerComponent(playerId).shipModelEntity;
@@ -204,10 +236,10 @@ void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
     }
 
     Vec3f forward = Quaternion::FromEuler(transformManager_.GetGlobalRotation(shipEntity)) * Vec3f::forward;
-    float propultion = (shipParameter_.kForwardForce * currentThruster * shipParameter_.kPropultionMultiplicator) -
+    float propulsion = (shipParameter_.kForwardForce * currentThruster * shipParameter_.kPropultionMultiplicator) -
         (shipController.drag * Clamp(Vec3f::Dot(rigidDynamic.GetDynamicData().linearVelocity, forward), 0.0f, shipParameter_.kTerminalVelocity) *
             shipParameter_.kPropultionMultiplicator);
-    rigidDynamic.AddForce(forward * propultion, physx::PxForceMode::eACCELERATION);
+    rigidDynamic.AddForce(forward * propulsion, physx::PxForceMode::eACCELERATION);
 }
 
 void ShipControllerManager::RotorMovement(PlayerId playerId) {

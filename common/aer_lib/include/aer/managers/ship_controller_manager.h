@@ -60,6 +60,8 @@ struct ShipParameter {
 
     //Visuals
     const float kRotorRotationSpeed = 20.0f;
+    const float kAngleChangeSpeed = 0.1f;
+    const float kAngleDeadzoneLimit = 0.1f;
 };
 /**
  * \brief Component used to control the ship movements.
@@ -72,6 +74,7 @@ struct ShipController {
     bool isOnGround = false;
     float startHoverHeight = 0.0f;
     bool canMove = true;
+    float angleMultiplicator = 0.0f;
 };
 
 /**
