@@ -139,48 +139,82 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
     //GizmosLocator::get().DrawLine(shipPosition, shipPosition + (rotation * Vec3f::up) * 3.0f, Color::red, 5.0f);
     //GizmosLocator::get().DrawLine(shipPosition, shipPosition + (rotation * Vec3f::right) * 3.0f, Color::red, 5.0f);
     rigidDynamic.MoveRotation(Quaternion::Lerp(shipRotation,rotation, shipParameter_.kAngleRoadLerp));
-    float angle = 0; 
+    float rollAngle = 0; 
     float pitchAngle = 0; 
 
         if (shipController.canMove)
         {
-            angle = shipParameter_.kAngleOfRoll * -shipInputManager_.GetRudder(playerId) * shipInputManager_.GetIntensity(playerId);
+            //Roll angle
+            float rudder = -shipInputManager_.GetRudder(playerId);
+            
+            if(rudder > shipParameter_.kAngleDeadzoneLimit){
+                shipController.rollMultiplicator += shipParameter_.kAngleChangeSpeed;
+            }
+            else if(rudder < -shipParameter_.kAngleDeadzoneLimit) {
+                shipController.rollMultiplicator -= shipParameter_.kAngleChangeSpeed;
+            }
+            else if(rudder > -shipParameter_.kAngleDeadzoneLimit && rudder < shipParameter_.kAngleDeadzoneLimit) {
+                if (shipController.rollMultiplicator < -shipParameter_.kAngleDeadzoneLimit) {
+                    shipController.rollMultiplicator += shipParameter_.kAngleChangeSpeed;
+                }
+                else if (shipController.rollMultiplicator > shipParameter_.kAngleDeadzoneLimit) {
+                    shipController.rollMultiplicator -= shipParameter_.kAngleChangeSpeed;
+                }
+                else {
+                    shipController.rollMultiplicator = 0;
+                }
+            }
+
+            if (shipController.rollMultiplicator >= 1) {
+                shipController.rollMultiplicator = 1;
+            }
+            if (shipController.rollMultiplicator <= -1) {
+                shipController.rollMultiplicator = -1;
+            }
+
+            //Automated roll
+            rollAngle = shipParameter_.kAngleOfRoll * shipController.rollMultiplicator;
+
+            //Roll with user input
+            //rollAngle = shipParameter_.kAngleOfRoll * -shipInputManager_.GetRudder(playerId) * shipInputManager_.GetIntensity(playerId);
+
+            //Pitch angle
             float thrust = shipInputManager_.GetThruster(playerId);
 
             if(thrust > shipParameter_.kAngleDeadzoneLimit) {
-                shipController.angleMultiplicator += shipParameter_.kAngleChangeSpeed;
+                shipController.pitchMultiplicator += shipParameter_.kAngleChangeSpeed;
             }
             else if(thrust < -shipParameter_.kAngleDeadzoneLimit){
-                shipController.angleMultiplicator -= shipParameter_.kAngleChangeSpeed;
+                shipController.pitchMultiplicator -= shipParameter_.kAngleChangeSpeed;
             }
             else if(thrust > -shipParameter_.kAngleDeadzoneLimit && thrust < shipParameter_.kAngleDeadzoneLimit) {
-                if(shipController.angleMultiplicator < -shipParameter_.kAngleDeadzoneLimit) {
-                    shipController.angleMultiplicator += shipParameter_.kAngleChangeSpeed;
+                if(shipController.pitchMultiplicator < -shipParameter_.kAngleDeadzoneLimit) {
+                    shipController.pitchMultiplicator += shipParameter_.kAngleChangeSpeed;
                 }
-                else if(shipController.angleMultiplicator > shipParameter_.kAngleDeadzoneLimit) {
-                    shipController.angleMultiplicator -= shipParameter_.kAngleChangeSpeed;
+                else if(shipController.pitchMultiplicator > shipParameter_.kAngleDeadzoneLimit) {
+                    shipController.pitchMultiplicator -= shipParameter_.kAngleChangeSpeed;
                 }
                 else {
-                    shipController.angleMultiplicator = 0;
+                    shipController.pitchMultiplicator = 0;
                 }
             }
 
-            if(shipController.angleMultiplicator >= 1) {
-                shipController.angleMultiplicator = 1;
+            if(shipController.pitchMultiplicator >= 1) {
+                shipController.pitchMultiplicator = 1;
             }
-            if(shipController.angleMultiplicator <= -1) {
-                shipController.angleMultiplicator = -1;
+            if(shipController.pitchMultiplicator <= -1) {
+                shipController.pitchMultiplicator = -1;
             }
 
             //Automated pitch
-            pitchAngle = shipParameter_.kAngleOfPitch * shipController.angleMultiplicator;
+            pitchAngle = shipParameter_.kAngleOfPitch * shipController.pitchMultiplicator;
 
             //Pitch with user input
             //pitchAngle = shipParameter_.kAngleOfPitch *shipInputManager_.GetThruster(playerId) * shipInputManager_.GetIntensity(playerId);
         }
 
     Entity shipModelEntity = playerManager_.GetPlayerComponent(playerId).shipModelEntity;
-    Quaternion bodyRotation = Quaternion::FromEuler(EulerAngles(pitchAngle, 0.0f, angle));
+    Quaternion bodyRotation = Quaternion::FromEuler(EulerAngles(pitchAngle, 0.0f, rollAngle));
 
     transformManager_.SetRelativeRotation(shipModelEntity, Quaternion::ToEulerAngles(bodyRotation));
     //transformManager_.SetGlobalRotation(entity, 

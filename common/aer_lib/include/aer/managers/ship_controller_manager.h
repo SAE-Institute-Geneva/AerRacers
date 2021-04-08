@@ -74,7 +74,9 @@ struct ShipController {
     bool isOnGround = false;
     float startHoverHeight = 0.0f;
     bool canMove = true;
-    float angleMultiplicator = 0.0f;
+    float pitchMultiplicator = 0.0f;
+    float rollMultiplicator = 0.0f;
+
 };
 
 /**
