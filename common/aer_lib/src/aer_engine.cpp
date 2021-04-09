@@ -1,5 +1,7 @@
 #include "aer/aer_engine.h"
 
+#include "engine/resource_locations.h"
+
 #ifdef EASY_PROFILE_USE
     #include <easy/profiler.h>
 #endif
@@ -83,6 +85,25 @@ void AerEngine::Init()
 			cContainer_.playerManager.CreatePlayer(Vec3f(-1128.0f, 185.0f, -788.0f));
 			cContainer_.playerManager.CreatePlayer(Vec3f(-1148.0f, 185.0f, -788.0f));
 			cContainer_.playerManager.CreatePlayer(Vec3f(-1168.0f, 185.0f, -788.0f));
+		}
+		else if (true) {
+			// Audio Sources
+			Entity entity = cContainer_.entityManager.CreateEntity();
+
+			cContainer_.transform3dManager.AddComponent(entity);
+			cContainer_.transform3dManager.SetGlobalPosition(entity, Vec3f::up * 1.5f + Vec3f::right * 2.5f);
+			cContainer_.transform3dManager.SetGlobalScale(entity, Vec3f::one * 0.1f);
+
+			cContainer_.renderManager.AddComponent(entity);
+			cContainer_.renderManager.SetModel(entity, GetModelsFolderPath() + "sphere/sphere.obj");
+
+			cContainer_.audioManager.AddComponent(entity);
+			cContainer_.audioManager.SetEventName(entity, "sfx/ship_engine");
+			cContainer_.audioManager.SetPlayOnWakeUp(entity, true);
+			cContainer_.audioManager.SetMaxDistance(entity, 40.0f);
+			cContainer_.audioManager.SetVolume(entity, 50.0f);
+
+			cContainer_.audioManager.Init();
 		}
 		else {
 			cContainer_.gameManager.StartGameManager(4);

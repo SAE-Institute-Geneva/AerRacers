@@ -168,6 +168,7 @@ struct ComponentManagerContainer : public SystemInterface
     SceneManager sceneManager;
 #ifdef NEKO_FMOD
 	AudioManager audioManager;
+	AudioViewer audioViewer;
 #endif
 };
 }    // namespace neko::aer
