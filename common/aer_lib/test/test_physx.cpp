@@ -487,11 +487,11 @@ public:
         //    precision);
         float modulo = 360.f;
         EXPECT_NEAR(
-            fmod(neko::degree_t(
+            std::fmod(neko::degree_t(
                 neko::radian_t(
                     rigidDynamicManager_->GetDynamicData(cubeTorqueEntity_)
                     .angularVelocity.x)).value(), modulo),
-            fmod(cubeTorque_.x, modulo),
+            std::fmod(cubeTorque_.x, modulo),
             15.0f);
         //Cube Rotation
         EXPECT_NEAR(transform3dManager_->GetRelativeRotation(cubeMoveRotationEntity_).x
