@@ -41,8 +41,6 @@ struct ShipParameter {
     const float kForwardForce = 200.0f;
     const float kSlowingVelFactor = 0.99f;
     const float kBrakingVelFactor = 0.95f;
-    const float kAngleOfRoll = 10.0f;
-    const float kAngleOfPitch = 15.0f;
     const float kAngleRoadLerp = 0.2f;
     const float kRotationMultiplicator = 2.0f;
     const float kPropultionMultiplicator = 1.2f;
@@ -60,7 +58,10 @@ struct ShipParameter {
 
     //Visuals
     const float kRotorRotationSpeed = 20.0f;
-    const float kAngleChangeSpeed = 0.1f;
+    const float kAngleOfRoll = 20.0f;
+    const float kAngleOfPitch = 15.0f;
+    const float kRollChangeSpeed = 0.1f;
+    const float kPitchChangeSpeed = 0.15f;
     const float kAngleDeadzoneLimit = 0.1f;
 };
 /**

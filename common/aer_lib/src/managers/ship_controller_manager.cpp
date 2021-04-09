@@ -148,17 +148,17 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
             float rudder = -shipInputManager_.GetRudder(playerId);
             
             if(rudder > shipParameter_.kAngleDeadzoneLimit){
-                shipController.rollMultiplicator += shipParameter_.kAngleChangeSpeed;
+                shipController.rollMultiplicator += shipParameter_.kRollChangeSpeed;
             }
             else if(rudder < -shipParameter_.kAngleDeadzoneLimit) {
-                shipController.rollMultiplicator -= shipParameter_.kAngleChangeSpeed;
+                shipController.rollMultiplicator -= shipParameter_.kRollChangeSpeed;
             }
             else if(rudder > -shipParameter_.kAngleDeadzoneLimit && rudder < shipParameter_.kAngleDeadzoneLimit) {
                 if (shipController.rollMultiplicator < -shipParameter_.kAngleDeadzoneLimit) {
-                    shipController.rollMultiplicator += shipParameter_.kAngleChangeSpeed;
+                    shipController.rollMultiplicator += shipParameter_.kRollChangeSpeed;
                 }
                 else if (shipController.rollMultiplicator > shipParameter_.kAngleDeadzoneLimit) {
-                    shipController.rollMultiplicator -= shipParameter_.kAngleChangeSpeed;
+                    shipController.rollMultiplicator -= shipParameter_.kRollChangeSpeed;
                 }
                 else {
                     shipController.rollMultiplicator = 0;
@@ -182,17 +182,17 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
             float thrust = shipInputManager_.GetThruster(playerId);
 
             if(thrust > shipParameter_.kAngleDeadzoneLimit) {
-                shipController.pitchMultiplicator += shipParameter_.kAngleChangeSpeed;
+                shipController.pitchMultiplicator += shipParameter_.kPitchChangeSpeed;
             }
             else if(thrust < -shipParameter_.kAngleDeadzoneLimit){
-                shipController.pitchMultiplicator -= shipParameter_.kAngleChangeSpeed;
+                shipController.pitchMultiplicator -= shipParameter_.kPitchChangeSpeed;
             }
             else if(thrust > -shipParameter_.kAngleDeadzoneLimit && thrust < shipParameter_.kAngleDeadzoneLimit) {
                 if(shipController.pitchMultiplicator < -shipParameter_.kAngleDeadzoneLimit) {
-                    shipController.pitchMultiplicator += shipParameter_.kAngleChangeSpeed;
+                    shipController.pitchMultiplicator += shipParameter_.kPitchChangeSpeed;
                 }
                 else if(shipController.pitchMultiplicator > shipParameter_.kAngleDeadzoneLimit) {
-                    shipController.pitchMultiplicator -= shipParameter_.kAngleChangeSpeed;
+                    shipController.pitchMultiplicator -= shipParameter_.kPitchChangeSpeed;
                 }
                 else {
                     shipController.pitchMultiplicator = 0;
