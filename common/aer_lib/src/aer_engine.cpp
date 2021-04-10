@@ -86,7 +86,7 @@ void AerEngine::Init()
 			cContainer_.playerManager.CreatePlayer(Vec3f(-1148.0f, 185.0f, -788.0f));
 			cContainer_.playerManager.CreatePlayer(Vec3f(-1168.0f, 185.0f, -788.0f));
 		}
-		else if (true) {
+		else if (false) {
 			// Audio Sources
 			Entity entity = cContainer_.entityManager.CreateEntity();
 
@@ -104,6 +104,9 @@ void AerEngine::Init()
 			cContainer_.audioManager.SetVolume(entity, 50.0f);
 
 			cContainer_.audioManager.Init();
+		}
+		else if (true) {
+			cContainer_.menuManager.StartMenu();
 		}
 		else {
 			cContainer_.gameManager.StartGameManager(4);

@@ -76,7 +76,7 @@ vec3 GetDiffuse()
 float GetSpecular()
 {
 	if (bool(usedMaps & Specular)) return texture(material.specular, fs1_in.TexCoords).r;
-	else return 1.0;
+	else return 0.0;
 }
 
 vec3 GetEmissive()

@@ -37,7 +37,10 @@ void FmodEngine::Init()
 void FmodEngine::Update(seconds)
 {
 	// Update studio system
-	fmodCheckError(studioSystem_->update());
+	if (studioSystem_)
+	{
+		fmodCheckError(studioSystem_->update());
+	}
 
 	//const Camera3D& camera = sdl::MultiCameraLocator::get().GetCamera(0);
 	//SetAudioListener(camera.position, Vec3f::zero, -camera.reverseDirection, camera.GetUp());
@@ -45,11 +48,14 @@ void FmodEngine::Update(seconds)
 
 void FmodEngine::Destroy()
 {
+	for (auto bank : banks_) fmodCheckError(bank.second->unload());
+
 	// Destroy studio system
 	fmodCheckError(studioSystem_->unloadAll());
 	fmodCheckError(studioSystem_->release());
-
-	for (auto bank : banks_) fmodCheckError(bank.second->unload());
+	studioSystem_ = nullptr;
+	fmodCheckError(system_->release());
+	system_ = nullptr;
 }
 
 // ---------- Resources loading
