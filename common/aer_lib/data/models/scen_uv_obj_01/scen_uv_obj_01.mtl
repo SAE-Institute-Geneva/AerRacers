@@ -1,4 +1,4 @@
-# Blender MTL File: 'untitled.blend'
+# Blender MTL File: 'None'
 # Material Count: 3
 
 newmtl Material__14
@@ -10,8 +10,8 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 1
-map_Bump -bm 0.300000 -s 0.020000 0.020000 0.020000 grass_normal_3.png
-map_Kd -s 0.020000 0.020000 0.020000 grass_basecolor_02.png
+map_Bump -bm 0.300000 grass_normal_3.png
+map_Kd grass_basecolor_02.png
 
 newmtl Material__26
 Ns 10.000002
@@ -22,11 +22,11 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 1
-map_Bump -bm 0.300000 -s 0.020000 0.020000 0.020000 grass_normal_3.png
-map_Kd -s 0.020000 0.020000 0.020000 grass_basecolor_02.png
+map_Bump -bm 0.300000 grass_normal_3.png
+map_Kd grass_basecolor_02.png
 
 newmtl Material__38
-Ns 10.000002
+Ns 0.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.345098 0.341176 0.254902
 Ks 0.000000 0.000000 0.000000
@@ -34,5 +34,5 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 1
-map_Bump -bm 3.000000 -s 0.020000 0.020000 0.020000 mur_normal.png
-map_Kd -s 0.020000 0.020000 0.020000 mur_basecolor.png
+map_Bump -bm 3.000000 mur_normal.png
+map_Kd mur_basecolor.png
