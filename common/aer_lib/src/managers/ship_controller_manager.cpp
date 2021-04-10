@@ -43,7 +43,6 @@ void ShipControllerManager::RotorRotation(PlayerId playerId) {
 
 void ShipControllerManager::Init()
 {
-
 }
 
 void ShipControllerManager::FixedUpdate(seconds dt) {
@@ -70,6 +69,7 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
 
     Entity shipEntity = cContainer_.playerManager.GetShipEntity(playerId);
     if (shipEntity == INVALID_ENTITY) return;
+
     physics::RigidDynamic rigidDynamic = cContainer_.rigidDynamicManager.GetComponent(shipEntity);
 
     //Raycast to ground
@@ -214,6 +214,9 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
     //            bodyRotation, 
     //            dt.count() * 10.0f)));
 
+    if(cContainer_.shipInputManager.GetThruster(playerId) > 0.1f) {
+        PlaySound(playerId);
+    }
 }
 
 void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
@@ -239,7 +242,6 @@ void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
 
     rigidDynamic.AddForce(sideFriction, physx::PxForceMode::eACCELERATION);
 
-    //TODO
     float currentThruster = 0;
     bool currentBreaking = false;
         if (shipController.canMove)
@@ -412,6 +414,11 @@ float PID::Seek(float seekValue, float currentValue, float deltaTime)
     value = Clamp(value, minimum, maximum);
 
     return value;
+}
+
+void ShipControllerManager::PlaySound(PlayerId playerId) {
+    PlayerComponent playerComponent = cContainer_.playerManager.GetPlayerComponent(playerId);
+    cContainer_.audioManager.PlayOnce(playerComponent.audioEntity);
 }
 
 

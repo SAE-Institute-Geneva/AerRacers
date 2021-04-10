@@ -75,7 +75,6 @@ struct ShipController {
     bool canMove = true;
     float pitchMultiplicator = 0.0f;
     float rollMultiplicator = 0.0f;
-
 };
 
 /**
@@ -104,7 +103,7 @@ public:
         const physx::PxContactPairHeader& pairHeader) override;
     void SetCanMove(PlayerId playerId, bool value);
     bool GetCanMove(PlayerId playerId);
-
+    void PlaySound(PlayerId playerId);
     ShipController GetComponent(PlayerId playerId) { return shipControllers_[playerId]; }
 protected:
     std::vector<ShipController> shipControllers_;

@@ -227,6 +227,18 @@ namespace neko::aer
             playerComponent.leftRotorModel = shipLeftRotorModel;
         }
 
+        //Audio
+        Entity audioEntity = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(audioEntity);
+        cContainer_.entityManager.SetEntityParent(audioEntity, playerComponent.shipEntity);
+        cContainer_.audioManager.AddComponent(audioEntity);
+        cContainer_.audioManager.SetEventName(audioEntity, "sfx/ship_engine");
+        cContainer_.audioManager.SetPlayOnWakeUp(audioEntity, false);
+        cContainer_.audioManager.SetMaxDistance(audioEntity, 40.0f);
+        cContainer_.audioManager.SetVolume(audioEntity, 50.0f);
+        cContainer_.audioManager.Init();
+
+        playerComponent.audioEntity = audioEntity;
 
         std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
         if (controllers.size() > playerCount_)
