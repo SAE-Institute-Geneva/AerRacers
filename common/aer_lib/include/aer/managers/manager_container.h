@@ -70,14 +70,9 @@ struct ComponentManagerContainer : public SystemInterface
 #endif
          playerManager(*this),
          shipInputManager(playerManager),
-         shipControllerManager(
-            entityManager,
-            transform3dManager,
-            rigidDynamicManager,
-            rigidStaticManager,
+         shipControllerManager(  
             physicsEngine,
-            shipInputManager,
-            playerManager),
+             *this),
          cameraControllerManager(
             entityManager,
             transform3dManager,
