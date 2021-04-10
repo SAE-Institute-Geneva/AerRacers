@@ -33,6 +33,19 @@ void MenuManager::Init()
         // colorYellowUi_[i] = ;
         readyUi_[i] = UiText(FontLoaded::ROBOTO, "Ready", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
     }
+
+    auto& uiManager = UiManagerLocator::get();
+    uiManager.AddUiText(&startTextUi);
+    uiManager.AddUiText(&optionsTextUi);
+    uiManager.AddUiText(&highscoreTextUi);
+    for (int i = 0; i < 4; i++)
+    {
+        uiManager.AddUiText(&joinUi_[i]);
+        uiManager.AddUiText(&leftArrowUi_[i]);
+        uiManager.AddUiText(&rightArrowUi_[i]);
+        uiManager.AddUiText(&readyUi_[i]);
+        uiManager.AddUiImage(&colorBlueUi_[i]);
+    }
 }
 
 void MenuManager::Update(seconds dt)
@@ -40,7 +53,6 @@ void MenuManager::Update(seconds dt)
     if (useMenu)
     {
         auto& inputlocator = sdl::InputLocator::get();
-        auto& uiManager = UiManagerLocator::get();
 
         startTextUi.SetText("");
         optionsTextUi.SetText("");
@@ -254,18 +266,6 @@ void MenuManager::Update(seconds dt)
             break;
         case MenuStatus::SLEEP:
             break;
-        }
-
-        uiManager.AddUiText(&startTextUi);
-        uiManager.AddUiText(&optionsTextUi);
-        uiManager.AddUiText(&highscoreTextUi);
-        for (int i = 0; i < 4; i++)
-        {
-            uiManager.AddUiText(&joinUi_[i]);
-            uiManager.AddUiText(&leftArrowUi_[i]);
-            uiManager.AddUiText(&rightArrowUi_[i]);
-            uiManager.AddUiText(&readyUi_[i]);
-            uiManager.AddUiImage(&colorBlueUi_[i]);
         }
     }
 }

@@ -60,16 +60,17 @@ namespace neko::aer
         playerComponent.playerNumber = playerComponents_.size();
         playerComponent.playerSpawn  = pos;
 
+        //ShipModel
+        Entity shipModelEntity = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(shipModelEntity);
+        cContainer_.entityManager.SetEntityParent(shipModelEntity, shipEntity);
+        cContainer_.transform3dManager.SetRelativeScale(shipModelEntity, Vec3f::one * 0.2f);
+        cContainer_.transform3dManager.SetRelativePosition(shipModelEntity, Vec3f::zero);
+        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
+            euler);
+
         bool cortese = false;
         if (cortese) {
-            //ShipModel
-            Entity shipModelEntity = cContainer_.entityManager.CreateEntity();
-            cContainer_.transform3dManager.AddComponent(shipModelEntity);
-            cContainer_.entityManager.SetEntityParent(shipModelEntity, shipEntity);
-            cContainer_.transform3dManager.SetRelativeScale(shipModelEntity, Vec3f::one * 0.2f);
-            cContainer_.transform3dManager.SetRelativePosition(shipModelEntity, Vec3f::zero);
-            cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
-                EulerAngles(degree_t(0), degree_t(180), degree_t(0)));
 
             //ShipArt
             Entity shipArtEntity = cContainer_.entityManager.CreateEntity();
@@ -144,14 +145,6 @@ namespace neko::aer
             playerComponent.leftRotorAnchor  = shipLeftRotorAnchor;
             playerComponent.leftRotorModel   = shipLeftRotorModel;
         } else {
-            //ShipModel
-            Entity shipModelEntity = cContainer_.entityManager.CreateEntity();
-            cContainer_.transform3dManager.AddComponent(shipModelEntity);
-            cContainer_.entityManager.SetEntityParent(shipModelEntity, shipEntity);
-            cContainer_.transform3dManager.SetRelativeScale(shipModelEntity, Vec3f::one * 0.2f);
-            cContainer_.transform3dManager.SetRelativePosition(shipModelEntity, Vec3f::zero);
-            cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
 
             //ShipArt
             Entity shipArtEntity = cContainer_.entityManager.CreateEntity();
