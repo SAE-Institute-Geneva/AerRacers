@@ -1087,7 +1087,7 @@ public:
 			transform3dManager_->SetRelativePosition(planeEntity_, planePosition_);
 			renderManager_->AddComponent(planeEntity_);
 			renderManager_->SetModel(planeEntity_,
-				aerEngine_.GetConfig().dataRootPath + "models/leveldesign/big_terrain_03.obj");
+				aerEngine_.GetConfig().dataRootPath + "models/terrain_collider_v3/terrain_collider_v3.obj");
 		}
 		{
 			sphereEntity_ = entityManager_->CreateEntity();
