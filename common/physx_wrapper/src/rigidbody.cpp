@@ -900,6 +900,7 @@ void RigidStaticManager::FixedUpdate(seconds dt)
 			rigidStatic.meshColliderData.size    = 100.0f;
 			AddRigidStatic(toCreate.first, rigidStatic);
 			meshColliderToCreate_.erase(toCreate.first);
+			if (meshColliderToCreate_.empty()) break;
 		}
 	}
 }

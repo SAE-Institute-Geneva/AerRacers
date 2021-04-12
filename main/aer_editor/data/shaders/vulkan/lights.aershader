@@ -80,7 +80,7 @@
                     "writeOnly": false
                 },
                 {
-                    "name": "shininess",
+                    "name": "usedMaps",
                     "isArray": false,
                     "offset": 16,
                     "size": 4,

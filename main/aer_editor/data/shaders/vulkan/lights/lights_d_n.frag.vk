@@ -23,7 +23,7 @@ struct DirLight
 layout(binding = 1) uniform UboObject 
 {
 	vec4 color;
-	float shininess;
+	uint usedMaps;
 } object;
 
 layout(binding = 2) uniform Lights
@@ -39,7 +39,6 @@ vec3 GetDiffuse()
 {
 	vec3 diffuse = object.color.rgb;
 	diffuse *= texture(diffuseMap, TexCoords).rgb;
- 	diffuse = pow(diffuse, vec3(1.0 / 2.2));
 
 	return diffuse;
 }
@@ -68,16 +67,10 @@ vec3 CalcDirLight(vec3 viewDir)
 	lightDir = normalize(-TangentLightDir);
 
 	float diff = max(dot(normal, lightDir), 0.0);
-	if (diff > 0.51) diff = 1.0;
-	else if (diff > 0.5) diff = 0.5;
-	else diff = 0.0;
-	
 	vec3 diffuse = lights.dirLight.diffuse * diff * GetDiffuse();
 
 	vec3 halfwayDir = normalize(lightDir + viewDir);
-	float spec = pow(max(dot(normal, halfwayDir), 0.0), object.shininess);
-	if (spec > 0.51) spec = 1.0;
-	else spec = 0.0;
+	float spec = pow(max(dot(normal, halfwayDir), 0.0), /*material.shininess*/ 64.0);
 
 	vec3 specular = lights.dirLight.diffuse * lights.dirLight.specular * spec * GetSpecular();
 	diffuse *= lights.dirLight.intensity;
