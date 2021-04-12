@@ -69,6 +69,7 @@ void CheckVkError(VkResult err, const char* msg, const char* file, int line)
 	if (err >= 0 || err == VK_ERROR_OUT_OF_DATE_KHR) logDebug(log);
 	else neko_assert(false, fmt::format("{}: {} | At line {} in {}", log, msg, line, file));
 }
+#ifdef NEKO_KTX
 void PrintKtxError(ktx_error_code_e result, const char* file, int line)
 {
 	std::string log;
@@ -97,5 +98,6 @@ void PrintKtxError(ktx_error_code_e result, const char* file, int line)
 
 	logDebug(fmt::format("{} | At line {} in {}", log, line, file));
 }
+#endif
 }    // namespace neko::vk
 #endif

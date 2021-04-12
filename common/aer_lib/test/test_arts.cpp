@@ -927,5 +927,5 @@ TEST(Arts, Stb)
 
 }
 #pragma endregion 
-#endif
 }    // namespace neko::aer
+#endif

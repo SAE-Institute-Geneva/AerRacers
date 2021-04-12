@@ -82,10 +82,14 @@ Image2d& Image2d::operator=(const Image2d& other) noexcept
 
 void Image2d::Load()
 {
+#ifdef NEKO_KTX
 	if (GetFilenameExtension(filePath_) == ".ktx") LoadKtx();
-	else LoadStb();
+	else
+#endif
+		LoadStb();
 }
 
+#ifdef NEKO_KTX
 void Image2d::LoadKtx()
 {
 	VkResources* vkObj = VkResources::Inst;
@@ -178,7 +182,7 @@ void Image2d::SetFromKtxVkTexture(const ktxVulkanTexture& texture)
 	mipLevels_   = texture.levelCount;
 	arrayLayers_ = texture.layerCount;
 }
-
+#endif
 void Image2d::LoadStb()
 {
 	neko::Image image;
@@ -190,7 +194,7 @@ void Image2d::LoadStb()
 
 void Image2d::CreateFromStb(const neko::Image& image)
 {
-	extent_    = {image.width, image.height, 1};
+	extent_    = {static_cast<uint32_t>(image.width), static_cast<uint32_t>(image.height), 1};
 	mipLevels_ = mipmap_ ? GetMipLevels(extent_) : 1u;
 	image_     = CreateImage(extent_,
         format_,

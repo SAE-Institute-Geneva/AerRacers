@@ -28,7 +28,9 @@
 #include <array>
 
 #include "vulkan/vulkan.h"
+#ifdef NEKO_KTX
 #include "ktxvulkan.h"
+#endif
 
 #include "graphics/texture.h"
 
@@ -66,7 +68,9 @@ public:
 		std::uint32_t mipLevels,
 		std::uint32_t arrayLayers,
 		const VkExtent3D& extent);
+#ifdef NEKO_KTX
 	explicit Image(const ktxVulkanTexture& texture);
+#endif
 
 	void Destroy() const override;
 

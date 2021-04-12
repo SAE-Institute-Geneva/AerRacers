@@ -22,6 +22,7 @@ Image::Image(const VkFilter filter,
 	 layout_(layout)
 {}
 
+#ifdef NEKO_KTX
 Image::Image(const ktxVulkanTexture& texture)
    : extent_({texture.width, texture.height, texture.depth}),
 	 format_(texture.imageFormat),
@@ -35,6 +36,7 @@ Image::Image(const ktxVulkanTexture& texture)
 	 image_(texture.image),
 	 memory_(texture.deviceMemory)
 {}
+#endif
 
 void Image::Destroy() const
 {
