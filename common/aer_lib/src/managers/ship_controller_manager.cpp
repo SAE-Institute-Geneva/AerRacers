@@ -26,6 +26,8 @@ void ShipControllerManager::InitComponent(PlayerId player)
 
     //Set the drag to be the forwardForce / terminalVelocity.
    shipController.drag = shipParameter_.kForwardForce / shipParameter_.kTerminalVelocity;
+   
+   PlaySound(player);
 }
 
 void ShipControllerManager::RotorRotation(PlayerId playerId) {
@@ -214,9 +216,9 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
     //            bodyRotation, 
     //            dt.count() * 10.0f)));
 
-    if(cContainer_.shipInputManager.GetThruster(playerId) > 0.1f) {
-        PlaySound(playerId);
-    }
+    //if(cContainer_.shipInputManager.GetThruster(playerId) > 0.1f) {
+    //    PlaySound(playerId);
+    //}
 }
 
 void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
@@ -418,7 +420,7 @@ float PID::Seek(float seekValue, float currentValue, float deltaTime)
 
 void ShipControllerManager::PlaySound(PlayerId playerId) {
     PlayerComponent playerComponent = cContainer_.playerManager.GetPlayerComponent(playerId);
-    cContainer_.audioManager.PlayOnce(playerComponent.audioEntity);
+    cContainer_.audioManager.Play(playerComponent.audioEntity);
 }
 
 

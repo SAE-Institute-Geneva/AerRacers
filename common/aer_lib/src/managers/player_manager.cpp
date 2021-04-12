@@ -53,12 +53,12 @@ namespace neko::aer
         rigidDynamic.material.staticFriction  = 0.0f;
         rigidDynamic.material.dynamicFriction = 0.0f;
         cContainer_.rigidDynamicManager.AddRigidDynamic(shipEntity, rigidDynamic);
-        shipControllerManager_.InitComponent(playerCount_);
 
         PlayerComponent playerComponent;
         playerComponent.shipEntity   = shipEntity;
         playerComponent.playerNumber = playerComponents_.size();
         playerComponent.playerSpawn  = pos;
+
 
         //ShipModel
         Entity shipModelEntity = cContainer_.entityManager.CreateEntity();
@@ -237,6 +237,7 @@ namespace neko::aer
         if (controllers.size() > playerCount_)
             playerComponent.linkedJoystick = controllers[playerCount_];
         playerComponents_[playerCount_] = playerComponent;
+        shipControllerManager_.InitComponent(playerCount_);
 
         playerCount_++;
 
