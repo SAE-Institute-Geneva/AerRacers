@@ -11,9 +11,7 @@
 namespace neko::aer
 {
 DrawSystem::DrawSystem(AerEngine& engine)
-   : engine_(engine),
-	 rContainer_(engine.GetResourceManagerContainer()),
-	 cContainer_(engine.GetComponentManagerContainer())
+   : engine_(engine), cContainer_(engine.GetComponentManagerContainer())
 {
 	if (engine.GetMode() != ModeEnum::TEST)
 	{

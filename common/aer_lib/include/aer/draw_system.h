@@ -68,7 +68,6 @@ private:
 	sdl::MultiCamera camera_;
 	AerEngine& engine_;
 
-	ResourceManagerContainer& rContainer_;
 	ComponentManagerContainer& cContainer_;
 
 #ifdef NEKO_GLES3
@@ -77,6 +76,6 @@ private:
 
 	std::unique_ptr<UiManager> uiManager_;
 
-	std::uint8_t playerNum_ = 1;
+	std::uint8_t playerNum_ = 4;
 };
 }    // namespace neko::aer

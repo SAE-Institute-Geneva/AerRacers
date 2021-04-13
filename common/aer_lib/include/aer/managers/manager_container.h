@@ -5,7 +5,6 @@
 #include "vk/material/material_manager.h"
 #endif
 
-#include "aer/managers/render_manager.h"
 #include "aer/scene.h"
 
 #ifdef NEKO_FMOD

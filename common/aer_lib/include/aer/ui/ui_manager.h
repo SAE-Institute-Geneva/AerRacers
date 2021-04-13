@@ -92,23 +92,19 @@ public:
 	void AddUiImage(UiImage*) override;
 	void AddUiText(UiText* text) override;
 
+	void SetWindowSize(Vec2f windowSize);
+
 private:
     /**
      * \brief Return the fontId of one of the loaded font
      */
 	FontId GetFontId(FontLoaded fontLoaded) const;
 
-#ifdef NEKO_GLES3
-    /**
-     * \brief Change the viewport of the ui to display
-     * \param screenId Id of the screen to display
-     * \param playerNmb Current player number
-     * \param windowSize Size of the window
-     */
-	void ChangeViewport(std::uint8_t screenId, std::uint8_t playerNmb, const Vec2u& windowSize);
-#endif
 	AerEngine& aerEngine_;
 	Job preRender_;
+
+	Vec2f windowSize_;
+	Mat4f projection_;
 
 	//Font
 #ifdef NEKO_GLES3

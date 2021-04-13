@@ -54,6 +54,14 @@ inline int Sign(float v)
 	return 0;
 }
 
+inline float Signf(float v)
+{
+	if (v >= 0.0f) return 1.0f;
+	if (v < 0.0f) return -1.0f;
+
+	return 0.0f;
+}
+
 inline int RoundUp(float number, int multiple = 2)
 {
 	int num = static_cast<int>(number) + (multiple - 1);
