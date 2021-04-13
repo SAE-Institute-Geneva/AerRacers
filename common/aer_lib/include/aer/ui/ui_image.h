@@ -59,10 +59,8 @@ public:
 
 #ifdef NEKO_GLES3
 	void Init(gl::TextureManager& textureManager);
-	void Draw(gl::TextureManager& textureManager,
-		Vec2u screenSize,
-		std::uint8_t playerNmb,
-		const gl::Shader& uiImageShader);
+	void Draw(
+		gl::TextureManager& textureManager, uint8_t playerNmb, const gl::Shader& uiImageShader);
 #else
 	void Init();
 	void Draw(const Vec2u& screenSize);
@@ -90,7 +88,12 @@ public:
 	void SetCropping(const Vec2f& slidingCrop) { slidingCrop_ = slidingCrop; }
 
 protected:
-	[[nodiscard]] Vec2i GetPosition(std::uint8_t playerNmb) const;
+#ifdef NEKO_GLES3
+	void Draw() const;
+	void SetValues(Vec2f size, Vec2f offset);
+#endif
+
+	[[nodiscard]] Vec2i GetPosition(const std::uint8_t playerNmb, Vec2f size) const;
 	[[nodiscard]] Vec2i FixAnchorPosition(Vec2i anchorPos, std::uint8_t playerNmb) const;
 
 	Vec2u size_ = Vec2u(100u);    //In pixel
@@ -104,9 +107,5 @@ protected:
 #else
 	vk::ResourceHash textureId_ = vk::INVALID_TEXTURE_ID;
 #endif
-
-	Color4 color_ = Color::white;
-
-	Vec2f slidingCrop_ = Vec2f::one;
 };
 }    // namespace neko::aer

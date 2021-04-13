@@ -63,15 +63,14 @@ public:
 		std::uint8_t screenId = 0,
 		float scale           = 1.0f,
 		const Color4& color   = Color::white)
-	   : UiElement(position, anchor, screenId),
+	   : UiElement(position, anchor, color, screenId),
 		 font_(font),
 		 text_(text),
-		 scale_(scale),
-		 color_(color)
+		 scale_(scale)
 	{}
 
 #ifdef NEKO_GLES3
-	void Draw(gl::FontManager& fontManager, const FontId& fontId) const;
+	void Draw(gl::FontManager& fontManager, const FontId& fontId, std::uint8_t playerNmb) const;
 #else
 #endif
 
@@ -88,7 +87,6 @@ protected:
 	FontLoaded font_ {};
 	std::string text_ {};
 	float scale_ {};
-	Color4 color_ {};
 
 	Job preRender_;
 };

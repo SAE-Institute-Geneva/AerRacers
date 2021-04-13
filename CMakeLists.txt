@@ -136,7 +136,6 @@ add_compile_definitions("TINYOBJLOADER_IMPLEMENTATION=1")
 
 # Enables the Render Engine
 if (Neko_GLES3 AND NOT Neko_VULKAN)
-    message("+++ AAAAAAAAAA")
     add_compile_definitions("NEKO_GLES3=1")
 
     add_subdirectory("${EXTERNAL_DIR}/glad")

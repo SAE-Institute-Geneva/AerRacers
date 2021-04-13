@@ -172,15 +172,13 @@ void FontManager::RenderText(const FontId fontId,
 	auto& font = fonts_[fontId];
 
 	// activate corresponding render state
-	textShader_.SetVec4("textColor", color);
-	textShader_.SetMat4("proj", projection_);
-	glActiveTexture(GL_TEXTURE0);
+	textShader_.SetVec4("color", color);
+	textShader_.SetVec2("slidingCrop", Vec2f::one);
 	glBindVertexArray(textureQuad_.VAO);
 
-	const Vec2f textPosition = CalculateTextPosition(Vec2f(position), anchor);
-	const Character& ch      = font.characters[text[0]];
-	float x                  = textPosition.x - (ch.size.x * scale * (text.size() - 1) * 0.5f);
-	float y                  = textPosition.y - (ch.size.y * scale * 0.5f);
+	const Vec2i textSize = CalculateTextSize(fontId, text, scale);
+	float x              = position.x - textSize.x * 0.5f;
+	float y              = position.y - textSize.y * 0.5f;
 
 	// iterate through all characters
 	for (const auto* c = text.c_str(); *c != 0; c++)
@@ -202,7 +200,7 @@ void FontManager::RenderText(const FontId fontId,
 			{xPos + w, yPos + h, 1.0f, 0.0f}};
 
 		// render glyph texture over quad
-		glBindTexture(GL_TEXTURE_2D, character.textureID);
+		textShader_.SetTexture("tex", character.textureName, 0);
 
 		// update content of VBO memory
 		glBindBuffer(GL_ARRAY_BUFFER, textureQuad_.VBO[0]);
@@ -227,7 +225,7 @@ void FontManager::Destroy()
 {
     for(auto& font : fonts_)
         for(auto& character : font.second.characters)
-            glDeleteTextures(1, &character.textureID);
+            glDeleteTextures(1, &character.textureName);
 
     fonts_.clear();
     glDeleteVertexArrays(1, &textureQuad_.VAO);
@@ -244,7 +242,7 @@ void FontManager::DestroyFont(FontId font)
 {
 	auto it = fonts_.find(font);
 	if (it == fonts_.end()) return;
-	for (auto& character : it->second.characters) glDeleteTextures(1, &character.textureID);
+	for (auto& character : it->second.characters) glDeleteTextures(1, &character.textureName);
 	fonts_.erase(font);
 }
 
@@ -266,12 +264,26 @@ Vec2f FontManager::CalculateTextPosition(Vec2f position, TextAnchor anchor)
 		case TextAnchor::BOTTOM_RIGHT: anchorPos = Vec2f::right; break;
 	}
 
-	return (anchorPos + position * 0.5f) * windowSize_;
+	return anchorPos * windowSize_ + position * 0.5f;
 }
 
 void FontManager::SetWindowSize(const Vec2f& windowSize)
 {
 	windowSize_ = windowSize;
 	projection_ = Transform3d::Orthographic(0.0f, windowSize.x, 0.0f, windowSize.y);
+}
+
+Vec2i FontManager::CalculateTextSize(FontId fontId, std::string_view text, float scale)
+{
+	Vec2f size;
+	const Font& font = fonts_[fontId];
+	for (const auto* c = text.data(); *c != 0; c++)
+	{
+		const Character& ch = font.characters[*c];
+		size.x += static_cast<float>(ch.advance >> 6) * scale;
+		size.y = std::max(size.y * scale, ch.size.y * scale);
+	}
+
+	return Vec2i(size);
 }
 }    // namespace neko::gl

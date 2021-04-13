@@ -1,8 +1,10 @@
 #include <imgui.h>
 
-#include "aer/tag.h"
 #include "engine/configuration.h"
 #include "engine/engine.h"
+#include "engine/resource_locations.h"
+
+#include "aer/tag.h"
 
 #include "px/physics_engine.h"
 #include "px/physx_utility.h"
@@ -883,16 +885,22 @@ RigidStaticManager::RigidStaticManager(EntityManager& entityManager,
       physicsEngine_(physicsEngine),
       renderManager_(renderManager) {}
 
-void RigidStaticManager::FixedUpdate(seconds dt) {
-	for (size_t index = 0; index < meshColliderToCreate_.size(); ++index) {
-		if (gl::ModelManagerLocator::get().IsLoaded(meshColliderToCreate_[index].second))
+void RigidStaticManager::FixedUpdate(seconds dt)
+{
+	for (auto& toCreate : meshColliderToCreate_)
+	{
+#ifdef NEKO_GLES3
+		if (gl::ModelManagerLocator::get().IsLoaded(toCreate.second))
+#else
+		if (vk::ModelManagerLocator::get().IsLoaded(toCreate.second))
+#endif
 		{
 			RigidStaticData rigidStatic;
-			rigidStatic.colliderType = ColliderType::MESH;
-			rigidStatic.meshColliderData.modelId = meshColliderToCreate_[index].second;
-			rigidStatic.meshColliderData.size = 100.0f;
-			AddRigidStatic(meshColliderToCreate_[index].first, rigidStatic);
-			meshColliderToCreate_.erase(meshColliderToCreate_.begin() + index);
+			rigidStatic.colliderType             = ColliderType::MESH;
+			rigidStatic.meshColliderData.modelId = toCreate.second;
+			rigidStatic.meshColliderData.size    = 100.0f;
+			AddRigidStatic(toCreate.first, rigidStatic);
+			meshColliderToCreate_.erase(toCreate.first);
 		}
 	}
 }
@@ -926,22 +934,25 @@ void RigidStaticManager::AddRigidStatic(Entity entity, const RigidStaticData& ri
 
 void RigidStaticManager::AddMeshColliderStatic(Entity entity, const std::string& modelName)
 {
+	const std::string modelPath = GetModelsFolderPath() + modelName + "/" + modelName + ".obj";
 
-	Configuration config = BasicEngine::GetInstance()->GetConfig();
-	const std::string modelPath =
-		config.dataRootPath + "models/" + modelName + "/" + modelName + ".obj";
-    gl::ModelId modelId = gl::ModelManagerLocator::get().LoadModel(modelPath);
+#ifdef NEKO_GLES3
+	gl::ModelId modelId = gl::ModelManagerLocator::get().LoadModel(modelPath);
 	if (gl::ModelManagerLocator::get().IsLoaded(modelId))
+#else
+	vk::ModelId modelId = vk::ModelManagerLocator::get().LoadModel(modelPath);
+	if (vk::ModelManagerLocator::get().IsLoaded(modelId))
+#endif
 	{
 		RigidStaticData rigidStatic;
-		rigidStatic.colliderType = ColliderType::MESH;
+		rigidStatic.colliderType             = ColliderType::MESH;
 		rigidStatic.meshColliderData.modelId = modelId;
-		rigidStatic.meshColliderData.size = 100.0f;
+		rigidStatic.meshColliderData.size    = 100.0f;
 		AddRigidStatic(entity, rigidStatic);
 	}
 	else
 	{
-		meshColliderToCreate_.push_back(std::pair<Entity, gl::ModelId>(entity, modelId));
+		meshColliderToCreate_.emplace(entity, modelId);
 	}
 }
 

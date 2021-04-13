@@ -31,8 +31,10 @@ void UiManager::Init()
 			lobsterId_ = fontManager_.LoadFont(GetFontsFolderPath() + kLobsterName, 36);
 			robotoId_  = fontManager_.LoadFont(GetFontsFolderPath() + kRobotoName, 36);
 
+            uiImageShader_.BindUbo(gl::kUboUiProjSize, gl::kUboUiProjBinding);
+
 			//const Vec2u windowSize = config.windowSize / Vec2u(2, 1);
-            fontManager_.SetWindowSize(Vec2f(config.windowSize));
+            SetWindowSize(Vec2f(config.windowSize));
             glCheckError();
         }};
 
@@ -52,7 +54,7 @@ void UiManager::Render(std::uint8_t playerNmb)
 
 	uiImageShader_.Bind();
 	glDisable(GL_DEPTH_TEST);
-	glCullFace(GL_FRONT);
+	//glCullFace(GL_FRONT);
 
 	const Vec2u winSize = aerEngine_.GetConfig().windowSize;
 	glViewport(0, 0, winSize.x, winSize.y);
@@ -60,15 +62,14 @@ void UiManager::Render(std::uint8_t playerNmb)
 	for (auto& image : uiImages_)
 	{
 		auto& textureManager = aerEngine_.GetResourceManagerContainer().textureManager;
-		if (!(image->GetFlags() & UiFlag::INITIALIZED))
+		if (image->GetFlags() & UiFlag::INITIALIZED && image->GetFlags() & UiFlag::ENABLED)
+		{
+			image->Draw(textureManager, playerNmb, uiImageShader_);
+		}
+		else if (!(image->GetFlags() & UiFlag::INITIALIZED))
 		{
 			image->Init(textureManager);
 			image->AddFlag(UiFlag::INITIALIZED);
-		}
-
-		if (image->GetFlags() & UiFlag::INITIALIZED && image->GetFlags() & UiFlag::ENABLED)
-		{
-			image->Draw(textureManager, winSize, playerNmb, uiImageShader_);
 		}
 	}
 
@@ -77,7 +78,7 @@ void UiManager::Render(std::uint8_t playerNmb)
 	{
 		if (text->GetFlags() & UiFlag::ENABLED)
 		{
-			text->Draw(fontManager_, GetFontId(text->GetFont()));
+			text->Draw(fontManager_, GetFontId(text->GetFont()), playerNmb);
 		}
 	}
 
@@ -87,16 +88,13 @@ void UiManager::Render(std::uint8_t playerNmb)
 
 void UiManager::OnEvent(const SDL_Event& event)
 {
-	if(event.window.event == SDL_WINDOWEVENT_RESIZED)
+	if (event.window.event == SDL_WINDOWEVENT_RESIZED)
 	{
 		const auto& config = aerEngine_.GetConfig();
 #ifdef NEKO_GLES3
-		fontManager_.SetWindowSize(Vec2f(config.windowSize));
+		SetWindowSize(Vec2f(config.windowSize));
 #endif
-		for (auto& element : uiImages_)
-		{
-			element->AddFlag(UiFlag::DIRTY);
-		}
+		for (auto& element : uiImages_) element->AddFlag(UiFlag::DIRTY);
 	}
 }
 
@@ -134,5 +132,15 @@ FontId UiManager::GetFontId(FontLoaded fontLoaded) const
 		case FontLoaded::ROBOTO: return robotoId_;
 		default: return INVALID_FONT_ID;
 	}
+}
+
+void UiManager::SetWindowSize(const Vec2f windowSize)
+{
+	windowSize_ = windowSize;
+	projection_ = Transform3d::Orthographic(0.0f, windowSize.x, 0.0f, windowSize.y);
+
+	uiImageShader_.SetUbo(gl::kUboUiProjSize, 0, &projection_, gl::kUboUiProjBinding);
+
+	fontManager_.SetWindowSize(windowSize);
 }
 }    // namespace neko::aer

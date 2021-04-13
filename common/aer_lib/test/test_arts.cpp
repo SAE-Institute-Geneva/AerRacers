@@ -450,5 +450,5 @@ TEST(Arts, TestLevelDesignSceneViewer)
     //testSceneImporteur.HasSucceed();
     logDebug("Test without check");
 }
-#endif
 }    // namespace neko::aer
+#endif

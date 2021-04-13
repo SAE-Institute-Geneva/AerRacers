@@ -87,6 +87,5 @@ private:
 	//Service Locator
 	std::unique_ptr<LogManager> logManager_;
 	std::unique_ptr<TagManager> tagManager_;
-	//std::unique_ptr<InputBindingManager> boundInputManager_;
 };
 }

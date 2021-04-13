@@ -299,7 +299,12 @@ protected:
 	Transform3dManager& transform3dManager_;
 	PhysicsEngine& physicsEngine_;
 	aer::RenderManager& renderManager_;
-	std::vector<std::pair<Entity, gl::ModelId>> meshColliderToCreate_;
+
+#ifdef NEKO_GLES3
+	std::map<Entity, gl::ModelId> meshColliderToCreate_;
+#else
+	std::map<Entity, vk::ModelId> meshColliderToCreate_;
+#endif
 };
 
 /**

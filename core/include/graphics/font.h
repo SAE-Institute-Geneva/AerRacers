@@ -66,5 +66,8 @@ public:
 
 	virtual void DestroyFont(FontId font) = 0;
 	virtual void Destroy()                = 0;
+
+	[[nodiscard]] virtual Vec2i CalculateTextSize(
+		FontId fontId, std::string_view text, float scale) = 0;
 };
 }    // namespace neko

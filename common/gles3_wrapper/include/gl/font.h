@@ -35,11 +35,12 @@ namespace neko::gl
 {
 struct Character
 {
-    TextureName textureID = 0; // ID handle of the glyph texture
-    Vec2i size;      // Size of glyph
-    Vec2i bearing;   // Offset from baseline to left/top of glyph
-    long advance = 0;   // Horizontal offset to advance to next glyph
+	TextureName textureName = 0;    // ID handle of the glyph texture
+	Vec2i size;                     // Size of glyph
+	Vec2i bearing;                  // Offset from baseline to left/top of glyph
+	long advance = 0;               // Horizontal offset to advance to next glyph
 };
+
 struct Font
 {
     std::array<Character, 128> characters;
@@ -64,6 +65,9 @@ public:
 
 	void DestroyFont(FontId font) override;
 	void SetWindowSize(const Vec2f& windowSize) override;
+
+	[[nodiscard]] Vec2i CalculateTextSize(
+		FontId fontId, std::string_view text, float scale) override;
 
 protected:
 	struct FontRenderingCommand

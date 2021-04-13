@@ -58,20 +58,20 @@ public:
             Vec2u(250, 100),
             UiAnchor::CENTER);
 		anchorTr_       = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
-            Vec2i::zero,
-            Vec2u::one * 150.0f,
+            Vec2i(-150, -150),
+            Vec2u::one * 150,
             UiAnchor::TOP_RIGHT);
 		anchorTl_       = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
-            Vec2i::zero,
-            Vec2u::one * 150.0f,
+            Vec2i(150, -150),
+            Vec2u::one * 150,
             UiAnchor::TOP_LEFT);
 		anchorBl_       = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
-            Vec2i::zero,
-            Vec2u::one * 150.0f,
+            Vec2i(150, 150),
+            Vec2u::one * 150,
             UiAnchor::BOTTOM_LEFT);
 		anchorBr_       = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
-            Vec2i::zero,
-            Vec2u::one * 150.0f,
+            Vec2i(-150, 150),
+            Vec2u::one * 150,
             UiAnchor::BOTTOM_RIGHT);
 		movingImage_    = UiImage(GetSpritesFolderPath() + "wall.jpg",
             Vec2i::up * 180,
@@ -88,28 +88,28 @@ public:
             Color::grey);
 		textBl_         = UiText(FontLoaded::LOBSTER,
             "BL",
-            Vec2i(130, 130),
+            Vec2i(100, 100),
             UiAnchor::BOTTOM_LEFT,
             0,
             1.0f,
             Color::cyan);
 		textBr_         = UiText(FontLoaded::LOBSTER,
             "BR",
-            Vec2i(-130, 130),
+            Vec2i(-100, 100),
             UiAnchor::BOTTOM_RIGHT,
             0,
             1.0f,
             Color::yellow);
 		textTl_         = UiText(FontLoaded::LOBSTER,
             "TL",
-            Vec2i(130, -130),
+            Vec2i(100, -100),
             UiAnchor::TOP_LEFT,
             0,
             1.0f,
             Color::red);
 		textTr_         = UiText(FontLoaded::LOBSTER,
             "TR",
-            Vec2i(-130, -130),
+            Vec2i(-100, -100),
             UiAnchor::TOP_RIGHT,
             0,
             1.0f,
@@ -142,9 +142,10 @@ public:
 	{
 		updateCount_ += dt.count();
 
-		movingText_.SetPosition((Vec2i::up * 0.5f).Rotate(radian_t(updateCount_)));
+		const Vec2f newPos = (Vec2f::up * 0.5f).Rotate(radian_t(updateCount_)) * 700.0f;
+		movingText_.SetPosition(Vec2i(newPos));
 		movingText_.SetText(std::to_string(updateCount_));
-		movingImage_.SetPosition((Vec2i::up * 0.5f).Rotate(radian_t(updateCount_)));
+		movingImage_.SetPosition(Vec2i(newPos));
 
 		const std::uint8_t screen = static_cast<int>(updateCount_) % 5;
 		slidingBar_.SetCropping(Vec2f(Abs(Sin(radian_t(updateCount_))), 1.0f));
@@ -157,9 +158,10 @@ public:
 		textBr_.SetScreenId(screen);
 		textTl_.SetScreenId(screen);
 		textTr_.SetScreenId(screen);
+		textCenter_.SetScreenId(screen);
 		movingImage_.SetCropping(Vec2f(Abs(Sin(radian_t(updateCount_))), 1.0f));
 
-		//if (updateCount_ > kEngineDuration_) engine_.Stop();
+		if (updateCount_ > kEngineDuration_) engine_.Stop();
 	}
 
 	void Render() override {}
@@ -261,22 +263,10 @@ public:
 		auto& uiManager    = UiManagerLocator::get();
 
 		// Menu A
-		menuA_.buttonPrev   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
-            Vec2i(350, 350),
-            Vec2u(200, 100),
-            UiAnchor::BOTTOM_LEFT,
-            0,
-            Color::white);
-		menuA_.buttonNext   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
-            Vec2i(-350, 350),
-            Vec2u(200, 100),
-            UiAnchor::BOTTOM_RIGHT,
-            0,
-            Color::white);
-		menuA_.backGround   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
-            Vec2i::zero,
-            config.windowSize * 0.9f,
-            UiAnchor::CENTER,
+		menuA_.backGround = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
+			Vec2i::zero,
+			config.windowSize * 0.9f,
+			UiAnchor::CENTER,
             0,
             Color::red);
 		menuA_.text         = UiText(FontLoaded::LOBSTER,
@@ -286,16 +276,28 @@ public:
             0,
             1.0f,
             Color::white);
+		menuA_.buttonNext   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
+            Vec2i(-400, 200),
+            Vec2u(200, 100),
+            UiAnchor::BOTTOM_RIGHT,
+            0,
+            Color::white);
+		menuA_.buttonPrev   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
+            Vec2i(400, 200),
+            Vec2u(200, 100),
+            UiAnchor::BOTTOM_LEFT,
+            0,
+            Color::white);
 		menuA_.textNext     = UiText(FontLoaded::LOBSTER,
             "Next",
-            Vec2i(-350, 350),
+            Vec2i(-400, 200),
             UiAnchor::BOTTOM_RIGHT,
             0,
             1.0f,
             Color::white);
 		menuA_.textPrevious = UiText(FontLoaded::LOBSTER,
 			"Previous",
-			Vec2i(350, 350),
+			Vec2i(400, 200),
 			UiAnchor::BOTTOM_LEFT,
 			0,
 			1.0f,
@@ -310,18 +312,6 @@ public:
 		uiManager.AddUiText(&menuA_.textPrevious);
 
 		// Menu B
-		menuB_.buttonPrev   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
-            Vec2i(350, 350),
-            Vec2u(200, 100),
-            UiAnchor::BOTTOM_LEFT,
-            0,
-            Color::white);
-		menuB_.buttonNext   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
-            Vec2i(-350, 350),
-            Vec2u(200, 100),
-            UiAnchor::BOTTOM_RIGHT,
-            0,
-            Color::white);
 		menuB_.backGround   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
             Vec2i::zero,
             config.windowSize * 0.9f,
@@ -335,16 +325,28 @@ public:
             0,
             1.0f,
             Color::white);
+		menuB_.buttonNext   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
+            Vec2i(-400, 200),
+            Vec2u(200, 100),
+            UiAnchor::BOTTOM_RIGHT,
+            0,
+            Color::white);
+		menuB_.buttonPrev   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
+            Vec2i(400, 200),
+            Vec2u(200, 100),
+            UiAnchor::BOTTOM_LEFT,
+            0,
+            Color::white);
 		menuB_.textNext     = UiText(FontLoaded::LOBSTER,
             "Next",
-            Vec2i(-350, 350),
+            Vec2i(-400, 200),
             UiAnchor::BOTTOM_RIGHT,
             0,
             1.0f,
             Color::white);
 		menuB_.textPrevious = UiText(FontLoaded::LOBSTER,
 			"Previous",
-			Vec2i(350, 350),
+			Vec2i(400, 200),
 			UiAnchor::BOTTOM_LEFT,
 			0,
 			1.0f,
@@ -359,41 +361,41 @@ public:
 		uiManager.AddUiText(&menuB_.textPrevious);
 
 		// Menu C
-		menuC_.buttonPrev   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
-            Vec2i(350, 350),
-            Vec2u(200, 100),
-            UiAnchor::BOTTOM_LEFT,
-            0,
-            Color::white);
-		menuC_.buttonNext   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
-            Vec2i(-350, 350),
-            Vec2u(200, 100),
-            UiAnchor::BOTTOM_RIGHT,
-            0,
-            Color::white);
-		menuC_.backGround   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
-            Vec2i::zero,
-            config.windowSize * 0.9f,
-            UiAnchor::CENTER,
-            0,
-            Color::green);
-		menuC_.text         = UiText(FontLoaded::LOBSTER,
+		menuC_.backGround = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
+			Vec2i::zero,
+			config.windowSize * 0.9f,
+			UiAnchor::CENTER,
+			0,
+			Color::green);
+		menuC_.text       = UiText(FontLoaded::LOBSTER,
             "MenuC",
             Vec2i::down * 220,
             UiAnchor::TOP,
             0,
             1.0f,
             Color::white);
+		menuC_.buttonNext   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
+            Vec2i(-400, 200),
+            Vec2u(200, 100),
+            UiAnchor::BOTTOM_RIGHT,
+            0,
+            Color::white);
+		menuC_.buttonPrev   = UiImage(GetSpritesFolderPath() + "water/Water01.jpg",
+            Vec2i(400, 200),
+            Vec2u(200, 100),
+            UiAnchor::BOTTOM_LEFT,
+            0,
+            Color::white);
 		menuC_.textNext     = UiText(FontLoaded::LOBSTER,
             "Next",
-            Vec2i(-350, 350),
+            Vec2i(-400, 200),
             UiAnchor::BOTTOM_RIGHT,
             0,
             1.0f,
             Color::white);
 		menuC_.textPrevious = UiText(FontLoaded::LOBSTER,
 			"Previous",
-			Vec2i(350, 350),
+			Vec2i(400, 200),
 			UiAnchor::BOTTOM_LEFT,
 			0,
 			1.0f,
@@ -492,7 +494,7 @@ public:
 		const auto& config = BasicEngine::GetInstance()->GetConfig();
 		currentMenu_->backGround.SetSize(Vec2u(Vec2f(config.windowSize) * 0.9f));
 
-		//if (updateCount_ > kEngineDuration_) engine_.Stop();
+		if (updateCount_ > kEngineDuration_) engine_.Stop();
 	}
 
 	void Render() override {}

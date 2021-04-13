@@ -21,7 +21,7 @@
  Co-Author : Floreau Luca
  Date : 13.03.2021
 ---------------------------------------------------------- */
-#include "mathematics/vector.h"
+#include "graphics/color.h"
 
 namespace neko::aer
 {
@@ -62,8 +62,10 @@ struct UiFlag
 class UiElement
 {
 public:
-	UiElement(
-		Vec2i pos = Vec2i::zero, UiAnchor uiAnchor = UiAnchor::CENTER, std::uint8_t screenId = 0);
+	explicit UiElement(Vec2i pos = Vec2i::zero,
+		UiAnchor uiAnchor        = UiAnchor::CENTER,
+		const Color4& color      = Color::white,
+		std::uint8_t screenId    = 0);
 	virtual void Destroy();
 
 	[[nodiscard]] std::uint8_t GetFlags() const { return flags_; }
@@ -83,8 +85,12 @@ protected:
 	[[nodiscard]] Vec2i GetAnchorPosition(Vec2i position) const;
 	[[nodiscard]] Vec2i GetAnchorFromScreenId(Vec2i anchorPos, std::uint8_t playerNmb) const;
 
-	Vec2i position_        = Vec2i::zero;    // In pixels
-	UiAnchor uiAnchor_     = UiAnchor::CENTER;
+	Vec2i position_    = Vec2i::zero;    // In pixels
+	UiAnchor uiAnchor_ = UiAnchor::CENTER;
+
+	Vec2f slidingCrop_ = Vec2f::one;
+	Color4 color_      = Color::white;
+
 	std::uint8_t flags_    = UiFlag::ENABLED;
 	std::uint8_t screenId_ = 0;
 };

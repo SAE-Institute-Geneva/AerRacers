@@ -92,6 +92,8 @@ public:
 	void AddUiImage(UiImage*) override;
 	void AddUiText(UiText* text) override;
 
+	void SetWindowSize(Vec2f windowSize);
+
 private:
     /**
      * \brief Return the fontId of one of the loaded font
@@ -100,6 +102,9 @@ private:
 
 	AerEngine& aerEngine_;
 	Job preRender_;
+
+	Vec2f windowSize_;
+	Mat4f projection_;
 
 	//Font
 #ifdef NEKO_GLES3
