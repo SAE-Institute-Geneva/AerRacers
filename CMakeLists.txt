@@ -91,6 +91,7 @@ endif ()
 
 # Enables FMOD
 if (Neko_FMOD)
+    add_compile_definitions("NEKO_FMOD=1")
     set(FMOD_ROOT "${EXTERNAL_DIR}/FMOD" CACHE STRING "")
     if (WIN32)
         include_directories("${FMOD_ROOT}/win64/inc")
@@ -111,6 +112,15 @@ if (Neko_Freetype)
     add_subdirectory("${FREETYPE_DIR}")
     set_target_properties(freetype PROPERTIES FOLDER Externals)
 endif ()
+
+# Enables KTX
+if(Neko_KTX)
+    add_compile_definitions("NEKO_KTX=1")
+    set(KTX_DIR "${EXTERNAL_DIR}/KTX-Software")
+    set(KTX_VERSION_FULL "v4.0.0-beta4" CACHE STRING "")
+    add_subdirectory("${KTX_DIR}")
+    add_dependencies(ktx mkvk)
+endif()
 
 # Assimp variables
 set(ASSIMP_VERSION 5.0.1)
@@ -157,14 +167,6 @@ if (Neko_ImGui)
     add_subdirectory("${IMGUI_ROOT}")
     set_target_properties(imgui PROPERTIES UNITY_BUILD ON)
 endif ()
-
-# Enables KTX
-if(Neko_KTX)
-    set(KTX_DIR "${EXTERNAL_DIR}/KTX-Software")
-    set(KTX_VERSION_FULL "v4.0.0-beta4" CACHE STRING "")
-    add_subdirectory("${KTX_DIR}")
-    add_dependencies(ktx mkvk)
-endif()
 
 # Enables PhysFS
 if(Neko_PhysFS)

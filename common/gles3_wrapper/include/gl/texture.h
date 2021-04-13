@@ -67,6 +67,7 @@ private:
     std::string path_;
     Texture::TextureFlags flags_ = Texture::DEFAULT;
     ktxTexture* kTexture = nullptr;
+    Image image_;
     Job loadingTextureJob_;
     Job decompressTextureJob_;
     Job uploadToGLJob_;

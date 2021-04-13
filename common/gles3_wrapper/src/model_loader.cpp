@@ -47,7 +47,8 @@ void ModelLoader::Update()
 				    texture.textureName == INVALID_TEXTURE_NAME)
 				{
 					const auto* texturePtr = textureManager.GetTexture(texture.textureId);
-					if (texturePtr) texture.textureName = texturePtr->name;
+					if (texturePtr) 
+						texture.textureName = texturePtr->name;
 					else return;
 				}
 			}

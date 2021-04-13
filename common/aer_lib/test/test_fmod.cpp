@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#ifdef NEKO_FMOD
 #include "engine/resource_locations.h"
 
 #ifdef NEKO_GLES3
@@ -137,3 +138,4 @@ TEST(Fmod, TestFmod)
 	engine.EngineLoop();
 }
 }    // namespace neko::aer
+#endif

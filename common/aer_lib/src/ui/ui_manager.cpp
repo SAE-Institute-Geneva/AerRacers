@@ -33,7 +33,6 @@ void UiManager::Init()
 
             uiImageShader_.BindUbo(gl::kUboUiProjSize, gl::kUboUiProjBinding);
 
-			//const Vec2u windowSize = config.windowSize / Vec2u(2, 1);
             SetWindowSize(Vec2f(config.windowSize));
             glCheckError();
         }};

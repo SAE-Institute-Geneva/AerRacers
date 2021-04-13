@@ -450,5 +450,200 @@ TEST(Arts, TestLevelDesignSceneViewer)
     //testSceneImporteur.HasSucceed();
     logDebug("Test without check");
 }
-}    // namespace neko::aer
+#pragma region Stb
+class TestStb : public SystemInterface,
+    public RenderCommandInterface,
+    public DrawImGuiInterface
+{
+public:
+    explicit TestStb(AerEngine& engine)
+        : engine_(engine),
+        rContainer_(engine.GetResourceManagerContainer()),
+        cContainer_(engine.GetComponentManagerContainer())
+    {
+    }
+
+    void Init() override
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Init", profiler::colors::Green);
 #endif
+        if (engine_.GetMode() != ModeEnum::TEST)
+        {
+            const Configuration config = BasicEngine::GetInstance()->GetConfig();
+            testEntity_ = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(testEntity_);
+            cContainer_.transform3dManager.SetRelativeScale(testEntity_, Vec3f::one * 100.0f);
+            cContainer_.transform3dManager.SetRelativePosition(testEntity_, Vec3f::right * 300.0f);
+            cContainer_.renderManager.AddComponent(testEntity_);
+            cContainer_.renderManager.SetModel(
+                testEntity_, config.dataRootPath + "models/cube/cube.obj");
+            testEntity_ = cContainer_.entityManager.CreateEntity();
+            cContainer_.transform3dManager.AddComponent(testEntity_);
+            cContainer_.transform3dManager.SetRelativeScale(testEntity_, Vec3f::one * 0.1f);
+            cContainer_.renderManager.AddComponent(testEntity_);
+            cContainer_.renderManager.SetModel(
+                testEntity_, config.dataRootPath + "models/gros_block1/gros_block1.obj");
+            engine_.GetCameras().moveSpeed = 50.0f;
+            engine_.GetCameras().SetPosition(cameraPosition_, 0);
+        }
+        
+        if (engine_.GetMode() != ModeEnum::TEST)
+        {
+            const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+            textureWallId_ = engine_.GetResourceManagerContainer().textureManager.LoadTexture(config.dataRootPath + "sprites/wall.jpg", Texture::DEFAULT);
+            textureBlockId_ = engine_.GetResourceManagerContainer().textureManager.LoadTexture(config.dataRootPath + "models/textures/pierre1_basecolor.png", Texture::DEFAULT);
+            textureCubeId_ = engine_.GetResourceManagerContainer().textureManager.LoadTexture(config.dataRootPath + "models/cube/BaseColor.png", Texture::DEFAULT);
+
+        }
+
+    }
+
+    void Update(seconds dt) override
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Update", profiler::colors::Green);
+#endif
+        const auto modelId = cContainer_.renderManager.GetComponent(testEntity_).modelId;
+        updateCount_ += dt.count();
+        if (updateCount_ > kEngineDuration_ || (rContainer_.modelManager.IsLoaded(modelId) && rContainer_.textureManager.IsTextureLoaded(textureWallId_)))
+        {
+            loadedModel_ = rContainer_.modelManager.IsLoaded(modelId);
+            loadedTexture_ = rContainer_.textureManager.IsTextureLoaded(textureWallId_);
+            engine_.Stop();
+        }
+        if (!rContainer_.modelManager.IsLoaded(modelId)) return;
+        RendererLocator::get().Render(this);
+    }
+
+    void Render() override
+    {
+        if (shader_.GetProgram() == 0)
+        {
+            return;
+        }
+        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        shader_.Bind();
+        shader_.SetInt("ourTexture", 0);//set the texture slot
+        glActiveTexture(GL_TEXTURE0);//activate the texture slot
+        const Texture* texture = engine_.GetResourceManagerContainer().textureManager.GetTexture(textureWallId_);
+        if (texture)
+        {
+            glBindTexture(GL_TEXTURE_2D, texture->name);//bind texture id to texture slot
+            glCheckError();
+            quad_.SetOffset(Vec3f::right);
+            quad_.Draw();
+            glCheckError();
+        }
+        glBindTexture(GL_TEXTURE_2D, texture_);//bind texture id to texture slot
+        glCheckError();
+        quad_.SetOffset(Vec3f::down);
+        quad_.Draw();
+        glCheckError();
+        texture = engine_.GetResourceManagerContainer().textureManager.GetTexture(textureBlockId_);
+        if (texture)
+        {
+            glBindTexture(GL_TEXTURE_2D, texture->name);//bind texture id to texture slot
+            glCheckError();
+            quad_.SetOffset(Vec3f::left);
+            quad_.Draw();
+            glCheckError();
+        }
+        texture = engine_.GetResourceManagerContainer().textureManager.GetTexture(textureCubeId_);
+        if (texture)
+        {
+            glBindTexture(GL_TEXTURE_2D, texture->name);//bind texture id to texture slot
+            glCheckError();
+            quad_.SetOffset(Vec3f::up);
+            quad_.Draw();
+            glCheckError();
+        }
+    }
+
+    void Destroy() override
+    {
+        EXPECT_TRUE(loadedModel_);
+        EXPECT_TRUE(loadedTexture_);
+    }
+
+    void DrawImGui() override
+    {
+    }
+
+    void InitRenderer()
+    {
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+
+        const auto& filesystem = BasicEngine::GetInstance()->GetFilesystem();
+        shader_.LoadFromFile(
+            config.dataRootPath + "shaders/02_hello_texture/texture.vert",
+            config.dataRootPath + "shaders/02_hello_texture/texture.frag");
+        rendershader_.LoadFromFile(
+            config.dataRootPath + "shaders/opengl/light.vert",
+            config.dataRootPath + "shaders/opengl/light.frag");
+        quad_.Init();
+
+        const auto texturePath = config.dataRootPath + "sprites/wall.jpg";
+        texture_ = gl::StbCreateTexture(texturePath, filesystem);
+
+        glCheckError();
+    }
+
+private:
+    TextureName texture_ = INVALID_TEXTURE_NAME;
+    TextureId textureWallId_ = INVALID_TEXTURE_ID;
+    TextureId textureBlockId_ = INVALID_TEXTURE_ID;
+    TextureId textureCubeId_ = INVALID_TEXTURE_ID;
+    TextureName textureWall_ = INVALID_TEXTURE_NAME;
+    gl::RenderQuad quad_{ Vec3f::up, Vec2f::one };
+    gl::Shader shader_;
+    gl::Shader rendershader_;
+
+    float updateCount_ = 0;
+    const float kEngineDuration_ = 20.0f;
+    bool loadedModel_ = false;
+    bool loadedTexture_ = false;
+    AerEngine& engine_;
+
+    ResourceManagerContainer& rContainer_;
+    ComponentManagerContainer& cContainer_;
+
+    Entity testEntity_;
+    Vec3f cameraPosition_ = Vec3f(0, 300, 753);
+};
+
+TEST(Arts, Stb)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr)
+    {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    Configuration config;
+    config.windowName = "AerEditor";
+    config.windowSize = Vec2u(1400, 900);
+
+    sdl::Gles3Window window;
+    gl::Gles3Renderer renderer;
+    Filesystem filesystem;
+    AerEngine engine(filesystem, &config, ModeEnum::EDITOR);
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+
+    TestStb testRenderer(engine);
+
+    engine.RegisterSystem(testRenderer);
+    engine.Init();
+    Job initJob{ [&testRenderer]() { testRenderer.InitRenderer(); } };
+    BasicEngine::GetInstance()->ScheduleJob(&initJob, JobThreadType::RENDER_THREAD);
+    engine.EngineLoop();
+    logDebug("Test without check");
+
+}
+#pragma endregion 
+#endif
+}    // namespace neko::aer

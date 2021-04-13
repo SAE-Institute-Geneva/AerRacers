@@ -61,7 +61,9 @@ private:
 	LightManager& lightManager_;
 	physics::RigidDynamicManager& rigidDynamicManager_;
 	physics::RigidStaticManager& rigidStaticManager_;
+#ifdef NEKO_FMOD
 	AudioManager& audioManager_;
+#endif
 
 	// Component Viewers
 	Transform3dViewer& transform3dViewer_;
@@ -69,7 +71,9 @@ private:
 	LightViewer& lightViewer_;
 	physics::RigidDynamicViewer& rigidDynamicViewer_;
 	physics::RigidStaticViewer& rigidStaticViewer_;
+#ifdef NEKO_FMOD
 	AudioViewer& audioViewer_;
+#endif
 
 	// ImGui Variables
 	//ImGui::ImGuiTextFilter searchFilter_;

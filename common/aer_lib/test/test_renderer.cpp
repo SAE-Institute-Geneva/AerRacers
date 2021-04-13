@@ -313,7 +313,7 @@ public:
         if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
         {
             loaded_ = rContainer_.modelManager.IsLoaded(modelId);
-            //engine_.Stop();
+            engine_.Stop();
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
 

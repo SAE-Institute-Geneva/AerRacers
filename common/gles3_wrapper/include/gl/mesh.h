@@ -73,6 +73,7 @@ public:
 	[[nodiscard]] const std::vector<Vertex>& GetVertices() const { return vertices_; }
 	[[nodiscard]] const std::vector<Index>& GetIndices() const { return indices_; }
 	[[nodiscard]] const Aabb3d& GetAabb() const { return aabb_; }
+	[[nodiscard]] const GLuint& GetVao() const { return vao_; }
 
 private:
 	friend class Model;

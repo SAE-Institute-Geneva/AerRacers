@@ -1,17 +1,17 @@
 #version 450 core
-precision highp float;
-
 layout (location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>
+
 out vec2 TexCoords;
 
-layout (std140) uniform Matrices
+layout (std140, binding = 2) uniform UiProj
 {
     mat4 proj;
-    mat4 view;
 };
+
+uniform vec2 slidingCrop;
 
 void main()
 {
+    TexCoords = vertex.zw * slidingCrop;
     gl_Position = proj * vec4(vertex.xy, 0.0, 1.0);
-    TexCoords = vertex.zw;
 }

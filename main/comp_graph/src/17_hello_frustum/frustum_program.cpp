@@ -179,7 +179,7 @@ void HelloFrustumProgram::Render()
         const auto* model = modelManager_.GetModel(modelId_);
         const auto& asteroidMesh = model->GetMesh(0);
 
-        glBindVertexArray(asteroidMesh.VAO);
+        glBindVertexArray(asteroidMesh.GetVao());
         glGenBuffers(1, &instanceVBO_);
 
         glBindBuffer(GL_ARRAY_BUFFER, instanceVBO_);
@@ -199,7 +199,7 @@ void HelloFrustumProgram::Render()
     const auto* model = modelManager_.GetModel(modelId_);
     const auto& asteroidMesh = model->GetMesh(0);
     // TODO bind textures to asteroid
-    model->BindTextures(0, vertexInstancingDrawShader_);
+    //model->BindTextures(0, vertexInstancingDrawShader_);
 
     const std::function<void()> drawAsteroids = [this, &asteroidMesh]() {
         const auto actualAsteroidNmb = asteroidCulledPositions_.size();
@@ -222,8 +222,8 @@ void HelloFrustumProgram::Render()
                     EASY_BLOCK("Draw Mesh");
 
 #endif
-                glBindVertexArray(asteroidMesh.VAO);
-                glDrawElementsInstanced(GL_TRIANGLES, asteroidMesh.indices.size(), GL_UNSIGNED_INT, 0,
+                glBindVertexArray(asteroidMesh.GetVao());
+                glDrawElementsInstanced(GL_TRIANGLES, asteroidMesh.GetIndices().size(), GL_UNSIGNED_INT, 0,
                     chunkSize);
                 glBindVertexArray(0);
             }
@@ -315,7 +315,7 @@ void HelloFrustumProgram::Culling(size_t begin, size_t end)
     const auto* model = modelManager_.GetModel(modelId_);
     const auto& asteroidMesh = model->GetMesh(0);
     const auto asteroidRadius =
-        (asteroidMesh.aabb.upperRightBound - asteroidMesh.aabb.upperRightBound).Magnitude() / 2.0f;
+        (asteroidMesh.GetAabb().upperRightBound - asteroidMesh.GetAabb().upperRightBound).Magnitude() / 2.0f;
     const auto cameraDir = -camera_.reverseDirection;
     const auto cameraRight = camera_.GetRight();
     const auto cameraUp = camera_.GetUp();

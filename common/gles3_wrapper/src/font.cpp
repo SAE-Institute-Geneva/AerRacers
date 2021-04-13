@@ -42,7 +42,7 @@ FontManager::FontManager(const FilesystemInterface& filesystem) :
 void FontManager::Init()
 {
 	textShader_.LoadFromFile(
-		GetShadersFolderPath() + "engine/text.vert", GetShadersFolderPath() + "engine/text.frag");
+		GetGlShadersFolderPath() + "ui_text.vert", GetGlShadersFolderPath() + "ui_text.frag");
 
 	glCheckError();
 	// configure VAO/VBO for texture quads
