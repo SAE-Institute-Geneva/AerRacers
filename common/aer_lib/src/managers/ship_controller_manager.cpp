@@ -27,7 +27,7 @@ void ShipControllerManager::InitComponent(PlayerId player)
     //Set the drag to be the forwardForce / terminalVelocity.
    shipController.drag = shipParameter_.kForwardForce / shipParameter_.kTerminalVelocity;
    
-   PlaySound(player);
+   PlaySound(player, Sound::Engine);
 }
 
 void ShipControllerManager::RotorRotation(PlayerId playerId) {
@@ -268,6 +268,8 @@ void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
         (shipController.drag * Clamp(Vec3f::Dot(rigidDynamic.GetDynamicData().linearVelocity, forward), 0.0f, shipParameter_.kTerminalVelocity) *
             shipParameter_.kPropultionMultiplicator);
     rigidDynamic.AddForce(forward * propulsion, physx::PxForceMode::eACCELERATION);
+
+    SetEngineSpeedSound(playerId, InverseLerp(0.0, 1, Abs(cContainer_.shipInputManager.GetThruster(playerId))) * 100.0f);
 }
 
 void ShipControllerManager::RotorMovement(PlayerId playerId) {
@@ -418,10 +420,27 @@ float PID::Seek(float seekValue, float currentValue, float deltaTime)
     return value;
 }
 
-void ShipControllerManager::PlaySound(PlayerId playerId) {
+void ShipControllerManager::PlaySound(PlayerId playerId, Sound sound) {
     PlayerComponent playerComponent = cContainer_.playerManager.GetPlayerComponent(playerId);
-    cContainer_.audioManager.Play(playerComponent.audioEntity);
+
+    switch(sound) {
+        case Sound::Engine:
+            cContainer_.audioManager.Play(playerComponent.engineAudioEntity);
+            break;
+        case Sound::Collision: 
+            cContainer_.audioManager.SetEventName(playerComponent.audioEntity, "sfx/ship_engine");
+            cContainer_.audioManager.Play(playerComponent.audioEntity);
+            break;
+        default: ;
+    }
+    
 }
+
+void ShipControllerManager::SetEngineSpeedSound(PlayerId playerId, float speed) {
+    PlayerComponent playerComponent = cContainer_.playerManager.GetPlayerComponent(playerId);
+    cContainer_.audioManager.SetParameter(playerComponent.engineAudioEntity, "Speed", speed);
+}
+
 
 
 }    // namespace neko::aer

@@ -93,6 +93,7 @@ struct PlayerComponent {
     Entity leftRotorModel = INVALID_ENTITY;
     Entity rightRotorModel = INVALID_ENTITY;
     Entity audioEntity = INVALID_ENTITY;
+    Entity engineAudioEntity = INVALID_ENTITY;
 
     PlayerId playerNumber            = 0;
     sdl::ControllerId linkedJoystick = 0;

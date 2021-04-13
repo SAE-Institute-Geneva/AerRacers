@@ -231,7 +231,18 @@ namespace neko::aer
         cContainer_.audioManager.SetVolume(audioEntity, 50.0f);
         cContainer_.audioManager.Init();
 
+        Entity motorAudioEntity = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(motorAudioEntity);
+        cContainer_.entityManager.SetEntityParent(motorAudioEntity, playerComponent.shipEntity);
+        cContainer_.audioManager.AddComponent(motorAudioEntity);
+        cContainer_.audioManager.SetEventName(motorAudioEntity, "sfx/ship_engine");
+        cContainer_.audioManager.SetPlayOnWakeUp(motorAudioEntity, false);
+        cContainer_.audioManager.SetMaxDistance(motorAudioEntity, 40.0f);
+        cContainer_.audioManager.SetVolume(motorAudioEntity, 50.0f);
+        cContainer_.audioManager.Init();
+
         playerComponent.audioEntity = audioEntity;
+        playerComponent.engineAudioEntity = motorAudioEntity;
 
         std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
         if (controllers.size() > playerCount_)

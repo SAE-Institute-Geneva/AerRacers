@@ -77,6 +77,11 @@ struct ShipController {
     float rollMultiplicator = 0.0f;
 };
 
+enum class Sound {
+    Engine,
+    Collision
+};
+
 /**
  * \brief System that manages ShipControllers
  */
@@ -103,7 +108,8 @@ public:
         const physx::PxContactPairHeader& pairHeader) override;
     void SetCanMove(PlayerId playerId, bool value);
     bool GetCanMove(PlayerId playerId);
-    void PlaySound(PlayerId playerId);
+    void PlaySound(PlayerId playerId, Sound sound);
+    void SetEngineSpeedSound(PlayerId playerId, float speed);
     ShipController GetComponent(PlayerId playerId) { return shipControllers_[playerId]; }
 protected:
     std::vector<ShipController> shipControllers_;
