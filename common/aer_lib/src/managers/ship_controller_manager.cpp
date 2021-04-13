@@ -209,16 +209,6 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
     Quaternion bodyRotation = Quaternion::FromEuler(EulerAngles(pitchAngle, 0.0f, rollAngle));
 
     cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, Quaternion::ToEulerAngles(bodyRotation));
-    //cContainer_.transform3dManager.SetGlobalRotation(entity, 
-    //    Quaternion::ToEulerAngles(
-    //        Quaternion::Lerp(
-    //            Quaternion::FromEuler(cContainer_.transform3dManager.GetGlobalRotation(entity)), 
-    //            bodyRotation, 
-    //            dt.count() * 10.0f)));
-
-    //if(cContainer_.shipInputManager.GetThruster(playerId) > 0.1f) {
-    //    PlaySound(playerId);
-    //}
 }
 
 void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
@@ -294,31 +284,6 @@ void ShipControllerManager::RotorMovement(PlayerId playerId) {
 
     cContainer_.transform3dManager.SetRelativeRotation(playerComponent.rightRotorAnchor, EulerAngles(rightRotation));
     cContainer_.transform3dManager.SetRelativeRotation(playerComponent.leftRotorAnchor, EulerAngles(leftRotation));
-    
-
-// <<<<<<< HEAD
-//     ShipController& shipController = shipControllers_[playerId];
-//     
-//     Vec3f rightRotation = Vec3f::zero;
-//     if (shipController.canMove)
-//     {
-//         rightRotation.x = cContainer_.shipInputManager.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
-//         rightRotation.z = cContainer_.shipInputManager.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
-//     }
-//      
-//     Vec3f leftRotation = Vec3f::zero;
-//     if (shipController.canMove)
-//     {
-//         leftRotation.x = cContainer_.shipInputManager.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
-//         leftRotation.z = cContainer_.shipInputManager.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
-//     }
-//     
-//     cContainer_.transform3dManager.SetRelativeRotation(shipController.rightRotor, ConvertVec3fToEulerAngles(rightRotation));
-//     cContainer_.transform3dManager.SetRelativeRotation(shipController.leftRotor, ConvertVec3fToEulerAngles(leftRotation));
-// =======
-//     cContainer_.transform3dManager.SetRelativeRotation(playerComponent.rightRotorAnchor, EulerAngles(rightRotation));
-//     cContainer_.transform3dManager.SetRelativeRotation(playerComponent.leftRotorAnchor, EulerAngles(leftRotation));
-// >>>>>>> ea26681eab9459c5b4b74681e5e6c2e10d7cb858
 }
 
 void ShipControllerManager::SetCanMove(PlayerId playerId, bool value)
@@ -331,10 +296,25 @@ bool ShipControllerManager::GetCanMove(PlayerId playerId)
     return shipControllers_[playerId].canMove;
 }
 
-
 void ShipControllerManager::OnCollisionEnter(
     const physx::PxContactPairHeader& pairHeader)
 {
+    const Entity entity1 = cContainer_.rigidDynamicManager.FindEntityFromActor(pairHeader.actors[0]);
+    if (entity1 != INVALID_ENTITY) {
+        if (cContainer_.entityManager.HasComponent(entity1, EntityMask(ComponentType::PLAYER_COMPONENT))) {
+            for (PlayerId playerId = 0; playerId < cContainer_.playerManager.GetPlayerCount(); ++playerId) {
+                Entity currentEntity = cContainer_.playerManager.GetShipEntity(playerId);
+                if (currentEntity == INVALID_ENTITY) continue;
+                if (!cContainer_.entityManager.HasComponent(currentEntity, EntityMask(ComponentType::RIGID_DYNAMIC))) continue;
+                if(currentEntity == entity1) {
+                    PlaySound(playerId, Sound::Collision);
+                    break;
+                }
+            }
+        }
+    }
+
+
     //physx::PxContactPairPoint contactPointBuffer[16];
     //int32_t numContactPoints = pairHeader.pairs->extractContacts(contactPointBuffer, 16);
     //LogDebug(std::to_string(numContactPoints));
@@ -428,7 +408,7 @@ void ShipControllerManager::PlaySound(PlayerId playerId, Sound sound) {
             cContainer_.audioManager.Play(playerComponent.engineAudioEntity);
             break;
         case Sound::Collision: 
-            cContainer_.audioManager.SetEventName(playerComponent.audioEntity, "sfx/ship_engine");
+            cContainer_.audioManager.SetEventName(playerComponent.audioEntity, "sfx/totem_buffalo");
             cContainer_.audioManager.Play(playerComponent.audioEntity);
             break;
         default: ;
