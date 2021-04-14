@@ -68,7 +68,7 @@ struct ComponentManagerContainer : public SystemInterface
 #ifdef NEKO_FMOD
 		audioManager(entityManager, transform3dManager),
 #endif
-         playerManager(*this),
+         playerManager(*this, engine),
          shipInputManager(playerManager),
          shipControllerManager(  
             physicsEngine,

@@ -32,6 +32,7 @@
 
 namespace neko::aer
 {
+class AerEngine;
 class ShipInputManager;
 class ShipControllerManager;
 class CameraControllerManager;
@@ -107,7 +108,7 @@ struct PlayerComponent {
  */
 class PlayerManager final : public SystemInterface {
 public:
-    explicit PlayerManager(ComponentManagerContainer& cContainer);
+    explicit PlayerManager(ComponentManagerContainer& cContainer, AerEngine& engine);
 
     virtual ~PlayerManager() = default;
 
@@ -131,7 +132,7 @@ private:
     CameraControllerManager& cameraControllerManager_;
     ShipControllerManager& shipControllerManager_;
     ShipInputManager& shipInputManager_;
-
+    AerEngine& engine_;
     const float kYDespawnPosition_ = -10000.0f;
 };
 }
