@@ -88,11 +88,6 @@ public:
 	void SetCropping(const Vec2f& slidingCrop) { slidingCrop_ = slidingCrop; }
 
 protected:
-#ifdef NEKO_GLES3
-	void Draw() const;
-	void SetValues(Vec2f size, Vec2f offset);
-#endif
-
 	[[nodiscard]] Vec2i GetPosition(const std::uint8_t playerNmb, Vec2f size) const;
 	[[nodiscard]] Vec2i FixAnchorPosition(Vec2i anchorPos, std::uint8_t playerNmb) const;
 
@@ -103,7 +98,6 @@ protected:
 #ifdef NEKO_GLES3
 	TextureId textureId_     = INVALID_TEXTURE_ID;
 	TextureName textureName_ = INVALID_TEXTURE_NAME;
-	gl::VertexArrayObject quad_;
 #else
 	vk::ResourceHash textureId_ = vk::INVALID_TEXTURE_ID;
 #endif

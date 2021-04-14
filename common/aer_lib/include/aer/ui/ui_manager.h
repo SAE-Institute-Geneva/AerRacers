@@ -100,6 +100,11 @@ private:
      */
 	FontId GetFontId(FontLoaded fontLoaded) const;
 
+#ifdef NEKO_GLES3
+	void InitQuad();
+	void DrawQuad() const;
+#endif
+
 	AerEngine& aerEngine_;
 	Job preRender_;
 
@@ -116,6 +121,7 @@ private:
 	//UiImage
 #ifdef NEKO_GLES3
 	gl::Shader uiImageShader_;
+	gl::VertexArrayObject quad_;
 #endif
 	std::vector<UiImage*> uiImages_ {};
 	std::vector<UiText*> uiTexts_ {};

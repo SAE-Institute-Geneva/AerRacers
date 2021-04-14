@@ -82,6 +82,11 @@ protected:
 
 	Vec2f CalculateTextPosition(Vec2f position, TextAnchor anchor);
 
+	void InitQuad();
+	void DrawQuad() const;
+
+	gl::VertexArrayObject quad_;
+
 	const FilesystemInterface& filesystem_;
 	std::vector<FontRenderingCommand> commands_;
 	gl::Shader textShader_;

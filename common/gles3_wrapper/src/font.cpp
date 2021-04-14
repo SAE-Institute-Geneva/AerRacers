@@ -41,22 +41,9 @@ FontManager::FontManager(const FilesystemInterface& filesystem) :
 
 void FontManager::Init()
 {
+	InitQuad();
 	textShader_.LoadFromFile(
 		GetGlShadersFolderPath() + "ui_text.vert", GetGlShadersFolderPath() + "ui_text.frag");
-
-	glCheckError();
-	// configure VAO/VBO for texture quads
-    // -----------------------------------
-    glGenVertexArrays(1, &textureQuad_.VAO);
-    glGenBuffers(1, &textureQuad_.VBO[0]);
-    glBindVertexArray(textureQuad_.VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, textureQuad_.VBO[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vec4f) * 6, nullptr, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4f), nullptr);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-    glCheckError();
 }
 
 FontId FontManager::LoadFont(std::string_view fontPath, int pixelHeight)
@@ -174,8 +161,8 @@ void FontManager::RenderText(const FontId fontId,
 	// activate corresponding render state
 	textShader_.SetVec4("color", color);
 	textShader_.SetVec2("slidingCrop", Vec2f::one);
-	glBindVertexArray(textureQuad_.VAO);
 
+	glBindVertexArray(textureQuad_.VAO);
 	const Vec2i textSize = CalculateTextSize(fontId, text, scale);
 	float x              = position.x - textSize.x * 0.5f;
 	float y              = position.y - textSize.y * 0.5f;
@@ -190,34 +177,21 @@ void FontManager::RenderText(const FontId fontId,
 		const float w = character.size.x * scale;
 		const float h = character.size.y * scale;
 
-		// update VBO for each character
-		const Vec4f vertices[6] = {{xPos, yPos + h, 0.0f, 0.0f},
-			{xPos, yPos, 0.0f, 1.0f},
-			{xPos + w, yPos, 1.0f, 1.0f},
-
-			{xPos, yPos + h, 0.0f, 0.0f},
-			{xPos + w, yPos, 1.0f, 1.0f},
-			{xPos + w, yPos + h, 1.0f, 0.0f}};
+		Mat4f model = Transform3d::Scale(Mat4f::Identity, Vec3f(w, h, 1.0f));
+		model       = Transform3d::Translate(model, Vec3f(xPos + w * 0.5f, yPos + h * 0.5f, 0.0f));
+		textShader_.SetMat4("model", model);
 
 		// render glyph texture over quad
 		textShader_.SetTexture("tex", character.textureName, 0);
 
-		// update content of VBO memory
-		glBindBuffer(GL_ARRAY_BUFFER, textureQuad_.VBO[0]);
-
-		// be sure to use glBufferSubData and not glBufferData
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
 		// render quad
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		DrawQuad();
 
 		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
 		x += static_cast<float>(character.advance >> 6) * scale;
 		// bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
 	}
 
-	glBindVertexArray(0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
@@ -285,5 +259,46 @@ Vec2i FontManager::CalculateTextSize(FontId fontId, std::string_view text, float
 	}
 
 	return Vec2i(size);
+}
+
+void FontManager::InitQuad()
+{
+	// FT's glyphs are upside down so we need to invert the y tex coord
+	Vec4f vertices[4] = {
+		{-0.5f,  0.5f, 0.0f, 0.0f},    // Top Left
+		{-0.5f, -0.5f, 0.0f, 1.0f},    // Bottom Left
+		{ 0.5f, -0.5f, 1.0f, 1.0f},    // Bottom Right
+		{ 0.5f,  0.5f, 1.0f, 0.0f},    // Top Right
+	};
+
+	unsigned indices[6] = {0, 1, 3, 1, 2, 3};
+
+	glCheckError();
+	// configure VAO/VBO for texture quads
+	// -----------------------------------
+	glGenBuffers(1, &quad_.VBO[0]);
+	glGenBuffers(1, &quad_.EBO);
+	glGenVertexArrays(1, &quad_.VAO);
+	glBindVertexArray(quad_.VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, quad_.VBO[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4f), nullptr);
+	glEnableVertexAttribArray(0);
+	glCheckError();
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_.EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glCheckError();
+}
+
+void FontManager::DrawQuad() const
+{
+	glBindVertexArray(quad_.VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+	glBindVertexArray(0);
 }
 }    // namespace neko::gl

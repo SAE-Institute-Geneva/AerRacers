@@ -1,3 +1,5 @@
+#include "aer/ui/ui_manager.h"
+
 #include "aer/aer_engine.h"
 
 #include "engine/resource_locations.h"
@@ -25,8 +27,10 @@ void UiManager::Init()
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+			InitQuad();
 			uiImageShader_.LoadFromFile(GetGlShadersFolderPath() + "ui_image.vert",
 				GetGlShadersFolderPath() + "ui_image.frag");
+
 			fontManager_.Init();
 			lobsterId_ = fontManager_.LoadFont(GetFontsFolderPath() + kLobsterName, 36);
 			robotoId_  = fontManager_.LoadFont(GetFontsFolderPath() + kRobotoName, 36);
@@ -41,10 +45,7 @@ void UiManager::Init()
 #endif
 }
 
-void UiManager::Update(seconds)
-{
-	auto& inputManager = sdl::InputLocator::get();
-}
+void UiManager::Update(seconds) {}
 
 void UiManager::Render(std::uint8_t playerNmb)
 {
@@ -53,9 +54,8 @@ void UiManager::Render(std::uint8_t playerNmb)
 
 	uiImageShader_.Bind();
 	glDisable(GL_DEPTH_TEST);
-	//glCullFace(GL_FRONT);
 
-	const Vec2u winSize = aerEngine_.GetConfig().windowSize;
+	const Vec2i winSize = Vec2i(aerEngine_.GetConfig().windowSize);
 	glViewport(0, 0, winSize.x, winSize.y);
 
 	for (auto& image : uiImages_)
@@ -64,6 +64,7 @@ void UiManager::Render(std::uint8_t playerNmb)
 		if (image->GetFlags() & UiFlag::INITIALIZED && image->GetFlags() & UiFlag::ENABLED)
 		{
 			image->Draw(textureManager, playerNmb, uiImageShader_);
+			DrawQuad();
 		}
 		else if (!(image->GetFlags() & UiFlag::INITIALIZED))
 		{
@@ -72,7 +73,6 @@ void UiManager::Render(std::uint8_t playerNmb)
 		}
 	}
 
-	glCullFace(GL_BACK);
 	for (auto& text : uiTexts_)
 	{
 		if (text->GetFlags() & UiFlag::ENABLED)
@@ -142,4 +142,46 @@ void UiManager::SetWindowSize(const Vec2f windowSize)
 
 	fontManager_.SetWindowSize(windowSize);
 }
+
+#ifdef NEKO_GLES3
+void UiManager::InitQuad()
+{
+	Vec4f vertices[4] = {
+		{-0.5f,  0.5f, 0.0f, 1.0f},    // Top Left
+		{-0.5f, -0.5f, 0.0f, 0.0f},    // Bottom Left
+		{ 0.5f, -0.5f, 1.0f, 0.0f},    // Bottom Right
+		{ 0.5f,  0.5f, 1.0f, 1.0f},    // Top Right
+	};
+
+	unsigned indices[6] = {0, 1, 3, 1, 2, 3};
+
+	glCheckError();
+	// configure VAO/VBO for texture quads
+	// -----------------------------------
+	glGenBuffers(1, &quad_.VBO[0]);
+	glGenBuffers(1, &quad_.EBO);
+	glGenVertexArrays(1, &quad_.VAO);
+	glBindVertexArray(quad_.VAO);
+
+	glBindBuffer(GL_ARRAY_BUFFER, quad_.VBO[0]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, sizeof(Vec4f), nullptr);
+	glEnableVertexAttribArray(0);
+	glCheckError();
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, quad_.EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glCheckError();
+}
+
+void UiManager::DrawQuad() const
+{
+	glBindVertexArray(quad_.VAO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+	glBindVertexArray(0);
+}
+#endif
 }    // namespace neko::aer

@@ -8,10 +8,11 @@ layout (std140, binding = 2) uniform UiProj
     mat4 proj;
 };
 
+uniform mat4 model;
 uniform vec2 slidingCrop;
 
 void main()
 {
     TexCoords = vertex.zw * slidingCrop;
-    gl_Position = proj * vec4(vertex.xy, 0.0, 1.0);
+    gl_Position = proj * model * vec4(vertex.xy, 0.0, 1.0);
 }
