@@ -88,16 +88,15 @@ public:
 	static bool HasStencil(VkFormat format);
 
 protected:
-	static VkImage CreateImage(VkDeviceMemory memory,
-		const VkExtent3D& extent,
-		VkFormat format,
-		VkSampleCountFlagBits samples,
-		VkImageTiling tiling,
-		VkImageUsageFlags usage,
-		VkMemoryPropertyFlags properties,
-		std::uint32_t mipLevels,
-		std::uint32_t arrayLayers,
-		VkImageType type);
+	VkImage CreateImage(const VkExtent3D& extent,
+		const VkFormat format,
+		const VkSampleCountFlagBits samples,
+		const VkImageTiling tiling,
+		const VkImageUsageFlags usage,
+		const VkMemoryPropertyFlags properties,
+		const std::uint32_t mipLevels,
+		const std::uint32_t arrayLayers,
+		const VkImageType type);
 
 	static VkSampler CreateImageSampler(VkFilter filter,
 		VkSamplerAddressMode addressMode,

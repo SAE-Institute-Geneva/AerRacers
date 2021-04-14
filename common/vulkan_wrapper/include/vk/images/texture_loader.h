@@ -43,15 +43,13 @@ private:
 	std::reference_wrapper<const FilesystemInterface> filesystem_;
 	Texture::TextureFlags flags_ = Texture::DEFAULT;
 
-	ktxTexture* kTexture_ = nullptr;
-	ktxVulkanDeviceInfo vdi_ {};
-
 	Job loadingTextureJob_ {};
 	Job decompressTextureJob_ {};
 	Job uploadJob_ {};
 
 	std::string path_ {};
 	BufferFile bufferFile_ {};
+	neko::Image image_ {};
 
 	Image2d texture_ {};
 	StringHash textureId_ {};

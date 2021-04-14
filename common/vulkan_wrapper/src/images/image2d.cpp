@@ -1,5 +1,6 @@
+#include "vk/images/image2d.h"
 
-#include <vk/images/image2d.h>
+#include <stb_image.h>
 
 #include "utils/file_utility.h"
 
@@ -82,7 +83,7 @@ Image2d& Image2d::operator=(const Image2d& other) noexcept
 void Image2d::Load()
 {
 	if (GetFilenameExtension(filePath_) == ".ktx") LoadKtx();
-	else neko_assert(false, fmt::format("{} isn't a valid KTX image!", filePath_));
+	else LoadStb();
 }
 
 void Image2d::LoadKtx()
@@ -114,8 +115,8 @@ void Image2d::LoadKtx()
 	if (extent_.width == 0 || extent_.height == 0) return;
 
 	sampler_ = CreateImageSampler(filter_, addressMode_, anisotropic_, mipLevels_);
-	view_ = CreateImageView(
-		image_, VK_IMAGE_VIEW_TYPE_2D, format_, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels_, 0, 1, 0);
+	view_    = CreateImageView(
+        image_, GetViewType(), format_, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels_, 0, 1, 0);
 
 	if (mipmap_)
 	{
@@ -176,5 +177,64 @@ void Image2d::SetFromKtxVkTexture(const ktxVulkanTexture& texture)
 	extent_      = {texture.width, texture.height, texture.height};
 	mipLevels_   = texture.levelCount;
 	arrayLayers_ = texture.layerCount;
+}
+
+void Image2d::LoadStb()
+{
+	neko::Image image;
+	image.data = stbi_load(
+		filePath_.c_str(), &image.width, &image.height, &image.nbChannels, STBI_rgb_alpha);
+
+	CreateFromStb(image);
+}
+
+void Image2d::CreateFromStb(const neko::Image& image)
+{
+	extent_    = {image.width, image.height, 1};
+	mipLevels_ = mipmap_ ? GetMipLevels(extent_) : 1u;
+	image_     = CreateImage(extent_,
+        format_,
+        sample_,
+        kTiling,
+        usage_,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+        mipLevels_,
+        1,
+        GetType());
+
+	sampler_ = CreateImageSampler(filter_, addressMode_, anisotropic_, mipLevels_);
+	view_    = CreateImageView(image_, GetViewType(), format_, kAspect, mipLevels_, 0, 1, 0);
+
+	// Copy pixel data to image
+	VkDeviceSize imageSize = image.width * image.height * image.nbChannels;
+	const Buffer stagingBuffer(imageSize,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+	char* data;
+	stagingBuffer.MapMemory(&data);
+	std::memcpy(data, image.data, stagingBuffer.GetSize());
+	stagingBuffer.UnmapMemory();
+
+	CopyBufferToImage(stagingBuffer.GetBuffer(), image_, extent_, 1, 0);
+
+	// Change the image layout as needed
+	if (mipmap_)
+	{
+		TransitionImageLayout(image_,
+			VK_IMAGE_LAYOUT_UNDEFINED,
+			VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+			kAspect,
+			mipLevels_,
+			0,
+			1,
+			0);
+
+		CreateMipmaps(image_, extent_, format_, layout_, mipLevels_, 0, arrayLayers_);
+	}
+	else
+	{
+		TransitionImageLayout(image_, kLayout, layout_, kAspect, mipLevels_, 0, arrayLayers_, 0);
+	}
 }
 }    // namespace neko::vk

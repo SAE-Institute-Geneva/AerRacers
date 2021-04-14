@@ -27,6 +27,8 @@
 ---------------------------------------------------------- */
 #include "vk/images/image.h"
 
+#include <stb_image.h>
+
 namespace neko::vk
 {
 constexpr VkImageTiling kTiling = VK_IMAGE_TILING_OPTIMAL;
@@ -61,11 +63,14 @@ public:
 
 	void Load();
 	void LoadKtx();
+	void LoadStb();
 
 	void CreateFromKtx(const ktxVulkanTexture& texture,
 		VkFilter filter                  = VK_FILTER_LINEAR,
 		VkSamplerAddressMode addressMode = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
 		bool mipmap                      = false);
+
+	void CreateFromStb(const neko::Image& image);
 
 	[[nodiscard]] static constexpr VkImageType GetType() { return VK_IMAGE_TYPE_2D; }
 	[[nodiscard]] static constexpr VkImageViewType GetViewType() { return VK_IMAGE_VIEW_TYPE_2D; }

@@ -196,7 +196,7 @@ void ModelLoader::LoadMaterialTextures(const tinyobj::material_t& mat,
 		materialManager.GetDiffuseMaterial(mesh.materialId_).SetColor(Vec4f(diffuseCol, 1.0f));
 
 		const ResourceHash textureId =
-			textureManager.AddTexture(fmt::format("{}/{}.ktx", directory_, texName));
+			textureManager.AddTexture(fmt::format("{}/{}", directory_, texName));
 		switch (textureType)
 		{
 			case DiffuseMaterial::DIFFUSE:

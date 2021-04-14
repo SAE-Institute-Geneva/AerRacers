@@ -39,8 +39,8 @@ DiffuseMaterial::DiffuseMaterial(std::string_view name,
 		descriptorData_.emplace(kNormalHash, normal);
 	}
 
-	const auto usedMaps = MaterialExportData(usedMaps_);
-	uniformData_.emplace(kUsedMapsHash, usedMaps);
+	const auto shininess = MaterialExportData(shininess_);
+	uniformData_.emplace(kShininessHash, shininess);
 }
 
 bool DiffuseMaterial::operator==(const DiffuseMaterial& other) const
@@ -100,8 +100,6 @@ void DiffuseMaterial::SetDiffuse(const Image2d& textureDiffuse)
 		return;
 	}
 
-	usedMaps_ |= DIFFUSE;
-	descriptorData_[kUsedMapsHash] = MaterialExportData(usedMaps_);
 	descriptorData_.emplace(kDiffuseHash, diffuse);
 	ResetPipeline();
 }
@@ -109,8 +107,6 @@ void DiffuseMaterial::SetDiffuse(const Image2d& textureDiffuse)
 void DiffuseMaterial::ResetDiffuse()
 {
 	diffuse_.reset();
-	usedMaps_ &= ~DIFFUSE;
-	descriptorData_[kUsedMapsHash] = MaterialExportData(usedMaps_);
 
 	const auto it = descriptorData_.find(kDiffuseHash);
 	if (it != descriptorData_.end()) descriptorData_.erase(it);
@@ -130,8 +126,6 @@ void DiffuseMaterial::SetSpecular(const Image2d& textureSpecular)
 		return;
 	}
 
-	usedMaps_ |= SPECULAR;
-	descriptorData_[kUsedMapsHash] = MaterialExportData(usedMaps_);
 	descriptorData_.emplace(kSpecularHash, specular);
 	ResetPipeline();
 }
@@ -139,8 +133,6 @@ void DiffuseMaterial::SetSpecular(const Image2d& textureSpecular)
 void DiffuseMaterial::ResetSpecular()
 {
 	specular_.reset();
-	usedMaps_ &= ~SPECULAR;
-	descriptorData_[kUsedMapsHash] = MaterialExportData(usedMaps_);
 
 	const auto it = descriptorData_.find(kSpecularHash);
 	if (it != descriptorData_.end()) descriptorData_.erase(it);
@@ -160,8 +152,6 @@ void DiffuseMaterial::SetNormal(const Image2d& textureNormal)
 		return;
 	}
 
-	usedMaps_ |= NORMAL;
-	descriptorData_[kUsedMapsHash] = MaterialExportData(usedMaps_);
 	descriptorData_.emplace(kNormalHash, normal);
 	ResetPipeline();
 }
@@ -169,13 +159,17 @@ void DiffuseMaterial::SetNormal(const Image2d& textureNormal)
 void DiffuseMaterial::ResetNormal()
 {
 	normal_.reset();
-	usedMaps_ &= ~NORMAL;
-	descriptorData_[kUsedMapsHash] = MaterialExportData(usedMaps_);
 
 	const auto it = descriptorData_.find(kNormalHash);
 	if (it != descriptorData_.end()) descriptorData_.erase(it);
 
 	ResetPipeline();
+}
+
+void DiffuseMaterial::SetShininess(const float shininess)
+{
+	shininess_ = shininess;
+	descriptorData_[kShininessHash] = MaterialExportData(shininess);
 }
 
 void DiffuseMaterial::SetRenderMode(const Material::RenderMode renderMode)
@@ -196,7 +190,7 @@ void DiffuseMaterial::ResetPipeline()
 	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
 	pipelineMaterial_ =
 		std::optional_ref<MaterialPipeline>(MaterialPipeline::CreateMaterialPipeline(stage,
-			GraphicsPipelineCreateInfo(config.dataRootPath + GetShaderPath(),
+			GraphicsPipelineCreateInfo(GetShaderPath(),
 				{Vertex::GetVertexInput(0), ModelInstance::Instance::GetVertexInput(1)},
 				GraphicsPipeline::Mode::MRT,
 				GraphicsPipeline::Depth::READ_WRITE,

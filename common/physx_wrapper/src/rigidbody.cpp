@@ -1,13 +1,11 @@
 #include <imgui.h>
 
-#include "engine/configuration.h"
-#include "engine/engine.h"
 #include "engine/resource_locations.h"
-
-#include "aer/tag.h"
 
 #include "px/physics_engine.h"
 #include "px/physx_utility.h"
+
+#include "aer/tag.h"
 
 namespace neko::physics
 {
@@ -887,6 +885,8 @@ RigidStaticManager::RigidStaticManager(EntityManager& entityManager,
 
 void RigidStaticManager::FixedUpdate(seconds dt)
 {
+	if (meshColliderToCreate_.empty()) return;
+	
 	for (auto& toCreate : meshColliderToCreate_)
 	{
 #ifdef NEKO_GLES3
