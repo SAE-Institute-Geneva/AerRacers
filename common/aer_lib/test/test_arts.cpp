@@ -928,4 +928,104 @@ TEST(Arts, Stb)
 }
 #pragma endregion 
 }    // namespace neko::aer
+#elif NEKO_VULKAN
+#include "vk/graphics.h"
+#include "vk/renderers/renderer_editor.h"
+namespace neko::aer
+{
+#pragma region LevelDesign
+class LevelDesignViewer : public SystemInterface,
+    public DrawImGuiInterface
+{
+public:
+    explicit LevelDesignViewer(AerEngine& engine)
+        : engine_(engine)
+    {}
+
+    void Init() override
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Init", profiler::colors::Green);
+#endif
+        const Configuration config = BasicEngine::GetInstance()->GetConfig();
+        engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+            config.dataRootPath + "scenes/LevelDesign05-04.aerscene");
+        //Camera3D* camera = GizmosLocator::get().GetCamera();
+        //camera->position = Vec3f(10.0f, 5.0f, 0.0f);
+        //camera->Rotate(EulerAngles(degree_t(0.0f), degree_t(-90.0f), degree_t(0.0f)));
+    }
+
+    void Update(seconds dt) override
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Update", profiler::colors::Green);
+#endif
+        updateCount_ += dt.count();
+        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+    }
+
+    void Destroy() override {}
+
+    void HasSucceed() {}
+
+    void DrawImGui() override
+    {
+        ImGui::Begin("Test parameter");
+        {
+            float speed = engine_.GetCameras().moveSpeed;
+            if (ImGui::DragFloat("CameraSpeed", &speed)) {
+                engine_.GetCameras().moveSpeed = speed;
+            }
+        }
+        ImGui::End();
+    }
+
+private:
+    float updateCount_ = 0;
+    const float kEngineDuration_ = 2.0f;
+
+    AerEngine& engine_;
+};
+TEST(Arts, TestLevelDesignSceneViewer)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr)
+    {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    Configuration config;
+    config.windowName = "AerEditor";
+    config.windowSize = Vec2u(1400, 900);
+
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
+#ifdef NEKO_GLES3
+    neko::sdl::Gles3Window window;
+    neko::gl::Gles3Renderer renderer;
+#elif NEKO_VULKAN
+    neko::sdl::VulkanWindow window;
+    neko::vk::VkRenderer renderer(&window);
+    renderer.SetRenderer(std::make_unique<neko::vk::RendererEditor>());
+#endif
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+    LevelDesignViewer testSceneImporteur(engine);
+    engine.RegisterSystem(testSceneImporteur);
+    engine.RegisterOnDrawUi(testSceneImporteur);
+
+    engine.Init();
+
+    engine.EngineLoop();
+#ifdef EASY_PROFILE_USE
+    profiler::dumpBlocksToFile("Scene_Neko_Profile.prof");
+#endif
+
+    //testSceneImporteur.HasSucceed();
+    logDebug("Test without check");
+}
+#pragma endregion
+}    // namespace neko::aer
 #endif
