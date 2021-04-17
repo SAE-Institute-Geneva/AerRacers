@@ -89,6 +89,13 @@ public:
 	[[nodiscard]] ordered_json ToJson() const override;
 	void FromJson(const json& materialJson) override;
 
+	[[nodiscard]] const ResourceHash GetDiffuseId() const { return diffuseId_; }
+	void SetDiffuseId(const ResourceHash& diffuseId) { diffuseId_ = diffuseId; }
+	[[nodiscard]] const ResourceHash GetNormalId() const { return normalId_; }
+	void SetNormalId(const ResourceHash& normalId) { normalId_ = normalId; }
+	[[nodiscard]] const ResourceHash GetSpecularId() const { return specularId_; }
+	void SetSpecularId(const ResourceHash& specularId) { specularId_ = specularId; }
+
 private:
 	void ResetPipeline();
 
@@ -96,6 +103,9 @@ private:
 	std::optional_const_ref<Image2d> diffuse_;
 	std::optional_const_ref<Image2d> specular_;
 	std::optional_const_ref<Image2d> normal_;
+	ResourceHash diffuseId_ = 0;
+	ResourceHash specularId_ = 0;
+	ResourceHash normalId_ = 0;
 
 	float shininess_ = 32.0f;
 };
