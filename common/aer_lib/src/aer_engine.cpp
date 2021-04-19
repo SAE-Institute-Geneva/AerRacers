@@ -97,13 +97,13 @@ void AerEngine::Init()
 			cContainer_.renderManager.AddComponent(entity);
 			cContainer_.renderManager.SetModel(entity, GetModelsFolderPath() + "sphere/sphere.obj");
 
-			cContainer_.audioManager.AddComponent(entity);
-			cContainer_.audioManager.SetEventName(entity, "sfx/ship_engine");
-			cContainer_.audioManager.SetPlayOnWakeUp(entity, true);
-			cContainer_.audioManager.SetMaxDistance(entity, 40.0f);
-			cContainer_.audioManager.SetVolume(entity, 50.0f);
-
-			cContainer_.audioManager.Init();
+			// cContainer_.audioManager.AddComponent(entity);
+			// cContainer_.audioManager.SetEventName(entity, "sfx/ship_engine");
+			// cContainer_.audioManager.SetPlayOnWakeUp(entity, true);
+			// cContainer_.audioManager.SetMaxDistance(entity, 40.0f);
+			// cContainer_.audioManager.SetVolume(entity, 50.0f);
+			//
+			// cContainer_.audioManager.Init();
 		}
 		else if (true) {
 			cContainer_.menuManager.StartMenu();

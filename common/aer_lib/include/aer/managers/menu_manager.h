@@ -71,6 +71,27 @@ namespace neko::aer
     };
 
 
+    enum class SelectedShipColor
+    {
+        BLUE,
+        RED,
+        GREEN,
+        YELLOW
+    };
+
+    enum class SelectedShip
+    {
+        ROSSO,
+        CORTESE
+    };
+
+    struct ShipSkins
+    {
+        SelectedShip selectedShip = SelectedShip::ROSSO;
+        SelectedShipColor selectedShipColor = SelectedShipColor::BLUE;
+    };
+
+
     class MenuManager : public SystemInterface, public RenderCommandInterface
     {
     public:
@@ -106,18 +127,37 @@ namespace neko::aer
         MenuStatus menuStatus_ = MenuStatus::MENU;
         MainMenuPointing mainMenuPointing_ = MainMenuPointing::START;
         std::array<SelectionPointing, 4> selectionPointing_;
+        
+
+        //UI
+
+        //Menu
         UiText startTextUi;
         UiText optionsTextUi;
         UiText highscoreTextUi;
-        std::array<UiText, 4> joinUi_;
-        std::array<UiText, 4> leftArrowUi_;
-        std::array<UiText, 4> rightArrowUi_;
-        std::array<UiImage, 4> selectedShipUi_;
-        std::array<UiImage, 4> selectedColorUi_;
+
+        UiImage menuBackGroundUI;
+        std::array<UiImage, 3> TextCloudImages;
+        //Selection
+
+        std::array<UiImage, 4> elRossoUI_;
+        std::array<UiImage, 4> corteseUI_;
+
+        std::array<UiImage, 4> selectionBackgroundUI;
         std::array<UiImage, 4> colorRedUi_;
         std::array<UiImage, 4> colorGreenUi_;
         std::array<UiImage, 4> colorBlueUi_;
         std::array<UiImage, 4> colorYellowUi_;
+
+        std::array<UiImage, 4> selectedColorUi_;
+
+        std::array<ShipSkins, 4> shipSkins;
+
+
+        std::array<UiText, 4> joinUi_;
+        std::array<UiText, 4> leftArrowUi_;
+        std::array<UiText, 4> rightArrowUi_;
+        std::array<UiImage, 4> selectedShipUi_;
         std::array<UiText, 4> readyUi_;
 
 
@@ -127,9 +167,9 @@ namespace neko::aer
 
         bool useMenu = false;
 
-        bool isDpadLeft = false;
-        bool isDpadRight = false;
-        bool isDpadUp = false;
-        bool isDpadDown = false;
+        std::array<bool, 4> isDpadUp_{ false, false, false, false };
+        std::array<bool, 4> isDpadDown_{ false, false, false, false };
+        std::array<bool, 4> isDpadLeft_{ false, false, false, false };
+        std::array<bool, 4> isDpadRight_{ false, false, false, false };
     };
 }

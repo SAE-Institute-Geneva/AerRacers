@@ -16,6 +16,7 @@ void MenuManager::Init()
     startTextUi = UiText(FontLoaded::ROBOTO, "Start", Vec2f(0.0f, 1.0f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
     optionsTextUi = UiText(FontLoaded::ROBOTO, "Options", Vec2f(0.0f, 0.75f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
     highscoreTextUi = UiText(FontLoaded::ROBOTO, "HighScore", Vec2f(0.0f, 0.5f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
+    menuBackGroundUI = UiImage(config.dataRootPath + "sprites/ui/background.png", Vec2f().zero, Vec2u(1920, 1080), UiAnchor::CENTER, 0, Color::white);
     menuStatus_ = MenuStatus::SLEEP;
 
     useMenu = false;
@@ -28,16 +29,18 @@ void MenuManager::Init()
         // selectedShipUi_[i] = ;
         // selectedColorUi_[i] = ;
         colorBlueUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.0f,0.0f) + playerScreenOffsets[i], Vec2u(100,100), UiAnchor::CENTER, 0, Color::blue);
-        // colorGreenUi_[i] = ;
-        // colorRedUi_[i] = ;
-        // colorYellowUi_[i] = ;
+        colorGreenUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], Vec2u(100, 100), UiAnchor::CENTER, 0, Color::green);
+        colorRedUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], Vec2u(100, 100), UiAnchor::CENTER, 0, Color::red);
+        colorYellowUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], Vec2u(100, 100), UiAnchor::CENTER, 0, Color::yellow);
         readyUi_[i] = UiText(FontLoaded::ROBOTO, "Ready", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
     }
 
     auto& uiManager = UiManagerLocator::get();
+    uiManager.AddUiImage(&menuBackGroundUI);
     uiManager.AddUiText(&startTextUi);
     uiManager.AddUiText(&optionsTextUi);
     uiManager.AddUiText(&highscoreTextUi);
+
     for (int i = 0; i < 4; i++)
     {
         uiManager.AddUiText(&joinUi_[i]);
@@ -45,6 +48,9 @@ void MenuManager::Init()
         uiManager.AddUiText(&rightArrowUi_[i]);
         uiManager.AddUiText(&readyUi_[i]);
         uiManager.AddUiImage(&colorBlueUi_[i]);
+        uiManager.AddUiImage(&colorGreenUi_[i]);
+        uiManager.AddUiImage(&colorRedUi_[i]);
+        uiManager.AddUiImage(&colorYellowUi_[i]);
     }
 }
 
@@ -66,9 +72,9 @@ void MenuManager::Update(seconds dt)
             // selectedShipUi_[i] = ;
             // selectedColorUi_[i] = ;
             colorBlueUi_[i].SetColor(Color::clear);
-            // colorGreenUi_[i] = ;
-            // colorRedUi_[i] = ;
-            // colorYellowUi_[i] = ;
+            colorGreenUi_[i].SetColor(Color::clear);
+            colorRedUi_[i].SetColor(Color::clear);
+            colorYellowUi_[i].SetColor(Color::clear);
             readyUi_[i].SetText("");
         }
 
@@ -86,24 +92,24 @@ void MenuManager::Update(seconds dt)
                 optionsTextUi.SetColor(Color::grey);
                 highscoreTextUi.SetColor(Color::grey);
 
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadDown)
+                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadDown_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::OPTIONS;
-                    isDpadDown = true;
+                    isDpadDown_[0] = true;
                 }
-                else if (isDpadDown && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                else if (isDpadDown_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
                 {
-                    isDpadDown = false;
+                    isDpadDown_[0] = false;
                 }
 
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadUp)
+                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadUp_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::HIGH_SCORE;
-                    isDpadUp = true;
+                    isDpadUp_[0] = true;
                 }
-                else if (isDpadUp && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                else if (isDpadUp_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
                 {
-                    isDpadUp = false;
+                    isDpadUp_[0] = false;
                 }
 
                 if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
@@ -121,24 +127,24 @@ void MenuManager::Update(seconds dt)
                 startTextUi.SetColor(Color::grey);
                 optionsTextUi.SetColor(Color::grey);
                 highscoreTextUi.SetColor(Color::white);
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadDown)
+                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadDown_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::START;
-                    isDpadDown = true;
+                    isDpadDown_[0] = true;
                 }
-                else if (isDpadDown && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                else if (isDpadDown_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
                 {
-                    isDpadDown = false;
+                    isDpadDown_[0] = false;
                 }
 
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadUp)
+                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadUp_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::OPTIONS;
-                    isDpadUp = true;
+                    isDpadUp_[0] = true;
                 }
-                else if (isDpadUp && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                else if (isDpadUp_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
                 {
-                    isDpadUp = false;
+                    isDpadUp_[0] = false;
                 }
 
                 if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
@@ -151,24 +157,24 @@ void MenuManager::Update(seconds dt)
                 startTextUi.SetColor(Color::grey);
                 optionsTextUi.SetColor(Color::white);
                 highscoreTextUi.SetColor(Color::grey);
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadDown)
+                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadDown_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::HIGH_SCORE;
-                    isDpadDown = true;
+                    isDpadDown_[0] = true;
                 }
-                else if (isDpadDown && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                else if (isDpadDown_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
                 {
-                    isDpadDown = false;
+                    isDpadDown_[0] = false;
                 }
 
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadUp)
+                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadUp_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::START;
-                    isDpadUp = true;
+                    isDpadUp_[0] = true;
                 }
-                else if (isDpadUp && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                else if (isDpadUp_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
                 {
-                    isDpadUp = false;
+                    isDpadUp_[0] = false;
                 }
 
                 if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
@@ -205,6 +211,44 @@ void MenuManager::Update(seconds dt)
                 case SelectionPointing::SHIP_TYPE:
                     leftArrowUi_[i].SetText("<-");
                     rightArrowUi_[i].SetText("->");
+
+
+                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadLeft_[i])
+                    {
+                        if (shipSkins[i].selectedShip == SelectedShip::ROSSO)
+                        {
+                            shipSkins[i].selectedShip = SelectedShip::CORTESE;
+                        }
+                        else
+                        {
+                            shipSkins[i].selectedShip = SelectedShip::ROSSO;
+                        }
+                        isDpadLeft_[i] = true;
+                    }
+                    else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                    {
+                        isDpadLeft_[i] = false;
+                    }
+
+                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadRight_[i])
+                    {
+                        if (shipSkins[i].selectedShip == SelectedShip::ROSSO)
+                        {
+                            shipSkins[i].selectedShip = SelectedShip::CORTESE;
+                        }
+                        else
+                        {
+                            shipSkins[i].selectedShip = SelectedShip::ROSSO;
+                        }
+                        isDpadRight_[i] = true;
+                    }
+                    else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                    {
+                        isDpadRight_[i] = false;
+                    }
+
+
+
                     if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN && i == 0)
                     {
                         menuStatus_ = MenuStatus::MENU;
@@ -220,6 +264,61 @@ void MenuManager::Update(seconds dt)
                     break;
                 case SelectionPointing::SHIP_COLOR:
                     colorBlueUi_[i].SetColor(Color::blue);
+                    colorGreenUi_[i].SetColor(Color::green);
+                    colorRedUi_[i].SetColor(Color::red);
+                    colorYellowUi_[i].SetColor(Color::yellow);
+
+
+                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadLeft_[i])
+                    {
+                        isDpadLeft_[i] = true;
+                        switch (shipSkins[i].selectedShipColor)
+                        {
+                        case SelectedShipColor::BLUE:
+                            shipSkins[i].selectedShipColor = SelectedShipColor::YELLOW;
+                            break;
+                        case SelectedShipColor::GREEN:
+                            shipSkins[i].selectedShipColor = SelectedShipColor::BLUE;
+                            break;
+                        case SelectedShipColor::RED:
+                            shipSkins[i].selectedShipColor = SelectedShipColor::GREEN;
+                            break;
+                        case SelectedShipColor::YELLOW:
+                            shipSkins[i].selectedShipColor = SelectedShipColor::RED;
+                            break;
+                        }
+                    }
+                    else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                    {
+                        isDpadLeft_[i] = false;
+                    }
+
+                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadRight_[i])
+                    {
+                        isDpadRight_[i] = true;
+                        switch (shipSkins[i].selectedShipColor)
+                        {
+                        case SelectedShipColor::BLUE:
+                            shipSkins[i].selectedShipColor = SelectedShipColor::GREEN;
+                            break;
+                        case SelectedShipColor::GREEN:
+                            shipSkins[i].selectedShipColor = SelectedShipColor::RED;
+                            break;
+                        case SelectedShipColor::RED:
+                            shipSkins[i].selectedShipColor = SelectedShipColor::YELLOW;
+                            break;
+                        case SelectedShipColor::YELLOW:
+                            shipSkins[i].selectedShipColor = SelectedShipColor::BLUE;
+                            break;
+                        }
+                    }
+                    else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                    {
+                        isDpadRight_[i] = false;
+                    }
+
+
+
 
                     if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
                     {
