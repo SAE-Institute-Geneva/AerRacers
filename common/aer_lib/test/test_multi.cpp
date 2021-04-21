@@ -163,11 +163,12 @@ namespace neko::aer {
             EASY_BLOCK("Test Update", profiler::colors::Green);
 #endif
             updateCount_ += dt.count();
-            if (updateCount_ > kLoadingDuration_) {
+            if (updateCount_ > kLoadingDuration_ && !playersCreated_) {
                 cContainer_.playerManager.CreatePlayer(Vec3f(0, 10.0f, 0), true, 1);
                 cContainer_.playerManager.CreatePlayer(Vec3f(10.0f, 10.0f, 0), true, 0);
-                cContainer_.playerManager.CreatePlayer(Vec3f(-10.0f, 10.0f, 0), false, 2);
+                cContainer_.playerManager.CreatePlayer(Vec3f(-10.0f, 10.0f, 0), false, 1);
                 cContainer_.playerManager.CreatePlayer(Vec3f(0.0f, 10.0f, 10.0f), false, 3);
+                playersCreated_ = true;
             }
             if (updateCount_ > kEngineDuration_) {
                 HasSucceed();
@@ -188,6 +189,7 @@ namespace neko::aer {
         }
 
     private:
+        bool playersCreated_ = false;
         float updateCount_ = 0;
         const float kLoadingDuration_ = 3.0f;
         const float kEngineDuration_ = 10.0f;
