@@ -33,7 +33,8 @@
 #define VALIDATION_LAYERS
 #endif
 
-#include "vk/vk_error_handler.h"
 #include "vulkan/vulkan.h"
 #include "vulkan/vulkan_core.h"
+
+#include "vk/vk_error_handler.h"
 #endif

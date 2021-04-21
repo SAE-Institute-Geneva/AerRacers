@@ -1,4 +1,6 @@
 #ifdef NEKO_ASSERT
+#include "vk/vk_error_handler.h"
+
 namespace neko::vk
 {
 void CheckVkError(VkResult err, const char* msg, const char* file, int line)
@@ -68,34 +70,6 @@ void CheckVkError(VkResult err, const char* msg, const char* file, int line)
 
 	if (err >= 0 || err == VK_ERROR_OUT_OF_DATE_KHR) logDebug(log);
 	else neko_assert(false, fmt::format("{}: {} | At line {} in {}", log, msg, line, file));
-}
-void PrintKtxError(ktx_error_code_e result, const char* file, int line)
-{
-	std::string log;
-	switch (result)
-	{
-		case KTX_FILE_DATA_ERROR: log = "[KTX] Error file data error"; break;
-		case KTX_FILE_ISPIPE: log = "[KTX] Error file is pipe"; break;
-		case KTX_FILE_OPEN_FAILED: log = "[KTX] Error file open failed"; break;
-		case KTX_FILE_OVERFLOW: log = "[KTX] Error file overflow"; break;
-		case KTX_FILE_READ_ERROR: log = "[KTX] Error file read error"; break;
-		case KTX_FILE_SEEK_ERROR: log = "[KTX] Error file seek error"; break;
-		case KTX_FILE_UNEXPECTED_EOF: log = "[KTX] Error file unexpected eof"; break;
-		case KTX_FILE_WRITE_ERROR: log = "[KTX] Error file write error"; break;
-		case KTX_GL_ERROR: log = "[KTX] Error gl error"; break;
-		case KTX_INVALID_OPERATION: log = "[KTX] Error Invalid Operation"; break;
-		case KTX_INVALID_VALUE: log = "[KTX] Error Invliad value"; break;
-		case KTX_NOT_FOUND: log = "[KTX] Error KTX not found"; break;
-		case KTX_OUT_OF_MEMORY: log = "[KTX] Error Out fo memory"; break;
-		case KTX_TRANSCODE_FAILED: log = "[KTX] Error transcode failed"; break;
-		case KTX_UNKNOWN_FILE_FORMAT: log = "[KTX] Error file unknown file format"; break;
-		case KTX_UNSUPPORTED_TEXTURE_TYPE: log = "[KTX] Error unsupported texture type"; break;
-		case KTX_UNSUPPORTED_FEATURE: log = "[KTX] Error unsupported feature"; break;
-		case KTX_LIBRARY_NOT_LINKED: log = "[KTX] Error Library not linked"; break;
-		default: return;
-	}
-
-	logDebug(fmt::format("{} | At line {} in {}", log, line, file));
 }
 }    // namespace neko::vk
 #endif

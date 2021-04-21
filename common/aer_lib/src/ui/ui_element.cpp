@@ -2,11 +2,25 @@
 
 #include "engine/engine.h"
 
+#ifdef NEKO_VULKAN
+#include "vk/material/material_manager.h"
+#endif
+
 namespace neko::aer
 {
 UiElement::UiElement(Vec2i pos, UiAnchor uiAnchor, const Color4& color, std::uint8_t screenId)
-	: position_(pos), uiAnchor_(uiAnchor), color_(color), screenId_(screenId)
-{}
+   : position_(pos), uiAnchor_(uiAnchor), color_(color), screenId_(screenId)
+{
+#ifdef NEKO_VULKAN
+	auto& materialManager = vk::MaterialManagerLocator::get();
+	std::string matName   = "Ui Material " + sole::uuid0().str();
+	materialId_           = materialManager.AddNewMaterial(matName, vk::MaterialType::UI);
+
+	vk::UiMaterial& material = materialManager.GetUiMaterial(materialId_);
+	material.SetColor(color);
+	material.SetSlidingCrop(slidingCrop_);
+#endif
+}
 
 void UiElement::Destroy() {}
 

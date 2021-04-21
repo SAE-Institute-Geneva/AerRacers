@@ -56,7 +56,6 @@ public:
 	void RenderText(FontId fontId,
 		std::string text,
 		Vec2i position,
-		TextAnchor anchor,
 		float scale,
 		const Color4& color) override;
 	void Destroy() override;
@@ -70,29 +69,16 @@ public:
 		FontId fontId, std::string_view text, float scale) override;
 
 protected:
-	struct FontRenderingCommand
-	{
-		FontId font;
-		std::string text;
-		Vec2f position;
-		TextAnchor anchor;
-		float scale;
-		Color4 color;
-	};
-
-	Vec2f CalculateTextPosition(Vec2f position, TextAnchor anchor);
-
 	void InitQuad();
 	void DrawQuad() const;
 
+	const FilesystemInterface& filesystem_;
+
+	std::map<FontId, Font> fonts_;
+
+	gl::Shader textShader_;
 	gl::VertexArrayObject quad_;
 
-	const FilesystemInterface& filesystem_;
-	std::vector<FontRenderingCommand> commands_;
-	gl::Shader textShader_;
-	gl::VertexArrayObject textureQuad_;
-	std::map<FontId, Font> fonts_;
-	Vec2f windowSize_;
 	Mat4f projection_;
 };
 }    // namespace neko::gl

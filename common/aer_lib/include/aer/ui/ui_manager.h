@@ -29,6 +29,8 @@
 #ifdef NEKO_GLES3
 #include "gl/font.h"
 #include "gl/shader.h"
+#else
+#include "vk/ui/font_manager.h"
 #endif
 
 namespace neko::aer
@@ -103,10 +105,11 @@ private:
 #ifdef NEKO_GLES3
 	void InitQuad();
 	void DrawQuad() const;
+
+	Job preRender_;
 #endif
 
 	AerEngine& aerEngine_;
-	Job preRender_;
 
 	Vec2f windowSize_;
 	Mat4f projection_;
@@ -114,6 +117,8 @@ private:
 	//Font
 #ifdef NEKO_GLES3
 	gl::FontManager fontManager_;
+#else
+	vk::FontManager fontManager_;
 #endif
 	FontId robotoId_                = INVALID_FONT_ID;
 	FontId lobsterId_               = INVALID_FONT_ID;

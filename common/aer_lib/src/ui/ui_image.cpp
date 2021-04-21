@@ -8,10 +8,12 @@ UiImage::UiImage(std::string_view texturePath,
 	Vec2i position,
 	Vec2u size,
 	UiAnchor anchor,
-	std::uint8_t screenId,
-	const Color4& color)
-	: UiElement(position, anchor, color, screenId), size_(size), texturePath_(texturePath)
-{}
+	const Color4& color,
+	std::uint8_t screenId)
+   : UiElement(position, anchor, color, screenId), size_(size), texturePath_(texturePath)
+{
+
+}
 
 #ifdef NEKO_GLES3
 void UiImage::Init(gl::TextureManager& textureManager)
@@ -64,7 +66,7 @@ void UiImage::ChangeTexture(gl::TextureManager& textureManager, const std::strin
     textureName_ = textureManager.GetTextureName(textureId_);
 }
 #else
-void UiImage::ChangeTexture(const std::string& texturePath)
+void UiImage::ChangeTexture(std::string_view texturePath)
 {
 	texturePath_ = texturePath;
 	textureId_   = vk::TextureManagerLocator::get().AddTexture(texturePath_, Texture::DEFAULT);

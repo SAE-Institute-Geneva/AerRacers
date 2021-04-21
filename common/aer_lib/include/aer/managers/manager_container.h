@@ -61,7 +61,7 @@ struct ComponentManagerContainer : public SystemInterface
 		 rigidDynamicViewer(transform3dManager, entityManager, physicsEngine, rigidDynamicManager),
 		 rigidStaticViewer(transform3dManager, entityManager, physicsEngine, rigidStaticManager),
 #ifdef NEKO_FMOD
-		audioViewer(entityManager, audioManager),
+		 audioViewer(entityManager, audioManager),
 #endif
 		 sceneManager(entityManager, *this)
 	{

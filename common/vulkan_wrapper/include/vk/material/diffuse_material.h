@@ -29,15 +29,15 @@
 
 namespace neko::vk
 {
-constexpr std::string_view kDiffuseName  = ("diffuseMap");
-constexpr std::string_view kSpecularName = ("specularMap");
-constexpr std::string_view kNormalName   = ("normalMap");
-constexpr std::string_view kColorName    = ("color");
-constexpr std::string_view kShininessName = ("shininess");
-constexpr StringHash kDiffuseHash        = HashString(kDiffuseName);
-constexpr StringHash kSpecularHash       = HashString(kSpecularName);
-constexpr StringHash kNormalHash         = HashString(kNormalName);
-constexpr StringHash kColorHash          = HashString(kColorName);
+constexpr std::string_view kDiffuseName   = "diffuseMap";
+constexpr std::string_view kSpecularName  = "specularMap";
+constexpr std::string_view kNormalName    = "normalMap";
+constexpr std::string_view kColorName     = "color";
+constexpr std::string_view kShininessName = "shininess";
+constexpr StringHash kDiffuseHash         = HashString(kDiffuseName);
+constexpr StringHash kSpecularHash        = HashString(kSpecularName);
+constexpr StringHash kNormalHash          = HashString(kNormalName);
+constexpr StringHash kColorHash           = HashString(kColorName);
 constexpr StringHash kShininessHash       = HashString(kShininessName);
 
 class DiffuseMaterial : public Material
@@ -78,7 +78,7 @@ public:
 	[[nodiscard]] std::optional_const_ref<Image2d> GetNormal() const { return normal_; }
 	void ResetNormal();
 
-	void SetShininess(const float shininess);
+	void SetShininess(float shininess);
 	[[nodiscard]] float GetShininess() const { return shininess_; }
 
 	void SetRenderMode(RenderMode renderMode) override;

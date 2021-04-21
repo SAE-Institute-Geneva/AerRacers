@@ -7,11 +7,7 @@
 namespace neko::aer
 {
 UiManager::UiManager(AerEngine& aerEngine)
-   : aerEngine_(aerEngine)
-#ifdef NEKO_GLES3
-	 ,
-	 fontManager_(aerEngine.GetFilesystem())
-#endif
+   : aerEngine_(aerEngine), fontManager_(aerEngine.GetFilesystem())
 {}
 
 void UiManager::Init()
@@ -42,6 +38,11 @@ void UiManager::Init()
         }};
 
 	RendererLocator::get().AddPreRenderJob(&preRender_);
+#else
+
+	fontManager_.Init();
+	lobsterId_ = fontManager_.LoadFont(GetFontsFolderPath() + kLobsterName, 36);
+	robotoId_  = fontManager_.LoadFont(GetFontsFolderPath() + kRobotoName, 36);
 #endif
 }
 
@@ -138,9 +139,11 @@ void UiManager::SetWindowSize(const Vec2f windowSize)
 	windowSize_ = windowSize;
 	projection_ = Transform3d::Orthographic(0.0f, windowSize.x, 0.0f, windowSize.y);
 
+#ifdef NEKO_GLES3
 	uiImageShader_.SetUbo(gl::kUboUiProjSize, 0, &projection_, gl::kUboUiProjBinding);
 
 	fontManager_.SetWindowSize(windowSize);
+#endif
 }
 
 #ifdef NEKO_GLES3

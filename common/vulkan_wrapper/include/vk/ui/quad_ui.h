@@ -23,16 +23,32 @@
  SOFTWARE.
 
  Author: Canas Simon
- Date: 23/02/2021
+ Date:
 ---------------------------------------------------------- */
-#include "vk/vk_include.h"
+#include "vk/models/mesh.h"
 
-#ifdef NEKO_ASSERT
 namespace neko::vk
 {
-void CheckVkError(VkResult err, const char* msg, const char* file, int line);
-}
-#define vkCheckError(err, msg) CheckVkError(err, msg, __FILE__, __LINE__)
-#else
-#define vkCheckError(err, msg) void(0);
-#endif
+class RenderQuadUi final
+{
+public:
+	void Init();
+
+	[[nodiscard]] bool DrawCmd(
+		const CommandBuffer& commandBuffer, std::uint32_t instance = 1) const;
+
+	[[nodiscard]] ResourceHash GetMaterialId() const { return materialId_; }
+	void SetMaterialId(ResourceHash resourceId) { materialId_ = resourceId; }
+
+	[[nodiscard]] static VertexInput GetVertexInput(std::uint32_t baseBinding = 0);
+
+private:
+	void InitVertices();
+	void InitIndices();
+
+	Buffer vertexBuffer_ {};
+	Buffer indexBuffer_ {};
+
+	ResourceHash materialId_ = 0;
+};
+}    // namespace neko::vk

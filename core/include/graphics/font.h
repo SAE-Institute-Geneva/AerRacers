@@ -55,11 +55,10 @@ public:
 	virtual void Init()                                                 = 0;
 	virtual FontId LoadFont(std::string_view fontPath, int pixelHeight) = 0;
 
-	virtual void RenderText(const FontId fontId,
-		const std::string text,
-		const Vec2i position,
-		const TextAnchor anchor,
-		const float scale,
+	virtual void RenderText(FontId fontId,
+		std::string text,
+		Vec2i position,
+		float scale,
 		const Color4& color) = 0;
 
 	virtual void SetWindowSize(const Vec2f& windowSize) = 0;

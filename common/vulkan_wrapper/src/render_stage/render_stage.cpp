@@ -125,8 +125,5 @@ bool RenderStage::HasSwapchain() const
 
 void RenderStage::Destroy() const
 {
-	if (depthStencil_) depthStencil_->Destroy();
-	if (framebuffers_) framebuffers_->Destroy();
-	if (renderPass_) renderPass_->Destroy();
 }
 }    // namespace neko::vk

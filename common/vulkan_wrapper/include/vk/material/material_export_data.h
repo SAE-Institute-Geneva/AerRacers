@@ -43,6 +43,7 @@ public:
 		INT,
 		UCHAR,
 		IMAGE_2D,
+		VEC2,
 		COLOR
 	};
 
@@ -51,6 +52,7 @@ public:
 	explicit MaterialExportData(int i) : data_(i) {}
 	explicit MaterialExportData(std::uint8_t i) : data_(i) {}
 	explicit MaterialExportData(const Image2d* image2d) : data_(image2d) {}
+	explicit MaterialExportData(Vec2f vec2) : data_(vec2) {}
 	explicit MaterialExportData(Color4 color) : data_(color) {}
 
 	MaterialExportData(const MaterialExportData& other) = default;
@@ -59,11 +61,12 @@ public:
 	[[nodiscard]] int GetInt() const { return std::get<int>(data_); }
 	[[nodiscard]] int GetUChar() const { return std::get<std::uint8_t>(data_); }
 	[[nodiscard]] const Image2d* GetImage2d() const { return std::get<const Image2d*>(data_); }
+	[[nodiscard]] Vec2f GetVec2() const { return std::get<Vec2f>(data_); }
 	[[nodiscard]] Color4 GetColor() const { return std::get<Color4>(data_); }
 
 	[[nodiscard]] Type GetType() const { return static_cast<Type>(data_.index()); }
 
 private:
-	std::variant<float, int, std::uint8_t, const Image2d*, Color4> data_;
+	std::variant<float, int, std::uint8_t, const Image2d*, Vec2f, Color4> data_;
 };
 }    // namespace neko::vk

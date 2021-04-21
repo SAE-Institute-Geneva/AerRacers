@@ -66,10 +66,15 @@ void TextureLoader::DecompressTexture()
 
 void TextureLoader::Upload()
 {
+	// Vulkan only natively support R and RGBA formats for textures
+	// Any other format WILL crash the program, nothing can be done right now to fix this
+	// TODO(@Simon) Implement texture compression to circumvent this problem
+
 	VkFormat format;
 	switch (image_.nbChannels)
 	{
-		case 3: format = VK_FORMAT_R8G8B8_SRGB; break;
+		case 1: format = VK_FORMAT_R8_SRGB; break;
+		//case 3: format = VK_FORMAT_R8G8B8_SRGB; break;
 		case 4: format = VK_FORMAT_R8G8B8A8_SRGB; break;
 		default: neko_assert(false, "Unsupported channel number!");
 	}
@@ -80,7 +85,8 @@ void TextureLoader::Upload()
 		flags_ & Texture::REPEAT_WRAP ? VK_SAMPLER_ADDRESS_MODE_REPEAT :
                                         VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
 		true,
-		flags_ & Texture::MIPMAPS_TEXTURE,
+		//flags_ & Texture::MIPMAPS_TEXTURE,
+		false,
 		false);
 	texture_.CreateFromStb(image_);
 	image_.Destroy();

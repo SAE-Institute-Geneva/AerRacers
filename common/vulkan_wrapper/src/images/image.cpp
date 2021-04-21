@@ -22,20 +22,6 @@ Image::Image(const VkFilter filter,
 	 layout_(layout)
 {}
 
-Image::Image(const ktxVulkanTexture& texture)
-   : extent_({texture.width, texture.height, texture.depth}),
-	 format_(texture.imageFormat),
-	 sample_(),
-	 usage_(),
-	 mipLevels_(texture.levelCount),
-	 arrayLayers_(texture.layerCount),
-	 filter_(),
-	 addressMode_(),
-	 layout_(texture.imageLayout),
-	 image_(texture.image),
-	 memory_(texture.deviceMemory)
-{}
-
 void Image::Destroy() const
 {
 	const LogicalDevice& device = VkResources::Inst->device;

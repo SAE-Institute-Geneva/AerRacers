@@ -72,7 +72,6 @@ public:
 	fmod::FmodEngine& GetFmodEngine() { return fmodEngine_; }
 #endif
 
-
 	sdl::MultiCamera& GetCameras() { return drawSystem_.GetCameras(); }
 
 private:

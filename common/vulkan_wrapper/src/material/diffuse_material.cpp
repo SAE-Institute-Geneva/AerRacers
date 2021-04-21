@@ -204,7 +204,6 @@ ordered_json DiffuseMaterial::ToJson() const
 {
 	ordered_json materialJson;
 	materialJson["name"]       = name_;
-	//materialJson["shaderPath"] = shaderPath_;
 	materialJson["type"]       = GetType();
 	materialJson["color"]["r"] = color_.r;
 	materialJson["color"]["g"] = color_.g;
@@ -221,7 +220,6 @@ ordered_json DiffuseMaterial::ToJson() const
 void DiffuseMaterial::FromJson(const json& materialJson)
 {
 	name_       = materialJson["name"].get<std::string_view>();
-	//shaderPath_ = materialJson["shaderPath"].get<std::string_view>();
 
 	Color4 color;
 	color.r = materialJson["color"]["r"].get<float>();
@@ -240,13 +238,13 @@ void DiffuseMaterial::FromJson(const json& materialJson)
 	if (CheckJsonExists(materialJson, "specularPath"))
 	{
 		const auto& path = materialJson["specularPath"].get<std::string>();
-		SetDiffuse(*textureManager.GetTexture(path));
+		SetSpecular(*textureManager.GetTexture(path));
 	}
 
 	if (CheckJsonExists(materialJson, "normalPath"))
 	{
 		const auto& path = materialJson["normalPath"].get<std::string>();
-		SetDiffuse(*textureManager.GetTexture(path));
+		SetNormal(*textureManager.GetTexture(path));
 	}
 }
 }    // namespace neko::vk

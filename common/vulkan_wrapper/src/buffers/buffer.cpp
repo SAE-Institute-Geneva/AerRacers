@@ -38,7 +38,7 @@ Buffer::Buffer(const VkDeviceSize size,
 
 	//TODO Stop allocating for every new buffer.
 	res = vkAllocateMemory(vkObj->device, &allocInfo, nullptr, &memory_);
-	vkCheckError(res, "Failed to allocate vertex buffer memory!");
+	vkCheckError(res, "Failed to allocate buffer memory!");
 
 	// If a pointer to the buffer data has been passed, map the buffer and copy over the data.
 	if (data)

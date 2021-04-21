@@ -33,15 +33,8 @@ namespace neko::vk
 enum class SubrendererIndex : std::uint8_t
 {
 	DEFERRED = 0,
-	//GIZMO,
-	//IMGUI,
 	OPAQUE_S,
-	//PARTICLES,
-	//TRANSPARENT_S,
-	//FILTER_DEFAULT,
-	//FILTER_BLUR,
-	//FILTER_FXAA,
-	//FILTER_RIPPLE
+	UI,
 };
 
 class Pipeline

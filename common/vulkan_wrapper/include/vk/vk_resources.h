@@ -43,6 +43,7 @@ class VkResources
 public:
 	explicit VkResources(sdl::VulkanWindow* window);
 	~VkResources();
+
 	void DestroyResources();
 
 	/// Add a new material pipeline to the render queue
@@ -53,6 +54,7 @@ public:
 	[[nodiscard]] const RenderPass& GetRenderPass() const;
 	[[nodiscard]] CommandBuffer& GetCurrentCmdBuffer();
 	[[nodiscard]] const CommandPool& GetCurrentCmdPool();
+	[[nodiscard]] const CommandPool& GetCmdPool(std::thread::id threadId);
 
 	[[nodiscard]] std::uint8_t GetViewportCount() const { return viewportCount_; }
 	void SetViewportCount(std::uint8_t count) { viewportCount_ = count; }

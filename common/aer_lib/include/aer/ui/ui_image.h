@@ -54,8 +54,8 @@ public:
 		Vec2i position                            = Vec2i::zero,
 		Vec2u size                                = Vec2u::one,
 		UiAnchor anchor                           = UiAnchor::CENTER,
-		std::uint8_t screenId                     = 0,
-		const Color4& color                       = Color::white);
+		const Color4& color                       = Color::white,
+		std::uint8_t screenId                     = 0);
 
 #ifdef NEKO_GLES3
 	void Init(gl::TextureManager& textureManager);
@@ -75,20 +75,13 @@ public:
 #ifdef NEKO_GLES3
     void ChangeTexture(gl::TextureManager& textureManager, const std::string& texturePath);
 #else
-	void ChangeTexture(const std::string& texturePath);
+	void ChangeTexture(std::string_view texturePath);
 #endif
 
 	void SetSize(const Vec2u& size) { size_ = size; }
-	void SetColor(const Color4& color) { color_ = color; }
-
-    /**
-	 * \brief Crop the image
-	 * \param slidingCrop Percent of the image in x and y to crop
-	 */
-	void SetCropping(const Vec2f& slidingCrop) { slidingCrop_ = slidingCrop; }
 
 protected:
-	[[nodiscard]] Vec2i GetPosition(const std::uint8_t playerNmb, Vec2f size) const;
+	[[nodiscard]] Vec2i GetPosition(std::uint8_t playerNmb, Vec2f size) const;
 	[[nodiscard]] Vec2i FixAnchorPosition(Vec2i anchorPos, std::uint8_t playerNmb) const;
 
 	Vec2u size_ = Vec2u(100u);    //In pixel

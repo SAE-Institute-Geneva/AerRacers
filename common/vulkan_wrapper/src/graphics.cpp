@@ -69,6 +69,9 @@ void VkRenderer::BeforeRenderLoop()
 		imgui_.Init();
 	}
 
+	RenderStage& renderStage = renderer_->GetRenderStage();
+	renderStage.Update();
+
 	const VkResult res = swapchain.AcquireNextImage(
 		availableSemaphores_[currentFrame_], inFlightFences_[currentFrame_]);
 	if (res == VK_ERROR_OUT_OF_DATE_KHR)
@@ -78,12 +81,6 @@ void VkRenderer::BeforeRenderLoop()
 	}
 
 	if (res != VK_SUCCESS && res != VK_SUBOPTIMAL_KHR) return;
-
-	RenderStage& renderStage = renderer_->GetRenderStage();
-	renderStage.Update();
-
-	renderer_->GetRendererContainer().Get<SubrendererOpaque>().GetUniformScene(0).Push(
-		kProjHash, Mat4f::Identity);
 
 	if (!StartRenderPass(renderStage)) return;
 
@@ -96,6 +93,8 @@ void VkRenderer::AfterRenderLoop()
 
 	PipelineStage stage;
 	RenderStage& renderStage = renderer_->GetRenderStage();
+	if (renderStage.IsOutOfDate()) return;
+
 	CommandBuffer& commandBuffer = GetCurrentCmdBuffer();
 	for (const auto& subpass : renderStage.GetSubpasses())
 	{
@@ -148,9 +147,8 @@ bool VkRenderer::StartRenderPass(RenderStage& renderStage)
 	VkRenderPassBeginInfo renderPassInfo = {};
 	renderPassInfo.sType                 = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 	renderPassInfo.renderPass            = renderStage.GetRenderPass();
-	renderPassInfo.framebuffer =
-		renderStage.GetActiveFramebuffer(swapchain.GetCurrentImageIndex());
-	renderPassInfo.renderArea      = renderArea;
+	renderPassInfo.framebuffer = renderStage.GetActiveFramebuffer(swapchain.GetCurrentImageIndex());
+	renderPassInfo.renderArea  = renderArea;
 	renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 	renderPassInfo.pClearValues    = clearValues.data();
 	vkCmdBeginRenderPass(currentCmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
@@ -160,7 +158,7 @@ bool VkRenderer::StartRenderPass(RenderStage& renderStage)
 
 void VkRenderer::EndRenderPass(const RenderStage& renderStage)
 {
-	VkQueue presentQueue           = device.GetPresentQueue();
+	VkQueue presentQueue            = device.GetPresentQueue();
 	CommandBuffer& currentCmdBuffer = GetCurrentCmdBuffer();
 	vkCmdEndRenderPass(currentCmdBuffer);
 
@@ -296,6 +294,5 @@ void VkRenderer::SetRenderer(std::unique_ptr<IRenderer>&& newRenderer)
 void VkRenderer::Destroy()
 {
 	Renderer::Destroy();
-	DestroyResources();
 }
 }    // namespace neko::vk

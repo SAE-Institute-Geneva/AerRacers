@@ -1,10 +1,10 @@
 
 #vulkan
-LIST(APPEND VULKAN_WRAPPER_LIBS Neko_Core sdl_engine ktx)
+list(APPEND VULKAN_WRAPPER_LIBS Neko_Core sdl_engine freetype)
 
 find_package(Vulkan REQUIRED)
 include_directories(${VULKAN_INCLUDE_DIR})
-LIST(APPEND VULKAN_WRAPPER_LIBS Vulkan::Vulkan)
+list(APPEND VULKAN_WRAPPER_LIBS Vulkan::Vulkan)
 
 file(GLOB_RECURSE vulkan_wrapper_src include/*.h src/*.cpp)
 add_library(vulkan_wrapper STATIC ${vulkan_wrapper_src})

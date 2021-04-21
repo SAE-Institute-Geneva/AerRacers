@@ -10,7 +10,7 @@ void UiText::Draw(gl::FontManager& fontManager, const FontId& fontId, std::uint8
 	Vec2i position   = GetAnchorPosition(position_);
 	position         = GetAnchorFromScreenId(position, playerNmb);
 
-	fontManager.RenderText(fontId, text_, position, TextAnchor(uiAnchor_), scale, color_);
+	fontManager.RenderText(fontId, text_, position, scale, color_);
 }
 #else
 #endif

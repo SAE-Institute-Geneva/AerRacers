@@ -23,16 +23,43 @@
  SOFTWARE.
 
  Author: Canas Simon
- Date: 23/02/2021
+ Date:
 ---------------------------------------------------------- */
-#include "vk/vk_include.h"
+#include "vk/commands/model_command_buffer.h"
+#include "vk/pipelines/render_pipeline.h"
+#include "vk/ui/quad_ui.h"
 
-#ifdef NEKO_ASSERT
 namespace neko::vk
 {
-void CheckVkError(VkResult err, const char* msg, const char* file, int line);
+constexpr static std::string_view kUboUiProjName   = "UiScene";
+constexpr static std::string_view kUboUiObjectName = "UiObject";
+constexpr static StringHash kUboUiProjHash         = HashString(kUboUiProjName);
+constexpr static StringHash kUboUiObjectHash       = HashString(kUboUiObjectName);
+
+constexpr std::string_view kProjUiName  = "proj";
+constexpr std::string_view kModelUiName = "model";
+constexpr StringHash kProjUiHash        = HashString(kProjName);
+constexpr StringHash kModelUiHash       = HashString(kModelUiName);
+class SubrendererUi final : public RenderPipeline
+{
+public:
+	explicit SubrendererUi(PipelineStage stage);
+	void Destroy() const override;
+
+	void Render(const CommandBuffer& commandBuffer) override;
+
+	constexpr static int GetSubrendererIndex()
+	{
+		return static_cast<int>(SubrendererIndex::UI);
+	}
+
+	UniformHandle& GetUniformScene() { return uniformScene_; }
+
+private:
+	bool CmdRender(
+		const CommandBuffer& commandBuffer, ForwardDrawCmd& drawCmd, const Material& mat);
+
+	UniformHandle uniformScene_;
+	RenderQuadUi quadUi_;
+};
 }
-#define vkCheckError(err, msg) CheckVkError(err, msg, __FILE__, __LINE__)
-#else
-#define vkCheckError(err, msg) void(0);
-#endif

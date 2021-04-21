@@ -27,14 +27,16 @@
 ---------------------------------------------------------- */
 #include "vk/images/texture_manager.h"
 #include "vk/material/diffuse_material.h"
+#include "vk/ui/ui_material.h"
 
 namespace neko::vk
 {
-//constexpr size_t kMaterialsDefaultNum                 = 100;
+constexpr std::size_t kDefaultMaterialNum              = 32;
+constexpr std::size_t kDefaultUiMaterialNum            = 256;
+constexpr std::string_view kDefaultDiffuseMaterialName = "DefaultDiffuseMaterialName";
+constexpr StringHash kDefaultDiffuseMaterialId         = HashString(kDefaultDiffuseMaterialName);
 //constexpr size_t kMaterialsSkyboxDefaultNum           = 2;
-constexpr std::string_view kDefaultMaterialName       = "DefaultMaterialName";
 //constexpr std::string_view kDefaultSkyboxMaterialName = "DefaultSkyboxMaterialName";
-constexpr StringHash kDefaultMaterialId               = HashString(kDefaultMaterialName);
 //constexpr StringHash kDefaultSkyboxMaterialId         = HashString(kDefaultSkyboxMaterialName);
 
 class IMaterialManager
@@ -42,7 +44,6 @@ class IMaterialManager
 public:
 	virtual ~IMaterialManager() = default;
 
-	[[maybe_unused]] virtual ResourceHash AddMaterial(std::string_view) = 0;
 	virtual ResourceHash AddNewMaterial(std::string_view, MaterialType) = 0;
 	virtual void Clear()                                                = 0;
 
@@ -50,6 +51,8 @@ public:
 	virtual Material& GetMaterial(ResourceHash)                   = 0;
 	virtual DiffuseMaterial& GetDiffuseMaterial(std::string_view) = 0;
 	virtual DiffuseMaterial& GetDiffuseMaterial(ResourceHash)     = 0;
+	virtual UiMaterial& GetUiMaterial(std::string_view)           = 0;
+	virtual UiMaterial& GetUiMaterial(ResourceHash)               = 0;
 	virtual bool IsMaterialLoaded(std::string_view)               = 0;
 	virtual bool IsMaterialLoaded(ResourceHash)                   = 0;
 };
@@ -57,7 +60,6 @@ public:
 class NullMaterialManager : public IMaterialManager
 {
 public:
-	ResourceHash AddMaterial(std::string_view) override { return {}; }
 	ResourceHash AddNewMaterial(std::string_view, MaterialType) override { return {}; }
 
 	void Clear() override {}
@@ -67,7 +69,10 @@ public:
 		neko_assert(false, "Material Manager is null!");
 	}
 
-	Material& GetMaterial(ResourceHash) override {neko_assert(false, "Material Manager is null!");}
+	Material& GetMaterial(ResourceHash) override
+	{
+		neko_assert(false, "Material Manager is null!");
+	}
 
 	DiffuseMaterial& GetDiffuseMaterial(std::string_view) override
 	{
@@ -75,6 +80,16 @@ public:
 	}
 
 	DiffuseMaterial& GetDiffuseMaterial(ResourceHash) override
+	{
+		neko_assert(false, "Material Manager is null!");
+	}
+
+	UiMaterial& GetUiMaterial(std::string_view) override
+	{
+		neko_assert(false, "Material Manager is null!");
+	}
+
+	UiMaterial& GetUiMaterial(ResourceHash) override
 	{
 		neko_assert(false, "Material Manager is null!");
 	}
@@ -88,7 +103,6 @@ class MaterialManager final : public IMaterialManager
 public:
 	MaterialManager();
 
-	ResourceHash AddMaterial(std::string_view materialPath) override;
 	ResourceHash AddNewMaterial(std::string_view name, MaterialType materialType) override;
 	void Clear() override;
 
@@ -96,11 +110,14 @@ public:
 	Material& GetMaterial(ResourceHash resourceId) override;
 	DiffuseMaterial& GetDiffuseMaterial(std::string_view materialName) override;
 	DiffuseMaterial& GetDiffuseMaterial(ResourceHash resourceId) override;
+	UiMaterial& GetUiMaterial(std::string_view materialName) override;
+	UiMaterial& GetUiMaterial(ResourceHash resourceId) override;
 	bool IsMaterialLoaded(std::string_view materialName) override;
 	bool IsMaterialLoaded(ResourceHash resourceId) override;
 
 private:
-	std::map<ResourceHash, DiffuseMaterial> diffuseMaterials_;
+	std::unordered_map<ResourceHash, DiffuseMaterial> diffuseMaterials_ {};
+	std::unordered_map<ResourceHash, UiMaterial> uiMaterials_ {};
 
 	//std::vector<ResourceId> skyboxMaterialIds_;
 	//std::vector<SkyboxMaterial> skyboxMaterials_;

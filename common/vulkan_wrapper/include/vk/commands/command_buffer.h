@@ -52,8 +52,7 @@ public:
 
 	void SubmitIdle(bool destroy = true);
 	void Submit(
-		VkSemaphore waitSemaphore = {}, VkSemaphore signalSemaphore       = {},
-		VkFence fence                            = {});
+		VkSemaphore waitSemaphore = {}, VkSemaphore signalSemaphore = {}, VkFence fence = {});
 
 	[[nodiscard]] bool IsRunning() const { return running_; }
 
@@ -62,7 +61,7 @@ public:
 		VkImageLayout oldLayout,
 		VkImageLayout newLayout,
 		VkImageSubresourceRange subresourceRange,
-		VkPipelineStageFlags srcMask      = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		VkPipelineStageFlags srcMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
 		VkPipelineStageFlags dstMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 
 	// Uses a fixed sub resource layout with first mip level and layer
@@ -70,12 +69,14 @@ public:
 		VkImageAspectFlags aspectMask,
 		VkImageLayout oldLayout,
 		VkImageLayout newLayout,
-		VkPipelineStageFlags srcMask      = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+		VkPipelineStageFlags srcMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
 		VkPipelineStageFlags dstMask = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT);
 
 private:
 	VkQueueFlagBits queueType_ {};
 	VkCommandBuffer commandBuffer_ {};
+
+	std::thread::id threadId_; // Used to know which command pool to use for destruction
 
 	bool running_ = false;
 

@@ -23,6 +23,10 @@
 ---------------------------------------------------------- */
 #include "graphics/color.h"
 
+#ifdef NEKO_VULKAN
+#include "vk/ui/ui_material.h"
+#endif
+
 namespace neko::aer
 {
 /**
@@ -76,6 +80,9 @@ public:
 	void SetScreenId(std::uint8_t screenId) { screenId_ = screenId; }
 	void SetEnable(bool enable);
 
+	void SetCropping(const Vec2f& slidingCrop) { slidingCrop_ = slidingCrop; }
+	void SetColor(const Color4& color) { color_ = color; }
+
 	void AddFlag(UiFlag::Enum flag);
 	void RemoveFlag(UiFlag::Enum flag);
 
@@ -84,6 +91,10 @@ protected:
 
 	[[nodiscard]] Vec2i GetAnchorPosition(Vec2i position) const;
 	[[nodiscard]] Vec2i GetAnchorFromScreenId(Vec2i anchorPos, std::uint8_t playerNmb) const;
+
+#ifdef NEKO_VULKAN
+	vk::ResourceHash materialId_;
+#endif
 
 	Vec2i position_    = Vec2i::zero;    // In pixels
 	UiAnchor uiAnchor_ = UiAnchor::CENTER;

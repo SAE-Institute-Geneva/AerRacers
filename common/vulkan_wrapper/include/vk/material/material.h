@@ -33,6 +33,7 @@ namespace neko::vk
 enum class MaterialType : std::uint8_t
 {
 	DIFFUSE = 0,
+	UI,
 	//SKYBOX,
 	//TRAIL,
 	//PARTICLE

@@ -27,10 +27,11 @@ void SubrendererOpaque::Render(const CommandBuffer& commandBuffer)
 	const std::uint8_t viewportCount = vkObj->GetViewportCount();
 	const LightCommandBuffer& lightCmd = vkObj->lightCommandBuffer;
 
+	const Vec2u winSize = BasicEngine::GetInstance()->GetConfig().windowSize;
+
 	VkRect2D renderArea;
 	renderArea.offset = {0, 0};
-	renderArea.extent = {static_cast<uint32_t>(renderStage.GetSize().x),
-		static_cast<uint32_t>(renderStage.GetSize().y)};
+	renderArea.extent = {winSize.x, winSize.y};
 
 	for (std::size_t i = 0; i < viewportCount; ++i)
 	{

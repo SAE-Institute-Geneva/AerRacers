@@ -4,7 +4,7 @@ namespace neko::vk
 {
 CommandBuffer::CommandBuffer(
 	bool begin, VkQueueFlagBits queueType, VkCommandBufferLevel bufferLevel)
-   : queueType_(queueType)
+   : queueType_(queueType), threadId_(std::this_thread::get_id())
 {
 	Init(begin, queueType, bufferLevel);
 }
@@ -29,7 +29,7 @@ void CommandBuffer::Init(bool begin, VkQueueFlagBits queueType, VkCommandBufferL
 void CommandBuffer::Destroy()
 {
 	VkResources* vkObj = VkResources::Inst;
-	vkFreeCommandBuffers(vkObj->device, vkObj->GetCurrentCmdPool(), 1, &commandBuffer_);
+	vkFreeCommandBuffers(vkObj->device, vkObj->GetCmdPool(threadId_), 1, &commandBuffer_);
 }
 
 void CommandBuffer::Begin(VkCommandBufferUsageFlags usage)

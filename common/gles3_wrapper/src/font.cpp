@@ -32,12 +32,7 @@
 
 namespace neko::gl
 {
-
-FontManager::FontManager(const FilesystemInterface& filesystem) :
-        filesystem_(filesystem)
-{
-
-}
+FontManager::FontManager(const FilesystemInterface& filesystem) : filesystem_(filesystem) {}
 
 void FontManager::Init()
 {
@@ -148,7 +143,6 @@ FontId FontManager::LoadFont(std::string_view fontPath, int pixelHeight)
 void FontManager::RenderText(const FontId fontId,
 	const std::string text,
 	const Vec2i position,
-	const TextAnchor anchor,
 	const float scale,
 	const Color4& color)
 {
@@ -158,16 +152,16 @@ void FontManager::RenderText(const FontId fontId,
 #endif
 	auto& font = fonts_[fontId];
 
-	// activate corresponding render state
+	// Activate corresponding render state
 	textShader_.SetVec4("color", color);
 	textShader_.SetVec2("slidingCrop", Vec2f::one);
 
-	glBindVertexArray(textureQuad_.VAO);
-	const Vec2i textSize = CalculateTextSize(fontId, text, scale);
+	glBindVertexArray(quad_.VAO);
+	const Vec2f textSize = Vec2f(CalculateTextSize(fontId, text, scale));
 	float x              = position.x - textSize.x * 0.5f;
 	float y              = position.y - textSize.y * 0.5f;
 
-	// iterate through all characters
+	// Iterate through all characters
 	for (const auto* c = text.c_str(); *c != 0; c++)
 	{
 		const Character& character = font.characters[*c];
@@ -177,19 +171,16 @@ void FontManager::RenderText(const FontId fontId,
 		const float w = character.size.x * scale;
 		const float h = character.size.y * scale;
 
+		// Bind shader values and draw
 		Mat4f model = Transform3d::Scale(Mat4f::Identity, Vec3f(w, h, 1.0f));
 		model       = Transform3d::Translate(model, Vec3f(xPos + w * 0.5f, yPos + h * 0.5f, 0.0f));
 		textShader_.SetMat4("model", model);
-
-		// render glyph texture over quad
 		textShader_.SetTexture("tex", character.textureName, 0);
-
-		// render quad
 		DrawQuad();
 
-		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+		// Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
 		x += static_cast<float>(character.advance >> 6) * scale;
-		// bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
+		// Bitshift by 6 to get value in pixels (2^6 = 64 (divide amount of 1/64th pixels by 64 to get amount of pixels))
 	}
 
 	glBindTexture(GL_TEXTURE_2D, 0);
@@ -202,7 +193,7 @@ void FontManager::Destroy()
             glDeleteTextures(1, &character.textureName);
 
     fonts_.clear();
-    glDeleteVertexArrays(1, &textureQuad_.VAO);
+    glDeleteVertexArrays(1, &quad_.VAO);
 }
 
 void FontManager::Render()
@@ -220,30 +211,8 @@ void FontManager::DestroyFont(FontId font)
 	fonts_.erase(font);
 }
 
-Vec2f FontManager::CalculateTextPosition(Vec2f position, TextAnchor anchor)
-{
-	Vec2f anchorPos;
-    switch (anchor)
-    {
-		case TextAnchor::TOP_LEFT:     anchorPos = Vec2f::up; break;
-		case TextAnchor::TOP:          anchorPos = Vec2f(0.5f, 1.0f); break;
-		case TextAnchor::TOP_RIGHT:    anchorPos = Vec2f::one; break;
-
-		case TextAnchor::CENTER_LEFT:  anchorPos = Vec2f(0.0f, 0.5f); break;
-		case TextAnchor::CENTER:       anchorPos = Vec2f(0.5f, 0.5f); break;
-		case TextAnchor::CENTER_RIGHT: anchorPos = Vec2f(1.0f, 0.5f); break;
-
-		case TextAnchor::BOTTOM_LEFT:  anchorPos = Vec2f::zero; break;
-		case TextAnchor::BOTTOM:       anchorPos = Vec2f(0.5f, 0.0f); break;
-		case TextAnchor::BOTTOM_RIGHT: anchorPos = Vec2f::right; break;
-	}
-
-	return anchorPos * windowSize_ + position * 0.5f;
-}
-
 void FontManager::SetWindowSize(const Vec2f& windowSize)
 {
-	windowSize_ = windowSize;
 	projection_ = Transform3d::Orthographic(0.0f, windowSize.x, 0.0f, windowSize.y);
 }
 

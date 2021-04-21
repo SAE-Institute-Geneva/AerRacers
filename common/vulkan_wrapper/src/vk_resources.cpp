@@ -4,26 +4,34 @@ namespace neko::vk
 {
 VkResources::VkResources(sdl::VulkanWindow* window) : vkWindow(window) { Inst = this; }
 
-VkResources::~VkResources()
-{
-}
+VkResources::~VkResources() { DestroyResources(); }
+
 void VkResources::DestroyResources()
 {
-	vkDeviceWaitIdle(VkDevice(device));
+	vk::TextureManagerLocator::get().Clear();
+	vk::ModelManagerLocator::get().Destroy();
+
+	swapchain.AcquireNextImage(availableSemaphores_[currentFrame_], inFlightFences_[currentFrame_]);
+
+	CommandBuffer& currentCmdBuffer = GetCurrentCmdBuffer();
+	currentCmdBuffer.End();
+	currentCmdBuffer.Submit(availableSemaphores_[currentFrame_],
+		finishedSemaphores_[currentFrame_],
+		inFlightFences_[currentFrame_]);
+
+	swapchain.QueuePresent(device.GetPresentQueue(), finishedSemaphores_[currentFrame_]);
 
 	const auto& graphicsQueue = device.GetGraphicsQueue();
 	vkQueueWaitIdle(graphicsQueue);
-	vkDestroyPipelineCache(VkDevice(device), pipelineCache, nullptr);
+	vkDestroyPipelineCache(device, pipelineCache, nullptr);
+	vkDeviceWaitIdle(device);
 
 	for (size_t i = 0; i < inFlightFences_.size(); i++)
 	{
-		vkDestroyFence(VkDevice(device), inFlightFences_[i], nullptr);
-		vkDestroySemaphore(VkDevice(device), availableSemaphores_[i], nullptr);
-		vkDestroySemaphore(VkDevice(device), finishedSemaphores_[i], nullptr);
+		vkDestroyFence(device, inFlightFences_[i], nullptr);
+		vkDestroySemaphore(device, availableSemaphores_[i], nullptr);
+		vkDestroySemaphore(device, finishedSemaphores_[i], nullptr);
 	}
-
-	imgui_.Destroy();
-	renderer_->Destroy();
 
 	for (auto& commandBuffer : commandBuffers_)
 		commandBuffer.Destroy();
@@ -31,15 +39,16 @@ void VkResources::DestroyResources()
 	for (const auto& commandPool : commandPools_)
 		commandPool.second.Destroy();
 
-	renderer_->Destroy();
+	imgui_.Destroy();
 
+	renderer_->Destroy();
 
 	swapchain.Destroy();
 
-	imgui_.Destroy();
 	device.Destroy();
 	surface.Destroy();
 	instance.Destroy();
+
 	commandBuffers_.clear();
 	commandPools_.clear();
 	inFlightFences_.clear();
@@ -75,5 +84,10 @@ const CommandPool& VkResources::GetCurrentCmdPool()
 
 	it = commandPools_.find(threadId);
 	return it->second;
+}
+
+const CommandPool& VkResources::GetCmdPool(std::thread::id threadId)
+{
+	return commandPools_[threadId];
 }
 }    // namespace neko::vk

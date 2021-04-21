@@ -62,28 +62,20 @@ public:
 	Image2d& operator=(const Image2d& other) noexcept;
 
 	void Load();
-	void LoadKtx();
-	void LoadStb();
-
-	void CreateFromKtx(const ktxVulkanTexture& texture,
-		VkFilter filter                  = VK_FILTER_LINEAR,
-		VkSamplerAddressMode addressMode = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE,
-		bool mipmap                      = false);
 
 	void CreateFromStb(const neko::Image& image);
 
 	[[nodiscard]] static constexpr VkImageType GetType() { return VK_IMAGE_TYPE_2D; }
 	[[nodiscard]] static constexpr VkImageViewType GetViewType() { return VK_IMAGE_VIEW_TYPE_2D; }
 
-	void SetFromKtxVkTexture(const ktxVulkanTexture& texture);
 	void SetFilePath(std::string_view filePath) { filePath_ = filePath; }
 	[[nodiscard]] std::string_view GetFilePath() const { return filePath_; }
 
 private:
 	std::string filePath_ {};
 
-	bool anisotropic_ {};
-	bool mipmap_ {};
+	bool anisotropic_ = false;
+	bool mipmap_      = false;
 
 	std::uint32_t components_ = 4;
 };
