@@ -30,6 +30,7 @@
 #include <engine/entity.h>
 #include <mathematics/vector.h>
 #include <aer/ui/ui_manager.h>
+
 namespace neko::aer
 {
     class AerEngine;
@@ -78,12 +79,13 @@ struct VictoryData
         void Destroy() override;
     private:
         AerEngine& engine_;
+
         //const int waypointsToWin = 108;
         GameState game_state_;
         PlayerPositionData* playerPositionData;
         neko::seconds time = neko::seconds(0);
         bool gameManagerStarted = false;
-
+        bool hasPlayedStartSound = false;
         std::array<bool, 4> hasWin = {
             false,
             false,
@@ -122,5 +124,7 @@ struct VictoryData
             Vec3f(-1148.0f, 185.0f, -788.0f),
             Vec3f(-1168.0f, 185.0f, -788.0f)
         };
+
+        Entity audioEntity = INVALID_ENTITY;
     };
 }

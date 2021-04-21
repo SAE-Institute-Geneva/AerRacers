@@ -259,7 +259,7 @@ void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
             shipParameter_.kPropultionMultiplicator);
     rigidDynamic.AddForce(forward * propulsion, physx::PxForceMode::eACCELERATION);
 
-    SetEngineSpeedSound(playerId, InverseLerp(0.0, 1, Abs(cContainer_.shipInputManager.GetThruster(playerId))) * 100.0f);
+    SetEngineSpeedSound(playerId, InverseLerp(0.1, 1, Abs(cContainer_.shipInputManager.GetThruster(playerId))) * 100.0f);
 }
 
 void ShipControllerManager::RotorMovement(PlayerId playerId) {

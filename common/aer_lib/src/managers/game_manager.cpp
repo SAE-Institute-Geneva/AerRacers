@@ -1,7 +1,6 @@
 #include <aer/managers/game_manager.h>
 #include <aer/aer_engine.h>
 
-
 #include <aer/aer_engine.h>
 
 namespace neko::aer
@@ -14,6 +13,15 @@ namespace neko::aer
     void GameManager::Init()
     {
         gameManagerStarted = false;
+        ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+        Entity audioEntity = cContainer.entityManager.CreateEntity();
+        cContainer.transform3dManager.AddComponent(audioEntity);
+        cContainer.audioManager.AddComponent(audioEntity);
+        cContainer.audioManager.SetPlayOnWakeUp(audioEntity, false);
+        cContainer.audioManager.SetEventName(audioEntity, "sfx/menu_bleep");
+        cContainer.audioManager.SetMaxDistance(audioEntity, 40.0f);
+        cContainer.audioManager.SetVolume(audioEntity, 50.0f);
+        cContainer.audioManager.Init();
     }
 
     void GameManager::StartGameManager(int currentPlayerCount)
@@ -41,6 +49,8 @@ namespace neko::aer
         {
             if (gameManagerStarted)
             {
+                ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+
                 switch (game_state_)
                 {
                 case GameState::WATING:
@@ -49,6 +59,9 @@ namespace neko::aer
                     WaitForStart();
                     break;
                 case GameState::RACING:
+                    if (!hasPlayedStartSound) {
+                        hasPlayedStartSound = true; cContainer.audioManager.Play(audioEntity);
+                    }
                     time += dt;
                     UpdateGame();
                     UpdateTimerUiText();

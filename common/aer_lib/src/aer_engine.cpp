@@ -37,12 +37,14 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 		tagManager_ = std::make_unique<TagManager>(cContainer_.sceneManager);
 
 		physicsEngine_.InitPhysics();
+
 #ifdef NEKO_FMOD
 		RegisterSystem(fmodEngine_);
 #endif
 		RegisterSystem(rContainer_);
 		RegisterSystem(cContainer_);
 		RegisterSystem(physicsEngine_);
+
 	}
 }
 

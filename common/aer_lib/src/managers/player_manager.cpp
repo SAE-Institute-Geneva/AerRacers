@@ -225,7 +225,7 @@ namespace neko::aer
         //Audio
         Entity audioEntity = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(audioEntity);
-        cContainer_.entityManager.SetEntityParent(audioEntity, playerComponent.shipEntity);
+        //cContainer_.entityManager.SetEntityParent(audioEntity, playerComponent.shipEntity);
         cContainer_.audioManager.AddComponent(audioEntity);
         cContainer_.audioManager.SetPlayOnWakeUp(audioEntity, false);
         cContainer_.audioManager.SetMaxDistance(audioEntity, 40.0f);
@@ -234,7 +234,7 @@ namespace neko::aer
 
         Entity motorAudioEntity = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(motorAudioEntity);
-        cContainer_.entityManager.SetEntityParent(motorAudioEntity, playerComponent.shipEntity);
+        //cContainer_.entityManager.SetEntityParent(motorAudioEntity, playerComponent.shipEntity);
         cContainer_.audioManager.AddComponent(motorAudioEntity);
         cContainer_.audioManager.SetEventName(motorAudioEntity, "sfx/ship_engine");
         cContainer_.audioManager.SetPlayOnWakeUp(motorAudioEntity, false);
@@ -294,9 +294,9 @@ namespace neko::aer
 
 #ifdef NEKO_FMOD
         FMOD_3D_ATTRIBUTES attributes;
-        attributes.position = fmod::Vec3ToFmod(cContainer_.transform3dManager.GetGlobalPosition(playerComponents_[0].shipEntity));
-        attributes.forward = fmod::Vec3ToFmod(Quaternion::FromEuler(cContainer_.transform3dManager.GetGlobalRotation(playerComponents_[0].shipEntity)) * Vec3f::forward);
-        attributes.up = fmod::Vec3ToFmod(Quaternion::FromEuler(cContainer_.transform3dManager.GetGlobalRotation(playerComponents_[0].shipEntity)) * Vec3f::up);
+        attributes.position = fmod::Vec3ToFmod(Vec3f::zero);
+        attributes.forward = fmod::Vec3ToFmod( Vec3f::forward);
+        attributes.up = fmod::Vec3ToFmod(Vec3f::up);
         engine_.GetFmodEngine().SetAudioListener(attributes);
 #endif
     }

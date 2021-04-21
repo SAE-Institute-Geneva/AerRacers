@@ -129,6 +129,7 @@ struct ComponentManagerContainer : public SystemInterface
         shipInputManager.Update(dt);
         gameManager.Update(dt);
         menuManager.Update(dt);
+        transform3dManager.Update();
     }
     
 	void Destroy() override
