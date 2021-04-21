@@ -49,10 +49,10 @@ public:
         cContainer_.renderManager.SetModel(
             testEntity, config.dataRootPath + "models/cube/cube.obj");
 
-        anchorTR = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::TOP_RIGHT, 0, Color::white);
-        anchorTL = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::TOP_LEFT , 0, Color::white);
-        anchorBL = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::BOTTOM_LEFT, 0, Color::white);
-        anchorBR = UiImage(config.dataRootPath + "sprites/water/Water01.jpg", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::BOTTOM_RIGHT, 0, Color::white);
+        anchorTR = UiImage(config.dataRootPath + "sprites/aer_skybox/nx.png", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::TOP_RIGHT, 0, Color::white);
+        anchorTL = UiImage(config.dataRootPath + "sprites/aer_skybox/nz.png", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::TOP_LEFT , 0, Color::white);
+        anchorBL = UiImage(config.dataRootPath + "sprites/aer_skybox/px.png", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::BOTTOM_LEFT, 0, Color::white);
+        anchorBR = UiImage(config.dataRootPath + "sprites/aer_skybox/pz.png", Vec2f::zero , Vec2u::one * 150.0f, UiAnchor::BOTTOM_RIGHT, 0, Color::white);
         movingImage = UiImage{ config.dataRootPath + "sprites/wall.jpg", Vec2f::zero, Vec2u{5, 2} * 50.0f, UiAnchor::CENTER, 0, Color::white };
         auto& uiManager = UiManagerLocator::get();
         textBL = UiText(FontLoaded::LOBSTER, "BL", Vec2f(1.0f, 1.0f) * 0.1f, UiAnchor::BOTTOM_LEFT, 0, 1.0f, Color::cyan);
@@ -93,7 +93,7 @@ public:
         textTR.SetScreenId(screen);
         movingImage.SetCropping(Vec2f(Abs(Sin(radian_t(updateCount_))), 1.0f));
         updateCount_ += dt.count();
-        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Render() override

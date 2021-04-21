@@ -503,7 +503,7 @@ void TextureLoader::DecompressTexture()
         reqComponents = 3;
     else if (extension == ".png")
         reqComponents = 4;
-    image_ = StbImageConvert(bufferFile_, false, false, reqComponents);
+    image_ = StbImageConvert(bufferFile_, flags_ & Texture::FLIP_Y, false, reqComponents);
     //int width, height, nrChannels;
     //image_.data = stbi_load(path_.c_str(), &width, &height, &nrChannels, 0);
     //image_.width = width;

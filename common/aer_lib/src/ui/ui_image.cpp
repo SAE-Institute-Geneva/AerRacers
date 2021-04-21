@@ -18,7 +18,7 @@ UiImage::UiImage(const std::string_view& texturePath,
 #ifdef NEKO_GLES3
 void UiImage::Init(gl::TextureManager& textureManager)
 {
-	textureId_ = textureManager.LoadTexture(texturePath_, Texture::DEFAULT);
+	textureId_ = textureManager.LoadTexture(texturePath_, Texture::TextureFlags(Texture::DEFAULT | Texture::FLIP_Y));
 	textureName_ = textureManager.GetTextureName(textureId_);
 	quad_ = gl::RenderQuad(Vec3f::zero, Vec2f::one);
 	quad_.Init();
