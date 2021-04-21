@@ -74,7 +74,7 @@ namespace neko::aer
     {
         for (int i = 0; i < playerCount; i++)
         {
-            engine_.GetComponentManagerContainer().playerManager.CreatePlayer(spawns[i], EulerAngles(0,180,0));
+            engine_.GetComponentManagerContainer().playerManager.CreatePlayer(spawns[i], true, 0, EulerAngles(0,180,0));
             engine_.GetComponentManagerContainer().playerManager.SetCanMove(i, false);
         }
     }
