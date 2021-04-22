@@ -28,7 +28,7 @@
 ---------------------------------------------------------- */
 #include <vector>
 
-#include <engine\entity.h>
+#include <engine/entity.h>
 #include <mathematics/vector.h>
 #include <sdl_engine/sdl_input.h>
 #include <gl/texture.h>

@@ -399,10 +399,8 @@ public:
 	/// \brief Calculates the normalized vector.
 	[[nodiscard]] Vec3<T> Normalized() const
 	{
-		if ((*this).Magnitude() == 0.0f) {
-			return Vec3f::zero;
-		}
-	    return (*this) / (*this).Magnitude();
+		if ((*this).Magnitude() == 0.0f) return Vec3<T>::zero;
+		return (*this) / (*this).Magnitude();
 	}
 
 	/// \brief Interpolate between two vectors.
