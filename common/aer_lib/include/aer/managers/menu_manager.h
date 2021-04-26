@@ -144,6 +144,9 @@ namespace neko::aer
         std::array<UiImage, 4> corteseUI_;
 
         std::array<UiImage, 4> selectionBackgroundUI;
+        std::array<UiImage, 4> leftArrowUI_;
+        std::array<UiImage, 4> rightArrowUI_;
+
         std::array<UiImage, 4> colorRedUi_;
         std::array<UiImage, 4> colorGreenUi_;
         std::array<UiImage, 4> colorBlueUi_;
@@ -163,6 +166,7 @@ namespace neko::aer
 
         std::array<Vec2f, 4> playerScreenOffsets{Vec2f(-0.5, 0.5), Vec2f(0.5, 0.5), Vec2f(-0.5, -0.5), Vec2f(0.5, -0.5)};
 
+        const float colorsSize = 50.0f;
 
 
         bool useMenu = false;

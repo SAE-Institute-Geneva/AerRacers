@@ -28,10 +28,19 @@ void MenuManager::Init()
         rightArrowUi_[i] = UiText(FontLoaded::ROBOTO, "->", Vec2f(+0.2f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
         // selectedShipUi_[i] = ;
         // selectedColorUi_[i] = ;
-        colorBlueUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.0f,0.0f) + playerScreenOffsets[i], Vec2u(100,100), UiAnchor::CENTER, 0, Color::blue);
-        colorGreenUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], Vec2u(100, 100), UiAnchor::CENTER, 0, Color::green);
-        colorRedUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], Vec2u(100, 100), UiAnchor::CENTER, 0, Color::red);
-        colorYellowUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], Vec2u(100, 100), UiAnchor::CENTER, 0, Color::yellow);
+        Color4 colorBlue = Color::blue;
+        Color4 colorGreen = Color::green;
+        Color4 colorRed = Color::red;
+        Color4 colorYellow = Color::yellow;
+        colorBlue = Color4(colorBlue.x * 0.5f, colorBlue.y * 0.5f, colorBlue.z * 0.5f, 1.0);
+        colorGreen = Color4(colorGreen.x * 0.5f, colorGreen.y * 0.5f, colorGreen.z * 0.5f, 1.0);
+        colorRed = Color4(colorRed.x * 0.5f, colorRed.y * 0.5f, colorRed.z * 0.5f, 1.0);
+        colorYellow = Color4(colorYellow.x * 0.5f, colorYellow.y * 0.5f, colorYellow.z * 0.5f, 1.0);
+
+        colorBlueUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(-0.15f, -0.5f) + playerScreenOffsets[i], Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorBlue);
+        colorGreenUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(-0.05f, -0.5f) + playerScreenOffsets[i], Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorGreen);
+        colorRedUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.05f, -0.5f) + playerScreenOffsets[i], Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorRed);
+        colorYellowUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.15f, -0.5f) + playerScreenOffsets[i], Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorYellow);
         readyUi_[i] = UiText(FontLoaded::ROBOTO, "Ready", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
     }
 
@@ -92,22 +101,22 @@ void MenuManager::Update(seconds dt)
                 optionsTextUi.SetColor(Color::grey);
                 highscoreTextUi.SetColor(Color::grey);
 
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadDown_[0])
+                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) >= 0.7 && !isDpadDown_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::OPTIONS;
                     isDpadDown_[0] = true;
                 }
-                else if (isDpadDown_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                else if (isDpadDown_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) < 0.7)
                 {
                     isDpadDown_[0] = false;
                 }
 
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadUp_[0])
+                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) <= -0.7 && !isDpadUp_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::HIGH_SCORE;
                     isDpadUp_[0] = true;
                 }
-                else if (isDpadUp_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                else if (isDpadUp_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) > -0.7)
                 {
                     isDpadUp_[0] = false;
                 }
@@ -127,22 +136,22 @@ void MenuManager::Update(seconds dt)
                 startTextUi.SetColor(Color::grey);
                 optionsTextUi.SetColor(Color::grey);
                 highscoreTextUi.SetColor(Color::white);
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadDown_[0])
+                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) >= 0.7 && !isDpadDown_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::START;
                     isDpadDown_[0] = true;
                 }
-                else if (isDpadDown_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                else if (isDpadDown_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) < 0.7)
                 {
                     isDpadDown_[0] = false;
                 }
 
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadUp_[0])
+                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) <= -0.7 && !isDpadUp_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::OPTIONS;
                     isDpadUp_[0] = true;
                 }
-                else if (isDpadUp_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                else if (isDpadUp_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) > -0.7)
                 {
                     isDpadUp_[0] = false;
                 }
@@ -157,22 +166,22 @@ void MenuManager::Update(seconds dt)
                 startTextUi.SetColor(Color::grey);
                 optionsTextUi.SetColor(Color::white);
                 highscoreTextUi.SetColor(Color::grey);
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadDown_[0])
+                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) >= 0.7 && !isDpadDown_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::HIGH_SCORE;
                     isDpadDown_[0] = true;
                 }
-                else if (isDpadDown_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                else if (isDpadDown_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) < 0.7)
                 {
                     isDpadDown_[0] = false;
                 }
 
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadUp_[0])
+                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) <= -0.7 && !isDpadUp_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::START;
                     isDpadUp_[0] = true;
                 }
-                else if (isDpadUp_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                else if (isDpadUp_[0] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) > -0.7)
                 {
                     isDpadUp_[0] = false;
                 }
@@ -200,8 +209,16 @@ void MenuManager::Update(seconds dt)
             }
             break;
         case MenuStatus::SELECTION:
+
+
             for (int i = 0; i < 4; i++)
             {
+                colorBlueUi_[i].SetColor(Color4(Color::blue.x, Color::blue.y, Color::blue.z, 0.5f));
+                colorGreenUi_[i].SetColor(Color4(Color::green.x, Color::green.y, Color::green.z, 0.5f));
+                colorRedUi_[i].SetColor(Color4(Color::red.x, Color::red.y, Color::red.z, 0.5f));
+                colorYellowUi_[i].SetColor(Color4(Color::yellow.x, Color::yellow.y, Color::yellow.z, 0.5f));
+
+
                 switch (selectionPointing_[i])
                 {
                 case SelectionPointing::JOIN:
@@ -213,7 +230,7 @@ void MenuManager::Update(seconds dt)
                     rightArrowUi_[i].SetText("->");
 
 
-                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadLeft_[i])
+                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
                     {
                         if (shipSkins[i].selectedShip == SelectedShip::ROSSO)
                         {
@@ -225,12 +242,12 @@ void MenuManager::Update(seconds dt)
                         }
                         isDpadLeft_[i] = true;
                     }
-                    else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                    else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
                     {
                         isDpadLeft_[i] = false;
                     }
 
-                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadRight_[i])
+                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
                     {
                         if (shipSkins[i].selectedShip == SelectedShip::ROSSO)
                         {
@@ -242,7 +259,7 @@ void MenuManager::Update(seconds dt)
                         }
                         isDpadRight_[i] = true;
                     }
-                    else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                    else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
                     {
                         isDpadRight_[i] = false;
                     }
@@ -263,13 +280,40 @@ void MenuManager::Update(seconds dt)
                     }
                     break;
                 case SelectionPointing::SHIP_COLOR:
-                    colorBlueUi_[i].SetColor(Color::blue);
-                    colorGreenUi_[i].SetColor(Color::green);
-                    colorRedUi_[i].SetColor(Color::red);
-                    colorYellowUi_[i].SetColor(Color::yellow);
 
 
-                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == -1 && !isDpadLeft_[i])
+                    // Color4 colorBlue = Color::blue;
+                    // Color4 colorGreen = Color::green;
+                    // Color4 colorRed = Color::red;
+                    // Color4 colorYellow = Color::yellow;
+                    // colorBlue = Color4(colorBlue.x * 0.5f, colorBlue.y * 0.5f, colorBlue.z * 0.5f, 1.0);
+                    // colorGreen = Color4(colorGreen.x * 0.5f, colorGreen.y * 0.5f, colorGreen.z * 0.5f, 1.0);
+                    // colorRed = Color4(colorRed.x * 0.5f, colorRed.y * 0.5f, colorRed.z * 0.5f, 1.0);
+                    // colorYellow = Color4(colorYellow.x * 0.5f, colorYellow.y * 0.5f, colorYellow.z * 0.5f, 1.0);
+
+
+                    colorBlueUi_[i].SetColor(Color4(Color::blue.x, Color::blue.y, Color::blue.z, 0.5f));
+                    colorGreenUi_[i].SetColor(Color4(Color::green.x, Color::green.y, Color::green.z, 0.5f));
+                    colorRedUi_[i].SetColor(Color4(Color::red.x, Color::red.y, Color::red.z, 0.5f));
+                    colorYellowUi_[i].SetColor(Color4(Color::yellow.x, Color::yellow.y, Color::yellow.z, 0.5f));
+
+                    switch (shipSkins[i].selectedShipColor)
+                    {
+                    case SelectedShipColor::BLUE:
+                        colorBlueUi_[i].SetColor(Color::blue);
+                        break;
+                    case SelectedShipColor::GREEN:
+                        colorGreenUi_[i].SetColor(Color::green);
+                        break;
+                    case SelectedShipColor::RED:
+                        colorRedUi_[i].SetColor(Color::red);
+                        break;
+                    case SelectedShipColor::YELLOW:
+                        colorYellowUi_[i].SetColor(Color::yellow);
+                        break;
+                    }
+
+                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
                     {
                         isDpadLeft_[i] = true;
                         switch (shipSkins[i].selectedShipColor)
@@ -288,12 +332,12 @@ void MenuManager::Update(seconds dt)
                             break;
                         }
                     }
-                    else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                    else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
                     {
                         isDpadLeft_[i] = false;
                     }
 
-                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 1 && !isDpadRight_[i])
+                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
                     {
                         isDpadRight_[i] = true;
                         switch (shipSkins[i].selectedShipColor)
@@ -312,7 +356,7 @@ void MenuManager::Update(seconds dt)
                             break;
                         }
                     }
-                    else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::PAD_VERTICAL) == 0)
+                    else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
                     {
                         isDpadRight_[i] = false;
                     }
@@ -355,6 +399,7 @@ void MenuManager::Update(seconds dt)
                                     playerCount++;
                                 }
                             }
+                            menuBackGroundUI.SetEnable(false);
                             engine_.GetComponentManagerContainer().gameManager.StartGameManager(playerCount);
                             menuStatus_ = MenuStatus::SLEEP;
                         }
