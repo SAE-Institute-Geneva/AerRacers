@@ -887,6 +887,7 @@ RigidStaticManager::RigidStaticManager(EntityManager& entityManager,
 
 void RigidStaticManager::FixedUpdate(seconds dt)
 {
+	if (meshColliderToCreate_.empty()) return;
 	for (auto& toCreate : meshColliderToCreate_)
 	{
 #ifdef NEKO_GLES3
@@ -901,6 +902,7 @@ void RigidStaticManager::FixedUpdate(seconds dt)
 			rigidStatic.meshColliderData.size    = 100.0f;
 			AddRigidStatic(toCreate.first, rigidStatic);
 			meshColliderToCreate_.erase(toCreate.first);
+			if (meshColliderToCreate_.empty()) return;
 		}
 	}
 }

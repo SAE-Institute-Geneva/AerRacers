@@ -38,6 +38,14 @@ public:
 
 	[[nodiscard]] virtual bool IsLoaded(ModelId) const = 0;
 	virtual ModelId LoadModel(std::string_view)        = 0;
+	/**
+	 * \brief Nb of models hat has been loaded
+	 */
+	[[nodiscard]] virtual int CountModelLoaded() const = 0;
+	/**
+	 * \brief Nb of models in total
+	 */
+	[[nodiscard]] virtual int CountOfAllModel() const = 0;
 };
 
 class NullModelManager : public IModelManager
@@ -50,6 +58,8 @@ public:
 
 	[[nodiscard]] bool IsLoaded(ModelId) const override { return false; }
 	ModelId LoadModel(std::string_view) override { return INVALID_MODEL_ID; }
+	[[nodiscard]] int CountModelLoaded() const override { return 0; }
+	[[nodiscard]] int CountOfAllModel() const override { return 0; }
 };
 
 class ModelManager : public IModelManager, public SystemInterface
@@ -68,6 +78,8 @@ public:
 
 	[[nodiscard]] bool IsLoaded(ModelId modelId) const override { return GetModel(modelId); }
 	ModelId LoadModel(std::string_view path) override;
+	[[nodiscard]] int CountModelLoaded() const override { return modelMap_.size(); }
+	[[nodiscard]] int CountOfAllModel() const override { return modelPathMap_.size(); }
 
 	void SetTexture(ModelId modelId,
 		const std::string& texturelPath,
