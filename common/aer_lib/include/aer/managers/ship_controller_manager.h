@@ -4,7 +4,7 @@
 #include "engine/component.h"
 #include "engine/transform.h"
 #include "ship_input_manager.h"
-#include <aer\managers\player_manager.h>
+#include <aer/managers/player_manager.h>
 
 
 
@@ -24,7 +24,7 @@ public:
      float iCoeff = 0.002f;
      float dCoeff = 0.05f;
      float minimum = -1;
-     float maximum = 10;
+     float maximum = 5;
 
 private:
     float integral;
@@ -46,7 +46,7 @@ struct ShipParameter {
     const float kPropultionMultiplicator = 1.2f;
     const float kRotorMaxAngle = 30.0f;
     //Hover
-    const float kHoverHeight = 10.0f;
+    const float kHoverHeight = 15.0f;
     const float kMaxGroundDist = 100.0f;
     const float kHoverForce = 300.0f;
     const std::string kLayerName = "Ground";

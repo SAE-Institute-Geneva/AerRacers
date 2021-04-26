@@ -68,7 +68,7 @@ struct ComponentManagerContainer : public SystemInterface
 #ifdef NEKO_FMOD
 		audioManager(entityManager, transform3dManager),
 #endif
-         playerManager(*this),
+         playerManager(engine),
          shipInputManager(playerManager),
          shipControllerManager(
             entityManager,
@@ -114,6 +114,7 @@ struct ComponentManagerContainer : public SystemInterface
 #ifdef NEKO_FMOD
 		audioManager.Init();
 #endif
+        playerManager.Init();
         shipControllerManager.Init();
         waypointManager.Init();
         gameManager.Init();

@@ -107,7 +107,7 @@ struct VictoryData
 
         const float startTimer = 10.0f;
         const float endTimer = 10.0f;
-        const int wpToFinish = 33;
+        const int wpToFinish = 30;
         int playerCount = 4;
         const float uiPositionMultiplier = 0.25f;
 

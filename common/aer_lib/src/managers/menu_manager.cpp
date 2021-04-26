@@ -47,19 +47,26 @@ void MenuManager::Init()
     auto& uiManager = UiManagerLocator::get();
     uiManager.AddUiImage(&menuBackGroundUI);
     uiManager.AddUiText(&startTextUi);
+    startTextUi.SetEnable(false);
     uiManager.AddUiText(&optionsTextUi);
+    optionsTextUi.SetEnable(false);
     uiManager.AddUiText(&highscoreTextUi);
-
+    highscoreTextUi.SetEnable(false);
     for (int i = 0; i < 4; i++)
     {
         uiManager.AddUiText(&joinUi_[i]);
+        joinUi_[i].SetEnable(false);
         uiManager.AddUiText(&leftArrowUi_[i]);
+        leftArrowUi_[i].SetEnable(false);
         uiManager.AddUiText(&rightArrowUi_[i]);
+        rightArrowUi_[i].SetEnable(false);
         uiManager.AddUiText(&readyUi_[i]);
+        readyUi_[i].SetEnable(false);
         uiManager.AddUiImage(&colorBlueUi_[i]);
         uiManager.AddUiImage(&colorGreenUi_[i]);
         uiManager.AddUiImage(&colorRedUi_[i]);
         uiManager.AddUiImage(&colorYellowUi_[i]);
+        colorBlueUi_[i].SetEnable(false);
     }
 }
 
@@ -69,15 +76,15 @@ void MenuManager::Update(seconds dt)
     {
         auto& inputlocator = sdl::InputLocator::get();
 
-        startTextUi.SetText("");
-        optionsTextUi.SetText("");
-        highscoreTextUi.SetText("");
+        startTextUi.SetEnable(false);
+        optionsTextUi.SetEnable(false);
+        highscoreTextUi.SetEnable(false);
 
         for (int i = 0; i < 4; i++)
         {
-            joinUi_[i].SetText("");
-            leftArrowUi_[i].SetText("");
-            rightArrowUi_[i].SetText("");
+            joinUi_[i].SetEnable(false);
+            leftArrowUi_[i].SetEnable(false);
+            rightArrowUi_[i].SetEnable(false);
             // selectedShipUi_[i] = ;
             // selectedColorUi_[i] = ;
             colorBlueUi_[i].SetColor(Color::clear);
@@ -85,6 +92,11 @@ void MenuManager::Update(seconds dt)
             colorRedUi_[i].SetColor(Color::clear);
             colorYellowUi_[i].SetColor(Color::clear);
             readyUi_[i].SetText("");
+            colorBlueUi_[i].SetEnable(false);
+            // colorGreenUi_[i] = ;
+            // colorRedUi_[i] = ;
+            // colorYellowUi_[i] = ;
+            readyUi_[i].SetEnable(false);
         }
 
 
@@ -94,6 +106,9 @@ void MenuManager::Update(seconds dt)
             startTextUi.SetText("Start");
             optionsTextUi.SetText("Options");
             highscoreTextUi.SetText("HighScore");
+            startTextUi.SetEnable(true);
+            optionsTextUi.SetEnable(true);
+            highscoreTextUi.SetEnable(true);
             switch (mainMenuPointing_)
             {
             case MainMenuPointing::START:
@@ -223,10 +238,12 @@ void MenuManager::Update(seconds dt)
                 {
                 case SelectionPointing::JOIN:
                     joinUi_[i].SetText("Press A to Join");
+                    joinUi_[i].SetEnable(true);
 
                     break;
                 case SelectionPointing::SHIP_TYPE:
                     leftArrowUi_[i].SetText("<-");
+                    leftArrowUi_[i].SetEnable(true);
                     rightArrowUi_[i].SetText("->");
 
 
@@ -266,6 +283,7 @@ void MenuManager::Update(seconds dt)
 
 
 
+                    rightArrowUi_[i].SetEnable(true);
                     if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN && i == 0)
                     {
                         menuStatus_ = MenuStatus::MENU;
@@ -363,6 +381,8 @@ void MenuManager::Update(seconds dt)
 
 
 
+                    colorBlueUi_[i].SetColor(Color::blue);
+                    colorBlueUi_[i].SetEnable(true);
 
                     if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
                     {
@@ -375,6 +395,7 @@ void MenuManager::Update(seconds dt)
                     break;
                 case SelectionPointing::READY:
                     readyUi_[i].SetText("Ready");
+                    readyUi_[i].SetEnable(true);
                     if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
                     {
                         selectionPointing_[i] = SelectionPointing::SHIP_COLOR;
