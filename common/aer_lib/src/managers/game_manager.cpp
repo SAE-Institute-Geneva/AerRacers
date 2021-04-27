@@ -19,6 +19,7 @@ namespace neko::aer
     void GameManager::StartGameManager(int currentPlayerCount)
     {
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+        engine_.GetResourceManagerContainer().modelManager.LoadModel(config.dataRootPath + "models/terrain_collider_v3/terrain_collider_v3.obj");
         engine_.GetComponentManagerContainer().sceneManager.LoadScene(
             config.dataRootPath + "scenes/LevelDesign05-04WP.aerscene");
         Camera3D* camera = GizmosLocator::get().GetCamera();
@@ -200,13 +201,14 @@ namespace neko::aer
 
     void GameManager::StartUi()
     {
+        const auto& config = BasicEngine::GetInstance()->GetConfig();
         auto& uiManager = UiManagerLocator::get();
         for(int i = 0; i < playerCount; i++)
         {
-            middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2f(0.0f, 0.0f), UiAnchor::CENTER, i + 1, 4.0f, Color::cyan);
-            TimerUi[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2f(1.0f, -1.0f) * uiPositionMultiplier, UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::cyan);
-            LapsUi[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2f(-1.0f, -1.0f) * uiPositionMultiplier, UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::cyan);;
-            placementUi[i] = UiText(FontLoaded::LOBSTER, "0th", Vec2f(-1.0f, 1.0f) * uiPositionMultiplier, UiAnchor::BOTTOM_RIGHT, i + 1, 2.0f, Color::cyan);;
+            middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2i((Vec2f(0.0f, 0.0f)) * Vec2f(config.windowSize)), UiAnchor::CENTER, i + 1, 4.0f, Color::cyan);
+            TimerUi[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2i((Vec2f(1.0f, -1.0f) * uiPositionMultiplier) * Vec2f(config.windowSize)), UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::cyan);
+            LapsUi[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2i((Vec2f(-1.0f, -1.0f) * uiPositionMultiplier) * Vec2f(config.windowSize)), UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::cyan);;
+            placementUi[i] = UiText(FontLoaded::LOBSTER, "0th", Vec2i((Vec2f(-1.0f, 1.0f) * uiPositionMultiplier) * Vec2f(config.windowSize)), UiAnchor::BOTTOM_RIGHT, i + 1, 2.0f, Color::cyan);;
 
             uiManager.AddUiText(&middleTextUi[i]);
             uiManager.AddUiText(&TimerUi[i]);

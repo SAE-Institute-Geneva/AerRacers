@@ -50,7 +50,7 @@ public:
      * \brief Create an UiText
      * \param font Font to use
      * \param text Text to display
-     * \param position Position on view scale (bottom_left:-1,-1; top_right:1,1)
+     * \param position Position in pixels relative to anchor point
      * \param anchor Anchor from screen corner
      * \param screenId On which screen are based the anchor
      * \param scale Scale of the text
@@ -58,20 +58,19 @@ public:
      */
 	UiText(FontLoaded font    = FontLoaded::LOBSTER,
 		std::string_view text = "",
-		const Vec2f & position = Vec2f::zero,
+		Vec2i position        = Vec2i::zero,
 		UiAnchor anchor       = UiAnchor::CENTER,
 		std::uint8_t screenId = 0,
 		float scale           = 1.0f,
 		const Color4& color   = Color::white)
-	   : UiElement(position, anchor, screenId),
+	   : UiElement(position, anchor, color, screenId),
 		 font_(font),
 		 text_(text),
-		 scale_(scale),
-		 color_(color)
+		 scale_(scale)
 	{}
 
 #ifdef NEKO_GLES3
-	void Draw(gl::FontManager& fontManager, const FontId& fontId) const;
+	void Draw(gl::FontManager& fontManager, const FontId& fontId, std::uint8_t playerNmb) const;
 #else
 #endif
 
@@ -88,7 +87,6 @@ protected:
 	FontLoaded font_ {};
 	std::string text_ {};
 	float scale_ {};
-	Color4 color_ {};
 
 	Job preRender_;
 };

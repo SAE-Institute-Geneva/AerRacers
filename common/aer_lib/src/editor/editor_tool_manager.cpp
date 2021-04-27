@@ -194,11 +194,24 @@ void EditorToolManager::DrawImGui()
 			}
 			ImGui::PopStyleColor();
 			
-            const auto fpsText = fmt::format("{:.0f} FPS", 1.0f / dt_.count());
+
+			const auto fpsText = fmt::format("{:.0f} FPS", 1.0f / dt_.count());
 			const float spacing = ImGui::GetStyle().ItemSpacing.x + ImGui::GetStyle().FramePadding.x;
 			const float nextPos = ImGui::GetWindowWidth() - ImGui::CalcTextSize(fpsText.c_str()).x - spacing;
 			ImGui::SetCursorPosX(nextPos);
 			ImGui::Text("%s", fpsText.c_str());
+
+			auto& textureManager = engine_.GetResourceManagerContainer().textureManager;
+			const auto loadingTextureText = fmt::format("{}/{} Textures Loaded", textureManager.CountTextureLoaded(), textureManager.CountAllTexture());
+			const float nextPosLoadingTexture= nextPos - ImGui::CalcTextSize(loadingTextureText.c_str()).x - spacing;
+			ImGui::SetCursorPosX(nextPosLoadingTexture);
+			ImGui::Text("%s", loadingTextureText.c_str());
+
+			auto& modelManager = engine_.GetResourceManagerContainer().modelManager;
+			const auto loadingModelText = fmt::format("{}/{} Models Loaded", modelManager.CountModelLoaded(), modelManager.CountOfAllModel());
+			const float nextPosLoadingModel = nextPosLoadingTexture - ImGui::CalcTextSize(loadingModelText.c_str()).x - spacing;
+			ImGui::SetCursorPosX(nextPosLoadingModel);
+			ImGui::Text("%s", loadingModelText.c_str());
 
 			ImGui::EndMenuBar();
 		}

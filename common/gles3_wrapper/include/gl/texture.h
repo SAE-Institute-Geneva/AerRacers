@@ -92,6 +92,9 @@ public:
 
     void Destroy() override;
 
+
+    [[nodiscard]] int CountTextureLoaded() const override { return textureMap_.size(); }
+    [[nodiscard]] int CountAllTexture() const override { return texturePathMap_.size(); }
 private:
     const FilesystemInterface& filesystem_;
     std::map<std::string, TextureId> texturePathMap_;

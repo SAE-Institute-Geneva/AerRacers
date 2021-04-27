@@ -96,10 +96,10 @@ struct VictoryData
         std::array<UiText, 4> LapsUi;
         std::array<UiText, 4> placementUi;
         std::array<UiText, 4> endGameText {
-            UiText(FontLoaded::LOBSTER, "", Vec2f(0.0,0.6), UiAnchor::CENTER, 0, 1, Color::cyan),
-            UiText(FontLoaded::LOBSTER, "", Vec2f(0.0,0.2), UiAnchor::CENTER, 0, 1, Color::cyan),
-            UiText(FontLoaded::LOBSTER, "", Vec2f(0.0,-0.2), UiAnchor::CENTER, 0, 1, Color::cyan),
-            UiText(FontLoaded::LOBSTER, "", Vec2f(0.0,-0.6), UiAnchor::CENTER, 0, 1, Color::cyan)
+            UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 1, 1, Color::cyan),
+            UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 2, 1, Color::cyan),
+            UiText(FontLoaded::LOBSTER, "",Vec2i(0,0), UiAnchor::CENTER, 3, 1, Color::cyan),
+            UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 4, 1, Color::cyan)
         };
         std::array<std::string, 4> positionsText{ "st", "nd", "rd", "th" };
         std::vector<VictoryData> victoryDatas;
@@ -117,10 +117,10 @@ struct VictoryData
             //Vec3f(156, 43, -471),
             //Vec3f(106, 43, -461),
             //Vec3f(56, 43, -451)
-            Vec3f(-1108.0f, 185.0f, -788.0f),
-            Vec3f(-1128.0f, 185.0f, -788.0f),
-            Vec3f(-1148.0f, 185.0f, -788.0f),
-            Vec3f(-1168.0f, 185.0f, -788.0f)
+            Vec3f(-1108.0f, 585.0f, -788.0f),
+            Vec3f(-1128.0f, 585.0f, -788.0f),
+            Vec3f(-1148.0f, 585.0f, -788.0f),
+            Vec3f(-1168.0f, 585.0f, -788.0f)
         };
     };
 }

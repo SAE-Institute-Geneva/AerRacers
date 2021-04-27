@@ -13,25 +13,26 @@ void MenuManager::Init()
 {
 
     const auto& config = BasicEngine::GetInstance()->GetConfig();
-    startTextUi = UiText(FontLoaded::ROBOTO, "Start", Vec2f(0.0f, 1.0f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
-    optionsTextUi = UiText(FontLoaded::ROBOTO, "Options", Vec2f(0.0f, 0.75f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
-    highscoreTextUi = UiText(FontLoaded::ROBOTO, "HighScore", Vec2f(0.0f, 0.5f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
+    std::cout << config.windowSize << std::endl;
+    startTextUi = UiText(FontLoaded::ROBOTO, "Start", Vec2i(Vec2f(0.0f, 1.0f) * Vec2f(config.windowSize)), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
+    optionsTextUi = UiText(FontLoaded::ROBOTO, "Options", Vec2i(Vec2f(0.0f, 0.75f) * Vec2f(config.windowSize)), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
+    highscoreTextUi = UiText(FontLoaded::ROBOTO, "HighScore", Vec2i(Vec2f(0.0f, 0.5f) * Vec2f(config.windowSize)), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
     menuStatus_ = MenuStatus::SLEEP;
 
     useMenu = false;
 
     for (int i = 0; i < 4; i++)
     {
-        joinUi_[i] = UiText(FontLoaded::ROBOTO, "Join", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
-        leftArrowUi_[i] = UiText(FontLoaded::ROBOTO, "<-", Vec2f(-0.2f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
-        rightArrowUi_[i] = UiText(FontLoaded::ROBOTO, "->", Vec2f(+0.2f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
+        joinUi_[i] = UiText(FontLoaded::ROBOTO, "Join", Vec2i((Vec2f(0.0f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
+        leftArrowUi_[i] = UiText(FontLoaded::ROBOTO, "<-", Vec2i((Vec2f(-0.2f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
+        rightArrowUi_[i] = UiText(FontLoaded::ROBOTO, "->", Vec2i((Vec2f(+0.2f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
         // selectedShipUi_[i] = ;
         // selectedColorUi_[i] = ;
-        colorBlueUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.0f,0.0f) + playerScreenOffsets[i], Vec2u(100,100), UiAnchor::CENTER, 0, Color::blue);
+        colorBlueUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2i((Vec2f(0.0f,0.0f) + playerScreenOffsets[i])*Vec2f(config.windowSize)), Vec2u(100,100), UiAnchor::CENTER, 0, Color::blue);
         // colorGreenUi_[i] = ;
         // colorRedUi_[i] = ;
         // colorYellowUi_[i] = ;
-        readyUi_[i] = UiText(FontLoaded::ROBOTO, "Ready", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
+        readyUi_[i] = UiText(FontLoaded::ROBOTO, "Ready", Vec2i((Vec2f(0.0f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
     }
 
     auto& uiManager = UiManagerLocator::get();

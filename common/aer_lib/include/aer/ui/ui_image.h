@@ -41,27 +41,26 @@ namespace neko::aer
 class UiImage : public UiElement
 {
 public:
-    /**
+	/**
      * \brief Create a UiImage
      * \param texturePath path of the texture to display
-     * \param position Position on view scale (bottom_left:-1,-1; top_right:1,1)
+     * \param position Position in pixels relative to anchor point
      * \param size Size in pixel 
      * \param anchor Anchor from screen corner
      * \param screenId On which screen are based the anchor
      * \param color Color add to the texture
      */
-    explicit UiImage(const std::string_view& texturePath = "",
-		const Vec2f & position                     = Vec2f::zero,
-		const Vec2u& size                         = Vec2u::one,
+	explicit UiImage(std::string_view texturePath = "",
+		Vec2i position                            = Vec2i::zero,
+		Vec2u size                                = Vec2u::one,
 		UiAnchor anchor                           = UiAnchor::CENTER,
 		std::uint8_t screenId                     = 0,
 		const Color4& color                       = Color::white);
 
 #ifdef NEKO_GLES3
 	void Init(gl::TextureManager& textureManager);
-	void Draw(gl::TextureManager& textureManager,
-		const Vec2u& screenSize,
-		const gl::Shader& uiImageShader);
+	void Draw(
+		gl::TextureManager& textureManager, uint8_t playerNmb, const gl::Shader& uiImageShader);
 #else
 	void Init();
 	void Draw(const Vec2u& screenSize);
@@ -89,6 +88,14 @@ public:
 	void SetCropping(const Vec2f& slidingCrop) { slidingCrop_ = slidingCrop; }
 
 protected:
+#ifdef NEKO_GLES3
+	void Draw() const;
+	void SetValues(Vec2f size, Vec2f offset);
+#endif
+
+	[[nodiscard]] Vec2i GetPosition(const std::uint8_t playerNmb, Vec2f size) const;
+	[[nodiscard]] Vec2i FixAnchorPosition(Vec2i anchorPos, std::uint8_t playerNmb) const;
+
 	Vec2u size_ = Vec2u(100u);    //In pixel
 
 	std::string texturePath_;
@@ -96,13 +103,9 @@ protected:
 #ifdef NEKO_GLES3
 	TextureId textureId_     = INVALID_TEXTURE_ID;
 	TextureName textureName_ = INVALID_TEXTURE_NAME;
-	gl::RenderQuad quad_ {Vec3f::zero, Vec2f::one};
+	gl::VertexArrayObject quad_;
 #else
 	vk::ResourceHash textureId_ = vk::INVALID_TEXTURE_ID;
 #endif
-
-	Color4 color_ = Color::white;
-
-	Vec2f slidingCrop_ = Vec2f::one;
 };
 }    // namespace neko::aer

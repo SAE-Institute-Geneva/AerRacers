@@ -67,7 +67,6 @@ private:
 	sdl::MultiCamera camera_;
 	AerEngine& engine_;
 
-	ResourceManagerContainer& rContainer_;
 	ComponentManagerContainer& cContainer_;
 
 #ifdef NEKO_GLES3
