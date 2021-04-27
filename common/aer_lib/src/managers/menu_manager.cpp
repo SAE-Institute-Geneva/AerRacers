@@ -13,11 +13,17 @@ void MenuManager::Init()
 {
 
     const auto& config = BasicEngine::GetInstance()->GetConfig();
-    startTextUi = UiText(FontLoaded::ROBOTO, "Start", Vec2f(0.0f, 1.0f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
-    optionsTextUi = UiText(FontLoaded::ROBOTO, "Options", Vec2f(0.0f, 0.75f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
-    highscoreTextUi = UiText(FontLoaded::ROBOTO, "HighScore", Vec2f(0.0f, 0.5f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
+    startTextUi_ = UiText(FontLoaded::ROBOTO, "Start", Vec2f(0.0f, 1.0f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
+    optionsTextUi_ = UiText(FontLoaded::ROBOTO, "Options", Vec2f(0.0f, 0.75f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
+    highscoreTextUi_ = UiText(FontLoaded::ROBOTO, "Credits", Vec2f(0.0f, 0.5f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
     menuBackGroundUI = UiImage(config.dataRootPath + "sprites/ui/background.png", Vec2f().zero, Vec2u(1920, 1080), UiAnchor::CENTER, 0, Color::white);
     menuStatus_ = MenuStatus::SLEEP;
+    creditsStatus_ = CreditsStatus::LEADS;
+
+    creditsSebUiText_ = UiText(FontLoaded::ROBOTO, creditsSebText_, Vec2f(-0.75, 0), UiAnchor::CENTER,0, 2.0f, Color::white);
+    creditsSimonUiText_ = UiText(FontLoaded::ROBOTO, creditsSimonText_, Vec2f(-0.75, 0), UiAnchor::CENTER, 0, 2.0f, Color::white);;
+    creditsStephenUiText_ = UiText(FontLoaded::ROBOTO, creditsStephenText_, Vec2f(-0.75, 0), UiAnchor::CENTER, 0, 2.0f, Color::white);;
+    creditsLucaUiText_ = UiText(FontLoaded::ROBOTO, creditsLucaText_, Vec2f(-0.75, 0), UiAnchor::CENTER, 0, 2.0f, Color::white);;
 
     useMenu = false;
 
@@ -42,16 +48,39 @@ void MenuManager::Init()
         colorRedUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.05f, -0.5f) + playerScreenOffsets[i], Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorRed);
         colorYellowUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.15f, -0.5f) + playerScreenOffsets[i], Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorYellow);
         readyUi_[i] = UiText(FontLoaded::ROBOTO, "Ready", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
+
+
+        selectionBackgroundUI_[i] = UiImage(config.dataRootPath + blueprint1UIPath_, playerScreenOffsets[i], Vec2u(990, 590), UiAnchor::CENTER, 0, Color::white);
+        readyBackground_[i] = UiImage(config.dataRootPath + ReadyBackgroundUIPath_, playerScreenOffsets[i], Vec2u(501,192), UiAnchor::CENTER, 0, Color::white);
+        readyText_[i] = UiImage(config.dataRootPath + ReadyTextUIPath_, playerScreenOffsets[i], Vec2u(323, 153), UiAnchor::CENTER, 0, Color::white);
+        joinText_[i] = UiImage(config.dataRootPath + pressStartTextUIPath_, playerScreenOffsets[i], Vec2u(618, 342), UiAnchor::CENTER, 0, Color::white);
+
+        rosso1UI_[i] = UiImage(config.dataRootPath + Rosso1UIPath_, playerScreenOffsets[i],Vec2u(1920 * shipModelsUiMultiplier,1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
+        rosso2UI_[i] = UiImage(config.dataRootPath + Rosso2UIPath_, playerScreenOffsets[i], Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
+        rosso3UI_[i] = UiImage(config.dataRootPath + Rosso3UIPath_, playerScreenOffsets[i], Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
+        rosso4UI_[i] = UiImage(config.dataRootPath + Rosso4UIPath_, playerScreenOffsets[i], Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
+        shipSkins[i] = SelectedModel::ROSSO_1;
+        //arrowsUi_[i] = UiImage(config.dataRootPath);
     }
 
     auto& uiManager = UiManagerLocator::get();
+    uiManager.AddUiText(&creditsSebUiText_);
+    uiManager.AddUiText(&creditsSimonUiText_);
+    uiManager.AddUiText(&creditsStephenUiText_);
+    uiManager.AddUiText(&creditsLucaUiText_);
+
+    creditsSebUiText_.SetEnable(false);
+    creditsSimonUiText_.SetEnable(false);
+    creditsStephenUiText_.SetEnable(false);
+    creditsLucaUiText_.SetEnable(false);
+
     uiManager.AddUiImage(&menuBackGroundUI);
-    uiManager.AddUiText(&startTextUi);
-    startTextUi.SetEnable(false);
-    uiManager.AddUiText(&optionsTextUi);
-    optionsTextUi.SetEnable(false);
-    uiManager.AddUiText(&highscoreTextUi);
-    highscoreTextUi.SetEnable(false);
+    uiManager.AddUiText(&startTextUi_);
+    startTextUi_.SetEnable(false);
+    uiManager.AddUiText(&optionsTextUi_);
+    optionsTextUi_.SetEnable(false);
+    uiManager.AddUiText(&highscoreTextUi_);
+    highscoreTextUi_.SetEnable(false);
     for (int i = 0; i < 4; i++)
     {
         uiManager.AddUiText(&joinUi_[i]);
@@ -67,6 +96,28 @@ void MenuManager::Init()
         uiManager.AddUiImage(&colorRedUi_[i]);
         uiManager.AddUiImage(&colorYellowUi_[i]);
         colorBlueUi_[i].SetEnable(false);
+
+        rosso1UI_[i].SetEnable(false);
+        rosso2UI_[i].SetEnable(false);
+        rosso3UI_[i].SetEnable(false);
+        rosso4UI_[i].SetEnable(false);
+
+        uiManager.AddUiImage(&selectionBackgroundUI_[i]);
+        uiManager.AddUiImage(&readyBackground_[i]);
+        uiManager.AddUiImage(&readyText_[i]);
+        uiManager.AddUiImage(&joinText_[i]);
+
+        uiManager.AddUiImage(&rosso1UI_[i]);
+        uiManager.AddUiImage(&rosso2UI_[i]);
+        uiManager.AddUiImage(&rosso3UI_[i]);
+        uiManager.AddUiImage(&rosso4UI_[i]);
+
+        readyBackground_[i].SetEnable(false);
+        readyText_[i].SetEnable(false);
+        joinText_[i].SetEnable(false);
+        selectionBackgroundUI_[i].SetEnable(false);
+
+        hasStartedSceneLoading = false;
     }
 }
 
@@ -74,11 +125,24 @@ void MenuManager::Update(seconds dt)
 {
     if (useMenu)
     {
+        if (!hasStartedSceneLoading)
+        {
+            hasStartedSceneLoading = true;
+            const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+            engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+                config.dataRootPath + "scenes/LevelDesign05-04WP.aerscene");
+        }
+        
         auto& inputlocator = sdl::InputLocator::get();
 
-        startTextUi.SetEnable(false);
-        optionsTextUi.SetEnable(false);
-        highscoreTextUi.SetEnable(false);
+        startTextUi_.SetEnable(false);
+        optionsTextUi_.SetEnable(false);
+        highscoreTextUi_.SetEnable(false);
+
+        creditsSebUiText_.SetEnable(false);
+        creditsSimonUiText_.SetEnable(false);
+        creditsStephenUiText_.SetEnable(false);
+        creditsLucaUiText_.SetEnable(false);
 
         for (int i = 0; i < 4; i++)
         {
@@ -97,24 +161,34 @@ void MenuManager::Update(seconds dt)
             // colorRedUi_[i] = ;
             // colorYellowUi_[i] = ;
             readyUi_[i].SetEnable(false);
+
+            readyBackground_[i].SetEnable(false);
+            readyText_[i].SetEnable(false);
+            joinText_[i].SetEnable(false);
+            selectionBackgroundUI_[i].SetEnable(false);
+
+            rosso1UI_[i].SetEnable(false);
+            rosso2UI_[i].SetEnable(false);
+            rosso3UI_[i].SetEnable(false);
+            rosso4UI_[i].SetEnable(false);
         }
 
 
         switch (menuStatus_)
         {
         case MenuStatus::MENU:
-            startTextUi.SetText("Start");
-            optionsTextUi.SetText("Options");
-            highscoreTextUi.SetText("HighScore");
-            startTextUi.SetEnable(true);
-            optionsTextUi.SetEnable(true);
-            highscoreTextUi.SetEnable(true);
+            startTextUi_.SetText("Start");
+            optionsTextUi_.SetText("Options");
+            highscoreTextUi_.SetText("Credits");
+            startTextUi_.SetEnable(true);
+            optionsTextUi_.SetEnable(true);
+            highscoreTextUi_.SetEnable(true);
             switch (mainMenuPointing_)
             {
             case MainMenuPointing::START:
-                startTextUi.SetColor(Color::white);
-                optionsTextUi.SetColor(Color::grey);
-                highscoreTextUi.SetColor(Color::grey);
+                startTextUi_.SetColor(Color::white);
+                optionsTextUi_.SetColor(Color::grey);
+                highscoreTextUi_.SetColor(Color::grey);
 
                 if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) >= 0.7 && !isDpadDown_[0])
                 {
@@ -148,9 +222,9 @@ void MenuManager::Update(seconds dt)
 
                 break;
             case MainMenuPointing::HIGH_SCORE:
-                startTextUi.SetColor(Color::grey);
-                optionsTextUi.SetColor(Color::grey);
-                highscoreTextUi.SetColor(Color::white);
+                startTextUi_.SetColor(Color::grey);
+                optionsTextUi_.SetColor(Color::grey);
+                highscoreTextUi_.SetColor(Color::white);
                 if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) >= 0.7 && !isDpadDown_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::START;
@@ -173,14 +247,14 @@ void MenuManager::Update(seconds dt)
 
                 if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
-                    menuStatus_ = MenuStatus::HIGHSCORE;
+                    menuStatus_ = MenuStatus::CREDITS;
                 }
 
                 break;
             case MainMenuPointing::OPTIONS:
-                startTextUi.SetColor(Color::grey);
-                optionsTextUi.SetColor(Color::white);
-                highscoreTextUi.SetColor(Color::grey);
+                startTextUi_.SetColor(Color::grey);
+                optionsTextUi_.SetColor(Color::white);
+                highscoreTextUi_.SetColor(Color::grey);
                 if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) >= 0.7 && !isDpadDown_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::HIGH_SCORE;
@@ -217,14 +291,58 @@ void MenuManager::Update(seconds dt)
                 menuStatus_ = MenuStatus::MENU;
             }
             break;
-        case MenuStatus::HIGHSCORE:
+        case MenuStatus::CREDITS:
+            switch (creditsStatus_)
+            {
+            case CreditsStatus::LEADS:
+                creditsSebUiText_.SetEnable(true);
+                creditsSimonUiText_.SetEnable(true);
+                creditsStephenUiText_.SetEnable(true);
+                creditsLucaUiText_.SetEnable(true);
+                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                {
+                    creditsStatus_ = CreditsStatus::ARTS;
+                }
+                break;
+            case CreditsStatus::ARTS:
+                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                {
+                    creditsStatus_ = CreditsStatus::AUDIO;
+                }
+                break;
+            case CreditsStatus::AUDIO:
+                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                {
+                    creditsStatus_ = CreditsStatus::TOOLS;
+                }
+                break;
+            case CreditsStatus::TOOLS:
+                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                {
+                    creditsStatus_ = CreditsStatus::EXTRAS;
+                }
+                break;
+            case CreditsStatus::EXTRAS:
+                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                {
+                    creditsStatus_ = CreditsStatus::SPECIAL_THANKS;
+                }
+                break;
+            case CreditsStatus::SPECIAL_THANKS:
+                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                {
+                    creditsStatus_ = CreditsStatus::LEADS;
+                    menuStatus_ = MenuStatus::MENU;
+                }
+                break;
+            }
             if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
             {
+                creditsStatus_ = CreditsStatus::LEADS;
                 menuStatus_ = MenuStatus::MENU;
             }
             break;
         case MenuStatus::SELECTION:
-
 
             for (int i = 0; i < 4; i++)
             {
@@ -232,56 +350,109 @@ void MenuManager::Update(seconds dt)
                 colorGreenUi_[i].SetColor(Color4(Color::green.x, Color::green.y, Color::green.z, 0.5f));
                 colorRedUi_[i].SetColor(Color4(Color::red.x, Color::red.y, Color::red.z, 0.5f));
                 colorYellowUi_[i].SetColor(Color4(Color::yellow.x, Color::yellow.y, Color::yellow.z, 0.5f));
+                selectionBackgroundUI_[i].SetEnable(true);
 
 
                 switch (selectionPointing_[i])
                 {
                 case SelectionPointing::JOIN:
-                    joinUi_[i].SetText("Press A to Join");
-                    joinUi_[i].SetEnable(true);
+                    //joinUi_[i].SetText("Press A to Join");
+                    //joinUi_[i].SetEnable(true);
 
+                    joinText_[i].SetEnable(true);
                     break;
                 case SelectionPointing::SHIP_TYPE:
                     leftArrowUi_[i].SetText("<-");
                     leftArrowUi_[i].SetEnable(true);
                     rightArrowUi_[i].SetText("->");
 
-
-                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+                    switch (shipSkins[i])
                     {
-                        if (shipSkins[i].selectedShip == SelectedShip::ROSSO)
+                    case SelectedModel::ROSSO_1:
+                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
                         {
-                            shipSkins[i].selectedShip = SelectedShip::CORTESE;
+                            shipSkins[i] = SelectedModel::ROSSO_2;
+                            isDpadLeft_[i] = true;
                         }
-                        else
+                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
                         {
-                            shipSkins[i].selectedShip = SelectedShip::ROSSO;
+                            isDpadLeft_[i] = false;
                         }
-                        isDpadLeft_[i] = true;
-                    }
-                    else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
-                    {
-                        isDpadLeft_[i] = false;
-                    }
-
-                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
-                    {
-                        if (shipSkins[i].selectedShip == SelectedShip::ROSSO)
+                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
                         {
-                            shipSkins[i].selectedShip = SelectedShip::CORTESE;
+                            shipSkins[i] = SelectedModel::ROSSO_4;
+                            isDpadRight_[i] = true;
                         }
-                        else
+                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
                         {
-                            shipSkins[i].selectedShip = SelectedShip::ROSSO;
+                            isDpadRight_[i] = false;
                         }
-                        isDpadRight_[i] = true;
+                        rosso1UI_[i].SetEnable(true);
+                        break;
+                    case SelectedModel::ROSSO_2:
+                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+                        {
+                            shipSkins[i] = SelectedModel::ROSSO_3;
+                            isDpadLeft_[i] = true;
+                        }
+                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+                        {
+                            isDpadLeft_[i] = false;
+                        }
+                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+                        {
+                            shipSkins[i] = SelectedModel::ROSSO_1;
+                            isDpadRight_[i] = true;
+                        }
+                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+                        {
+                            isDpadRight_[i] = false;
+                        }
+                        rosso2UI_[i].SetEnable(true);
+                        break;
+                    case SelectedModel::ROSSO_3:
+                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+                        {
+                            shipSkins[i] = SelectedModel::ROSSO_4;
+                            isDpadLeft_[i] = true;
+                        }
+                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+                        {
+                            isDpadLeft_[i] = false;
+                        }
+                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+                        {
+                            shipSkins[i] = SelectedModel::ROSSO_2;
+                            isDpadRight_[i] = true;
+                        }
+                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+                        {
+                            isDpadRight_[i] = false;
+                        }
+                        rosso3UI_[i].SetEnable(true);
+                        break;
+                    case SelectedModel::ROSSO_4:
+                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+                        {
+                            shipSkins[i] = SelectedModel::ROSSO_1;
+                            isDpadLeft_[i] = true;
+                        }
+                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+                        {
+                            isDpadLeft_[i] = false;
+                        }
+                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+                        {
+                            shipSkins[i] = SelectedModel::ROSSO_3;
+                            isDpadRight_[i] = true;
+                        }
+                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+                        {
+                            isDpadRight_[i] = false;
+                        }
+                        rosso4UI_[i].SetEnable(true);
+                        break;
                     }
-                    else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
-                    {
-                        isDpadRight_[i] = false;
-                    }
-
-
 
                     rightArrowUi_[i].SetEnable(true);
                     if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN && i == 0)
@@ -294,111 +465,19 @@ void MenuManager::Update(seconds dt)
                     }
                     if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                     {
-                        selectionPointing_[i] = SelectionPointing::SHIP_COLOR;
-                    }
-                    break;
-                case SelectionPointing::SHIP_COLOR:
-
-
-                    // Color4 colorBlue = Color::blue;
-                    // Color4 colorGreen = Color::green;
-                    // Color4 colorRed = Color::red;
-                    // Color4 colorYellow = Color::yellow;
-                    // colorBlue = Color4(colorBlue.x * 0.5f, colorBlue.y * 0.5f, colorBlue.z * 0.5f, 1.0);
-                    // colorGreen = Color4(colorGreen.x * 0.5f, colorGreen.y * 0.5f, colorGreen.z * 0.5f, 1.0);
-                    // colorRed = Color4(colorRed.x * 0.5f, colorRed.y * 0.5f, colorRed.z * 0.5f, 1.0);
-                    // colorYellow = Color4(colorYellow.x * 0.5f, colorYellow.y * 0.5f, colorYellow.z * 0.5f, 1.0);
-
-
-                    colorBlueUi_[i].SetColor(Color4(Color::blue.x, Color::blue.y, Color::blue.z, 0.5f));
-                    colorGreenUi_[i].SetColor(Color4(Color::green.x, Color::green.y, Color::green.z, 0.5f));
-                    colorRedUi_[i].SetColor(Color4(Color::red.x, Color::red.y, Color::red.z, 0.5f));
-                    colorYellowUi_[i].SetColor(Color4(Color::yellow.x, Color::yellow.y, Color::yellow.z, 0.5f));
-
-                    switch (shipSkins[i].selectedShipColor)
-                    {
-                    case SelectedShipColor::BLUE:
-                        colorBlueUi_[i].SetColor(Color::blue);
-                        break;
-                    case SelectedShipColor::GREEN:
-                        colorGreenUi_[i].SetColor(Color::green);
-                        break;
-                    case SelectedShipColor::RED:
-                        colorRedUi_[i].SetColor(Color::red);
-                        break;
-                    case SelectedShipColor::YELLOW:
-                        colorYellowUi_[i].SetColor(Color::yellow);
-                        break;
-                    }
-
-                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
-                    {
-                        isDpadLeft_[i] = true;
-                        switch (shipSkins[i].selectedShipColor)
-                        {
-                        case SelectedShipColor::BLUE:
-                            shipSkins[i].selectedShipColor = SelectedShipColor::YELLOW;
-                            break;
-                        case SelectedShipColor::GREEN:
-                            shipSkins[i].selectedShipColor = SelectedShipColor::BLUE;
-                            break;
-                        case SelectedShipColor::RED:
-                            shipSkins[i].selectedShipColor = SelectedShipColor::GREEN;
-                            break;
-                        case SelectedShipColor::YELLOW:
-                            shipSkins[i].selectedShipColor = SelectedShipColor::RED;
-                            break;
-                        }
-                    }
-                    else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
-                    {
-                        isDpadLeft_[i] = false;
-                    }
-
-                    if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
-                    {
-                        isDpadRight_[i] = true;
-                        switch (shipSkins[i].selectedShipColor)
-                        {
-                        case SelectedShipColor::BLUE:
-                            shipSkins[i].selectedShipColor = SelectedShipColor::GREEN;
-                            break;
-                        case SelectedShipColor::GREEN:
-                            shipSkins[i].selectedShipColor = SelectedShipColor::RED;
-                            break;
-                        case SelectedShipColor::RED:
-                            shipSkins[i].selectedShipColor = SelectedShipColor::YELLOW;
-                            break;
-                        case SelectedShipColor::YELLOW:
-                            shipSkins[i].selectedShipColor = SelectedShipColor::BLUE;
-                            break;
-                        }
-                    }
-                    else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
-                    {
-                        isDpadRight_[i] = false;
-                    }
-
-
-
-                    colorBlueUi_[i].SetColor(Color::blue);
-                    colorBlueUi_[i].SetEnable(true);
-
-                    if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
-                    {
-                        selectionPointing_[i] = SelectionPointing::SHIP_TYPE;
-                    }
-                    if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
-                    {
                         selectionPointing_[i] = SelectionPointing::READY;
                     }
                     break;
                 case SelectionPointing::READY:
-                    readyUi_[i].SetText("Ready");
-                    readyUi_[i].SetEnable(true);
+                    //readyUi_[i].SetText("Ready");
+                    //readyUi_[i].SetEnable(true);
+
+                    readyBackground_[i].SetEnable(true);
+                    readyText_[i].SetEnable(true);
+
                     if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
                     {
-                        selectionPointing_[i] = SelectionPointing::SHIP_COLOR;
+                        selectionPointing_[i] = SelectionPointing::SHIP_TYPE;
                     }
                     if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN && i == 0)
                     {
@@ -421,7 +500,7 @@ void MenuManager::Update(seconds dt)
                                 }
                             }
                             menuBackGroundUI.SetEnable(false);
-                            engine_.GetComponentManagerContainer().gameManager.StartGameManager(playerCount);
+                            engine_.GetComponentManagerContainer().gameManager.StartGameManager(playerCount, shipSkins);
                             menuStatus_ = MenuStatus::SLEEP;
                         }
                     }
@@ -469,11 +548,6 @@ void MenuManager::PressHighscoreButton()
 {
     
 }
-
-// void MenuManager::PlayerSelection(PlayerId playerId)
-// {
-//     
-// }
 
 void MenuManager::PlayerJoin()
 {

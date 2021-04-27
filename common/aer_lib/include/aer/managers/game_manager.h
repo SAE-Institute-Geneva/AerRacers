@@ -30,10 +30,12 @@
 #include <engine/entity.h>
 #include <mathematics/vector.h>
 #include <aer/ui/ui_manager.h>
+//#include <aer/ui/ui_manager.h>
 namespace neko::aer
 {
     class AerEngine;
     struct PlayerPositionData;
+    enum class SelectedModel;
     
 
     enum GameState
@@ -55,9 +57,12 @@ struct VictoryData
         GameManager(AerEngine& engine);
         void Init() override;
         void StartGameManager(int currentPlayerCount);
+        void StartGameManager(int currentPlayerCount, std::array<neko::aer::SelectedModel, 4> selected_models);
         void Update(seconds dt) override;
+        void UpdateTime(seconds dt);
         void Render() override;
         void SpawnPlayers();
+        void SpawnPlayers(std::array<SelectedModel, 4> selected_models);
         void StartWPManager();
         void StartCountDown();
         void WaitForStart();
@@ -74,6 +79,8 @@ struct VictoryData
         void UpdateLapsUiText();
         void UpdatePlacementUiText();
         void CheckIfEveryoneHasFinished();
+
+        void GoBackToMenu();
 
         void Destroy() override;
     private:
@@ -103,11 +110,39 @@ struct VictoryData
         };
         std::array<std::string, 4> positionsText{ "st", "nd", "rd", "th" };
         std::vector<VictoryData> victoryDatas;
+
+
+        std::string placement1stPath_ = "sprites/ui/centered/1st.png";
+        std::string placement2ndPath_ = "sprites/ui/centered/2nd.png";
+        std::string placement3rdPath_ = "sprites/ui/centered/3rd.png";
+        std::string placement4thPath_ = "sprites/ui/centered/4th.png";
+        std::string lap1Path_ = "sprites/ui/centered/1outof3laps.png";
+        std::string lap2Path_ = "sprites/ui/centered/2outof3laps.png";
+        std::string lap3Path_ = "sprites/ui/centered/3outof3laps.png";
+        std::string lapsBackgroundPath_ = "sprites/ui/centered/lap_nuages.png";
+        std::string timeBackgroundPath_ = "sprites/ui/centered/timebag_background.png";
+
+
+        
+        std::array<UiImage, 4> placement1stInGameUI_;
+        std::array<UiImage, 4> placement2ndInGameUI_;
+        std::array<UiImage, 4> placement3rdInGameUI_;
+        std::array<UiImage, 4> placement4thInGameUI_;
+        std::array<UiImage, 4> lap1InGameUI_;
+        std::array<UiImage, 4> lap2InGameUI_;
+        std::array<UiImage, 4> lap3InGameUI_;
+        std::array<UiImage, 4> lapsBackgroundInGameUI_;
+        std::array<UiImage, 4> timeBackgroundGameUI_;
+
         UiText globalText;
+
 
         const float startTimer = 10.0f;
         const float endTimer = 10.0f;
         const int wpToFinish = 30;
+        const float placementSizeMultiplier = 0.5f;
+        const float lapsSizeMultiplier = 0.5f;
+        const float timeBackgroundMultiplier_ = 0.75f;
         int playerCount = 4;
         const float uiPositionMultiplier = 0.25f;
 
@@ -122,5 +157,8 @@ struct VictoryData
             Vec3f(-1148.0f, 185.0f, -788.0f),
             Vec3f(-1168.0f, 185.0f, -788.0f)
         };
+
+        //TODO: Sound MoveInMenu
+        //TODO: Sound Validation
     };
 }
