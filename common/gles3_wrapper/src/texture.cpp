@@ -262,42 +262,44 @@ TextureName CreateTextureFromKTX(const std::string_view filename, const Filesyst
 
 TextureName LoadCubemap(std::vector<std::string> facesFilename, const FilesystemInterface& filesystem)
 {
-    TextureName textureID;
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+	TextureName textureID;
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
+	for (unsigned int i = 0; i < facesFilename.size(); i++)
+	{
+		BufferFile textureFile = filesystem.LoadFile(facesFilename[i]);
+		Image image = StbImageConvert(textureFile);
+		textureFile.Destroy();
+		if (image.data != nullptr)
+		{
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+				0,
+				image.nbChannels == 3 ? GL_RGB : GL_RGBA,
+				image.width,
+				image.height,
+				0,
+				image.nbChannels == 3 ? GL_RGB : GL_RGBA,
+				GL_UNSIGNED_BYTE,
+				image.data);
+		}
+		else
+		{
+			logDebug(
+				fmt::format("[Error] Cubemap tex failed to load at path: {}", facesFilename[i]));
+		}
 
-    for (unsigned int i = 0; i < facesFilename.size(); i++)
-    {
-        BufferFile textureFile = filesystem.LoadFile(facesFilename[i]);
-        const auto extension = GetFilenameExtension(facesFilename[i]);
-        int reqComponents = 0;
-        if (extension == ".jpg" || extension == ".tga" || extension == ".hdr")
-            reqComponents = 3;
-        else if (extension == ".png")
-            reqComponents = 4;
-        Image image = StbImageConvert(textureFile);
-        textureFile.Destroy();
-        if (image.data != nullptr)
-        {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                         0, GL_RGB, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image.data
-            );
-        }
-        else
-        {
-            logDebug(fmt::format("[Error] Cubemap tex failed to load at path: {}", facesFilename[i]));
-        }
-        image.Destroy();
-    }
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		image.Destroy();
+	}
 
-    glCheckError();
-    return textureID;
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	glCheckError();
+	return textureID;
 }
 
 void DestroyTexture(TextureName textureName)
