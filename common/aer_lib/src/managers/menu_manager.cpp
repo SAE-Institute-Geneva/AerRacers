@@ -273,7 +273,7 @@ void MenuManager::Update(seconds dt)
                                     playerCount++;
                                 }
                             }
-                            engine_.GetComponentManagerContainer().gameManager.StartGameManager(playerCount);
+                            engine_.GetComponentManagerContainer().gameManager.StartGameManager(2);
                             menuStatus_ = MenuStatus::SLEEP;
                         }
                     }

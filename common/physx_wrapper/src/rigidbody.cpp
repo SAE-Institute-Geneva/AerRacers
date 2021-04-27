@@ -899,9 +899,15 @@ void RigidStaticManager::FixedUpdate(seconds dt)
 #endif
 		{
 			RigidStaticData rigidStatic;
-			rigidStatic.colliderType             = ColliderType::MESH;
+			rigidStatic.colliderType = ColliderType::MESH;
 			rigidStatic.meshColliderData.modelId = toCreate.second;
-			rigidStatic.meshColliderData.size    = 100.0f;
+			rigidStatic.meshColliderData.size = 100.0f;
+			std::string layer = aer::TagLocator::get().GetEntityLayer(toCreate.first);
+			if (layer == "Ground") rigidStatic.filterGroup = FilterGroup::GROUND;
+			else if (layer == "Ship") rigidStatic.filterGroup = FilterGroup::SHIP;
+			else if (layer == "Wall") rigidStatic.filterGroup = FilterGroup::WALL;
+			else
+				rigidStatic.filterGroup = FilterGroup::DEFAULT;
 			AddRigidStatic(toCreate.first, rigidStatic);
 			meshColliderToCreate_.erase(toCreate.first);
 			if (meshColliderToCreate_.empty()) return;
