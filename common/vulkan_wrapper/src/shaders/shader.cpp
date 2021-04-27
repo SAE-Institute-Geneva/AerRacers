@@ -122,7 +122,7 @@ std::vector<VkShaderModule> Shader::LoadFromJson(const json& shaderJson)
 	const Configuration& config = BasicEngine::GetInstance()->GetConfig();
 	for (std::size_t i = 0; i < stagePaths_.size(); ++i)
 	{
-		const auto& file = LoadFile(config.dataRootPath + stagePaths_[i]);
+		const auto& file = LoadBinaries(config.dataRootPath + stagePaths_[i]);
 
 		VkShaderModuleCreateInfo createInfo = {};
 		createInfo.sType                    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

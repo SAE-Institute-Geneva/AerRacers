@@ -27,7 +27,6 @@
  Date : 22.11.2020
 ---------------------------------------------------------- */
 #include "aer/managers/render_manager.h"
-#include "engine/transform.h"
 
 #include "px/collider.h"
 #include "px/filter_group.h"

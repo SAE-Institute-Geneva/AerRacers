@@ -79,8 +79,10 @@ void LightManager::SetShaderValues(gl::Shader& shader)
 void LightManager::SetShaderValues()
 {
 	const auto lights = entityManager_.get().FilterEntities(EntityMask(ComponentType::LIGHT));
-	ResizeIfNecessary(components_, lights.back(), {});
-
+	if (!lights.empty())
+	{
+		ResizeIfNecessary(components_, lights.back(), {});
+	}
 	for (const auto& light : lights)
 	{
 		const Vec3f position = transformManager_.GetGlobalPosition(light);
