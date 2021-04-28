@@ -1,5 +1,7 @@
 #include "aer/aer_engine.h"
 
+#include "engine/resource_locations.h"
+
 #ifdef NEKO_VULKAN
 #include "vk/vk_resources.h"
 #endif
@@ -44,6 +46,28 @@ void DrawSystem::Init()
 
 #ifdef NEKO_GLES3
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(0));
+
+	// Create Skybox
+	preRender_ = Job(
+		[this]
+		{
+			skybox_.Init();
+			skyboxShader_.LoadFromFile(
+				GetGlShadersFolderPath() + "skybox.vert", GetGlShadersFolderPath() + "skybox.frag");
+
+			std::vector<std::string> skyboxFacesPaths {
+				GetSpritesFolderPath() + skyboxFolder_ + "px.png",
+				GetSpritesFolderPath() + skyboxFolder_ + "nx.png",
+				GetSpritesFolderPath() + skyboxFolder_ + "py.png",
+				GetSpritesFolderPath() + skyboxFolder_ + "ny.png",
+				GetSpritesFolderPath() + skyboxFolder_ + "pz.png",
+				GetSpritesFolderPath() + skyboxFolder_ + "nz.png",
+			};
+
+			skyboxTexture_ = gl::LoadCubemap(skyboxFacesPaths, engine_.GetFilesystem());
+		});
+
+	RendererLocator::get().AddPreRenderJob(&preRender_);
 #endif
 }
 
@@ -184,6 +208,14 @@ void DrawSystem::RenderScene(const std::size_t playerNum)
 
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(playerNum));
 	gizmosRenderer_->Render();
+
+	glDepthFunc(GL_LEQUAL);
+	glCullFace(GL_FRONT);
+	skyboxShader_.Bind();
+	skyboxShader_.SetCubemap("tex", skyboxTexture_);
+	skybox_.Draw();
+	glCullFace(GL_BACK);
+	glDepthFunc(GL_LESS);
 }
 #endif
 
