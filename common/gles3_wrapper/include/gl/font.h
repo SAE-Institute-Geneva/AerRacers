@@ -33,6 +33,7 @@
 
 namespace neko::gl
 {
+constexpr int NB_CHARACTER = 128;
 struct Character
 {
 	TextureName textureName = 0;    // ID handle of the glyph texture
@@ -43,7 +44,7 @@ struct Character
 
 struct Font
 {
-    std::array<Character, 128> characters;
+    std::array<Character, NB_CHARACTER> characters;
 };
 
 class FontManager : public neko::FontManager

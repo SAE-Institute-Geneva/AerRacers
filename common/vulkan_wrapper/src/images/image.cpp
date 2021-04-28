@@ -22,6 +22,7 @@ Image::Image(const VkFilter filter,
 	 layout_(layout)
 {}
 
+#ifdef NEKO_KTX
 Image::Image(const ktxVulkanTexture& texture)
    : extent_({texture.width, texture.height, texture.depth}),
 	 format_(texture.imageFormat),
@@ -35,6 +36,7 @@ Image::Image(const ktxVulkanTexture& texture)
 	 image_(texture.image),
 	 memory_(texture.deviceMemory)
 {}
+#endif
 
 void Image::Destroy() const
 {
@@ -95,8 +97,7 @@ bool Image::HasStencil(VkFormat format)
 	return it != kStencilFormats.end();
 }
 
-VkImage Image::CreateImage(VkDeviceMemory memory,
-	const VkExtent3D& extent,
+VkImage Image::CreateImage(const VkExtent3D& extent,
 	const VkFormat format,
 	const VkSampleCountFlagBits samples,
 	const VkImageTiling tiling,
@@ -133,10 +134,10 @@ VkImage Image::CreateImage(VkDeviceMemory memory,
 	allocInfo.allocationSize       = memRq.size;
 	allocInfo.memoryTypeIndex      = Buffer::FindMemoryType(memRq.memoryTypeBits, properties);
 
-	res = vkAllocateMemory(device, &allocInfo, nullptr, &memory);
+	res = vkAllocateMemory(device, &allocInfo, nullptr, &memory_);
 	vkCheckError(res, "Could not allocate memory for image!");
 
-	res = vkBindImageMemory(device, image, memory, 0);
+	res = vkBindImageMemory(device, image, memory_, 0);
 	vkCheckError(res, "Could not bind image memory!");
 
 	return image;

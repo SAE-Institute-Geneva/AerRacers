@@ -112,8 +112,8 @@ FontId FontManager::LoadFont(std::string_view fontPath, int pixelHeight)
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	// load first 128 characters of ASCII set
-	std::array<Character, 128> characters;
-	for (unsigned char c = 0; c < 128; c++)
+	std::array<Character, NB_CHARACTER> characters;
+	for (unsigned char c = 0; c < NB_CHARACTER; c++)
 	{
 		// Load character glyph
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER))

@@ -315,9 +315,9 @@
             "transform": {
                 "exist": true,
                 "position": {
-                    "x": 1288.0,
+                    "x": 771.0,
                     "y": 0.0,
-                    "z": -3517.0
+                    "z": -3366.0
                 },
                 "scale": {
                     "x": 1.0,
@@ -419,12 +419,12 @@
             "waypoint": {
                 "exist": true,
                 "position": {
-                    "x": 1288.0,
-                    "y": -3517.0
+                    "x": 771.0,
+                    "y": -3366.0
                 },
                 "normalizedNextVector": {
-                    "x": -0.441254198551178,
-                    "y": -0.8973821401596069
+                    "x": -0.31886911392211916,
+                    "y": -0.9477987885475159
                 },
                 "normalizedNextVector2": {
                     "x": 0.0,
@@ -435,7 +435,7 @@
                 "nextWaypoint2": 0,
                 "previousWaypoint2": 0,
                 "index": 0,
-                "lengthNext": 806.7911376953125,
+                "lengthNext": 1135.2620849609375,
                 "lengthNext2": 0.0,
                 "hasTwoPrevious": false,
                 "hasTwoNext": false
@@ -456,9 +456,9 @@
             "transform": {
                 "exist": true,
                 "position": {
-                    "x": 932.0,
+                    "x": 409.0,
                     "y": 0.0,
-                    "z": -4241.0
+                    "z": -4442.0
                 },
                 "scale": {
                     "x": 1.0,
@@ -560,12 +560,12 @@
             "waypoint": {
                 "exist": true,
                 "position": {
-                    "x": 932.0,
-                    "y": -4241.0
+                    "x": 409.0,
+                    "y": -4442.0
                 },
                 "normalizedNextVector": {
-                    "x": -0.5422273278236389,
-                    "y": -0.8402318954467773
+                    "x": -0.12143503129482269,
+                    "y": -0.992599368095398
                 },
                 "normalizedNextVector2": {
                     "x": 0.0,
@@ -576,7 +576,7 @@
                 "nextWaypoint2": 0,
                 "previousWaypoint2": 0,
                 "index": 1,
-                "lengthNext": 1134.2108154296875,
+                "lengthNext": 757.6067504882813,
                 "lengthNext2": 0.0,
                 "hasTwoPrevious": false,
                 "hasTwoNext": false
@@ -4512,8 +4512,8 @@
                     "y": -2787.0
                 },
                 "normalizedNextVector": {
-                    "x": 0.8016673922538757,
-                    "y": -0.5977703928947449
+                    "x": 0.6237067580223084,
+                    "y": -0.7816584706306458
                 },
                 "normalizedNextVector2": {
                     "x": 0.0,
@@ -4524,7 +4524,7 @@
                 "nextWaypoint2": 0,
                 "previousWaypoint2": 0,
                 "index": 29,
-                "lengthNext": 1221.2047119140625,
+                "lengthNext": 740.7327880859375,
                 "lengthNext2": 0.0,
                 "hasTwoPrevious": false,
                 "hasTwoNext": false

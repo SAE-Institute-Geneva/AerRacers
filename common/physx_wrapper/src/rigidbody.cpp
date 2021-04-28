@@ -1,10 +1,6 @@
 #include <imgui.h>
 
-#include "engine/configuration.h"
-#include "engine/engine.h"
 #include "engine/resource_locations.h"
-
-#include "aer/tag.h"
 
 #include "px/physics_engine.h"
 #include "px/physx_utility.h"
@@ -890,6 +886,7 @@ RigidStaticManager::RigidStaticManager(EntityManager& entityManager,
 void RigidStaticManager::FixedUpdate(seconds dt)
 {
 	if (meshColliderToCreate_.empty()) return;
+	
 	for (auto& toCreate : meshColliderToCreate_)
 	{
 #ifdef NEKO_GLES3
@@ -910,6 +907,7 @@ void RigidStaticManager::FixedUpdate(seconds dt)
 				rigidStatic.filterGroup = FilterGroup::DEFAULT;
 			AddRigidStatic(toCreate.first, rigidStatic);
 			meshColliderToCreate_.erase(toCreate.first);
+			
 			if (meshColliderToCreate_.empty()) return;
 		}
 	}

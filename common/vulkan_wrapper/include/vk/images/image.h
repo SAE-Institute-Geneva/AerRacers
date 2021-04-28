@@ -28,7 +28,9 @@
 #include <array>
 
 #include "vulkan/vulkan.h"
+#ifdef NEKO_KTX
 #include "ktxvulkan.h"
+#endif
 
 #include "graphics/texture.h"
 
@@ -66,7 +68,9 @@ public:
 		std::uint32_t mipLevels,
 		std::uint32_t arrayLayers,
 		const VkExtent3D& extent);
+#ifdef NEKO_KTX
 	explicit Image(const ktxVulkanTexture& texture);
+#endif
 
 	void Destroy() const override;
 
@@ -88,16 +92,15 @@ public:
 	static bool HasStencil(VkFormat format);
 
 protected:
-	static VkImage CreateImage(VkDeviceMemory memory,
-		const VkExtent3D& extent,
-		VkFormat format,
-		VkSampleCountFlagBits samples,
-		VkImageTiling tiling,
-		VkImageUsageFlags usage,
-		VkMemoryPropertyFlags properties,
-		std::uint32_t mipLevels,
-		std::uint32_t arrayLayers,
-		VkImageType type);
+	VkImage CreateImage(const VkExtent3D& extent,
+		const VkFormat format,
+		const VkSampleCountFlagBits samples,
+		const VkImageTiling tiling,
+		const VkImageUsageFlags usage,
+		const VkMemoryPropertyFlags properties,
+		const std::uint32_t mipLevels,
+		const std::uint32_t arrayLayers,
+		const VkImageType type);
 
 	static VkSampler CreateImageSampler(VkFilter filter,
 		VkSamplerAddressMode addressMode,

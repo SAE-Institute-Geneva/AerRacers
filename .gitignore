@@ -74,3 +74,5 @@ web_build/*
 **/PhysX-4.1/**/*.vcxproj.filters
 !**/libGLEW.a
 !**/libGLEWmx.a
+
+.clang-format

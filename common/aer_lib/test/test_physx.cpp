@@ -32,6 +32,7 @@
 #endif
 
 #include "aer/aer_engine.h"
+#include "aer/gizmos_renderer.h"
 
 #ifdef NEKO_GLES3
 #include "gl/gles3_window.h"

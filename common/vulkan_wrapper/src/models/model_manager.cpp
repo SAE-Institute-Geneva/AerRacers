@@ -42,7 +42,7 @@ ModelId ModelManager::LoadModel(std::string_view path)
 	const auto it = modelPathMap_.find(path.data());
 	if (it != modelPathMap_.end())
 	{
-		logDebug(fmt::format("[Debug] Model is already loaded: {}", path));
+		//logDebug(fmt::format("[Debug] Model is already loaded: {}", path));
 		return it->second;
 	}
 

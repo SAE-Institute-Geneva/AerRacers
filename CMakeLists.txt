@@ -56,7 +56,7 @@ set(Neko_Profile OFF CACHE BOOL "Activate Profiling with Easy Profile")
 set(Neko_SDL2 ON CACHE BOOL "Activate SDL2")
 set(Neko_SFML_NET OFF CACHE BOOL "Activate SFML Net Wrapper")
 set(Neko_Test ON CACHE BOOL "Activate Neko Test")
-set(Neko_VULKAN ON CACHE BOOL "Activate Vulkan")
+set(Neko_VULKAN OFF CACHE BOOL "Activate Vulkan")
 
 # Enables google test
 if(Neko_Test OR Aer_Test)

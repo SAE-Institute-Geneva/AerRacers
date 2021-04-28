@@ -270,18 +270,17 @@ TextureName LoadCubemap(
 	for (unsigned int i = 0; i < facesFilename.size(); i++)
 	{
 		BufferFile textureFile = filesystem.LoadFile(facesFilename[i]);
-		const auto extension   = GetFilenameExtension(facesFilename[i]);
 		Image image = StbImageConvert(textureFile);
 		textureFile.Destroy();
 		if (image.data != nullptr)
 		{
 			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
 				0,
-				GL_RGB,
+				image.nbChannels == 3 ? GL_RGB : GL_RGBA,
 				image.width,
 				image.height,
 				0,
-				GL_RGB,
+				image.nbChannels == 3 ? GL_RGB : GL_RGBA,
 				GL_UNSIGNED_BYTE,
 				image.data);
 		}

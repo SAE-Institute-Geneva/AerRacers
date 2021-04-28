@@ -30,16 +30,16 @@ void ModelLoader::Update()
 	{
 		const auto& textureManager = TextureManagerLocator::get();
 		auto& materialManager = MaterialManagerLocator::get();
-		bool isLoaded = false;
+		size_t isLoaded = 0;
 
 		// load textures if possible
 		for (auto& mesh : model_.meshes_)
 		{
 			std::uint8_t loadedTextures = 0;
 			DiffuseMaterial& material = materialManager.GetDiffuseMaterial(mesh.materialId_);
-			if (diffuseId_ != INVALID_TEXTURE_ID)
+			if (material.GetDiffuseId() != INVALID_TEXTURE_ID)
 			{
-				const auto* texturePtr = textureManager.GetTexture(diffuseId_);
+				const auto* texturePtr = textureManager.GetTexture(material.GetDiffuseId());
 				if (texturePtr)
 				{
 					material.SetDiffuse(*texturePtr);
@@ -47,9 +47,9 @@ void ModelLoader::Update()
 				}
 			}
 
-			if (specularId_ != INVALID_TEXTURE_ID)
+			if (material.GetSpecularId() != INVALID_TEXTURE_ID)
 			{
-				const auto* texturePtr = textureManager.GetTexture(specularId_);
+				const auto* texturePtr = textureManager.GetTexture(material.GetSpecularId());
 				if (texturePtr)
 				{
 					material.SetSpecular(*texturePtr);
@@ -57,9 +57,9 @@ void ModelLoader::Update()
 				}
 			}
 
-			if (normalId_ != INVALID_TEXTURE_ID)
+			if (material.GetNormalId() != INVALID_TEXTURE_ID)
 			{
-				const auto* texturePtr = textureManager.GetTexture(normalId_);
+				const auto* texturePtr = textureManager.GetTexture(material.GetNormalId());
 				if (texturePtr)
 				{
 					material.SetNormal(*texturePtr);
@@ -67,10 +67,11 @@ void ModelLoader::Update()
 				}
 			}
 
-			if (loadedTextures == textureMaps_) isLoaded = true;
+			if (loadedTextures == textureMaps_)
+				isLoaded++;
 		}
 
-		if (isLoaded) flags_ |= LOADED;
+		if (isLoaded == model_.meshes_.size()) flags_ |= LOADED;
 	}
 }
 
@@ -196,20 +197,20 @@ void ModelLoader::LoadMaterialTextures(const tinyobj::material_t& mat,
 		materialManager.GetDiffuseMaterial(mesh.materialId_).SetColor(Vec4f(diffuseCol, 1.0f));
 
 		const ResourceHash textureId =
-			textureManager.AddTexture(fmt::format("{}/{}.ktx", directory_, texName));
+			textureManager.AddTexture(fmt::format("{}/{}", directory_, texName));
 		switch (textureType)
 		{
 			case DiffuseMaterial::DIFFUSE:
 				textureMaps_ |= DiffuseMaterial::DIFFUSE;
-				diffuseId_ = textureId;
+				materialManager.GetDiffuseMaterial(mesh.materialId_).SetDiffuseId(textureId);
 				break;
 			case DiffuseMaterial::SPECULAR:
 				textureMaps_ |= DiffuseMaterial::SPECULAR;
-				specularId_ = textureId;
+				materialManager.GetDiffuseMaterial(mesh.materialId_).SetSpecularId(textureId);
 				break;
 			case DiffuseMaterial::NORMAL:
 				textureMaps_ |= DiffuseMaterial::NORMAL;
-				normalId_ = textureId;
+				materialManager.GetDiffuseMaterial(mesh.materialId_).SetNormalId(textureId);
 				break;
 			case DiffuseMaterial::EMISSIVE: break;
 			default: logDebug("Unsupported texture type"); break;

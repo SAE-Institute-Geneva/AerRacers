@@ -64,26 +64,20 @@ public:
         cContainer_.renderManager.AddComponent(testEntity_);
         cContainer_.renderManager.SetModel(
             testEntity_, config.dataRootPath + "models/cube/cube.obj");
-        ilRoso1 = SpawnIlRoso(Vec3f::right * 10.0f * -2);
-        ilRoso2 = SpawnIlRoso(Vec3f::right * 10.0f * -1);
-        ilRoso3 = SpawnIlRoso(Vec3f::right * 10.0f * 0);
-        ilRoso4 = SpawnIlRoso(Vec3f::right * 10.0f * 1);
-        cortese1 = SpawnCortese(Vec3f::right * 10.0f * 2);
-        cortese2 = SpawnCortese(Vec3f::right * 10.0f * 3);
+        ilRoso1 = SpawnIlRoso(Vec3f::right * 10.0f * -2, 0);
+        ilRoso2 = SpawnIlRoso(Vec3f::right * 10.0f * -1, 1);
+        ilRoso3 = SpawnIlRoso(Vec3f::right * 10.0f * 0, 2);
+        ilRoso4 = SpawnIlRoso(Vec3f::right * 10.0f * 1, 3);
+        cortese1 = SpawnCortese(Vec3f::right * 10.0f * 2, 0);
+        cortese2 = SpawnCortese(Vec3f::right * 10.0f * 3, 1);
         engine_.GetCameras().moveSpeed = 1.0f;
         engine_.GetCameras().SetPosition(cameraPosition_, 0);
         testEntity_ = cortese2;
-        ilRoso1Texture = rContainer_.textureManager.LoadTexture(config.dataRootPath + "models/ship/ilroso/textures/corps/blue/retopo_gros_objet_basecolor.png", Texture::DEFAULT);
-        ilRoso2Texture = rContainer_.textureManager.LoadTexture(config.dataRootPath + "models/ship/ilroso/textures/corps/greyred/retopo_gros_objet_basecolor.png", Texture::DEFAULT);
-        ilRoso3Texture = rContainer_.textureManager.LoadTexture(config.dataRootPath + "models/ship/ilroso/textures/corps/redblack/retopo_gros_objet_basecolor.png", Texture::DEFAULT);
-        ilRoso4Texture = rContainer_.textureManager.LoadTexture(config.dataRootPath + "models/ship/ilroso/textures/corps/redwhite/retopo_gros_objet_basecolor.png", Texture::DEFAULT);
-        cortese1Texture = rContainer_.textureManager.LoadTexture(config.dataRootPath + "models/ship/cortese/textures/corps_blue/low_cortese_complet_centre_basecolor.png", Texture::DEFAULT);
-        cortese2Texture = rContainer_.textureManager.LoadTexture(config.dataRootPath + "models/ship/cortese/textures/corps_red/low_cortese_complet_centre_basecolor.png", Texture::DEFAULT);
 
 
     }
 
-    Entity SpawnCortese(Vec3f pos)
+    Entity SpawnCortese(Vec3f pos, int colori)
     {
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         Entity corps = cContainer_.entityManager.CreateEntity();
@@ -91,8 +85,16 @@ public:
         cContainer_.transform3dManager.SetRelativeScale(corps, Vec3f::one * 0.1f);
         cContainer_.transform3dManager.SetRelativePosition(corps, pos);
         cContainer_.renderManager.AddComponent(corps);
-        cContainer_.renderManager.SetModel(
-            corps, config.dataRootPath + "models/ship/cortese/corps/low_cortese_corps_resize.obj");
+        switch(colori) {
+        case 0:
+            cContainer_.renderManager.SetModel(
+                corps, config.dataRootPath + "models/ship/cortese/corps/blue/low_cortese_corps_resize.obj");
+            break;
+        case 1:
+            cContainer_.renderManager.SetModel(
+                corps, config.dataRootPath + "models/ship/cortese/corps/red/low_cortese_corps_resize.obj");
+            break;
+        }
         Entity details = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(details);
         cContainer_.transform3dManager.SetRelativeScale(details, Vec3f::one * 0.1f);
@@ -124,7 +126,7 @@ public:
             helice_g, config.dataRootPath + "models/ship/cortese/helice_g/low_helice_g_origin_resize.obj");
         return corps;
     }
-    Entity SpawnIlRoso(Vec3f pos)
+    Entity SpawnIlRoso(Vec3f pos, int colori)
     {
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
         Entity corps = cContainer_.entityManager.CreateEntity();
@@ -132,8 +134,24 @@ public:
         cContainer_.transform3dManager.SetRelativeScale(corps, Vec3f::one * 0.1f);
         cContainer_.transform3dManager.SetRelativePosition(corps, pos);
         cContainer_.renderManager.AddComponent(corps);
-        cContainer_.renderManager.SetModel(
-            corps, config.dataRootPath + "models/ship/ilroso/corps/objet_central_low.obj");
+        switch (colori) {
+        case 0:
+            cContainer_.renderManager.SetModel(
+                corps, config.dataRootPath + "models/ship/ilroso/corps/blue/objet_central_low.obj");
+            break;
+        case 1:
+            cContainer_.renderManager.SetModel(
+                corps, config.dataRootPath + "models/ship/ilroso/corps/greyred/objet_central_low.obj");
+            break;
+        case 2:
+            cContainer_.renderManager.SetModel(
+                corps, config.dataRootPath + "models/ship/ilroso/corps/redblack/objet_central_low.obj");
+            break;
+        case 3:
+            cContainer_.renderManager.SetModel(
+                corps, config.dataRootPath + "models/ship/ilroso/corps/redwhite/objet_central_low.obj");
+            break;
+        }
         Entity details = cContainer_.entityManager.CreateEntity();
         cContainer_.transform3dManager.AddComponent(details);
         cContainer_.transform3dManager.SetRelativeScale(details, Vec3f::one * 0.1f);
@@ -172,37 +190,13 @@ public:
         EASY_BLOCK("Test Update", profiler::colors::Green);
 #endif
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-        if (rContainer_.textureManager.IsTextureLoaded(ilRoso1Texture)) {
-            TextureName textureName = rContainer_.textureManager.GetTextureName(ilRoso1Texture);
-            cContainer_.renderManager.SetDiffuseTexture(ilRoso1, textureName);
-        }
-        if (rContainer_.textureManager.IsTextureLoaded(ilRoso2Texture)) {
-            TextureName textureName = rContainer_.textureManager.GetTextureName(ilRoso2Texture);
-            cContainer_.renderManager.SetDiffuseTexture(ilRoso2, textureName);
-        }
-        if (rContainer_.textureManager.IsTextureLoaded(ilRoso3Texture)) {
-            TextureName textureName = rContainer_.textureManager.GetTextureName(ilRoso3Texture);
-            cContainer_.renderManager.SetDiffuseTexture(ilRoso3, textureName);
-        }
-        if (rContainer_.textureManager.IsTextureLoaded(ilRoso4Texture)) {
-            TextureName textureName = rContainer_.textureManager.GetTextureName(ilRoso4Texture);
-            cContainer_.renderManager.SetDiffuseTexture(ilRoso4, textureName);
-        }
-        if (rContainer_.textureManager.IsTextureLoaded(cortese1Texture)) {
-            TextureName textureName = rContainer_.textureManager.GetTextureName(cortese1Texture);
-            cContainer_.renderManager.SetDiffuseTexture(cortese1, textureName);
-        }
-        if (rContainer_.textureManager.IsTextureLoaded(cortese2Texture)) {
-            TextureName textureName = rContainer_.textureManager.GetTextureName(cortese2Texture);
-            cContainer_.renderManager.SetDiffuseTexture(cortese2, textureName);
-        }
 
         const auto modelId = cContainer_.renderManager.GetComponent(testEntity_).modelId;
         updateCount_ += dt.count();
         if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
         {
             loaded_ = rContainer_.modelManager.IsLoaded(modelId);
-            engine_.Stop();
+            //engine_.Stop();
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
     }
@@ -810,5 +804,105 @@ TEST(Arts, Stb)
 
 }
 #pragma endregion 
-#endif
 }    // namespace neko::aer
+#elif NEKO_VULKAN
+#include "vk/graphics.h"
+#include "vk/renderers/renderer_editor.h"
+namespace neko::aer
+{
+#pragma region LevelDesign
+class LevelDesignViewer : public SystemInterface,
+    public DrawImGuiInterface
+{
+public:
+    explicit LevelDesignViewer(AerEngine& engine)
+        : engine_(engine)
+    {}
+
+    void Init() override
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Init", profiler::colors::Green);
+#endif
+        const Configuration config = BasicEngine::GetInstance()->GetConfig();
+        engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+            config.dataRootPath + "scenes/LevelDesign05-04.aerscene");
+        //Camera3D* camera = GizmosLocator::get().GetCamera();
+        //camera->position = Vec3f(10.0f, 5.0f, 0.0f);
+        //camera->Rotate(EulerAngles(degree_t(0.0f), degree_t(-90.0f), degree_t(0.0f)));
+    }
+
+    void Update(seconds dt) override
+    {
+#ifdef EASY_PROFILE_USE
+        EASY_BLOCK("Test Update", profiler::colors::Green);
+#endif
+        updateCount_ += dt.count();
+        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+    }
+
+    void Destroy() override {}
+
+    void HasSucceed() {}
+
+    void DrawImGui() override
+    {
+        ImGui::Begin("Test parameter");
+        {
+            float speed = engine_.GetCameras().moveSpeed;
+            if (ImGui::DragFloat("CameraSpeed", &speed)) {
+                engine_.GetCameras().moveSpeed = speed;
+            }
+        }
+        ImGui::End();
+    }
+
+private:
+    float updateCount_ = 0;
+    const float kEngineDuration_ = 2.0f;
+
+    AerEngine& engine_;
+};
+TEST(Arts, TestLevelDesignSceneViewer)
+{
+    //Travis Fix because Windows can't open a window
+    char* env = getenv("TRAVIS_DEACTIVATE_GUI");
+    if (env != nullptr)
+    {
+        std::cout << "Test skip for travis windows" << std::endl;
+        return;
+    }
+
+    Configuration config;
+    config.windowName = "AerEditor";
+    config.windowSize = Vec2u(1400, 900);
+
+    neko::Filesystem filesystem;
+    neko::aer::AerEngine engine(filesystem, &config, neko::aer::ModeEnum::EDITOR);
+#ifdef NEKO_GLES3
+    neko::sdl::Gles3Window window;
+    neko::gl::Gles3Renderer renderer;
+#elif NEKO_VULKAN
+    neko::sdl::VulkanWindow window;
+    neko::vk::VkRenderer renderer(&window);
+    renderer.SetRenderer(std::make_unique<neko::vk::RendererEditor>());
+#endif
+
+    engine.SetWindowAndRenderer(&window, &renderer);
+    LevelDesignViewer testSceneImporteur(engine);
+    engine.RegisterSystem(testSceneImporteur);
+    engine.RegisterOnDrawUi(testSceneImporteur);
+
+    engine.Init();
+
+    engine.EngineLoop();
+#ifdef EASY_PROFILE_USE
+    profiler::dumpBlocksToFile("Scene_Neko_Profile.prof");
+#endif
+
+    //testSceneImporteur.HasSucceed();
+    logDebug("Test without check");
+}
+#pragma endregion
+}    // namespace neko::aer
+#endif
