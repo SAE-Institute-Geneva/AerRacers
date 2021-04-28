@@ -80,7 +80,7 @@ struct VictoryData
         void UpdatePlacementUiText();
         void CheckIfEveryoneHasFinished();
 
-        //void GoBackToMenu();
+        void GoBackToMenu();
 
         void Destroy() override;
     private:

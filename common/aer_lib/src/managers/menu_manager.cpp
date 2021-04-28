@@ -17,6 +17,7 @@ void MenuManager::Init()
     optionsTextUi_ = UiText(FontLoaded::ROBOTO, "Options", Vec2i(Vec2f(0.0f, 0.75f) * Vec2f(config.windowSize)), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
     highscoreTextUi_ = UiText(FontLoaded::ROBOTO, "Credits", Vec2i(Vec2f(0.0f, 0.5f) * Vec2f(config.windowSize)), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
     menuBackGroundUI = UiImage(config.dataRootPath + "sprites/ui/background.png", Vec2i(Vec2f().zero), Vec2u(1920, 1080), UiAnchor::CENTER, 0, Color::white);
+    menuBackGroundUI.SetEnable(false);
     menuStatus_ = MenuStatus::SLEEP;
     creditsStatus_ = CreditsStatus::LEADS;
 
@@ -127,7 +128,17 @@ void MenuManager::Update(seconds dt)
     {
         if (!hasStartedSceneLoading)
         {
-            // hasStartedSceneLoading = true;
+            const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+            engine_.GetResourceManagerContainer().modelManager.LoadModel(config.dataRootPath + "models/terrain_collider_v3/terrain_collider_v3.obj");
+            engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+                config.dataRootPath + "scenes/LevelDesign05-04WP.aerscene");
+            Camera3D* camera = GizmosLocator::get().GetCamera();
+            camera->fovY = degree_t(80.0f);
+            camera->nearPlane = 0.1f;
+            camera->farPlane = 1'000'000.0f;
+            engine_.GetCameras().SetCameras(*camera);
+            hasStartedSceneLoading = true;
+
             // const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
             // engine_.GetComponentManagerContainer().sceneManager.LoadScene(
             //     config.dataRootPath + "scenes/LevelDesign05-04WP.aerscene");
@@ -536,6 +547,7 @@ void MenuManager::StartMenu()
 {
     menuStatus_ = MenuStatus::MENU;
     mainMenuPointing_ = MainMenuPointing::START;
+    menuBackGroundUI.SetEnable(true);
 
     useMenu = true;
 }
