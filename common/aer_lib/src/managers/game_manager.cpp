@@ -347,6 +347,9 @@ namespace neko::aer
     {
         for (int i = 0; i < playerCount; i++)
         {
+            lap1InGameUI_[i].SetEnable(false);
+            lap2InGameUI_[i].SetEnable(false);
+            lap3InGameUI_[i].SetEnable(false);
             if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpToFinish)
             {
                 
@@ -373,6 +376,10 @@ namespace neko::aer
     {
         for (int i = 0; i < playerCount; i++)
         {
+            placement1stInGameUI_[i].SetEnable(false);
+            placement2ndInGameUI_[i].SetEnable(false);
+            placement3rdInGameUI_[i].SetEnable(false);
+            placement4thInGameUI_[i].SetEnable(false);
             switch (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->racePlacement[i])
             {
             case 1:

@@ -101,7 +101,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipArtDetailEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipArtDetailEntity, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipArtDetailEntity,
-                euler);
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
             cContainer_.renderManager.AddComponent(shipArtDetailEntity);
             cContainer_.renderManager.SetModel(shipArtDetailEntity,
                 config.dataRootPath +
@@ -122,7 +122,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipRightRotorModel, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipRightRotorModel, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipRightRotorModel,
-                euler);
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
             cContainer_.renderManager.AddComponent(shipRightRotorModel);
             cContainer_.renderManager.SetModel(shipRightRotorModel,
                 config.dataRootPath +
@@ -182,7 +182,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipArtDetailEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipArtDetailEntity, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipArtDetailEntity,
-                euler);
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
             cContainer_.renderManager.AddComponent(shipArtDetailEntity);
             cContainer_.renderManager.SetModel(shipArtDetailEntity,
                 config.dataRootPath +
@@ -203,7 +203,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipRightRotorModel, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipRightRotorModel, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipRightRotorModel,
-                euler);
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
             cContainer_.renderManager.AddComponent(shipRightRotorModel);
             cContainer_.renderManager.SetModel(shipRightRotorModel,
                 config.dataRootPath +
@@ -224,7 +224,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorModel, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorModel, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipLeftRotorModel,
-                euler);
+                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
             cContainer_.renderManager.AddComponent(shipLeftRotorModel);
             cContainer_.renderManager.SetModel(shipLeftRotorModel,
                 config.dataRootPath +

@@ -50,8 +50,9 @@ namespace neko::aer
             for (uint8_t i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
             {
                 CalculatePlayerPosition(engine_.GetComponentManagerContainer().playerManager.GetPlayerPosition(i), i);
-                CalculatePlayerPlacement();
+                //LogDebug("WP " + std::to_string(i) + " : " + std::to_string(playerPositionData_.waypoints[i]) + ", " + std::to_string(playerPositionData_.waypointsCount[i]) + ", " + std::to_string(playerPositionData_.positionInWaypoint[i]));
             }
+            CalculatePlayerPlacement();
         }
     }
 
@@ -413,6 +414,8 @@ namespace neko::aer
                     }
                 }
             }
+            //LogDebug("Race "+ std::to_string(i) + " : " + std::to_string(playerPositionData_.racePlacement[i]));
+            
             // if (i > 0)
             // {
             //     for (int j = i-1; j >= 0; j--)

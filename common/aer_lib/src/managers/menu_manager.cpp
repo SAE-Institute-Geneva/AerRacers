@@ -51,10 +51,10 @@ void MenuManager::Init()
         readyUi_[i] = UiText(FontLoaded::ROBOTO, "Ready", Vec2i((Vec2f(0.0f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
 
 
-        selectionBackgroundUI_[i] = UiImage(config.dataRootPath + blueprint1UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), config.windowSize/4, UiAnchor::CENTER, 0, Color::white);
-        readyBackground_[i] = UiImage(config.dataRootPath + ReadyBackgroundUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), config.windowSize/4, UiAnchor::CENTER, 0, Color::white);
-        readyText_[i] = UiImage(config.dataRootPath + ReadyTextUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), config.windowSize / 4, UiAnchor::CENTER, 0, Color::white);
-        joinText_[i] = UiImage(config.dataRootPath + pressStartTextUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), config.windowSize / 4, UiAnchor::CENTER, 0, Color::white);
+        selectionBackgroundUI_[i] = UiImage(config.dataRootPath + blueprint1UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(Vec2f(config.windowSize)*0.5f), UiAnchor::CENTER, 0, Color::white);
+        readyBackground_[i] = UiImage(config.dataRootPath + ReadyBackgroundUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(Vec2f(config.windowSize)*0.5f), UiAnchor::CENTER, 0, Color::white);
+        readyText_[i] = UiImage(config.dataRootPath + ReadyTextUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(Vec2f(config.windowSize)*0.5f), UiAnchor::CENTER, 0, Color::white);
+        joinText_[i] = UiImage(config.dataRootPath + pressStartTextUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(Vec2f(config.windowSize)*0.5f), UiAnchor::CENTER, 0, Color::white);
 
         rosso1UI_[i] = UiImage(config.dataRootPath + Rosso1UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))),Vec2u(1920 * shipModelsUiMultiplier,1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
         rosso2UI_[i] = UiImage(config.dataRootPath + Rosso2UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
