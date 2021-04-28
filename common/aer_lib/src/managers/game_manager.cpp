@@ -21,6 +21,7 @@ namespace neko::aer
     {
         playerCount = currentPlayerCount;
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+        engine_.GetResourceManagerContainer().modelManager.LoadModel(config.dataRootPath + "models/terrain_collider_v3/terrain_collider_v3.obj");
         engine_.GetComponentManagerContainer().sceneManager.LoadScene(
             config.dataRootPath + "scenes/LevelDesign05-04WP.aerscene");
         Camera3D* camera = GizmosLocator::get().GetCamera();
@@ -271,14 +272,14 @@ namespace neko::aer
 
     void GameManager::StartUi()
     {
-        auto& uiManager = UiManagerLocator::get();
         const auto& config = BasicEngine::GetInstance()->GetConfig();
+        auto& uiManager = UiManagerLocator::get();
         for(int i = 0; i < playerCount; i++)
         {
-            middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2f(0.0f, 0.0f), UiAnchor::CENTER, i + 1, 4.0f, Color::white);
-            TimerUi[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2f(1.5f, -1.0f) * uiPositionMultiplier, UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::white);
-            LapsUi[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2f(-1.0f, -1.0f) * uiPositionMultiplier, UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::white);;
-            placementUi[i] = UiText(FontLoaded::LOBSTER, "0th", Vec2f(-1.0f, 1.0f) * uiPositionMultiplier, UiAnchor::BOTTOM_RIGHT, i + 1, 2.0f, Color::white);
+            middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2i(Vec2f(0.0f, 0.0f) * Vec2f(config.windowSize)), UiAnchor::CENTER, i + 1, 4.0f, Color::white);
+            TimerUi[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2i(Vec2f(1.5f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::white);
+            LapsUi[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2i(Vec2f(-1.0f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::white);;
+            placementUi[i] = UiText(FontLoaded::LOBSTER, "0th", Vec2i(Vec2f(-1.0f, 1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::BOTTOM_RIGHT, i + 1, 2.0f, Color::white);
             placement1stInGameUI_[i].SetEnable(false);
             placement2ndInGameUI_[i].SetEnable(false);
             placement3rdInGameUI_[i].SetEnable(false);
@@ -289,15 +290,15 @@ namespace neko::aer
             lapsBackgroundInGameUI_[i].SetEnable(false);
             timeBackgroundGameUI_[i].SetEnable(false);
 
-            placement1stInGameUI_[i] = UiImage(config.dataRootPath + placement1stPath_, Vec2f(-1.0f, 1.0f) * uiPositionMultiplier, Vec2u(516 * placementSizeMultiplier,492 * placementSizeMultiplier), UiAnchor::BOTTOM_RIGHT, i + 1, Color::white);
-            placement2ndInGameUI_[i] = UiImage(config.dataRootPath + placement2ndPath_, Vec2f(-1.0f, 1.0f) * uiPositionMultiplier, Vec2u(672 * placementSizeMultiplier,552 * placementSizeMultiplier), UiAnchor::BOTTOM_RIGHT, i + 1, Color::white);
-            placement3rdInGameUI_[i] = UiImage(config.dataRootPath + placement3rdPath_, Vec2f(-1.0f, 1.0f) * uiPositionMultiplier, Vec2u(642 * placementSizeMultiplier,527 * placementSizeMultiplier), UiAnchor::BOTTOM_RIGHT, i + 1, Color::white);
-            placement4thInGameUI_[i] = UiImage(config.dataRootPath + placement4thPath_, Vec2f(-1.0f, 1.0f) * uiPositionMultiplier, Vec2u(600 * placementSizeMultiplier,528 * placementSizeMultiplier), UiAnchor::BOTTOM_RIGHT, i + 1, Color::white);
-            lap1InGameUI_[i] = UiImage(config.dataRootPath + lap1Path_, Vec2f(-1.0f, -1.0f) * uiPositionMultiplier, Vec2u(426 * lapsSizeMultiplier, 408 * lapsSizeMultiplier), UiAnchor::TOP_RIGHT, i + 1, Color::white);
-            lap2InGameUI_[i] = UiImage(config.dataRootPath + lap2Path_, Vec2f(-1.0f, -1.0f) * uiPositionMultiplier, Vec2u(510 * lapsSizeMultiplier,366 * lapsSizeMultiplier), UiAnchor::TOP_RIGHT, i + 1, Color::white);
-            lap3InGameUI_[i] = UiImage(config.dataRootPath + lap3Path_, Vec2f(-1.0f, -1.0f) * uiPositionMultiplier, Vec2u(444 * lapsSizeMultiplier, 300 * lapsSizeMultiplier), UiAnchor::TOP_RIGHT, i + 1, Color::white);
-            lapsBackgroundInGameUI_[i] = UiImage(config.dataRootPath + lapsBackgroundPath_, Vec2f(-1.0f, -1.0f) * uiPositionMultiplier, Vec2u(816 * lapsSizeMultiplier,324 * lapsSizeMultiplier), UiAnchor::TOP_RIGHT, i + 1, Color::white);
-            timeBackgroundGameUI_[i] = UiImage(config.dataRootPath + timeBackgroundPath_, Vec2f(1.5f, -1.0f) * uiPositionMultiplier, Vec2u(780 * timeBackgroundMultiplier_,240 * timeBackgroundMultiplier_), UiAnchor::TOP_LEFT, i + 1, Color::white);
+            placement1stInGameUI_[i] = UiImage(config.dataRootPath + placement1stPath_, Vec2i(Vec2f(-1.0f, 1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), Vec2u(516 * placementSizeMultiplier,492 * placementSizeMultiplier), UiAnchor::BOTTOM_RIGHT, i + 1, Color::white);
+            placement2ndInGameUI_[i] = UiImage(config.dataRootPath + placement2ndPath_, Vec2i(Vec2f(-1.0f, 1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), Vec2u(672 * placementSizeMultiplier,552 * placementSizeMultiplier), UiAnchor::BOTTOM_RIGHT, i + 1, Color::white);
+            placement3rdInGameUI_[i] = UiImage(config.dataRootPath + placement3rdPath_, Vec2i(Vec2f(-1.0f, 1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), Vec2u(642 * placementSizeMultiplier,527 * placementSizeMultiplier), UiAnchor::BOTTOM_RIGHT, i + 1, Color::white);
+            placement4thInGameUI_[i] = UiImage(config.dataRootPath + placement4thPath_, Vec2i(Vec2f(-1.0f, 1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), Vec2u(600 * placementSizeMultiplier,528 * placementSizeMultiplier), UiAnchor::BOTTOM_RIGHT, i + 1, Color::white);
+            lap1InGameUI_[i] = UiImage(config.dataRootPath + lap1Path_, Vec2i(Vec2f(-1.0f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), Vec2u(426 * lapsSizeMultiplier, 408 * lapsSizeMultiplier), UiAnchor::TOP_RIGHT, i + 1, Color::white);
+            lap2InGameUI_[i] = UiImage(config.dataRootPath + lap2Path_, Vec2i(Vec2f(-1.0f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), Vec2u(510 * lapsSizeMultiplier,366 * lapsSizeMultiplier), UiAnchor::TOP_RIGHT, i + 1, Color::white);
+            lap3InGameUI_[i] = UiImage(config.dataRootPath + lap3Path_, Vec2i(Vec2f(-1.0f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), Vec2u(444 * lapsSizeMultiplier, 300 * lapsSizeMultiplier), UiAnchor::TOP_RIGHT, i + 1, Color::white);
+            lapsBackgroundInGameUI_[i] = UiImage(config.dataRootPath + lapsBackgroundPath_, Vec2i(Vec2f(-1.0f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), Vec2u(816 * lapsSizeMultiplier,324 * lapsSizeMultiplier), UiAnchor::TOP_RIGHT, i + 1, Color::white);
+            timeBackgroundGameUI_[i] = UiImage(config.dataRootPath + timeBackgroundPath_, Vec2i(Vec2f(1.5f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), Vec2u(780 * timeBackgroundMultiplier_,240 * timeBackgroundMultiplier_), UiAnchor::TOP_LEFT, i + 1, Color::white);
 
             placement1stInGameUI_[i].SetEnable(false);
             placement2ndInGameUI_[i].SetEnable(false);
@@ -318,6 +319,12 @@ namespace neko::aer
             uiManager.AddUiImage(&lap2InGameUI_[i]);
             uiManager.AddUiImage(&lap3InGameUI_[i]);
             uiManager.AddUiImage(&timeBackgroundGameUI_[i]);
+
+            // middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2i((Vec2f(0.0f, 0.0f)) * Vec2f(config.windowSize)), UiAnchor::CENTER, i + 1, 4.0f, Color::cyan);
+            // TimerUi[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2i((Vec2f(1.0f, -1.0f) * uiPositionMultiplier) * Vec2f(config.windowSize)), UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::cyan);
+            // LapsUi[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2i((Vec2f(-1.0f, -1.0f) * uiPositionMultiplier) * Vec2f(config.windowSize)), UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::cyan);;
+            // placementUi[i] = UiText(FontLoaded::LOBSTER, "0th", Vec2i((Vec2f(-1.0f, 1.0f) * uiPositionMultiplier) * Vec2f(config.windowSize)), UiAnchor::BOTTOM_RIGHT, i + 1, 2.0f, Color::cyan);;
+
 
             uiManager.AddUiText(&middleTextUi[i]);
             uiManager.AddUiText(&TimerUi[i]);

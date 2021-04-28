@@ -35,11 +35,12 @@ namespace neko::gl
 {
 struct Character
 {
-    TextureName textureID = 0; // ID handle of the glyph texture
-    Vec2i size;      // Size of glyph
-    Vec2i bearing;   // Offset from baseline to left/top of glyph
-    long advance = 0;   // Horizontal offset to advance to next glyph
+	TextureName textureName = 0;    // ID handle of the glyph texture
+	Vec2i size;                     // Size of glyph
+	Vec2i bearing;                  // Offset from baseline to left/top of glyph
+	long advance = 0;               // Horizontal offset to advance to next glyph
 };
+
 struct Font
 {
     std::array<Character, 128> characters;
@@ -48,41 +49,45 @@ struct Font
 class FontManager : public neko::FontManager
 {
 public:
-    explicit FontManager(const FilesystemInterface&);
-    void Init() override;
+	explicit FontManager(const FilesystemInterface&);
+	void Init() override;
 
-    FontId LoadFont(std::string_view fontPath, int pixelHeight) override;
-    void RenderText(FontId fontId,
-        std::string text,
-        const Vec2f& position,
-        TextAnchor anchor,
-        float scale,
-        const Color4& color)override;
-    void Destroy() override;
+	FontId LoadFont(std::string_view fontPath, int pixelHeight) override;
+	void RenderText(FontId fontId,
+		std::string text,
+		Vec2i position,
+		TextAnchor anchor,
+		float scale,
+		const Color4& color) override;
+	void Destroy() override;
 
-    void Render() override;
+	void Render() override;
 
-    void DestroyFont(FontId font) override;
-    void SetWindowSize(const Vec2f& windowSize) override;
+	void DestroyFont(FontId font) override;
+	void SetWindowSize(const Vec2f& windowSize) override;
+
+	[[nodiscard]] Vec2i CalculateTextSize(
+		FontId fontId, std::string_view text, float scale) override;
 
 protected:
-    struct FontRenderingCommand
-    {
-        FontId font;
-        std::string text;
-        Vec2f position;
-        TextAnchor anchor;
-        float scale;
-        Color4 color;
-    };
-    Vec2f CalculateTextPosition(Vec2f position, TextAnchor anchor);
+	struct FontRenderingCommand
+	{
+		FontId font;
+		std::string text;
+		Vec2f position;
+		TextAnchor anchor;
+		float scale;
+		Color4 color;
+	};
 
-    const FilesystemInterface& filesystem_;
-    std::vector<FontRenderingCommand> commands_;
-    gl::Shader textShader_;
-    gl::VertexArrayObject textureQuad_;
-    std::map<FontId, Font> fonts_;
-    Vec2f windowSize_;
-    Mat4f projection_;
+	Vec2f CalculateTextPosition(Vec2f position, TextAnchor anchor);
+
+	const FilesystemInterface& filesystem_;
+	std::vector<FontRenderingCommand> commands_;
+	gl::Shader textShader_;
+	gl::VertexArrayObject textureQuad_;
+	std::map<FontId, Font> fonts_;
+	Vec2f windowSize_;
+	Mat4f projection_;
 };
-}
+}    // namespace neko::gl

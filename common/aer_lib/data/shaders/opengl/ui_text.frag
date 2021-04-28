@@ -1,14 +1,13 @@
 #version 450 core
-precision highp float;
+out vec4 FragColor;
 
 in vec2 TexCoords;
-out vec4 color;
 
-uniform sampler2D text;
-uniform vec4 textColor;
+uniform sampler2D tex;
+uniform vec4 color;
 
 void main()
 {    
-    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);
-    color = textColor * sampled;
+    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(tex, TexCoords).r);
+    FragColor = color * sampled;
 }

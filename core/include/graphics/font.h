@@ -31,37 +31,45 @@
 #include <string_view>
 namespace neko
 {
-
-using FontId = sole::uuid;
+using FontId                 = sole::uuid;
 const FontId INVALID_FONT_ID = sole::uuid();
 
 enum class TextAnchor
 {
-    TOP_LEFT,
-    TOP,
-    TOP_RIGHT,
-    CENTER_LEFT,
-    CENTER,
-    CENTER_RIGHT,
-    BOTTOM_LEFT,
-    BOTTOM,
-    BOTTOM_RIGHT
+	TOP_LEFT,
+	TOP,
+	TOP_RIGHT,
+
+	CENTER_LEFT,
+	CENTER,
+	CENTER_RIGHT,
+
+	BOTTOM_LEFT,
+	BOTTOM,
+	BOTTOM_RIGHT
 };
 
 class FontManager : public RenderCommandInterface
 {
 public:
-  virtual ~FontManager() = default;
-  virtual void Init() = 0;
-  virtual FontId LoadFont(std::string_view fontPath, int pixelHeight) = 0;
-  virtual void RenderText(FontId fontId,
-      std::string text,
-      const Vec2f& position,
-      TextAnchor anchor,
-      float scale,
-      const Color4& color) = 0;
-  virtual void SetWindowSize(const Vec2f& windowSize) = 0;
-  virtual void DestroyFont(FontId font) = 0;
-  virtual void Destroy() = 0;
+	virtual ~FontManager() = default;
+
+	virtual void Init()                                                 = 0;
+	virtual FontId LoadFont(std::string_view fontPath, int pixelHeight) = 0;
+
+	virtual void RenderText(const FontId fontId,
+		const std::string text,
+		const Vec2i position,
+		const TextAnchor anchor,
+		const float scale,
+		const Color4& color) = 0;
+
+	virtual void SetWindowSize(const Vec2f& windowSize) = 0;
+
+	virtual void DestroyFont(FontId font) = 0;
+	virtual void Destroy()                = 0;
+
+	[[nodiscard]] virtual Vec2i CalculateTextSize(
+		FontId fontId, std::string_view text, float scale) = 0;
 };
-}
+}    // namespace neko

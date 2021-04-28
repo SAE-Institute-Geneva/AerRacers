@@ -17,6 +17,7 @@
 #include "aer/managers/waypoint_manager.h"
 #include "aer/managers/game_manager.h"
 #include "aer/managers/menu_manager.h"
+
 #include "aer/scene.h"
 #include "engine/transform.h"
 

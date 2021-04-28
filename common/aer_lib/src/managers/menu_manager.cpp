@@ -13,25 +13,25 @@ void MenuManager::Init()
 {
 
     const auto& config = BasicEngine::GetInstance()->GetConfig();
-    startTextUi_ = UiText(FontLoaded::ROBOTO, "Start", Vec2f(0.0f, 1.0f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
-    optionsTextUi_ = UiText(FontLoaded::ROBOTO, "Options", Vec2f(0.0f, 0.75f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
-    highscoreTextUi_ = UiText(FontLoaded::ROBOTO, "Credits", Vec2f(0.0f, 0.5f), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
-    menuBackGroundUI = UiImage(config.dataRootPath + "sprites/ui/background.png", Vec2f().zero, Vec2u(1920, 1080), UiAnchor::CENTER, 0, Color::white);
+    startTextUi_ = UiText(FontLoaded::ROBOTO, "Start", Vec2i(Vec2f(0.0f, 1.0f) * Vec2f(config.windowSize)), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
+    optionsTextUi_ = UiText(FontLoaded::ROBOTO, "Options", Vec2i(Vec2f(0.0f, 0.75f) * Vec2f(config.windowSize)), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
+    highscoreTextUi_ = UiText(FontLoaded::ROBOTO, "Credits", Vec2i(Vec2f(0.0f, 0.5f) * Vec2f(config.windowSize)), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
+    menuBackGroundUI = UiImage(config.dataRootPath + "sprites/ui/background.png", Vec2i(Vec2f().zero), Vec2u(1920, 1080), UiAnchor::CENTER, 0, Color::white);
     menuStatus_ = MenuStatus::SLEEP;
     creditsStatus_ = CreditsStatus::LEADS;
 
-    creditsSebUiText_ = UiText(FontLoaded::ROBOTO, creditsSebText_, Vec2f(-0.75, 0), UiAnchor::CENTER,0, 2.0f, Color::white);
-    creditsSimonUiText_ = UiText(FontLoaded::ROBOTO, creditsSimonText_, Vec2f(-0.75, 0), UiAnchor::CENTER, 0, 2.0f, Color::white);;
-    creditsStephenUiText_ = UiText(FontLoaded::ROBOTO, creditsStephenText_, Vec2f(-0.75, 0), UiAnchor::CENTER, 0, 2.0f, Color::white);;
-    creditsLucaUiText_ = UiText(FontLoaded::ROBOTO, creditsLucaText_, Vec2f(-0.75, 0), UiAnchor::CENTER, 0, 2.0f, Color::white);;
+    creditsSebUiText_ = UiText(FontLoaded::ROBOTO, creditsSebText_, Vec2i(Vec2f(-0.75, 0) * Vec2f(config.windowSize)), UiAnchor::CENTER,0, 2.0f, Color::white);
+    creditsSimonUiText_ = UiText(FontLoaded::ROBOTO, creditsSimonText_, Vec2i(Vec2f(-0.75, 0) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);;
+    creditsStephenUiText_ = UiText(FontLoaded::ROBOTO, creditsStephenText_, Vec2i(Vec2f(-0.75, 0) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);;
+    creditsLucaUiText_ = UiText(FontLoaded::ROBOTO, creditsLucaText_, Vec2i(Vec2f(-0.75, 0) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);;
 
     useMenu = false;
 
     for (int i = 0; i < 4; i++)
     {
-        joinUi_[i] = UiText(FontLoaded::ROBOTO, "Join", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
-        leftArrowUi_[i] = UiText(FontLoaded::ROBOTO, "<-", Vec2f(-0.2f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
-        rightArrowUi_[i] = UiText(FontLoaded::ROBOTO, "->", Vec2f(+0.2f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
+        joinUi_[i] = UiText(FontLoaded::ROBOTO, "Join", Vec2i((Vec2f(0.0f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
+        leftArrowUi_[i] = UiText(FontLoaded::ROBOTO, "<-", Vec2i((Vec2f(-0.2f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
+        rightArrowUi_[i] = UiText(FontLoaded::ROBOTO, "->", Vec2i((Vec2f(+0.2f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
         // selectedShipUi_[i] = ;
         // selectedColorUi_[i] = ;
         Color4 colorBlue = Color::blue;
@@ -43,22 +43,22 @@ void MenuManager::Init()
         colorRed = Color4(colorRed.x * 0.5f, colorRed.y * 0.5f, colorRed.z * 0.5f, 1.0);
         colorYellow = Color4(colorYellow.x * 0.5f, colorYellow.y * 0.5f, colorYellow.z * 0.5f, 1.0);
 
-        colorBlueUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(-0.15f, -0.5f) + playerScreenOffsets[i], Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorBlue);
-        colorGreenUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(-0.05f, -0.5f) + playerScreenOffsets[i], Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorGreen);
-        colorRedUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.05f, -0.5f) + playerScreenOffsets[i], Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorRed);
-        colorYellowUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2f(0.15f, -0.5f) + playerScreenOffsets[i], Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorYellow);
-        readyUi_[i] = UiText(FontLoaded::ROBOTO, "Ready", Vec2f(0.0f, 0.0f) + playerScreenOffsets[i], UiAnchor::CENTER, 0, 2.0f, Color::white);
+        colorBlueUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2i((Vec2f(-0.15f, -0.5f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorBlue);
+        colorGreenUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2i((Vec2f(-0.05f, -0.5f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorGreen);
+        colorRedUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2i((Vec2f(0.05f, -0.5f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorRed);
+        colorYellowUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2i((Vec2f(0.15f, -0.5f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorYellow);
+        readyUi_[i] = UiText(FontLoaded::ROBOTO, "Ready", Vec2i((Vec2f(0.0f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
 
 
-        selectionBackgroundUI_[i] = UiImage(config.dataRootPath + blueprint1UIPath_, playerScreenOffsets[i], Vec2u(990, 590), UiAnchor::CENTER, 0, Color::white);
-        readyBackground_[i] = UiImage(config.dataRootPath + ReadyBackgroundUIPath_, playerScreenOffsets[i], Vec2u(501,192), UiAnchor::CENTER, 0, Color::white);
-        readyText_[i] = UiImage(config.dataRootPath + ReadyTextUIPath_, playerScreenOffsets[i], Vec2u(323, 153), UiAnchor::CENTER, 0, Color::white);
-        joinText_[i] = UiImage(config.dataRootPath + pressStartTextUIPath_, playerScreenOffsets[i], Vec2u(618, 342), UiAnchor::CENTER, 0, Color::white);
+        selectionBackgroundUI_[i] = UiImage(config.dataRootPath + blueprint1UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(990, 590), UiAnchor::CENTER, 0, Color::white);
+        readyBackground_[i] = UiImage(config.dataRootPath + ReadyBackgroundUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(501,192), UiAnchor::CENTER, 0, Color::white);
+        readyText_[i] = UiImage(config.dataRootPath + ReadyTextUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(323, 153), UiAnchor::CENTER, 0, Color::white);
+        joinText_[i] = UiImage(config.dataRootPath + pressStartTextUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(618, 342), UiAnchor::CENTER, 0, Color::white);
 
-        rosso1UI_[i] = UiImage(config.dataRootPath + Rosso1UIPath_, playerScreenOffsets[i],Vec2u(1920 * shipModelsUiMultiplier,1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
-        rosso2UI_[i] = UiImage(config.dataRootPath + Rosso2UIPath_, playerScreenOffsets[i], Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
-        rosso3UI_[i] = UiImage(config.dataRootPath + Rosso3UIPath_, playerScreenOffsets[i], Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
-        rosso4UI_[i] = UiImage(config.dataRootPath + Rosso4UIPath_, playerScreenOffsets[i], Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
+        rosso1UI_[i] = UiImage(config.dataRootPath + Rosso1UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))),Vec2u(1920 * shipModelsUiMultiplier,1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
+        rosso2UI_[i] = UiImage(config.dataRootPath + Rosso2UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
+        rosso3UI_[i] = UiImage(config.dataRootPath + Rosso3UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
+        rosso4UI_[i] = UiImage(config.dataRootPath + Rosso4UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
         shipSkins[i] = SelectedModel::ROSSO_1;
         //arrowsUi_[i] = UiImage(config.dataRootPath);
     }
@@ -506,6 +506,7 @@ void MenuManager::Update(seconds dt)
                             }
                             menuBackGroundUI.SetEnable(false);
                             engine_.GetComponentManagerContainer().gameManager.StartGameManager(playerCount, shipSkins);
+                            //engine_.GetComponentManagerContainer().gameManager.StartGameManager(2);
                             menuStatus_ = MenuStatus::SLEEP;
                         }
                     }
