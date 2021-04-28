@@ -99,8 +99,8 @@ struct VictoryData
         };
 
         std::array<UiText, 4> middleTextUi;
-        std::array<UiText, 4> TimerUi;
-        std::array<UiText, 4> LapsUi;
+        std::array<UiText, 4> timerUi_;
+        std::array<UiText, 4> lapsUi_;
         std::array<UiText, 4> placementUi;
         std::array<UiText, 4> endGameText {
             UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 1, 1, Color::cyan),
@@ -140,9 +140,9 @@ struct VictoryData
         const float startTimer = 10.0f;
         const float endTimer = 10.0f;
         const int wpToFinish = 30;
-        const float placementSizeMultiplier = 0.5f;
-        const float lapsSizeMultiplier = 0.5f;
-        const float timeBackgroundMultiplier_ = 0.75f;
+        const float placementSizeMultiplier = 0.3f;
+        const float lapsSizeMultiplier = 0.3f;
+        const float timeBackgroundMultiplier_ = 0.5f;
         int playerCount = 4;
         const float uiPositionMultiplier = 0.25f;
 

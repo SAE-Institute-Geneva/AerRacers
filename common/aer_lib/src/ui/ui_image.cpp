@@ -14,7 +14,7 @@ UiImage::UiImage(std::string_view texturePath,
 #ifdef NEKO_GLES3
 void UiImage::Init(gl::TextureManager& textureManager)
 {
-	textureId_ = textureManager.LoadTexture(texturePath_, Texture::TextureFlags(Texture::DEFAULT | Texture::FLIP_Y));
+	textureId_ = textureManager.LoadTexture(texturePath_, Texture::TextureFlags(Texture::DEFAULT));
 	textureName_ = textureManager.GetTextureName(textureId_);
 
 	glCheckError();

@@ -83,7 +83,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipArtEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipArtEntity, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+                euler);
             cContainer_.renderManager.AddComponent(shipArtEntity);
             cContainer_.renderManager.SetModel(shipArtEntity,
                 config.dataRootPath + "models/ship/cortese/corps/low_cortese_corps_resize.obj");
@@ -101,7 +101,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipArtDetailEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipArtDetailEntity, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipArtDetailEntity,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+                euler);
             cContainer_.renderManager.AddComponent(shipArtDetailEntity);
             cContainer_.renderManager.SetModel(shipArtDetailEntity,
                 config.dataRootPath +
@@ -122,7 +122,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipRightRotorModel, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipRightRotorModel, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipRightRotorModel,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+                euler);
             cContainer_.renderManager.AddComponent(shipRightRotorModel);
             cContainer_.renderManager.SetModel(shipRightRotorModel,
                 config.dataRootPath +
@@ -163,7 +163,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipArtEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipArtEntity, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+                euler);
             cContainer_.renderManager.AddComponent(shipArtEntity);
             cContainer_.renderManager.SetModel(shipArtEntity,
                 config.dataRootPath + "models/ship/ilroso/corps/objet_central_low.obj");
@@ -182,7 +182,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipArtDetailEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipArtDetailEntity, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipArtDetailEntity,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+                euler);
             cContainer_.renderManager.AddComponent(shipArtDetailEntity);
             cContainer_.renderManager.SetModel(shipArtDetailEntity,
                 config.dataRootPath +
@@ -203,7 +203,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipRightRotorModel, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipRightRotorModel, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipRightRotorModel,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+                euler);
             cContainer_.renderManager.AddComponent(shipRightRotorModel);
             cContainer_.renderManager.SetModel(shipRightRotorModel,
                 config.dataRootPath +
@@ -224,7 +224,7 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorModel, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorModel, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipLeftRotorModel,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+                euler);
             cContainer_.renderManager.AddComponent(shipLeftRotorModel);
             cContainer_.renderManager.SetModel(shipLeftRotorModel,
                 config.dataRootPath +
@@ -304,11 +304,17 @@ void PlayerManager::SetCanMove(PlayerId playerId, bool value)
     shipControllerManager_.SetCanMove(playerId, value);
 }
 
-
-
-
-    void PlayerManager::Destroy()
-    {
-
+void PlayerManager::RespawnPlayers()
+{
+    for (int i = 0; i < cContainer_.playerManager.playerCount_; i++) {
+        SetCanMove(i, false);
+        cContainer_.entityManager.DestroyEntity(GetShipEntity(i), true);
     }
+    playerComponents_.clear();
+    playerComponents_.resize(INIT_PLAYER_NMB, PlayerComponent());
+    playerCount_ = 0;
+}
+
+
+void PlayerManager::Destroy() { }
 }

@@ -268,8 +268,8 @@ namespace neko::aer
         for(int i = 0; i < playerCount; i++)
         {
             middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2i(Vec2f(0.0f, 0.0f) * Vec2f(config.windowSize)), UiAnchor::CENTER, i + 1, 4.0f, Color::white);
-            TimerUi[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2i(Vec2f(1.5f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::white);
-            LapsUi[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2i(Vec2f(-1.0f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::white);;
+            timerUi_[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2i(Vec2f(1.5f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::white);
+            lapsUi_[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2i(Vec2f(-1.0f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::white);;
             placementUi[i] = UiText(FontLoaded::LOBSTER, "0th", Vec2i(Vec2f(-1.0f, 1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::BOTTOM_RIGHT, i + 1, 2.0f, Color::white);
             placement1stInGameUI_[i].SetEnable(false);
             placement2ndInGameUI_[i].SetEnable(false);
@@ -312,14 +312,14 @@ namespace neko::aer
             uiManager.AddUiImage(&timeBackgroundGameUI_[i]);
 
             // middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2i((Vec2f(0.0f, 0.0f)) * Vec2f(config.windowSize)), UiAnchor::CENTER, i + 1, 4.0f, Color::cyan);
-            // TimerUi[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2i((Vec2f(1.0f, -1.0f) * uiPositionMultiplier) * Vec2f(config.windowSize)), UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::cyan);
-            // LapsUi[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2i((Vec2f(-1.0f, -1.0f) * uiPositionMultiplier) * Vec2f(config.windowSize)), UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::cyan);;
+            // timerUi_[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2i((Vec2f(1.0f, -1.0f) * uiPositionMultiplier) * Vec2f(config.windowSize)), UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::cyan);
+            // lapsUi_[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2i((Vec2f(-1.0f, -1.0f) * uiPositionMultiplier) * Vec2f(config.windowSize)), UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::cyan);;
             // placementUi[i] = UiText(FontLoaded::LOBSTER, "0th", Vec2i((Vec2f(-1.0f, 1.0f) * uiPositionMultiplier) * Vec2f(config.windowSize)), UiAnchor::BOTTOM_RIGHT, i + 1, 2.0f, Color::cyan);;
 
 
             uiManager.AddUiText(&middleTextUi[i]);
-            uiManager.AddUiText(&TimerUi[i]);
-            //uiManager.AddUiText(&LapsUi[i]);
+            uiManager.AddUiText(&timerUi_[i]);
+            //uiManager.AddUiText(&lapsUi_[i]);
             //uiManager.AddUiText(&placementUi[i]);
             uiManager.AddUiText(&endGameText[i]);
         }
@@ -337,7 +337,7 @@ namespace neko::aer
         for (int i = 0; i < playerCount; i++)
         {
             timeBackgroundGameUI_[i].SetEnable(true);
-            TimerUi[i].SetText(fmt::format("{:.2f}", time.count()));
+            timerUi_[i].SetText(fmt::format("{:.2f}", time.count()));
         }
 
     }
@@ -395,10 +395,20 @@ namespace neko::aer
     void GameManager::GoBackToMenu()
     {
         gameManagerStarted = false;
+        engine_.GetComponentManagerContainer().playerManager.RespawnPlayers();
         for (int i = 0; i < playerCount; i++)
         {
-            engine_.GetComponentManagerContainer().playerManager.SetCanMove(i, false);
-            engine_.GetComponentManagerContainer().entityManager.DestroyEntity(engine_.GetComponentManagerContainer().playerManager.GetShipEntity(i), true);
+            placement1stInGameUI_[i].SetEnable(false);
+            placement2ndInGameUI_[i].SetEnable(false);
+            placement3rdInGameUI_[i].SetEnable(false);
+            placement4thInGameUI_[i].SetEnable(false);
+            lap1InGameUI_[i].SetEnable(false);
+            lap2InGameUI_[i].SetEnable(false);
+            lap3InGameUI_[i].SetEnable(false);
+            lapsBackgroundInGameUI_[i].SetEnable(false);
+            timeBackgroundGameUI_[i].SetEnable(false);
+            timerUi_[i].SetEnable(false);
+            endGameText[i].SetEnable(false);
         }
         engine_.GetComponentManagerContainer().waypointManager;
         engine_.GetComponentManagerContainer().menuManager.StartMenu();

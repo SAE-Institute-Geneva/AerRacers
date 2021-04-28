@@ -16,7 +16,7 @@ void MenuManager::Init()
     startTextUi_ = UiText(FontLoaded::ROBOTO, "Start", Vec2i(Vec2f(0.0f, 1.0f) * Vec2f(config.windowSize)), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
     optionsTextUi_ = UiText(FontLoaded::ROBOTO, "Options", Vec2i(Vec2f(0.0f, 0.75f) * Vec2f(config.windowSize)), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
     highscoreTextUi_ = UiText(FontLoaded::ROBOTO, "Credits", Vec2i(Vec2f(0.0f, 0.5f) * Vec2f(config.windowSize)), UiAnchor::BOTTOM, 0, 2.0f, Color::grey);
-    menuBackGroundUI = UiImage(config.dataRootPath + "sprites/ui/background.png", Vec2i(Vec2f().zero), Vec2u(1920, 1080), UiAnchor::CENTER, 0, Color::white);
+    menuBackGroundUI = UiImage(config.dataRootPath + "sprites/ui/background.png", Vec2i(Vec2f().zero), config.windowSize, UiAnchor::CENTER, 0, Color::white);
     menuBackGroundUI.SetEnable(false);
     menuStatus_ = MenuStatus::SLEEP;
     creditsStatus_ = CreditsStatus::LEADS;
@@ -51,10 +51,10 @@ void MenuManager::Init()
         readyUi_[i] = UiText(FontLoaded::ROBOTO, "Ready", Vec2i((Vec2f(0.0f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
 
 
-        selectionBackgroundUI_[i] = UiImage(config.dataRootPath + blueprint1UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(990, 590), UiAnchor::CENTER, 0, Color::white);
-        readyBackground_[i] = UiImage(config.dataRootPath + ReadyBackgroundUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(501,192), UiAnchor::CENTER, 0, Color::white);
-        readyText_[i] = UiImage(config.dataRootPath + ReadyTextUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(323, 153), UiAnchor::CENTER, 0, Color::white);
-        joinText_[i] = UiImage(config.dataRootPath + pressStartTextUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(618, 342), UiAnchor::CENTER, 0, Color::white);
+        selectionBackgroundUI_[i] = UiImage(config.dataRootPath + blueprint1UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), config.windowSize/4, UiAnchor::CENTER, 0, Color::white);
+        readyBackground_[i] = UiImage(config.dataRootPath + ReadyBackgroundUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), config.windowSize/4, UiAnchor::CENTER, 0, Color::white);
+        readyText_[i] = UiImage(config.dataRootPath + ReadyTextUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), config.windowSize / 4, UiAnchor::CENTER, 0, Color::white);
+        joinText_[i] = UiImage(config.dataRootPath + pressStartTextUIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), config.windowSize / 4, UiAnchor::CENTER, 0, Color::white);
 
         rosso1UI_[i] = UiImage(config.dataRootPath + Rosso1UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))),Vec2u(1920 * shipModelsUiMultiplier,1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
         rosso2UI_[i] = UiImage(config.dataRootPath + Rosso2UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
@@ -151,7 +151,7 @@ void MenuManager::Update(seconds dt)
 
 
         auto& inputlocator = sdl::InputLocator::get();
-
+        menuBackGroundUI.SetEnable(false);
         startTextUi_.SetEnable(false);
         optionsTextUi_.SetEnable(false);
         highscoreTextUi_.SetEnable(false);
@@ -200,6 +200,7 @@ void MenuManager::Update(seconds dt)
             startTextUi_.SetEnable(true);
             optionsTextUi_.SetEnable(true);
             highscoreTextUi_.SetEnable(true);
+            menuBackGroundUI.SetEnable(true);
             switch (mainMenuPointing_)
             {
             case MainMenuPointing::START:
@@ -242,6 +243,7 @@ void MenuManager::Update(seconds dt)
                 startTextUi_.SetColor(Color::grey);
                 optionsTextUi_.SetColor(Color::grey);
                 highscoreTextUi_.SetColor(Color::white);
+                menuBackGroundUI.SetEnable(true);
                 if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) >= 0.7 && !isDpadDown_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::START;
@@ -272,6 +274,7 @@ void MenuManager::Update(seconds dt)
                 startTextUi_.SetColor(Color::grey);
                 optionsTextUi_.SetColor(Color::white);
                 highscoreTextUi_.SetColor(Color::grey);
+                menuBackGroundUI.SetEnable(true);
                 if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) >= 0.7 && !isDpadDown_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::HIGH_SCORE;
@@ -316,6 +319,7 @@ void MenuManager::Update(seconds dt)
                 creditsSimonUiText_.SetEnable(true);
                 creditsStephenUiText_.SetEnable(true);
                 creditsLucaUiText_.SetEnable(true);
+                menuBackGroundUI.SetEnable(true);
                 if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::ARTS;
