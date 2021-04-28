@@ -80,7 +80,7 @@ struct VictoryData
         void UpdatePlacementUiText();
         void CheckIfEveryoneHasFinished();
 
-        void GoBackToMenu();
+        //void GoBackToMenu();
 
         void Destroy() override;
     private:
@@ -135,7 +135,7 @@ struct VictoryData
         std::array<UiImage, 4> timeBackgroundGameUI_;
 
         UiText globalText;
-
+        bool endedGame = false;
 
         const float startTimer = 10.0f;
         const float endTimer = 10.0f;

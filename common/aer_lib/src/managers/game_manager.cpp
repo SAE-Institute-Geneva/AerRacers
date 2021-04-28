@@ -20,9 +20,9 @@ namespace neko::aer
     void GameManager::StartGameManager(int currentPlayerCount)
     {
         playerCount = currentPlayerCount;
-        // const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-        // engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-        //     config.dataRootPath + "scenes/LevelDesign05-04WP.aerscene");
+        const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+        engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+            config.dataRootPath + "scenes/LevelDesign05-04WP.aerscene");
         Camera3D* camera = GizmosLocator::get().GetCamera();
         camera->fovY = degree_t(80.0f);
         camera->nearPlane = 0.1f;
@@ -95,6 +95,12 @@ namespace neko::aer
             }
             UpdateLapsUiText();
             UpdatePlacementUiText();
+            //Todo: delete
+            // auto& inputlocator = sdl::InputLocator::get();
+            //  if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
+            //  {
+            //      GoBackToMenu();
+            //  }
         }
     }
 
@@ -240,10 +246,20 @@ namespace neko::aer
 
     void GameManager::EndGame()
     {
+        if (!endedGame)
+        {
+            time = neko::seconds(0);
+            endedGame = true;
+        }
         for (int i = 0; i < playerCount; i++)
         {
             middleTextUi[i].SetText("");
             endGameText[i].SetText(std::to_string(i + 1) + positionsText[i] + ": Player " + std::to_string(victoryDatas[i].index + 1) + " (Time: " + fmt::format("{:.2f}", victoryDatas[i].time) + ")");
+        }
+        if (endedGame && time.count() > 5.0f)
+        {
+            //endedGame = false;
+            //GoBackToMenu();
         }
     }
 
@@ -378,16 +394,16 @@ namespace neko::aer
         }
     }
 
-    void GameManager::GoBackToMenu()
-    {
-        gameManagerStarted = false;
-        for (int i = 0; i < playerCount; i++)
-        {
-            engine_.GetComponentManagerContainer().entityManager.DestroyEntity(engine_.GetComponentManagerContainer().playerManager.GetShipEntity(i), true);
-        }
-        engine_.GetComponentManagerContainer().waypointManager.Reboot();
-        engine_.GetComponentManagerContainer().menuManager.StartMenu();
-    }
+    // void GameManager::GoBackToMenu()
+    // {
+    //     gameManagerStarted = false;
+    //     for (int i = 0; i < playerCount; i++)
+    //     {
+    //         engine_.GetComponentManagerContainer().entityManager.DestroyEntity(engine_.GetComponentManagerContainer().playerManager.GetShipEntity(i), true);
+    //     }
+    //     engine_.GetComponentManagerContainer().waypointManager;
+    //     engine_.GetComponentManagerContainer().menuManager.StartMenu();
+    // }
 
     void GameManager::Destroy()
     {

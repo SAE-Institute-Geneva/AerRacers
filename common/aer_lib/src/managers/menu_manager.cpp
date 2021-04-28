@@ -127,12 +127,18 @@ void MenuManager::Update(seconds dt)
     {
         if (!hasStartedSceneLoading)
         {
-            hasStartedSceneLoading = true;
-            const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-            engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-                config.dataRootPath + "scenes/LevelDesign05-04WP.aerscene");
+            // hasStartedSceneLoading = true;
+            // const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+            // engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+            //     config.dataRootPath + "scenes/LevelDesign05-04WP.aerscene");
+            // Camera3D* camera = GizmosLocator::get().GetCamera();
+            // camera->fovY = degree_t(80.0f);
+            // camera->nearPlane = 0.1f;
+            // camera->farPlane = 1'000'000.0f;
+            // engine_.GetCameras().SetCameras(*camera);
         }
-        
+
+
         auto& inputlocator = sdl::InputLocator::get();
 
         startTextUi_.SetEnable(false);
@@ -343,7 +349,6 @@ void MenuManager::Update(seconds dt)
             }
             break;
         case MenuStatus::SELECTION:
-
             for (int i = 0; i < 4; i++)
             {
                 colorBlueUi_[i].SetColor(Color4(Color::blue.x, Color::blue.y, Color::blue.z, 0.5f));

@@ -458,11 +458,10 @@ namespace neko::aer
         hasPlayersSpawned = true;
     }
 
-    void WaypointManager::Reboot()
+    void WaypointManager::RestartWaypointManager()
     {
         hasPlayersSpawned = false;
     }
-
 
     PlayerPositionData* WaypointManager::GetPlayerPositionData()
     {

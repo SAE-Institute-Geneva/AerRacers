@@ -84,7 +84,7 @@ namespace neko::aer
         void CalculatePlayerPosition(Vec3f playerPosition, PlayerId playerId);
         void CalculatePlayerPlacement();
         void StartDetection();
-        void Reboot();
+        void RestartWaypointManager();
         PlayerPositionData* GetPlayerPositionData();
         void Destroy() override;
     private:
