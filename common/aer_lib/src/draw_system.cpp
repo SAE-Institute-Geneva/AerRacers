@@ -175,6 +175,7 @@ void DrawSystem::Render()
 		case 0:
 		default: LogError("Invalid Player number!!"); break;
 	}
+	glCheckError();
 	uiManager_->Render(playerNum_);
 	gizmosRenderer_->Clear();
 #elif NEKO_VULKAN
@@ -208,7 +209,7 @@ void DrawSystem::RenderScene(const std::size_t playerNum)
 
 	gizmosRenderer_->SetCamera(&camera_.GetCamera(playerNum));
 	gizmosRenderer_->Render();
-
+	glCheckError();
 	glDepthFunc(GL_LEQUAL);
 	glCullFace(GL_FRONT);
 	skyboxShader_.Bind();
@@ -216,6 +217,7 @@ void DrawSystem::RenderScene(const std::size_t playerNum)
 	skybox_.Draw();
 	glCullFace(GL_BACK);
 	glDepthFunc(GL_LESS);
+	glCheckError();
 }
 #endif
 
