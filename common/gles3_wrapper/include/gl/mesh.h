@@ -67,7 +67,9 @@ public:
 	};
 
 	void Init();
+	void InitInstanced() const;
     void Draw(const Shader& shader) const;
+    void DrawInstanced(const Shader& shader, int instanceNum) const;
     void DrawFromTexture(const Shader& shader, const TextureName& texture);
     void Destroy();
 

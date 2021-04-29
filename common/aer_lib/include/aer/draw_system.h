@@ -67,17 +67,23 @@ private:
 	sdl::MultiCamera camera_;
 	AerEngine& engine_;
 
-	ResourceManagerContainer& rContainer_;
 	ComponentManagerContainer& cContainer_;
 
 #ifdef NEKO_GLES3
 	std::unique_ptr<GizmoRenderer> gizmosRenderer_;
+
+	Job preRender_;
+
+	std::string skyboxFolder_ = "aer_skybox/";
+	TextureName skyboxTexture_ {};
+	gl::Shader skyboxShader_ {};
+	gl::RenderCuboid skybox_ {Vec3f::zero, Vec3f::one};
 #endif
 
 	std::unique_ptr<UiManager> uiManager_;
-
+	
 	std::uint8_t playerNum_ = 4;
-
+	
 	//For Test
 	Entity shipEntity_;
 	Entity cameraEntity_;

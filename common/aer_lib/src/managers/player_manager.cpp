@@ -1,14 +1,20 @@
 
 #include "aer/managers/player_manager.h"
+
 #include "aer/managers/manager_container.h"
+#include <aer/log.h>
+#include "aer/aer_engine.h"
+
 #include "engine/engine.h"
 #include <aer\log.h>
 #include "aer/aer_engine.h"
+#include "engine/resource_locations.h"
 
 namespace neko::aer
 {
     PlayerManager::PlayerManager(ComponentManagerContainer& cContainer, AerEngine& engine)
-        : cContainer_(cContainer),
+        : modelManager_(engine.GetResourceManagerContainer().modelManager),
+        cContainer_(cContainer),
         cameraControllerManager_(cContainer.cameraControllerManager),
         shipControllerManager_(cContainer.shipControllerManager),
         shipInputManager_(cContainer.shipInputManager),
@@ -17,7 +23,7 @@ namespace neko::aer
         playerComponents_.resize(INIT_PLAYER_NMB, PlayerComponent());
     }
 
-    PlayerId PlayerManager::CreatePlayer(Vec3f pos, EulerAngles euler)
+    PlayerId PlayerManager::CreatePlayer(Vec3f pos, bool cortese, std::uint16_t coloriIndex, EulerAngles euler)
     {
         if (playerCount_ >= INIT_PLAYER_NMB) {
             LogError("Max Player Create");
@@ -70,8 +76,7 @@ namespace neko::aer
         cContainer_.transform3dManager.SetRelativePosition(shipModelEntity, Vec3f::zero);
         cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
             euler);
-
-        bool cortese = false;
+        
         if (cortese) {
 
             //ShipArt
@@ -81,10 +86,10 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipArtEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipArtEntity, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+                euler);
             cContainer_.renderManager.AddComponent(shipArtEntity);
             cContainer_.renderManager.SetModel(shipArtEntity,
-                config.dataRootPath + "models/ship/cortese/corps/low_cortese_corps_resize.obj");
+                shipModels_[coloriIndex]);
 
             //ShipArt
             Entity shipArtDetailEntity = cContainer_.entityManager.CreateEntity();
@@ -155,10 +160,10 @@ namespace neko::aer
             cContainer_.transform3dManager.SetRelativePosition(shipArtEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipArtEntity, Vec3f::one);
             cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
+                euler);
             cContainer_.renderManager.AddComponent(shipArtEntity);
             cContainer_.renderManager.SetModel(shipArtEntity,
-                config.dataRootPath + "models/ship/ilroso/corps/objet_central_low.obj");
+                shipModels_[coloriIndex + 2]);
 
             //ShipArt
             Entity shipArtDetailEntity = cContainer_.entityManager.CreateEntity();
@@ -170,8 +175,7 @@ namespace neko::aer
                 EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
             cContainer_.renderManager.AddComponent(shipArtDetailEntity);
             cContainer_.renderManager.SetModel(shipArtDetailEntity,
-                config.dataRootPath +
-                "models/ship/ilroso/details/details_low.obj");
+                config.dataRootPath + "models/ship/ilroso/details/details_low.obj");
 
             //RightRotorAnchor
             Entity shipRightRotorAnchor = cContainer_.entityManager.CreateEntity();
@@ -269,7 +273,12 @@ namespace neko::aer
 
     void PlayerManager::Init()
     {
-
+        shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/cortese/corps/blue/low_cortese_corps_resize.obj"));
+        shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/cortese/corps/red/low_cortese_corps_resize.obj"));
+        shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/corps/blue/objet_central_low.obj"));
+        shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/corps/greyred/objet_central_low.obj"));
+        shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/corps/redblack/objet_central_low.obj"));
+        shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/corps/redwhite/objet_central_low.obj"));
     }
 
     void PlayerManager::Update(seconds dt)
@@ -315,11 +324,17 @@ void PlayerManager::SetCanMove(PlayerId playerId, bool value)
     shipControllerManager_.SetCanMove(playerId, value);
 }
 
-
-
-
-    void PlayerManager::Destroy()
-    {
-
+void PlayerManager::RespawnPlayers()
+{
+    for (int i = 0; i < cContainer_.playerManager.playerCount_; i++) {
+        SetCanMove(i, false);
+        cContainer_.entityManager.DestroyEntity(GetShipEntity(i), true);
     }
+    playerComponents_.clear();
+    playerComponents_.resize(INIT_PLAYER_NMB, PlayerComponent());
+    playerCount_ = 0;
+}
+
+
+void PlayerManager::Destroy() { }
 }

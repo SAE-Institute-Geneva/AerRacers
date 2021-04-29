@@ -31,7 +31,7 @@
 
 namespace neko::vk
 {
-constexpr VkFormat kFormat = VK_FORMAT_B8G8R8A8_UNORM;    //TODO(@Simon) Change to sRGB later
+constexpr VkFormat kFormat = VK_FORMAT_B8G8R8A8_UNORM;
 
 class Surface
 {

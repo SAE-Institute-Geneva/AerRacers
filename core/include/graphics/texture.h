@@ -106,6 +106,14 @@ public:
 		std::string_view path, Texture::TextureFlags flags = Texture::DEFAULT) = 0;
 	[[nodiscard]] virtual const Texture* GetTexture(TextureId index) const     = 0;
 	[[nodiscard]] virtual bool IsTextureLoaded(TextureId textureId) const      = 0;
+    /**
+	 * \brief Nb of texture hat has been loaded
+	 */
+	[[nodiscard]] virtual int CountTextureLoaded() const = 0;
+    /**
+	 * \brief Nb of texture in total
+	 */
+	[[nodiscard]] virtual int CountAllTexture() const = 0;
 };
 
 class NullTextureManager : public TextureManagerInterface
@@ -125,6 +133,15 @@ public:
 	[[nodiscard]] bool IsTextureLoaded([[maybe_unused]] TextureId textureId) const override
 	{
 		return false;
+	}
+
+	[[nodiscard]] int CountTextureLoaded() const override
+	{
+		return 0;
+	}
+	[[nodiscard]] int CountAllTexture() const override
+	{
+		return 0;
 	}
 };
 

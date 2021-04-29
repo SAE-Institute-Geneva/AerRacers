@@ -33,12 +33,12 @@ constexpr std::string_view kDiffuseName  = ("diffuseMap");
 constexpr std::string_view kSpecularName = ("specularMap");
 constexpr std::string_view kNormalName   = ("normalMap");
 constexpr std::string_view kColorName    = ("color");
-constexpr std::string_view kUsedMapsName = ("usedMaps");
+constexpr std::string_view kShininessName = ("shininess");
 constexpr StringHash kDiffuseHash        = HashString(kDiffuseName);
 constexpr StringHash kSpecularHash       = HashString(kSpecularName);
 constexpr StringHash kNormalHash         = HashString(kNormalName);
 constexpr StringHash kColorHash          = HashString(kColorName);
-constexpr StringHash kUsedMapsHash       = HashString(kUsedMapsName);
+constexpr StringHash kShininessHash       = HashString(kShininessName);
 
 class DiffuseMaterial : public Material
 {
@@ -78,7 +78,7 @@ public:
 	[[nodiscard]] std::optional_const_ref<Image2d> GetNormal() const { return normal_; }
 	void ResetNormal();
 
-	void SetShininess(const float shininess) { shininess_ = shininess; }
+	void SetShininess(const float shininess);
 	[[nodiscard]] float GetShininess() const { return shininess_; }
 
 	void SetRenderMode(RenderMode renderMode) override;
@@ -89,6 +89,13 @@ public:
 	[[nodiscard]] ordered_json ToJson() const override;
 	void FromJson(const json& materialJson) override;
 
+	[[nodiscard]] const ResourceHash GetDiffuseId() const { return diffuseId_; }
+	void SetDiffuseId(const ResourceHash& diffuseId) { diffuseId_ = diffuseId; }
+	[[nodiscard]] const ResourceHash GetNormalId() const { return normalId_; }
+	void SetNormalId(const ResourceHash& normalId) { normalId_ = normalId; }
+	[[nodiscard]] const ResourceHash GetSpecularId() const { return specularId_; }
+	void SetSpecularId(const ResourceHash& specularId) { specularId_ = specularId; }
+
 private:
 	void ResetPipeline();
 
@@ -96,8 +103,9 @@ private:
 	std::optional_const_ref<Image2d> diffuse_;
 	std::optional_const_ref<Image2d> specular_;
 	std::optional_const_ref<Image2d> normal_;
-
-	std::uint8_t usedMaps_ = 0;
+	ResourceHash diffuseId_ = 0;
+	ResourceHash specularId_ = 0;
+	ResourceHash normalId_ = 0;
 
 	float shininess_ = 32.0f;
 };

@@ -8,6 +8,7 @@
 #include "vk/commands/model_command_buffer.h"
 #endif
 
+#include "aer/frustum.h"
 #include "aer/managers/light_manager.h"
 
 namespace neko::aer
@@ -69,10 +70,14 @@ protected:
 	vk::ModelManager& modelManager_;
 #endif
 
+	Frustum frustum_;
+
 	Transform3dManager& transformManager_;
 	LightManager& lightManager_;
 
 	DirectionalLight dirLight_ {};
+
+	std::unordered_map<gl::ModelId, std::vector<Mat4f>> instancesMap_;
 
 	Job preRender_;
 };

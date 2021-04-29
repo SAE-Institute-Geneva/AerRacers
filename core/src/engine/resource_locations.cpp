@@ -67,4 +67,10 @@ std::string GetVkShadersFolderPath()
 	const std::string dataRoot = BasicEngine::GetInstance()->GetConfig().dataRootPath;
 	return dataRoot + kVkShadersFolderName;
 }
+
+std::string GetSpritesFolderPath()
+{
+	const std::string dataRoot = BasicEngine::GetInstance()->GetConfig().dataRootPath;
+	return dataRoot + kSpritesFolderName;
+}
 }    // namespace neko

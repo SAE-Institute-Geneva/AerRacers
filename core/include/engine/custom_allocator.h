@@ -175,7 +175,7 @@ public:
 
 protected:
     void* currentPos_ = nullptr;
-#if defined(NEKO_ASSERT)
+#ifdef NEKO_ASSERT
     void* prevPos_ = nullptr;
 #endif
 

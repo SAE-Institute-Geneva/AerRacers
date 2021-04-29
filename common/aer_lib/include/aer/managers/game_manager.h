@@ -35,6 +35,7 @@ namespace neko::aer
 {
     class AerEngine;
     struct PlayerPositionData;
+    enum class SelectedModel;
     
 
     enum GameState
@@ -56,9 +57,12 @@ struct VictoryData
         GameManager(AerEngine& engine);
         void Init() override;
         void StartGameManager(int currentPlayerCount);
+        void StartGameManager(int currentPlayerCount, std::array<neko::aer::SelectedModel, 4> selected_models);
         void Update(seconds dt) override;
+        void UpdateTime(seconds dt);
         void Render() override;
         void SpawnPlayers();
+        void SpawnPlayers(std::array<SelectedModel, 4> selected_models);
         void StartWPManager();
         void StartCountDown();
         void WaitForStart();
@@ -76,6 +80,8 @@ struct VictoryData
         void UpdatePlacementUiText();
         void CheckIfEveryoneHasFinished();
 
+        void GoBackToMenu();
+
         void Destroy() override;
     private:
         AerEngine& engine_;
@@ -83,6 +89,7 @@ struct VictoryData
         //const int waypointsToWin = 108;
         GameState game_state_;
         PlayerPositionData* playerPositionData;
+        
         neko::seconds time = neko::seconds(0);
         bool gameManagerStarted = false;
         bool hasPlayedStartSound = false;
@@ -94,22 +101,50 @@ struct VictoryData
         };
 
         std::array<UiText, 4> middleTextUi;
-        std::array<UiText, 4> TimerUi;
-        std::array<UiText, 4> LapsUi;
+        std::array<UiText, 4> timerUi_;
+        std::array<UiText, 4> lapsUi_;
         std::array<UiText, 4> placementUi;
         std::array<UiText, 4> endGameText {
-            UiText(FontLoaded::LOBSTER, "", Vec2f(0.0,0.6), UiAnchor::CENTER, 0, 1, Color::cyan),
-            UiText(FontLoaded::LOBSTER, "", Vec2f(0.0,0.2), UiAnchor::CENTER, 0, 1, Color::cyan),
-            UiText(FontLoaded::LOBSTER, "", Vec2f(0.0,-0.2), UiAnchor::CENTER, 0, 1, Color::cyan),
-            UiText(FontLoaded::LOBSTER, "", Vec2f(0.0,-0.6), UiAnchor::CENTER, 0, 1, Color::cyan)
+            UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 1, 1, Color::cyan),
+            UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 2, 1, Color::cyan),
+            UiText(FontLoaded::LOBSTER, "",Vec2i(0,0), UiAnchor::CENTER, 3, 1, Color::cyan),
+            UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 4, 1, Color::cyan)
         };
         std::array<std::string, 4> positionsText{ "st", "nd", "rd", "th" };
         std::vector<VictoryData> victoryDatas;
+
+
+        std::string placement1stPath_ = "sprites/ui/centered/1st.png";
+        std::string placement2ndPath_ = "sprites/ui/centered/2nd.png";
+        std::string placement3rdPath_ = "sprites/ui/centered/3rd.png";
+        std::string placement4thPath_ = "sprites/ui/centered/4th.png";
+        std::string lap1Path_ = "sprites/ui/centered/1outof3laps.png";
+        std::string lap2Path_ = "sprites/ui/centered/2outof3laps.png";
+        std::string lap3Path_ = "sprites/ui/centered/3outof3laps.png";
+        std::string lapsBackgroundPath_ = "sprites/ui/centered/lap_nuages.png";
+        std::string timeBackgroundPath_ = "sprites/ui/centered/timebag_background.png";
+
+
+        
+        std::array<UiImage, 4> placement1stInGameUI_;
+        std::array<UiImage, 4> placement2ndInGameUI_;
+        std::array<UiImage, 4> placement3rdInGameUI_;
+        std::array<UiImage, 4> placement4thInGameUI_;
+        std::array<UiImage, 4> lap1InGameUI_;
+        std::array<UiImage, 4> lap2InGameUI_;
+        std::array<UiImage, 4> lap3InGameUI_;
+        std::array<UiImage, 4> lapsBackgroundInGameUI_;
+        std::array<UiImage, 4> timeBackgroundGameUI_;
+
         UiText globalText;
+        bool endedGame = false;
 
         const float startTimer = 10.0f;
         const float endTimer = 10.0f;
-        const int wpToFinish = 33;
+        const int wpToFinish = 29;
+        const float placementSizeMultiplier = 0.3f;
+        const float lapsSizeMultiplier = 0.3f;
+        const float timeBackgroundMultiplier_ = 0.5f;
         int playerCount = 4;
         const float uiPositionMultiplier = 0.25f;
 
@@ -119,12 +154,14 @@ struct VictoryData
             //Vec3f(156, 43, -471),
             //Vec3f(106, 43, -461),
             //Vec3f(56, 43, -451)
-            Vec3f(-1108.0f, 185.0f, -788.0f),
-            Vec3f(-1128.0f, 185.0f, -788.0f),
-            Vec3f(-1148.0f, 185.0f, -788.0f),
-            Vec3f(-1168.0f, 185.0f, -788.0f)
+            Vec3f(-650.0f, 1185.0f, -3000.0f),
+            Vec3f(-700.0f, 1185.0f, -3000.0f),
+            Vec3f(-750.0f, 1185.0f, -3000.0f),
+            Vec3f(-800.0f, 1185.0f, -3000.0f)
         };
 
         Entity audioEntity = INVALID_ENTITY;
+        //TODO: Sound MoveInMenu
+        //TODO: Sound Validation
     };
 }

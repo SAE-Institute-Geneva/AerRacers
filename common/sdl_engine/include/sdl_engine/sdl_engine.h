@@ -49,15 +49,12 @@ public:
 
 	void RegisterOnEvent(SdlEventSystemInterface& eventInterface);
 
-    void ManageEvent() override;
+	void ManageEvent() override;
 
-    void GenerateUiFrame() override;
+	void GenerateUiFrame() override;
 
 protected:
-    Action<const SDL_Event&> onEventAction_;
+	Action<const SDL_Event&> onEventAction_;
 	InputManager inputManager_;
-
 };
-}
-
- 
+}    // namespace neko::sdl

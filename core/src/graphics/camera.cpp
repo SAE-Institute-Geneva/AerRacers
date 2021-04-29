@@ -36,7 +36,6 @@ void Camera::Init()
 	const auto& config = BasicEngine::GetInstance()->GetConfig();
 	SetAspect(config.windowSize.x, config.windowSize.y);
 
-	CameraLocator::provide(this);
 }
 
 void Camera::WorldLookAt(const Vec3f& target)
@@ -112,9 +111,16 @@ Mat4f Camera2D::GenerateProjectionMatrix() const
 	return Transform3d::Orthographic(left, right, bottom, top, nearPlane, farPlane);
 }
 
+
 //-----------------------------------------------------------------------------
 // Camera3D
 //-----------------------------------------------------------------------------
+void Camera3D::Init()
+{
+	Camera::Init();
+	CameraLocator::provide(this);
+}
+
 Mat4f Camera3D::GenerateProjectionMatrix() const
 {
 	return Transform3d::Perspective(fovY, aspect_, nearPlane, farPlane);

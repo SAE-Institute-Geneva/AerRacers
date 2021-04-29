@@ -26,7 +26,7 @@
  Co-Author :
  Date : 17.03.2021
 ---------------------------------------------------------- */
-#include <engine\entity.h>
+#include <engine/entity.h>
 #include <mathematics/vector.h>
 #include <array>
 #include <utils/json_utility.h>
@@ -85,6 +85,7 @@ namespace neko::aer
         void CalculatePlayerPosition(Vec3f playerPosition, PlayerId playerId);
         void CalculatePlayerPlacement();
         void StartDetection();
+        void RestartWaypointManager();
         PlayerPositionData* GetPlayerPositionData();
         void Destroy() override;
     private:

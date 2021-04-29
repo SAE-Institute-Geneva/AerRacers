@@ -6,6 +6,7 @@ layout(location = 1) in vec2 aTexCoords;
 layout(location = 2) in vec3 aNormal;
 layout(location = 3) in vec3 aTangent;
 layout(location = 4) in vec3 aBitangent;
+layout(location = 5) in mat4 aModel;
 
 out Regular
 {
@@ -27,9 +28,7 @@ layout (std140, binding = 0) uniform Matrices
     mat4 proj;
     mat4 view;
 };
-uniform mat4 model;
 
-uniform mat3 normalMatrix;
 uniform vec3 viewPos;
 
 struct Light
@@ -62,7 +61,8 @@ layout (std140, binding = 1) uniform Lights
 
 void main()
 {
-    vs1_out.FragPos = vec3(model * vec4(aPos, 1.0));
+	mat3 normalMatrix = transpose(inverse(mat3(aModel)));
+    vs1_out.FragPos = vec3(aModel * vec4(aPos, 1.0));
     vs1_out.TexCoords = aTexCoords;
     vs1_out.Normal = normalize(normalMatrix * aNormal);
 
@@ -78,5 +78,5 @@ void main()
     vs2_out.TangentViewPos  = TBN * viewPos;
     vs2_out.TangentFragPos  = TBN * vs1_out.FragPos;
 	
-    gl_Position = proj * view * model * vec4(aPos, 1.0);
+    gl_Position = proj * view * aModel * vec4(aPos, 1.0);
 }

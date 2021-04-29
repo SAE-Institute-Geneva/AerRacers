@@ -45,18 +45,18 @@ class CameraControllerViewer;
         const float kAngularBackwardMult = 1.0f;
         const float kAngularForwardTargetMult = 80.0f;
 
-        const float kLinearUpwardMult = 0.01f;
-        const float kLinerarBackwardMult = -0.01f;
+        const float kLinearUpwardMult = 0.005f;
+        const float kLinerarBackwardMult = 0.0f;
         const float kLinerarBackwardDiv = -0.0015f;
         const float kLinearForwardTargetMult = 0.1f;
-        const float kFallMultiplicator = 0.01f;
-        const float kFallTargetMultiplicator = -0.05f;
+        const float kFallMultiplicator = 0.005f;
+        const float kFallTargetMultiplicator = -0.01f;
 
         const float kAngularLerp = 0.1f;
         const float kAngularTargetLerp = 0.1f;
 
         const float kLinearLerp = 1.0f;
-        const float kLerpPosition = 0.5f;
+        const float kLerpPosition = 0.8f;
     };
 
     /**

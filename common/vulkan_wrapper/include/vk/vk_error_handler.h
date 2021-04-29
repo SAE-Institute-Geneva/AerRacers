@@ -31,11 +31,17 @@
 namespace neko::vk
 {
 void CheckVkError(VkResult err, const char* msg, const char* file, int line);
+#ifdef NEKO_KTX
 void PrintKtxError(ktx_error_code_e result, const char* file, int line);
+#endif
 }
 #define vkCheckError(err, msg) CheckVkError(err, msg, __FILE__, __LINE__)
+#ifdef NEKO_KTX
 #define ktxCheckError(err) PrintKtxError(err, __FILE__, __LINE__)
+#endif
 #else
 #define vkCheckError(err, msg) void(0);
+#ifdef NEKO_KTX
 #define ktxCheckError(err) void(0);
+#endif
 #endif

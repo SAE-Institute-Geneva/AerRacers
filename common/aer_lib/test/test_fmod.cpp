@@ -85,7 +85,7 @@ public:
 		if (updateCount_ >= engineDuration_)
 		{
 			HasSucceed();
-			//engine_.Stop();
+			engine_.Stop();
 		}
 	}
 

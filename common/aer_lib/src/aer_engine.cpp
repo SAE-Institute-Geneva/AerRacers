@@ -75,10 +75,10 @@ void AerEngine::Init()
 			cContainer_.sceneManager.LoadScene(
 				GetConfig().dataRootPath +
 					"scenes/test_leveldesign_cube.aerscene");
-			cContainer_.playerManager.CreatePlayer(Vec3f(222.0f, 84.0f, 56.0f), EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
-			cContainer_.playerManager.CreatePlayer(Vec3f(202.0f, 84.0f, 56.0f), EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
-			cContainer_.playerManager.CreatePlayer(Vec3f(182.0f, 84.0f, 56.0f), EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
-			cContainer_.playerManager.CreatePlayer(Vec3f(162.0f, 84.0f, 56.0f), EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
+			cContainer_.playerManager.CreatePlayer(Vec3f(222.0f, 84.0f, 56.0f), true, 0, EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
+			cContainer_.playerManager.CreatePlayer(Vec3f(202.0f, 84.0f, 56.0f), true, 0, EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
+			cContainer_.playerManager.CreatePlayer(Vec3f(182.0f, 84.0f, 56.0f), true, 0, EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
+			cContainer_.playerManager.CreatePlayer(Vec3f(162.0f, 84.0f, 56.0f), true, 0, EulerAngles(degree_t(0.0f), degree_t(180.0f), degree_t(0.0f)));
 		}
 		else if (false) {
 			cContainer_.sceneManager.LoadScene(
@@ -99,13 +99,13 @@ void AerEngine::Init()
 			cContainer_.renderManager.AddComponent(entity);
 			cContainer_.renderManager.SetModel(entity, GetModelsFolderPath() + "sphere/sphere.obj");
 
-			cContainer_.audioManager.AddComponent(entity);
-			cContainer_.audioManager.SetEventName(entity, "sfx/ship_engine");
-			cContainer_.audioManager.SetPlayOnWakeUp(entity, true);
-			cContainer_.audioManager.SetMaxDistance(entity, 40.0f);
-			cContainer_.audioManager.SetVolume(entity, 50.0f);
-
-			cContainer_.audioManager.Init();
+			// cContainer_.audioManager.AddComponent(entity);
+			// cContainer_.audioManager.SetEventName(entity, "sfx/ship_engine");
+			// cContainer_.audioManager.SetPlayOnWakeUp(entity, true);
+			// cContainer_.audioManager.SetMaxDistance(entity, 40.0f);
+			// cContainer_.audioManager.SetVolume(entity, 50.0f);
+			//
+			// cContainer_.audioManager.Init();
 		}
 		else if (true) {
 			cContainer_.menuManager.StartMenu();
@@ -130,7 +130,11 @@ void AerEngine::GenerateUiFrame()
 #ifdef EASY_PROFILE_USE
     EASY_BLOCK("AerEngine::GenerateUiFrame");
 #endif
-
+	const auto fpsText = fmt::format("App FPS: {}", 1.0f / dt_);
+	//logDebug(fpsText);
+	ImGui::Begin("FPS Viewer");
+	ImGui::Text("%s", fpsText.c_str());
+	ImGui::End();
 #ifdef NEKO_GLES3
 		drawImGuiAction_.Execute();
 #elif NEKO_VULKAN

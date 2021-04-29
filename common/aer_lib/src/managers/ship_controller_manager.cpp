@@ -1,11 +1,7 @@
 #include "aer/managers/ship_controller_manager.h"
 
-#include <imgui.h>
-
 #include "aer/tag.h"
-#include "px/raycast.h"
-#include "px/physx_utility.h"
-#include <aer\log.h>
+#include <aer/log.h>
 
 namespace neko::aer
 {

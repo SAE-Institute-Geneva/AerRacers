@@ -130,6 +130,13 @@ struct Vec2
 		return *this;
 	}
 
+	Vec2<T>& operator*=(Vec2<T> rhs)
+	{
+		this->x *= rhs.x;
+		this->y *= rhs.y;
+		return *this;
+	}
+
 	Vec2<T> operator/(const Vec2<T>& rhs) const
 	{
 		const T xx = x / rhs.x;
@@ -281,8 +288,10 @@ public:
 	Vec3() noexcept = default;
 	explicit Vec3(const T same) noexcept : x(same), y(same), z(same) {}
 	Vec3(const T x, const T y, const T z) noexcept : x(x), y(y), z(z) {}
-	explicit Vec3(const Vec2<T> v, const T z = 0) noexcept : x(v.x), y(v.y), z(z) {}
 	explicit Vec3(const T* ptr) noexcept : x(ptr[0]), y(ptr[1]), z(ptr[2]) {}
+
+	template<class U>
+	explicit Vec3(const Vec2<U> v, const U z = 0) noexcept : x(T(v.x)), y(T(v.y)), z(T(z)) {}
 
 	template<class U>
 	explicit Vec3(const U& u) noexcept : x(T(u.x)), y(T(u.y)), z(T(u.z))  {}
@@ -399,10 +408,8 @@ public:
 	/// \brief Calculates the normalized vector.
 	[[nodiscard]] Vec3<T> Normalized() const
 	{
-		if ((*this).Magnitude() == 0.0f) {
-			return Vec3f::zero;
-		}
-	    return (*this) / (*this).Magnitude();
+		if ((*this).Magnitude() == 0.0f) return Vec3<T>::zero;
+		return (*this) / (*this).Magnitude();
 	}
 
 	/// \brief Interpolate between two vectors.
