@@ -38,5 +38,5 @@
 	}                                                                            \
 	static_assert(true, "")
 #else
-#define neko_assert(Expr, Msg) void(0);
+#define neko_assert(Expr, Msg) Expr
 #endif

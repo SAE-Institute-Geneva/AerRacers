@@ -78,7 +78,6 @@ void DrawSystem::Update(seconds dt)
 	
 	const Camera3D& camera = camera_.GetCamera(0);
 	const Vec3f position   = camera.position;
-
 #ifdef NEKO_FMOD
 	FMOD_3D_ATTRIBUTES attributes;
 	attributes.position = fmod::Vec3ToFmod(position);

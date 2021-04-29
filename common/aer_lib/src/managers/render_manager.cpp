@@ -33,6 +33,7 @@ RenderManager::RenderManager(EntityManager& entityManager,
 	 lightManager_(lightManager)
 {
 	DirectionalLight::Instance = &dirLight_;
+	instancesMap_.reserve(32);
 }
 
 void RenderManager::Init()
@@ -76,27 +77,42 @@ void RenderManager::Render()
 
 	const auto& camera = CameraLocator::get();
 	shader_.SetVec3("viewPos", camera.position);
+	frustum_ = Frustum(camera);
 	lightManager_.SetShaderValues(shader_);
 
+	instancesMap_.clear();
 	auto& modelManager = gl::ModelManagerLocator::get();
 	for (auto& entity : entities)
 	{
 		if (components_[entity].isVisible && components_[entity].modelId != gl::INVALID_MODEL_ID &&
 			modelManager.IsLoaded(components_[entity].modelId))
 		{
-			const Mat4f& modelMat = transformManager_.GetComponent(entity);
-			shader_.SetMat4("model", modelMat);
-			shader_.SetMat3("normalMatrix", Mat3f(modelMat).Inverse().Transpose());
+			Aabb3d aabbModel = modelManager.GetModel(components_[entity].modelId)->GetMesh(0).GetAabb();
+			int nbMeshes = modelManager.GetModel(components_[entity].modelId)->GetMeshCount();
+			for (int i = 1; i < nbMeshes; ++i) {
+				Aabb3d aabbMesh = modelManager.GetModel(components_[entity].modelId)->GetMesh(i).GetAabb();
+				aabbModel.lowerLeftBound.x = std::min(aabbModel.lowerLeftBound.x, aabbMesh.lowerLeftBound.x);
+				aabbModel.lowerLeftBound.y = std::min(aabbModel.lowerLeftBound.y, aabbMesh.lowerLeftBound.y);
+				aabbModel.lowerLeftBound.z = std::min(aabbModel.lowerLeftBound.y, aabbMesh.lowerLeftBound.z);
+				aabbModel.upperRightBound.x = std::max(aabbModel.upperRightBound.x, aabbMesh.upperRightBound.x);
+				aabbModel.upperRightBound.y = std::max(aabbModel.upperRightBound.y, aabbMesh.upperRightBound.y);
+				aabbModel.upperRightBound.z = std::max(aabbModel.upperRightBound.y, aabbMesh.upperRightBound.z);
 
-			const auto* model = modelManager.GetModel(components_[entity].modelId);
-			if (components_[entity].diffuseTexture == INVALID_TEXTURE_NAME)
+			}
+			aabbModel.FromCenterExtends(aabbModel.CalculateCenter() * transformManager_.GetGlobalScale(entity) + transformManager_.GetGlobalPosition(entity),
+				aabbModel.CalculateExtends() * transformManager_.GetGlobalScale(entity));
+			if (frustum_.Contains(aabbModel))
 			{
-				model->Draw(shader_);
-			} else {
-				auto* modelPtr = modelManager.GetModelPtr(components_[entity].modelId);
-				modelPtr->DrawFromTexture(shader_, components_[entity].diffuseTexture);
+				const Mat4f& modelMat = transformManager_.GetComponent(entity);
+				instancesMap_[components_[entity].modelId].push_back(modelMat);
 			}
 		}
+	}
+
+	for (auto&& instance : instancesMap_)
+	{
+		const auto* model = modelManager.GetModel(instance.first);
+		model->DrawInstanced(shader_, instance.second[0], static_cast<int>(instance.second.size()));
 	}
 #elif NEKO_VULKAN
 	lightManager_.SetShaderValues();

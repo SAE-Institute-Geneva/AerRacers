@@ -4,6 +4,8 @@
 
 #include "sdl_engine/sdl_camera.h"
 
+#include "fmod/error_handler.h"
+
 namespace neko::fmod
 {
 FmodEngine::FmodEngine()

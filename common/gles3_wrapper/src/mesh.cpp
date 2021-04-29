@@ -62,6 +62,7 @@ void Mesh::Init()
 	glBufferData(
 		GL_ELEMENT_ARRAY_BUFFER, indices_.size() * sizeof(Index), &indices_[0], GL_STATIC_DRAW);
 	glCheckError();
+
 #ifdef EASY_PROFILE_USE
 	EASY_END_BLOCK;
 	EASY_BLOCK("Vertex Attrib");
@@ -103,12 +104,41 @@ void Mesh::Init()
 #endif
 }
 
+void Mesh::InitInstanced() const
+{
+	// Set attribute pointers for matrix (4 times vec4)
+	glBindVertexArray(vao_);
+	glEnableVertexAttribArray(5);
+	glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(Mat4f), (void*) nullptr);
+	glEnableVertexAttribArray(6);
+	glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(Mat4f), (void*) (sizeof(Vec4f)));
+	glEnableVertexAttribArray(7);
+	glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, sizeof(Mat4f), (void*) (2 * sizeof(Vec4f)));
+	glEnableVertexAttribArray(8);
+	glVertexAttribPointer(8, 4, GL_FLOAT, GL_FALSE, sizeof(Mat4f), (void*) (3 * sizeof(Vec4f)));
+
+	glVertexAttribDivisor(5, 1);
+	glVertexAttribDivisor(6, 1);
+	glVertexAttribDivisor(7, 1);
+	glVertexAttribDivisor(8, 1);
+	glBindVertexArray(0);
+}
+
 void Mesh::Draw(const Shader& shader) const
 {
 	BindTextures(shader);
 
 	glBindVertexArray(vao_);
 	glDrawElements(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr);
+	glBindVertexArray(0);
+}
+
+void Mesh::DrawInstanced(const Shader& shader, const int instanceNum) const
+{
+	BindTextures(shader);
+
+	glBindVertexArray(vao_);
+	glDrawElementsInstanced(GL_TRIANGLES, indices_.size(), GL_UNSIGNED_INT, nullptr, instanceNum);
 	glBindVertexArray(0);
 }
 
