@@ -11,7 +11,7 @@
 namespace neko::aer
 {
     PlayerManager::PlayerManager(AerEngine& engine)
-        : textureManager_(engine.GetResourceManagerContainer().textureManager),
+        : modelManager_(engine.GetResourceManagerContainer().modelManager),
           cContainer_(engine.GetComponentManagerContainer()),
           cameraControllerManager_(engine.GetComponentManagerContainer().cameraControllerManager),
           shipControllerManager_(engine.GetComponentManagerContainer().shipControllerManager),
@@ -86,13 +86,7 @@ namespace neko::aer
                 euler);
             cContainer_.renderManager.AddComponent(shipArtEntity);
             cContainer_.renderManager.SetModel(shipArtEntity,
-                config.dataRootPath + "models/ship/cortese/corps/low_cortese_corps_resize.obj");
-            if (textureManager_.IsTextureLoaded(shipTextures_[coloriIndex])) {
-                TextureName textureName = textureManager_.GetTextureName(shipTextures_[coloriIndex]);
-                cContainer_.renderManager.SetDiffuseTexture(shipArtEntity, textureName);
-            } else {
-                LogError("Ship texture not loaded, default texture set");
-            }
+                shipModels_[coloriIndex]);
 
             //ShipArt
             Entity shipArtDetailEntity = cContainer_.entityManager.CreateEntity();
@@ -166,14 +160,7 @@ namespace neko::aer
                 euler);
             cContainer_.renderManager.AddComponent(shipArtEntity);
             cContainer_.renderManager.SetModel(shipArtEntity,
-                config.dataRootPath + "models/ship/ilroso/corps/objet_central_low.obj");
-            if (textureManager_.IsTextureLoaded(shipTextures_[coloriIndex+2])) {
-                TextureName textureName = textureManager_.GetTextureName(shipTextures_[coloriIndex+2]);
-                cContainer_.renderManager.SetDiffuseTexture(shipArtEntity, textureName);
-            }
-            else {
-                LogError("Ship texture not loaded, default texture set");
-            }
+                shipModels_[coloriIndex + 2]);
 
             //ShipArt
             Entity shipArtDetailEntity = cContainer_.entityManager.CreateEntity();
@@ -185,8 +172,7 @@ namespace neko::aer
                 EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
             cContainer_.renderManager.AddComponent(shipArtDetailEntity);
             cContainer_.renderManager.SetModel(shipArtDetailEntity,
-                config.dataRootPath +
-                "models/ship/ilroso/details/details_low.obj");
+                config.dataRootPath + "models/ship/ilroso/details/details_low.obj");
 
             //RightRotorAnchor
             Entity shipRightRotorAnchor = cContainer_.entityManager.CreateEntity();
@@ -261,12 +247,12 @@ namespace neko::aer
 
     void PlayerManager::Init()
     {
-        shipTextures_.push_back(textureManager_.LoadTexture(GetModelsFolderPath() + "ship/cortese/textures/corps_blue/low_cortese_complet_centre_basecolor.png", Texture::DEFAULT));
-        shipTextures_.push_back(textureManager_.LoadTexture(GetModelsFolderPath() + "ship/cortese/textures/corps_red/low_cortese_complet_centre_basecolor.png", Texture::DEFAULT));
-        shipTextures_.push_back(textureManager_.LoadTexture(GetModelsFolderPath() + "ship/ilroso/textures/corps/blue/retopo_gros_objet_basecolor.png", Texture::DEFAULT));
-        shipTextures_.push_back(textureManager_.LoadTexture(GetModelsFolderPath() + "ship/ilroso/textures/corps/greyred/retopo_gros_objet_basecolor.png", Texture::DEFAULT));
-        shipTextures_.push_back(textureManager_.LoadTexture(GetModelsFolderPath() + "ship/ilroso/textures/corps/redblack/retopo_gros_objet_basecolor.png", Texture::DEFAULT));
-        shipTextures_.push_back(textureManager_.LoadTexture(GetModelsFolderPath() + "ship/ilroso/textures/corps/redwhite/retopo_gros_objet_basecolor.png", Texture::DEFAULT));
+        shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/cortese/corps/blue/low_cortese_corps_resize.obj"));
+        shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/cortese/corps/red/low_cortese_corps_resize.obj"));
+        shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/corps/blue/objet_central_low.obj"));
+        shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/corps/greyred/objet_central_low.obj"));
+        shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/corps/redblack/objet_central_low.obj"));
+        shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/corps/redwhite/objet_central_low.obj"));
     }
 
     void PlayerManager::Update(seconds dt)

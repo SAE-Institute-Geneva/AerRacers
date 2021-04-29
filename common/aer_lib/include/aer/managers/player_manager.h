@@ -87,13 +87,13 @@ public:
 private:
     size_t playerCount_ = 0;
     std::vector<PlayerComponent> playerComponents_;
-    gl::TextureManager& textureManager_;
+    gl::ModelManager& modelManager_;
     ComponentManagerContainer& cContainer_;
     CameraControllerManager& cameraControllerManager_;
     ShipControllerManager& shipControllerManager_;
     ShipInputManager& shipInputManager_;
 
     const float kYDespawnPosition_ = -10000.0f;
-    std::vector<TextureId> shipTextures_;
+    std::vector<gl::ModelId> shipModels_;
 };
 }

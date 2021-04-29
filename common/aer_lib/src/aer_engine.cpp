@@ -129,7 +129,7 @@ void AerEngine::GenerateUiFrame()
     EASY_BLOCK("AerEngine::GenerateUiFrame");
 #endif
 	const auto fpsText = fmt::format("App FPS: {}", 1.0f / dt_);
-	logDebug(fpsText);
+	//logDebug(fpsText);
 	ImGui::Begin("FPS Viewer");
 	ImGui::Text("%s", fpsText.c_str());
 	ImGui::End();
