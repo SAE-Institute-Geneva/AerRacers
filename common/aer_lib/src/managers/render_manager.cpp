@@ -29,6 +29,7 @@ RenderManager::RenderManager(EntityManager& entityManager,
 	 lightManager_(lightManager)
 {
 	DirectionalLight::Instance = &dirLight_;
+	instancesMap_.reserve(32);
 }
 
 void RenderManager::Init()
@@ -74,6 +75,7 @@ void RenderManager::Render()
 	shader_.SetVec3("viewPos", camera.position);
 	lightManager_.SetShaderValues(shader_);
 
+	instancesMap_.clear();
 	auto& modelManager = gl::ModelManagerLocator::get();
 	for (auto& entity : entities)
 	{
@@ -81,18 +83,14 @@ void RenderManager::Render()
 			modelManager.IsLoaded(components_[entity].modelId))
 		{
 			const Mat4f& modelMat = transformManager_.GetComponent(entity);
-			shader_.SetMat4("model", modelMat);
-			shader_.SetMat3("normalMatrix", Mat3f(modelMat).Inverse().Transpose());
-
-			const auto* model = modelManager.GetModel(components_[entity].modelId);
-			if (components_[entity].diffuseTexture == INVALID_TEXTURE_NAME)
-			{
-				model->Draw(shader_);
-			} else {
-				auto* modelPtr = modelManager.GetModelPtr(components_[entity].modelId);
-				modelPtr->DrawFromTexture(shader_, components_[entity].diffuseTexture);
-			}
+			instancesMap_[components_[entity].modelId].push_back(modelMat);
 		}
+	}
+
+	for (auto&& instance : instancesMap_)
+	{
+		const auto* model = modelManager.GetModel(instance.first);
+		model->DrawInstanced(shader_, instance.second[0], static_cast<int>(instance.second.size()));
 	}
 #elif NEKO_VULKAN
 	lightManager_.SetShaderValues();
