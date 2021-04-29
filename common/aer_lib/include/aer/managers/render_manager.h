@@ -8,6 +8,7 @@
 #include "vk/commands/model_command_buffer.h"
 #endif
 
+#include "aer/frustum.h"
 #include "aer/managers/light_manager.h"
 
 namespace neko::aer
@@ -68,6 +69,8 @@ protected:
 #else
 	vk::ModelManager& modelManager_;
 #endif
+
+	Frustum frustum_;
 
 	Transform3dManager& transformManager_;
 	LightManager& lightManager_;

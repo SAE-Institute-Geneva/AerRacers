@@ -48,6 +48,7 @@ struct Camera3D : Camera
 {
     degree_t fovY = degree_t(45.0f);
 
+    void Init() override;
     [[nodiscard]] Mat4f GenerateProjectionMatrix() const override;
     [[nodiscard]] radian_t GetFovX() const;
 };
@@ -55,11 +56,11 @@ struct Camera3D : Camera
 /**
  * \brief Exclusively used for the CameraLocator, please do not use!
  */
-struct NullCamera : Camera
+struct NullCamera : Camera3D
 {
     [[nodiscard]] Mat4f GenerateProjectionMatrix() const override;
 };
 
-using CameraLocator = Locator<Camera, NullCamera>;
+using CameraLocator = Locator<Camera3D, NullCamera>;
 
 }  

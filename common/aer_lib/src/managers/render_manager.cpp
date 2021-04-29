@@ -73,6 +73,7 @@ void RenderManager::Render()
 
 	const auto& camera = CameraLocator::get();
 	shader_.SetVec3("viewPos", camera.position);
+	frustum_ = Frustum(camera);
 	lightManager_.SetShaderValues(shader_);
 
 	instancesMap_.clear();
@@ -82,8 +83,25 @@ void RenderManager::Render()
 		if (components_[entity].isVisible && components_[entity].modelId != gl::INVALID_MODEL_ID &&
 			modelManager.IsLoaded(components_[entity].modelId))
 		{
-			const Mat4f& modelMat = transformManager_.GetComponent(entity);
-			instancesMap_[components_[entity].modelId].push_back(modelMat);
+			Aabb3d aabbModel = modelManager.GetModel(components_[entity].modelId)->GetMesh(0).GetAabb();
+			int nbMeshes = modelManager.GetModel(components_[entity].modelId)->GetMeshCount();
+			for (int i = 1; i < nbMeshes; ++i) {
+				Aabb3d aabbMesh = modelManager.GetModel(components_[entity].modelId)->GetMesh(i).GetAabb();
+				aabbModel.lowerLeftBound.x = std::min(aabbModel.lowerLeftBound.x, aabbMesh.lowerLeftBound.x);
+				aabbModel.lowerLeftBound.y = std::min(aabbModel.lowerLeftBound.y, aabbMesh.lowerLeftBound.y);
+				aabbModel.lowerLeftBound.z = std::min(aabbModel.lowerLeftBound.y, aabbMesh.lowerLeftBound.z);
+				aabbModel.upperRightBound.x = std::max(aabbModel.upperRightBound.x, aabbMesh.upperRightBound.x);
+				aabbModel.upperRightBound.y = std::max(aabbModel.upperRightBound.y, aabbMesh.upperRightBound.y);
+				aabbModel.upperRightBound.z = std::max(aabbModel.upperRightBound.y, aabbMesh.upperRightBound.z);
+
+			}
+			aabbModel.FromCenterExtends(aabbModel.CalculateCenter() * transformManager_.GetGlobalScale(entity) + transformManager_.GetGlobalPosition(entity),
+				aabbModel.CalculateExtends() * transformManager_.GetGlobalScale(entity));
+			if (frustum_.Contains(aabbModel))
+			{
+				const Mat4f& modelMat = transformManager_.GetComponent(entity);
+				instancesMap_[components_[entity].modelId].push_back(modelMat);
+			}
 		}
 	}
 
