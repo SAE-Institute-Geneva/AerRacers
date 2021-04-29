@@ -35,6 +35,7 @@ class Model
 {
 public:
 	void Draw(const Shader& shader) const;
+	void DrawInstanced(const Shader& shader, const Mat4f& modelMatrices, int count) const;
     void DrawFromTexture(const Shader& shader, const TextureName& texture);
     void Destroy();
 
@@ -46,6 +47,9 @@ public:
 private:
 	friend class ModelLoader;
 	std::vector<Mesh> meshes_;
+
+	GLuint instanceVbo_ = 0;
+	unsigned maxInstances_ = 32;
 };
 }
 

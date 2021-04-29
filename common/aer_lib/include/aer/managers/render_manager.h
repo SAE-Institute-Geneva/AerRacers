@@ -74,6 +74,8 @@ protected:
 
 	DirectionalLight dirLight_ {};
 
+	std::unordered_map<gl::ModelId, std::vector<Mat4f>> instancesMap_;
+
 	Job preRender_;
 };
 

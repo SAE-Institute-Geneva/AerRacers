@@ -195,7 +195,20 @@ void ModelLoader::UploadMeshesToGl()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("Upload Meshes to GPU");
 #endif
+
 	for (auto& mesh : model_.meshes_) mesh.Init();
+
+	std::array<Mat4f, 16> instanceInit;
+	std::fill(instanceInit.begin(), instanceInit.end(), Mat4f::Identity);
+
+	// Init instancing
+	glGenBuffers(1, &model_.instanceVbo_);
+	glBindBuffer(GL_ARRAY_BUFFER, model_.instanceVbo_);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(instanceInit), instanceInit.data(), GL_STATIC_DRAW);
+
+	for (auto& mesh : model_.meshes_) mesh.InitInstanced();
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 #ifdef EASY_PROFILE_USE
 	EASY_END_BLOCK;
 #endif

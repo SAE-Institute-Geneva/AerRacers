@@ -30,6 +30,15 @@ void Model::Draw(const Shader& shader) const
 	for (auto& mesh : meshes_) mesh.Draw(shader);
 }
 
+void Model::DrawInstanced(const Shader& shader, const Mat4f& modelMatrices, int count) const
+{
+	glBindBuffer(GL_ARRAY_BUFFER, instanceVbo_);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Mat4f) * count, &modelMatrices, GL_STATIC_DRAW);
+
+	for (auto& mesh : meshes_) mesh.DrawInstanced(shader, count);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+}
+
 void Model::DrawFromTexture(const Shader& shader, const TextureName& texture)
 {
 	for (auto& mesh : meshes_) mesh.DrawFromTexture(shader, texture);
