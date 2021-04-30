@@ -53,7 +53,7 @@ public:
 		for (size_t controllerIndex = 0; controllerIndex < controllerIdVector.size();
 			 controllerIndex++)
 		{
-			const sdl::ControllerId controllerId = controllerIdVector[controllerIndex];
+			const sdl::JoystickId controllerId = controllerIdVector[controllerIndex];
 			SimulateControllerDown(controllerId, sdl::ControllerButtonType::BUTTON_A);
 			SimulateControllerUp(controllerId, sdl::ControllerButtonType::BUTTON_B);
 		}
@@ -71,7 +71,7 @@ public:
 		for (size_t controllerIndex = 0; controllerIndex < controllerIdVector.size();
 			 controllerIndex++)
 		{
-			const sdl::ControllerId controllerId = controllerIdVector[controllerIndex];
+			const sdl::JoystickId controllerId = controllerIdVector[controllerIndex];
 			if (inputLocator.GetControllerButtonState(
 					controllerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
 			{
@@ -214,7 +214,7 @@ public:
 		for (int controllerIndex = 0; controllerIndex < controllerIdVector.size();
 			 controllerIndex++)
 		{
-			const sdl::ControllerId controllerId = controllerIdVector[controllerIndex];
+			const sdl::JoystickId controllerId = controllerIdVector[controllerIndex];
 			if (inputLocator.GetControllerButtonState(
 					controllerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
 			{
@@ -267,7 +267,7 @@ public:
 		for (int controllerIndex = 0; controllerIndex < controllerIdVector.size();
 			 controllerIndex++)
 		{
-			const sdl::ControllerId controllerId = controllerIdVector[controllerIndex];
+			const sdl::JoystickId controllerId = controllerIdVector[controllerIndex];
 			std::string controllerTitle          = "Controller " + std::to_string(controllerId);
 			if (ImGui::CollapsingHeader(controllerTitle.c_str(), ImGuiTreeNodeFlags_DefaultOpen))
 			{

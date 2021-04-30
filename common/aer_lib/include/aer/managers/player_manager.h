@@ -53,7 +53,7 @@ struct PlayerComponent {
     Entity rightRotorModel  = INVALID_ENTITY;
 
     PlayerId playerNumber            = 0;
-    sdl::ControllerId linkedJoystick = 0;
+    sdl::JoystickId linkedJoystick = 0;
     Vec3f playerSpawn                = Vec3f(0, 0, 0);
 
     //TODO texture

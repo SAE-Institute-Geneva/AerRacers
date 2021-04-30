@@ -48,7 +48,7 @@ void SdlEngine::Init()
     jobSystem_.Init();
 
     assert(window_ != nullptr);
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_GAMECONTROLLER);
     window_->Init();
 
     initAction_.Execute();

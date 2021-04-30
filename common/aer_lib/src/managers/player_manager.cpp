@@ -224,7 +224,7 @@ namespace neko::aer
         }
 
 
-        std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
+        std::vector<sdl::JoystickId> controllers = sdl::InputLocator::get().GetControllerIdVector();
         if (controllers.size() > playerCount_)
             playerComponent.linkedJoystick = controllers[playerCount_];
         playerComponents_[playerCount_] = playerComponent;
@@ -258,7 +258,7 @@ namespace neko::aer
     void PlayerManager::Update(seconds dt)
     {
         for (PlayerId playerId = 0; playerId < GetPlayerCount(); ++playerId) {
-            std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
+            std::vector<sdl::JoystickId> controllers = sdl::InputLocator::get().GetControllerIdVector();
             if (controllers.size() > playerId)
             {
                 playerComponents_[playerId].linkedJoystick = controllers[playerId];
