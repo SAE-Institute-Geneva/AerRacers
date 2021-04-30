@@ -160,7 +160,8 @@ struct VictoryData
             Vec3f(-800.0f, 1185.0f, -3000.0f)
         };
 
-        Entity audioEntity = INVALID_ENTITY;
+        Entity musicEntity_ = INVALID_ENTITY;
+        Entity audioEntity_ = INVALID_ENTITY;
         //TODO: Sound MoveInMenu
         //TODO: Sound Validation
     };

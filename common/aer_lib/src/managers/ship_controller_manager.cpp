@@ -255,7 +255,7 @@ void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
             shipParameter_.kPropultionMultiplicator);
     rigidDynamic.AddForce(forward * propulsion, physx::PxForceMode::eACCELERATION);
 
-    SetEngineSpeedSound(playerId, InverseLerp(0.1, 1, Abs(cContainer_.shipInputManager.GetThruster(playerId))) * 100.0f);
+    SetEngineSpeedSound(playerId, std::clamp(Abs(cContainer_.shipInputManager.GetThruster(playerId)) * 100.0f, 0.1f, 100.0f));
 }
 
 void ShipControllerManager::RotorMovement(PlayerId playerId) {
@@ -403,9 +403,20 @@ void ShipControllerManager::PlaySound(PlayerId playerId, Sound sound) {
         case Sound::Engine:
             cContainer_.audioManager.Play(playerComponent.engineAudioEntity);
             break;
-        case Sound::Collision: 
-            cContainer_.audioManager.SetEventName(playerComponent.audioEntity, "sfx/totem_buffalo");
+        case Sound::Collision:
+        {
+            float random = RandomRange(0.0f, 1.0f);
+            if (random > 0.5f)
+            {
+                cContainer_.audioManager.SetEventName(playerComponent.audioEntity, "sfx/crash_short1");
+            }
+            else
+            {
+                cContainer_.audioManager.SetEventName(playerComponent.audioEntity, "sfx/crash_short2");
+
+            }
             cContainer_.audioManager.Play(playerComponent.audioEntity);
+        }
             break;
         default: ;
     }

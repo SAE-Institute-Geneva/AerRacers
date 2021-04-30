@@ -80,9 +80,9 @@ void DrawSystem::Update(seconds dt)
 	const Vec3f position   = camera.position;
 #ifdef NEKO_FMOD
 	FMOD_3D_ATTRIBUTES attributes;
-	attributes.position = fmod::Vec3ToFmod(position);
-	attributes.forward  = fmod::Vec3ToFmod(-camera.reverseDirection);
-	attributes.up       = fmod::Vec3ToFmod(camera.GetUp());
+	attributes.position = fmod::Vec3ToFmod(Vec3f::zero);
+	attributes.forward = fmod::Vec3ToFmod(Vec3f::forward);
+	attributes.up = fmod::Vec3ToFmod(Vec3f::up);
 	engine_.GetFmodEngine().SetAudioListener(attributes);
 #endif
 

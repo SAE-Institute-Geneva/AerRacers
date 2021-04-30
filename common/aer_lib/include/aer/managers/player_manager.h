@@ -31,7 +31,7 @@
 #include <engine/entity.h>
 #include <mathematics/vector.h>
 #include <sdl_engine/sdl_input.h>
-#include <gl/texture.h>
+#include <gl/model_manager.h>
 
 namespace neko::aer
 {

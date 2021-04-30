@@ -13,6 +13,7 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 	 mode_(mode),
 	 drawSystem_(*this),
 	 physicsEngine_(cContainer_.entityManager, cContainer_.transform3dManager),
+     rContainer_(),
 	 cContainer_(*this, rContainer_, physicsEngine_),
 	 toolManager_(*this)
 {

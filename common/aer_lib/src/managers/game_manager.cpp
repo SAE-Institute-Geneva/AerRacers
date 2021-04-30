@@ -14,13 +14,20 @@ namespace neko::aer
     {
         gameManagerStarted = false;
         ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
-        Entity audioEntity = cContainer.entityManager.CreateEntity();
-        cContainer.transform3dManager.AddComponent(audioEntity);
-        cContainer.audioManager.AddComponent(audioEntity);
-        cContainer.audioManager.SetPlayOnWakeUp(audioEntity, false);
-        cContainer.audioManager.SetEventName(audioEntity, "sfx/menu_bleep");
-        cContainer.audioManager.SetMaxDistance(audioEntity, 40.0f);
-        cContainer.audioManager.SetVolume(audioEntity, 50.0f);
+        audioEntity_ = cContainer.entityManager.CreateEntity();
+        cContainer.transform3dManager.AddComponent(audioEntity_);
+        cContainer.audioManager.AddComponent(audioEntity_);
+        cContainer.audioManager.SetPlayOnWakeUp(audioEntity_, false);
+        cContainer.audioManager.SetEventName(audioEntity_, "sfx/menu_bleep");
+        cContainer.audioManager.SetMaxDistance(audioEntity_, 40.0f);
+        cContainer.audioManager.SetVolume(audioEntity_, 50.0f);
+        musicEntity_ = cContainer.entityManager.CreateEntity();
+        cContainer.transform3dManager.AddComponent(musicEntity_);
+        cContainer.audioManager.AddComponent(musicEntity_);
+        cContainer.audioManager.SetPlayOnWakeUp(musicEntity_, true);
+        cContainer.audioManager.SetEventName(musicEntity_, "music/game");
+        cContainer.audioManager.SetMaxDistance(musicEntity_, 40.0f);
+        cContainer.audioManager.SetVolume(musicEntity_, 50.0f);
         cContainer.audioManager.Init();
     }
 
@@ -80,7 +87,7 @@ namespace neko::aer
                     break;
                 case GameState::RACING:
                     if (!hasPlayedStartSound) {
-                        hasPlayedStartSound = true; cContainer.audioManager.Play(audioEntity);
+                        hasPlayedStartSound = true; cContainer.audioManager.Play(audioEntity_);
                     }
                     if (time.count() > 3.0f)
                     {

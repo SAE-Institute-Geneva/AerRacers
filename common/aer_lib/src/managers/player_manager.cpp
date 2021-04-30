@@ -109,7 +109,7 @@ namespace neko::aer
             cContainer_.transform3dManager.AddComponent(shipRightRotorAnchor);
             cContainer_.entityManager.SetEntityParent(shipRightRotorAnchor, shipModelEntity);
             cContainer_.transform3dManager.SetRelativePosition(shipRightRotorAnchor,
-                pos + Vec3f(-16.75f, 0, 4));
+                pos + Vec3f(-16.75f, 0, 4) * 0.2f);
             cContainer_.transform3dManager.SetRelativeScale(shipRightRotorAnchor, Vec3f::one);
 
             //RightRotorModel
@@ -130,7 +130,7 @@ namespace neko::aer
             cContainer_.transform3dManager.AddComponent(shipLeftRotorAnchor);
             cContainer_.entityManager.SetEntityParent(shipLeftRotorAnchor, shipModelEntity);
             cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorAnchor,
-                pos + Vec3f(16.75f, 0, 4));
+                pos + Vec3f(16.75f, 0, 4) * 0.2f);
             cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorAnchor, Vec3f::one);
 
             //LeftRotorModel
@@ -182,7 +182,7 @@ namespace neko::aer
             cContainer_.transform3dManager.AddComponent(shipRightRotorAnchor);
             cContainer_.entityManager.SetEntityParent(shipRightRotorAnchor, shipModelEntity);
             cContainer_.transform3dManager.SetRelativePosition(shipRightRotorAnchor,
-                pos + Vec3f(-12.5f, 3.5f, -1.5f));
+                pos + Vec3f(-12.5f, 3.5f, -1.5f) * 0.2f);
             cContainer_.transform3dManager.SetRelativeScale(shipRightRotorAnchor, Vec3f::one);
 
             //RightRotorModel
@@ -203,7 +203,7 @@ namespace neko::aer
             cContainer_.transform3dManager.AddComponent(shipLeftRotorAnchor);
             cContainer_.entityManager.SetEntityParent(shipLeftRotorAnchor, shipModelEntity);
             cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorAnchor,
-                pos + Vec3f(12.5f, 3.5f, -1.5f));
+                pos + Vec3f(12.5f, 3.5f, -1.5f) * 0.2f);
             cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorAnchor, Vec3f::one);
 
             //LeftRotorModel
@@ -300,14 +300,7 @@ namespace neko::aer
                 cContainer_.rigidDynamicManager.MovePosition(playerComponents_[playerId].shipEntity, playerComponents_[playerId].playerSpawn);
             }
         }
-
-#ifdef NEKO_FMOD
-        FMOD_3D_ATTRIBUTES attributes;
-        attributes.position = fmod::Vec3ToFmod(Vec3f::zero);
-        attributes.forward = fmod::Vec3ToFmod( Vec3f::forward);
-        attributes.up = fmod::Vec3ToFmod(Vec3f::up);
-        engine_.GetFmodEngine().SetAudioListener(attributes);
-#endif
+        
     }
 
 Vec3f PlayerManager::GetPlayerPosition(PlayerId playerId)
