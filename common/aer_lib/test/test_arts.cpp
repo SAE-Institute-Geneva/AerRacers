@@ -196,7 +196,7 @@ public:
         if (updateCount_ > kEngineDuration_ || rContainer_.modelManager.IsLoaded(modelId))
         {
             loaded_ = rContainer_.modelManager.IsLoaded(modelId);
-            //engine_.Stop();
+            engine_.Stop();
         }
         if (!rContainer_.modelManager.IsLoaded(modelId)) return;
     }
@@ -549,7 +549,7 @@ public:
         EASY_BLOCK("Test Update", profiler::colors::Green);
 #endif
         updateCount_ += dt.count();
-        //if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
+        if (updateCount_ > kEngineDuration_) { engine_.Stop(); }
     }
 
     void Destroy() override {}

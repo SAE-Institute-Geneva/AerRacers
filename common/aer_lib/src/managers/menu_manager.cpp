@@ -380,6 +380,12 @@ void MenuManager::Update(seconds dt)
                     //joinUi_[i].SetEnable(true);
 
                     joinText_[i].SetEnable(true);
+
+                    if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                    {
+                        selectionPointing_[i] = SelectionPointing::SHIP_TYPE;
+                    }
+
                     break;
                 case SelectionPointing::SHIP_TYPE:
                     leftArrowUi_[i].SetText("<-");
@@ -389,84 +395,84 @@ void MenuManager::Update(seconds dt)
                     switch (shipSkins[i])
                     {
                     case SelectedModel::ROSSO_1:
-                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_2;
                             isDpadLeft_[i] = true;
                         }
-                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
                         {
                             isDpadLeft_[i] = false;
                         }
-                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_4;
                             isDpadRight_[i] = true;
                         }
-                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
                         {
                             isDpadRight_[i] = false;
                         }
                         rosso1UI_[i].SetEnable(true);
                         break;
                     case SelectedModel::ROSSO_2:
-                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_3;
                             isDpadLeft_[i] = true;
                         }
-                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
                         {
                             isDpadLeft_[i] = false;
                         }
-                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_1;
                             isDpadRight_[i] = true;
                         }
-                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
                         {
                             isDpadRight_[i] = false;
                         }
                         rosso2UI_[i].SetEnable(true);
                         break;
                     case SelectedModel::ROSSO_3:
-                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_4;
                             isDpadLeft_[i] = true;
                         }
-                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
                         {
                             isDpadLeft_[i] = false;
                         }
-                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_2;
                             isDpadRight_[i] = true;
                         }
-                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
                         {
                             isDpadRight_[i] = false;
                         }
                         rosso3UI_[i].SetEnable(true);
                         break;
                     case SelectedModel::ROSSO_4:
-                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_1;
                             isDpadLeft_[i] = true;
                         }
-                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
                         {
                             isDpadLeft_[i] = false;
                         }
-                        if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_3;
                             isDpadRight_[i] = true;
                         }
-                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
                         {
                             isDpadRight_[i] = false;
                         }
@@ -475,7 +481,7 @@ void MenuManager::Update(seconds dt)
                     }
 
                     rightArrowUi_[i].SetEnable(true);
-                    if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN && i == 0)
+                    if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN && i == 0)
                     {
                         menuStatus_ = MenuStatus::MENU;
                     }

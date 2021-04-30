@@ -46,7 +46,7 @@ public:
 
 	struct ShipInput {
 	public:
-		void Update(sdl::ControllerId controllerId, seconds dt);
+		void Update(sdl::JoystickId controllerId, seconds dt);
 		float GetRudder();
 		float GetIntensity();
 		float GetThruster();

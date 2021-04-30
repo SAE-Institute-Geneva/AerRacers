@@ -76,7 +76,7 @@
 //	std::array<sdl::SwitchAxisType, static_cast<size_t>(ActionAxisType::LENGTH)>
 //		switchBindingAxis;
 //	PlayerId playerId                    = 0;
-//	sdl::ControllerId bindedControllerId = 0;
+//	sdl::JoystickId bindedControllerId = 0;
 //	sdl::SwitchJoyId bindedSwitchJoyId   = 0;
 //};
 //
