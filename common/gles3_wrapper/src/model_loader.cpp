@@ -97,6 +97,8 @@ void ModelLoader::ProcessShape(const tinyobj::shape_t& shape)
 			LoadMaterialTextures(mat, mesh, Mesh::Texture::SPECULAR, mat.specular_texname);
 		if (!mat.bump_texname.empty())
 			LoadMaterialTextures(mat, mesh, Mesh::Texture::NORMAL, mat.bump_texname);
+		else if (!mat.normal_texname.empty())
+			LoadMaterialTextures(mat, mesh, Mesh::Texture::NORMAL, mat.normal_texname);
 		if (!mat.emissive_texname.empty())
 			LoadMaterialTextures(mat, mesh, Mesh::Texture::EMISSIVE, mat.emissive_texname);
 	}
