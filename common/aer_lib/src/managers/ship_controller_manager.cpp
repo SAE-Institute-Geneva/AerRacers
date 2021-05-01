@@ -254,8 +254,9 @@ void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
         (shipController.drag * Clamp(Vec3f::Dot(rigidDynamic.GetDynamicData().linearVelocity, forward), 0.0f, shipParameter_.kTerminalVelocity) *
             shipParameter_.kPropultionMultiplicator);
     rigidDynamic.AddForce(forward * propulsion, physx::PxForceMode::eACCELERATION);
+    float forwardVel = cContainer_.rigidDynamicManager.GetDynamicData(shipEntity).linearVelocity.Magnitude();
 
-    SetEngineSpeedSound(playerId, std::clamp(Abs(cContainer_.shipInputManager.GetThruster(playerId)) * 100.0f, 0.1f, 100.0f));
+    SetEngineSpeedSound(playerId, std::clamp(forwardVel / 10.0f, 0.1f, 100.0f));
 }
 
 void ShipControllerManager::RotorMovement(PlayerId playerId) {
