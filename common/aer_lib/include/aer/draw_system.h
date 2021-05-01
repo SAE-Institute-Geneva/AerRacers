@@ -83,6 +83,6 @@ private:
 
 	std::unique_ptr<UiManager> uiManager_;
 
-	std::uint8_t playerNum_ = 4;
+	std::uint8_t playerNum_ = 1;
 };
 }    // namespace neko::aer
