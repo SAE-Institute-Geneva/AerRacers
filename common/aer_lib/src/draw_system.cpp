@@ -207,8 +207,9 @@ void DrawSystem::RenderScene(const std::size_t playerNum)
 	auto& cManagerContainer = engine_.GetComponentManagerContainer();
 	cManagerContainer.renderManager.Render();
 
-	gizmosRenderer_->SetCamera(&camera_.GetCamera(playerNum));
-	gizmosRenderer_->Render();
+	//gizmosRenderer_->SetCamera(&camera_.GetCamera(playerNum));
+	//gizmosRenderer_->Render();
+
 	glCheckError();
 	glDepthFunc(GL_LEQUAL);
 	glCullFace(GL_FRONT);

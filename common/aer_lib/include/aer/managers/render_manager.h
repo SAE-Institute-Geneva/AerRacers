@@ -66,6 +66,8 @@ protected:
 #ifdef NEKO_GLES3
 	gl::Shader shader_;
 	gl::ModelManager& modelManager_;
+
+	std::unordered_map<gl::ModelId, std::vector<Mat4f>> instancesMap_;
 #else
 	vk::ModelManager& modelManager_;
 #endif
@@ -76,8 +78,6 @@ protected:
 	LightManager& lightManager_;
 
 	DirectionalLight dirLight_ {};
-
-	std::unordered_map<gl::ModelId, std::vector<Mat4f>> instancesMap_;
 
 	Job preRender_;
 };
@@ -109,6 +109,8 @@ public:
 	[[nodiscard]] json GetJsonFromComponent(Entity entity) const override;
 
 private:
+	std::string newNameBuffer_;
+
 	RenderManager& rendererManager_;
 };
 }

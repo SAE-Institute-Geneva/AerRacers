@@ -92,7 +92,7 @@ private:
 	std::vector<Texture> textures_;
 
 	float shininess_ = 64.0f;
-	Color3 color_    = Vec3f::one * 0.8f;
+	Color3 color_    = Vec3f::one;
 	Aabb3d aabb_ {};
 
 	GLuint vao_ = 0, vbo_ = 0, ebo_ = 0;
