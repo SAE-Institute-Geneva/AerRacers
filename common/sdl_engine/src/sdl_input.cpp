@@ -105,7 +105,7 @@ namespace neko::sdl {
             });
         if (controllerInputIt >= controllerInputs_.end())
         {
-            logDebug("Invalid switchJoyPlayerId : " + std::to_string(controllerId));
+            //logDebug("Invalid switchJoyPlayerId : " + std::to_string(controllerId));
             return controllerInputs_.size();
         }
         const unsigned index = std::distance(controllerInputs_.begin(),
@@ -479,7 +479,7 @@ namespace neko::sdl {
             controllerId);
         if (controllerIndex >= controllerInputs_.size())
         {
-            logDebug("Unknown Controller : " + std::to_string(controllerId));
+            //logDebug("Unknown Controller : " + std::to_string(controllerId));
             return ButtonState::NONE;
         }
         return controllerInputs_[controllerIndex].controllerButtonStates[
@@ -494,7 +494,7 @@ namespace neko::sdl {
             controllerId);
         if (controllerIndex >= controllerInputs_.size())
         {
-            logDebug("Unknown Controller : " + std::to_string(controllerId));
+            //logDebug("Unknown Controller : " + std::to_string(controllerId));
             return 0.0f;
         }
         return controllerInputs_[controllerIndex].controllerAxis[

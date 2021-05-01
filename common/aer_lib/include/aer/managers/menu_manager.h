@@ -139,6 +139,8 @@ namespace neko::aer
 
         
     private:
+        const int kMaxPlayer_ = 4;
+
         AerEngine& engine_;
         MenuStatus menuStatus_ = MenuStatus::MENU;
         MainMenuPointing mainMenuPointing_ = MainMenuPointing::START;

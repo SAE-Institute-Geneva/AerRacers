@@ -364,7 +364,7 @@ void MenuManager::Update(seconds dt)
             }
             break;
         case MenuStatus::SELECTION:
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < kMaxPlayer_; i++)
             {
                 colorBlueUi_[i].SetColor(Color4(Color::blue.x, Color::blue.y, Color::blue.z, 0.5f));
                 colorGreenUi_[i].SetColor(Color4(Color::green.x, Color::green.y, Color::green.z, 0.5f));
