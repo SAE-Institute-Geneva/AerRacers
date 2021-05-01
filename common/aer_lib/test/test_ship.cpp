@@ -58,7 +58,7 @@ namespace neko::aer {
             engine_.GetComponentManagerContainer().sceneManager.LoadScene(
                 config.dataRootPath +
                 "scenes/PlayGroundLuca2021-03-01withoutShip.aerscene");
-            cContainer_.playerManager.CreatePlayer(Vec3f(0, 0.0f, 0));
+            cContainer_.playerManager.CreatePlayer(Vec3f(100.0f, 50.0f, 10.0f), true, 1, EulerAngles(degree_t(0),degree_t(45.0f),degree_t(0)));
         }
 
         void Update(seconds dt) override

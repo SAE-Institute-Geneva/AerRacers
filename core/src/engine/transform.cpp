@@ -60,7 +60,7 @@ void Transform2dManager::Update()
 #ifdef EASY_PROFILE_USE
 	EASY_BLOCK("Update Transform");
 #endif
-	dirtyManager_.UpdateDirtyEntities();
+	//dirtyManager_.UpdateDirtyEntities();
 }
 
 void Transform2dManager::UpdateDirtyComponent(Entity entity) { UpdateTransform(entity); }
@@ -256,11 +256,11 @@ void Transform3dManager::SetGlobalPosition(Entity entity, const Vec3f& position)
     Mat4f transform = Transform3d::Transform(
         position,
         Transform3d::GetRotation(GetComponent(entity)), Transform3d::GetScale(GetComponent(entity)));
-    SetComponent(entity, transform);
     const auto parent = entityManager_.get().GetEntityParent(entity);
     if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
 
     position3DManager_.SetComponent(entity, Transform3d::GetPosition(transform));
+	UpdateTransform(entity);
     dirtyManager_.SetDirty(entity);
 }
 
@@ -272,10 +272,10 @@ void Transform3dManager::SetGlobalRotation(Entity entity, const EulerAngles& ang
         angles,
         Transform3d::GetScale(GetComponent(entity)));
 	const auto parent = entityManager_.get().GetEntityParent(entity);
-	SetComponent(entity, transform);
 	if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
 
 	rotation3DManager_.SetComponent(entity, Transform3d::GetRotation(transform));
+	UpdateTransform(entity);
 	dirtyManager_.SetDirty(entity);
 }
 
@@ -284,10 +284,10 @@ void Transform3dManager::SetGlobalScale(Entity entity, const Vec3f& scale)
     Mat4f transform = Transform3d::Transform(Transform3d::GetPosition(GetComponent(entity)),
         Transform3d::GetRotation(GetComponent(entity)), scale);
     const auto parent = entityManager_.get().GetEntityParent(entity);
-    SetComponent(entity, transform);
     if (parent != INVALID_ENTITY) { transform = GetComponent(parent).Inverse() * transform; }
 
     scale3DManager_.SetComponent(entity, Transform3d::GetScale(transform));
+	UpdateTransform(entity);
     dirtyManager_.SetDirty(entity);
 }
 

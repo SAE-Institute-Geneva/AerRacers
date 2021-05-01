@@ -103,7 +103,7 @@ void RenderManager::Render()
 				aabbModel.CalculateExtends() * transformManager_.GetGlobalScale(entity));
 			if (frustum_.Contains(aabbModel))
 			{
-				const Mat4f& modelMat = transformManager_.GetComponent(entity);
+				const Mat4f& modelMat = transformManager_.GetCurrentComponent(entity);
 				instancesMap_[components_[entity].modelId].push_back(modelMat);
 			}
 		}

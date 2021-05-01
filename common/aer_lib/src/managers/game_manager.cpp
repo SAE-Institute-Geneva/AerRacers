@@ -21,13 +21,16 @@ namespace neko::aer
         cContainer.audioManager.SetEventName(audioEntity_, "sfx/menu_bleep");
         cContainer.audioManager.SetMaxDistance(audioEntity_, 40.0f);
         cContainer.audioManager.SetVolume(audioEntity_, 50.0f);
-        musicEntity_ = cContainer.entityManager.CreateEntity();
-        cContainer.transform3dManager.AddComponent(musicEntity_);
-        cContainer.audioManager.AddComponent(musicEntity_);
-        cContainer.audioManager.SetPlayOnWakeUp(musicEntity_, true);
-        cContainer.audioManager.SetEventName(musicEntity_, "music/game");
-        cContainer.audioManager.SetMaxDistance(musicEntity_, 40.0f);
-        cContainer.audioManager.SetVolume(musicEntity_, 50.0f);
+        if (engine_.GetMode() == ModeEnum::GAME)
+        {
+            musicEntity_ = cContainer.entityManager.CreateEntity();
+            cContainer.transform3dManager.AddComponent(musicEntity_);
+            cContainer.audioManager.AddComponent(musicEntity_);
+            cContainer.audioManager.SetPlayOnWakeUp(musicEntity_, true);
+            cContainer.audioManager.SetEventName(musicEntity_, "music/game");
+            cContainer.audioManager.SetMaxDistance(musicEntity_, 40.0f);
+            cContainer.audioManager.SetVolume(musicEntity_, 50.0f);
+        }
         cContainer.audioManager.Init();
     }
 

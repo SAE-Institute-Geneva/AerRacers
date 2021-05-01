@@ -119,7 +119,6 @@ struct ComponentManagerContainer : public SystemInterface
 
     void Update(seconds dt) override
     {
-        transform3dManager.Update();
         renderManager.Update(dt);
 #ifdef NEKO_FMOD
 		audioManager.Update(dt);
