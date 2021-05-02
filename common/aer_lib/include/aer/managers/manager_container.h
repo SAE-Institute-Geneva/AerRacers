@@ -105,6 +105,8 @@ struct ComponentManagerContainer : public SystemInterface
 	
     void Init() override
     {
+        menuManager.Init();
+        gameManager.Init();
         transform3dManager.Init();
         renderManager.Init();
 #ifdef NEKO_FMOD
@@ -113,8 +115,6 @@ struct ComponentManagerContainer : public SystemInterface
         playerManager.Init();
         shipControllerManager.Init();
         waypointManager.Init();
-        gameManager.Init();
-        menuManager.Init();
     }
 
     void Update(seconds dt) override

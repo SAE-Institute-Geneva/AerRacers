@@ -306,6 +306,8 @@ void PlayerManager::RespawnPlayers()
     for (int i = 0; i < cContainer_.playerManager.playerCount_; i++) {
         SetCanMove(i, false);
         cContainer_.entityManager.DestroyEntity(GetShipEntity(i), true);
+        cContainer_.entityManager.DestroyEntity(playerComponents_[i].audioEntity, true);
+        cContainer_.entityManager.DestroyEntity(playerComponents_[i].engineAudioEntity, true);
     }
     playerComponents_.clear();
     playerComponents_.resize(INIT_PLAYER_NMB, PlayerComponent());

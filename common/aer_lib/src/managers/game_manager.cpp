@@ -63,6 +63,10 @@ namespace neko::aer
         StartUi();
         gameManagerStarted = true;
         game_state_ = GameState::WATING;
+        for (int i = 0; i < playerCount; i++)
+        {
+            hasWin[i] = false;
+        }
     }
 
     void GameManager::Update(seconds dt)
@@ -105,17 +109,18 @@ namespace neko::aer
                     break;
                 case GameState::END:
                     EndGame();
+                    time += dt;
                     break;
                 }
             }
             UpdateLapsUiText();
             UpdatePlacementUiText();
             //Todo: delete
-            auto& inputlocator = sdl::InputLocator::get();
-             if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
-             {
-                 GoBackToMenu();
-             }
+            //auto& inputlocator = sdl::InputLocator::get();
+            // if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
+            // {
+            //     GoBackToMenu();
+            // }
         }
     }
 

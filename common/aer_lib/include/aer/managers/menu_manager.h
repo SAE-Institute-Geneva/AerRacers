@@ -192,6 +192,7 @@ namespace neko::aer
         //UI
 
         //Menu
+        UiImage logoUi_;
         UiText startTextUi_;
         UiText optionsTextUi_;
         UiText highscoreTextUi_;
