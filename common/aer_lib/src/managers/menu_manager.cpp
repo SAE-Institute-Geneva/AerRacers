@@ -563,6 +563,16 @@ void MenuManager::Update(seconds dt)
             break;
         }
     }
+
+    //Audio
+    ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+    audioEntity_ = cContainer.entityManager.CreateEntity();
+    cContainer.transform3dManager.AddComponent(audioEntity_);
+    cContainer.audioManager.AddComponent(audioEntity_);
+    cContainer.audioManager.SetPlayOnWakeUp(audioEntity_, false);
+    cContainer.audioManager.SetMaxDistance(audioEntity_, 40.0f);
+    cContainer.audioManager.SetVolume(audioEntity_, 50.0f);
+    cContainer.audioManager.Init();
 }
 
 void MenuManager::Render()
@@ -615,6 +625,18 @@ void MenuManager::SaveSoundOptions()
 {
     
 }
+
+void MenuManager::PlayBipSound()
+{
+    ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+    cContainer.audioManager.SetEventName(audioEntity_, "sfx/menu_bleep");
+}
+
+void MenuManager::PlaySelectSound()
+{
+    
+}
+
 
 
 }

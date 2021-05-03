@@ -137,6 +137,10 @@ namespace neko::aer
 
         //Score
 
+
+        //Audio
+        void PlaySelectSound();
+        void PlayBipSound();
         
     private:
         const int kMaxPlayer_ = 4;
@@ -264,5 +268,7 @@ namespace neko::aer
         std::array<bool, 4> isDpadDown_{ false, false, false, false };
         std::array<bool, 4> isDpadLeft_{ false, false, false, false };
         std::array<bool, 4> isDpadRight_{ false, false, false, false };
+
+        Entity audioEntity_ = INVALID_ENTITY;
     };
 }
