@@ -4,7 +4,7 @@
 #include "engine/component.h"
 #include "engine/transform.h"
 #include "ship_input_manager.h"
-#include <aer\managers\player_manager.h>
+#include <aer/managers/player_manager.h>
 #include "manager_container.h"
 
 

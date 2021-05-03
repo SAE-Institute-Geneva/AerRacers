@@ -97,7 +97,9 @@ vec3 CalcDirLight(vec3 viewDir)
 	if (bool(usedMaps & Normal))
 	{
  		normal = texture(material.normal, fs1_in.TexCoords).rgb;
-    	normal = normalize(normal * 2.0 - 1.0);
+    	normal = normal * 2.0 - 1.0;
+    	normal.xy *= 0.75;
+    	normal = normalize(normal);
     	lightDir = -fs2_in.TangentLightDir;
 	}
 	else
@@ -109,7 +111,7 @@ vec3 CalcDirLight(vec3 viewDir)
 	float diff = max(dot(normal, lightDir), 0.0);
 	if (diff > 0.51) diff = 1.0;
 	else if (diff > 0.5) diff = smoothstep(0.5, 0.51, diff);
-	else diff = 0.0;
+	else diff = smoothstep(0.0, 1.732, length(dirLight.ambient));
 	
  	vec3 diffuse = dirLight.diffuse * diff * GetDiffuse();
 

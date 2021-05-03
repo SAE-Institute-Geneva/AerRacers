@@ -6,7 +6,7 @@
 #include "aer/aer_engine.h"
 
 #include "engine/engine.h"
-#include <aer\log.h>
+#include <aer/log.h>
 #include "aer/aer_engine.h"
 #include "engine/resource_locations.h"
 
