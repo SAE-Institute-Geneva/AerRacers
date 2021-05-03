@@ -83,7 +83,7 @@ public:
     Vec3f GetPlayerPosition(PlayerId playerId);
     bool GetCanMove(PlayerId playerId);
     void SetCanMove(PlayerId playerId, bool value);
-    void RespawnPlayers();
+    void DeletePlayers();
 
     void Init() override;
     void Update(seconds dt) override;

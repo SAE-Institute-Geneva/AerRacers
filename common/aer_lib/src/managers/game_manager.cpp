@@ -77,9 +77,11 @@ namespace neko::aer
             {
                 ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
 
+                UpdateLapsUiText();
+                UpdatePlacementUiText();
                 for (int i = 0; i < playerCount; i++)
                 {
-                    timeBackgroundGameUI_[i].SetEnable(false);
+                    timeBackgroundGameUI_[i].SetEnable(true);
                 }
                 switch (game_state_)
                 {
@@ -87,10 +89,6 @@ namespace neko::aer
                     time -= dt;
                     //TODO: Don't allow player to move
                     WaitForStart();
-                    for (int i = 0; i < playerCount; i++)
-                    {
-                        timeBackgroundGameUI_[i].SetEnable(true);
-                    }
                     break;
                 case GameState::RACING:
                     if (!hasPlayedStartSound) {
@@ -113,8 +111,6 @@ namespace neko::aer
                     break;
                 }
             }
-            UpdateLapsUiText();
-            UpdatePlacementUiText();
             //Todo: delete
             //auto& inputlocator = sdl::InputLocator::get();
             // if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
@@ -274,6 +270,7 @@ namespace neko::aer
         for (int i = 0; i < playerCount; i++)
         {
             middleTextUi[i].SetText("");
+            endGameText[i].SetEnable(true);
             endGameText[i].SetText(std::to_string(i + 1) + positionsText[i] + ": Player " + std::to_string(victoryDatas[i].index + 1) + " (Time: " + fmt::format("{:.2f}", victoryDatas[i].time) + ")");
         }
         if (endedGame && time.count() > 5.0f)
@@ -296,7 +293,7 @@ namespace neko::aer
         for(int i = 0; i < playerCount; i++)
         {
             middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2i(Vec2f(0.0f, 0.0f) * Vec2f(config.windowSize)), UiAnchor::CENTER, i + 1, 4.0f, Color::white);
-            timerUi_[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2i(Vec2f(1.5f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::white);
+            timerUi_[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2i(Vec2f(1.5f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::TOP_LEFT, i + 1, 1.0f, Color::white);
             lapsUi_[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2i(Vec2f(-1.0f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::white);;
             placementUi[i] = UiText(FontLoaded::LOBSTER, "0th", Vec2i(Vec2f(-1.0f, 1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::BOTTOM_RIGHT, i + 1, 2.0f, Color::white);
             placement1stInGameUI_[i].SetEnable(false);
@@ -364,7 +361,7 @@ namespace neko::aer
     {
         for (int i = 0; i < playerCount; i++)
         {
-            timeBackgroundGameUI_[i].SetEnable(true);
+            if (hasWin[i]) continue;
             timerUi_[i].SetText(fmt::format("{:.2f}", time.count()));
         }
 
@@ -380,7 +377,8 @@ namespace neko::aer
             lap3InGameUI_[i].SetEnable(false);
             if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpToFinish)
             {
-                
+                lapsBackgroundInGameUI_[i].SetEnable(true);
+                lap3InGameUI_[i].SetEnable(true);
             }
             else if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpToFinish * 2/3)
             {
@@ -430,7 +428,7 @@ namespace neko::aer
     void GameManager::GoBackToMenu()
     {
         gameManagerStarted = false;
-        engine_.GetComponentManagerContainer().playerManager.RespawnPlayers();
+        engine_.GetComponentManagerContainer().playerManager.DeletePlayers();
         for (int i = 0; i < playerCount; i++)
         {
             placement1stInGameUI_[i].SetEnable(false);
