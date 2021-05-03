@@ -294,9 +294,11 @@ void Transform3dManager::SetGlobalScale(Entity entity, const Vec3f& scale)
 void Transform3dManager::AddComponent(Entity entity)
 {
     position3DManager_.AddComponent(entity);
+	position3DManager_.SetComponent(entity, Vec3f::zero);
     scale3DManager_.AddComponent(entity);
     scale3DManager_.SetComponent(entity, Vec3f::one);
     rotation3DManager_.AddComponent(entity);
+	rotation3DManager_.SetComponent(entity, EulerAngles::zero);
     return DoubleBufferComponentManager::AddComponent(entity);
 }
 

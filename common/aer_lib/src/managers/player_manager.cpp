@@ -301,11 +301,13 @@ void PlayerManager::SetCanMove(PlayerId playerId, bool value)
     shipControllerManager_.SetCanMove(playerId, value);
 }
 
-void PlayerManager::RespawnPlayers()
+void PlayerManager::DeletePlayers()
 {
     for (int i = 0; i < cContainer_.playerManager.playerCount_; i++) {
         SetCanMove(i, false);
         cContainer_.entityManager.DestroyEntity(GetShipEntity(i), true);
+        cContainer_.audioManager.Stop(playerComponents_[i].audioEntity);
+        cContainer_.audioManager.Stop(playerComponents_[i].engineAudioEntity);
         cContainer_.entityManager.DestroyEntity(playerComponents_[i].audioEntity, true);
         cContainer_.entityManager.DestroyEntity(playerComponents_[i].engineAudioEntity, true);
     }
