@@ -69,16 +69,11 @@ struct ComponentManagerContainer : public SystemInterface
 #ifdef NEKO_FMOD
 		audioManager(entityManager, transform3dManager),
 #endif
-         playerManager(engine),
+         playerManager(*this, engine),
          shipInputManager(playerManager),
-         shipControllerManager(
-            entityManager,
-            transform3dManager,
-            rigidDynamicManager,
-            rigidStaticManager,
+         shipControllerManager(  
             physicsEngine,
-            shipInputManager,
-            playerManager),
+             *this),
          cameraControllerManager(
             entityManager,
             transform3dManager,
@@ -110,6 +105,8 @@ struct ComponentManagerContainer : public SystemInterface
 	
     void Init() override
     {
+        menuManager.Init();
+        gameManager.Init();
         transform3dManager.Init();
         renderManager.Init();
 #ifdef NEKO_FMOD
@@ -118,13 +115,10 @@ struct ComponentManagerContainer : public SystemInterface
         playerManager.Init();
         shipControllerManager.Init();
         waypointManager.Init();
-        gameManager.Init();
-        menuManager.Init();
     }
 
     void Update(seconds dt) override
     {
-        transform3dManager.Update();
         renderManager.Update(dt);
 #ifdef NEKO_FMOD
 		audioManager.Update(dt);
@@ -136,6 +130,7 @@ struct ComponentManagerContainer : public SystemInterface
         shipInputManager.Update(dt);
         gameManager.Update(dt);
         menuManager.Update(dt);
+        transform3dManager.Update();
     }
     
 	void Destroy() override

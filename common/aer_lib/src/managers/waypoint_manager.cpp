@@ -366,14 +366,19 @@ namespace neko::aer
 
     void WaypointManager::CalculatePlayerPlacement()
     {
+        auto haswin = engine_.GetComponentManagerContainer().gameManager.HasPlayersWin();
+        int nbFinish = std::count(haswin.begin(), haswin.end(), true) + 1;
         for (int i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
         {
-            playerPositionData_.racePlacement[i] = i + 1;
+            if (haswin[i]) continue;
+            playerPositionData_.racePlacement[i] = nbFinish++;
         }
         for (int i = 0; i < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); i++)
         {
+            if (haswin[i]) continue;
             for (int j = i+1; j < engine_.GetComponentManagerContainer().playerManager.GetPlayerCount(); j++)
             {
+                if (haswin[j]) continue;
                 if (playerPositionData_.waypointsCount[i] > playerPositionData_.waypointsCount[j])
                 {
                     if (playerPositionData_.racePlacement[i] > playerPositionData_.racePlacement[j])

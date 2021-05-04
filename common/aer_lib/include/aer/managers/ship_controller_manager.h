@@ -5,13 +5,11 @@
 #include "engine/transform.h"
 #include "ship_input_manager.h"
 #include <aer/managers/player_manager.h>
+#include "manager_container.h"
 
 
+#include <chrono>
 
-#include <chrono>
-#include <chrono>
-#include <chrono>
-#include <chrono>
 
 namespace neko::aer
 {
@@ -77,7 +75,11 @@ struct ShipController {
     bool canMove = true;
     float pitchMultiplicator = 0.0f;
     float rollMultiplicator = 0.0f;
+};
 
+enum class Sound {
+    Engine,
+    Collision
 };
 
 /**
@@ -90,13 +92,8 @@ class ShipControllerManager:
 {
 public:
     explicit ShipControllerManager(
-        EntityManager& entityManager,
-        Transform3dManager& transform3DManager,
-        physics::RigidDynamicManager& rigidDynamicManager,
-        physics::RigidStaticManager& rigidStaticManager,
         physics::PhysicsEngine& physicsEngine,
-        ShipInputManager& shipInputManager,
-        PlayerManager& playerManager);
+        ComponentManagerContainer& cContainer);
 
 	void Init() override;
 	void Update(seconds dt) override;
@@ -111,19 +108,14 @@ public:
         const physx::PxContactPairHeader& pairHeader) override;
     void SetCanMove(PlayerId playerId, bool value);
     bool GetCanMove(PlayerId playerId);
-
+    void PlaySound(PlayerId playerId, Sound sound);
+    void SetEngineSpeedSound(PlayerId playerId, float speed);
     ShipController GetComponent(PlayerId playerId) { return shipControllers_[playerId]; }
 protected:
     std::vector<ShipController> shipControllers_;
-    PlayerManager& playerManager_;
 
-    ShipInputManager& shipInputManager_;
-	Transform3dManager& transformManager_;
-	EntityManager& entityManager_;
-    physics::RigidDynamicManager& rigidDynamicManager_;
-    physics::RigidStaticManager& rigidStaticManager_;
     physics::PhysicsEngine& physicsEngine_;
-
+    ComponentManagerContainer& cContainer_;
     ShipParameter shipParameter_;
 };
 

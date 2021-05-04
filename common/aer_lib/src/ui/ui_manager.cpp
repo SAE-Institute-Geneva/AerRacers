@@ -28,8 +28,8 @@ void UiManager::Init()
 			uiImageShader_.LoadFromFile(GetGlShadersFolderPath() + "ui_image.vert",
 				GetGlShadersFolderPath() + "ui_image.frag");
 			fontManager_.Init();
-			lobsterId_ = fontManager_.LoadFont(GetFontsFolderPath() + kLobsterName, 36);
-			robotoId_  = fontManager_.LoadFont(GetFontsFolderPath() + kRobotoName, 36);
+			lobsterId_ = fontManager_.LoadFont(GetFontsFolderPath() + kLobsterName, 128);
+			robotoId_  = fontManager_.LoadFont(GetFontsFolderPath() + kRobotoName, 128);
 
             uiImageShader_.BindUbo(gl::kUboUiProjSize, gl::kUboUiProjBinding);
 

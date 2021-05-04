@@ -52,27 +52,48 @@ void EditorToolManager::Update(const seconds dt)
 	const auto& modelManager  = engine_.GetResourceManagerContainer().modelManager;
 	if (selectedEntity_ != INVALID_ENTITY)
 	{
-		if (entityManager.HasComponent(selectedEntity_, EntityMask(ComponentType::MODEL))) {
-			Aabb3d aabbModel = modelManager.GetModel(renderManager.GetComponent(selectedEntity_).modelId)->GetMesh(0).GetAabb();
-			int nbMeshes = modelManager.GetModel(renderManager.GetComponent(selectedEntity_).modelId)->GetMeshCount();
-			for (int i = 1; i < nbMeshes; ++i) {
-				Aabb3d aabbMesh = modelManager.GetModel(renderManager.GetComponent(selectedEntity_).modelId)->GetMesh(i).GetAabb();
-				aabbModel.lowerLeftBound.x = std::min(aabbModel.lowerLeftBound.x, aabbMesh.lowerLeftBound.x);
-				aabbModel.lowerLeftBound.y = std::min(aabbModel.lowerLeftBound.y, aabbMesh.lowerLeftBound.y);
-				aabbModel.lowerLeftBound.z = std::min(aabbModel.lowerLeftBound.y, aabbMesh.lowerLeftBound.z);
-				aabbModel.upperRightBound.x = std::max(aabbModel.upperRightBound.x, aabbMesh.upperRightBound.x);
-				aabbModel.upperRightBound.y = std::max(aabbModel.upperRightBound.y, aabbMesh.upperRightBound.y);
-				aabbModel.upperRightBound.z = std::max(aabbModel.upperRightBound.y, aabbMesh.upperRightBound.z);
-
+		if (entityManager.HasComponent(selectedEntity_, EntityMask(ComponentType::MODEL)) &&
+			modelManager.IsLoaded(renderManager.GetComponent(selectedEntity_).modelId))
+		{
+			Aabb3d aabbModel =
+				modelManager.GetModel(renderManager.GetComponent(selectedEntity_).modelId)
+					->GetMesh(0)
+					.GetAabb();
+			int nbMeshes =
+				modelManager.GetModel(renderManager.GetComponent(selectedEntity_).modelId)
+					->GetMeshCount();
+			for (int i = 1; i < nbMeshes; ++i)
+			{
+				Aabb3d aabbMesh =
+					modelManager.GetModel(renderManager.GetComponent(selectedEntity_).modelId)
+						->GetMesh(i)
+						.GetAabb();
+				aabbModel.lowerLeftBound.x =
+					std::min(aabbModel.lowerLeftBound.x, aabbMesh.lowerLeftBound.x);
+				aabbModel.lowerLeftBound.y =
+					std::min(aabbModel.lowerLeftBound.y, aabbMesh.lowerLeftBound.y);
+				aabbModel.lowerLeftBound.z =
+					std::min(aabbModel.lowerLeftBound.y, aabbMesh.lowerLeftBound.z);
+				aabbModel.upperRightBound.x =
+					std::max(aabbModel.upperRightBound.x, aabbMesh.upperRightBound.x);
+				aabbModel.upperRightBound.y =
+					std::max(aabbModel.upperRightBound.y, aabbMesh.upperRightBound.y);
+				aabbModel.upperRightBound.z =
+					std::max(aabbModel.upperRightBound.y, aabbMesh.upperRightBound.z);
 			}
-			aabbModel.FromCenterExtends(aabbModel.CalculateCenter()* transform3DManager.GetGlobalScale(selectedEntity_) + transform3DManager.GetGlobalPosition(selectedEntity_),
-				aabbModel.CalculateExtends()* transform3DManager.GetGlobalScale(selectedEntity_));
+
+			aabbModel.FromCenterExtends(
+				aabbModel.CalculateCenter() * transform3DManager.GetGlobalScale(selectedEntity_) +
+					transform3DManager.GetGlobalPosition(selectedEntity_),
+				aabbModel.CalculateExtends() * transform3DManager.GetGlobalScale(selectedEntity_));
 			gizmosLocator.DrawCube(aabbModel.CalculateCenter(),
 				aabbModel.CalculateExtends(),
 				EulerAngles(degree_t(0)),
 				Color::red,
 				5.0f);
-		} else {
+		}
+		else
+		{
 			gizmosLocator.DrawCube(transform3DManager.GetGlobalPosition(selectedEntity_),
 				transform3DManager.GetGlobalScale(selectedEntity_),
 				transform3DManager.GetGlobalRotation(selectedEntity_),

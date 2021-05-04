@@ -1,7 +1,6 @@
 #include <aer/managers/game_manager.h>
 #include <aer/aer_engine.h>
 
-
 #include <aer/aer_engine.h>
 
 namespace neko::aer
@@ -14,6 +13,25 @@ namespace neko::aer
     void GameManager::Init()
     {
         gameManagerStarted = false;
+        ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+        audioEntity_ = cContainer.entityManager.CreateEntity();
+        cContainer.transform3dManager.AddComponent(audioEntity_);
+        cContainer.audioManager.AddComponent(audioEntity_);
+        cContainer.audioManager.SetPlayOnWakeUp(audioEntity_, false);
+        cContainer.audioManager.SetEventName(audioEntity_, "sfx/menu_bleep");
+        cContainer.audioManager.SetMaxDistance(audioEntity_, 40.0f);
+        cContainer.audioManager.SetVolume(audioEntity_, 50.0f);
+        if (engine_.GetMode() == ModeEnum::GAME)
+        {
+            musicEntity_ = cContainer.entityManager.CreateEntity();
+            cContainer.transform3dManager.AddComponent(musicEntity_);
+            cContainer.audioManager.AddComponent(musicEntity_);
+            cContainer.audioManager.SetPlayOnWakeUp(musicEntity_, true);
+            cContainer.audioManager.SetEventName(musicEntity_, "music/game");
+            cContainer.audioManager.SetMaxDistance(musicEntity_, 40.0f);
+            cContainer.audioManager.SetVolume(musicEntity_, 50.0f);
+        }
+        cContainer.audioManager.Init();
     }
 
 
@@ -45,6 +63,10 @@ namespace neko::aer
         StartUi();
         gameManagerStarted = true;
         game_state_ = GameState::WATING;
+        for (int i = 0; i < playerCount; i++)
+        {
+            hasWin[i] = false;
+        }
     }
 
     void GameManager::Update(seconds dt)
@@ -53,9 +75,13 @@ namespace neko::aer
         {
             if (gameManagerStarted)
             {
+                ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+
+                UpdateLapsUiText();
+                UpdatePlacementUiText();
                 for (int i = 0; i < playerCount; i++)
                 {
-                    timeBackgroundGameUI_[i].SetEnable(false);
+                    timeBackgroundGameUI_[i].SetEnable(true);
                 }
                 switch (game_state_)
                 {
@@ -63,12 +89,11 @@ namespace neko::aer
                     time -= dt;
                     //TODO: Don't allow player to move
                     WaitForStart();
-                    for (int i = 0; i < playerCount; i++)
-                    {
-                        timeBackgroundGameUI_[i].SetEnable(true);
-                    }
                     break;
                 case GameState::RACING:
+                    if (!hasPlayedStartSound) {
+                        hasPlayedStartSound = true; cContainer.audioManager.Play(audioEntity_);
+                    }
                     if (time.count() > 3.0f)
                     {
                         for (int i = 0; i < playerCount; i++)
@@ -82,17 +107,16 @@ namespace neko::aer
                     break;
                 case GameState::END:
                     EndGame();
+                    time += dt;
                     break;
                 }
             }
-            UpdateLapsUiText();
-            UpdatePlacementUiText();
             //Todo: delete
-            auto& inputlocator = sdl::InputLocator::get();
-             if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
-             {
-                 GoBackToMenu();
-             }
+            //auto& inputlocator = sdl::InputLocator::get();
+            // if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
+            // {
+            //     GoBackToMenu();
+            // }
         }
     }
 
@@ -246,6 +270,7 @@ namespace neko::aer
         for (int i = 0; i < playerCount; i++)
         {
             middleTextUi[i].SetText("");
+            endGameText[i].SetEnable(true);
             endGameText[i].SetText(std::to_string(i + 1) + positionsText[i] + ": Player " + std::to_string(victoryDatas[i].index + 1) + " (Time: " + fmt::format("{:.2f}", victoryDatas[i].time) + ")");
         }
         if (endedGame && time.count() > 5.0f)
@@ -268,7 +293,7 @@ namespace neko::aer
         for(int i = 0; i < playerCount; i++)
         {
             middleTextUi[i] = UiText(FontLoaded::LOBSTER, "Ready?", Vec2i(Vec2f(0.0f, 0.0f) * Vec2f(config.windowSize)), UiAnchor::CENTER, i + 1, 4.0f, Color::white);
-            timerUi_[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2i(Vec2f(1.5f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::TOP_LEFT, i + 1, 2.0f, Color::white);
+            timerUi_[i] = UiText(FontLoaded::LOBSTER, fmt::format("{:.2f}", neko::seconds(0).count()), Vec2i(Vec2f(1.5f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::TOP_LEFT, i + 1, 1.0f, Color::white);
             lapsUi_[i] = UiText(FontLoaded::LOBSTER, "0/0", Vec2i(Vec2f(-1.0f, -1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::TOP_RIGHT, i + 1, 2.0f, Color::white);;
             placementUi[i] = UiText(FontLoaded::LOBSTER, "0th", Vec2i(Vec2f(-1.0f, 1.0f) * Vec2f(config.windowSize) * uiPositionMultiplier), UiAnchor::BOTTOM_RIGHT, i + 1, 2.0f, Color::white);
             placement1stInGameUI_[i].SetEnable(false);
@@ -336,7 +361,7 @@ namespace neko::aer
     {
         for (int i = 0; i < playerCount; i++)
         {
-            timeBackgroundGameUI_[i].SetEnable(true);
+            if (hasWin[i]) continue;
             timerUi_[i].SetText(fmt::format("{:.2f}", time.count()));
         }
 
@@ -352,7 +377,8 @@ namespace neko::aer
             lap3InGameUI_[i].SetEnable(false);
             if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpToFinish)
             {
-                
+                lapsBackgroundInGameUI_[i].SetEnable(true);
+                lap3InGameUI_[i].SetEnable(true);
             }
             else if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpToFinish * 2/3)
             {
@@ -402,7 +428,7 @@ namespace neko::aer
     void GameManager::GoBackToMenu()
     {
         gameManagerStarted = false;
-        engine_.GetComponentManagerContainer().playerManager.RespawnPlayers();
+        engine_.GetComponentManagerContainer().playerManager.DeletePlayers();
         for (int i = 0; i < playerCount; i++)
         {
             placement1stInGameUI_[i].SetEnable(false);

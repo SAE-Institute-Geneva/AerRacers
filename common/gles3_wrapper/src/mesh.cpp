@@ -214,7 +214,6 @@ void Mesh::BindTextures(const Shader& shader) const
 	}
 
 	shader.SetFloat("material.shininess", shininess_);
-	//Unused for current models so set tio default
 	shader.SetVec3("material.color", Vec3f::one);
 	shader.SetUInt("usedMaps", usedMaps);
 	glActiveTexture(GL_TEXTURE0);

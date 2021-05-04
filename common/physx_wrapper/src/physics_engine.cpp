@@ -109,18 +109,31 @@ bool PhysicsEngine::Advance(physx::PxReal dt)
     if (accumulator_ < stepSize_.count())
         return false;
 
-    accumulator_ -= stepSize_.count();
-
     return true;
 }
 
 void PhysicsEngine::Update(seconds dt)
 {
+#ifdef EASY_PROFILE_USE
+    EASY_BLOCK("PhysicsEngine::Update");
+#endif
     physicRunning_ = physicsStopped_;
     if (physicRunning_)
     {
         if (Advance(dt.count())) {
-            FixedUpdate(stepSize_);
+            if (accumulator_ > 1.0f)
+            {
+                while (accumulator_ > 1.0f) {
+                    accumulator_ -= stepSize_.count();
+                    FixedUpdate(stepSize_);
+                }
+                //accumulator_ -= dt.count();
+                //FixedUpdate(dt);
+            }
+            else {
+                accumulator_ -= stepSize_.count();
+                FixedUpdate(stepSize_);
+            }
         }
     }
 }

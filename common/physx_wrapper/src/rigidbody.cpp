@@ -1139,6 +1139,7 @@ void RigidDynamicManager::FixedUpdate(seconds dt)
 		physx::PxVec3 z = transform.q.getBasisVector2();
 		transform3dManager_.SetGlobalRotation(
 			entity, Quaternion::ToEulerAngles(ConvertFromPxQuat(transform.q)));
+		transform3dManager_.Update();
 	}
 }
 

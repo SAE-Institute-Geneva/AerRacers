@@ -6,20 +6,10 @@
 namespace neko::aer
 {
     ShipControllerManager::ShipControllerManager(
-        EntityManager& entityManager,
-        Transform3dManager& transform3DManager,
-        physics::RigidDynamicManager& rigidDynamicManager,
-        physics::RigidStaticManager& rigidStaticManager,
         physics::PhysicsEngine& physicsEngine,
-        ShipInputManager& shipInputManager,
-        PlayerManager& playerManager)
-        : playerManager_(playerManager),
-          shipInputManager_(shipInputManager),
-          transformManager_(transform3DManager),
-          entityManager_(entityManager),
-          rigidDynamicManager_(rigidDynamicManager),
-          rigidStaticManager_(rigidStaticManager),
-          physicsEngine_(physicsEngine)
+        ComponentManagerContainer& cContainer)
+        : physicsEngine_(physicsEngine),
+          cContainer_(cContainer)
     {
         shipControllers_.resize(INIT_PLAYER_NMB, ShipController());
     }
@@ -32,31 +22,32 @@ void ShipControllerManager::InitComponent(PlayerId player)
 
     //Set the drag to be the forwardForce / terminalVelocity.
    shipController.drag = shipParameter_.kForwardForce / shipParameter_.kTerminalVelocity;
+   
+   PlaySound(player, Sound::Engine);
 }
 
 void ShipControllerManager::RotorRotation(PlayerId playerId) {
-    PlayerComponent playerComponent = playerManager_.GetPlayerComponent(playerId);
+    PlayerComponent playerComponent = cContainer_.playerManager.GetPlayerComponent(playerId);
     Entity& rightRotor = playerComponent.rightRotorModel;
     Entity& leftRotor = playerComponent.leftRotorModel;
 
-    Vec3f currentRightRotorRotation = Vec3f(transformManager_.GetRelativeRotation(rightRotor));
-    transformManager_.SetRelativeRotation(rightRotor, EulerAngles(Vec3f(currentRightRotorRotation.x, currentRightRotorRotation.y-shipParameter_.kRotorRotationSpeed, currentRightRotorRotation.z)));
+    Vec3f currentRightRotorRotation = Vec3f(cContainer_.transform3dManager.GetRelativeRotation(rightRotor));
+    cContainer_.transform3dManager.SetRelativeRotation(rightRotor, EulerAngles(Vec3f(currentRightRotorRotation.x, currentRightRotorRotation.y-shipParameter_.kRotorRotationSpeed, currentRightRotorRotation.z)));
 
-    Vec3f currentLeftRotorRotation = Vec3f(transformManager_.GetRelativeRotation(leftRotor));
-    transformManager_.SetRelativeRotation(leftRotor, EulerAngles(Vec3f(currentLeftRotorRotation.x, currentLeftRotorRotation.y - shipParameter_.kRotorRotationSpeed, currentLeftRotorRotation.z)));
+    Vec3f currentLeftRotorRotation = Vec3f(cContainer_.transform3dManager.GetRelativeRotation(leftRotor));
+    cContainer_.transform3dManager.SetRelativeRotation(leftRotor, EulerAngles(Vec3f(currentLeftRotorRotation.x, currentLeftRotorRotation.y - shipParameter_.kRotorRotationSpeed, currentLeftRotorRotation.z)));
 }
 
 
 void ShipControllerManager::Init()
 {
-
 }
 
 void ShipControllerManager::FixedUpdate(seconds dt) {
-    for (PlayerId playerId = 0; playerId < playerManager_.GetPlayerCount(); ++playerId) {
-        Entity shipEntity = playerManager_.GetShipEntity(playerId);
+    for (PlayerId playerId = 0; playerId < cContainer_.playerManager.GetPlayerCount(); ++playerId) {
+        Entity shipEntity = cContainer_.playerManager.GetShipEntity(playerId);
         if (shipEntity == INVALID_ENTITY) continue;
-        if (!entityManager_.HasComponent(shipEntity, EntityMask(ComponentType::RIGID_DYNAMIC))) continue;
+        if (!cContainer_.entityManager.HasComponent(shipEntity, EntityMask(ComponentType::RIGID_DYNAMIC))) continue;
         CalculateHover(playerId, dt);
         CalculateThrust(playerId, dt);
         RotorMovement(playerId);
@@ -67,22 +58,23 @@ void ShipControllerManager::FixedUpdate(seconds dt) {
 
 void ShipControllerManager::Update(seconds dt)
 {
-    shipInputManager_.Update(dt);
+    cContainer_.shipInputManager.Update(dt);
 }
 
 void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
 {
     ShipController& shipController = shipControllers_[playerId];
 
-    Entity shipEntity = playerManager_.GetShipEntity(playerId);
+    Entity shipEntity = cContainer_.playerManager.GetShipEntity(playerId);
     if (shipEntity == INVALID_ENTITY) return;
-    physics::RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(shipEntity);
+
+    physics::RigidDynamic rigidDynamic = cContainer_.rigidDynamicManager.GetComponent(shipEntity);
 
     //Raycast to ground
     Vec3f groundNormal = Vec3f::zero;
-    Vec3f shipPosition = transformManager_.GetGlobalPosition(shipEntity);
+    Vec3f shipPosition = cContainer_.transform3dManager.GetGlobalPosition(shipEntity);
     Vec3f rayPos =  shipPosition;
-    Quaternion shipRotation = Quaternion::FromEuler(transformManager_.GetGlobalRotation(shipEntity));
+    Quaternion shipRotation = Quaternion::FromEuler(cContainer_.transform3dManager.GetGlobalRotation(shipEntity));
     Vec3f forward = shipRotation * Vec3f::forward;
     //Vec3f rayPos =  forward + shipPosition;
     const physics::RaycastInfo& raycastInfo = physicsEngine_.Raycast(
@@ -141,7 +133,7 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
         if (shipController.canMove)
         {
             //Roll angle
-            float rudder = -shipInputManager_.GetRudder(playerId);
+            float rudder = -cContainer_.shipInputManager.GetRudder(playerId);
             
             if(rudder > shipParameter_.kAngleDeadzoneLimit){
                 shipController.rollMultiplicator += shipParameter_.kRollChangeSpeed;
@@ -172,10 +164,10 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
             rollAngle = shipParameter_.kAngleOfRoll * shipController.rollMultiplicator;
 
             //Roll with user input
-            //rollAngle = shipParameter_.kAngleOfRoll * -shipInputManager_.GetRudder(playerId) * shipInputManager_.GetIntensity(playerId);
+            //rollAngle = shipParameter_.kAngleOfRoll * -cContainer_.shipInputManager.GetRudder(playerId) * cContainer_.shipInputManager.GetIntensity(playerId);
 
             //Pitch angle
-            float thrust = shipInputManager_.GetThruster(playerId);
+            float thrust = cContainer_.shipInputManager.GetThruster(playerId);
 
             if(thrust > shipParameter_.kAngleDeadzoneLimit) {
                 shipController.pitchMultiplicator += shipParameter_.kPitchChangeSpeed;
@@ -206,119 +198,89 @@ void ShipControllerManager::CalculateHover(PlayerId playerId, seconds dt)
             pitchAngle = shipParameter_.kAngleOfPitch * shipController.pitchMultiplicator;
 
             //Pitch with user input
-            //pitchAngle = shipParameter_.kAngleOfPitch *shipInputManager_.GetThruster(playerId) * shipInputManager_.GetIntensity(playerId);
+            //pitchAngle = shipParameter_.kAngleOfPitch *cContainer_.shipInputManager.GetThruster(playerId) * cContainer_.shipInputManager.GetIntensity(playerId);
         }
 
-    Entity shipModelEntity = playerManager_.GetPlayerComponent(playerId).shipModelEntity;
+    Entity shipModelEntity = cContainer_.playerManager.GetPlayerComponent(playerId).shipModelEntity;
     Quaternion bodyRotation = Quaternion::FromEuler(EulerAngles(pitchAngle, 0.0f, rollAngle));
 
-    transformManager_.SetRelativeRotation(shipModelEntity, Quaternion::ToEulerAngles(bodyRotation));
-    //transformManager_.SetGlobalRotation(entity, 
-    //    Quaternion::ToEulerAngles(
-    //        Quaternion::Lerp(
-    //            Quaternion::FromEuler(transformManager_.GetGlobalRotation(entity)), 
-    //            bodyRotation, 
-    //            dt.count() * 10.0f)));
-
+    cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity, Quaternion::ToEulerAngles(bodyRotation));
 }
 
 void ShipControllerManager::CalculateThrust(PlayerId playerId, seconds dt)
 {
     ShipController& shipController = shipControllers_[playerId];
-    Entity shipEntity = playerManager_.GetShipEntity(playerId);
+    Entity shipEntity = cContainer_.playerManager.GetShipEntity(playerId);
     if (shipEntity == INVALID_ENTITY) return;
-    physics::RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(shipEntity);
+    physics::RigidDynamic rigidDynamic = cContainer_.rigidDynamicManager.GetComponent(shipEntity);
 
     float rotationTorque = 0; 
 
     if (shipController.canMove)
     {
-        rotationTorque = (shipInputManager_.GetRudder(playerId) * shipParameter_.kRotationMultiplicator) - rigidDynamic.GetDynamicData().angularVelocity.y;
+        rotationTorque = (cContainer_.shipInputManager.GetRudder(playerId) * shipParameter_.kRotationMultiplicator) - rigidDynamic.GetDynamicData().angularVelocity.y;
     }
 
     rigidDynamic.AddRelativeTorque(Vec3f(0.0f, rotationTorque, 0.0f), physx::PxForceMode::eVELOCITY_CHANGE);
 
-    Vec3f right = Quaternion::FromEuler(transformManager_.GetGlobalRotation(shipEntity)) * Vec3f::right;
+    Vec3f right = Quaternion::FromEuler(cContainer_.transform3dManager.GetGlobalRotation(shipEntity)) * Vec3f::right;
     float sidewaySpeed = Vec3f::Dot(rigidDynamic.GetDynamicData().linearVelocity, right);
 
     Vec3f sideFriction = -right * (sidewaySpeed / dt.count());
 
     rigidDynamic.AddForce(sideFriction, physx::PxForceMode::eACCELERATION);
 
-    //TODO
     float currentThruster = 0;
     bool currentBreaking = false;
         if (shipController.canMove)
         {
-            currentThruster = shipInputManager_.GetThruster(playerId);
-            currentBreaking = shipInputManager_.IsBreaking(playerId);
+            currentThruster = cContainer_.shipInputManager.GetThruster(playerId);
+            currentBreaking = cContainer_.shipInputManager.IsBreaking(playerId);
         }
 
     if(currentThruster <= 0.0f) {
-        rigidDynamicManager_.SetLinearVelocity(shipEntity, rigidDynamic.GetDynamicData().linearVelocity * shipParameter_.kSlowingVelFactor);
+        cContainer_.rigidDynamicManager.SetLinearVelocity(shipEntity, rigidDynamic.GetDynamicData().linearVelocity * shipParameter_.kSlowingVelFactor);
     }
 
     if(!shipController.isOnGround) {
         return;
     }
     if(currentBreaking) {
-        rigidDynamicManager_.SetLinearVelocity(shipEntity, rigidDynamic.GetDynamicData().linearVelocity * shipParameter_.kBrakingVelFactor);
+        cContainer_.rigidDynamicManager.SetLinearVelocity(shipEntity, rigidDynamic.GetDynamicData().linearVelocity * shipParameter_.kBrakingVelFactor);
     }
 
-    Vec3f forward = Quaternion::FromEuler(transformManager_.GetGlobalRotation(shipEntity)) * Vec3f::forward;
+    Vec3f forward = Quaternion::FromEuler(cContainer_.transform3dManager.GetGlobalRotation(shipEntity)) * Vec3f::forward;
     float propulsion = (shipParameter_.kForwardForce * currentThruster * shipParameter_.kPropultionMultiplicator) -
         (shipController.drag * Clamp(Vec3f::Dot(rigidDynamic.GetDynamicData().linearVelocity, forward), 0.0f, shipParameter_.kTerminalVelocity) *
             shipParameter_.kPropultionMultiplicator);
     rigidDynamic.AddForce(forward * propulsion, physx::PxForceMode::eACCELERATION);
+    float forwardVel = cContainer_.rigidDynamicManager.GetDynamicData(shipEntity).linearVelocity.Magnitude();
+
+    SetEngineSpeedSound(playerId, std::clamp(forwardVel / 10.0f, 0.1f, 100.0f));
 }
 
 void ShipControllerManager::RotorMovement(PlayerId playerId) {
 
-    PlayerComponent playerComponent = playerManager_.GetPlayerComponent(playerId);
+    PlayerComponent playerComponent = cContainer_.playerManager.GetPlayerComponent(playerId);
 
     ShipController& shipController = shipControllers_[playerId];
 
     Vec3f rightRotation = Vec3f::zero;
     if (shipController.canMove)
     {
-        rightRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
-        rightRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
+        rightRotation.x = cContainer_.shipInputManager.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
+        rightRotation.z = cContainer_.shipInputManager.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
     }
 
     Vec3f leftRotation = Vec3f::zero;
     if (shipController.canMove)
     {
-        leftRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
-        leftRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
+        leftRotation.x = cContainer_.shipInputManager.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
+        leftRotation.z = cContainer_.shipInputManager.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
     }
 
-    transformManager_.SetRelativeRotation(playerComponent.rightRotorAnchor, EulerAngles(rightRotation));
-    transformManager_.SetRelativeRotation(playerComponent.leftRotorAnchor, EulerAngles(leftRotation));
-    
-
-// <<<<<<< HEAD
-//     ShipController& shipController = shipControllers_[playerId];
-//     
-//     Vec3f rightRotation = Vec3f::zero;
-//     if (shipController.canMove)
-//     {
-//         rightRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
-//         rightRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Right, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
-//     }
-//      
-//     Vec3f leftRotation = Vec3f::zero;
-//     if (shipController.canMove)
-//     {
-//         leftRotation.x = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Vertical) * shipParameter_.kRotorMaxAngle;
-//         leftRotation.z = shipInputManager_.GetJoystickAxis(playerId, ShipInputManager::Joystick::Left, ShipInputManager::Axis::Horizontal) * shipParameter_.kRotorMaxAngle;
-//     }
-//     
-//     transformManager_.SetRelativeRotation(shipController.rightRotor, ConvertVec3fToEulerAngles(rightRotation));
-//     transformManager_.SetRelativeRotation(shipController.leftRotor, ConvertVec3fToEulerAngles(leftRotation));
-// =======
-//     transformManager_.SetRelativeRotation(playerComponent.rightRotorAnchor, EulerAngles(rightRotation));
-//     transformManager_.SetRelativeRotation(playerComponent.leftRotorAnchor, EulerAngles(leftRotation));
-// >>>>>>> ea26681eab9459c5b4b74681e5e6c2e10d7cb858
+    cContainer_.transform3dManager.SetRelativeRotation(playerComponent.rightRotorAnchor, EulerAngles(rightRotation));
+    cContainer_.transform3dManager.SetRelativeRotation(playerComponent.leftRotorAnchor, EulerAngles(leftRotation));
 }
 
 void ShipControllerManager::SetCanMove(PlayerId playerId, bool value)
@@ -331,36 +293,51 @@ bool ShipControllerManager::GetCanMove(PlayerId playerId)
     return shipControllers_[playerId].canMove;
 }
 
-
 void ShipControllerManager::OnCollisionEnter(
     const physx::PxContactPairHeader& pairHeader)
 {
+    const Entity entity1 = cContainer_.rigidDynamicManager.FindEntityFromActor(pairHeader.actors[0]);
+    if (entity1 != INVALID_ENTITY) {
+        if (cContainer_.entityManager.HasComponent(entity1, EntityMask(ComponentType::PLAYER_COMPONENT))) {
+            for (PlayerId playerId = 0; playerId < cContainer_.playerManager.GetPlayerCount(); ++playerId) {
+                Entity currentEntity = cContainer_.playerManager.GetShipEntity(playerId);
+                if (currentEntity == INVALID_ENTITY) continue;
+                if (!cContainer_.entityManager.HasComponent(currentEntity, EntityMask(ComponentType::RIGID_DYNAMIC))) continue;
+                if(currentEntity == entity1) {
+                    PlaySound(playerId, Sound::Collision);
+                    break;
+                }
+            }
+        }
+    }
+
+
     //physx::PxContactPairPoint contactPointBuffer[16];
     //int32_t numContactPoints = pairHeader.pairs->extractContacts(contactPointBuffer, 16);
     //LogDebug(std::to_string(numContactPoints));
-    //const Entity entity1 = rigidDynamicManager_.FindEntityFromActor(pairHeader.actors[0]);
+    //const Entity entity1 = cContainer_.rigidDynamicManager.FindEntityFromActor(pairHeader.actors[0]);
     //if (entity1 != INVALID_ENTITY)
     //{
-    //    if (entityManager_.get().HasComponent(entity1, EntityMask(ComponentType::SHIP_CONTROLLER))) {
+    //    if (cContainer_.entityManager.get().HasComponent(entity1, EntityMask(ComponentType::SHIP_CONTROLLER))) {
     //        physx::PxContactPairPoint contactPointBuffer[16];
     //        int32_t numContactPoints = pairHeader.pairs->extractContacts(contactPointBuffer, 16);
     //        LogDebug(std::to_string(numContactPoints));
     //        if (Vec3f::Angle(Vec3f::up, physics::ConvertFromPxVec(contactPointBuffer->normal)) > degree_t(80.0f))
     //        {
-    //            physics::RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(entity1);
+    //            physics::RigidDynamic rigidDynamic = cContainer_.rigidDynamicManager.GetComponent(entity1);
     //            rigidDynamic.AddForce(physics::ConvertFromPxVec(contactPointBuffer->normal) * shipParameter_.kBounceForce, physx::PxForceMode::eIMPULSE);
     //        }
     //    }
     //}
-    //const Entity entity2 = rigidDynamicManager_.FindEntityFromActor(pairHeader.actors[0]);
+    //const Entity entity2 = cContainer_.rigidDynamicManager.FindEntityFromActor(pairHeader.actors[0]);
     //if (entity2 == INVALID_ENTITY) return;
-    //if (entityManager_.get().HasComponent(entity2, EntityMask(ComponentType::SHIP_CONTROLLER))) {
+    //if (cContainer_.entityManager.get().HasComponent(entity2, EntityMask(ComponentType::SHIP_CONTROLLER))) {
     //    physx::PxContactPairPoint contactPointBuffer[16];
     //    int32_t numContactPoints = pairHeader.pairs->extractContacts(contactPointBuffer, 16);
     //    LogDebug(std::to_string(numContactPoints));
     //    if (Vec3f::Angle(Vec3f::up, physics::ConvertFromPxVec(contactPointBuffer->normal)) > degree_t(80.0f))
     //    {
-    //        physics::RigidDynamic rigidDynamic = rigidDynamicManager_.GetComponent(entity1);
+    //        physics::RigidDynamic rigidDynamic = cContainer_.rigidDynamicManager.GetComponent(entity1);
     //        rigidDynamic.AddForce(physics::ConvertFromPxVec(contactPointBuffer->normal) * shipParameter_.kBounceForce, physx::PxForceMode::eIMPULSE);
     //    }
     //}
@@ -419,6 +396,39 @@ float PID::Seek(float seekValue, float currentValue, float deltaTime)
 
     return value;
 }
+
+void ShipControllerManager::PlaySound(PlayerId playerId, Sound sound) {
+    PlayerComponent playerComponent = cContainer_.playerManager.GetPlayerComponent(playerId);
+
+    switch(sound) {
+        case Sound::Engine:
+            cContainer_.audioManager.Play(playerComponent.engineAudioEntity);
+            break;
+        case Sound::Collision:
+        {
+            float random = RandomRange(0.0f, 1.0f);
+            if (random > 0.5f)
+            {
+                cContainer_.audioManager.SetEventName(playerComponent.audioEntity, "sfx/crash_short1");
+            }
+            else
+            {
+                cContainer_.audioManager.SetEventName(playerComponent.audioEntity, "sfx/crash_short2");
+
+            }
+            cContainer_.audioManager.Play(playerComponent.audioEntity);
+        }
+            break;
+        default: ;
+    }
+    
+}
+
+void ShipControllerManager::SetEngineSpeedSound(PlayerId playerId, float speed) {
+    PlayerComponent playerComponent = cContainer_.playerManager.GetPlayerComponent(playerId);
+    cContainer_.audioManager.SetParameter(playerComponent.engineAudioEntity, "Speed", speed);
+}
+
 
 
 }    // namespace neko::aer

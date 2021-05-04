@@ -1060,3 +1060,11 @@ TEST(Quaternion, LookRotationForward)
         }
     }
 }
+
+TEST(Math, Lerp)
+{
+    EXPECT_NEAR(neko::InverseLerp(0, 1.0, 0.5f), 0.5f, 0.01f);
+    EXPECT_NEAR(neko::InverseLerp(0, 1.0, 0.25f), 0.25f, 0.01f);
+    EXPECT_NEAR(neko::InverseLerp(0, 10.0, 1.0f), 0.1f, 0.01f);
+    EXPECT_NEAR(neko::InverseLerp(10.0, 110.0, 60.0f), 0.5f, 0.01f);
+}

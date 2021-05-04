@@ -13,6 +13,7 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 	 mode_(mode),
 	 drawSystem_(*this),
 	 physicsEngine_(cContainer_.entityManager, cContainer_.transform3dManager),
+     rContainer_(),
 	 cContainer_(*this, rContainer_, physicsEngine_),
 	 toolManager_(*this)
 {
@@ -37,12 +38,14 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 		tagManager_ = std::make_unique<TagManager>(cContainer_.sceneManager);
 
 		physicsEngine_.InitPhysics();
+
 #ifdef NEKO_FMOD
 		RegisterSystem(fmodEngine_);
 #endif
 		RegisterSystem(rContainer_);
 		RegisterSystem(cContainer_);
 		RegisterSystem(physicsEngine_);
+
 	}
 }
 

@@ -30,7 +30,7 @@
 #include <engine/entity.h>
 #include <mathematics/vector.h>
 #include <aer/ui/ui_manager.h>
-//#include <aer/ui/ui_manager.h>
+
 namespace neko::aer
 {
     class AerEngine;
@@ -80,17 +80,21 @@ struct VictoryData
         void UpdatePlacementUiText();
         void CheckIfEveryoneHasFinished();
 
+        std::array<bool, 4> HasPlayersWin() const { return hasWin; }
+
         void GoBackToMenu();
 
         void Destroy() override;
     private:
         AerEngine& engine_;
+
         //const int waypointsToWin = 108;
         GameState game_state_;
         PlayerPositionData* playerPositionData;
+        
         neko::seconds time = neko::seconds(0);
         bool gameManagerStarted = false;
-
+        bool hasPlayedStartSound = false;
         std::array<bool, 4> hasWin = {
             false,
             false,
@@ -103,10 +107,10 @@ struct VictoryData
         std::array<UiText, 4> lapsUi_;
         std::array<UiText, 4> placementUi;
         std::array<UiText, 4> endGameText {
-            UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 1, 1, Color::cyan),
-            UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 2, 1, Color::cyan),
-            UiText(FontLoaded::LOBSTER, "",Vec2i(0,0), UiAnchor::CENTER, 3, 1, Color::cyan),
-            UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 4, 1, Color::cyan)
+            UiText(FontLoaded::LOBSTER, "", Vec2i(0,300), UiAnchor::CENTER, 0, 2.0f, Color::white),
+            UiText(FontLoaded::LOBSTER, "", Vec2i(0,100), UiAnchor::CENTER, 0, 2.0f, Color::white),
+            UiText(FontLoaded::LOBSTER, "",Vec2i(0,-100), UiAnchor::CENTER, 0, 2.0f, Color::white),
+            UiText(FontLoaded::LOBSTER, "", Vec2i(0,-300), UiAnchor::CENTER, 0, 2.0f, Color::white)
         };
         std::array<std::string, 4> positionsText{ "st", "nd", "rd", "th" };
         std::vector<VictoryData> victoryDatas;
@@ -139,7 +143,7 @@ struct VictoryData
 
         const float startTimer = 10.0f;
         const float endTimer = 10.0f;
-        const int wpToFinish = 29;
+        const int wpToFinish = 87;
         const float placementSizeMultiplier = 0.3f;
         const float lapsSizeMultiplier = 0.3f;
         const float timeBackgroundMultiplier_ = 0.5f;
@@ -158,6 +162,8 @@ struct VictoryData
             Vec3f(-800.0f, 1185.0f, -3000.0f)
         };
 
+        Entity musicEntity_ = INVALID_ENTITY;
+        Entity audioEntity_ = INVALID_ENTITY;
         //TODO: Sound MoveInMenu
         //TODO: Sound Validation
     };

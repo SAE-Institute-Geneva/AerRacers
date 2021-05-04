@@ -41,6 +41,9 @@ inline float Lerp(float start, float end, float t)
     return start + (end - start) * t;
 }
 
+/**
+ * \brief Calculates the linear parameter t that produces the interpolant value within the range [a, b].
+ */
 inline float InverseLerp(float start, float end, float value)
 {
     return (value - start) / (end - start);

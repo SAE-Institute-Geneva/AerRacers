@@ -31,9 +31,10 @@
 #include <engine/entity.h>
 #include <mathematics/vector.h>
 #include <sdl_engine/sdl_input.h>
-#include <gl/texture.h>
+#include <gl/model_manager.h>
 
-namespace neko::aer {
+namespace neko::aer
+{
 class AerEngine;
 class ShipInputManager;
 class ShipControllerManager;
@@ -49,11 +50,14 @@ struct PlayerComponent {
     Entity shipModelEntity  = INVALID_ENTITY;
     Entity leftRotorAnchor  = INVALID_ENTITY;
     Entity rightRotorAnchor = INVALID_ENTITY;
-    Entity leftRotorModel   = INVALID_ENTITY;
-    Entity rightRotorModel  = INVALID_ENTITY;
+    Entity leftRotorModel = INVALID_ENTITY;
+    Entity rightRotorModel = INVALID_ENTITY;
+    Entity audioEntity = INVALID_ENTITY;
+    Entity engineAudioEntity = INVALID_ENTITY;
+
 
     PlayerId playerNumber            = 0;
-    sdl::ControllerId linkedJoystick = 0;
+    sdl::JoystickId linkedJoystick = 0;
     Vec3f playerSpawn                = Vec3f(0, 0, 0);
 
     //TODO texture
@@ -64,7 +68,7 @@ struct PlayerComponent {
  */
 class PlayerManager final : public SystemInterface {
 public:
-    explicit PlayerManager(AerEngine& engine);
+    explicit PlayerManager(ComponentManagerContainer& cContainer, AerEngine& engine);
 
     virtual ~PlayerManager() = default;
 
@@ -79,7 +83,7 @@ public:
     Vec3f GetPlayerPosition(PlayerId playerId);
     bool GetCanMove(PlayerId playerId);
     void SetCanMove(PlayerId playerId, bool value);
-    void RespawnPlayers();
+    void DeletePlayers();
 
     void Init() override;
     void Update(seconds dt) override;
@@ -92,7 +96,7 @@ private:
     CameraControllerManager& cameraControllerManager_;
     ShipControllerManager& shipControllerManager_;
     ShipInputManager& shipInputManager_;
-
+    AerEngine& engine_;
     const float kYDespawnPosition_ = -10000.0f;
     std::vector<gl::ModelId> shipModels_;
 };
