@@ -43,6 +43,7 @@ namespace neko::aer
         OPTIONS,
         CREDITS,
         SELECTION,
+    	LOADING,
         SLEEP
 
     };
@@ -78,6 +79,13 @@ namespace neko::aer
         READY,
         SLEEP
     };
+
+	enum class LoadingStatus
+	{
+		LOAD_MENU,
+		LOAD_SCENE,
+		LOAD_PLAYERS
+	};
 
 
     // enum class SelectedShipColor
@@ -146,15 +154,120 @@ namespace neko::aer
         std::array<SelectionPointing, 4> selectionPointing_;
 
         //Credits
-        std::string creditsSebText_ = "Sébastien Feser \n Lead Project \n Lead Gameplay Programmer \n Lead Designer";
-        std::string creditsSimonText_ = "Simon Canas \n Lead Tool \n Lead Engine Programmer";
-        std::string creditsStephenText_ = "Stephen Grosjean \n Dev Ops \n Game Designer \n Gameplay Programmer";
-        std::string creditsLucaText_ = "Luca Floreau \n Producer \n Lead Programmer \n Gameplay Programmer";
+        std::string creditsSebNameText_ = "Sebastien Feser";
+        std::string creditsSebLPText_ = "Lead Project";
+        std::string creditsSebGPText_ = "Lead Gameplay Programmer";
+        std::string creditsSebGDText_ = "Lead Designer";
 
-        UiText creditsSebUiText_;
-        UiText creditsSimonUiText_;
-        UiText creditsStephenUiText_;
-        UiText creditsLucaUiText_;
+        std::string creditsSimonNameText_ = "Simon Canas";
+        std::string creditsSimonLTText_ = "Lead Tool";
+        std::string creditsSimonLEText_ = "lead Engine Programmer";
+
+        std::string creditsStephenNameText_ = "Stephen Grosjean";
+        std::string creditsStephenDOText_ = "Dev Ops";
+        std::string creditStephenGDsText_ = "Game Designer";
+        std::string creditsStephenGPText_ = "Gameplay Programmer";
+
+        std::string creditsLucaNameText_ = "Luca Floreau";
+        std::string creditsLucaPText_ = "Producer";
+        std::string creditsLucaLPText_ = "Lead Programmer";
+        std::string creditsLucaGPText_ = "Gameplay Programmer";
+
+
+        std::string creditsArtsText_ = "Game Artists";
+
+        std::string creditsJKText_ = "Julien Kobler";
+        std::string creditsHCText_ = "Horatiu Coman";
+        std::string creditsEMText_ = "Emilie Maire";
+        std::string creditsCBText_ = "Cedric Brodmann";
+    	std::string creditsMCText_ = "Mia Calin";
+        std::string creditsMGText_ = "Marion Giovanola";
+        std::string creditsLMText_ = "Lisa Manolache";
+        std::string creditsTMText_ = "Theotime Millois";
+        std::string creditsNZText_ = "Nolan Zannato";
+        std::string creditsNVText_ = "Nicolas Vallee";
+
+        std::string creditsToolsText_ = "Tool Programmers";
+
+        std::string creditsDVAText_ = "Dylan Von Arx";
+        std::string creditsWPText_ = "William Pepin";
+        std::string creditsLDText_ = "Lorna Dupuis";
+        std::string creditsVDText_ = "Vincent Dworak";
+        std::string creditsGJText_ = "Guillaume Jeannin";
+        std::string creditsSSText_ = "Solange Schmid";
+        std::string creditsMSText_ = "Marvin Scharding";
+        std::string creditsBCText_ = "Bryan Carmona";
+        std::string creditsANText_ = "Adam Naji";
+
+        std::string creditsAudioText_ = "Audios";
+
+        std::string creditsLTText_ = "Luca Toberer";
+        std::string creditsLJText_ = "Leo Juriens";
+
+        std::string creditsThanksText_ = "Thanks to";
+        //std::string creditsSimonText_ = "Simon Canas \n Lead Tool \n Lead Engine Programmer";
+        //std::string creditsStephenText_ = "Stephen Grosjean \n Dev Ops \n Game Designer \n Gameplay Programmer";
+        //std::string creditsLucaText_ = "Luca Floreau \n Producer \n Lead Programmer \n Gameplay Programmer";
+        std::string loading_ = "Loading ";
+
+    	
+        UiText creditsSebUiNameText_;
+        UiText creditsSebUiLPText_;
+        UiText creditsSebUiGPText_;
+        UiText creditsSebUiGDText_;
+
+
+        UiText creditsSimonUiNameText_;
+        UiText creditsSimonUiLTText_;
+        UiText creditsSimonUiLEText_;
+
+        UiText creditsStephenUiNameText_;
+        UiText creditsStephenUiDOText_;
+        UiText creditStephenUiGDsText_;
+        UiText creditsStephenUiGPText_;
+
+        UiText creditsLucaUiNameText_;
+        UiText creditsLucaUiPText_;
+        UiText creditsLucaUiLPText_;
+        UiText creditsLucaUiGPText_;
+
+        UiText creditsArtsUiText_;
+
+        UiText creditsUiJKText_;
+        UiText creditsUiHCText_;
+        UiText creditsUiEMText_;
+        UiText creditsUiCBText_;
+        UiText creditsUiMCText_;
+        UiText creditsUiMGText_;
+        UiText creditsUiLMText_;
+        UiText creditsUiTMText_;
+        UiText creditsUiNZText_;
+        UiText creditsUiNVText_;
+    	
+        UiText creditsToolsUiText_;
+
+        UiText creditsUiDVAText_;
+        UiText creditsUiWPText_;
+        UiText creditsUiLDText_;
+        UiText creditsUiVDText_;
+        UiText creditsUiGJText_;
+        UiText creditsUiSSText_;
+        UiText creditsUiMSText_;
+        UiText creditsUiBCText_;
+        UiText creditsUiANText_;
+    	
+        UiText creditsAudioUiText_;
+
+        UiText creditsUiLTText_;
+        UiText creditsUiLJText_;
+    	
+        UiText creditsThanksUiText_;
+
+        UiText loadingText_;
+    	
+        //UiText creditsSimonUiText_;
+        //UiText creditsStephenUiText_;
+        //UiText creditsLucaUiText_;
 
         //ImagesDataString
         std::string menuBackgroundUIPath_ = "sprites/ui/centered/background.png";
@@ -257,6 +370,12 @@ namespace neko::aer
         bool useMenu = false;
         bool hasStartedSceneLoading = false;
 
+        bool hasMenuLoaded = false;
+        bool hasSceneLoaded = false;
+        bool hasPlayersLoaded = false;
+
+        int playerCount = 0;
+    	
         std::array<bool, 4> isDpadUp_{ false, false, false, false };
         std::array<bool, 4> isDpadDown_{ false, false, false, false };
         std::array<bool, 4> isDpadLeft_{ false, false, false, false };

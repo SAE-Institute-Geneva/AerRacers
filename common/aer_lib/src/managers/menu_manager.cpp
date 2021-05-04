@@ -2,6 +2,8 @@
 #include <sdl_engine/sdl_engine.h>
 #include <sdl_engine/sdl_input.h>
 #include <aer/aer_engine.h>
+//TODO: modelmanager.countmodeltoload/modelmanager.CountAllofModel
+
 namespace neko::aer
 {
 MenuManager::MenuManager(AerEngine& engine) : engine_(engine)
@@ -21,11 +23,63 @@ void MenuManager::Init()
     menuStatus_ = MenuStatus::SLEEP;
     creditsStatus_ = CreditsStatus::LEADS;
 
-    creditsSebUiText_ = UiText(FontLoaded::ROBOTO, creditsSebText_, Vec2i(Vec2f(-0.75, 0) * Vec2f(config.windowSize)), UiAnchor::CENTER,0, 2.0f, Color::white);
-    creditsSimonUiText_ = UiText(FontLoaded::ROBOTO, creditsSimonText_, Vec2i(Vec2f(-0.75, 0) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);;
-    creditsStephenUiText_ = UiText(FontLoaded::ROBOTO, creditsStephenText_, Vec2i(Vec2f(-0.75, 0) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);;
-    creditsLucaUiText_ = UiText(FontLoaded::ROBOTO, creditsLucaText_, Vec2i(Vec2f(-0.75, 0) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);;
+    creditsSebUiNameText_ = UiText(FontLoaded::ROBOTO, creditsSebNameText_, Vec2i(Vec2f(-0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER,0, 1.0f, Color::white);
+    creditsSebUiLPText_ = UiText(FontLoaded::ROBOTO, creditsSebLPText_, Vec2i(Vec2f(-0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsSebUiGPText_ = UiText(FontLoaded::ROBOTO, creditsSebGPText_, Vec2i(Vec2f(-0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsSebUiGDText_ = UiText(FontLoaded::ROBOTO, creditsSebGDText_, Vec2i(Vec2f(-0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+	
+    creditsSimonUiNameText_ = UiText(FontLoaded::ROBOTO, creditsSimonNameText_, Vec2i(Vec2f(0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsSimonUiLTText_ = UiText(FontLoaded::ROBOTO, creditsSimonLTText_, Vec2i(Vec2f(0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsSimonUiLEText_ = UiText(FontLoaded::ROBOTO, creditsSimonLEText_, Vec2i(Vec2f(0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
 
+
+    creditsStephenUiNameText_ = UiText(FontLoaded::ROBOTO, creditsStephenNameText_, Vec2i(Vec2f(-0.6, -0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsStephenUiDOText_ = UiText(FontLoaded::ROBOTO, creditsStephenDOText_, Vec2i(Vec2f(-0.6, -0.6) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditStephenUiGDsText_ = UiText(FontLoaded::ROBOTO, creditStephenGDsText_, Vec2i(Vec2f(-0.6, -0.7) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsStephenUiGPText_ = UiText(FontLoaded::ROBOTO, creditsStephenGPText_, Vec2i(Vec2f(-0.6, -0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+
+    creditsLucaUiNameText_ = UiText(FontLoaded::ROBOTO, creditsLucaNameText_, Vec2i(Vec2f(0.6, -0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsLucaUiPText_ = UiText(FontLoaded::ROBOTO, creditsLucaPText_, Vec2i(Vec2f(0.6, -0.6) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsLucaUiLPText_ = UiText(FontLoaded::ROBOTO, creditsLucaLPText_, Vec2i(Vec2f(0.6, -0.7) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsLucaUiGPText_ = UiText(FontLoaded::ROBOTO, creditsLucaGPText_, Vec2i(Vec2f(0.6, -0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+
+    creditsArtsUiText_ = UiText(FontLoaded::LOBSTER, creditsArtsText_, Vec2i(Vec2f(0, 0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
+
+    creditsUiJKText_ = UiText(FontLoaded::ROBOTO, creditsJKText_, Vec2i(Vec2f(-0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiHCText_ = UiText(FontLoaded::ROBOTO, creditsHCText_, Vec2i(Vec2f(-0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiEMText_ = UiText(FontLoaded::ROBOTO, creditsEMText_, Vec2i(Vec2f(-0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiCBText_ = UiText(FontLoaded::ROBOTO, creditsCBText_, Vec2i(Vec2f(-0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiMCText_ = UiText(FontLoaded::ROBOTO, creditsMCText_, Vec2i(Vec2f(-0.6, 0.1) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+	
+    creditsUiMGText_ = UiText(FontLoaded::ROBOTO, creditsMGText_, Vec2i(Vec2f(0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiLMText_ = UiText(FontLoaded::ROBOTO, creditsLMText_, Vec2i(Vec2f(0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiTMText_ = UiText(FontLoaded::ROBOTO, creditsTMText_, Vec2i(Vec2f(0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiNZText_ = UiText(FontLoaded::ROBOTO, creditsNZText_, Vec2i(Vec2f(0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiNVText_ = UiText(FontLoaded::ROBOTO, creditsNVText_, Vec2i(Vec2f(0.6, 0.1) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+
+    creditsToolsUiText_ = UiText(FontLoaded::LOBSTER, creditsToolsText_, Vec2i(Vec2f(0, 0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
+
+    creditsUiDVAText_ = UiText(FontLoaded::ROBOTO, creditsDVAText_, Vec2i(Vec2f(-0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiWPText_ = UiText(FontLoaded::ROBOTO, creditsWPText_, Vec2i(Vec2f(-0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiLDText_ = UiText(FontLoaded::ROBOTO, creditsLDText_, Vec2i(Vec2f(-0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiVDText_ = UiText(FontLoaded::ROBOTO, creditsVDText_, Vec2i(Vec2f(-0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiGJText_ = UiText(FontLoaded::ROBOTO, creditsGJText_, Vec2i(Vec2f(-0.6, 0.1) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+	
+    creditsUiSSText_ = UiText(FontLoaded::ROBOTO, creditsSSText_, Vec2i(Vec2f(0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiMSText_ = UiText(FontLoaded::ROBOTO, creditsMSText_, Vec2i(Vec2f(0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiBCText_ = UiText(FontLoaded::ROBOTO, creditsBCText_, Vec2i(Vec2f(0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiANText_ = UiText(FontLoaded::ROBOTO, creditsANText_, Vec2i(Vec2f(0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+
+    creditsAudioUiText_ = UiText(FontLoaded::LOBSTER, creditsAudioText_, Vec2i(Vec2f(0, 0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
+
+    creditsUiLTText_ = UiText(FontLoaded::ROBOTO, creditsLTText_, Vec2i(Vec2f(-0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiLJText_ = UiText(FontLoaded::ROBOTO, creditsLJText_, Vec2i(Vec2f(0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+
+    creditsThanksUiText_ = UiText(FontLoaded::ROBOTO, creditsThanksText_, Vec2i(Vec2f(0, 0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
+
+    loadingText_ = UiText(FontLoaded::ROBOTO, loading_ + "0 %", Vec2i::zero, UiAnchor::CENTER, 0, 4.0f, Color::white);
+	//TODO: Create text for others
+	
     useMenu = false;
 
     for (int i = 0; i < 4; i++)
@@ -65,16 +119,117 @@ void MenuManager::Init()
     }
 
     auto& uiManager = UiManagerLocator::get();
-    uiManager.AddUiText(&creditsSebUiText_);
-    uiManager.AddUiText(&creditsSimonUiText_);
-    uiManager.AddUiText(&creditsStephenUiText_);
-    uiManager.AddUiText(&creditsLucaUiText_);
+    uiManager.AddUiText(&creditsSebUiNameText_);
+    uiManager.AddUiText(&creditsSebUiLPText_);
+    uiManager.AddUiText(&creditsSebUiGPText_);
+    uiManager.AddUiText(&creditsSebUiGDText_);
 
-    creditsSebUiText_.SetEnable(false);
-    creditsSimonUiText_.SetEnable(false);
-    creditsStephenUiText_.SetEnable(false);
-    creditsLucaUiText_.SetEnable(false);
+    uiManager.AddUiText(&creditsSimonUiNameText_);
+    uiManager.AddUiText(&creditsSimonUiLEText_);
+    uiManager.AddUiText(&creditsSimonUiLTText_);
 
+    uiManager.AddUiText(&creditsStephenUiNameText_);
+    uiManager.AddUiText(&creditsStephenUiDOText_);
+    uiManager.AddUiText(&creditsStephenUiGPText_);
+    uiManager.AddUiText(&creditStephenUiGDsText_);
+
+    uiManager.AddUiText(&creditsLucaUiNameText_);
+    uiManager.AddUiText(&creditsLucaUiLPText_);
+    uiManager.AddUiText(&creditsLucaUiGPText_);
+    uiManager.AddUiText(&creditsLucaUiLPText_);
+
+    uiManager.AddUiText(&creditsArtsUiText_);
+
+    uiManager.AddUiText(&creditsUiJKText_);
+    uiManager.AddUiText(&creditsUiHCText_);
+    uiManager.AddUiText(&creditsUiEMText_);
+    uiManager.AddUiText(&creditsUiCBText_);
+    uiManager.AddUiText(&creditsUiMCText_);
+    uiManager.AddUiText(&creditsUiMGText_);
+    uiManager.AddUiText(&creditsUiLMText_);
+    uiManager.AddUiText(&creditsUiTMText_);
+    uiManager.AddUiText(&creditsUiNZText_);
+    uiManager.AddUiText(&creditsUiNVText_);
+	
+    uiManager.AddUiText(&creditsToolsUiText_);
+	
+    uiManager.AddUiText(&creditsUiDVAText_);
+    uiManager.AddUiText(&creditsUiWPText_);
+    uiManager.AddUiText(&creditsUiLDText_);
+    uiManager.AddUiText(&creditsUiVDText_);
+    uiManager.AddUiText(&creditsUiGJText_);
+    uiManager.AddUiText(&creditsUiSSText_);
+    uiManager.AddUiText(&creditsUiMSText_);
+    uiManager.AddUiText(&creditsUiBCText_);
+    uiManager.AddUiText(&creditsUiANText_);
+
+	
+    uiManager.AddUiText(&creditsAudioUiText_);
+
+    uiManager.AddUiText(&creditsUiLTText_);
+    uiManager.AddUiText(&creditsUiLJText_);
+
+    uiManager.AddUiText(&creditsThanksUiText_);
+
+    uiManager.AddUiText(&loadingText_);
+	
+    //TODO add ui for others
+
+	
+    creditsSebUiNameText_.SetEnable(false);
+    creditsSebUiLPText_.SetEnable(false);
+    creditsSebUiGPText_.SetEnable(false);
+    creditsSebUiGDText_.SetEnable(false);
+
+	//TODO: Set enable others
+    creditsSimonUiNameText_.SetEnable(false);
+    creditsSimonUiLTText_.SetEnable(false);
+    creditsSimonUiLEText_.SetEnable(false);
+
+    creditsStephenUiNameText_.SetEnable(false);
+    creditsStephenUiDOText_.SetEnable(false);
+    creditStephenUiGDsText_.SetEnable(false);
+    creditsStephenUiGPText_.SetEnable(false);
+
+    creditsLucaUiNameText_.SetEnable(false);
+    creditsLucaUiPText_.SetEnable(false);
+    creditsLucaUiLPText_.SetEnable(false);
+    creditsLucaUiGPText_.SetEnable(false);
+
+    creditsArtsUiText_.SetEnable(false);
+
+    creditsUiJKText_.SetEnable(false);
+    creditsUiHCText_.SetEnable(false);
+    creditsUiEMText_.SetEnable(false);
+    creditsUiCBText_.SetEnable(false);
+    creditsUiMCText_.SetEnable(false);
+    creditsUiMGText_.SetEnable(false);
+    creditsUiLMText_.SetEnable(false);
+    creditsUiTMText_.SetEnable(false);
+    creditsUiNZText_.SetEnable(false);
+    creditsUiNVText_.SetEnable(false);
+
+    creditsToolsUiText_.SetEnable(false);
+
+    creditsUiDVAText_.SetEnable(false);
+    creditsUiWPText_.SetEnable(false);
+    creditsUiLDText_.SetEnable(false);
+    creditsUiVDText_.SetEnable(false);
+    creditsUiGJText_.SetEnable(false);
+    creditsUiSSText_.SetEnable(false);
+    creditsUiMSText_.SetEnable(false);
+    creditsUiBCText_.SetEnable(false);
+    creditsUiANText_.SetEnable(false);
+
+    creditsAudioUiText_.SetEnable(false);
+
+    creditsUiLTText_.SetEnable(false);
+    creditsUiLJText_.SetEnable(false);
+
+    creditsThanksUiText_.SetEnable(false);
+
+    loadingText_.SetEnable(false);
+	
     uiManager.AddUiImage(&menuBackGroundUI);
     uiManager.AddUiText(&startTextUi_);
     startTextUi_.SetEnable(false);
@@ -156,10 +311,58 @@ void MenuManager::Update(seconds dt)
         optionsTextUi_.SetEnable(false);
         highscoreTextUi_.SetEnable(false);
 
-        creditsSebUiText_.SetEnable(false);
-        creditsSimonUiText_.SetEnable(false);
-        creditsStephenUiText_.SetEnable(false);
-        creditsLucaUiText_.SetEnable(false);
+        creditsSebUiNameText_.SetEnable(false);
+        creditsSebUiLPText_.SetEnable(false);
+        creditsSebUiGPText_.SetEnable(false);
+        creditsSebUiGDText_.SetEnable(false);
+    	
+        creditsSimonUiNameText_.SetEnable(false);
+        creditsSimonUiLTText_.SetEnable(false);
+        creditsSimonUiLEText_.SetEnable(false);
+
+        creditsStephenUiNameText_.SetEnable(false);
+        creditsStephenUiDOText_.SetEnable(false);
+        creditStephenUiGDsText_.SetEnable(false);
+        creditsStephenUiGPText_.SetEnable(false);
+
+        creditsLucaUiNameText_.SetEnable(false);
+        creditsLucaUiPText_.SetEnable(false);
+        creditsLucaUiLPText_.SetEnable(false);
+        creditsLucaUiGPText_.SetEnable(false);
+
+        creditsArtsUiText_.SetEnable(false);
+
+        creditsUiJKText_.SetEnable(false);
+        creditsUiHCText_.SetEnable(false);
+        creditsUiEMText_.SetEnable(false);
+        creditsUiCBText_.SetEnable(false);
+        creditsUiMCText_.SetEnable(false);
+        creditsUiMGText_.SetEnable(false);
+        creditsUiLMText_.SetEnable(false);
+        creditsUiTMText_.SetEnable(false);
+        creditsUiNZText_.SetEnable(false);
+        creditsUiNVText_.SetEnable(false);
+
+        creditsToolsUiText_.SetEnable(false);
+
+        creditsUiDVAText_.SetEnable(false);
+        creditsUiWPText_.SetEnable(false);
+        creditsUiLDText_.SetEnable(false);
+        creditsUiVDText_.SetEnable(false);
+        creditsUiGJText_.SetEnable(false);
+        creditsUiSSText_.SetEnable(false);
+        creditsUiMSText_.SetEnable(false);
+        creditsUiBCText_.SetEnable(false);
+        creditsUiANText_.SetEnable(false);
+
+        creditsAudioUiText_.SetEnable(false);
+
+        creditsUiLTText_.SetEnable(false);
+        creditsUiLJText_.SetEnable(false);
+
+        creditsThanksUiText_.SetEnable(false);
+
+        loadingText_.SetEnable(false);
 
         for (int i = 0; i < 4; i++)
         {
@@ -312,35 +515,82 @@ void MenuManager::Update(seconds dt)
             }
             break;
         case MenuStatus::CREDITS:
-            switch (creditsStatus_)
+
+        	menuBackGroundUI.SetEnable(true);
+        	
+        	switch (creditsStatus_)
             {
             case CreditsStatus::LEADS:
-                creditsSebUiText_.SetEnable(true);
-                creditsSimonUiText_.SetEnable(true);
-                creditsStephenUiText_.SetEnable(true);
-                creditsLucaUiText_.SetEnable(true);
-                menuBackGroundUI.SetEnable(true);
+                creditsSebUiNameText_.SetEnable(true);
+                creditsSebUiLPText_.SetEnable(true);
+                creditsSebUiGPText_.SetEnable(true);
+                creditsSebUiGDText_.SetEnable(true);
+
+                creditsSimonUiNameText_.SetEnable(true);
+                creditsSimonUiLTText_.SetEnable(true);
+                creditsSimonUiLEText_.SetEnable(true);
+
+                creditsStephenUiNameText_.SetEnable(true);
+                creditsStephenUiDOText_.SetEnable(true);
+                creditStephenUiGDsText_.SetEnable(true);
+                creditsStephenUiGPText_.SetEnable(true);
+
+                creditsLucaUiNameText_.SetEnable(true);
+                creditsLucaUiPText_.SetEnable(true);
+                creditsLucaUiLPText_.SetEnable(true);
+                creditsLucaUiGPText_.SetEnable(true);
                 if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::ARTS;
                 }
                 break;
             case CreditsStatus::ARTS:
-                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                creditsArtsUiText_.SetEnable(true);
+
+                creditsUiJKText_.SetEnable(true);
+                creditsUiHCText_.SetEnable(true);
+                creditsUiEMText_.SetEnable(true);
+                creditsUiCBText_.SetEnable(true);
+                creditsUiMCText_.SetEnable(true);
+                creditsUiMGText_.SetEnable(true);
+                creditsUiLMText_.SetEnable(true);
+                creditsUiTMText_.SetEnable(true);
+                creditsUiNZText_.SetEnable(true);
+                creditsUiNVText_.SetEnable(true);
+
+
+            	if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::AUDIO;
                 }
                 break;
             case CreditsStatus::AUDIO:
-                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+
+                creditsAudioUiText_.SetEnable(true);
+
+                creditsUiLTText_.SetEnable(true);
+                creditsUiLJText_.SetEnable(true);
+            	if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::TOOLS;
                 }
                 break;
             case CreditsStatus::TOOLS:
-                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                creditsToolsUiText_.SetEnable(true);
+
+                creditsUiDVAText_.SetEnable(true);
+                creditsUiWPText_.SetEnable(true);
+                creditsUiLDText_.SetEnable(true);
+                creditsUiVDText_.SetEnable(true);
+                creditsUiGJText_.SetEnable(true);
+                creditsUiSSText_.SetEnable(true);
+                creditsUiMSText_.SetEnable(true);
+                creditsUiBCText_.SetEnable(true);
+                creditsUiANText_.SetEnable(true);
+
+            	if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
-                    creditsStatus_ = CreditsStatus::EXTRAS;
+                    creditsStatus_ = CreditsStatus::SPECIAL_THANKS;
                 }
                 break;
             case CreditsStatus::EXTRAS:
@@ -350,7 +600,8 @@ void MenuManager::Update(seconds dt)
                 }
                 break;
             case CreditsStatus::SPECIAL_THANKS:
-                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                creditsThanksUiText_.SetEnable(true);
+            	if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::LEADS;
                     menuStatus_ = MenuStatus::MENU;
@@ -511,7 +762,7 @@ void MenuManager::Update(seconds dt)
                         }
                         if (everyoneIsReady)
                         {
-                            int playerCount = 0;
+                            playerCount = 0;
                             for (int i = 0; i < 4; i++)
                             {
                                 if (selectionPointing_[i] == SelectionPointing::READY)
@@ -519,15 +770,40 @@ void MenuManager::Update(seconds dt)
                                     playerCount++;
                                 }
                             }
-                            menuBackGroundUI.SetEnable(false);
-                            engine_.GetComponentManagerContainer().gameManager.StartGameManager(playerCount, shipSkins);
-                            //engine_.GetComponentManagerContainer().gameManager.StartGameManager(2);
-                            menuStatus_ = MenuStatus::SLEEP;
+                            // menuBackGroundUI.SetEnable(false);
+                            // engine_.GetComponentManagerContainer().gameManager.StartGameManager(playerCount, shipSkins);
+                            // //engine_.GetComponentManagerContainer().gameManager.StartGameManager(2);
+                            menuStatus_ = MenuStatus::LOADING;
                         }
                     }
                     break;
                 }
             }
+            break;
+        case MenuStatus::LOADING:
+
+            loadingText_.SetText("Loading " + std::to_string(int((float(engine_.GetResourceManagerContainer().modelManager.CountModelLoaded()) / float(engine_.GetResourceManagerContainer().modelManager.CountOfAllModel())) + (float(engine_.GetResourceManagerContainer().textureManager.CountTextureLoaded()) / float(engine_.GetResourceManagerContainer().textureManager.CountAllTexture())) * 100)) + "%");
+        	
+            loadingText_.SetEnable(true);
+
+
+        	if (engine_.GetResourceManagerContainer().modelManager.CountModelLoaded() ==
+                engine_.GetResourceManagerContainer().modelManager.CountOfAllModel())
+            {
+	            if (
+                    engine_.GetResourceManagerContainer().textureManager.CountAllTexture() ==
+                    engine_.GetResourceManagerContainer().textureManager.CountAllTexture())
+	            {
+                    menuBackGroundUI.SetEnable(false);
+                    engine_.GetComponentManagerContainer().gameManager.StartGameManager(playerCount, shipSkins);
+                    //engine_.GetComponentManagerContainer().gameManager.StartGameManager(2);
+                    playerCount = 0;
+	            	menuStatus_ = MenuStatus::SLEEP;
+	            }
+            }
+
+        	
+            menuBackGroundUI.SetEnable(true);
             break;
         case MenuStatus::SLEEP:
             break;
