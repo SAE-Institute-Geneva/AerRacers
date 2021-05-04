@@ -832,12 +832,10 @@ void MenuManager::Update(seconds dt)
             loadingText_.SetEnable(true);
 
 
-        	if (engine_.GetResourceManagerContainer().modelManager.CountModelLoaded() ==
-                engine_.GetResourceManagerContainer().modelManager.CountOfAllModel())
+        	if (engine_.GetResourceManagerContainer().modelManager.CountModelNotLoaded() == 0)
             {
 	            if (
-                    engine_.GetResourceManagerContainer().textureManager.CountTextureLoaded() ==
-                    engine_.GetResourceManagerContainer().textureManager.CountAllTexture())
+                    engine_.GetResourceManagerContainer().textureManager.CountTextureNotLoaded() == 0) 
 	            {
                     menuBackGroundUI.SetEnable(false);
                     engine_.GetComponentManagerContainer().gameManager.StartGameManager(playerCount, shipSkins);

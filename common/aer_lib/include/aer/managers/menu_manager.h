@@ -208,7 +208,7 @@ namespace neko::aer
 
         std::string creditsThanksText_ = "Thanks to";
         std::string creditsEliasText_ = "Elias Fahran";
-        std::string creditsFredText_ = "Frederic Duboucher";
+        std::string creditsFredText_ = "Frederic Dubouchet";
         std::string creditsTestersText_ = "All tester";
         std::string loading_ = "Loading ";
 

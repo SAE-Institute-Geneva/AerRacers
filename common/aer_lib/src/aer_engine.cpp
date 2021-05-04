@@ -42,9 +42,9 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 #ifdef NEKO_FMOD
 		RegisterSystem(fmodEngine_);
 #endif
+		RegisterSystem(physicsEngine_);
 		RegisterSystem(rContainer_);
 		RegisterSystem(cContainer_);
-		RegisterSystem(physicsEngine_);
 
 	}
 }
