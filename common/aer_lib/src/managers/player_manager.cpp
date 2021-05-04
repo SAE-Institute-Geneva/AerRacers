@@ -255,7 +255,7 @@ namespace neko::aer
         return playerComponents_[playerId].shipEntity;
     }
 
-    void PlayerManager::Init()
+    void PlayerManager::LoadShipModels()
     {
         shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/cortese/corps/blue/low_cortese_corps_resize.obj"));
         shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/cortese/corps/red/low_cortese_corps_resize.obj"));
@@ -318,4 +318,9 @@ void PlayerManager::DeletePlayers()
 
 
 void PlayerManager::Destroy() { }
+
+void PlayerManager::Init()
+    {
+    LoadShipModels();
+    }
 }

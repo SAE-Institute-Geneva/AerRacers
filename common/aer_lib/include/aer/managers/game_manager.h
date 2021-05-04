@@ -143,7 +143,7 @@ struct VictoryData
 
         const float startTimer = 10.0f;
         const float endTimer = 10.0f;
-        const int wpToFinish = 87;
+        const int wpByLaps = 29;
         const float placementSizeMultiplier = 0.3f;
         const float lapsSizeMultiplier = 0.3f;
         const float timeBackgroundMultiplier_ = 0.5f;

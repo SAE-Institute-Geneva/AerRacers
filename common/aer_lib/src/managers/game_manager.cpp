@@ -220,7 +220,7 @@ namespace neko::aer
 
         for (int i = 0; i < playerCount; i++)
         {
-            if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpToFinish)
+            if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpByLaps*3)
             {
                 ShowEndScore(i);
                 if (hasWin[i] == false)
@@ -375,17 +375,17 @@ namespace neko::aer
             lap1InGameUI_[i].SetEnable(false);
             lap2InGameUI_[i].SetEnable(false);
             lap3InGameUI_[i].SetEnable(false);
-            if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpToFinish)
+            if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpByLaps*3)
             {
                 lapsBackgroundInGameUI_[i].SetEnable(true);
                 lap3InGameUI_[i].SetEnable(true);
             }
-            else if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpToFinish * 2/3)
+            else if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpByLaps * 2)
             {
                 lapsBackgroundInGameUI_[i].SetEnable(true);
                 lap3InGameUI_[i].SetEnable(true);
             }
-            else if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpToFinish/3)
+            else if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpByLaps)
             {
                 lapsBackgroundInGameUI_[i].SetEnable(true);
                 lap2InGameUI_[i].SetEnable(true);

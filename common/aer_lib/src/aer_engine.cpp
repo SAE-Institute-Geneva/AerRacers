@@ -135,6 +135,13 @@ void AerEngine::GenerateUiFrame()
 	//logDebug(fpsText);
 	ImGui::Begin("FPS Viewer");
 	ImGui::Text("%s", fpsText.c_str());
+	auto& textureManager = GetResourceManagerContainer().textureManager;
+	const auto loadingTextureText = fmt::format("{}/{} Textures Loaded", textureManager.CountTextureLoaded(), textureManager.CountAllTexture());
+	ImGui::Text("%s", loadingTextureText.c_str());
+
+	auto& modelManager = GetResourceManagerContainer().modelManager;
+	const auto loadingModelText = fmt::format("{}/{} Models Loaded", modelManager.CountModelLoaded(), modelManager.CountOfAllModel());
+	ImGui::Text("%s", loadingModelText.c_str());
 	ImGui::End();
 #ifdef NEKO_GLES3
 		drawImGuiAction_.Execute();
