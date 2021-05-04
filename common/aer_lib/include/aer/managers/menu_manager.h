@@ -147,6 +147,8 @@ namespace neko::aer
 
         
     private:
+        const int kMaxPlayer_ = 4;
+
         AerEngine& engine_;
         MenuStatus menuStatus_ = MenuStatus::MENU;
         MainMenuPointing mainMenuPointing_ = MainMenuPointing::START;
@@ -303,6 +305,7 @@ namespace neko::aer
         //UI
 
         //Menu
+        UiImage logoUi_;
         UiText startTextUi_;
         UiText optionsTextUi_;
         UiText highscoreTextUi_;

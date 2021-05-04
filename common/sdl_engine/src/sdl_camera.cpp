@@ -277,7 +277,7 @@ void MultiCamera::Update(const seconds dt)
 	for (std::size_t i = 0; i < controllers.size() / 2; ++i)
 	{
 		if (inputManager.GetControllerIdVector().size() <= i) continue;
-		//sdl::ControllerId controllerId = inputManager.GetControllerIdVector()[i];
+		//sdl::JoystickId controllerId = inputManager.GetControllerIdVector()[i];
 		//// Query left joystick movement
 		//const float xMove = inputManager.GetControllerAxis(
 		//	controllerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS);

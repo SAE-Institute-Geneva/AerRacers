@@ -79,7 +79,7 @@ void ShipInputManager::EnumToString(Joystick joystick, Direction direction)
 
 void ShipInputManager::Destroy() { }
 
-void ShipInputManager::ShipInput::Update(sdl::ControllerId controllerId, seconds dt)
+void ShipInputManager::ShipInput::Update(sdl::JoystickId controllerId, seconds dt)
 {
     auto& inputLocator = sdl::InputLocator::get();
     std::string currentGestureName = "";

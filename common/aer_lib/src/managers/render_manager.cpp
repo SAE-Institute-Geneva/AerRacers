@@ -87,23 +87,33 @@ void RenderManager::Render()
 		if (components_[entity].isVisible && components_[entity].modelId != gl::INVALID_MODEL_ID &&
 			modelManager.IsLoaded(components_[entity].modelId))
 		{
-			Aabb3d aabbModel = modelManager.GetModel(components_[entity].modelId)->GetMesh(0).GetAabb();
+			Aabb3d aabbModel =
+				modelManager.GetModel(components_[entity].modelId)->GetMesh(0).GetAabb();
 			int nbMeshes = modelManager.GetModel(components_[entity].modelId)->GetMeshCount();
-			for (int i = 1; i < nbMeshes; ++i) {
-				Aabb3d aabbMesh = modelManager.GetModel(components_[entity].modelId)->GetMesh(i).GetAabb();
-				aabbModel.lowerLeftBound.x = std::min(aabbModel.lowerLeftBound.x, aabbMesh.lowerLeftBound.x);
-				aabbModel.lowerLeftBound.y = std::min(aabbModel.lowerLeftBound.y, aabbMesh.lowerLeftBound.y);
-				aabbModel.lowerLeftBound.z = std::min(aabbModel.lowerLeftBound.y, aabbMesh.lowerLeftBound.z);
-				aabbModel.upperRightBound.x = std::max(aabbModel.upperRightBound.x, aabbMesh.upperRightBound.x);
-				aabbModel.upperRightBound.y = std::max(aabbModel.upperRightBound.y, aabbMesh.upperRightBound.y);
-				aabbModel.upperRightBound.z = std::max(aabbModel.upperRightBound.y, aabbMesh.upperRightBound.z);
-
+			for (int i = 1; i < nbMeshes; ++i)
+			{
+				Aabb3d aabbMesh =
+					modelManager.GetModel(components_[entity].modelId)->GetMesh(i).GetAabb();
+				aabbModel.lowerLeftBound.x =
+					std::min(aabbModel.lowerLeftBound.x, aabbMesh.lowerLeftBound.x);
+				aabbModel.lowerLeftBound.y =
+					std::min(aabbModel.lowerLeftBound.y, aabbMesh.lowerLeftBound.y);
+				aabbModel.lowerLeftBound.z =
+					std::min(aabbModel.lowerLeftBound.y, aabbMesh.lowerLeftBound.z);
+				aabbModel.upperRightBound.x =
+					std::max(aabbModel.upperRightBound.x, aabbMesh.upperRightBound.x);
+				aabbModel.upperRightBound.y =
+					std::max(aabbModel.upperRightBound.y, aabbMesh.upperRightBound.y);
+				aabbModel.upperRightBound.z =
+					std::max(aabbModel.upperRightBound.y, aabbMesh.upperRightBound.z);
 			}
-			aabbModel.FromCenterExtends(aabbModel.CalculateCenter() * transformManager_.GetGlobalScale(entity) + transformManager_.GetGlobalPosition(entity),
+			aabbModel.FromCenterExtends(
+				aabbModel.CalculateCenter() * transformManager_.GetGlobalScale(entity) +
+					transformManager_.GetGlobalPosition(entity),
 				aabbModel.CalculateExtends() * transformManager_.GetGlobalScale(entity));
 			if (frustum_.Contains(aabbModel))
 			{
-				const Mat4f& modelMat = transformManager_.GetComponent(entity);
+				const Mat4f& modelMat = transformManager_.GetCurrentComponent(entity);
 				instancesMap_[components_[entity].modelId].push_back(modelMat);
 			}
 		}
@@ -227,6 +237,39 @@ void RendererViewer::DrawImGui(Entity entity)
 		{
 			std::string meshName = "ModelName: " + rendererManager_.GetModelName(entity);
 			ImGui::Text("%s", meshName.c_str());
+
+			if (ImGui::Button("Change Model"))
+			{
+				ImGui::SetNextWindowSize(Vec2f(300.0f, 0.0f));
+				ImGui::OpenPopup("Test");
+			}
+
+			if (ImGui::BeginPopupModal("Test"))
+			{
+				ImGui::InputText("New Model Name", &newNameBuffer_, ImGui::LabelPos::LEFT);
+				if (ImGui::Button("Set Model"))
+				{
+					std::transform(newNameBuffer_.begin(),
+						newNameBuffer_.end(),
+						newNameBuffer_.begin(),
+						[](unsigned char c) { return std::tolower(c); });
+					std::size_t found    = newNameBuffer_.find_last_of('/') + 1;
+					std::string meshName = newNameBuffer_;
+					if (found != std::string::npos) meshName = meshName.substr(found);
+
+					const std::string path =
+						GetModelsFolderPath() + newNameBuffer_ + "/" + meshName + ".obj";
+					if (FileExists(path))
+					{
+						rendererManager_.SetModel(entity, path);
+						ImGui::CloseCurrentPopup();
+					}
+				}
+
+				if (ImGui::Button("Cancel")) ImGui::CloseCurrentPopup();
+
+				ImGui::EndPopup();
+			}
 
 			ImGui::TreePop();
 		}

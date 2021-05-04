@@ -6,16 +6,19 @@
 #include "aer/aer_engine.h"
 
 #include "engine/engine.h"
+#include <aer/log.h>
+#include "aer/aer_engine.h"
 #include "engine/resource_locations.h"
 
 namespace neko::aer
 {
-    PlayerManager::PlayerManager(AerEngine& engine)
+    PlayerManager::PlayerManager(ComponentManagerContainer& cContainer, AerEngine& engine)
         : modelManager_(engine.GetResourceManagerContainer().modelManager),
-          cContainer_(engine.GetComponentManagerContainer()),
-          cameraControllerManager_(engine.GetComponentManagerContainer().cameraControllerManager),
-          shipControllerManager_(engine.GetComponentManagerContainer().shipControllerManager),
-          shipInputManager_(engine.GetComponentManagerContainer().shipInputManager)
+        cContainer_(cContainer),
+        cameraControllerManager_(cContainer.cameraControllerManager),
+        shipControllerManager_(cContainer.shipControllerManager),
+        shipInputManager_(cContainer.shipInputManager),
+        engine_(engine)
     {
         playerComponents_.resize(INIT_PLAYER_NMB, PlayerComponent());
     }
@@ -58,12 +61,12 @@ namespace neko::aer
         rigidDynamic.material.staticFriction  = 0.0f;
         rigidDynamic.material.dynamicFriction = 0.0f;
         cContainer_.rigidDynamicManager.AddRigidDynamic(shipEntity, rigidDynamic);
-        shipControllerManager_.InitComponent(playerCount_);
 
         PlayerComponent playerComponent;
         playerComponent.shipEntity   = shipEntity;
         playerComponent.playerNumber = playerComponents_.size();
         playerComponent.playerSpawn  = pos;
+
 
         //ShipModel
         Entity shipModelEntity = cContainer_.entityManager.CreateEntity();
@@ -71,8 +74,6 @@ namespace neko::aer
         cContainer_.entityManager.SetEntityParent(shipModelEntity, shipEntity);
         cContainer_.transform3dManager.SetRelativeScale(shipModelEntity, Vec3f::one * 0.2f);
         cContainer_.transform3dManager.SetRelativePosition(shipModelEntity, Vec3f::zero);
-        cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
-            euler);
         
         if (cortese) {
 
@@ -82,8 +83,6 @@ namespace neko::aer
             cContainer_.entityManager.SetEntityParent(shipArtEntity, shipModelEntity);
             cContainer_.transform3dManager.SetRelativePosition(shipArtEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipArtEntity, Vec3f::one);
-            cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
-                euler);
             cContainer_.renderManager.AddComponent(shipArtEntity);
             cContainer_.renderManager.SetModel(shipArtEntity,
                 shipModels_[coloriIndex]);
@@ -94,8 +93,6 @@ namespace neko::aer
             cContainer_.entityManager.SetEntityParent(shipArtDetailEntity, shipArtEntity);
             cContainer_.transform3dManager.SetRelativePosition(shipArtDetailEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipArtDetailEntity, Vec3f::one);
-            cContainer_.transform3dManager.SetRelativeRotation(shipArtDetailEntity,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
             cContainer_.renderManager.AddComponent(shipArtDetailEntity);
             cContainer_.renderManager.SetModel(shipArtDetailEntity,
                 config.dataRootPath +
@@ -106,7 +103,7 @@ namespace neko::aer
             cContainer_.transform3dManager.AddComponent(shipRightRotorAnchor);
             cContainer_.entityManager.SetEntityParent(shipRightRotorAnchor, shipModelEntity);
             cContainer_.transform3dManager.SetRelativePosition(shipRightRotorAnchor,
-                pos + Vec3f(-16.75f, 0, 4));
+                Vec3f(-16.75f, 0, 4));
             cContainer_.transform3dManager.SetRelativeScale(shipRightRotorAnchor, Vec3f::one);
 
             //RightRotorModel
@@ -127,7 +124,7 @@ namespace neko::aer
             cContainer_.transform3dManager.AddComponent(shipLeftRotorAnchor);
             cContainer_.entityManager.SetEntityParent(shipLeftRotorAnchor, shipModelEntity);
             cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorAnchor,
-                pos + Vec3f(16.75f, 0, 4));
+                Vec3f(16.75f, 0, 4));
             cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorAnchor, Vec3f::one);
 
             //LeftRotorModel
@@ -136,8 +133,6 @@ namespace neko::aer
             cContainer_.entityManager.SetEntityParent(shipLeftRotorModel, shipLeftRotorAnchor);
             cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorModel, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorModel, Vec3f::one);
-            cContainer_.transform3dManager.SetRelativeRotation(shipLeftRotorModel,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
             cContainer_.renderManager.AddComponent(shipLeftRotorModel);
             cContainer_.renderManager.SetModel(shipLeftRotorModel,
                 config.dataRootPath +
@@ -156,8 +151,6 @@ namespace neko::aer
             cContainer_.entityManager.SetEntityParent(shipArtEntity, shipModelEntity);
             cContainer_.transform3dManager.SetRelativePosition(shipArtEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipArtEntity, Vec3f::one);
-            cContainer_.transform3dManager.SetRelativeRotation(shipModelEntity,
-                euler);
             cContainer_.renderManager.AddComponent(shipArtEntity);
             cContainer_.renderManager.SetModel(shipArtEntity,
                 shipModels_[coloriIndex + 2]);
@@ -168,8 +161,6 @@ namespace neko::aer
             cContainer_.entityManager.SetEntityParent(shipArtDetailEntity, shipArtEntity);
             cContainer_.transform3dManager.SetRelativePosition(shipArtDetailEntity, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipArtDetailEntity, Vec3f::one);
-            cContainer_.transform3dManager.SetRelativeRotation(shipArtDetailEntity,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
             cContainer_.renderManager.AddComponent(shipArtDetailEntity);
             cContainer_.renderManager.SetModel(shipArtDetailEntity,
                 config.dataRootPath + "models/ship/ilroso/details/details_low.obj");
@@ -179,7 +170,7 @@ namespace neko::aer
             cContainer_.transform3dManager.AddComponent(shipRightRotorAnchor);
             cContainer_.entityManager.SetEntityParent(shipRightRotorAnchor, shipModelEntity);
             cContainer_.transform3dManager.SetRelativePosition(shipRightRotorAnchor,
-                pos + Vec3f(-12.5f, 3.5f, -1.5f));
+                Vec3f(-12.5f, 3.5f, -1.5f));
             cContainer_.transform3dManager.SetRelativeScale(shipRightRotorAnchor, Vec3f::one);
 
             //RightRotorModel
@@ -188,8 +179,6 @@ namespace neko::aer
             cContainer_.entityManager.SetEntityParent(shipRightRotorModel, shipRightRotorAnchor);
             cContainer_.transform3dManager.SetRelativePosition(shipRightRotorModel, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipRightRotorModel, Vec3f::one);
-            cContainer_.transform3dManager.SetRelativeRotation(shipRightRotorModel,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
             cContainer_.renderManager.AddComponent(shipRightRotorModel);
             cContainer_.renderManager.SetModel(shipRightRotorModel,
                 config.dataRootPath +
@@ -200,7 +189,7 @@ namespace neko::aer
             cContainer_.transform3dManager.AddComponent(shipLeftRotorAnchor);
             cContainer_.entityManager.SetEntityParent(shipLeftRotorAnchor, shipModelEntity);
             cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorAnchor,
-                pos + Vec3f(12.5f, 3.5f, -1.5f));
+                Vec3f(12.5f, 3.5f, -1.5f));
             cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorAnchor, Vec3f::one);
 
             //LeftRotorModel
@@ -209,8 +198,6 @@ namespace neko::aer
             cContainer_.entityManager.SetEntityParent(shipLeftRotorModel, shipLeftRotorAnchor);
             cContainer_.transform3dManager.SetRelativePosition(shipLeftRotorModel, Vec3f::zero);
             cContainer_.transform3dManager.SetRelativeScale(shipLeftRotorModel, Vec3f::one);
-            cContainer_.transform3dManager.SetRelativeRotation(shipLeftRotorModel,
-                EulerAngles(degree_t(0), degree_t(0), degree_t(0)));
             cContainer_.renderManager.AddComponent(shipLeftRotorModel);
             cContainer_.renderManager.SetModel(shipLeftRotorModel,
                 config.dataRootPath +
@@ -223,11 +210,34 @@ namespace neko::aer
             playerComponent.leftRotorModel = shipLeftRotorModel;
         }
 
+        //Audio
+        Entity audioEntity = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(audioEntity);
+        //cContainer_.entityManager.SetEntityParent(audioEntity, playerComponent.shipEntity);
+        cContainer_.audioManager.AddComponent(audioEntity);
+        cContainer_.audioManager.SetPlayOnWakeUp(audioEntity, false);
+        cContainer_.audioManager.SetMaxDistance(audioEntity, 40.0f);
+        cContainer_.audioManager.SetVolume(audioEntity, 50.0f);
+        cContainer_.audioManager.Init();
 
-        std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
+        Entity motorAudioEntity = cContainer_.entityManager.CreateEntity();
+        cContainer_.transform3dManager.AddComponent(motorAudioEntity);
+        //cContainer_.entityManager.SetEntityParent(motorAudioEntity, playerComponent.shipEntity);
+        cContainer_.audioManager.AddComponent(motorAudioEntity);
+        cContainer_.audioManager.SetEventName(motorAudioEntity, "sfx/ship_engine");
+        cContainer_.audioManager.SetPlayOnWakeUp(motorAudioEntity, false);
+        cContainer_.audioManager.SetMaxDistance(motorAudioEntity, 40.0f);
+        cContainer_.audioManager.SetVolume(motorAudioEntity, 20.0f);
+        cContainer_.audioManager.Init();
+
+        playerComponent.audioEntity = audioEntity;
+        playerComponent.engineAudioEntity = motorAudioEntity;
+
+        std::vector<sdl::JoystickId> controllers = sdl::InputLocator::get().GetControllerIdVector();
         if (controllers.size() > playerCount_)
             playerComponent.linkedJoystick = controllers[playerCount_];
         playerComponents_[playerCount_] = playerComponent;
+        shipControllerManager_.InitComponent(playerCount_);
 
         playerCount_++;
 
@@ -258,7 +268,7 @@ namespace neko::aer
     void PlayerManager::Update(seconds dt)
     {
         for (PlayerId playerId = 0; playerId < GetPlayerCount(); ++playerId) {
-            std::vector<sdl::ControllerId> controllers = sdl::InputLocator::get().GetControllerIdVector();
+            std::vector<sdl::JoystickId> controllers = sdl::InputLocator::get().GetControllerIdVector();
             if (controllers.size() > playerId)
             {
                 playerComponents_[playerId].linkedJoystick = controllers[playerId];
@@ -274,6 +284,7 @@ namespace neko::aer
                 cContainer_.rigidDynamicManager.MovePosition(playerComponents_[playerId].shipEntity, playerComponents_[playerId].playerSpawn);
             }
         }
+        
     }
 
 Vec3f PlayerManager::GetPlayerPosition(PlayerId playerId)
@@ -290,11 +301,15 @@ void PlayerManager::SetCanMove(PlayerId playerId, bool value)
     shipControllerManager_.SetCanMove(playerId, value);
 }
 
-void PlayerManager::RespawnPlayers()
+void PlayerManager::DeletePlayers()
 {
     for (int i = 0; i < cContainer_.playerManager.playerCount_; i++) {
         SetCanMove(i, false);
         cContainer_.entityManager.DestroyEntity(GetShipEntity(i), true);
+        cContainer_.audioManager.Stop(playerComponents_[i].audioEntity);
+        cContainer_.audioManager.Stop(playerComponents_[i].engineAudioEntity);
+        cContainer_.entityManager.DestroyEntity(playerComponents_[i].audioEntity, true);
+        cContainer_.entityManager.DestroyEntity(playerComponents_[i].engineAudioEntity, true);
     }
     playerComponents_.clear();
     playerComponents_.resize(INIT_PLAYER_NMB, PlayerComponent());
