@@ -1,7 +1,7 @@
 # Blender MTL File: 'None'
 # Material Count: 1
 
-newmtl initialShadingGroup
+newmtl initialShadingGroup.015
 Ns 225.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
@@ -13,4 +13,3 @@ illum 2
 map_Bump petit02_normal.png
 map_Kd petit02_basecolor.png
 map_Ks petit02_specular.png
-

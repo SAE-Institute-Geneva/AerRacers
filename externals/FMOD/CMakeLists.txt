@@ -49,16 +49,19 @@ if (WIN32)
 	  # Output Message
 	  COMMENT "Copying fmod binaries from '${FMOD_ROOT}/win_x64/lib/' to '${TEST_EXE_PATH}', '${EDITOR_EXE_PATH}' and '${GAME_EXE_PATH}'" VERBATIM
 	)
-    target_link_libraries(fmod INTERFACE ${FMOD_LIBS})
+	set_target_properties(fmod PROPERTIES FOLDER Externals)
+    target_link_libraries(fmod INTERFACE ${FMOD_LIBS} Neko_Core)
 
 	add_dependencies(fmod fmodCopyBinaries)
 	set_target_properties(fmodCopyBinaries PROPERTIES FOLDER Externals)
 elseif (UNIX)
     file(GLOB_RECURSE FMOD_SRC *.h *.hpp)
-    add_library(fmod INTERFACE ${FMOD_SRC})   
+    add_library(fmod ${FMOD_SRC})
+
     file(GLOB_RECURSE FMOD_LIBS *.so)
-    target_link_libraries(fmod INTERFACE ${FMOD_LIBS})
-    target_include_directories(fmod INTERFACE "linux_x86_64/inc/")
+    target_link_libraries(fmod PUBLIC ${FMOD_LIBS})
+    target_include_directories(fmod PUBLIC "linux_x86_64/inc/")
+
+	set_target_properties(fmod PROPERTIES FOLDER Externals)
+	target_link_libraries(fmod PRIVATE Neko_Core)
 endif ()
-set_target_properties(fmod PROPERTIES FOLDER Externals)
-target_link_libraries(fmod INTERFACE Neko_Core)

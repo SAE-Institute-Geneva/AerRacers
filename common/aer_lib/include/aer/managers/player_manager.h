@@ -83,11 +83,12 @@ public:
     Vec3f GetPlayerPosition(PlayerId playerId);
     bool GetCanMove(PlayerId playerId);
     void SetCanMove(PlayerId playerId, bool value);
-    void RespawnPlayers();
+    void DeletePlayers();
 
-    void Init() override;
+    void LoadShipModels();
     void Update(seconds dt) override;
     void Destroy() override;
+    void Init() override;
 private:
     size_t playerCount_ = 0;
     std::vector<PlayerComponent> playerComponents_;

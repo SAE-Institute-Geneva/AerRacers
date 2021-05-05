@@ -94,6 +94,7 @@ public:
 
 
     [[nodiscard]] int CountTextureLoaded() const override { return textureMap_.size(); }
+    [[nodiscard]] int CountTextureNotLoaded() const override { return textureLoaders_.size(); }
     [[nodiscard]] int CountAllTexture() const override { return texturePathMap_.size(); }
 private:
     const FilesystemInterface& filesystem_;

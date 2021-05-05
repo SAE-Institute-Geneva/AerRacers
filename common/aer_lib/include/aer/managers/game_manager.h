@@ -80,6 +80,8 @@ struct VictoryData
         void UpdatePlacementUiText();
         void CheckIfEveryoneHasFinished();
 
+        std::array<bool, 4> HasPlayersWin() const { return hasWin; }
+
         void GoBackToMenu();
 
         void Destroy() override;
@@ -105,10 +107,10 @@ struct VictoryData
         std::array<UiText, 4> lapsUi_;
         std::array<UiText, 4> placementUi;
         std::array<UiText, 4> endGameText {
-            UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 1, 4.0f, Color::white),
-            UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 2, 4.0f, Color::white),
-            UiText(FontLoaded::LOBSTER, "",Vec2i(0,0), UiAnchor::CENTER, 3, 4.0f, Color::white),
-            UiText(FontLoaded::LOBSTER, "", Vec2i(0,0), UiAnchor::CENTER, 4, 4.0f, Color::white)
+            UiText(FontLoaded::LOBSTER, "", Vec2i(0,300), UiAnchor::CENTER, 0, 2.0f, Color::white),
+            UiText(FontLoaded::LOBSTER, "", Vec2i(0,100), UiAnchor::CENTER, 0, 2.0f, Color::white),
+            UiText(FontLoaded::LOBSTER, "",Vec2i(0,-100), UiAnchor::CENTER, 0, 2.0f, Color::white),
+            UiText(FontLoaded::LOBSTER, "", Vec2i(0,-300), UiAnchor::CENTER, 0, 2.0f, Color::white)
         };
         std::array<std::string, 4> positionsText{ "st", "nd", "rd", "th" };
         std::vector<VictoryData> victoryDatas;
@@ -141,7 +143,7 @@ struct VictoryData
 
         const float startTimer = 10.0f;
         const float endTimer = 10.0f;
-        const int wpToFinish = 90;
+        const int wpByLaps = 29;
         const float placementSizeMultiplier = 0.3f;
         const float lapsSizeMultiplier = 0.3f;
         const float timeBackgroundMultiplier_ = 0.5f;

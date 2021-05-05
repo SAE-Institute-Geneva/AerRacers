@@ -12,6 +12,7 @@ d 1.000000
 illum 1
 map_Bump -bm 0.300000 grass_normal_3.png
 map_Kd grass_basecolor_02.png
+map_Ks specular.png
 
 newmtl Material__26
 Ns 10.000002
@@ -24,6 +25,7 @@ d 1.000000
 illum 1
 map_Bump -bm 0.300000 grass_normal_3.png
 map_Kd grass_basecolor_02.png
+map_Ks specular.png
 
 newmtl Material__38
 Ns 0.000000
@@ -36,3 +38,4 @@ d 1.000000
 illum 1
 map_Bump -bm 3.000000 mur_normal.png
 map_Kd mur_basecolor.png
+map_Ks specular.png

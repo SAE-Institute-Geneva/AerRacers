@@ -3,7 +3,7 @@
 
 namespace neko::fmod
 {
-static constexpr float kMaxVolume = 200.0f;
+static constexpr float kMaxVolume = 300.0f;
 
 /// An object that emits sound
 class AudioSource
