@@ -118,7 +118,11 @@ void MenuManager::Init()
         rosso2UI_[i] = UiImage(config.dataRootPath + Rosso2UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
         rosso3UI_[i] = UiImage(config.dataRootPath + Rosso3UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
         rosso4UI_[i] = UiImage(config.dataRootPath + Rosso4UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER,0, Color::white);
-        shipSkins[i] = SelectedModel::ROSSO_1;
+        cortese1UI_[i] = UiImage(config.dataRootPath + Rosso1UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER, 0, Color::white);
+        cortese2UI_[i] = UiImage(config.dataRootPath + Rosso2UIPath_, Vec2i((playerScreenOffsets[i] * Vec2f(config.windowSize))), Vec2u(1920 * shipModelsUiMultiplier, 1080 * shipModelsUiMultiplier), UiAnchor::CENTER, 0, Color::white);
+
+
+    	shipSkins[i] = SelectedModel::ROSSO_1;
         //arrowsUi_[i] = UiImage(config.dataRootPath);
     }
 
@@ -269,6 +273,8 @@ void MenuManager::Init()
         rosso2UI_[i].SetEnable(false);
         rosso3UI_[i].SetEnable(false);
         rosso4UI_[i].SetEnable(false);
+        cortese1UI_[i].SetEnable(false);
+        cortese2UI_[i].SetEnable(false);
 
         uiManager.AddUiImage(&selectionBackgroundUI_[i]);
         uiManager.AddUiImage(&readyBackground_[i]);
@@ -279,6 +285,9 @@ void MenuManager::Init()
         uiManager.AddUiImage(&rosso2UI_[i]);
         uiManager.AddUiImage(&rosso3UI_[i]);
         uiManager.AddUiImage(&rosso4UI_[i]);
+
+        uiManager.AddUiImage(&cortese1UI_[i]);
+        uiManager.AddUiImage(&cortese2UI_[i]);
 
         readyBackground_[i].SetEnable(false);
         readyText_[i].SetEnable(false);
@@ -407,6 +416,9 @@ void MenuManager::Update(seconds dt)
             rosso2UI_[i].SetEnable(false);
             rosso3UI_[i].SetEnable(false);
             rosso4UI_[i].SetEnable(false);
+
+            cortese1UI_[i].SetEnable(false);
+            cortese2UI_[i].SetEnable(false);
         }
 
 
@@ -534,9 +546,9 @@ void MenuManager::Update(seconds dt)
             break;
         case MenuStatus::CREDITS:
 
-        	menuBackGroundUI.SetEnable(true);
-        	
-        	switch (creditsStatus_)
+            menuBackGroundUI.SetEnable(true);
+
+            switch (creditsStatus_)
             {
             case CreditsStatus::LEADS:
                 creditsSebUiNameText_.SetEnable(true);
@@ -577,7 +589,7 @@ void MenuManager::Update(seconds dt)
                 creditsUiNVText_.SetEnable(true);
 
 
-            	if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::AUDIO;
                 }
@@ -588,7 +600,7 @@ void MenuManager::Update(seconds dt)
 
                 creditsUiLTText_.SetEnable(true);
                 creditsUiLJText_.SetEnable(true);
-            	if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::TOOLS;
                 }
@@ -606,7 +618,7 @@ void MenuManager::Update(seconds dt)
                 creditsUiBCText_.SetEnable(true);
                 creditsUiANText_.SetEnable(true);
 
-            	if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::SPECIAL_THANKS;
                 }
@@ -622,7 +634,7 @@ void MenuManager::Update(seconds dt)
                 creditsEliasUiText_.SetEnable(true);
                 creditsFredUiText_.SetEnable(true);
                 creditsTesterUiText_.SetEnable(true);
-            	if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::LEADS;
                     menuStatus_ = MenuStatus::MENU;
@@ -668,8 +680,8 @@ void MenuManager::Update(seconds dt)
                     leftArrowUi_[i].SetEnable(true);
                     rightArrowUi_[i].SetText("->");
                     rightArrowUi_[i].SetEnable(true);
-                    rightArrowUi_[i].SetPosition(Vec2i((Vec2f(0.3f, 0.0f) + playerScreenOffsets[i])* Vec2f(config.windowSize)));
-                    leftArrowUi_[i].SetPosition(Vec2i((Vec2f(-0.3f, 0.0f) + playerScreenOffsets[i])* Vec2f(config.windowSize)));
+                    rightArrowUi_[i].SetPosition(Vec2i((Vec2f(0.3f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)));
+                    leftArrowUi_[i].SetPosition(Vec2i((Vec2f(-0.3f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)));
 
                     switch (shipSkins[i])
                     {
@@ -685,7 +697,7 @@ void MenuManager::Update(seconds dt)
                         }
                         if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
                         {
-                            shipSkins[i] = SelectedModel::ROSSO_4;
+                            shipSkins[i] = SelectedModel::CORTESE_2;
                             isDpadRight_[i] = true;
                         }
                         else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
@@ -739,7 +751,7 @@ void MenuManager::Update(seconds dt)
                     case SelectedModel::ROSSO_4:
                         if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
                         {
-                            shipSkins[i] = SelectedModel::ROSSO_1;
+                            shipSkins[i] = SelectedModel::CORTESE_1;
                             isDpadLeft_[i] = true;
                         }
                         else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
@@ -757,7 +769,49 @@ void MenuManager::Update(seconds dt)
                         }
                         rosso4UI_[i].SetEnable(true);
                         break;
-                    }
+	                case SelectedModel::CORTESE_1:
+	                    if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+	                    {
+	                        shipSkins[i] = SelectedModel::CORTESE_2;
+	                        isDpadLeft_[i] = true;
+	                    }
+	                    else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+	                    {
+	                        isDpadLeft_[i] = false;
+	                    }
+	                    if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+	                    {
+	                        shipSkins[i] = SelectedModel::ROSSO_4;
+	                        isDpadRight_[i] = true;
+	                    }
+	                    else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+	                    {
+	                        isDpadRight_[i] = false;
+	                    }
+	                    cortese1UI_[i].SetEnable(true);
+	                    break;
+			        case SelectedModel::CORTESE_2:
+			            if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+			            {
+			                shipSkins[i] = SelectedModel::ROSSO_1;
+			                isDpadLeft_[i] = true;
+			            }
+			            else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+			            {
+			                isDpadLeft_[i] = false;
+			            }
+			            if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+			            {
+			                shipSkins[i] = SelectedModel::CORTESE_1;
+			                isDpadRight_[i] = true;
+			            }
+			            else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+			            {
+			                isDpadRight_[i] = false;
+			            }
+                        cortese2UI_[i].SetEnable(true);
+			            break;
+            }
                     rosso1UI_[i].SetSize(Vec2u(Vec2f(config.windowSize) * 0.5f));
                     rosso1UI_[i].SetPosition(Vec2i(playerScreenOffsets[i] * Vec2f(config.windowSize)));
                     rosso2UI_[i].SetSize(Vec2u(Vec2f(config.windowSize) * 0.5f));

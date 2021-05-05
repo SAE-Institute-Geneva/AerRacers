@@ -106,7 +106,9 @@ namespace neko::aer
         ROSSO_1,
         ROSSO_2,
         ROSSO_3,
-        ROSSO_4
+        ROSSO_4,
+    	CORTESE_1,
+    	CORTESE_2
     };
 
     // struct ShipSkins
@@ -286,6 +288,8 @@ namespace neko::aer
         std::string pressStartTextUIPath_ = "sprites/ui/centered/PRESS_A.png";
         std::string Rosso1UIPath_ = "sprites/ui/centered/rosso_models/Il_Roso_001.png";
         std::string Rosso2UIPath_ = "sprites/ui/centered/rosso_models/Il_Roso_002.png";
+        std::string Cortese1UIPath_ = "sprites/ui/centered/rosso_models/Il_Roso_001.png"; //TODO: Replace link
+        std::string Cortese2UIPath_ = "sprites/ui/centered/rosso_models/Il_Roso_002.png"; //TODO: Replace link
         std::string Rosso3UIPath_ = "sprites/ui/centered/rosso_models/Il_Roso_003.png";
         std::string Rosso4UIPath_ = "sprites/ui/centered/rosso_models/Il_Roso_004.png";
         std::string ReadyBackgroundUIPath_ = "sprites/ui/centered/rectangleready.png";
@@ -363,6 +367,9 @@ namespace neko::aer
         std::array<UiImage, 4> rosso2UI_;
         std::array<UiImage, 4> rosso3UI_;
         std::array<UiImage, 4> rosso4UI_;
+
+        std::array<UiImage, 4> cortese1UI_;
+        std::array<UiImage, 4> cortese2UI_;
 
         std::array<Vec2f, 4> playerScreenOffsets{Vec2f(-0.5, 0.5), Vec2f(0.5, 0.5), Vec2f(-0.5, -0.5), Vec2f(0.5, -0.5)};
 

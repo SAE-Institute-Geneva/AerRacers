@@ -151,6 +151,12 @@ namespace neko::aer
             case SelectedModel::ROSSO_4:
                 engine_.GetComponentManagerContainer().playerManager.CreatePlayer(spawns[i], false, 0, EulerAngles(0, 180, 0));
                 break;
+            case SelectedModel::CORTESE_1:
+                engine_.GetComponentManagerContainer().playerManager.CreatePlayer(spawns[i], true, 0, EulerAngles(0, 180, 0));
+                break;
+            case SelectedModel::CORTESE_2:
+                engine_.GetComponentManagerContainer().playerManager.CreatePlayer(spawns[i], true, 1, EulerAngles(0, 180, 0));
+                break;
             }
             engine_.GetComponentManagerContainer().playerManager.SetCanMove(i, false);
         }
