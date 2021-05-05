@@ -85,9 +85,10 @@ public:
     void SetCanMove(PlayerId playerId, bool value);
     void DeletePlayers();
 
-    void Init() override;
+    void LoadShipModels();
     void Update(seconds dt) override;
     void Destroy() override;
+    void Init() override;
 private:
     size_t playerCount_ = 0;
     std::vector<PlayerComponent> playerComponents_;

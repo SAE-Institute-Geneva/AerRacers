@@ -43,6 +43,10 @@ public:
 	 */
 	[[nodiscard]] virtual int CountModelLoaded() const = 0;
 	/**
+	 * \brief Nb of models hat has been loaded
+	 */
+	[[nodiscard]] virtual int CountModelNotLoaded() const = 0;
+	/**
 	 * \brief Nb of models in total
 	 */
 	[[nodiscard]] virtual int CountOfAllModel() const = 0;
@@ -59,6 +63,7 @@ public:
 	[[nodiscard]] bool IsLoaded(ModelId) const override { return false; }
 	ModelId LoadModel(std::string_view) override { return INVALID_MODEL_ID; }
 	[[nodiscard]] int CountModelLoaded() const override { return 0; }
+	[[nodiscard]] int CountModelNotLoaded() const override { return 0; }
 	[[nodiscard]] int CountOfAllModel() const override { return 0; }
 };
 
@@ -79,6 +84,7 @@ public:
 	[[nodiscard]] bool IsLoaded(ModelId modelId) const override { return GetModel(modelId); }
 	ModelId LoadModel(std::string_view path) override;
 	[[nodiscard]] int CountModelLoaded() const override { return modelMap_.size(); }
+	[[nodiscard]] int CountModelNotLoaded() const override { return modelLoaders_.size(); }
 	[[nodiscard]] int CountOfAllModel() const override { return modelPathMap_.size(); }
 
 	void SetTexture(ModelId modelId,

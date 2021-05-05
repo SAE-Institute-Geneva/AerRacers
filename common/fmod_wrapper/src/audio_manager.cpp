@@ -15,8 +15,9 @@ void AudioManager::Init()
 {
 	for (std::size_t e = 0; e < components_.size(); ++e)
 	{
+		if (components_[e].GetEventName().empty()) continue;
 		const Vec3f position = transformManager_.GetGlobalPosition(e);
-		if (components_[e].DoPlayOnWakeUp()) components_[e].Play(position);
+		if (components_[e].DoPlayOnWakeUp() && !components_[e].IsPlaying()) components_[e].Play(position);
 	}
 }
 

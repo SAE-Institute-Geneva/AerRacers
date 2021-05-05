@@ -33,7 +33,7 @@ void Model::Draw(const Shader& shader) const
 void Model::DrawInstanced(const Shader& shader, const Mat4f& modelMatrices, int count) const
 {
 	glBindBuffer(GL_ARRAY_BUFFER, instanceVbo_);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Mat4f) * count, &modelMatrices, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Mat4f) * count, &modelMatrices);
 
 	for (auto& mesh : meshes_) mesh.DrawInstanced(shader, count);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);

@@ -24,59 +24,62 @@ void MenuManager::Init()
     menuStatus_ = MenuStatus::SLEEP;
     creditsStatus_ = CreditsStatus::LEADS;
 
-    creditsSebUiNameText_ = UiText(FontLoaded::ROBOTO, creditsSebNameText_, Vec2i(Vec2f(-0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER,0, 1.0f, Color::white);
-    creditsSebUiLPText_ = UiText(FontLoaded::ROBOTO, creditsSebLPText_, Vec2i(Vec2f(-0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsSebUiGPText_ = UiText(FontLoaded::ROBOTO, creditsSebGPText_, Vec2i(Vec2f(-0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsSebUiGDText_ = UiText(FontLoaded::ROBOTO, creditsSebGDText_, Vec2i(Vec2f(-0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsSebUiNameText_ = UiText(FontLoaded::ROBOTO, creditsSebNameText_, Vec2i(Vec2f(-0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER,0, 1.0f, creditsColor_);
+    creditsSebUiLPText_ = UiText(FontLoaded::ROBOTO, creditsSebLPText_, Vec2i(Vec2f(-0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsSebUiGPText_ = UiText(FontLoaded::ROBOTO, creditsSebGPText_, Vec2i(Vec2f(-0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsSebUiGDText_ = UiText(FontLoaded::ROBOTO, creditsSebGDText_, Vec2i(Vec2f(-0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
 	
-    creditsSimonUiNameText_ = UiText(FontLoaded::ROBOTO, creditsSimonNameText_, Vec2i(Vec2f(0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsSimonUiLTText_ = UiText(FontLoaded::ROBOTO, creditsSimonLTText_, Vec2i(Vec2f(0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsSimonUiLEText_ = UiText(FontLoaded::ROBOTO, creditsSimonLEText_, Vec2i(Vec2f(0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsSimonUiNameText_ = UiText(FontLoaded::ROBOTO, creditsSimonNameText_, Vec2i(Vec2f(0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsSimonUiLTText_ = UiText(FontLoaded::ROBOTO, creditsSimonLTText_, Vec2i(Vec2f(0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsSimonUiLEText_ = UiText(FontLoaded::ROBOTO, creditsSimonLEText_, Vec2i(Vec2f(0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
 
 
-    creditsStephenUiNameText_ = UiText(FontLoaded::ROBOTO, creditsStephenNameText_, Vec2i(Vec2f(-0.6, -0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsStephenUiDOText_ = UiText(FontLoaded::ROBOTO, creditsStephenDOText_, Vec2i(Vec2f(-0.6, -0.6) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditStephenUiGDsText_ = UiText(FontLoaded::ROBOTO, creditStephenGDsText_, Vec2i(Vec2f(-0.6, -0.7) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsStephenUiGPText_ = UiText(FontLoaded::ROBOTO, creditsStephenGPText_, Vec2i(Vec2f(-0.6, -0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsStephenUiNameText_ = UiText(FontLoaded::ROBOTO, creditsStephenNameText_, Vec2i(Vec2f(-0.6, -0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsStephenUiDOText_ = UiText(FontLoaded::ROBOTO, creditsStephenDOText_, Vec2i(Vec2f(-0.6, -0.6) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditStephenUiGDsText_ = UiText(FontLoaded::ROBOTO, creditStephenGDsText_, Vec2i(Vec2f(-0.6, -0.7) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsStephenUiGPText_ = UiText(FontLoaded::ROBOTO, creditsStephenGPText_, Vec2i(Vec2f(-0.6, -0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
 
-    creditsLucaUiNameText_ = UiText(FontLoaded::ROBOTO, creditsLucaNameText_, Vec2i(Vec2f(0.6, -0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsLucaUiPText_ = UiText(FontLoaded::ROBOTO, creditsLucaPText_, Vec2i(Vec2f(0.6, -0.6) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsLucaUiLPText_ = UiText(FontLoaded::ROBOTO, creditsLucaLPText_, Vec2i(Vec2f(0.6, -0.7) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsLucaUiGPText_ = UiText(FontLoaded::ROBOTO, creditsLucaGPText_, Vec2i(Vec2f(0.6, -0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsLucaUiNameText_ = UiText(FontLoaded::ROBOTO, creditsLucaNameText_, Vec2i(Vec2f(0.6, -0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsLucaUiPText_ = UiText(FontLoaded::ROBOTO, creditsLucaPText_, Vec2i(Vec2f(0.6, -0.6) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsLucaUiLPText_ = UiText(FontLoaded::ROBOTO, creditsLucaLPText_, Vec2i(Vec2f(0.6, -0.7) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsLucaUiGPText_ = UiText(FontLoaded::ROBOTO, creditsLucaGPText_, Vec2i(Vec2f(0.6, -0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
 
-    creditsArtsUiText_ = UiText(FontLoaded::LOBSTER, creditsArtsText_, Vec2i(Vec2f(0, 0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
+    creditsArtsUiText_ = UiText(FontLoaded::LOBSTER, creditsArtsText_, Vec2i(Vec2f(0, 0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, creditsColor_);
 
-    creditsUiJKText_ = UiText(FontLoaded::ROBOTO, creditsJKText_, Vec2i(Vec2f(-0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiHCText_ = UiText(FontLoaded::ROBOTO, creditsHCText_, Vec2i(Vec2f(-0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiEMText_ = UiText(FontLoaded::ROBOTO, creditsEMText_, Vec2i(Vec2f(-0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiCBText_ = UiText(FontLoaded::ROBOTO, creditsCBText_, Vec2i(Vec2f(-0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiMCText_ = UiText(FontLoaded::ROBOTO, creditsMCText_, Vec2i(Vec2f(-0.6, 0.1) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiJKText_ = UiText(FontLoaded::ROBOTO, creditsJKText_, Vec2i(Vec2f(-0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiHCText_ = UiText(FontLoaded::ROBOTO, creditsHCText_, Vec2i(Vec2f(-0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiEMText_ = UiText(FontLoaded::ROBOTO, creditsEMText_, Vec2i(Vec2f(-0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiCBText_ = UiText(FontLoaded::ROBOTO, creditsCBText_, Vec2i(Vec2f(-0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiMCText_ = UiText(FontLoaded::ROBOTO, creditsMCText_, Vec2i(Vec2f(-0.6, 0.1) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
 	
-    creditsUiMGText_ = UiText(FontLoaded::ROBOTO, creditsMGText_, Vec2i(Vec2f(0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiLMText_ = UiText(FontLoaded::ROBOTO, creditsLMText_, Vec2i(Vec2f(0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiTMText_ = UiText(FontLoaded::ROBOTO, creditsTMText_, Vec2i(Vec2f(0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiNZText_ = UiText(FontLoaded::ROBOTO, creditsNZText_, Vec2i(Vec2f(0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiNVText_ = UiText(FontLoaded::ROBOTO, creditsNVText_, Vec2i(Vec2f(0.6, 0.1) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiMGText_ = UiText(FontLoaded::ROBOTO, creditsMGText_, Vec2i(Vec2f(0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiLMText_ = UiText(FontLoaded::ROBOTO, creditsLMText_, Vec2i(Vec2f(0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiTMText_ = UiText(FontLoaded::ROBOTO, creditsTMText_, Vec2i(Vec2f(0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiNZText_ = UiText(FontLoaded::ROBOTO, creditsNZText_, Vec2i(Vec2f(0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiNVText_ = UiText(FontLoaded::ROBOTO, creditsNVText_, Vec2i(Vec2f(0.6, 0.1) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
 
-    creditsToolsUiText_ = UiText(FontLoaded::LOBSTER, creditsToolsText_, Vec2i(Vec2f(0, 0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
+    creditsToolsUiText_ = UiText(FontLoaded::LOBSTER, creditsToolsText_, Vec2i(Vec2f(0, 0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, creditsColor_);
 
-    creditsUiDVAText_ = UiText(FontLoaded::ROBOTO, creditsDVAText_, Vec2i(Vec2f(-0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiWPText_ = UiText(FontLoaded::ROBOTO, creditsWPText_, Vec2i(Vec2f(-0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiLDText_ = UiText(FontLoaded::ROBOTO, creditsLDText_, Vec2i(Vec2f(-0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiVDText_ = UiText(FontLoaded::ROBOTO, creditsVDText_, Vec2i(Vec2f(-0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiGJText_ = UiText(FontLoaded::ROBOTO, creditsGJText_, Vec2i(Vec2f(-0.6, 0.1) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiDVAText_ = UiText(FontLoaded::ROBOTO, creditsDVAText_, Vec2i(Vec2f(-0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiWPText_ = UiText(FontLoaded::ROBOTO, creditsWPText_, Vec2i(Vec2f(-0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiLDText_ = UiText(FontLoaded::ROBOTO, creditsLDText_, Vec2i(Vec2f(-0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiVDText_ = UiText(FontLoaded::ROBOTO, creditsVDText_, Vec2i(Vec2f(-0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiGJText_ = UiText(FontLoaded::ROBOTO, creditsGJText_, Vec2i(Vec2f(-0.6, 0.1) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
 	
-    creditsUiSSText_ = UiText(FontLoaded::ROBOTO, creditsSSText_, Vec2i(Vec2f(0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiMSText_ = UiText(FontLoaded::ROBOTO, creditsMSText_, Vec2i(Vec2f(0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiBCText_ = UiText(FontLoaded::ROBOTO, creditsBCText_, Vec2i(Vec2f(0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiANText_ = UiText(FontLoaded::ROBOTO, creditsANText_, Vec2i(Vec2f(0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiSSText_ = UiText(FontLoaded::ROBOTO, creditsSSText_, Vec2i(Vec2f(0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiMSText_ = UiText(FontLoaded::ROBOTO, creditsMSText_, Vec2i(Vec2f(0.6, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiBCText_ = UiText(FontLoaded::ROBOTO, creditsBCText_, Vec2i(Vec2f(0.6, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiANText_ = UiText(FontLoaded::ROBOTO, creditsANText_, Vec2i(Vec2f(0.6, 0.2) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
 
-    creditsAudioUiText_ = UiText(FontLoaded::LOBSTER, creditsAudioText_, Vec2i(Vec2f(0, 0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
+    creditsAudioUiText_ = UiText(FontLoaded::LOBSTER, creditsAudioText_, Vec2i(Vec2f(0, 0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, creditsColor_);
 
-    creditsUiLTText_ = UiText(FontLoaded::ROBOTO, creditsLTText_, Vec2i(Vec2f(-0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
-    creditsUiLJText_ = UiText(FontLoaded::ROBOTO, creditsLJText_, Vec2i(Vec2f(0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, Color::white);
+    creditsUiLTText_ = UiText(FontLoaded::ROBOTO, creditsLTText_, Vec2i(Vec2f(-0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsUiLJText_ = UiText(FontLoaded::ROBOTO, creditsLJText_, Vec2i(Vec2f(0.6, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
 
-    creditsThanksUiText_ = UiText(FontLoaded::ROBOTO, creditsThanksText_, Vec2i(Vec2f(0, 0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
+    creditsThanksUiText_ = UiText(FontLoaded::LOBSTER, creditsThanksText_, Vec2i(Vec2f(0, 0.8) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, creditsColor_);
+    creditsEliasUiText_ = UiText(FontLoaded::ROBOTO, creditsLTText_, Vec2i(Vec2f(0.0, 0.5) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsFredUiText_ = UiText(FontLoaded::ROBOTO, creditsLJText_, Vec2i(Vec2f(0.0, 0.4) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
+    creditsTesterUiText_ = UiText(FontLoaded::ROBOTO, creditsLJText_, Vec2i(Vec2f(0.0, 0.3) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 1.0f, creditsColor_);
 
     loadingText_ = UiText(FontLoaded::ROBOTO, loading_ + "0 %", Vec2i::zero, UiAnchor::CENTER, 0, 4.0f, Color::white);
 	//TODO: Create text for others
@@ -135,7 +138,7 @@ void MenuManager::Init()
     uiManager.AddUiText(&creditStephenUiGDsText_);
 
     uiManager.AddUiText(&creditsLucaUiNameText_);
-    uiManager.AddUiText(&creditsLucaUiLPText_);
+    uiManager.AddUiText(&creditsLucaUiPText_);
     uiManager.AddUiText(&creditsLucaUiGPText_);
     uiManager.AddUiText(&creditsLucaUiLPText_);
 
@@ -171,6 +174,9 @@ void MenuManager::Init()
     uiManager.AddUiText(&creditsUiLJText_);
 
     uiManager.AddUiText(&creditsThanksUiText_);
+    uiManager.AddUiText(&creditsEliasUiText_);
+    uiManager.AddUiText(&creditsFredUiText_);
+    uiManager.AddUiText(&creditsTesterUiText_);
 
     uiManager.AddUiText(&loadingText_);
 	
@@ -228,6 +234,9 @@ void MenuManager::Init()
     creditsUiLJText_.SetEnable(false);
 
     creditsThanksUiText_.SetEnable(false);
+    creditsEliasUiText_.SetEnable(false);
+    creditsFredUiText_.SetEnable(false);
+    creditsTesterUiText_.SetEnable(false);
 
     loadingText_.SetEnable(false);
 	
@@ -365,6 +374,9 @@ void MenuManager::Update(seconds dt)
         creditsUiLJText_.SetEnable(false);
 
         creditsThanksUiText_.SetEnable(false);
+        creditsEliasUiText_.SetEnable(false);
+        creditsFredUiText_.SetEnable(false);
+        creditsTesterUiText_.SetEnable(false);
 
         loadingText_.SetEnable(false);
 
@@ -607,6 +619,9 @@ void MenuManager::Update(seconds dt)
                 break;
             case CreditsStatus::SPECIAL_THANKS:
                 creditsThanksUiText_.SetEnable(true);
+                creditsEliasUiText_.SetEnable(true);
+                creditsFredUiText_.SetEnable(true);
+                creditsTesterUiText_.SetEnable(true);
             	if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::LEADS;
@@ -817,12 +832,10 @@ void MenuManager::Update(seconds dt)
             loadingText_.SetEnable(true);
 
 
-        	if (engine_.GetResourceManagerContainer().modelManager.CountModelLoaded() ==
-                engine_.GetResourceManagerContainer().modelManager.CountOfAllModel())
+        	if (engine_.GetResourceManagerContainer().modelManager.CountModelNotLoaded() == 0)
             {
 	            if (
-                    engine_.GetResourceManagerContainer().textureManager.CountAllTexture() ==
-                    engine_.GetResourceManagerContainer().textureManager.CountAllTexture())
+                    engine_.GetResourceManagerContainer().textureManager.CountTextureNotLoaded() == 0) 
 	            {
                     menuBackGroundUI.SetEnable(false);
                     engine_.GetComponentManagerContainer().gameManager.StartGameManager(playerCount, shipSkins);

@@ -163,7 +163,7 @@ namespace neko::aer
 
         std::string creditsSimonNameText_ = "Simon Canas";
         std::string creditsSimonLTText_ = "Lead Tool";
-        std::string creditsSimonLEText_ = "lead Engine Programmer";
+        std::string creditsSimonLEText_ = "Lead Engine Programmer";
 
         std::string creditsStephenNameText_ = "Stephen Grosjean";
         std::string creditsStephenDOText_ = "Dev Ops";
@@ -207,11 +207,12 @@ namespace neko::aer
         std::string creditsLJText_ = "Leo Juriens";
 
         std::string creditsThanksText_ = "Thanks to";
-        //std::string creditsSimonText_ = "Simon Canas \n Lead Tool \n Lead Engine Programmer";
-        //std::string creditsStephenText_ = "Stephen Grosjean \n Dev Ops \n Game Designer \n Gameplay Programmer";
-        //std::string creditsLucaText_ = "Luca Floreau \n Producer \n Lead Programmer \n Gameplay Programmer";
+        std::string creditsEliasText_ = "Elias Fahran";
+        std::string creditsFredText_ = "Frederic Dubouchet";
+        std::string creditsTestersText_ = "All tester";
         std::string loading_ = "Loading ";
 
+        const Color4 creditsColor_ = Color::black;
     	
         UiText creditsSebUiNameText_;
         UiText creditsSebUiLPText_;
@@ -264,12 +265,11 @@ namespace neko::aer
         UiText creditsUiLJText_;
     	
         UiText creditsThanksUiText_;
+        UiText creditsEliasUiText_;
+        UiText creditsFredUiText_;
+        UiText creditsTesterUiText_;
 
         UiText loadingText_;
-    	
-        //UiText creditsSimonUiText_;
-        //UiText creditsStephenUiText_;
-        //UiText creditsLucaUiText_;
 
         //ImagesDataString
         std::string menuBackgroundUIPath_ = "sprites/ui/centered/background.png";

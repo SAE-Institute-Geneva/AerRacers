@@ -110,6 +110,10 @@ public:
 	 * \brief Nb of texture hat has been loaded
 	 */
 	[[nodiscard]] virtual int CountTextureLoaded() const = 0;
+	/**
+	 * \brief Nb of texture hat hasn't been loaded
+	 */
+	[[nodiscard]] virtual int CountTextureNotLoaded() const = 0;
     /**
 	 * \brief Nb of texture in total
 	 */
@@ -136,6 +140,10 @@ public:
 	}
 
 	[[nodiscard]] int CountTextureLoaded() const override
+	{
+		return 0;
+	}
+	[[nodiscard]] int CountTextureNotLoaded() const override
 	{
 		return 0;
 	}
