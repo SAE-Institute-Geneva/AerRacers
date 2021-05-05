@@ -103,10 +103,10 @@ void MenuManager::Init()
         colorRed = Color4(colorRed.x * 0.5f, colorRed.y * 0.5f, colorRed.z * 0.5f, 1.0);
         colorYellow = Color4(colorYellow.x * 0.5f, colorYellow.y * 0.5f, colorYellow.z * 0.5f, 1.0);
 
-        colorBlueUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2i((Vec2f(-0.15f, -0.5f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorBlue);
-        colorGreenUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2i((Vec2f(-0.05f, -0.5f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorGreen);
-        colorRedUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2i((Vec2f(0.05f, -0.5f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorRed);
-        colorYellowUi_[i] = UiImage(config.dataRootPath + "sprites/ui/square.png", Vec2i((Vec2f(0.15f, -0.5f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorYellow);
+        colorBlueUi_[i] = UiImage(config.dataRootPath + Rosso1UIPath_, Vec2i((Vec2f(-0.15f, -0.5f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorBlue);
+        colorGreenUi_[i] = UiImage(config.dataRootPath + Rosso1UIPath_, Vec2i((Vec2f(-0.05f, -0.5f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorGreen);
+        colorRedUi_[i] = UiImage(config.dataRootPath + Rosso1UIPath_, Vec2i((Vec2f(0.05f, -0.5f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorRed);
+        colorYellowUi_[i] = UiImage(config.dataRootPath + Rosso1UIPath_, Vec2i((Vec2f(0.15f, -0.5f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), Vec2u(colorsSize, colorsSize), UiAnchor::CENTER, 0, colorYellow);
         readyUi_[i] = UiText(FontLoaded::ROBOTO, "Ready", Vec2i((Vec2f(0.0f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
 
 
@@ -833,24 +833,24 @@ void MenuManager::Update(seconds dt)
                     }
                     if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN && i == 0)
                     {
-                        bool everyoneIsReady = true;
+                        playerCount = 0;
+                        bool oneIsReady = true;
                         for (int i = 0; i < 4; i++)
                         {
-                            if (selectionPointing_[i] != SelectionPointing::READY && selectionPointing_[i] != SelectionPointing::JOIN)
+                            if (selectionPointing_[i] == SelectionPointing::READY && oneIsReady)
                             {
-                                everyoneIsReady = false;
+                                oneIsReady = true;
+                                playerCount++;
+                            }
+                            else if (selectionPointing_[i] == SelectionPointing::READY && !oneIsReady)
+                            {
+                                playerCount = 0;
+                            } else {
+                                oneIsReady = false;
                             }
                         }
-                        if (everyoneIsReady)
+                        if (playerCount > 0)
                         {
-                            playerCount = 0;
-                            for (int i = 0; i < 4; i++)
-                            {
-                                if (selectionPointing_[i] == SelectionPointing::READY)
-                                {
-                                    playerCount++;
-                                }
-                            }
                             // menuBackGroundUI.SetEnable(false);
                             // engine_.GetComponentManagerContainer().gameManager.StartGameManager(playerCount, shipSkins);
                             // //engine_.GetComponentManagerContainer().gameManager.StartGameManager(2);

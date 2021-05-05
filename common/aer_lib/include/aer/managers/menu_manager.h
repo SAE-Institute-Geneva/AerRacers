@@ -288,12 +288,12 @@ namespace neko::aer
         std::string blueprint1UIPath_ = "sprites/ui/centered/blueprint01.jpg";
         std::string blueprint2UIPath_ = "sprites/ui/centered/blueprint02.jpg";
         std::string pressStartTextUIPath_ = "sprites/ui/centered/PRESS_A.png";
-        std::string Rosso1UIPath_ = "sprites/ui/centered/ilrosso/blue/il_rosso_blue_toon.png";
-        std::string Rosso2UIPath_ = "sprites/ui/centered/ilrosso/grey/il_rosso_grey_toon.png";
-        std::string Cortese1UIPath_ = "sprites/ui/centered/cortese/red/cortese_red_toon.png"; //TODO: Replace link
-        std::string Cortese2UIPath_ = "sprites/ui/centered/cortese/blue/cortese_blue_toon.png"; //TODO: Replace link
-        std::string Rosso3UIPath_ = "sprites/ui/centered/ilrosso/red/il_rosso_red_toon.png";
-        std::string Rosso4UIPath_ = "sprites/ui/centered/ilrosso/redblack/il_rosso_redblack_toon.png";
+        std::string Rosso1UIPath_ = "sprites/ui/centered/ilrosso/red/il_rosso_red_toon.png";
+        std::string Rosso2UIPath_ = "sprites/ui/centered/ilrosso/redblack/il_rosso_redblack_toon.png";
+        std::string Cortese1UIPath_ = "sprites/ui/centered/cortese/blue/cortese_blue_toon.png"; //TODO: Replace link
+        std::string Cortese2UIPath_ = "sprites/ui/centered/cortese/red/cortese_red_toon.png"; //TODO: Replace link
+        std::string Rosso3UIPath_ = "sprites/ui/centered/ilrosso/grey/il_rosso_grey_toon.png";
+        std::string Rosso4UIPath_ = "sprites/ui/centered/ilrosso/blue/il_rosso_blue_toon.png";
         std::string ReadyBackgroundUIPath_ = "sprites/ui/centered/rectangleready.png";
         std::string ReadyTextUIPath_ = "sprites/ui/centered/READY.png";
 
