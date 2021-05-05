@@ -26,6 +26,8 @@
 
 namespace neko::gl
 {
+constexpr int kInstanceBufferSize = 256;
+
 class ModelLoader
 {
 public:
