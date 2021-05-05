@@ -306,27 +306,6 @@ void MenuManager::Update(seconds dt)
     if (useMenu)
     {
         const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-        if (!hasStartedSceneLoading)
-        {
-            engine_.GetResourceManagerContainer().modelManager.LoadModel(config.dataRootPath + "models/terrain_collider_v3/terrain_collider_v3.obj");
-            engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-                config.dataRootPath + "scenes/LevelDesign05-05WP.aerscene");
-            Camera3D* camera = GizmosLocator::get().GetCamera();
-            camera->fovY = degree_t(80.0f);
-            camera->nearPlane = 0.1f;
-            camera->farPlane = 1'000'000.0f;
-            engine_.GetCameras().SetCameras(*camera);
-            hasStartedSceneLoading = true;
-
-            // const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
-            // engine_.GetComponentManagerContainer().sceneManager.LoadScene(
-            //     config.dataRootPath + "scenes/LevelDesign05-04WP.aerscene");
-            // Camera3D* camera = GizmosLocator::get().GetCamera();
-            // camera->fovY = degree_t(80.0f);
-            // camera->nearPlane = 0.1f;
-            // camera->farPlane = 1'000'000.0f;
-            // engine_.GetCameras().SetCameras(*camera);
-        }
 
 
         auto& inputlocator = sdl::InputLocator::get();
@@ -884,6 +863,27 @@ void MenuManager::Update(seconds dt)
             break;
         case MenuStatus::LOADING:
 
+            if (!hasStartedSceneLoading)
+            {
+                engine_.GetResourceManagerContainer().modelManager.LoadModel(config.dataRootPath + "models/terrain_collider_v3/terrain_collider_v3.obj");
+                engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+                    config.dataRootPath + "scenes/LevelDesign05-05WP.aerscene");
+                Camera3D* camera = GizmosLocator::get().GetCamera();
+                camera->fovY = degree_t(80.0f);
+                camera->nearPlane = 0.1f;
+                camera->farPlane = 1'000'000.0f;
+                engine_.GetCameras().SetCameras(*camera);
+                hasStartedSceneLoading = true;
+
+                // const auto& config = neko::BasicEngine::GetInstance()->GetConfig();
+                // engine_.GetComponentManagerContainer().sceneManager.LoadScene(
+                //     config.dataRootPath + "scenes/LevelDesign05-04WP.aerscene");
+                // Camera3D* camera = GizmosLocator::get().GetCamera();
+                // camera->fovY = degree_t(80.0f);
+                // camera->nearPlane = 0.1f;
+                // camera->farPlane = 1'000'000.0f;
+                // engine_.GetCameras().SetCameras(*camera);
+            }
             engine_.GetComponentManagerContainer().playerManager.LoadShipModels();
             loadingText_.SetText("Loading " + std::to_string(int((float(engine_.GetResourceManagerContainer().modelManager.CountModelLoaded()) / float(engine_.GetResourceManagerContainer().modelManager.CountOfAllModel())) + (float(engine_.GetResourceManagerContainer().textureManager.CountTextureLoaded()) / float(engine_.GetResourceManagerContainer().textureManager.CountAllTexture())) * 100)) + "%");
         	
