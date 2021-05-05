@@ -242,7 +242,6 @@ namespace neko::aer
 
         std::array<SelectedModel, 4> shipSkins;
 
-
         std::array<UiText, 4> joinUi_;
         std::array<UiText, 4> leftArrowUi_;
         std::array<UiText, 4> rightArrowUi_;
@@ -269,6 +268,11 @@ namespace neko::aer
         std::array<bool, 4> isDpadLeft_{ false, false, false, false };
         std::array<bool, 4> isDpadRight_{ false, false, false, false };
 
-        Entity audioEntity_ = INVALID_ENTITY;
+        Entity bipAudioEntity_ = INVALID_ENTITY;
+        Entity selectAudioEntity_ = INVALID_ENTITY;
+
+        MainMenuPointing lastMenuPointing_;
+        MenuStatus lastMenuStatus_;
+        std::array<SelectedModel, 4> lastSelectedSkins_;
     };
 }

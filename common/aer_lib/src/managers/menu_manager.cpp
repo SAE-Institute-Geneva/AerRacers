@@ -29,6 +29,28 @@ void MenuManager::Init()
 
     useMenu = false;
 
+    //Audio
+    ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+    bipAudioEntity_ = cContainer.entityManager.CreateEntity();
+
+    cContainer.transform3dManager.AddComponent(bipAudioEntity_);
+    cContainer.audioManager.AddComponent(bipAudioEntity_);
+    cContainer.audioManager.SetEventName(bipAudioEntity_, "menu/menu_bleep");
+    cContainer.audioManager.SetPlayOnWakeUp(bipAudioEntity_, false);
+    cContainer.audioManager.SetMaxDistance(bipAudioEntity_, 40.0f);
+    cContainer.audioManager.SetVolume(bipAudioEntity_, 100.0f);
+    cContainer.audioManager.Init();
+
+    selectAudioEntity_ = cContainer.entityManager.CreateEntity();
+
+    cContainer.transform3dManager.AddComponent(selectAudioEntity_);
+    cContainer.audioManager.AddComponent(selectAudioEntity_);
+    cContainer.audioManager.SetEventName(selectAudioEntity_, "menu/menu_next");
+    cContainer.audioManager.SetPlayOnWakeUp(selectAudioEntity_, false);
+    cContainer.audioManager.SetMaxDistance(selectAudioEntity_, 40.0f);
+    cContainer.audioManager.SetVolume(selectAudioEntity_, 100.0f);
+    cContainer.audioManager.Init();
+
     for (int i = 0; i < 4; i++)
     {
         joinUi_[i] = UiText(FontLoaded::ROBOTO, "Join", Vec2i((Vec2f(0.0f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)), UiAnchor::CENTER, 0, 2.0f, Color::white);
@@ -164,6 +186,14 @@ void MenuManager::Update(seconds dt)
         creditsSimonUiText_.SetEnable(false);
         creditsStephenUiText_.SetEnable(false);
         creditsLucaUiText_.SetEnable(false);
+
+        lastMenuPointing_ = mainMenuPointing_;
+        lastMenuStatus_ = menuStatus_;
+
+        for (int i = 0; i < kMaxPlayer_; i++)
+        {
+            lastSelectedSkins_[i] = shipSkins[i];
+        }
 
         for (int i = 0; i < 4; i++)
         {
@@ -402,8 +432,8 @@ void MenuManager::Update(seconds dt)
                     leftArrowUi_[i].SetEnable(true);
                     rightArrowUi_[i].SetText("->");
                     rightArrowUi_[i].SetEnable(true);
-                    rightArrowUi_[i].SetPosition(Vec2i((Vec2f(0.3f, 0.0f) + playerScreenOffsets[i])* Vec2f(config.windowSize)));
-                    leftArrowUi_[i].SetPosition(Vec2i((Vec2f(-0.3f, 0.0f) + playerScreenOffsets[i])* Vec2f(config.windowSize)));
+                    rightArrowUi_[i].SetPosition(Vec2i((Vec2f(0.3f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)));
+                    leftArrowUi_[i].SetPosition(Vec2i((Vec2f(-0.3f, 0.0f) + playerScreenOffsets[i]) * Vec2f(config.windowSize)));
 
                     switch (shipSkins[i])
                     {
@@ -563,16 +593,27 @@ void MenuManager::Update(seconds dt)
             break;
         }
     }
+    auto& inputlocator = sdl::InputLocator::get();
 
-    //Audio
-    ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
-    audioEntity_ = cContainer.entityManager.CreateEntity();
-    cContainer.transform3dManager.AddComponent(audioEntity_);
-    cContainer.audioManager.AddComponent(audioEntity_);
-    cContainer.audioManager.SetPlayOnWakeUp(audioEntity_, false);
-    cContainer.audioManager.SetMaxDistance(audioEntity_, 40.0f);
-    cContainer.audioManager.SetVolume(audioEntity_, 50.0f);
-    cContainer.audioManager.Init();
+    for (int i = 0; i < kMaxPlayer_; i++)
+    {
+        if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN ||
+            inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
+        {
+            PlaySelectSound();
+        }
+
+        if(lastSelectedSkins_[i] != shipSkins[i]) {
+            PlayBipSound();
+        }
+    }   
+
+    if((menuStatus_ == lastMenuStatus_) && (mainMenuPointing_ != lastMenuPointing_)) 
+    {
+        PlayBipSound();       
+    }
+
+
 }
 
 void MenuManager::Render()
@@ -594,6 +635,7 @@ void MenuManager::StartMenu()
     menuBackGroundUI.SetEnable(true);
 
     useMenu = true;
+
 }
 
 void MenuManager::PressStartButton()
@@ -629,12 +671,13 @@ void MenuManager::SaveSoundOptions()
 void MenuManager::PlayBipSound()
 {
     ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
-    cContainer.audioManager.SetEventName(audioEntity_, "sfx/menu_bleep");
+    cContainer.audioManager.Play(bipAudioEntity_);
 }
 
 void MenuManager::PlaySelectSound()
 {
-    
+    ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+    cContainer.audioManager.Play(selectAudioEntity_);
 }
 
 
