@@ -159,6 +159,12 @@ namespace neko::aer
             case SelectedModel::ROSSO_4:
                 engine_.GetComponentManagerContainer().playerManager.CreatePlayer(spawns[i], false, 0, EulerAngles(0, 180, 0));
                 break;
+            case SelectedModel::CORTESE_1:
+                engine_.GetComponentManagerContainer().playerManager.CreatePlayer(spawns[i], true, 0, EulerAngles(0, 180, 0));
+                break;
+            case SelectedModel::CORTESE_2:
+                engine_.GetComponentManagerContainer().playerManager.CreatePlayer(spawns[i], true, 1, EulerAngles(0, 180, 0));
+                break;
             }
             engine_.GetComponentManagerContainer().playerManager.SetCanMove(i, false);
         }
@@ -228,7 +234,7 @@ namespace neko::aer
 
         for (int i = 0; i < playerCount; i++)
         {
-            if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpByLaps*3)
+            if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpByLaps*3+2)
             {
                 ShowEndScore(i);
                 if (hasWin[i] == false)
@@ -383,13 +389,13 @@ namespace neko::aer
             lap1InGameUI_[i].SetEnable(false);
             lap2InGameUI_[i].SetEnable(false);
             lap3InGameUI_[i].SetEnable(false);
-            if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpByLaps*3)
+            if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpByLaps*3+2)
             {
                 lapsBackgroundInGameUI_[i].SetEnable(true);
                 lap3InGameUI_[i].SetEnable(true);
                 PlayLapSound(i, 3);
             }
-            else if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpByLaps * 2)
+            else if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpByLaps * 2+1)
             {
                 lapsBackgroundInGameUI_[i].SetEnable(true);
                 lap3InGameUI_[i].SetEnable(true);

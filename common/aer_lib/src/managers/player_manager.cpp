@@ -257,12 +257,19 @@ namespace neko::aer
 
     void PlayerManager::LoadShipModels()
     {
+        if (!shipModels_.empty()) return;
         shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/cortese/corps/blue/low_cortese_corps_resize.obj"));
         shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/cortese/corps/red/low_cortese_corps_resize.obj"));
         shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/corps/blue/objet_central_low.obj"));
         shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/corps/greyred/objet_central_low.obj"));
         shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/corps/redblack/objet_central_low.obj"));
         shipModels_.push_back(modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/corps/redwhite/objet_central_low.obj"));
+        modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/helice_g/helice_gauche.obj");
+        modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/helice_d/helice_droit.obj");
+        modelManager_.LoadModel(GetModelsFolderPath() + "ship/ilroso/details/details_low.obj");
+        modelManager_.LoadModel(GetModelsFolderPath() + "ship/cortese/helice_g/low_helice_g_origin_resize.obj");
+        modelManager_.LoadModel(GetModelsFolderPath() + "ship/cortese/helice_d/low_helice_d_origin_resize.obj");
+        modelManager_.LoadModel(GetModelsFolderPath() + "ship/cortese/details/low_cortese_elements_resize.obj");
     }
 
     void PlayerManager::Update(seconds dt)
@@ -274,7 +281,7 @@ namespace neko::aer
                 playerComponents_[playerId].linkedJoystick = playerId;
             }
             else if (!controllers.empty()) {
-                playerComponents_[playerId].linkedJoystick = controllers[0];
+                playerComponents_[playerId].linkedJoystick = 0;
             }
             else {
                 playerComponents_[playerId].linkedJoystick = 0;
@@ -321,6 +328,5 @@ void PlayerManager::Destroy() { }
 
 void PlayerManager::Init()
     {
-    LoadShipModels();
     }
 }

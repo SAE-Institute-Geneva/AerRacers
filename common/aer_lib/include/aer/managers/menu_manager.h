@@ -106,7 +106,9 @@ namespace neko::aer
         ROSSO_1,
         ROSSO_2,
         ROSSO_3,
-        ROSSO_4
+        ROSSO_4,
+    	CORTESE_1,
+    	CORTESE_2
     };
 
     // struct ShipSkins
@@ -211,12 +213,13 @@ namespace neko::aer
         std::string creditsLJText_ = "Leo Juriens";
 
         std::string creditsThanksText_ = "Thanks to";
-        std::string creditsEliasText_ = "Elias Fahran";
+        std::string creditsEliasText_ = "Elias Farhan";
         std::string creditsFredText_ = "Frederic Dubouchet";
+        std::string creditsSylvainText_ = "Sylvain Cardin";
         std::string creditsTestersText_ = "All tester";
         std::string loading_ = "Loading ";
 
-        const Color4 creditsColor_ = Color::black;
+        const Color4 creditsColor_ = Color::white;
     	
         UiText creditsSebUiNameText_;
         UiText creditsSebUiLPText_;
@@ -271,6 +274,7 @@ namespace neko::aer
         UiText creditsThanksUiText_;
         UiText creditsEliasUiText_;
         UiText creditsFredUiText_;
+        UiText creditsSylvainUiText_;
         UiText creditsTesterUiText_;
 
         UiText loadingText_;
@@ -288,10 +292,12 @@ namespace neko::aer
         std::string blueprint1UIPath_ = "sprites/ui/centered/blueprint01.jpg";
         std::string blueprint2UIPath_ = "sprites/ui/centered/blueprint02.jpg";
         std::string pressStartTextUIPath_ = "sprites/ui/centered/PRESS_A.png";
-        std::string Rosso1UIPath_ = "sprites/ui/centered/rosso_models/Il_Roso_001.png";
-        std::string Rosso2UIPath_ = "sprites/ui/centered/rosso_models/Il_Roso_002.png";
-        std::string Rosso3UIPath_ = "sprites/ui/centered/rosso_models/Il_Roso_003.png";
-        std::string Rosso4UIPath_ = "sprites/ui/centered/rosso_models/Il_Roso_004.png";
+        std::string Rosso1UIPath_ = "sprites/ui/centered/ilrosso/red/il_rosso_red_toon.png";
+        std::string Rosso2UIPath_ = "sprites/ui/centered/ilrosso/redblack/il_rosso_redblack_toon.png";
+        std::string Cortese1UIPath_ = "sprites/ui/centered/cortese/blue/cortese_blue_toon.png"; //TODO: Replace link
+        std::string Cortese2UIPath_ = "sprites/ui/centered/cortese/red/cortese_red_toon.png"; //TODO: Replace link
+        std::string Rosso3UIPath_ = "sprites/ui/centered/ilrosso/grey/il_rosso_grey_toon.png";
+        std::string Rosso4UIPath_ = "sprites/ui/centered/ilrosso/blue/il_rosso_blue_toon.png";
         std::string ReadyBackgroundUIPath_ = "sprites/ui/centered/rectangleready.png";
         std::string ReadyTextUIPath_ = "sprites/ui/centered/READY.png";
 
@@ -366,6 +372,9 @@ namespace neko::aer
         std::array<UiImage, 4> rosso2UI_;
         std::array<UiImage, 4> rosso3UI_;
         std::array<UiImage, 4> rosso4UI_;
+
+        std::array<UiImage, 4> cortese1UI_;
+        std::array<UiImage, 4> cortese2UI_;
 
         std::array<Vec2f, 4> playerScreenOffsets{Vec2f(-0.5, 0.5), Vec2f(0.5, 0.5), Vec2f(-0.5, -0.5), Vec2f(0.5, -0.5)};
 
