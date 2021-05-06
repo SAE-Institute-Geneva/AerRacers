@@ -21,6 +21,14 @@ namespace neko::aer
         cContainer.audioManager.SetEventName(audioEntity_, "sfx/menu_bleep");
         cContainer.audioManager.SetMaxDistance(audioEntity_, 40.0f);
         cContainer.audioManager.SetVolume(audioEntity_, 50.0f);
+
+        lapAudioEntity_ = cContainer.entityManager.CreateEntity();
+        cContainer.transform3dManager.AddComponent(lapAudioEntity_);
+        cContainer.audioManager.AddComponent(lapAudioEntity_);
+        cContainer.audioManager.SetPlayOnWakeUp(lapAudioEntity_, true);
+        cContainer.audioManager.SetEventName(lapAudioEntity_, "sfx/lap");
+        cContainer.audioManager.SetMaxDistance(lapAudioEntity_, 40.0f);
+        cContainer.audioManager.SetVolume(lapAudioEntity_, 50.0f);
         if (engine_.GetMode() == ModeEnum::GAME)
         {
             musicEntity_ = cContainer.entityManager.CreateEntity();
@@ -379,16 +387,19 @@ namespace neko::aer
             {
                 lapsBackgroundInGameUI_[i].SetEnable(true);
                 lap3InGameUI_[i].SetEnable(true);
+                PlayLapSound(i, 3);
             }
             else if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpByLaps * 2)
             {
                 lapsBackgroundInGameUI_[i].SetEnable(true);
                 lap3InGameUI_[i].SetEnable(true);
+                PlayLapSound(i, 2);
             }
             else if (engine_.GetComponentManagerContainer().waypointManager.GetPlayerPositionData()->waypointsCount[i] > wpByLaps)
             {
                 lapsBackgroundInGameUI_[i].SetEnable(true);
                 lap2InGameUI_[i].SetEnable(true);
+                PlayLapSound(i, 1);
             }
             else
             {
@@ -442,6 +453,9 @@ namespace neko::aer
             timeBackgroundGameUI_[i].SetEnable(false);
             timerUi_[i].SetEnable(false);
             endGameText[i].SetEnable(false);
+            hasLap1SoundPlayed[i] = false;
+            hasLap2SoundPlayed[i] = false;
+            hasLap3SoundPlayed[i] = false;
         }
         engine_.GetComponentManagerContainer().waypointManager;
         engine_.GetComponentManagerContainer().menuManager.StartMenu();
@@ -451,4 +465,44 @@ namespace neko::aer
     {
 
     }
+
+    GameState GameManager::GetGamestate() {
+        return game_state_;
+    }
+
+    void GameManager::PlayLapSound(int playerId, int lap) {
+
+        if (lap == 1)
+        {
+            if (hasLap1SoundPlayed[playerId] == false)
+            {
+                LogDebug("Lap1");
+                ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+                cContainer.audioManager.Play(lapAudioEntity_);
+                hasLap1SoundPlayed[playerId] = true;
+            }
+        }
+        else if (lap == 2)
+        {
+            if (hasLap2SoundPlayed[playerId] == false)
+            {
+                LogDebug("Lap2");
+                ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+                cContainer.audioManager.Play(lapAudioEntity_);
+                hasLap2SoundPlayed[playerId] = true;
+            }
+        }
+        else if(lap == 3) 
+        {
+            if (hasLap3SoundPlayed[playerId] == false)
+            {
+                LogDebug("Lap3");
+                ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+                cContainer.audioManager.Play(lapAudioEntity_);
+                hasLap3SoundPlayed[playerId] = true;
+            }
+        }
+        
+    }
+
 }

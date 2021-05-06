@@ -80,6 +80,8 @@ struct VictoryData
         void UpdatePlacementUiText();
         void CheckIfEveryoneHasFinished();
 
+        void PlayLapSound(int playerId, int lap);
+        GameState GetGamestate();
         std::array<bool, 4> HasPlayersWin() const { return hasWin; }
 
         void GoBackToMenu();
@@ -95,11 +97,33 @@ struct VictoryData
         neko::seconds time = neko::seconds(0);
         bool gameManagerStarted = false;
         bool hasPlayedStartSound = false;
+
         std::array<bool, 4> hasWin = {
             false,
             false,
             false,
             false
+        };
+
+        std::array<bool, 4> hasLap3SoundPlayed = {
+false,
+false,
+false,
+false
+        };
+
+        std::array<bool, 4> hasLap2SoundPlayed = {
+false,
+false,
+false,
+false
+        };
+
+        std::array<bool, 4> hasLap1SoundPlayed = {
+    false,
+    false,
+    false,
+    false
         };
 
         std::array<UiText, 4> middleTextUi;
@@ -115,7 +139,6 @@ struct VictoryData
         std::array<std::string, 4> positionsText{ "st", "nd", "rd", "th" };
         std::vector<VictoryData> victoryDatas;
 
-
         std::string placement1stPath_ = "sprites/ui/centered/1st.png";
         std::string placement2ndPath_ = "sprites/ui/centered/2nd.png";
         std::string placement3rdPath_ = "sprites/ui/centered/3rd.png";
@@ -125,8 +148,6 @@ struct VictoryData
         std::string lap3Path_ = "sprites/ui/centered/3outof3laps.png";
         std::string lapsBackgroundPath_ = "sprites/ui/centered/lap_nuages.png";
         std::string timeBackgroundPath_ = "sprites/ui/centered/timebag_background.png";
-
-
         
         std::array<UiImage, 4> placement1stInGameUI_;
         std::array<UiImage, 4> placement2ndInGameUI_;
@@ -164,6 +185,7 @@ struct VictoryData
 
         Entity musicEntity_ = INVALID_ENTITY;
         Entity audioEntity_ = INVALID_ENTITY;
+        Entity lapAudioEntity_ = INVALID_ENTITY;
         //TODO: Sound MoveInMenu
         //TODO: Sound Validation
     };

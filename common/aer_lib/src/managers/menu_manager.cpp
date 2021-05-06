@@ -960,12 +960,14 @@ void MenuManager::SaveSoundOptions()
 void MenuManager::PlayBipSound()
 {
     ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+    if (cContainer.gameManager.GetGamestate() == GameState::RACING) return;
     cContainer.audioManager.Play(bipAudioEntity_);
 }
 
 void MenuManager::PlaySelectSound()
 {
     ComponentManagerContainer& cContainer = engine_.GetComponentManagerContainer();
+    if (cContainer.gameManager.GetGamestate() == GameState::RACING) return;
     cContainer.audioManager.Play(selectAudioEntity_);
 }
 
