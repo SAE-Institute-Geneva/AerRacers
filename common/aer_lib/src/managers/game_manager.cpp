@@ -35,7 +35,7 @@ namespace neko::aer
             cContainer.transform3dManager.AddComponent(musicEntity_);
             cContainer.audioManager.AddComponent(musicEntity_);
             cContainer.audioManager.SetPlayOnWakeUp(musicEntity_, true);
-            cContainer.audioManager.SetEventName(musicEntity_, "music/game");
+            cContainer.audioManager.SetEventName(musicEntity_, "music/gameloop");
             cContainer.audioManager.SetMaxDistance(musicEntity_, 40.0f);
             cContainer.audioManager.SetVolume(musicEntity_, 50.0f);
         }
@@ -71,10 +71,11 @@ namespace neko::aer
         StartUi();
         gameManagerStarted = true;
         game_state_ = GameState::WATING;
-        for (int i = 0; i < playerCount; i++)
+        for (int i = 0; i < kMaxPlayerNum; i++)
         {
             hasWin[i] = false;
         }
+        victoryDatas.clear();
     }
 
     void GameManager::Update(seconds dt)
@@ -287,7 +288,7 @@ namespace neko::aer
             endGameText[i].SetEnable(true);
             endGameText[i].SetText(std::to_string(i + 1) + positionsText[i] + ": Player " + std::to_string(victoryDatas[i].index + 1) + " (Time: " + fmt::format("{:.2f}", victoryDatas[i].time) + ")");
         }
-        if (endedGame && time.count() > 5.0f)
+        if (endedGame && (time.count() > 30.0f || sdl::InputLocator::get().GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN))
         {
             endedGame = false;
             GoBackToMenu();

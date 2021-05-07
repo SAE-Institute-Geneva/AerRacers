@@ -935,6 +935,7 @@ void MenuManager::Update(seconds dt)
 
         	
             menuBackGroundUI.SetEnable(true);
+            menuBackGroundUI.SetSize(config.windowSize);
             break;
         case MenuStatus::SLEEP:
             break;
@@ -944,8 +945,8 @@ void MenuManager::Update(seconds dt)
 
     for (int i = 0; i < kMaxPlayer_; i++)
     {
-        if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN ||
-            inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
+        if ((inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN ||
+            inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN) && (menuStatus_ != MenuStatus::LOADING && menuStatus_ != MenuStatus::SLEEP))
         {
             PlaySelectSound();
         }
