@@ -162,8 +162,8 @@ false
         UiText globalText;
         bool endedGame = false;
 
-        const float startTimer = 10.0f;
-        const float endTimer = 10.0f;
+        const float startTimer = 5.0f;
+        const float endTimer = 5.0f;
         const int wpByLaps = 29;
         const float placementSizeMultiplier = 0.3f;
         const float lapsSizeMultiplier = 0.3f;
@@ -177,10 +177,10 @@ false
             //Vec3f(156, 43, -471),
             //Vec3f(106, 43, -461),
             //Vec3f(56, 43, -451)
-            Vec3f(-650.0f, 1185.0f, -3000.0f),
-            Vec3f(-700.0f, 1185.0f, -3000.0f),
-            Vec3f(-750.0f, 1185.0f, -3000.0f),
-            Vec3f(-800.0f, 1185.0f, -3000.0f)
+            Vec3f(-650.0f, 285.0f, -3000.0f),
+            Vec3f(-700.0f, 285.0f, -3000.0f),
+            Vec3f(-750.0f, 285.0f, -3000.0f),
+            Vec3f(-800.0f, 285.0f, -3000.0f)
         };
 
         Entity musicEntity_ = INVALID_ENTITY;
