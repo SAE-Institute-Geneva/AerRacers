@@ -278,10 +278,10 @@ namespace neko::aer
             std::vector<sdl::JoystickId> controllers = sdl::InputLocator::get().GetControllerIdVector();
             if (controllers.size() > playerId)
             {
-                playerComponents_[playerId].linkedJoystick = playerId;
+                playerComponents_[playerId].linkedJoystick = controllers[playerId];
             }
             else if (!controllers.empty()) {
-                playerComponents_[playerId].linkedJoystick = 0;
+                playerComponents_[playerId].linkedJoystick = controllers[0];
             }
             else {
                 playerComponents_[playerId].linkedJoystick = 0;

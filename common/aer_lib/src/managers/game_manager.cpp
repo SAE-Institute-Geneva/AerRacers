@@ -288,7 +288,7 @@ namespace neko::aer
             endGameText[i].SetEnable(true);
             endGameText[i].SetText(std::to_string(i + 1) + positionsText[i] + ": Player " + std::to_string(victoryDatas[i].index + 1) + " (Time: " + fmt::format("{:.2f}", victoryDatas[i].time) + ")");
         }
-        if (endedGame && (time.count() > 30.0f || sdl::InputLocator::get().GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN))
+        if (endedGame && (time.count() > 30.0f || sdl::InputLocator::get().GetControllerButtonState(sdl::InputLocator::get().GetControllerIdVector()[0], sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN))
         {
             endedGame = false;
             GoBackToMenu();

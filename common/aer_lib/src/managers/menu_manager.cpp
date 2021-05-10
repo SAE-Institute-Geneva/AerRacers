@@ -435,6 +435,12 @@ void MenuManager::Update(seconds dt)
         }
 
 
+        sdl::JoyPlayerId joyMainPlayerId = 0;
+
+        if (!inputlocator.GetControllerIdVector().empty())
+        {
+            joyMainPlayerId = inputlocator.GetControllerIdVector()[0];
+        }
         switch (menuStatus_)
         {
         case MenuStatus::MENU:
@@ -454,7 +460,7 @@ void MenuManager::Update(seconds dt)
                 optionsTextUi_.SetColor(Color::grey);
                 highscoreTextUi_.SetColor(Color::grey);
 
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) >= 0.7 && !isDpadDown_[0])
+                if (inputlocator.GetControllerAxis(joyMainPlayerId, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) >= 0.7 && !isDpadDown_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::HIGH_SCORE;
                     isDpadDown_[0] = true;
@@ -464,7 +470,7 @@ void MenuManager::Update(seconds dt)
                     isDpadDown_[0] = false;
                 }
 
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) <= -0.7 && !isDpadUp_[0])
+                if (inputlocator.GetControllerAxis(joyMainPlayerId, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) <= -0.7 && !isDpadUp_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::HIGH_SCORE;
                     isDpadUp_[0] = true;
@@ -474,7 +480,7 @@ void MenuManager::Update(seconds dt)
                     isDpadUp_[0] = false;
                 }
 
-                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                if (inputlocator.GetControllerButtonState(joyMainPlayerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     menuStatus_ = MenuStatus::SELECTION;
                     for (int i = 0; i < 4; i++)
@@ -490,7 +496,7 @@ void MenuManager::Update(seconds dt)
                 optionsTextUi_.SetColor(Color::grey);
                 highscoreTextUi_.SetColor(Color::white);
                 menuBackGroundUI.SetEnable(true);
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) >= 0.7 && !isDpadDown_[0])
+                if (inputlocator.GetControllerAxis(joyMainPlayerId, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) >= 0.7 && !isDpadDown_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::START;
                     isDpadDown_[0] = true;
@@ -500,7 +506,7 @@ void MenuManager::Update(seconds dt)
                     isDpadDown_[0] = false;
                 }
 
-                if (inputlocator.GetControllerAxis(0, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) <= -0.7 && !isDpadUp_[0])
+                if (inputlocator.GetControllerAxis(joyMainPlayerId, sdl::ControllerAxisType::VERTICAL_LEFT_AXIS) <= -0.7 && !isDpadUp_[0])
                 {
                     mainMenuPointing_ = MainMenuPointing::START;
                     isDpadUp_[0] = true;
@@ -510,7 +516,7 @@ void MenuManager::Update(seconds dt)
                     isDpadUp_[0] = false;
                 }
 
-                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                if (inputlocator.GetControllerButtonState(joyMainPlayerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     menuStatus_ = MenuStatus::CREDITS;
                 }
@@ -552,7 +558,7 @@ void MenuManager::Update(seconds dt)
             }
             break;
         case MenuStatus::OPTIONS:
-            if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
+            if (inputlocator.GetControllerButtonState(joyMainPlayerId, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
             {
                 menuStatus_ = MenuStatus::MENU;
             }
@@ -582,7 +588,7 @@ void MenuManager::Update(seconds dt)
                 creditsLucaUiPText_.SetEnable(true);
                 creditsLucaUiLPText_.SetEnable(true);
                 creditsLucaUiGPText_.SetEnable(true);
-                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                if (inputlocator.GetControllerButtonState(joyMainPlayerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::ARTS;
                 }
@@ -602,7 +608,7 @@ void MenuManager::Update(seconds dt)
                 creditsUiNVText_.SetEnable(true);
 
 
-                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                if (inputlocator.GetControllerButtonState(joyMainPlayerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::AUDIO;
                 }
@@ -613,7 +619,7 @@ void MenuManager::Update(seconds dt)
 
                 creditsUiLTText_.SetEnable(true);
                 creditsUiLJText_.SetEnable(true);
-                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                if (inputlocator.GetControllerButtonState(joyMainPlayerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::TOOLS;
                 }
@@ -631,13 +637,13 @@ void MenuManager::Update(seconds dt)
                 creditsUiBCText_.SetEnable(true);
                 creditsUiANText_.SetEnable(true);
 
-                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                if (inputlocator.GetControllerButtonState(joyMainPlayerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::SPECIAL_THANKS;
                 }
                 break;
             case CreditsStatus::EXTRAS:
-                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                if (inputlocator.GetControllerButtonState(joyMainPlayerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::SPECIAL_THANKS;
                 }
@@ -648,14 +654,14 @@ void MenuManager::Update(seconds dt)
                 creditsFredUiText_.SetEnable(true);
                 creditsSylvainUiText_.SetEnable(true);
                 creditsTesterUiText_.SetEnable(true);
-                if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                if (inputlocator.GetControllerButtonState(joyMainPlayerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                 {
                     creditsStatus_ = CreditsStatus::LEADS;
                     menuStatus_ = MenuStatus::MENU;
                 }
                 break;
             }
-            if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
+            if (inputlocator.GetControllerButtonState(joyMainPlayerId, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
             {
                 creditsStatus_ = CreditsStatus::LEADS;
                 menuStatus_ = MenuStatus::MENU;
@@ -664,6 +670,13 @@ void MenuManager::Update(seconds dt)
         case MenuStatus::SELECTION:
             for (int i = 0; i < kMaxPlayer_; i++)
             {
+                sdl::JoyPlayerId joyPlayerId = 0;
+                if (inputlocator.GetControllerIdVector().size() > i)
+                {
+                    joyPlayerId = inputlocator.GetControllerIdVector()[i];
+                } else {
+                    joyPlayerId = i;
+                }
                 colorBlueUi_[i].SetColor(Color4(Color::blue.x, Color::blue.y, Color::blue.z, 0.5f));
                 colorGreenUi_[i].SetColor(Color4(Color::green.x, Color::green.y, Color::green.z, 0.5f));
                 colorRedUi_[i].SetColor(Color4(Color::red.x, Color::red.y, Color::red.z, 0.5f));
@@ -683,7 +696,7 @@ void MenuManager::Update(seconds dt)
                     joinText_[i].SetSize(Vec2u(Vec2f(config.windowSize) * 0.5f));
                     joinText_[i].SetPosition(Vec2i(playerScreenOffsets[i] * Vec2f(config.windowSize)));
 
-                    if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                    if (inputlocator.GetControllerButtonState(joyPlayerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                     {
                         selectionPointing_[i] = SelectionPointing::SHIP_TYPE;
                     }
@@ -700,126 +713,126 @@ void MenuManager::Update(seconds dt)
                     switch (shipSkins[i])
                     {
                     case SelectedModel::ROSSO_1:
-                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+                        if (inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_2;
                             isDpadLeft_[i] = true;
                         }
-                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
                         {
                             isDpadLeft_[i] = false;
                         }
-                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+                        if (inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
                         {
                             shipSkins[i] = SelectedModel::CORTESE_2;
                             isDpadRight_[i] = true;
                         }
-                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
                         {
                             isDpadRight_[i] = false;
                         }
                         rosso1UI_[i].SetEnable(true);
                         break;
                     case SelectedModel::ROSSO_2:
-                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+                        if (inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_3;
                             isDpadLeft_[i] = true;
                         }
-                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
                         {
                             isDpadLeft_[i] = false;
                         }
-                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+                        if (inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_1;
                             isDpadRight_[i] = true;
                         }
-                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
                         {
                             isDpadRight_[i] = false;
                         }
                         rosso2UI_[i].SetEnable(true);
                         break;
                     case SelectedModel::ROSSO_3:
-                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+                        if (inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_4;
                             isDpadLeft_[i] = true;
                         }
-                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
                         {
                             isDpadLeft_[i] = false;
                         }
-                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+                        if (inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_2;
                             isDpadRight_[i] = true;
                         }
-                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
                         {
                             isDpadRight_[i] = false;
                         }
                         rosso3UI_[i].SetEnable(true);
                         break;
                     case SelectedModel::ROSSO_4:
-                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+                        if (inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
                         {
                             shipSkins[i] = SelectedModel::CORTESE_1;
                             isDpadLeft_[i] = true;
                         }
-                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+                        else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
                         {
                             isDpadLeft_[i] = false;
                         }
-                        if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+                        if (inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
                         {
                             shipSkins[i] = SelectedModel::ROSSO_3;
                             isDpadRight_[i] = true;
                         }
-                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+                        else if (isDpadRight_[i] && inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
                         {
                             isDpadRight_[i] = false;
                         }
                         rosso4UI_[i].SetEnable(true);
                         break;
 	                case SelectedModel::CORTESE_1:
-	                    if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+	                    if (inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
 	                    {
 	                        shipSkins[i] = SelectedModel::CORTESE_2;
 	                        isDpadLeft_[i] = true;
 	                    }
-	                    else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+	                    else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
 	                    {
 	                        isDpadLeft_[i] = false;
 	                    }
-	                    if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+	                    if (inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
 	                    {
 	                        shipSkins[i] = SelectedModel::ROSSO_4;
 	                        isDpadRight_[i] = true;
 	                    }
-	                    else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+	                    else if (isDpadRight_[i] && inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
 	                    {
 	                        isDpadRight_[i] = false;
 	                    }
 	                    cortese1UI_[i].SetEnable(true);
 	                    break;
 			        case SelectedModel::CORTESE_2:
-			            if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
+			            if (inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= -0.7 && !isDpadLeft_[i])
 			            {
 			                shipSkins[i] = SelectedModel::ROSSO_1;
 			                isDpadLeft_[i] = true;
 			            }
-			            else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
+			            else if (isDpadLeft_[i] && inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= -0.7)
 			            {
 			                isDpadLeft_[i] = false;
 			            }
-			            if (inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
+			            if (inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) >= 0.7 && !isDpadRight_[i])
 			            {
 			                shipSkins[i] = SelectedModel::CORTESE_1;
 			                isDpadRight_[i] = true;
 			            }
-			            else if (isDpadRight_[i] && inputlocator.GetControllerAxis(i, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
+			            else if (isDpadRight_[i] && inputlocator.GetControllerAxis(joyPlayerId, sdl::ControllerAxisType::HORIZONTAL_LEFT_AXIS) <= 0.7)
 			            {
 			                isDpadRight_[i] = false;
 			            }
@@ -833,15 +846,15 @@ void MenuManager::Update(seconds dt)
                     cortese1UI_[i].SetPosition(Vec2i(playerScreenOffsets[i] * Vec2f(config.windowSize)));
                     cortese2UI_[i].SetPosition(Vec2i(playerScreenOffsets[i] * Vec2f(config.windowSize)));
 
-                    if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN && i == 0)
+                    if (inputlocator.GetControllerButtonState(joyPlayerId, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN && i == 0)
                     {
                         menuStatus_ = MenuStatus::MENU;
                     }
-                    else if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
+                    else if (inputlocator.GetControllerButtonState(joyPlayerId, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
                     {
                         selectionPointing_[i] = SelectionPointing::JOIN;
                     }
-                    if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
+                    if (inputlocator.GetControllerButtonState(joyPlayerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN)
                     {
                         selectionPointing_[i] = SelectionPointing::READY;
                     }
@@ -857,11 +870,11 @@ void MenuManager::Update(seconds dt)
                     readyText_[i].SetSize(Vec2u(Vec2f(config.windowSize) * 0.5f));
                     readyText_[i].SetPosition(Vec2i(playerScreenOffsets[i] * Vec2f(config.windowSize)));
 
-                    if (inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
+                    if (inputlocator.GetControllerButtonState(joyPlayerId, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN)
                     {
                         selectionPointing_[i] = SelectionPointing::SHIP_TYPE;
                     }
-                    if (inputlocator.GetControllerButtonState(0, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN && i == 0)
+                    if (inputlocator.GetControllerButtonState(joyMainPlayerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN && i == 0)
                     {
                         playerCount = 0;
                         bool oneIsReady = true;
@@ -945,8 +958,13 @@ void MenuManager::Update(seconds dt)
 
     for (int i = 0; i < kMaxPlayer_; i++)
     {
-        if ((inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN ||
-            inputlocator.GetControllerButtonState(i, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN) && (menuStatus_ != MenuStatus::LOADING && menuStatus_ != MenuStatus::SLEEP))
+        sdl::JoyPlayerId joyPlayerId = 0;
+        if (inputlocator.GetControllerIdVector().size() > i)
+        {
+            joyPlayerId = inputlocator.GetControllerIdVector()[i];
+        }
+        if ((inputlocator.GetControllerButtonState(joyPlayerId, sdl::ControllerButtonType::BUTTON_A) == sdl::ButtonState::DOWN ||
+            inputlocator.GetControllerButtonState(joyPlayerId, sdl::ControllerButtonType::BUTTON_B) == sdl::ButtonState::DOWN) && (menuStatus_ != MenuStatus::LOADING && menuStatus_ != MenuStatus::SLEEP))
         {
             PlaySelectSound();
         }

@@ -31,9 +31,6 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 
 	if (mode_ != ModeEnum::TEST)
 	{
-		RegisterSystem(drawSystem_);
-		RegisterOnEvent(drawSystem_);
-		RegisterOnDrawUi(drawSystem_);
 
 		tagManager_ = std::make_unique<TagManager>(cContainer_.sceneManager);
 
@@ -45,6 +42,9 @@ AerEngine::AerEngine(const FilesystemInterface& filesystem, Configuration* confi
 		RegisterSystem(physicsEngine_);
 		RegisterSystem(rContainer_);
 		RegisterSystem(cContainer_);
+		RegisterSystem(drawSystem_);
+		RegisterOnEvent(drawSystem_);
+		RegisterOnDrawUi(drawSystem_);
 
 	}
 }

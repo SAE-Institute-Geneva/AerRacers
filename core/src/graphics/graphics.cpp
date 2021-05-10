@@ -46,10 +46,10 @@ Renderer::Renderer() :
             auto* engine = BasicEngine::GetInstance();
             PreRender();
             ClearScreen();
-            window_->GenerateUiFrame();
-            engine->GenerateUiFrame();
+            //window_->GenerateUiFrame();
+            //engine->GenerateUiFrame();
             RenderAll();
-            window_->RenderUi();
+            //window_->RenderUi();
         }),
     syncJob_([this] { SyncBuffers(); })
 {
