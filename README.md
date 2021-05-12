@@ -1,8 +1,11 @@
 # AerRacers Game 
+AerRacers is a local multi-player pod racing game.
+<!--
 ## Branches
 develop : [![Build Status](https://travis-ci.com/SAE-Institute-Geneva/AerRacers.svg?branch=develop)](https://travis-ci.com/SAE-Institute-Geneva/AerRacers)<br/>
 develop_engine : [![Build Status](https://travis-ci.com/SAE-Institute-Geneva/AerRacers.svg?branch=develop_engine)](https://travis-ci.com/SAE-Institute-Geneva/AerRacers)<br/>
 develop_game : [![Build Status](https://travis-ci.com/SAE-Institute-Geneva/AerRacers.svg?branch=develop_game)](https://travis-ci.com/SAE-Institute-Geneva/AerRacers)<br/>
+-->
 
 
 
@@ -47,6 +50,10 @@ make comp_graph # only the comp graph executable is currently working
 - fmt [https://github.com/fmtlib/fmt]
 - nlohmann's json [https://github.com/nlohmann/json]
 - units [https://github.com/nholthaus/units]
+- PhysX [https://github.com/NVIDIAGameWorks/PhysX]
+- Vulkan [https://developer.nvidia.com/vulkan]
+- Tiny-Obj [https://github.com/tinyobjloader/tinyobjloader]
+- FMOD [https://www.fmod.com/]
 
 ## Credits
 - Elias Farhan
