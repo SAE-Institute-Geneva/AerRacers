@@ -83,9 +83,9 @@ public:
 
 	[[nodiscard]] bool IsLoaded(ModelId modelId) const override { return GetModel(modelId); }
 	ModelId LoadModel(std::string_view path) override;
-	[[nodiscard]] int CountModelLoaded() const override { return modelMap_.size(); }
-	[[nodiscard]] int CountModelNotLoaded() const override { return modelLoaders_.size(); }
-	[[nodiscard]] int CountOfAllModel() const override { return modelPathMap_.size(); }
+	[[nodiscard]] int CountModelLoaded() const override { return modelMapSize_; }
+	[[nodiscard]] int CountModelNotLoaded() const override { return modelLoadersSize_; }
+	[[nodiscard]] int CountOfAllModel() const override { return modelPathMapSize_; }
 
 	void SetTexture(ModelId modelId,
 		const std::string& texturelPath,
@@ -95,6 +95,9 @@ private:
 	std::map<std::string, ModelId> modelPathMap_ {};
 	std::map<ModelId, Model> modelMap_ {};
 	std::queue<ModelLoader> modelLoaders_ {};
+	size_t modelMapSize_;
+	size_t modelPathMapSize_;
+	size_t modelLoadersSize_;
 };
 
 using ModelManagerLocator = Locator<IModelManager, NullModelManager>;

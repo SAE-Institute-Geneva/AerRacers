@@ -93,14 +93,17 @@ public:
     void Destroy() override;
 
 
-    [[nodiscard]] int CountTextureLoaded() const override { return textureMap_.size(); }
-    [[nodiscard]] int CountTextureNotLoaded() const override { return textureLoaders_.size(); }
-    [[nodiscard]] int CountAllTexture() const override { return texturePathMap_.size(); }
+    [[nodiscard]] int CountTextureLoaded() const override { return textureMapSize_; }
+    [[nodiscard]] int CountTextureNotLoaded() const override { return textureLoadersSize_; }
+    [[nodiscard]] int CountAllTexture() const override { return texturePathMapSize_; }
 private:
     const FilesystemInterface& filesystem_;
     std::map<std::string, TextureId> texturePathMap_;
     std::map<TextureId, Texture> textureMap_;
     std::queue<TextureLoader> textureLoaders_;
+    size_t textureMapSize_;
+    size_t texturePathMapSize_;
+    size_t textureLoadersSize_;
 };
 
 TextureName StbCreateTexture(std::string_view filename, const FilesystemInterface& filesystem,

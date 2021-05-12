@@ -369,6 +369,8 @@ TextureId TextureManager::LoadTexture(std::string_view path, Texture::TextureFla
 #endif
     textureLoaders_.back().Start();
     texturePathMap_[path.data()] = textureId;
+    texturePathMapSize_ = texturePathMap_.size();
+    textureLoadersSize_ = textureLoaders_.size();
     return textureId;
 }
 
@@ -426,6 +428,8 @@ void TextureManager::Update([[maybe_unused]]seconds dt)
             break;
         }
     }
+    textureLoadersSize_ = textureLoaders_.size();
+    textureMapSize_ = textureMap_.size();
 }
 
 TextureManager::TextureManager() :

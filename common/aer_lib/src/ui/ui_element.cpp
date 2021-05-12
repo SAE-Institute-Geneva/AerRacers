@@ -10,9 +10,14 @@ UiElement::UiElement(Vec2i pos, UiAnchor uiAnchor, const Color4& color, std::uin
 
 void UiElement::Destroy() {}
 
+void UiElement::UpdateVisibility()
+{
+	toSetEnable_ ? (flags_ |= UiFlag::ENABLED) : (flags_ &= ~UiFlag::ENABLED);
+}
+
 void UiElement::SetEnable(bool enable)
 {
-	enable ? (flags_ |= UiFlag::ENABLED) : (flags_ &= ~UiFlag::ENABLED);
+	toSetEnable_ = enable;
 }
 
 void UiElement::AddFlag(UiFlag::Enum flag) { flags_ |= flag; }

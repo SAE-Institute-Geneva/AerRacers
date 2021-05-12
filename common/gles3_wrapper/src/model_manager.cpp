@@ -22,7 +22,9 @@ void ModelManager::Update(seconds)
 		{
 			break;
 		}
-	} 
+	}
+	modelLoadersSize_ = modelLoaders_.size();
+	modelMapSize_ = modelMap_.size();
 }
 
 void ModelManager::Destroy()
@@ -69,6 +71,8 @@ ModelId ModelManager::LoadModel(std::string_view path)
 	modelLoaders_.push(ModelLoader(path, modelId));
 	modelLoaders_.back().Start();
 	modelPathMap_.emplace(path, modelId);
+	modelPathMapSize_ = modelPathMap_.size();
+	modelLoadersSize_ = modelLoaders_.size();
 	return modelId;
 }
 

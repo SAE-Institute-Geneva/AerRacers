@@ -74,6 +74,7 @@ public:
 	void SetPosition(Vec2i pos) { position_ = pos; }
 	void SetAnchor(UiAnchor uiAnchor) { uiAnchor_ = uiAnchor; }
 	void SetScreenId(std::uint8_t screenId) { screenId_ = screenId; }
+	void UpdateVisibility();
 	void SetEnable(bool enable);
 
 	void AddFlag(UiFlag::Enum flag);
@@ -93,5 +94,6 @@ protected:
 
 	std::uint8_t flags_    = UiFlag::ENABLED;
 	std::uint8_t screenId_ = 0;
+	bool toSetEnable_ = true;
 };
 }    // namespace neko::aer

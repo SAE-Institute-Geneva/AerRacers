@@ -44,6 +44,15 @@ void UiManager::Init()
 void UiManager::Update(seconds)
 {
 	auto& inputManager = sdl::InputLocator::get();
+	// Done to be sure it update visibility only ones by update
+	for (auto& image : uiImages_)
+	{
+		image->UpdateVisibility();
+	}
+	for (auto& text : uiTexts_)
+	{
+		text->UpdateVisibility();
+	}
 }
 
 void UiManager::Render(std::uint8_t playerNmb)
